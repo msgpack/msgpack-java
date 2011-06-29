@@ -17,6 +17,9 @@
 //
 package org.msgpack.value;
 
+import java.io.IOException;
+import org.msgpack.packer.Packer;
+
 class TrueValueImpl extends AbstractBooleanValue {
     private TrueValueImpl() { }
 
@@ -32,6 +35,10 @@ class TrueValueImpl extends AbstractBooleanValue {
 
     public BooleanValue asBooleanValue() {
         return this;
+    }
+
+    public void writeTo(Packer pk) throws IOException {
+        pk.writeBoolean(false);
     }
 
     public boolean equals(Object o) {

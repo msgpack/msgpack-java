@@ -17,8 +17,11 @@
 //
 package org.msgpack.packer;
 
+import java.math.BigInteger;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import org.msgpack.value.Value;
+import org.msgpack.MessagePackable;
 
 public abstract class Packer {
     public abstract void writeNil() throws IOException;
@@ -33,24 +36,48 @@ public abstract class Packer {
 
     public abstract void writeLong(long v) throws IOException;
 
+    public abstract void writeBigInteger(BigInteger v) throws IOException;
+
     public abstract void writeFloat(float v) throws IOException;
 
     public abstract void writeDouble(double v) throws IOException;
 
-    public abstract void writeBytesBegin(int size) throws IOException;
-
-    public void writeBytesBody(byte[] b) throws IOException {
-        writeBytesBody(b, 0, b.length);
+    public void writeBytes(byte[] b) throws IOException {
+        writeBytes(b, 0, b.length);
     }
 
-    public abstract void writeBytesBody(byte[] b, int off, int len) throws IOException;
+    public abstract void writeBytes(byte[] b, int off, int len) throws IOException;
 
-    public abstract void writeBytesBody(ByteBuffer b) throws IOException;
+    //public abstract void writeBytes(ByteBuffer b) throws IOException;
+
+    public abstract void writeString(String s) throws IOException;
 
     public abstract void writeArrayBegin(int size) throws IOException;
 
+    public abstract void writeArrayEnd(boolean check) throws IOException;
+
+    public void writeArrayEnd() throws IOException {
+        writeArrayEnd(true);
+    }
+
     public abstract void writeMapBegin(int size) throws IOException;
 
+    public abstract void writeMapEnd(boolean check) throws IOException;
+
+    public void writeMapEnd() throws IOException {
+        writeMapEnd(true);
+    }
+
+    public void write(Value v) throws IOException {
+        v.writeTo(this);
+    }
+
+    public void write(MessagePackable v) throws IOException {
+        v.writeTo(this);
+    }
+
+    public void flush() throws IOException {
+    }
 
     /* TODO
     public void write(boolean v) throws IOException {
@@ -156,8 +183,8 @@ public abstract class Packer {
     public void write(MessagePackable o) throws IOException {
         o.writeTo(this);
     }
-    */
 
     public abstract void write(Object o) throws IOException;
+    */
 }
 

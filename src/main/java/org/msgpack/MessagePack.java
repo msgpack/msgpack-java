@@ -18,30 +18,57 @@
 package org.msgpack;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import org.msgpack.template.Template;
+import org.msgpack.packer.Packer;
+import org.msgpack.packer.StreamPacker;
+import org.msgpack.packer.BufferPacker;
+import org.msgpack.unpacker.Unpacker;
+import org.msgpack.unpacker.StreamUnpacker;
+import org.msgpack.unpacker.BufferUnpacker;
 
 public class MessagePack {
-    public <T> T unpack(InputStream in, T v) {
-        // TODO
-        return null;
+    private TemplateRegistry registry;
+
+    public MessagePack() {
+        this.registry = new TemplateRegistry();
     }
 
-    public <T> T unpack(InputStream in, Class<T> c) {
-        // TODO
-        return null;
+    public MessagePack(MessagePack parent) {
+        this.registry = new TemplateRegistry(parent.registry);
     }
 
-    public <T> T unpack(byte[] b, T v) {
+    public <T> T unpack(InputStream in, T v) throws IOException {
         // TODO
-        return null;
+        Template tmpl = getTemplate(v.getClass());
+        return (T)tmpl.read(new StreamUnpacker(in), v);
     }
 
-    public <T> T unpack(byte[] b, Class<T> c) {
+    public <T> T unpack(InputStream in, Class<T> c) throws IOException {
         // TODO
-        return null;
+        Template tmpl = getTemplate(c);
+        return (T)tmpl.read(new StreamUnpacker(in), null);
     }
 
+    public <T> T unpack(byte[] b, T v) throws IOException {  // TODO IOException
+        // TODO
+        Template tmpl = getTemplate(v.getClass());
+        BufferUnpacker u = new BufferUnpacker();
+        u.wrap(b);
+        return (T)tmpl.read(u, v);
+    }
+
+    public <T> T unpack(byte[] b, Class<T> c) throws IOException {  // TODO IOException
+        // TODO
+        Template tmpl = getTemplate(c);
+        BufferUnpacker u = new BufferUnpacker();
+        u.wrap(b);
+        return (T)tmpl.read(u, null);
+    }
+
+    /*
     public <T> T unpack(ByteBuffer b, T v) {
         // TODO
         return null;
@@ -51,8 +78,37 @@ public class MessagePack {
         // TODO
         return null;
     }
+    */
 
+    public void pack(OutputStream out, Object v) throws IOException {
+        Template tmpl = registry.lookup(v.getClass());
+        tmpl.write(new StreamPacker(out), v);
+    }
 
+    public byte[] pack(Object v) throws IOException {  // TODO IOException
+        Template tmpl = registry.lookup(v.getClass());
+        BufferPacker pk = new BufferPacker();
+        tmpl.write(pk, v);
+        return pk.toByteArray();
+    }
+
+    protected Template getTemplate(Class<?> c) {
+        Template tmpl = registry.lookup(c);
+        if(tmpl == null) {
+            throw new MessageTypeException("Can't find template for "+c+" class. Try to add @Message annotation to the class or call MessagePack.register(Type).");
+        }
+        return tmpl;
+    }
+
+    public void register(Class<?> type) {
+        // TODO
+    }
+
+    public void registerTemplate(Class<?> type, Template tmpl) {
+        registry.register(type, tmpl);
+    }
+
+    /*
     // TODO
     private static final MessagePack globalMessagePack;
 
@@ -85,5 +141,6 @@ public class MessagePack {
     public static <T> T unpack(ByteBuffer b, Class<T> c) {
         return globalMessagePack.unpack(b, c);
     }
+    */
 }
 

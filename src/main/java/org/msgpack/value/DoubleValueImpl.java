@@ -19,6 +19,8 @@ package org.msgpack.value;
 
 import java.math.BigInteger;
 import java.math.BigDecimal;
+import java.io.IOException;
+import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
 
 class DoubleValueImpl extends FloatValue {
@@ -28,12 +30,8 @@ class DoubleValueImpl extends FloatValue {
         this.value = value;
     }
 
-    //FIXME
-    //public float getFloat() {
-    //    return (float)value;
-    //}
     public float getFloat() {
-        throw new MessageTypeException();
+        return (float)value;
     }
 
     public double getDouble() {
@@ -68,7 +66,21 @@ class DoubleValueImpl extends FloatValue {
         return value;
     }
 
-    // TODO equals
+    public void writeTo(Packer pk) throws IOException {
+        pk.writeDouble(value);
+    }
+
+    public boolean equals(Object o) {
+        if(o == this) {
+            return true;
+        }
+        if(!(o instanceof FloatValue)) {
+            return false;
+        }
+
+        return value == ((FloatValue) o).getDouble();
+    }
+
     // TODO compareTo
 
     public int hashCode() {

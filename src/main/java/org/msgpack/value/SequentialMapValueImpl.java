@@ -25,6 +25,8 @@ import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.AbstractCollection;
 import java.util.NoSuchElementException;
+import java.io.IOException;
+import org.msgpack.packer.Packer;
 
 public class SequentialMapValueImpl extends AbstractMapValue {
     private static SequentialMapValueImpl emptyInstance = new SequentialMapValueImpl(new Value[0], true);
@@ -161,6 +163,14 @@ public class SequentialMapValueImpl extends AbstractMapValue {
         return new ValueCollection(array);
     }
 
+    public void writeTo(Packer pk) throws IOException {
+        pk.writeMapBegin(array.length/2);
+        for(int i=0; i < array.length; i++) {
+            array[i].writeTo(pk);
+        }
+        pk.writeMapEnd();
+    }
+
     public boolean equals(Object o) {
         if(o == this) {
             return true;
@@ -255,6 +265,7 @@ public class SequentialMapValueImpl extends AbstractMapValue {
             sb.append(array[i+1]);
         }
         sb.append("}");
+        return sb.toString();
     }
 }
 

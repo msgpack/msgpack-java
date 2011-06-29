@@ -18,6 +18,10 @@
 package org.msgpack.value;
 
 import java.util.Arrays;
+import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import org.msgpack.packer.Packer;
+import org.msgpack.MessageTypeException;
 
 class StringRawValueImpl extends AbstractRawValue {
     private String string;
@@ -27,11 +31,20 @@ class StringRawValueImpl extends AbstractRawValue {
     }
 
     public byte[] getByteArray() {
-        return string.getBytes("UTF-8");
+        // TODO encoding error
+        try {
+            return string.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            throw new MessageTypeException();
+        }
     }
 
     public String getString() {
         return string;
+    }
+
+    public void writeTo(Packer pk) throws IOException {
+        pk.writeString(string);
     }
 
     public boolean equals(Object o) {

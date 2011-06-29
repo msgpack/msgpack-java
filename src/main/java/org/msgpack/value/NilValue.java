@@ -17,6 +17,9 @@
 //
 package org.msgpack.value;
 
+import java.io.IOException;
+import org.msgpack.packer.Packer;
+
 public class NilValue extends AbstractValue {
     private NilValue() { }
 
@@ -40,6 +43,10 @@ public class NilValue extends AbstractValue {
 
     public String toString() {
         return "null";
+    }
+
+    public void writeTo(Packer pk) throws IOException {
+        pk.writeNil();
     }
 
     public boolean equals(Object o) {

@@ -15,42 +15,14 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.value;
+package org.msgpack.template;
 
 import java.io.IOException;
 import org.msgpack.packer.Packer;
+import org.msgpack.unpacker.Unpacker;
 
-public interface Value {
-    public ValueType getType();
-
-    public boolean isNil();
-
-    public boolean isBoolean();
-
-    public boolean isInteger();
-
-    public boolean isFloat();
-
-    public boolean isArray();
-
-    public boolean isMap();
-
-    public boolean isRaw();
-
-    public NilValue asNilValue();
-
-    public BooleanValue asBooleanValue();
-
-    public IntegerValue asIntegerValue();
-
-    public FloatValue asFloatValue();
-
-    public ArrayValue asArrayValue();
-
-    public MapValue asMapValue();
-
-    public RawValue asRawValue();
-
-    public void writeTo(Packer pk) throws IOException;
+public interface Template {
+    public void write(Packer pk, Object v) throws IOException;
+    public Object read(Unpacker u, Object to) throws IOException;
 }
 

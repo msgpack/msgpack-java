@@ -24,17 +24,16 @@ import java.io.EOFException;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import org.msgpack.value.Value;
+import org.msgpack.packer.Unconverter;
 
 public abstract class Unpacker {
-    public abstract Value read() throws IOException;
-
-    public void skip() throws IOException {
-        read();
-    }
-
-    public Iterator<Value> iterator() {
+    public UnpackerIterator iterator() {
         return new UnpackerIterator(this);
     }
+
+    abstract void iterateNext(Unconverter uc) throws IOException;
+
+    public abstract void skip() throws IOException;
 
 
     public abstract void readNil() throws IOException;
@@ -87,11 +86,8 @@ public abstract class Unpacker {
 
 
     public Value readValue() throws IOException {
-        Value v = read();
-        if(v == null) {
-            throw new EOFException();
-        }
-        return v;
+        // TODO
+        return null;
     }
 
 

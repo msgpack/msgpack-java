@@ -15,42 +15,26 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.value;
+package org.msgpack.io;
 
 import java.io.IOException;
-import org.msgpack.packer.Packer;
+import java.io.OutputStream;
 
-public interface Value {
-    public ValueType getType();
+public class StreamOutput extends BufferedOutput {
+    private OutputStream out;
 
-    public boolean isNil();
+    public StreamOutput(OutputStream out) {
+        this(out, 1024);  // TODO default buffer size
+    }
 
-    public boolean isBoolean();
+    public StreamOutput(OutputStream out, int bufferSize) {
+        super(bufferSize);
+        this.out = out;
+    }
 
-    public boolean isInteger();
-
-    public boolean isFloat();
-
-    public boolean isArray();
-
-    public boolean isMap();
-
-    public boolean isRaw();
-
-    public NilValue asNilValue();
-
-    public BooleanValue asBooleanValue();
-
-    public IntegerValue asIntegerValue();
-
-    public FloatValue asFloatValue();
-
-    public ArrayValue asArrayValue();
-
-    public MapValue asMapValue();
-
-    public RawValue asRawValue();
-
-    public void writeTo(Packer pk) throws IOException;
+    protected boolean flushBuffer(byte[] buffer, int off, int len) throws IOException {
+        out.write(buffer, off, len);
+        return true;
+    }
 }
 

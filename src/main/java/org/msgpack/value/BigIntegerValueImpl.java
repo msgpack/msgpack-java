@@ -18,6 +18,8 @@
 package org.msgpack.value;
 
 import java.math.BigInteger;
+import java.io.IOException;
+import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
 
 class BigIntegerValueImpl extends IntegerValue {
@@ -95,6 +97,10 @@ class BigIntegerValueImpl extends IntegerValue {
 
     public double doubleValue() {
         return value.doubleValue();
+    }
+
+    public void writeTo(Packer pk) throws IOException {
+        pk.writeBigInteger(value);
     }
 
     // TODO compareTo

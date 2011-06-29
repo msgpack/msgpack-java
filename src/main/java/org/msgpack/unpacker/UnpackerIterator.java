@@ -17,23 +17,61 @@
 //
 package org.msgpack.unpacker;
 
+import java.io.IOException;
+import java.io.EOFException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import org.msgpack.value.Value;
+import org.msgpack.packer.Unconverter;
 
 public class UnpackerIterator implements Iterator<Value> {
-    private Unpacker u;
-    private Value value;
+    private final Unpacker u;
+    private final Unconverter uc;
+    private IOException exception;
 
     public UnpackerIterator(Unpacker u) {
         this.u = u;
+        this.uc = new Unconverter();
     }
+
+    public boolean hasNext() {
+        if(uc.getResult() != null) {
+            return true;
+        }
+        try {
+            u.read(uc);
+        } catch (EOFException ex) {  // TODO NeedMoreBufferError
+            return false;
+        } catch (IOException ex) {
+            // TODO error
+            exception = ex;
+            return false;
+        }
+        return uc.getResult() != null;
+    }
+
+    public Value next() {
+        if(!hasNext()) {
+            throw new NoSuchElementException();
+        }
+        Value v = uc.getResult();
+        uc.resetResult();
+        return v;
+    }
+
+    /*
+    private Value value;
 
     public boolean hasNext() {
         if(value != null) {
             return true;
         }
-        value = u.read();
+        try {
+            value = u.read();
+        } catch (IOException ex) {
+            exception = ex;
+            return false;
+        }
         return value != null;
     }
 
@@ -43,16 +81,27 @@ public class UnpackerIterator implements Iterator<Value> {
             value = null;
             return v;
         } else {
-            Value v = u.read();
+            Value v;
+            try {
+                v = u.read();
+            } catch (IOException ex) {
+                exception = ex;
+                throw new NoSuchElementException();
+            }
             if(v == null) {
                 throw new NoSuchElementException();
             }
             return v;
         }
     }
+    */
 
     public void remove() {
 		throw new UnsupportedOperationException();
+    }
+
+    public IOException getException() {
+        return exception;
     }
 }
 

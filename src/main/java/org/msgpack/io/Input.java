@@ -15,42 +15,29 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.value;
+package org.msgpack.io;
 
 import java.io.IOException;
-import org.msgpack.packer.Packer;
+import java.io.EOFException;
+import java.nio.ByteBuffer;
 
-public interface Value {
-    public ValueType getType();
+public interface Input {
+    public int read(byte[] b, int off, int len) throws IOException;
 
-    public boolean isNil();
+    public byte readByte() throws IOException;
 
-    public boolean isBoolean();
+    public void advance();
 
-    public boolean isInteger();
+    public byte getByte() throws IOException;
 
-    public boolean isFloat();
+    public short getShort() throws IOException;
 
-    public boolean isArray();
+    public int getInt() throws IOException;
 
-    public boolean isMap();
+    public long getLong() throws IOException;
 
-    public boolean isRaw();
+    public float getFloat() throws IOException;
 
-    public NilValue asNilValue();
-
-    public BooleanValue asBooleanValue();
-
-    public IntegerValue asIntegerValue();
-
-    public FloatValue asFloatValue();
-
-    public ArrayValue asArrayValue();
-
-    public MapValue asMapValue();
-
-    public RawValue asRawValue();
-
-    public void writeTo(Packer pk) throws IOException;
+    public double getDouble() throws IOException;
 }
 

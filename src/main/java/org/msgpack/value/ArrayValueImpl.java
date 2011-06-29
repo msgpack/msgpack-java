@@ -20,6 +20,8 @@ package org.msgpack.value;
 import java.util.List;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.io.IOException;
+import org.msgpack.packer.Packer;
 
 class ArrayValueImpl extends AbstractArrayValue {
     private static ArrayValueImpl emptyInstance = new ArrayValueImpl(new Value[0], true);
@@ -76,6 +78,14 @@ class ArrayValueImpl extends AbstractArrayValue {
             }
         }
         return -1;
+    }
+
+    public void writeTo(Packer pk) throws IOException {
+        pk.writeArrayBegin(array.length);
+        for(int i=0; i < array.length; i++) {
+            array[i].writeTo(pk);
+        }
+        pk.writeArrayEnd();
     }
 
     public boolean equals(Object o) {
@@ -135,6 +145,7 @@ class ArrayValueImpl extends AbstractArrayValue {
             sb.append(array[i]);
         }
         sb.append("]");
+        return sb.toString();
     }
 }
 
