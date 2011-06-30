@@ -27,13 +27,11 @@ public class MessageTypeException extends RuntimeException {
     }
 
     public MessageTypeException(String message, Throwable cause) {
-        super(message);
-        initCause(cause);
+        super(message, cause);
     }
 
     public MessageTypeException(Throwable cause) {
-        super();
-        initCause(cause);
+        super(cause);
     }
 }
 
