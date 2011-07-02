@@ -18,28 +18,29 @@
 package org.msgpack.template;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-public class IntTemplate implements Template {
-    private IntTemplate() { }
+public class BigIntegerTemplate implements Template {
+    private BigIntegerTemplate() { }
 
     public void write(Packer pk, Object target) throws IOException {
         if(target == null) {
             throw new MessageTypeException("Attempted to write null");
         }
-        pk.writeInt((Integer)target);
+        pk.writeBigInteger((BigInteger)target);
     }
 
     public Object read(Unpacker u, Object to) throws IOException {
-        return u.readInt();
+        return u.readBigInteger();
     }
 
-    static public IntTemplate getInstance() {
+    static public BigIntegerTemplate getInstance() {
         return instance;
     }
 
-    static final IntTemplate instance = new IntTemplate();
+    static final BigIntegerTemplate instance = new BigIntegerTemplate();
 }
 

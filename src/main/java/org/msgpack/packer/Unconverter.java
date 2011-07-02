@@ -87,7 +87,7 @@ public class Unconverter extends Packer {
     }
 
     @Override
-    public void writeBytes(byte[] b, int off, int len) {
+    public void writeByteArray(byte[] b, int off, int len) {
         put(ValueFactory.rawValue(b, off, len));
     }
 

@@ -189,7 +189,7 @@ abstract class AbstractMessagePackPacker extends Packer {
     }
 
     @Override
-    public void writeBytes(byte[] b, int off, int len) throws IOException {
+    public void writeByteArray(byte[] b, int off, int len) throws IOException {
         if(len < 32) {
             out.writeByte((byte)(0xa0 | len));
         } else if(len < 65536) {
@@ -210,7 +210,7 @@ abstract class AbstractMessagePackPacker extends Packer {
         } catch (UnsupportedEncodingException ex) {
             throw new MessageTypeException();
         }
-        writeBytes(b, 0, b.length);
+        writeByteArray(b, 0, b.length);
         stack.reduceCount();
     }
 

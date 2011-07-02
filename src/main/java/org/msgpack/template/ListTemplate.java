@@ -18,44 +18,49 @@
 package org.msgpack.template;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.ArrayList;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-public class IntArrayTemplate implements Template {
-    private IntArrayTemplate() { }
+public class ListTemplate implements Template {
+    private Template elementTemplate;
+
+    private ListTemplate(Template elementTemplate) {
+        this.elementTemplate = elementTemplate;
+    }
 
     public void write(Packer pk, Object target) throws IOException {
-        if(target == null) {
-            throw new MessageTypeException("Attempted to write null");
+        if(!(target instanceof List)) {
+            if(target == null) {
+                throw new MessageTypeException("Attempted to write null");
+            }
+            throw new MessageTypeException("Target is not a List but "+target.getClass());
         }
-        int[] array = (int[]) target;
-        pk.writeArrayBegin(array.length);
-        for(int a : array) {
-            pk.writeInt(a);
+        List<Object> list = (List<Object>) target;
+        pk.writeArrayBegin(list.size());
+        for(Object e : list) {
+            elementTemplate.write(pk, e);
         }
         pk.writeArrayEnd();
     }
 
     public Object read(Unpacker u, Object to) throws IOException {
         int n = u.readArrayBegin();
-        int[] array;
-        if(to != null && ((int[]) to).length == n) {
-            array = (int[]) to;
+        List<Object> list;
+        if(to != null) {
+            list = (List<Object>) to;
+            list.clear();
         } else {
-            array = new int[n];
+            list = new ArrayList<Object>(n);
         }
         for(int i=0; i < n; i++) {
-            array[i] = u.readInt();
+            Object e = elementTemplate.read(u, null);
+            list.add(e);
         }
         u.readArrayEnd();
-        return array;
+        return list;
     }
-
-    static public IntArrayTemplate getInstance() {
-        return instance;
-    }
-
-    static final IntArrayTemplate instance = new IntArrayTemplate();
 }
 

@@ -22,24 +22,24 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-public class IntTemplate implements Template {
-    private IntTemplate() { }
+public class StringTemplate implements Template {
+    private StringTemplate() { }
 
     public void write(Packer pk, Object target) throws IOException {
         if(target == null) {
             throw new MessageTypeException("Attempted to write null");
         }
-        pk.writeInt((Integer)target);
+        pk.writeString((String)target);
     }
 
     public Object read(Unpacker u, Object to) throws IOException {
-        return u.readInt();
+        return u.readString();
     }
 
-    static public IntTemplate getInstance() {
+    static public StringTemplate getInstance() {
         return instance;
     }
 
-    static final IntTemplate instance = new IntTemplate();
+    static final StringTemplate instance = new StringTemplate();
 }
 

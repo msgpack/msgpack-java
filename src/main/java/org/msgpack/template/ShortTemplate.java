@@ -27,8 +27,7 @@ public class ShortTemplate implements Template {
 
     public void write(Packer pk, Object target) throws IOException {
         if(target == null) {
-            // FIXME NullPointerException?
-            throw new MessageTypeException("Trying to write null.");
+            throw new MessageTypeException("Attempted to write null");
         }
         pk.writeShort((Short)target);
     }

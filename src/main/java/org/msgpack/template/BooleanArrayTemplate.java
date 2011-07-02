@@ -22,24 +22,40 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-public class IntTemplate implements Template {
-    private IntTemplate() { }
+public class BooleanArrayTemplate implements Template {
+    private BooleanArrayTemplate() { }
 
     public void write(Packer pk, Object target) throws IOException {
         if(target == null) {
             throw new MessageTypeException("Attempted to write null");
         }
-        pk.writeInt((Integer)target);
+        boolean[] array = (boolean[]) target;
+        pk.writeArrayBegin(array.length);
+        for(boolean a : array) {
+            pk.writeBoolean(a);
+        }
+        pk.writeArrayEnd();
     }
 
     public Object read(Unpacker u, Object to) throws IOException {
-        return u.readInt();
+        int n = u.readArrayBegin();
+        boolean[] array;
+        if(to != null && ((boolean[]) to).length == n) {
+            array = (boolean[]) to;
+        } else {
+            array = new boolean[n];
+        }
+        for(int i=0; i < n; i++) {
+            array[i] = u.readBoolean();
+        }
+        u.readArrayEnd();
+        return array;
     }
 
-    static public IntTemplate getInstance() {
+    static public BooleanArrayTemplate getInstance() {
         return instance;
     }
 
-    static final IntTemplate instance = new IntTemplate();
+    static final BooleanArrayTemplate instance = new BooleanArrayTemplate();
 }
 
