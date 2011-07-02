@@ -23,16 +23,14 @@ public class TestSimplePackUnpack extends TestCase {
         byte[] raw = msgpack.pack(new int[] {1,2,3});
 
         Value v = msgpack.unpack(raw);
-        System.out.println("value: "+v);
 
         int[] a = msgpack.unpack(raw, new int[3]);
-        System.out.println("array: "+a);
 
         Value vb = msgpack.unpack(ByteBuffer.wrap(raw));
-        System.out.println("value: "+vb);
 
         int[] ab = msgpack.unpack(ByteBuffer.wrap(raw), new int[3]);
-        System.out.println("array: "+ab);
+
+        System.out.println("value: "+vb);
     }
 }
 

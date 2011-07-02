@@ -19,7 +19,7 @@ package org.msgpack.value;
 
 import java.util.Arrays;
 
-public abstract class AbstractRawValue extends AbstractValue implements RawValue {
+abstract class AbstractRawValue extends AbstractValue implements RawValue {
     public ValueType getType() {
         return ValueType.RAW;
     }

@@ -23,11 +23,12 @@ import java.io.EOFException;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import java.util.NoSuchElementException;
+import java.lang.Iterable;
 import org.msgpack.value.Value;
 import org.msgpack.packer.Unconverter;
 import org.msgpack.io.EndOfBufferException;
 
-public abstract class Unpacker {
+public abstract class Unpacker implements Iterable<Value> {
     public abstract void readNil() throws IOException;
 
     public abstract boolean tryReadNil() throws IOException;

@@ -250,9 +250,11 @@ public class LinkedBufferInput implements Input {
             int pos = bb.position();
             bb.position(bb.limit());
             bb.limit(bb.limit() + writable);
-            bb.put(buf);  // FIXME BufferOverflowException
+            buf.limit(writable);
+            bb.put(buf);
             bb.position(pos);
             rem -= writable;
+            buf.limit(buf.limit() + rem);
             writable = 0;
         }
 

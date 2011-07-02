@@ -23,7 +23,7 @@ import java.util.ListIterator;
 import java.math.BigInteger;
 import org.msgpack.MessageTypeException;
 
-public abstract class AbstractValue implements Value {
+abstract class AbstractValue implements Value {
     public boolean isNil() {
         return false;
     }

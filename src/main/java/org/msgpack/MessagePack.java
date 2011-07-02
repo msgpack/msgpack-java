@@ -100,12 +100,19 @@ public class MessagePack {
     }
 
     public void pack(OutputStream out, Object v) throws IOException {
-        Template tmpl = registry.lookup(v.getClass());
+        Template tmpl = getTemplate(v.getClass());
         tmpl.write(new StreamPacker(out), v);
     }
 
+    public byte[] pack(Value v) throws IOException {  // TODO IOException
+        // FIXME ValueTemplate should do this
+        BufferPacker pk = new BufferPacker();
+        pk.write(v);
+        return pk.toByteArray();
+    }
+
     public byte[] pack(Object v) throws IOException {  // TODO IOException
-        Template tmpl = registry.lookup(v.getClass());
+        Template tmpl = getTemplate(v.getClass());
         BufferPacker pk = new BufferPacker();
         tmpl.write(pk, v);
         return pk.toByteArray();
@@ -168,6 +175,7 @@ public class MessagePack {
         reg.register(Short.class, ShortTemplate.getInstance());
         reg.register(short.class, ShortTemplate.getInstance());
         reg.register(int[].class, IntArrayTemplate.getInstance());
+        reg.register(Value.class, ValueTemplate.getInstance());
     }
 }
 

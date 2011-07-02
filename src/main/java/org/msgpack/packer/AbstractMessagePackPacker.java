@@ -198,6 +198,7 @@ abstract class AbstractMessagePackPacker extends Packer {
             out.writeByteAndInt((byte)0xdb, len);
         }
         out.write(b, off, len);
+        stack.reduceCount();
     }
 
     @Override
@@ -216,12 +217,6 @@ abstract class AbstractMessagePackPacker extends Packer {
     @Override
     public void writeArrayBegin(int size) throws IOException {
         // TODO check size < 0?
-        if(size == 0) {
-            stack.reduceCount();
-            out.writeByte((byte)0x90);
-            stack.reduceCount();
-            return;
-        }
         if(size < 16) {
             // FixArray
             out.writeByte((byte)(0x90 | size));
@@ -242,7 +237,7 @@ abstract class AbstractMessagePackPacker extends Packer {
         int remain = stack.getTopCount();
         if(remain > 0) {
             if(check) {
-                throw new MessageTypeException("writeArrayEnd(check=true) is called but the array is not end");
+                throw new MessageTypeException("writeArrayEnd(check=true) is called but the array is not end: "+remain);
             }
             for(int i=0; i < remain; i++) {
                 writeNil();
@@ -255,12 +250,6 @@ abstract class AbstractMessagePackPacker extends Packer {
     @Override
     public void writeMapBegin(int size) throws IOException {
         // TODO check size < 0?
-        if(size == 0) {
-            stack.reduceCount();
-            out.writeByte((byte)0x80);
-            stack.reduceCount();
-            return;
-        }
         if(size < 16) {
             // FixMap
             out.writeByte((byte)(0x80 | size));
@@ -275,13 +264,13 @@ abstract class AbstractMessagePackPacker extends Packer {
     @Override
     public void writeMapEnd(boolean check) throws IOException {
         if(!stack.topIsMap()) {
-            throw new MessageTypeException("writeArrayEnd() is called but writeArrayBegin() is not called");
+            throw new MessageTypeException("writeMapEnd() is called but writeMapBegin() is not called");
         }
 
         int remain = stack.getTopCount();
         if(remain > 0) {
             if(check) {
-                throw new MessageTypeException("writeArrayEnd(check=true) is called but the array is not end");
+                throw new MessageTypeException("writeMapEnd(check=true) is called but the map is not end: "+remain);
             }
             for(int i=0; i < remain; i++) {
                 writeNil();
