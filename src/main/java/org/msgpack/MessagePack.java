@@ -28,12 +28,15 @@ import org.msgpack.packer.BufferPacker;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.unpacker.StreamUnpacker;
 import org.msgpack.unpacker.BufferUnpacker;
+import org.msgpack.value.Value;
+import org.msgpack.template.*;
 
 public class MessagePack {
     private TemplateRegistry registry;
 
     public MessagePack() {
         this.registry = new TemplateRegistry();
+        loadDefaultTemplates(registry);
     }
 
     public MessagePack(MessagePack parent) {
@@ -68,17 +71,33 @@ public class MessagePack {
         return (T)tmpl.read(u, null);
     }
 
-    /*
-    public <T> T unpack(ByteBuffer b, T v) {
+    public <T> T unpack(ByteBuffer b, T v) throws IOException {  // TODO IOException
         // TODO
+        Template tmpl = getTemplate(v.getClass());
+        BufferUnpacker u = new BufferUnpacker();
+        u.wrap(b);
+        return (T)tmpl.read(u, v);
+    }
+
+    public <T> T unpack(ByteBuffer b, Class<T> c) {  // TODO IOException
+        // TODO
+        Template tmpl = getTemplate(c);
+        BufferUnpacker u = new BufferUnpacker();
+        u.wrap(b);
         return null;
     }
 
-    public <T> T unpack(ByteBuffer b, Class<T> c) {
-        // TODO
-        return null;
+    public Value unpack(byte[] b) throws IOException {  // TODO IOException
+        return unpack(b, 0, b.length);
     }
-    */
+
+    public Value unpack(byte[] b, int off, int len) throws IOException {  // TODO IOException
+        return new BufferUnpacker().wrap(b, off, len).readValue();
+    }
+
+    public Value unpack(ByteBuffer buf) throws IOException {  // TODO IOException
+        return new BufferUnpacker().wrap(buf).readValue();
+    }
 
     public void pack(OutputStream out, Object v) throws IOException {
         Template tmpl = registry.lookup(v.getClass());
@@ -142,5 +161,13 @@ public class MessagePack {
         return globalMessagePack.unpack(b, c);
     }
     */
+
+    public static void loadDefaultTemplates(TemplateRegistry reg) {
+        reg.register(Integer.class, IntTemplate.getInstance());
+        reg.register(int.class, IntTemplate.getInstance());
+        reg.register(Short.class, ShortTemplate.getInstance());
+        reg.register(short.class, ShortTemplate.getInstance());
+        reg.register(int[].class, IntArrayTemplate.getInstance());
+    }
 }
 

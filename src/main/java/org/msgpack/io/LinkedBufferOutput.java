@@ -42,11 +42,14 @@ public class LinkedBufferOutput extends BufferedOutput {
     }
 
     public byte[] toByteArray() {
-        byte[] bytes = new byte[size];
+        byte[] bytes = new byte[size+filled];
         int off = 0;
         for(Link l : link) {
-            System.arraycopy(bytes, off, l.buffer, l.offset, l.size);
+            System.arraycopy(l.buffer, l.offset, bytes, off, l.size);
             off += l.size;
+        }
+        if(filled > 0) {
+            System.arraycopy(buffer, 0, bytes, off, filled);
         }
         return bytes;
     }

@@ -23,249 +23,259 @@ import java.util.LinkedList;
 import java.nio.ByteBuffer;
 
 public class LinkedBufferInput implements Input {
-    private static class Link {
-        final byte[] buffer;
-        int offset;
-        int size;
-        int writable;
+    private LinkedList<ByteBuffer> link;
+    private int writable;
+    private int nextAdvance;
 
-        Link(byte[] buffer, int offset, int size, int writable) {
-            this.buffer = buffer;
-            this.offset = offset;
-            this.size = size;
-            this.writable = writable;
-        }
-    }
-
-    private LinkedList<Link> link;
-
-    private byte[] topBuffer;
-    private int topOffset;
-    private int topAvailable;
-    private ByteBuffer castByteBuffer;
-    private int filled;
+    private byte[] tmpBuffer;
+    private ByteBuffer tmpByteBuffer;
 
     private final int bufferSize;
 
     public LinkedBufferInput(int bufferSize) {
-        this.link = new LinkedList<Link>();
+        this.link = new LinkedList<ByteBuffer>();
+        this.writable = -1;
+        this.tmpBuffer = new byte[8];
+        this.tmpByteBuffer = ByteBuffer.wrap(tmpBuffer);
         this.bufferSize = bufferSize;
     }
 
     public int read(byte[] b, int off, int len) throws EOFException {
-        if(len < topAvailable) {
-            System.arraycopy(topBuffer, topOffset, b, off, len);
-            consume(len);
-            return len;
-        }
-        return readMore(b, off, len);
-    }
-
-    public int readMore(byte[] b, int off, int len) throws EOFException {
-        if(topAvailable <= 0 && link.isEmpty()) {
-            // TODO MoreBufferError
-            throw new EOFException();
-        }
-
-        System.arraycopy(topBuffer, topOffset, b, off, topAvailable);
-        int sum = topAvailable;
-        len -= topAvailable;
-        topAvailable = 0;
-
-        while(sum < len) {
-            int req = len - sum;
-            Link l = link.peek();
-            if(l == null) {
-                return sum;
-            } else if(req < l.size) {
-                System.arraycopy(l.buffer, l.offset, b, off+sum, req);
-                sum += req;
-                l.offset += req;
-                l.size -= req;
+        int olen = len;
+        while(true) {
+            ByteBuffer bb = link.peekFirst();
+            if(bb == null) {
                 break;
-            } else if(req == l.size) {
-                System.arraycopy(l.buffer, l.offset, b, off+sum, req);
-                link.poll();
-                break;
-            } else {
-                sum += l.size;
-                link.poll();
             }
+            if(len < bb.remaining()) {
+                bb.get(b, off, len);
+                if(bb.remaining() == 0) {
+                    link.poll();
+                }
+                return olen;
+            }
+            int rem = bb.remaining();
+            bb.get(b, off, rem);
+            len -= rem;
+            off += rem;
+            link.poll();
         }
-        Link l = link.peek();
-        if(l != null) {
-            topBuffer = l.buffer;
-            topOffset = l.offset;
-            topAvailable = l.size;
-            castByteBuffer = ByteBuffer.wrap(topBuffer);
-        }
-
-        return sum;
+        return olen - len;
     }
 
     public byte readByte() throws EOFException {
-        if(topAvailable <= 0) {
-            // TODO MoreBufferError
-            throw new EOFException();
+        ByteBuffer bb = link.peekFirst();
+        if(bb == null || bb.remaining() == 0) {
+            throw new EndOfBufferException();
         }
-        byte b = topBuffer[0];
-        consume(1);
-        return b;
-    }
-
-    private boolean require(int n) throws EOFException {
-        if(n <= topAvailable) {
-            filled = n;
-            return true;
-        }
-        requireMore(n);
-        return false;
-    }
-
-    private void requireMore(int n) throws EOFException {
-        if(!link.isEmpty()) {
-            n -= topAvailable;
-            for(Link l : link) {
-                if(n <= l.size) {
-                    filled = n;
-                    return;
-                }
-                n -= l.size;
-            }
-        }
-        // TODO MoreBufferError
-        throw new EOFException();
-    }
-
-    private void consume(int n) {
-        if(n <= topAvailable) {
-            topAvailable -= n;
-            topOffset += n;
-            if(topAvailable > 0) {
-                return;
-            }
-        } else {
-            n -= topAvailable;
-            topAvailable = 0;
-            while(true) {
-                Link l = link.peek();
-                if(l == null) {
-                    break;
-                } else if(n < l.size) {
-                    l.offset += n;
-                    l.size -= n;
-                    break;
-                } else if(n == l.size) {
-                    link.poll();
-                    break;
-                } else {
-                    n -= l.size;
-                    link.poll();
-                }
-            }
-        }
-        Link l = link.peek();
-        if(l != null) {
-            topBuffer = l.buffer;
-            topOffset = l.offset;
-            topAvailable = l.size;
-            castByteBuffer = ByteBuffer.wrap(topBuffer);
-        }
+        return bb.get();
+        // TODO pop if empty?
     }
 
     public void advance() {
-        consume(filled);
-        filled = 0;
+        int len = nextAdvance;
+        ByteBuffer bb;
+        while(true) {
+            bb = link.peekFirst();
+            if(bb == null) {
+                nextAdvance = 0;
+                return;
+            }
+            if(len <= bb.remaining()) {
+                bb.position(bb.position()+len);
+                if(bb.remaining() == 0) {
+                    link.poll();
+                }
+                break;
+            }
+            len -= bb.remaining();
+            link.poll();
+        }
+        if(link.isEmpty() && writable >= 0) {
+            bb.position(0);
+            bb.limit(0);
+            link.add(bb);
+            writable = bb.capacity();
+        }
+        nextAdvance = 0;
+    }
+
+    private void requireMore(int n) throws EOFException {
+        int off = 0;
+        for(ByteBuffer bb : link) {
+            if(n <= bb.remaining()) {
+                int pos = bb.position();
+                bb.get(tmpBuffer, off, n);
+                bb.position(pos);
+                return;
+            }
+            int rem = bb.remaining();
+            int pos = bb.position();
+            bb.get(tmpBuffer, off, rem);
+            bb.position(pos);
+            n -= rem;
+            off += rem;
+        }
+        throw new EndOfBufferException();
+    }
+
+    private ByteBuffer require(int n) throws EOFException {
+        ByteBuffer bb = link.peekFirst();
+        if(bb == null) {
+            throw new EndOfBufferException();
+        }
+        if(n <= bb.remaining()) {
+            nextAdvance = n;
+            return bb;
+        } else {
+            requireMore(n);
+            nextAdvance = n;
+            return tmpByteBuffer;
+        }
     }
 
     public byte getByte() throws EOFException {
-        if(require(1)) {
-            return topBuffer[0];
-        }
-        // FIXME not implemented
-        return 0;
+        ByteBuffer bb = require(1);
+        return bb.get(bb.position());
     }
 
     public short getShort() throws EOFException {
-        if(require(2)) {
-            return castByteBuffer.getShort(0);
-        }
-        // FIXME not implemented
-        return 0;
+        ByteBuffer bb = require(2);
+        return bb.getShort(bb.position());
     }
 
     public int getInt() throws EOFException {
-        if(require(4)) {
-            return castByteBuffer.getInt(0);
-        }
-        // FIXME not implemented
-        return 0;
+        ByteBuffer bb = require(4);
+        return bb.getInt(bb.position());
     }
 
     public long getLong() throws EOFException {
-        if(require(8)) {
-            return castByteBuffer.getLong(0);
-        }
-        // FIXME not implemented
-        return 0;
+        ByteBuffer bb = require(8);
+        return bb.getLong(bb.position());
     }
 
     public float getFloat() throws EOFException {
-        if(require(4)) {
-            return castByteBuffer.getFloat(0);
-        }
-        // FIXME not implemented
-        return 0.0f;
+        ByteBuffer bb = require(4);
+        return bb.getFloat(bb.position());
     }
 
     public double getDouble() throws EOFException {
-        if(require(8)) {
-            return castByteBuffer.getDouble(0);
-        }
-        // FIXME not implemented
-        return 0.0;
+        ByteBuffer bb = require(8);
+        return bb.getDouble(bb.position());
     }
 
     public void feed(byte[] b) {
         feed(b, 0, b.length, false);
     }
 
-    public void feed(byte[] b, boolean gift) {
-        feed(b, 0, b.length, gift);
+    public void feed(byte[] b, boolean nocopy) {
+        feed(b, 0, b.length, nocopy);
     }
 
     public void feed(byte[] b, int off, int len) {
         feed(b, off, len, false);
     }
 
-    public void feed(byte[] b, int off, int len, boolean gift) {
-        if(gift) {
-            // TODO copy if len < xxx
-            link.add(new Link(b, off, len, 0));
-        } else {
-            // TODO
-            Link l = link.peekLast();
-            if(len <= l.writable) {
-                System.arraycopy(b, off, l.buffer, l.offset+l.size, len);
-                l.size += len;
-                l.writable -= len;
-            } else if(len < bufferSize) {
-                byte[] buffer = new byte[bufferSize];
-                System.arraycopy(b, off, buffer, 0, len);
-                link.add(new Link(buffer, 0, off, bufferSize-len));
-            } else {
-                byte[] buffer = new byte[len];
-                System.arraycopy(b, off, buffer, 0, len);
-                link.add(new Link(buffer, 0, off, 0));
+    public void feed(byte[] b, int off, int len, boolean nocopy) {
+        if(nocopy) {
+            if(writable > 0 && link.size() == 1 && link.peekFirst().remaining() == 0) {
+                link.addFirst(ByteBuffer.wrap(b, off, len));
+                return;
             }
+            link.add(ByteBuffer.wrap(b, off, len));
+            writable = -1;
+            return;
         }
+
+        ByteBuffer bb = link.peekLast();
+        if(len <= writable) {
+            int pos = bb.position();
+            bb.position(bb.limit());
+            bb.limit(bb.limit() + len);
+            bb.put(b, off, len);
+            bb.position(pos);
+            writable = bb.capacity() - bb.limit();
+            return;
+        }
+
+        if(writable > 0) {
+            int pos = bb.position();
+            bb.position(bb.limit());
+            bb.limit(bb.limit() + writable);
+            bb.put(b, off, writable);
+            bb.position(pos);
+            off += writable;
+            len -= writable;
+            writable = 0;
+        }
+
+        int sz = Math.max(len, bufferSize);
+        ByteBuffer nb = ByteBuffer.allocate(sz);
+        nb.put(b, off, len);
+        nb.limit(len);
+        nb.position(0);
+        link.add(nb);
+        writable = sz - len;
+    }
+
+    public void feed(ByteBuffer b) {
+        feed(b, false);
+    }
+
+    public void feed(ByteBuffer buf, boolean nocopy) {
+        if(nocopy) {
+            if(writable > 0 && link.size() == 1 && link.peekFirst().remaining() == 0) {
+                link.addFirst(buf);
+                return;
+            }
+            link.add(buf);
+            writable = -1;
+            return;
+        }
+
+        int rem = buf.remaining();
+
+        ByteBuffer bb = link.peekLast();
+        if(rem <= writable) {
+            int pos = bb.position();
+            bb.position(bb.limit());
+            bb.limit(bb.limit() + rem);
+            bb.put(buf);
+            bb.position(pos);
+            writable = bb.capacity() - bb.limit();
+            return;
+        }
+
+        if(writable > 0) {
+            int pos = bb.position();
+            bb.position(bb.limit());
+            bb.limit(bb.limit() + writable);
+            bb.put(buf);  // FIXME BufferOverflowException
+            bb.position(pos);
+            rem -= writable;
+            writable = 0;
+        }
+
+        int sz = Math.max(rem, bufferSize);
+        ByteBuffer nb = ByteBuffer.allocate(sz);
+        nb.put(buf);
+        nb.limit(rem);
+        nb.position(0);
+        link.add(nb);
+        writable = sz - rem;
     }
 
     public void clear() {
-        link.clear();;
-        topOffset = 0;
-        topAvailable = 0;
-        topBuffer = null;
+        if(writable > 0) {
+            ByteBuffer bb = link.getLast();
+            link.clear();
+            bb.position(0);
+            bb.limit(0);
+            link.add(bb);
+            writable = bb.capacity();
+        } else {
+            link.clear();
+        }
     }
 }
 
