@@ -32,13 +32,20 @@ public class BufferUnpacker extends AbstractMessagePackUnpacker {
         super(new LinkedBufferInput(bufferSize));
     }
 
-    public void wrap(byte[] b) {
-        wrap(b, 0, b.length);
+    public BufferUnpacker wrap(byte[] b) {
+        return wrap(b, 0, b.length);
     }
 
-    public void wrap(byte[] b, int off, int len) {
+    public BufferUnpacker wrap(byte[] b, int off, int len) {
         ((LinkedBufferInput) in).clear();
-        ((LinkedBufferInput) in).feed(b, off, len);
+        ((LinkedBufferInput) in).feed(b, off, len, true);
+        return this;
+    }
+
+    public BufferUnpacker wrap(ByteBuffer buf) {
+        ((LinkedBufferInput) in).clear();
+        ((LinkedBufferInput) in).feed(buf, true);
+        return this;
     }
 }
 

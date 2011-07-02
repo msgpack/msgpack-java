@@ -120,5 +120,9 @@ class BigIntegerValueImpl extends IntegerValue {
         // TODO BigIntegerValueImpl(v).hashCode() == IntValueImpl(v).hashCode()
         return value.hashCode();
     }
+
+    public String toString() {
+        return value.toString();
+    }
 }
 

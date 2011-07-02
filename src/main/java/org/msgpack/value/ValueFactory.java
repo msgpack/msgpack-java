@@ -104,9 +104,10 @@ public final class ValueFactory {
         return new SequentialMapValueImpl(kvs, gift);
     }
 
-    public static Value get(Object obj) {
-        return null;  // TODO new Unconverter().pack(obj).getResult()[0];
-    }
+    //TODO
+    //public static Value get(Object obj) {
+    //    return new Unconverter().pack(obj).getResult();
+    //}
 
     private ValueFactory() { }
 }

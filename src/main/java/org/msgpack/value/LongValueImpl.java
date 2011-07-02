@@ -119,5 +119,9 @@ class LongValueImpl extends IntegerValue {
     public int hashCode() {
         return (int)(value^(value>>>32));
     }
+
+    public String toString() {
+        return Long.toString(value);
+    }
 }
 

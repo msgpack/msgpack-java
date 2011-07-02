@@ -30,7 +30,6 @@ public class BufferPacker extends AbstractMessagePackPacker {
 
     public byte[] toByteArray() {
         LinkedBufferOutput bo = (LinkedBufferOutput) out;
-        bo.flush();
         return ((LinkedBufferOutput) bo).toByteArray();
     }
 }

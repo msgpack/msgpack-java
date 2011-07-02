@@ -114,5 +114,9 @@ class IntValueImpl extends IntegerValue {
     public int hashCode() {
         return value;
     }
+
+    public String toString() {
+        return Integer.toString(value);
+    }
 }
 

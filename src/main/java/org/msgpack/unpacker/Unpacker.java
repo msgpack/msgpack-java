@@ -17,25 +17,17 @@
 //
 package org.msgpack.unpacker;
 
-import java.util.Iterator;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.EOFException;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
+import java.util.NoSuchElementException;
 import org.msgpack.value.Value;
 import org.msgpack.packer.Unconverter;
+import org.msgpack.io.EndOfBufferException;
 
 public abstract class Unpacker {
-    public UnpackerIterator iterator() {
-        return new UnpackerIterator(this);
-    }
-
-    abstract void iterateNext(Unconverter uc) throws IOException;
-
-    public abstract void skip() throws IOException;
-
-
     public abstract void readNil() throws IOException;
 
     public abstract boolean tryReadNil() throws IOException;
@@ -85,9 +77,61 @@ public abstract class Unpacker {
     }
 
 
+    public class Iterator implements java.util.Iterator<Value> {
+        private final Unconverter uc;
+        private IOException exception;
+
+        public Iterator() {
+            this.uc = new Unconverter();
+        }
+
+        public boolean hasNext() {
+            if(uc.getResult() != null) {
+                return true;
+            }
+            try {
+                readValue(uc);  // protected method
+            } catch (EndOfBufferException ex) {
+                return false;
+            } catch (IOException ex) {
+                // TODO error
+                exception = ex;
+                return false;
+            }
+            return uc.getResult() != null;
+        }
+
+        public Value next() {
+            if(!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            Value v = uc.getResult();
+            uc.resetResult();
+            return v;
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+        public IOException getException() {
+            return exception;
+        }
+    }
+
+    public Iterator iterator() {
+        return new Iterator();
+    }
+
+    public abstract void skip() throws IOException;
+
+
+    protected abstract void readValue(Unconverter uc) throws IOException;
+
     public Value readValue() throws IOException {
-        // TODO
-        return null;
+        Unconverter uc = new Unconverter();
+        readValue(uc);
+        return uc.getResult();
     }
 
 

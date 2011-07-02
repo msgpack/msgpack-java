@@ -44,6 +44,7 @@ abstract class AbstractMessagePackPacker extends Packer {
         } else {
             out.writeByte(d);
         }
+        stack.reduceCount();
     }
 
     @Override
@@ -68,6 +69,7 @@ abstract class AbstractMessagePackPacker extends Packer {
                 out.writeByteAndShort((byte)0xcd, d);
             }
         }
+        stack.reduceCount();
     }
 
     @Override
@@ -98,6 +100,7 @@ abstract class AbstractMessagePackPacker extends Packer {
                 out.writeByteAndInt((byte)0xce, d);
             }
         }
+        stack.reduceCount();
     }
 
     @Override
@@ -142,12 +145,14 @@ abstract class AbstractMessagePackPacker extends Packer {
                 }
             }
         }
+        stack.reduceCount();
     }
 
     @Override
     public void writeBigInteger(BigInteger d) throws IOException {
         if(d.bitLength() <= 64) {
             writeLong(d.longValue());
+            stack.reduceCount();
         } else {
             throw new MessageTypeException("MessagePack can't serialize BigInteger larger than (2^64)-1");
         }
@@ -156,16 +161,19 @@ abstract class AbstractMessagePackPacker extends Packer {
     @Override
     public void writeFloat(float d) throws IOException {
         out.writeByteAndFloat((byte)0xca, d);
+        stack.reduceCount();
     }
 
     @Override
     public void writeDouble(double d) throws IOException {
         out.writeByteAndDouble((byte)0xcb, d);
+        stack.reduceCount();
     }
 
     @Override
     public void writeNil() throws IOException {
         out.writeByte((byte)0xc0);
+        stack.reduceCount();
     }
 
     @Override
@@ -177,6 +185,7 @@ abstract class AbstractMessagePackPacker extends Packer {
             // false
             out.writeByte((byte)0xc2);
         }
+        stack.reduceCount();
     }
 
     @Override
@@ -194,16 +203,25 @@ abstract class AbstractMessagePackPacker extends Packer {
     @Override
     public void writeString(String s) throws IOException {
         // TODO encoding error
+        byte[] b;
         try {
-            byte[] b = s.getBytes("UTF-8");
-            writeBytes(b, 0, b.length);
+            b = s.getBytes("UTF-8");
         } catch (UnsupportedEncodingException ex) {
             throw new MessageTypeException();
         }
+        writeBytes(b, 0, b.length);
+        stack.reduceCount();
     }
 
     @Override
     public void writeArrayBegin(int size) throws IOException {
+        // TODO check size < 0?
+        if(size == 0) {
+            stack.reduceCount();
+            out.writeByte((byte)0x90);
+            stack.reduceCount();
+            return;
+        }
         if(size < 16) {
             // FixArray
             out.writeByte((byte)(0x90 | size));
@@ -217,7 +235,7 @@ abstract class AbstractMessagePackPacker extends Packer {
 
     @Override
     public void writeArrayEnd(boolean check) throws IOException {
-        if(stack.topIsArray()) {
+        if(!stack.topIsArray()) {
             throw new MessageTypeException("writeArrayEnd() is called but writeArrayBegin() is not called");
         }
 
@@ -231,10 +249,18 @@ abstract class AbstractMessagePackPacker extends Packer {
             }
         }
         stack.pop();
+        stack.reduceCount();
     }
 
     @Override
     public void writeMapBegin(int size) throws IOException {
+        // TODO check size < 0?
+        if(size == 0) {
+            stack.reduceCount();
+            out.writeByte((byte)0x80);
+            stack.reduceCount();
+            return;
+        }
         if(size < 16) {
             // FixMap
             out.writeByte((byte)(0x80 | size));
@@ -248,7 +274,7 @@ abstract class AbstractMessagePackPacker extends Packer {
 
     @Override
     public void writeMapEnd(boolean check) throws IOException {
-        if(stack.topIsArray()) {
+        if(!stack.topIsMap()) {
             throw new MessageTypeException("writeArrayEnd() is called but writeArrayBegin() is not called");
         }
 
@@ -262,6 +288,7 @@ abstract class AbstractMessagePackPacker extends Packer {
             }
         }
         stack.pop();
+        stack.reduceCount();
     }
 }
 
