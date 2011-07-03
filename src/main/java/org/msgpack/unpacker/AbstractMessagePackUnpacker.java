@@ -334,7 +334,7 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
     @Override
     public void readNil() throws IOException {
         if(!tryReadNil()) {
-            throw new MessageTypeException("Expected Nil but got not nil value");
+            throw new MessageTypeException("Expected nil but got not nil value");
         }
     }
 

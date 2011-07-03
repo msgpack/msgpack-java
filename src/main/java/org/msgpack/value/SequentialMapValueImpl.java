@@ -37,6 +37,10 @@ class SequentialMapValueImpl extends AbstractMapValue {
 
     private Value[] array;
 
+    public Value[] getKeyValueArray() {
+        return array;
+    }
+
     SequentialMapValueImpl(Value[] array, boolean gift) {
         if(array.length % 2 != 0) {
             throw new IllegalArgumentException();  // TODO message
