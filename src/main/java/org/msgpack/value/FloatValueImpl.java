@@ -86,5 +86,9 @@ class FloatValueImpl extends FloatValue {
     public int hashCode() {
         return Float.floatToIntBits(value);
     }
+
+    public String toString() {
+        return Float.toString(value);
+    }
 }
 

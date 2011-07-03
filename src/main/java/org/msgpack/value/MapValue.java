@@ -20,5 +20,6 @@ package org.msgpack.value;
 import java.util.Map;
 
 public interface MapValue extends Value, Map<Value, Value> {
+    public Value[] getKeyValueArray();
 }
 

@@ -32,6 +32,10 @@ class ArrayValueImpl extends AbstractArrayValue {
 
     private Value[] array;
 
+    public Value[] getElementArray() {
+        return array;
+    }
+
     ArrayValueImpl(Value[] array, boolean gift) {
         if(gift) {
             this.array = array;

@@ -60,7 +60,7 @@ class ByteArrayRawValueImpl extends AbstractRawValue {
     }
 
     public void writeTo(Packer pk) throws IOException {
-        pk.writeBytes(bytes);
+        pk.writeByteArray(bytes);
     }
 
     public boolean equals(Object o) {

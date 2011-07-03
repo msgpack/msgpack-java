@@ -28,7 +28,7 @@ import java.util.NoSuchElementException;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
 
-public class SequentialMapValueImpl extends AbstractMapValue {
+class SequentialMapValueImpl extends AbstractMapValue {
     private static SequentialMapValueImpl emptyInstance = new SequentialMapValueImpl(new Value[0], true);
 
     public static MapValue getEmptyInstance() {
@@ -36,6 +36,10 @@ public class SequentialMapValueImpl extends AbstractMapValue {
     }
 
     private Value[] array;
+
+    public Value[] getKeyValueArray() {
+        return array;
+    }
 
     SequentialMapValueImpl(Value[] array, boolean gift) {
         if(array.length % 2 != 0) {
@@ -92,7 +96,7 @@ public class SequentialMapValueImpl extends AbstractMapValue {
         }
     }
 
-    public static class KeySet extends AbstractSet<Value> {
+    private static class KeySet extends AbstractSet<Value> {
         private Value[] array;
 
         KeySet(Value[] array) {
@@ -108,7 +112,7 @@ public class SequentialMapValueImpl extends AbstractMapValue {
         }
     }
 
-    public static class ValueCollection extends AbstractCollection<Value> {
+    private static class ValueCollection extends AbstractCollection<Value> {
         private Value[] array;
 
         ValueCollection(Value[] array) {

@@ -20,7 +20,7 @@ package org.msgpack.value;
 import java.util.AbstractList;
 import org.msgpack.MessageTypeException;
 
-public abstract class AbstractArrayValue extends AbstractList<Value> implements ArrayValue {
+abstract class AbstractArrayValue extends AbstractList<Value> implements ArrayValue {
     public ValueType getType() {
         return ValueType.ARRAY;
     }

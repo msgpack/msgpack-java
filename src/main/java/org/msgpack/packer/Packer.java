@@ -42,13 +42,13 @@ public abstract class Packer {
 
     public abstract void writeDouble(double v) throws IOException;
 
-    public void writeBytes(byte[] b) throws IOException {
-        writeBytes(b, 0, b.length);
+    public void writeByteArray(byte[] b) throws IOException {
+        writeByteArray(b, 0, b.length);
     }
 
-    public abstract void writeBytes(byte[] b, int off, int len) throws IOException;
+    public abstract void writeByteArray(byte[] b, int off, int len) throws IOException;
 
-    //public abstract void writeBytes(ByteBuffer b) throws IOException;
+    //public abstract void writeByteArray(ByteBuffer b) throws IOException;
 
     public abstract void writeString(String s) throws IOException;
 
@@ -167,13 +167,13 @@ public abstract class Packer {
     public abstract void write(String s) throws IOException;
 
     public void write(byte[] b) throws IOException {
-        writeBytesBegin(b.length);
-        writeBytesBody(b);
+        writeByteArray(b.length);
+        writeByteArray(b);
     }
 
     public void write(byte[] b, int off, int len) throws IOException {
-        writeBytesBegin(len);
-        writeBytes(b, off, len);
+        writeByteArray(len);
+        writeByteArray(b, off, len);
     }
 
     public void write(ByteBuffer b) throws IOException {

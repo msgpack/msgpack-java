@@ -28,6 +28,11 @@ public class Unconverter extends Packer {
     private Object[] values;
     private Value result;
 
+    public Unconverter() {
+        this.stack = new PackerStack();
+        this.values = new Object[PackerStack.MAX_STACK_SIZE];
+    }
+
     public Value getResult() {
         return result;
     }
@@ -82,7 +87,7 @@ public class Unconverter extends Packer {
     }
 
     @Override
-    public void writeBytes(byte[] b, int off, int len) {
+    public void writeByteArray(byte[] b, int off, int len) {
         put(ValueFactory.rawValue(b, off, len));
     }
 
@@ -101,7 +106,7 @@ public class Unconverter extends Packer {
 
     @Override
     public void writeArrayEnd(boolean check) {
-        if(stack.topIsArray()) {
+        if(!stack.topIsArray()) {
             throw new MessageTypeException("writeArrayEnd() is called but writeArrayBegin() is not called");
         }
 
@@ -127,14 +132,14 @@ public class Unconverter extends Packer {
 
     @Override
     public void writeMapEnd(boolean check) {
-        if(stack.topIsArray()) {
-            throw new MessageTypeException("writeArrayEnd() is called but writeArrayBegin() is not called");
+        if(!stack.topIsMap()) {
+            throw new MessageTypeException("writeMapEnd() is called but writeMapBegin() is not called");
         }
 
         int remain = stack.getTopCount();
         if(remain > 0) {
             if(check) {
-                throw new MessageTypeException("writeArrayEnd(check=true) is called but the array is not end");
+                throw new MessageTypeException("writeMapEnd(check=true) is called but the map is not end");
             }
             for(int i=0; i < remain; i++) {
                 writeNil();

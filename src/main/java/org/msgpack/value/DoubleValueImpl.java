@@ -87,5 +87,9 @@ class DoubleValueImpl extends FloatValue {
         long v = Double.doubleToLongBits(value);
         return (int)(v^(v>>>32));
     }
+
+    public String toString() {
+        return Double.toString(value);
+    }
 }
 

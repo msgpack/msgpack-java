@@ -66,24 +66,27 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
     }
 
     final boolean readOneWithoutStack(Accept a) throws IOException {
-        byte b = getHeadByte();
-
-        if(raw == null) {
+        if(raw != null) {
             readRawBodyCont();
             a.acceptRaw(raw);
             raw = null;
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         }
+
+        byte b = getHeadByte();
 
         if((b & 0x80) == 0) {  // Positive Fixnum
             //System.out.println("positive fixnum "+b);
             a.acceptInteger(b);
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         }
 
         if((b & 0xe0) == 0xe0) {  // Negative Fixnum
             //System.out.println("negative fixnum "+b);
             a.acceptInteger(b);
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         }
 
@@ -91,11 +94,13 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
             int count = b & 0x1f;
             if(count == 0) {
                 a.acceptEmptyRaw();
+                headByte = REQUIRE_TO_READ_HEAD;
                 return true;
             }
             readRawBody(count);
             a.acceptRaw(raw);
             raw = null;
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         }
 
@@ -104,10 +109,12 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
             //System.out.println("fixarray count:"+count);
             if(count == 0) {
                 a.acceptEmptyArray();
+                headByte = REQUIRE_TO_READ_HEAD;
                 return true;
             }
             a.acceptArray(count);
             stack.pushArray(count);
+            headByte = REQUIRE_TO_READ_HEAD;
             return false;
         }
 
@@ -116,62 +123,77 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
             //System.out.println("fixmap count:"+count/2);
             if(count == 0) {
                 a.acceptEmptyMap();
+                headByte = REQUIRE_TO_READ_HEAD;
                 return true;
             }
             a.acceptMap(count);
             stack.pushMap(count);
+            headByte = REQUIRE_TO_READ_HEAD;
             return false;
         }
 
         switch(b & 0xff) {
         case 0xc0:  // nil
             a.acceptNil();
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xc2:  // false
             a.acceptBoolean(false);
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xc3:  // true
             a.acceptBoolean(true);
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xca:  // float
             a.acceptFloat(in.getFloat());
             in.advance();
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xcb:  // double
             a.acceptDouble(in.getDouble());
             in.advance();
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xcc:  // unsigned int  8
             a.acceptUnsignedInteger(in.getByte());
             in.advance();
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xcd:  // unsigned int 16
             a.acceptUnsignedInteger(in.getShort());
             in.advance();
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xce:  // unsigned int 32
             a.acceptUnsignedInteger(in.getInt());
             in.advance();
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xcf:  // unsigned int 64
             a.acceptInteger(in.getLong());
             in.advance();
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xd0:  // signed int  8
             a.acceptInteger(in.getByte());
             in.advance();
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xd1:  // signed int 16
             a.acceptInteger(in.getShort());
             in.advance();
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xd2:  // signed int 32
             a.acceptInteger(in.getInt());
             in.advance();
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xd3:  // signed int 64
             a.acceptInteger(in.getLong());
             in.advance();
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xda:  // raw 16
             {
@@ -179,12 +201,14 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
                 if(count == 0) {
                     a.acceptEmptyRaw();
                     in.advance();
+                    headByte = REQUIRE_TO_READ_HEAD;
                     return true;
                 }
                 in.advance();
                 readRawBody(count);
                 a.acceptRaw(raw);
                 raw = null;
+                headByte = REQUIRE_TO_READ_HEAD;
                 return true;
             }
         case 0xdb:  // raw 32
@@ -196,12 +220,14 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
                 if(count == 0) {
                     a.acceptEmptyRaw();
                     in.advance();
+                    headByte = REQUIRE_TO_READ_HEAD;
                     return true;
                 }
                 in.advance();
                 readRawBody(count);
                 a.acceptRaw(raw);
                 raw = null;
+                headByte = REQUIRE_TO_READ_HEAD;
                 return true;
             }
         case 0xdc:  // array 16
@@ -210,11 +236,13 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
                 if(count == 0) {
                     a.acceptEmptyArray();
                     in.advance();
+                    headByte = REQUIRE_TO_READ_HEAD;
                     return true;
                 }
                 a.acceptArray(count);
                 stack.pushArray(count);
                 in.advance();
+                headByte = REQUIRE_TO_READ_HEAD;
                 return false;
             }
         case 0xdd:  // array 32
@@ -226,11 +254,13 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
                 if(count == 0) {
                     a.acceptEmptyArray();
                     in.advance();
+                    headByte = REQUIRE_TO_READ_HEAD;
                     return true;
                 }
                 a.acceptArray(count);
                 stack.pushArray(count);
                 in.advance();
+                headByte = REQUIRE_TO_READ_HEAD;
                 return false;
             }
         case 0xde:  // map 16
@@ -239,11 +269,13 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
                 if(count == 0) {
                     a.acceptEmptyMap();
                     in.advance();
+                    headByte = REQUIRE_TO_READ_HEAD;
                     return true;
                 }
                 a.acceptMap(count);
                 stack.pushMap(count);
                 in.advance();
+                headByte = REQUIRE_TO_READ_HEAD;
                 return false;
             }
         case 0xdf:  // map 32
@@ -255,11 +287,13 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
                 if(count == 0) {
                     a.acceptEmptyMap();
                     in.advance();
+                    headByte = REQUIRE_TO_READ_HEAD;
                     return true;
                 }
                 a.acceptMap(count);
                 stack.pushMap(count);
                 in.advance();
+                headByte = REQUIRE_TO_READ_HEAD;
                 return false;
             }
         default:
@@ -286,32 +320,36 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
 
     @Override
     public boolean tryReadNil() throws IOException {
+        // optimized not to allocate nilAccept
         stack.checkCount();
         int b = getHeadByte() & 0xff;
         if(b != 0xc0) {
             return false;
         }
         stack.reduceCount();
+        headByte = REQUIRE_TO_READ_HEAD;
         return true;
     }
 
     @Override
     public void readNil() throws IOException {
         if(!tryReadNil()) {
-            throw new MessageTypeException("Expected Nil but got not nil value");
+            throw new MessageTypeException("Expected nil but got not nil value");
         }
     }
 
     @Override
     public boolean readBoolean() throws IOException {
-        // optimized: readOne(booleanAccept());
+        // optimized not to allocate booleanAccept
         stack.checkCount();
         int b = getHeadByte() & 0xff;
         if(b == 0xc2) {
             stack.reduceCount();
+            headByte = REQUIRE_TO_READ_HEAD;
             return false;
         } else if(b == 0xc3) {
             stack.reduceCount();
+            headByte = REQUIRE_TO_READ_HEAD;
             return true;
         }
         throw new MessageTypeException("Expected Boolean but got not boolean value");
@@ -319,6 +357,7 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
 
     @Override
     public byte readByte() throws IOException {
+        // optimized not to allocate byteAccept
         stack.checkCount();
         readOneWithoutStack(intAccept);
         int value = intAccept.value;
@@ -331,6 +370,7 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
 
     @Override
     public short readShort() throws IOException {
+        // optimized not to allocate shortAccept
         stack.checkCount();
         readOneWithoutStack(intAccept);
         int value = intAccept.value;
@@ -384,7 +424,7 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
 
     @Override
     public void readArrayEnd(boolean check) throws IOException {
-        if(stack.topIsArray()) {
+        if(!stack.topIsArray()) {
             throw new MessageTypeException("readArrayEnd() is called but readArrayBegin() is not called");
         }
 
@@ -425,7 +465,7 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
     }
 
     @Override
-    void iterateNext(Unconverter uc) throws IOException {
+    protected void readValue(Unconverter uc) throws IOException {
         if(uc.getResult() != null) {
             uc.resetResult();
         }
@@ -433,7 +473,7 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
 
         stack.checkCount();
 
-        boolean primitive = readOneWithoutStack(skipAccept);
+        boolean primitive = readOneWithoutStack(valueAccept);
         if(primitive) {
             stack.reduceCount();
             if(uc.getResult() != null) {

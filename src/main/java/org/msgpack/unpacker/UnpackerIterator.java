@@ -24,6 +24,9 @@ import java.util.NoSuchElementException;
 import org.msgpack.value.Value;
 import org.msgpack.packer.Unconverter;
 
+public class UnpackerIterator {
+}
+/*
 public class UnpackerIterator implements Iterator<Value> {
     private final Unpacker u;
     private final Unconverter uc;
@@ -39,7 +42,7 @@ public class UnpackerIterator implements Iterator<Value> {
             return true;
         }
         try {
-            u.read(uc);
+            u.readValue(uc);
         } catch (EOFException ex) {  // TODO NeedMoreBufferError
             return false;
         } catch (IOException ex) {
@@ -59,43 +62,6 @@ public class UnpackerIterator implements Iterator<Value> {
         return v;
     }
 
-    /*
-    private Value value;
-
-    public boolean hasNext() {
-        if(value != null) {
-            return true;
-        }
-        try {
-            value = u.read();
-        } catch (IOException ex) {
-            exception = ex;
-            return false;
-        }
-        return value != null;
-    }
-
-    public Value next() {
-        if(value != null) {
-            Value v = value;
-            value = null;
-            return v;
-        } else {
-            Value v;
-            try {
-                v = u.read();
-            } catch (IOException ex) {
-                exception = ex;
-                throw new NoSuchElementException();
-            }
-            if(v == null) {
-                throw new NoSuchElementException();
-            }
-            return v;
-        }
-    }
-    */
-
     public void remove() {
 		throw new UnsupportedOperationException();
     }
@@ -104,4 +70,5 @@ public class UnpackerIterator implements Iterator<Value> {
         return exception;
     }
 }
+*/
 

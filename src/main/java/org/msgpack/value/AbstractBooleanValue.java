@@ -17,7 +17,7 @@
 //
 package org.msgpack.value;
 
-public abstract class AbstractBooleanValue extends AbstractValue implements BooleanValue {
+abstract class AbstractBooleanValue extends AbstractValue implements BooleanValue {
     public ValueType getType() {
         return ValueType.BOOLEAN;
     }

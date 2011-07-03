@@ -15,11 +15,17 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.value;
+package org.msgpack.io;
 
-import java.util.List;
+import java.io.EOFException;
 
-public interface ArrayValue extends Value, List<Value> {
-    public Value[] getElementArray();
+public class EndOfBufferException extends EOFException {
+    public EndOfBufferException() {
+        super();
+    }
+
+    public EndOfBufferException(String s) {
+        super(s);
+    }
 }
 
