@@ -171,7 +171,7 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xcf:  // unsigned int 64
-            a.acceptInteger(in.getLong());
+            a.acceptUnsignedInteger(in.getLong());
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;

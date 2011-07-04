@@ -150,8 +150,12 @@ abstract class AbstractMessagePackPacker extends Packer {
 
     @Override
     public void writeBigInteger(BigInteger d) throws IOException {
-        if(d.bitLength() <= 64) {
+        if(d.bitLength() <= 63) {
             writeLong(d.longValue());
+            stack.reduceCount();
+        } else if(d.bitLength() == 64 && d.signum() == 1) {
+            // unsigned 64
+            out.writeByteAndLong((byte)0xcf, d.longValue());
             stack.reduceCount();
         } else {
             throw new MessageTypeException("MessagePack can't serialize BigInteger larger than (2^64)-1");

@@ -66,8 +66,7 @@ final class BigIntegerAccept extends Accept {
     @Override
     void acceptUnsignedInteger(long v) {
         if(v < 0) {
-            // FIXME
-            this.value = BigInteger.valueOf(-v).setBit(63);
+            this.value = BigInteger.valueOf(v+Long.MAX_VALUE+1).setBit(63);
         } else {
             this.value = BigInteger.valueOf(v);
         }
