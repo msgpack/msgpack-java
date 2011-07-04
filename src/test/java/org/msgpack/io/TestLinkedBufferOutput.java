@@ -37,8 +37,8 @@ public class TestLinkedBufferOutput extends TestCase {
         o2.writeByte((byte)2);
         o1.writeShort((short)2);
         o2.writeShort((short)2);
-        o1.writeInt((int)2);
-        o2.writeInt((int)2);
+        o1.writeInt(2);
+        o2.writeInt(2);
         o1.writeLong(2L);
         o2.writeLong(2L);
         o1.writeFloat(1.1f);
@@ -52,7 +52,7 @@ public class TestLinkedBufferOutput extends TestCase {
     }
 
     @Test
-    public void testByteAndWritePrimitives() throws IOException {
+    public void testWriteByteAndPrimitives() throws IOException {
         ByteArrayOutputStream bo = new ByteArrayOutputStream();
         DataOutputStream o1 = new DataOutputStream(bo);
         LinkedBufferOutput o2 = new LinkedBufferOutput(10);
@@ -63,8 +63,8 @@ public class TestLinkedBufferOutput extends TestCase {
         o1.writeShort((short)2);
         o2.writeByteAndShort((byte)9, (short)2);
         o1.writeByte((byte)9);
-        o1.writeInt((int)2);
-        o2.writeByteAndInt((byte)9, (int)2);
+        o1.writeInt(2);
+        o2.writeByteAndInt((byte)9, 2);
         o1.writeByte((byte)9);
         o1.writeLong(2L);
         o2.writeByteAndLong((byte)9, 2L);

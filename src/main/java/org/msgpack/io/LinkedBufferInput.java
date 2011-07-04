@@ -50,7 +50,7 @@ public class LinkedBufferInput implements Input {
             if(len < bb.remaining()) {
                 bb.get(b, off, len);
                 if(bb.remaining() == 0) {
-                    link.poll();
+                    link.removeFirst();
                 }
                 return olen;
             }
@@ -58,7 +58,7 @@ public class LinkedBufferInput implements Input {
             bb.get(b, off, rem);
             len -= rem;
             off += rem;
-            link.poll();
+            link.removeFirst();
         }
         return olen - len;
     }
@@ -68,8 +68,17 @@ public class LinkedBufferInput implements Input {
         if(bb == null || bb.remaining() == 0) {
             throw new EndOfBufferException();
         }
-        return bb.get();
-        // TODO pop if empty?
+        byte result = bb.get();
+        if(bb.remaining() == 0) {
+            if(link.size() == 1 && writable >= 0) {
+                bb.position(0);
+                bb.limit(0);
+                writable = bb.capacity();
+            } else {
+                link.removeFirst();
+            }
+        }
+        return result;
     }
 
     public void advance() {
@@ -84,17 +93,17 @@ public class LinkedBufferInput implements Input {
             if(len <= bb.remaining()) {
                 bb.position(bb.position()+len);
                 if(bb.remaining() == 0) {
-                    link.poll();
+                    link.removeFirst();
                 }
                 break;
             }
             len -= bb.remaining();
-            link.poll();
+            link.removeFirst();
         }
         if(link.isEmpty() && writable >= 0) {
             bb.position(0);
             bb.limit(0);
-            link.add(bb);
+            link.addLast(bb);
             writable = bb.capacity();
         }
         nextAdvance = 0;
@@ -182,7 +191,7 @@ public class LinkedBufferInput implements Input {
                 link.addFirst(ByteBuffer.wrap(b, off, len));
                 return;
             }
-            link.add(ByteBuffer.wrap(b, off, len));
+            link.addLast(ByteBuffer.wrap(b, off, len));
             writable = -1;
             return;
         }
@@ -214,7 +223,7 @@ public class LinkedBufferInput implements Input {
         nb.put(b, off, len);
         nb.limit(len);
         nb.position(0);
-        link.add(nb);
+        link.addLast(nb);
         writable = sz - len;
     }
 
@@ -228,7 +237,7 @@ public class LinkedBufferInput implements Input {
                 link.addFirst(buf);
                 return;
             }
-            link.add(buf);
+            link.addLast(buf);
             writable = -1;
             return;
         }
@@ -263,7 +272,7 @@ public class LinkedBufferInput implements Input {
         nb.put(buf);
         nb.limit(rem);
         nb.position(0);
-        link.add(nb);
+        link.addLast(nb);
         writable = sz - rem;
     }
 
@@ -273,7 +282,7 @@ public class LinkedBufferInput implements Input {
             link.clear();
             bb.position(0);
             bb.limit(0);
-            link.add(bb);
+            link.addLast(bb);
             writable = bb.capacity();
         } else {
             link.clear();
