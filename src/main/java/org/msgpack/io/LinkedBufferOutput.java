@@ -55,7 +55,7 @@ public class LinkedBufferOutput extends BufferedOutput {
     }
 
     public int getSize() {
-        return size;
+        return size + filled;
     }
 
     public void flush() {

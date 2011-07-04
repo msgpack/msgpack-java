@@ -27,8 +27,8 @@ public abstract class BufferedOutput implements Output {
     protected ByteBuffer castByteBuffer;
 
     public BufferedOutput(int bufferSize) {
-        if(bufferSize < 8) {
-            bufferSize = 8;
+        if(bufferSize < 9) {
+            bufferSize = 9;
         }
         this.bufferSize = bufferSize;
     }
@@ -49,6 +49,14 @@ public abstract class BufferedOutput implements Output {
     }
 
     public void write(byte[] b, int off, int len) throws IOException {
+        if(buffer == null) {
+            if(bufferSize < len) {
+                flushBuffer(b, off, len);
+                return;
+            }
+            buffer = new byte[bufferSize];
+            castByteBuffer = ByteBuffer.wrap(buffer);
+        }
         if(buffer.length - filled < len) {
             System.arraycopy(b, off, buffer, filled, len);
             filled += len;
