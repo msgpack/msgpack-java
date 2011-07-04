@@ -39,7 +39,7 @@ final class LongAccept extends Accept {
 
     @Override
     void acceptInteger(long v) {
-        this.value = (int)v;
+        this.value = v;
     }
 
     @Override

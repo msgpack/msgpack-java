@@ -74,8 +74,6 @@ public abstract class TestSetPredefinedTypes {
 	testLong(1);
 	testLong(Long.MIN_VALUE);
 	testLong(Long.MAX_VALUE);
-	testLong(Long.MIN_VALUE);
-	testLong(Long.MAX_VALUE);
 	Random rand = new Random();
 	for (int i = 0; i < 1000; i++) {
 	    testLong(rand.nextLong());

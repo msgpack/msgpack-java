@@ -63,7 +63,7 @@ public class TestBufferPackUnpack extends TestSetPredefinedTypes {
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
-	int ret = unpacker.readInt();
+	long ret = unpacker.readLong();
 	assertEquals(v, ret);
     }
 
