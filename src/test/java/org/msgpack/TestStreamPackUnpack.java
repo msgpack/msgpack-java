@@ -70,7 +70,7 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 	Unpacker unpacker = new StreamUnpacker(in);
-	int ret = unpacker.readInt();
+	long ret = unpacker.readLong();
 	assertEquals(v, ret);
     }
 
