@@ -15,15 +15,15 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.template;
+package org.msgpack.annotation;
 
-import java.io.IOException;
-import org.msgpack.packer.Packer;
-import org.msgpack.unpacker.Unpacker;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 
-public interface Template {
-    public void write(Packer pk, Object v) throws IOException;
-    public Object read(Unpacker u, Object to) throws IOException;
+@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Required {
 }
-

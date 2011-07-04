@@ -17,30 +17,10 @@
 //
 package org.msgpack.template;
 
-import java.io.IOException;
-import org.msgpack.packer.Packer;
-import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
-
-
-public class ByteTemplate implements Template {
-    private ByteTemplate() { }
-
-    public void write(Packer pk, Object target) throws IOException {
-        if(target == null) {
-            throw new MessageTypeException("Attempted to write null");
-        }
-        pk.writeByte((Byte)target);
-    }
-
-    public Object read(Unpacker u, Object to) throws IOException {
-        return u.readByte();
-    }
-
-    static public ByteTemplate getInstance() {
-        return instance;
-    }
-
-    static final ByteTemplate instance = new ByteTemplate();
+public enum FieldOption {
+	IGNORE,
+	REQUIRED,
+	OPTIONAL,
+	NOTNULLABLE,
+	DEFAULT;
 }
-
