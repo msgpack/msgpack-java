@@ -36,12 +36,11 @@ public class MessagePack {
     private TemplateRegistry registry;
 
     public MessagePack() {
-        this.registry = new TemplateRegistry();
-        loadDefaultTemplates(registry);
+	registry = new TemplateRegistry();
     }
 
     public MessagePack(MessagePack parent) {
-        this.registry = new TemplateRegistry(parent.registry);
+	registry = new TemplateRegistry(parent.registry);
     }
 
     public <T> T unpack(InputStream in, T v) throws IOException {
@@ -170,31 +169,6 @@ public class MessagePack {
     }
     */
 
-    public static void loadDefaultTemplates(TemplateRegistry reg) {
-        reg.register(boolean.class, BooleanTemplate.getInstance());
-        reg.register(Boolean.class, BooleanTemplate.getInstance());
-        reg.register(byte.class, ByteTemplate.getInstance());
-        reg.register(Byte.class, ByteTemplate.getInstance());
-        reg.register(short.class, ShortTemplate.getInstance());
-        reg.register(Short.class, ShortTemplate.getInstance());
-        reg.register(int.class, IntTemplate.getInstance());
-        reg.register(Integer.class, IntTemplate.getInstance());
-        reg.register(long.class, LongTemplate.getInstance());
-        reg.register(Long.class, LongTemplate.getInstance());
-        reg.register(float.class, FloatTemplate.getInstance());
-        reg.register(Float.class, FloatTemplate.getInstance());
-        reg.register(double.class, DoubleTemplate.getInstance());
-        reg.register(Double.class, DoubleTemplate.getInstance());
-        reg.register(BigInteger.class, BigIntegerTemplate.getInstance());
-        reg.register(boolean[].class, ByteArrayTemplate.getInstance());
-        reg.register(short[].class, ShortArrayTemplate.getInstance());
-        reg.register(int[].class, IntArrayTemplate.getInstance());
-        reg.register(long[].class, LongArrayTemplate.getInstance());
-        reg.register(float[].class, FloatArrayTemplate.getInstance());
-        reg.register(double[].class, DoubleArrayTemplate.getInstance());
-        reg.register(String.class, StringTemplate.getInstance());
-        reg.register(byte[].class, ByteArrayTemplate.getInstance());
-        reg.register(Value.class, ValueTemplate.getInstance());
-    }
+
 }
 

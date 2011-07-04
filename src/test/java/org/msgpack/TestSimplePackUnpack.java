@@ -1,4 +1,4 @@
-package org.msgpack.util;
+package org.msgpack;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
