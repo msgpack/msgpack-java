@@ -19,22 +19,74 @@ package org.msgpack.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.DataOutputStream;
 
-public class StreamOutput extends BufferedOutput {
-    private OutputStream out;
+public class StreamOutput implements Output {
+    private DataOutputStream out;
 
     public StreamOutput(OutputStream out) {
-        this(out, 1024);  // TODO default buffer size
+        this.out = new DataOutputStream(out);
     }
 
-    public StreamOutput(OutputStream out, int bufferSize) {
-        super(bufferSize);
-        this.out = out;
+    public void write(byte[] b, int off, int len) throws IOException {
+        out.write(b, off, len);
     }
 
-    protected boolean flushBuffer(byte[] buffer, int off, int len) throws IOException {
-        out.write(buffer, off, len);
-        return true;
+    public void writeByte(byte v) throws IOException {
+        out.write(v);
+    }
+
+    public void writeShort(short v) throws IOException {
+        out.writeShort(v);
+    }
+
+    public void writeInt(int v) throws IOException {
+        out.writeInt(v);
+    }
+
+    public void writeLong(long v) throws IOException {
+        out.writeLong(v);
+    }
+
+    public void writeFloat(float v) throws IOException {
+        out.writeFloat(v);
+    }
+
+    public void writeDouble(double v) throws IOException {
+        out.writeDouble(v);
+    }
+
+    public void writeByteAndByte(byte b, byte v) throws IOException {
+        out.write(b);
+        out.write(v);
+    }
+
+    public void writeByteAndShort(byte b, short v) throws IOException {
+        out.write(b);
+        out.writeShort(v);
+    }
+
+    public void writeByteAndInt(byte b, int v) throws IOException {
+        out.write(b);
+        out.writeInt(v);
+    }
+
+    public void writeByteAndLong(byte b, long v) throws IOException {
+        out.write(b);
+        out.writeLong(v);
+    }
+
+    public void writeByteAndFloat(byte b, float v) throws IOException {
+        out.write(b);
+        out.writeFloat(v);
+    }
+
+    public void writeByteAndDouble(byte b, double v) throws IOException {
+        out.write(b);
+        out.writeDouble(v);
+    }
+
+    public void flush() throws IOException {
     }
 }
 
