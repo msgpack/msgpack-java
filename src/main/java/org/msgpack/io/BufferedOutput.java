@@ -39,7 +39,7 @@ public abstract class BufferedOutput implements Output {
             castByteBuffer = ByteBuffer.wrap(buffer);
             return;
         }
-        if(buffer.length - filled < len) {
+        if(bufferSize - filled < len) {
             if(!flushBuffer(buffer, 0, filled)) {
                 buffer = new byte[bufferSize];
                 castByteBuffer = ByteBuffer.wrap(buffer);
@@ -57,9 +57,16 @@ public abstract class BufferedOutput implements Output {
             buffer = new byte[bufferSize];
             castByteBuffer = ByteBuffer.wrap(buffer);
         }
-        if(buffer.length - filled < len) {
+        if(len <= bufferSize - filled) {
             System.arraycopy(b, off, buffer, filled, len);
             filled += len;
+        } else if(len < bufferSize) {
+            if(!flushBuffer(buffer, 0, filled)) {
+                buffer = new byte[bufferSize];
+            }
+            filled = 0;
+            System.arraycopy(b, off, buffer, 0, len);
+            filled = len;
         } else {
             flush();
             flushBuffer(b, off, len);
