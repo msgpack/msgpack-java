@@ -41,24 +41,23 @@ public class LinkedBufferInput implements Input {
     }
 
     public int read(byte[] b, int off, int len) throws EOFException {
+        if(link.isEmpty()) {
+            return 0;
+        }
         int olen = len;
         while(true) {
             ByteBuffer bb = link.peekFirst();
-            if(bb == null) {
-                break;
-            }
             if(len < bb.remaining()) {
                 bb.get(b, off, len);
-                if(bb.remaining() == 0) {
-                    link.removeFirst();
-                }
                 return olen;
             }
             int rem = bb.remaining();
             bb.get(b, off, rem);
             len -= rem;
             off += rem;
-            link.removeFirst();
+            if(!removeFirstLink(bb)) {
+                break;
+            }
         }
         return olen - len;
     }
@@ -70,43 +69,47 @@ public class LinkedBufferInput implements Input {
         }
         byte result = bb.get();
         if(bb.remaining() == 0) {
-            if(link.size() == 1 && writable >= 0) {
-                bb.position(0);
-                bb.limit(0);
-                writable = bb.capacity();
-            } else {
-                link.removeFirst();
-            }
+            removeFirstLink(bb);
         }
         return result;
     }
 
     public void advance() {
+        if(link.isEmpty()) {
+            return;
+        }
         int len = nextAdvance;
         ByteBuffer bb;
         while(true) {
             bb = link.peekFirst();
-            if(bb == null) {
-                nextAdvance = 0;
-                return;
-            }
-            if(len <= bb.remaining()) {
+            if(len < bb.remaining()) {
                 bb.position(bb.position()+len);
-                if(bb.remaining() == 0) {
-                    link.removeFirst();
-                }
                 break;
             }
             len -= bb.remaining();
-            link.removeFirst();
-        }
-        if(link.isEmpty() && writable >= 0) {
-            bb.position(0);
-            bb.limit(0);
-            link.addLast(bb);
-            writable = bb.capacity();
+            if(!removeFirstLink(bb)) {
+                break;
+            }
         }
         nextAdvance = 0;
+    }
+
+    private boolean removeFirstLink(ByteBuffer first) {
+        if(link.size() == 1) {
+            if(writable >= 0) {
+                first.position(0);
+                first.limit(0);
+                writable = first.capacity();
+                return false;
+            } else {
+                link.removeFirst();
+                return false;
+            }
+        } else {
+            link.removeFirst();
+            writable = -1;
+            return true;
+        }
     }
 
     private void requireMore(int n) throws EOFException {
@@ -286,6 +289,7 @@ public class LinkedBufferInput implements Input {
             writable = bb.capacity();
         } else {
             link.clear();
+            writable = -1;
         }
     }
 }

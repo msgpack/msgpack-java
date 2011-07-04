@@ -61,12 +61,13 @@ public class StreamInput implements Input {
         filled = 0;
     }
 
-    private void require(int n) throws IOException {
-        if(filled < n) {
-            filled += in.read(castBuffer, filled, filled - n);
-            if(filled < n) {
+    private void require(int len) throws IOException {
+        while(filled < len) {
+            int n = in.read(castBuffer, filled, filled - len);
+            if(n < 0) {
                 throw new EOFException();
             }
+            filled += n;
         }
     }
 
