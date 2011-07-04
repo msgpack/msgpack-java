@@ -21,6 +21,7 @@ import java.io.IOException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 
+
 public interface Template {
     public void write(Packer pk, Object v) throws IOException;
     public Object read(Unpacker u, Object to) throws IOException;
