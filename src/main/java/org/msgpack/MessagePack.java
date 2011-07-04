@@ -43,6 +43,31 @@ public class MessagePack {
 	registry = new TemplateRegistry(parent.registry);
     }
 
+    public byte[] pack(Object v) throws IOException {
+	return pack(v, getTemplate(v.getClass()));
+    }
+
+    public byte[] pack(Object v, Template tmpl) throws IOException { // TODO IOException
+	BufferPacker pk = new BufferPacker();
+	tmpl.write(pk, v);
+	return pk.toByteArray();
+    }
+
+    public void pack(OutputStream out, Object v) throws IOException {
+	pack(out, v, getTemplate(v.getClass()));
+    }
+
+    public void pack(OutputStream out, Object v, Template tmpl) throws IOException {
+	tmpl.write(new StreamPacker(out), v);
+    }
+
+    public byte[] pack(Value v) throws IOException {  // TODO IOException
+        // FIXME ValueTemplate should do this
+        BufferPacker pk = new BufferPacker();
+        pk.write(v);
+        return pk.toByteArray();
+    }
+
     public <T> T unpack(InputStream in, T v) throws IOException {
         // TODO
         Template tmpl = getTemplate(v.getClass());
@@ -53,6 +78,18 @@ public class MessagePack {
         // TODO
         Template tmpl = getTemplate(c);
         return (T)tmpl.read(new StreamUnpacker(in), null);
+    }
+
+    public Value unpack(byte[] b) throws IOException {  // TODO IOException
+        return unpack(b, 0, b.length);
+    }
+
+    public Value unpack(byte[] b, int off, int len) throws IOException {  // TODO IOException
+        return new BufferUnpacker().wrap(b, off, len).readValue();
+    }
+
+    public Value unpack(ByteBuffer buf) throws IOException {  // TODO IOException
+        return new BufferUnpacker().wrap(buf).readValue();
     }
 
     public <T> T unpack(byte[] b, T v) throws IOException {  // TODO IOException
@@ -85,37 +122,6 @@ public class MessagePack {
         BufferUnpacker u = new BufferUnpacker();
         u.wrap(b);
         return null;
-    }
-
-    public Value unpack(byte[] b) throws IOException {  // TODO IOException
-        return unpack(b, 0, b.length);
-    }
-
-    public Value unpack(byte[] b, int off, int len) throws IOException {  // TODO IOException
-        return new BufferUnpacker().wrap(b, off, len).readValue();
-    }
-
-    public Value unpack(ByteBuffer buf) throws IOException {  // TODO IOException
-        return new BufferUnpacker().wrap(buf).readValue();
-    }
-
-    public void pack(OutputStream out, Object v) throws IOException {
-        Template tmpl = getTemplate(v.getClass());
-        tmpl.write(new StreamPacker(out), v);
-    }
-
-    public byte[] pack(Value v) throws IOException {  // TODO IOException
-        // FIXME ValueTemplate should do this
-        BufferPacker pk = new BufferPacker();
-        pk.write(v);
-        return pk.toByteArray();
-    }
-
-    public byte[] pack(Object v) throws IOException {  // TODO IOException
-        Template tmpl = getTemplate(v.getClass());
-        BufferPacker pk = new BufferPacker();
-        tmpl.write(pk, v);
-        return pk.toByteArray();
     }
 
     protected Template getTemplate(Class<?> c) {
