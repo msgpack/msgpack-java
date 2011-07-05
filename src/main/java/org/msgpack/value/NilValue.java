@@ -45,6 +45,10 @@ public class NilValue extends AbstractValue {
         return "null";
     }
 
+    public StringBuilder toString(StringBuilder sb) {
+        return sb.append("null");
+    }
+
     public void writeTo(Packer pk) throws IOException {
         pk.writeNil();
     }
