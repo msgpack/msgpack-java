@@ -1,5 +1,8 @@
 package org.msgpack.io;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.io.IOException;
@@ -12,13 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
 
-import org.junit.Test;
 import org.msgpack.MessagePack;
 import org.msgpack.value.Value;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class TestLinkedBufferOutput extends TestCase {
+public class TestLinkedBufferOutput {
     @Test
     public void testGetSize() throws IOException {
         LinkedBufferOutput o = new LinkedBufferOutput(10);
@@ -48,7 +50,7 @@ public class TestLinkedBufferOutput extends TestCase {
         byte[] b1 = bo.toByteArray();
         byte[] b2 = o2.toByteArray();
         assertEquals(b1.length, b2.length);
-        assertTrue(Arrays.equals(b1, b2));
+        assertArrayEquals(b1, b2);
     }
 
     @Test
@@ -77,7 +79,7 @@ public class TestLinkedBufferOutput extends TestCase {
         byte[] b1 = bo.toByteArray();
         byte[] b2 = o2.toByteArray();
         assertEquals(b1.length, b2.length);
-        assertTrue(Arrays.equals(b1, b2));
+        assertArrayEquals(b1, b2);
     }
 
     @Test
@@ -95,7 +97,7 @@ public class TestLinkedBufferOutput extends TestCase {
         byte[] b1 = bo.toByteArray();
         byte[] b2 = o2.toByteArray();
         assertEquals(b1.length, b2.length);
-        assertTrue(Arrays.equals(b1, b2));
+        assertArrayEquals(b1, b2);
     }
 }
 

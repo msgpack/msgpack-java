@@ -117,7 +117,11 @@ class LongValueImpl extends IntegerValue {
     }
 
     public int hashCode() {
-        return (int)(value^(value>>>32));
+        if(INT_MIN <= value && value <= INT_MAX) {
+            return (int)value;
+        } else {
+            return (int)(value^(value>>>32));
+        }
     }
 
     public String toString() {

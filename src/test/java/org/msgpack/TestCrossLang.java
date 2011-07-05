@@ -1,5 +1,10 @@
 package org.msgpack;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertArrayEquals;
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.io.IOException;
@@ -10,17 +15,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Arrays;
 
-import org.junit.Test;
 import org.msgpack.MessagePack;
 import org.msgpack.value.Value;
 import org.msgpack.packer.StreamPacker;
 import org.msgpack.unpacker.BufferUnpacker;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class TestCrossLang extends TestCase {
+public class TestCrossLang {
     private byte[] readData(String path) throws IOException {
         ByteArrayOutputStream bo = new ByteArrayOutputStream();
         FileInputStream input = new FileInputStream(path);
@@ -81,7 +84,7 @@ public class TestCrossLang extends TestCase {
         byte[] c = out.toByteArray();
 
         assertEquals(b.length, c.length);
-        assertTrue(Arrays.equals(b, c));
+        assertArrayEquals(b, c);
     }
 }
 

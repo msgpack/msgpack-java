@@ -117,7 +117,12 @@ class BigIntegerValueImpl extends IntegerValue {
     }
 
     public int hashCode() {
-        // TODO BigIntegerValueImpl(v).hashCode() == IntValueImpl(v).hashCode()
+        if(INT_MIN.compareTo(value) <= 0 && value.compareTo(INT_MAX) <= 0) {
+            return (int)value.longValue();
+        } else if(LONG_MIN.compareTo(value) <= 0 && value.compareTo(LONG_MAX) <= 0) {
+            long v = value.longValue();
+            return (int)(v^(v>>>32));
+        }
         return value.hashCode();
     }
 

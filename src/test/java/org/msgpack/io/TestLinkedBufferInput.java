@@ -1,5 +1,9 @@
 package org.msgpack.io;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.io.IOException;
@@ -15,13 +19,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
 
-import org.junit.Test;
 import org.msgpack.MessagePack;
 import org.msgpack.value.Value;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class TestLinkedBufferInput extends TestCase {
+public class TestLinkedBufferInput {
     @Test
     public void testReadByte() throws IOException {
         byte[] src = new byte[8];
@@ -164,9 +167,8 @@ public class TestLinkedBufferInput extends TestCase {
 
         try {
             b2.readByte();
-            assertTrue(false);
+            fail();
         } catch(EndOfBufferException eof) {
-            assertTrue(true);
         }
     }
 
@@ -199,11 +201,11 @@ public class TestLinkedBufferInput extends TestCase {
             assertEquals(2L, b.getLong());
             assertEquals(2L, b.getLong());
             b.advance();
-            assertEquals(1.1f, b.getFloat());
-            assertEquals(1.1f, b.getFloat());
+            assertEquals(1.1f, b.getFloat(), 0.000001f);
+            assertEquals(1.1f, b.getFloat(), 0.000001f);
             b.advance();
-            assertEquals(1.1, b.getDouble());
-            assertEquals(1.1, b.getDouble());
+            assertEquals(1.1, b.getDouble(), 0.000001);
+            assertEquals(1.1, b.getDouble(), 0.000001);
             b.advance();
         }
     }
@@ -233,9 +235,8 @@ public class TestLinkedBufferInput extends TestCase {
             for(int j=0; j < 2; j++) {
                 try {
                     b.getShort();
-                    assertTrue(false);
+                    fail();
                 } catch(EndOfBufferException eof) {
-                    assertTrue(true);
                 }
                 b.feed(src, p++, 1, true);
             }
@@ -246,9 +247,8 @@ public class TestLinkedBufferInput extends TestCase {
             for(int j=0; j < 4; j++) {
                 try {
                     b.getInt();
-                    assertTrue(false);
+                    fail();
                 } catch(EndOfBufferException eof) {
-                    assertTrue(true);
                 }
                 b.feed(src, p++, 1, true);
             }
@@ -259,9 +259,8 @@ public class TestLinkedBufferInput extends TestCase {
             for(int j=0; j < 8; j++) {
                 try {
                     b.getLong();
-                    assertTrue(false);
+                    fail();
                 } catch(EndOfBufferException eof) {
-                    assertTrue(true);
                 }
                 b.feed(src, p++, 1, true);
             }
@@ -272,27 +271,25 @@ public class TestLinkedBufferInput extends TestCase {
             for(int j=0; j < 4; j++) {
                 try {
                     b.getFloat();
-                    assertTrue(false);
+                    fail();
                 } catch(EndOfBufferException eof) {
-                    assertTrue(true);
                 }
                 b.feed(src, p++, 1, true);
             }
-            assertEquals(1.1f, b.getFloat());
-            assertEquals(1.1f, b.getFloat());
+            assertEquals(1.1f, b.getFloat(), 0.000001f);
+            assertEquals(1.1f, b.getFloat(), 0.000001f);
             b.advance();
 
             for(int j=0; j < 8; j++) {
                 try {
                     b.getDouble();
-                    assertTrue(false);
+                    fail();
                 } catch(EndOfBufferException eof) {
-                    assertTrue(true);
                 }
                 b.feed(src, p++, 1, true);
             }
-            assertEquals(1.1, b.getDouble());
-            assertEquals(1.1, b.getDouble());
+            assertEquals(1.1, b.getDouble(), 0.000001);
+            assertEquals(1.1, b.getDouble(), 0.000001);
             b.advance();
         }
     }
@@ -432,9 +429,8 @@ public class TestLinkedBufferInput extends TestCase {
         for(int i=0; i < 2; i++) {
             try {
                 b.readByte();
-                assertTrue(false);
+                fail();
             } catch(EndOfBufferException eof) {
-                assertTrue(true);
             }
 
             b.feed(src);
@@ -453,13 +449,11 @@ public class TestLinkedBufferInput extends TestCase {
         }
     }
 
-    @Test
     private void assertEndOfBuffer(LinkedBufferInput b) throws IOException {
         try {
             b.readByte();
-            assertTrue(false);
+            fail();
         } catch(EndOfBufferException eof) {
-            assertTrue(true);
         }
     }
 }
