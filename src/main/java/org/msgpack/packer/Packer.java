@@ -76,9 +76,6 @@ public abstract class Packer {
         v.writeTo(this);
     }
 
-    public void flush() throws IOException {
-    }
-
     /* TODO
     public void write(boolean v) throws IOException {
         writeBoolean(v);

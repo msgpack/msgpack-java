@@ -78,8 +78,6 @@ public class TestCrossLang extends TestCase {
             pk.write(av);
         }
 
-        pk.flush();
-
         byte[] c = out.toByteArray();
 
         assertEquals(b.length, c.length);

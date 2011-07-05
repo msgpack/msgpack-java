@@ -45,7 +45,5 @@ public interface Output {
     public void writeByteAndFloat(byte b, float v) throws IOException;
 
     public void writeByteAndDouble(byte b, double v) throws IOException;
-
-    public void flush() throws IOException;
 }
 
