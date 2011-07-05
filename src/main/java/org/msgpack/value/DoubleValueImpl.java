@@ -91,5 +91,9 @@ class DoubleValueImpl extends FloatValue {
     public String toString() {
         return Double.toString(value);
     }
+
+    public StringBuilder toString(StringBuilder sb) {
+        return sb.append(Double.toString(value));
+    }
 }
 

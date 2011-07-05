@@ -52,5 +52,7 @@ public interface Value {
     public RawValue asRawValue();
 
     public void writeTo(Packer pk) throws IOException;
+
+    public StringBuilder toString(StringBuilder sb);
 }
 

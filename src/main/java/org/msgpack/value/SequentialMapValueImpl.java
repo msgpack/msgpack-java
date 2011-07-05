@@ -254,22 +254,25 @@ class SequentialMapValueImpl extends AbstractMapValue {
     }
 
     public String toString() {
+        return toString(new StringBuilder()).toString();
+    }
+
+    public StringBuilder toString(StringBuilder sb) {
         if(array.length == 0) {
-            return "{}";
+            return sb.append("{}");
         }
-        StringBuilder sb = new StringBuilder();
         sb.append("{");
         sb.append(array[0]);
         sb.append(":");
         sb.append(array[1]);
         for(int i=2; i < array.length; i+=2) {
             sb.append(",");
-            sb.append(array[i]);
+            array[i].toString(sb);
             sb.append(":");
-            sb.append(array[i+1]);
+            array[i+1].toString(sb);
         }
         sb.append("}");
-        return sb.toString();
+        return sb;
     }
 }
 

@@ -33,10 +33,6 @@ class FalseValueImpl extends AbstractBooleanValue {
         return false;
     }
 
-    public BooleanValue asBooleanValue() {
-        return this;
-    }
-
     public void writeTo(Packer pk) throws IOException {
         pk.writeBoolean(false);
     }
@@ -54,6 +50,14 @@ class FalseValueImpl extends AbstractBooleanValue {
 
     public int hashCode() {
         return 1237;
+    }
+
+    public String toString() {
+        return "false";
+    }
+
+    public StringBuilder toString(StringBuilder sb) {
+        return sb.append("false");
     }
 }
 

@@ -19,7 +19,6 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	StreamPacker packer = new StreamPacker(out);
 	packer.writeBoolean(v);
-	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 	StreamUnpacker unpacker = new StreamUnpacker(in);
 	boolean ret = unpacker.readBoolean();
@@ -31,7 +30,6 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	StreamPacker packer = new StreamPacker(out);
 	packer.writeByte(v);
-	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 	StreamUnpacker unpacker = new StreamUnpacker(in);
 	byte ret = unpacker.readByte();
@@ -43,7 +41,6 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	StreamPacker packer = new StreamPacker(out);
 	packer.writeShort(v);
-	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 	StreamUnpacker unpacker = new StreamUnpacker(in);
 	short ret = unpacker.readShort();
@@ -55,7 +52,6 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	StreamPacker packer = new StreamPacker(out);
 	packer.writeInt(v);
-	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 	StreamUnpacker unpacker = new StreamUnpacker(in);
 	int ret = unpacker.readInt();
@@ -67,7 +63,6 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	StreamPacker packer = new StreamPacker(out);
 	packer.writeLong(v);
-	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 	StreamUnpacker unpacker = new StreamUnpacker(in);
 	long ret = unpacker.readLong();
@@ -79,7 +74,6 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	StreamPacker packer = new StreamPacker(out);
 	packer.writeFloat(v);
-	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 	StreamUnpacker unpacker = new StreamUnpacker(in);
 	float ret = unpacker.readFloat();
@@ -91,7 +85,6 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	StreamPacker packer = new StreamPacker(out);
 	packer.writeDouble(v);
-	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 	StreamUnpacker unpacker = new StreamUnpacker(in);
 	double ret = unpacker.readDouble();
@@ -103,7 +96,6 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	StreamPacker packer = new StreamPacker(out);
 	packer.writeNil();
-	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 	StreamUnpacker unpacker = new StreamUnpacker(in);
 	unpacker.readNil();
@@ -114,7 +106,6 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	StreamPacker packer = new StreamPacker(out);
 	packer.writeBigInteger(v);
-	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 	StreamUnpacker unpacker = new StreamUnpacker(in);
 	BigInteger ret = unpacker.readBigInteger();
@@ -126,7 +117,6 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	StreamPacker packer = new StreamPacker(out);
 	packer.writeString(v);
-	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 	StreamUnpacker unpacker = new StreamUnpacker(in);
 	String ret = unpacker.readString();
@@ -138,7 +128,6 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	StreamPacker packer = new StreamPacker(out);
 	packer.writeByteArray(v);
-	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 	StreamUnpacker unpacker = new StreamUnpacker(in);
 	byte[] ret = unpacker.readByteArray();

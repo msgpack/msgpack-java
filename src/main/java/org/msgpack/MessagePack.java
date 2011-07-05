@@ -60,7 +60,6 @@ public class MessagePack {
     public void pack(OutputStream out, Object v, Template tmpl) throws IOException {
         StreamPacker pk = new StreamPacker(out);
         tmpl.write(pk, v);
-        pk.flush();
     }
 
     public byte[] pack(Value v) throws IOException {  // TODO IOException

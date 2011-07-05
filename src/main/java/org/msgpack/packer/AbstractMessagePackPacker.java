@@ -33,11 +33,6 @@ abstract class AbstractMessagePackPacker extends Packer {
     }
 
     @Override
-    public void flush() throws IOException {
-        out.flush();
-    }
-
-    @Override
     public void writeByte(byte d) throws IOException {
         if(d < -(1<<5)) {
             out.writeByteAndByte((byte)0xd0, d);

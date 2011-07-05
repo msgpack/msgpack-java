@@ -33,8 +33,5 @@ public abstract class FloatValue extends NumberValue {
     public abstract float getFloat();
 
     public abstract double getDouble();
-
-    // TODO equals
-    // TODO hashCode
 }
 
