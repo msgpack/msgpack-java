@@ -26,9 +26,11 @@ import org.msgpack.template.Template;
 import org.msgpack.packer.Packer;
 import org.msgpack.packer.StreamPacker;
 import org.msgpack.packer.BufferPacker;
+import org.msgpack.packer.Unconverter;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.unpacker.StreamUnpacker;
 import org.msgpack.unpacker.BufferUnpacker;
+import org.msgpack.unpacker.Converter;
 import org.msgpack.value.Value;
 import org.msgpack.template.*;
 
@@ -123,6 +125,25 @@ public class MessagePack {
         BufferUnpacker u = new BufferUnpacker();
         u.wrap(b);
         return null;
+    }
+
+    public <T> T convert(Value v, T to) throws IOException {  // TODO IOException
+        // TODO
+        Template tmpl = getTemplate(to.getClass());
+        return (T)tmpl.read(new Converter(v), to);
+    }
+
+    public <T> T convert(Value v, Class<T> c) throws IOException {  // TODO IOException
+        // TODO
+        Template tmpl = getTemplate(c);
+        return (T)tmpl.read(new Converter(v), null);
+    }
+
+    public Value unconvert(Object v) throws IOException {  // TODO IOException
+        Template tmpl = getTemplate(v.getClass());
+        Unconverter pk = new Unconverter();
+        tmpl.write(pk, v);
+        return pk.getResult();
     }
 
     protected Template getTemplate(Class<?> c) {

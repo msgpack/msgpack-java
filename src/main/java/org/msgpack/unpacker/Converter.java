@@ -123,8 +123,8 @@ public class Converter extends Unpacker {
             throw new MessageTypeException("Expected array but got not array value");
         }
         ArrayValue a = v.asArrayValue();
-        values[stack.getDepth()] = a.getElementArray();
         stack.pushArray(a.size());
+        values[stack.getDepth()] = a.getElementArray();
         return a.size();
     }
 
@@ -153,8 +153,8 @@ public class Converter extends Unpacker {
             throw new MessageTypeException("Expected array but got not array value");
         }
         MapValue m = v.asMapValue();
-        values[stack.getDepth()] = m.getKeyValueArray();
         stack.pushMap(m.size());
+        values[stack.getDepth()] = m.getKeyValueArray();
         return m.size();
     }
 
@@ -186,7 +186,7 @@ public class Converter extends Unpacker {
             return (Value) values[0];
         }
         Value[] array = (Value[]) values[stack.getDepth()];
-        return array[stack.getTopCount()];
+        return array[array.length - stack.getTopCount()];
     }
 
     @Override
@@ -209,14 +209,14 @@ public class Converter extends Unpacker {
             if(v.isArray()) {
                 ArrayValue a = v.asArrayValue();
                 uc.writeArrayBegin(a.size());
-                values[stack.getDepth()] = a.getElementArray();
                 stack.pushArray(a.size());
+                values[stack.getDepth()] = a.getElementArray();
 
             } else if(v.isMap()) {
                 MapValue m = v.asMapValue();
                 uc.writeMapBegin(m.size());
-                values[stack.getDepth()] = m.getKeyValueArray();
                 stack.pushMap(m.size());
+                values[stack.getDepth()] = m.getKeyValueArray();
 
             } else {
                 uc.write(v);
@@ -253,13 +253,13 @@ public class Converter extends Unpacker {
         while(true) {
             if(v.isArray()) {
                 ArrayValue a = v.asArrayValue();
-                values[stack.getDepth()] = a.getElementArray();
                 stack.pushArray(a.size());
+                values[stack.getDepth()] = a.getElementArray();
 
             } else if(v.isMap()) {
                 MapValue m = v.asMapValue();
-                values[stack.getDepth()] = m.getKeyValueArray();
                 stack.pushMap(m.size());
+                values[stack.getDepth()] = m.getKeyValueArray();
 
             } else {
                 stack.reduceCount();
