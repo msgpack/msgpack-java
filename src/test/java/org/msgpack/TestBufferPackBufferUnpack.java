@@ -1,16 +1,20 @@
 package org.msgpack;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 
-import org.junit.Ignore;
+import org.junit.Test;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.unpacker.BufferUnpacker;
 
 
-public class TestBufferPackUnpack extends TestSetPredefinedTypes {
+public class TestBufferPackBufferUnpack extends TestSet {
+
+    @Test @Override
+    public void testBoolean() throws Exception {
+	super.testBoolean();
+    }
 
     @Override
     public void testBoolean(boolean v) throws Exception {
@@ -21,6 +25,11 @@ public class TestBufferPackUnpack extends TestSetPredefinedTypes {
 	unpacker.wrap(bytes);
 	boolean ret = unpacker.readBoolean();
 	assertEquals(v, ret);
+    }
+
+    @Test @Override
+    public void testByte() throws Exception {
+	super.testByte();
     }
 
     @Override
@@ -34,6 +43,11 @@ public class TestBufferPackUnpack extends TestSetPredefinedTypes {
 	assertEquals(v, ret);
     }
 
+    @Test @Override
+    public void testShort() throws Exception {
+	super.testShort();
+    }
+
     @Override
     public void testShort(short v) throws Exception {
 	BufferPacker packer = new BufferPacker();
@@ -45,8 +59,13 @@ public class TestBufferPackUnpack extends TestSetPredefinedTypes {
 	assertEquals(v, ret);
     }
 
+    @Test @Override
+    public void testInteger() throws Exception {
+	super.testInteger();
+    }
+
     @Override
-    public void testInt(int v) throws Exception {
+    public void testInteger(int v) throws Exception {
 	BufferPacker packer = new BufferPacker();
 	packer.writeInt(v);
 	byte[] bytes = packer.toByteArray();
@@ -54,6 +73,11 @@ public class TestBufferPackUnpack extends TestSetPredefinedTypes {
 	unpacker.wrap(bytes);
 	int ret = unpacker.readInt();
 	assertEquals(v, ret);
+    }
+
+    @Test @Override
+    public void testLong() throws Exception {
+	super.testLong();
     }
 
     @Override
@@ -67,6 +91,11 @@ public class TestBufferPackUnpack extends TestSetPredefinedTypes {
 	assertEquals(v, ret);
     }
 
+    @Test @Override
+    public void testFloat() throws Exception {
+	super.testFloat();
+    }
+
     @Override
     public void testFloat(float v) throws Exception {
 	BufferPacker packer = new BufferPacker();
@@ -77,7 +106,12 @@ public class TestBufferPackUnpack extends TestSetPredefinedTypes {
 	float ret = unpacker.readFloat();
 	assertEquals(v, ret, 10e-10);
     }
-    
+
+    @Test @Override
+    public void testDouble() throws Exception {
+	super.testDouble();
+    }
+
     @Override
     public void testDouble(double v) throws Exception {
 	BufferPacker packer = new BufferPacker();
@@ -89,7 +123,7 @@ public class TestBufferPackUnpack extends TestSetPredefinedTypes {
 	assertEquals(v, ret, 10e-10);
     }
 
-    @Override
+    @Test @Override
     public void testNil() throws Exception {
 	BufferPacker packer = new BufferPacker();
 	packer.writeNil();
@@ -97,6 +131,11 @@ public class TestBufferPackUnpack extends TestSetPredefinedTypes {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	unpacker.readNil();
+    }
+
+    @Test @Override
+    public void testBigInteger() throws Exception {
+	super.testBigInteger();
     }
 
     @Override
@@ -110,6 +149,11 @@ public class TestBufferPackUnpack extends TestSetPredefinedTypes {
 	assertEquals(v, ret);
     }
 
+    @Test @Override
+    public void testString() throws Exception {
+	super.testString();
+    }
+
     @Override
     public void testString(String v) throws Exception {
 	BufferPacker packer = new BufferPacker();
@@ -119,6 +163,11 @@ public class TestBufferPackUnpack extends TestSetPredefinedTypes {
 	unpacker.wrap(bytes);
 	String ret = unpacker.readString();
 	assertEquals(v, ret);
+    }
+
+    @Test @Override
+    public void testByteArray() throws Exception {
+	super.testByteArray();
     }
 
     @Override

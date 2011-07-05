@@ -6,13 +6,17 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 
-import org.msgpack.packer.Packer;
+import org.junit.Test;
 import org.msgpack.packer.StreamPacker;
 import org.msgpack.unpacker.StreamUnpacker;
-import org.msgpack.unpacker.Unpacker;
 
 
-public class TestStreamPackUnpack extends TestSetPredefinedTypes {
+public class TestStreamPackStreamUnpack extends TestSet {
+
+    @Test @Override
+    public void testBoolean() throws Exception {
+	super.testBoolean();
+    }
 
     @Override
     public void testBoolean(boolean v) throws Exception {
@@ -23,6 +27,11 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	StreamUnpacker unpacker = new StreamUnpacker(in);
 	boolean ret = unpacker.readBoolean();
 	assertEquals(v, ret);
+    }
+
+    @Test @Override
+    public void testByte() throws Exception {
+	super.testByte();
     }
 
     @Override
@@ -36,6 +45,11 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	assertEquals(v, ret);
     }
 
+    @Test @Override
+    public void testShort() throws Exception {
+	super.testShort();
+    }
+
     @Override
     public void testShort(short v) throws Exception {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -47,8 +61,13 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	assertEquals(v, ret);
     }
 
+    @Test @Override
+    public void testInteger() throws Exception {
+	super.testInteger();
+    }
+
     @Override
-    public void testInt(int v) throws Exception {
+    public void testInteger(int v) throws Exception {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	StreamPacker packer = new StreamPacker(out);
 	packer.writeInt(v);
@@ -56,6 +75,11 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	StreamUnpacker unpacker = new StreamUnpacker(in);
 	int ret = unpacker.readInt();
 	assertEquals(v, ret);
+    }
+
+    @Test @Override
+    public void testLong() throws Exception {
+	super.testLong();
     }
 
     @Override
@@ -79,7 +103,12 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	float ret = unpacker.readFloat();
 	assertEquals(v, ret, 10e-10);
     }
-    
+
+    @Test @Override
+    public void testDouble() throws Exception {
+	super.testDouble();
+    }
+
     @Override
     public void testDouble(double v) throws Exception {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -91,7 +120,7 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	assertEquals(v, ret, 10e-10);
     }
 
-    @Override
+    @Test @Override
     public void testNil() throws Exception {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	StreamPacker packer = new StreamPacker(out);
@@ -99,6 +128,11 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 	StreamUnpacker unpacker = new StreamUnpacker(in);
 	unpacker.readNil();
+    }
+
+    @Test @Override
+    public void testBigInteger() throws Exception {
+	super.testBigInteger();
     }
 
     @Override
@@ -112,6 +146,11 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	assertEquals(v, ret);
     }
 
+    @Test @Override
+    public void testString() throws Exception {
+	super.testString();
+    }
+
     @Override
     public void testString(String v) throws Exception {
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -121,6 +160,11 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	StreamUnpacker unpacker = new StreamUnpacker(in);
 	String ret = unpacker.readString();
 	assertEquals(v, ret);
+    }
+
+    @Test @Override
+    public void testByteArray() throws Exception {
+	super.testByteArray();
     }
 
     @Override
