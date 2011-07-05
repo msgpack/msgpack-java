@@ -67,7 +67,6 @@ final class ValueAccept extends Accept {
     @Override
     void acceptUnsignedInteger(int v) {
         if(v < 0) {
-            // FIXME
             long value = (long)(v & 0x7fffffff) + 0x80000000L;
             uc.write(ValueFactory.integerValue(value));
         } else {
@@ -78,7 +77,7 @@ final class ValueAccept extends Accept {
     @Override
     void acceptUnsignedInteger(long v) {
         if(v < 0L) {
-            BigInteger value = BigInteger.valueOf(0xffffffffffffffffL + v + 1L);
+            BigInteger value = BigInteger.valueOf(v+Long.MAX_VALUE+1L).setBit(63);
             uc.write(ValueFactory.integerValue(value));
         } else {
             uc.write(ValueFactory.integerValue(v));

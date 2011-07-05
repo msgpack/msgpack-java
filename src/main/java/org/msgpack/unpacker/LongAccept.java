@@ -55,7 +55,6 @@ final class LongAccept extends Accept {
     @Override
     void acceptUnsignedInteger(int v) {
         if(v < 0) {
-            // FIXME
             this.value = (long)(v & 0x7fffffff) + 0x80000000L;
         } else {
             this.value = (long)v;

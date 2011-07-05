@@ -177,10 +177,7 @@ public class TestBufferPackConvert extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	Value value = unpacker.readValue();
-	// FIXME assertTrue(value.isBigInteger());
-	//System.out.println("## value: " + value.getClass());
-	// following result is strange...
-	//assertTrue(value.is??);
+	assertTrue(value.isInteger());
 	BigInteger ret = new Converter(value).readBigInteger();
 	assertEquals(v, ret);
     }
