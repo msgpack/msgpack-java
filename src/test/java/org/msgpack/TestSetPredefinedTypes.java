@@ -157,8 +157,8 @@ public abstract class TestSetPredefinedTypes {
 		len = (int) Math.random() % 31 + 1;
 		for (int j = 0; j < len; j++) {
 		    sb.append('a' + ((int) Math.random()) & 26);
-		    testString(sb.toString());
 		}
+		testString(sb.toString());
 	    }
 	}
 	// medium size string
@@ -168,8 +168,8 @@ public abstract class TestSetPredefinedTypes {
 		len = (int) Math.random() % 100 + (1 << 15);
 		for (int j = 0; j < len; j++) {
 		    sb.append('a' + ((int) Math.random()) & 26);
-		    testString(sb.toString());
 		}
+		testString(sb.toString());
 	    }
 	}
 	// large size string
@@ -179,8 +179,8 @@ public abstract class TestSetPredefinedTypes {
 		len = (int) Math.random() % 100 + (1 << 31);
 		for (int j = 0; j < len; j++) {
 		    sb.append('a' + ((int) Math.random()) & 26);
-		    testString(sb.toString());
 		}
+		testString(sb.toString());
 	    }
 	}
     }
@@ -189,37 +189,15 @@ public abstract class TestSetPredefinedTypes {
 
     @Test
     public void testByteArray() throws Exception {
-	testByteArray(new byte[0]);
-	Random rand = new Random();
-	// small size byte array
-	byte[] bytes;
-	int len;
-	{
-	    len = (int) Math.random() % 31 + 1;
-	    bytes = new byte[len];
-	    for (int i = 0; i < 100; ++i) {
-		rand.nextBytes(bytes);
-		testByteArray(bytes);
-	    }
-	}
-	// medium size byte array
-	{
-	    len = (int) Math.random() % 100 + (1 << 15);
-	    bytes = new byte[len];
-	    for (int i = 0; i < 100; ++i) {
-		rand.nextBytes(bytes);
-		testByteArray(bytes);
-	    }
-	}
-	// large size byte array
-	{
-	    len = (int) Math.random() % 100 + (1 << 31);
-	    bytes = new byte[len];
-	    for (int i = 0; i < 100; ++i) {
-		rand.nextBytes(bytes);
-		testByteArray(bytes);
-	    }
-	}
+	Random rand = new Random(System.currentTimeMillis());
+	byte[] b0 = new byte[0];
+	testByteArray(b0);
+	byte[] b1 = new byte[10];
+	rand.nextBytes(b1);
+	testByteArray(b1);
+	byte[] b2 = new byte[1024];
+	rand.nextBytes(b2);
+	testByteArray(b2);
     }
 
     public abstract void testByteArray(byte[] v) throws Exception;

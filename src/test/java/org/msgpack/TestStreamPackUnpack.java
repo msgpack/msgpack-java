@@ -21,7 +21,7 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	packer.writeBoolean(v);
 	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	Unpacker unpacker = new StreamUnpacker(in);
+	StreamUnpacker unpacker = new StreamUnpacker(in);
 	boolean ret = unpacker.readBoolean();
 	assertEquals(v, ret);
     }
@@ -33,7 +33,7 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	packer.writeByte(v);
 	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	Unpacker unpacker = new StreamUnpacker(in);
+	StreamUnpacker unpacker = new StreamUnpacker(in);
 	byte ret = unpacker.readByte();
 	assertEquals(v, ret);
     }
@@ -45,7 +45,7 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	packer.writeShort(v);
 	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	Unpacker unpacker = new StreamUnpacker(in);
+	StreamUnpacker unpacker = new StreamUnpacker(in);
 	short ret = unpacker.readShort();
 	assertEquals(v, ret);
     }
@@ -57,7 +57,7 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	packer.writeInt(v);
 	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	Unpacker unpacker = new StreamUnpacker(in);
+	StreamUnpacker unpacker = new StreamUnpacker(in);
 	int ret = unpacker.readInt();
 	assertEquals(v, ret);
     }
@@ -69,7 +69,7 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	packer.writeLong(v);
 	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	Unpacker unpacker = new StreamUnpacker(in);
+	StreamUnpacker unpacker = new StreamUnpacker(in);
 	long ret = unpacker.readLong();
 	assertEquals(v, ret);
     }
@@ -81,7 +81,7 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	packer.writeFloat(v);
 	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	Unpacker unpacker = new StreamUnpacker(in);
+	StreamUnpacker unpacker = new StreamUnpacker(in);
 	float ret = unpacker.readFloat();
 	assertEquals(v, ret, 10e-10);
     }
@@ -93,7 +93,7 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	packer.writeDouble(v);
 	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	Unpacker unpacker = new StreamUnpacker(in);
+	StreamUnpacker unpacker = new StreamUnpacker(in);
 	double ret = unpacker.readDouble();
 	assertEquals(v, ret, 10e-10);
     }
@@ -105,7 +105,7 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	packer.writeNil();
 	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	Unpacker unpacker = new StreamUnpacker(in);
+	StreamUnpacker unpacker = new StreamUnpacker(in);
 	unpacker.readNil();
     }
 
@@ -116,7 +116,7 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	packer.writeBigInteger(v);
 	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	Unpacker unpacker = new StreamUnpacker(in);
+	StreamUnpacker unpacker = new StreamUnpacker(in);
 	BigInteger ret = unpacker.readBigInteger();
 	assertEquals(v, ret);
     }
@@ -128,7 +128,7 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	packer.writeString(v);
 	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	Unpacker unpacker = new StreamUnpacker(in);
+	StreamUnpacker unpacker = new StreamUnpacker(in);
 	String ret = unpacker.readString();
 	assertEquals(v, ret);
     }
@@ -140,7 +140,7 @@ public class TestStreamPackUnpack extends TestSetPredefinedTypes {
 	packer.writeByteArray(v);
 	packer.flush();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	Unpacker unpacker = new StreamUnpacker(in);
+	StreamUnpacker unpacker = new StreamUnpacker(in);
 	byte[] ret = unpacker.readByteArray();
 	assertEquals(v.length, ret.length);
 	for (int i = 0; i < v.length; ++i) {
