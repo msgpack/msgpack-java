@@ -135,7 +135,7 @@ public class MessagePack {
     }
 
     public void register(Class<?> type) {
-        // TODO
+	registry.register(type);
     }
 
     public void registerTemplate(Class<?> type, Template tmpl) {

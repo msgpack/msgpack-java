@@ -30,8 +30,8 @@ import org.msgpack.template.DoubleArrayTemplate;
 import org.msgpack.template.DoubleTemplate;
 import org.msgpack.template.FloatArrayTemplate;
 import org.msgpack.template.FloatTemplate;
-import org.msgpack.template.IntArrayTemplate;
-import org.msgpack.template.IntTemplate;
+import org.msgpack.template.IntegerArrayTemplate;
+import org.msgpack.template.IntegerTemplate;
 import org.msgpack.template.LongArrayTemplate;
 import org.msgpack.template.LongTemplate;
 import org.msgpack.template.ShortArrayTemplate;
@@ -51,8 +51,8 @@ class TemplateRegistry {
         reg.register(Byte.class, ByteTemplate.getInstance());
         reg.register(short.class, ShortTemplate.getInstance());
         reg.register(Short.class, ShortTemplate.getInstance());
-        reg.register(int.class, IntTemplate.getInstance());
-        reg.register(Integer.class, IntTemplate.getInstance());
+        reg.register(int.class, IntegerTemplate.getInstance());
+        reg.register(Integer.class, IntegerTemplate.getInstance());
         reg.register(long.class, LongTemplate.getInstance());
         reg.register(Long.class, LongTemplate.getInstance());
         reg.register(float.class, FloatTemplate.getInstance());
@@ -62,7 +62,7 @@ class TemplateRegistry {
         reg.register(BigInteger.class, BigIntegerTemplate.getInstance());
         reg.register(boolean[].class, ByteArrayTemplate.getInstance());
         reg.register(short[].class, ShortArrayTemplate.getInstance());
-        reg.register(int[].class, IntArrayTemplate.getInstance());
+        reg.register(int[].class, IntegerArrayTemplate.getInstance());
         reg.register(long[].class, LongArrayTemplate.getInstance());
         reg.register(float[].class, FloatArrayTemplate.getInstance());
         reg.register(double[].class, DoubleArrayTemplate.getInstance());
@@ -89,15 +89,23 @@ class TemplateRegistry {
 
     public Template lookup(Type type) {
         Template tmpl = tryLookup(type);
-        if (tmpl == null && parent != null) {
-            tmpl = parent.tryLookup(type);
+        if (tmpl != null) {
+            return tmpl;
         }
-        return tmpl;
+        try {
+            return parent.tryLookup(type);
+        } catch (NullPointerException e) {
+            return null;
+        }
     }
 
     private Template tryLookup(Type type) {
         // TODO
         return templateCache.get(type);
+    }
+
+    public void register(Type type) {
+	// TODO FIXME
     }
 
     public void register(Type type, Template tmpl) {
@@ -107,11 +115,7 @@ class TemplateRegistry {
 
     public void unregister(Type type) {
 	// TODO
-	if (type == null) {
-	    throw new NullPointerException("Type is null");
-	}
-
-	templateCache.clear();
+	templateCache.remove(type);
 	if (parent != null) {
 	    parent.unregister(type);
 	}
