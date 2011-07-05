@@ -23,8 +23,8 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class IntArrayTemplate implements Template {
-    private IntArrayTemplate() { }
+public class IntegerArrayTemplate implements Template {
+    private IntegerArrayTemplate() { }
 
     public void write(Packer pk, Object target) throws IOException {
         if(target == null) {
@@ -53,10 +53,10 @@ public class IntArrayTemplate implements Template {
         return array;
     }
 
-    static public IntArrayTemplate getInstance() {
+    static public IntegerArrayTemplate getInstance() {
         return instance;
     }
 
-    static final IntArrayTemplate instance = new IntArrayTemplate();
+    static final IntegerArrayTemplate instance = new IntegerArrayTemplate();
 }
 
