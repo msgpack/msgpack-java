@@ -27,6 +27,7 @@ public class Unconverter extends Packer {
     private PackerStack stack;
     private Object[] values;
     private Value result;
+    private Value topContainer;
 
     public Unconverter() {
         this.stack = new PackerStack();
@@ -98,10 +99,17 @@ public class Unconverter extends Packer {
 
     @Override
     public void writeArrayBegin(int size) {
-        Value[] array = new Value[size];
-        put(ValueFactory.arrayValue(array, true));
-        stack.pushArray(size);
-        values[stack.getDepth()] = array;
+        if(size == 0) {
+            Value[] array = new Value[size];
+            putContainer(ValueFactory.arrayValue());
+            stack.pushArray(0);
+            values[stack.getDepth()] = null;
+        } else {
+            Value[] array = new Value[size];
+            putContainer(ValueFactory.arrayValue(array, true));
+            stack.pushArray(size);
+            values[stack.getDepth()] = array;
+        }
     }
 
     @Override
@@ -120,14 +128,24 @@ public class Unconverter extends Packer {
             }
         }
         stack.pop();
+        if(stack.getDepth() <= 0) {
+            this.result = (Value) values[0];
+        }
     }
 
     @Override
     public void writeMapBegin(int size) {
-        Value[] array = new Value[size*2];
-        put(ValueFactory.mapValue(array, true));
-        stack.pushMap(size);
-        values[stack.getDepth()] = array;
+        stack.checkCount();
+        if(size == 0) {
+            putContainer(ValueFactory.mapValue());
+            stack.pushMap(0);
+            values[stack.getDepth()] = null;
+        } else {
+            Value[] array = new Value[size*2];
+            putContainer(ValueFactory.mapValue(array, true));
+            stack.pushMap(size);
+            values[stack.getDepth()] = array;
+        }
     }
 
     @Override
@@ -146,6 +164,9 @@ public class Unconverter extends Packer {
             }
         }
         stack.pop();
+        if(stack.getDepth() <= 0) {
+            this.result = (Value) values[0];
+        }
     }
 
     @Override
@@ -156,6 +177,17 @@ public class Unconverter extends Packer {
     private void put(Value v) {
         if(stack.getDepth() <= 0) {
             this.result = v;
+        } else {
+            stack.checkCount();
+            Value[] array = (Value[])values[stack.getDepth()];
+            array[array.length - stack.getTopCount()] = v;
+            stack.reduceCount();
+        }
+    }
+
+    private void putContainer(Value v) {
+        if(stack.getDepth() <= 0) {
+            values[0] = (Object) v;
         } else {
             stack.checkCount();
             Value[] array = (Value[])values[stack.getDepth()];

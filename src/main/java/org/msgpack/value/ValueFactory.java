@@ -85,10 +85,18 @@ public final class ValueFactory {
     }
 
     public static ArrayValue arrayValue(Value[] array) {
+        if(array.length == 0) {
+            // TODO EmptyArrayValueImpl?
+            return ArrayValueImpl.getEmptyInstance();
+        }
         return arrayValue(array, false);
     }
 
     public static ArrayValue arrayValue(Value[] array, boolean gift) {
+        if(array.length == 0) {
+            // TODO EmptyArrayValueImpl?
+            return ArrayValueImpl.getEmptyInstance();
+        }
         return new ArrayValueImpl(array, gift);
     }
 
@@ -97,10 +105,18 @@ public final class ValueFactory {
     }
 
     public static MapValue mapValue(Value[] kvs) {
+        if(kvs.length == 0) {
+            // TODO EmptyMapValueImpl?
+            return SequentialMapValueImpl.getEmptyInstance();
+        }
         return mapValue(kvs, false);
     }
 
     public static MapValue mapValue(Value[] kvs, boolean gift) {
+        if(kvs.length == 0) {
+            // TODO EmptyMapValueImpl?
+            return SequentialMapValueImpl.getEmptyInstance();
+        }
         return new SequentialMapValueImpl(kvs, gift);
     }
 

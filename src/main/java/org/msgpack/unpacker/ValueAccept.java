@@ -100,18 +100,8 @@ final class ValueAccept extends Accept {
     }
 
     @Override
-    void acceptEmptyArray() {
-        uc.write(ValueFactory.arrayValue());
-    }
-
-    @Override
     void acceptMap(int size) {
         uc.writeMapBegin(size);
-    }
-
-    @Override
-    void acceptEmptyMap() {
-        uc.write(ValueFactory.mapValue());
     }
 
     @Override

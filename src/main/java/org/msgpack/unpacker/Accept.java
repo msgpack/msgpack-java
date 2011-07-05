@@ -76,19 +76,11 @@ abstract class Accept {
         throw new MessageTypeException("Unexpected array value");
     }
 
-    void acceptEmptyArray() {
-        throw new MessageTypeException("Unexpected array value");
-    }
-
     //void checkMapAcceptable(int size) {
     //    throw new MessageTypeException("Unexpected map value");
     //}
 
     void acceptMap(int size) {
-        throw new MessageTypeException("Unexpected map value");
-    }
-
-    void acceptEmptyMap() {
         throw new MessageTypeException("Unexpected map value");
     }
 

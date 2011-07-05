@@ -191,59 +191,61 @@ public class Converter extends Unpacker {
 
     @Override
     protected void readValue(Unconverter uc) {
-        // FIXME
         if(uc.getResult() != null) {
             uc.resetResult();
         }
 
+        stack.checkCount();
         Value v = getTop();
         if(!v.isArray() && !v.isMap()) {
             stack.reduceCount();
             if(uc.getResult() != null) {
                 return;
             }
-            v = getTop();
         }
 
         while(true) {
+            while(stack.getTopCount() == 0) {
+                if(stack.topIsArray()) {
+                    uc.writeArrayEnd(true);
+                    stack.pop();
+                } else if(stack.topIsMap()) {
+                    uc.writeMapEnd(true);
+                    stack.pop();
+                } else {
+                    throw new RuntimeException("invalid stack"); // FIXME error?
+                }
+                if(uc.getResult() != null) {
+                    return;
+                }
+            }
+
+            stack.checkCount();
+            v = getTop();
             if(v.isArray()) {
                 ArrayValue a = v.asArrayValue();
                 uc.writeArrayBegin(a.size());
+                stack.reduceCount();
                 stack.pushArray(a.size());
                 values[stack.getDepth()] = a.getElementArray();
 
             } else if(v.isMap()) {
                 MapValue m = v.asMapValue();
                 uc.writeMapBegin(m.size());
+                stack.reduceCount();
                 stack.pushMap(m.size());
                 values[stack.getDepth()] = m.getKeyValueArray();
 
             } else {
                 uc.write(v);
                 stack.reduceCount();
-                if(stack.getTopCount() == 0) {
-                    if(stack.topIsArray()) {
-                        uc.writeArrayEnd(true);
-                        stack.pop();
-                    } else if(stack.topIsMap()) {
-                        uc.writeMapEnd(true);
-                        stack.pop();
-                    } else {
-                        // FIXME error?
-                    }
-                    if(uc.getResult() != null) {
-                        return;
-                    }
-                }
             }
-            v = getTop();
         }
-
     }
 
     @Override
     public void skip() {
-        // FIXME
+        stack.checkCount();
         Value v = getTop();
         if(!v.isArray() && !v.isMap()) {
             stack.reduceCount();
@@ -251,26 +253,30 @@ public class Converter extends Unpacker {
         }
         int targetDepth = stack.getDepth();
         while(true) {
+            while(stack.getTopCount() == 0) {
+                stack.pop();
+                if(stack.getDepth() <= targetDepth) {
+                    return;
+                }
+            }
+
+            stack.checkCount();
+            v = getTop();
             if(v.isArray()) {
                 ArrayValue a = v.asArrayValue();
+                stack.reduceCount();
                 stack.pushArray(a.size());
                 values[stack.getDepth()] = a.getElementArray();
 
             } else if(v.isMap()) {
                 MapValue m = v.asMapValue();
+                stack.reduceCount();
                 stack.pushMap(m.size());
                 values[stack.getDepth()] = m.getKeyValueArray();
 
             } else {
                 stack.reduceCount();
-                if(stack.getTopCount() == 0) {
-                    stack.pop();
-                    if(stack.getDepth() <= targetDepth) {
-                        return;
-                    }
-                }
             }
-            v = getTop();
         }
     }
 }

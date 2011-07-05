@@ -67,15 +67,7 @@ final class SkipAccept extends Accept {
     }
 
     @Override
-    void acceptEmptyArray() {
-    }
-
-    @Override
     void acceptMap(int size) {
-    }
-
-    @Override
-    void acceptEmptyMap() {
     }
 
     @Override

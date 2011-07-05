@@ -24,10 +24,5 @@ final class ArrayAccept extends Accept {
     void acceptArray(int size) {
         this.size = size;
     }
-
-    @Override
-    void acceptEmptyArray() {
-        size = 0;
-    }
 }
 

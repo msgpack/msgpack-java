@@ -224,6 +224,7 @@ abstract class AbstractMessagePackPacker extends Packer {
         } else {
             out.writeByteAndInt((byte)0xdd, size);
         }
+        stack.reduceCount();
         stack.pushArray(size);
     }
 
@@ -243,7 +244,6 @@ abstract class AbstractMessagePackPacker extends Packer {
             }
         }
         stack.pop();
-        stack.reduceCount();
     }
 
     @Override
@@ -257,6 +257,7 @@ abstract class AbstractMessagePackPacker extends Packer {
         } else {
             out.writeByteAndInt((byte)0xdf, size);
         }
+        stack.reduceCount();
         stack.pushMap(size);
     }
 
@@ -276,7 +277,6 @@ abstract class AbstractMessagePackPacker extends Packer {
             }
         }
         stack.pop();
-        stack.reduceCount();
     }
 }
 

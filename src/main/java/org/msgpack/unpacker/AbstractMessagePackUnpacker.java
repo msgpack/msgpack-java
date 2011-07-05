@@ -107,12 +107,8 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
         if((b & 0xf0) == 0x90) {  // FixArray
             int count = b & 0x0f;
             //System.out.println("fixarray count:"+count);
-            if(count == 0) {
-                a.acceptEmptyArray();
-                headByte = REQUIRE_TO_READ_HEAD;
-                return true;
-            }
             a.acceptArray(count);
+            stack.reduceCount();
             stack.pushArray(count);
             headByte = REQUIRE_TO_READ_HEAD;
             return false;
@@ -121,12 +117,8 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
         if((b & 0xf0) == 0x80) {  // FixMap
             int count = b & 0x0f;
             //System.out.println("fixmap count:"+count/2);
-            if(count == 0) {
-                a.acceptEmptyMap();
-                headByte = REQUIRE_TO_READ_HEAD;
-                return true;
-            }
             a.acceptMap(count);
+            stack.reduceCount();
             stack.pushMap(count);
             headByte = REQUIRE_TO_READ_HEAD;
             return false;
@@ -233,13 +225,8 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
         case 0xdc:  // array 16
             {
                 int count = in.getShort() & 0xff;
-                if(count == 0) {
-                    a.acceptEmptyArray();
-                    in.advance();
-                    headByte = REQUIRE_TO_READ_HEAD;
-                    return true;
-                }
                 a.acceptArray(count);
+                stack.reduceCount();
                 stack.pushArray(count);
                 in.advance();
                 headByte = REQUIRE_TO_READ_HEAD;
@@ -251,13 +238,8 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
                 if(count < 0) {
                     throw new IOException("Array size too large");
                 }
-                if(count == 0) {
-                    a.acceptEmptyArray();
-                    in.advance();
-                    headByte = REQUIRE_TO_READ_HEAD;
-                    return true;
-                }
                 a.acceptArray(count);
+                stack.reduceCount();
                 stack.pushArray(count);
                 in.advance();
                 headByte = REQUIRE_TO_READ_HEAD;
@@ -266,13 +248,8 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
         case 0xde:  // map 16
             {
                 int count = in.getShort() & 0xff;
-                if(count == 0) {
-                    a.acceptEmptyMap();
-                    in.advance();
-                    headByte = REQUIRE_TO_READ_HEAD;
-                    return true;
-                }
                 a.acceptMap(count);
+                stack.reduceCount();
                 stack.pushMap(count);
                 in.advance();
                 headByte = REQUIRE_TO_READ_HEAD;
@@ -284,13 +261,8 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
                 if(count < 0) {
                     throw new IOException("Map size too large");
                 }
-                if(count == 0) {
-                    a.acceptEmptyMap();
-                    in.advance();
-                    headByte = REQUIRE_TO_READ_HEAD;
-                    return true;
-                }
                 a.acceptMap(count);
+                stack.reduceCount();
                 stack.pushMap(count);
                 in.advance();
                 headByte = REQUIRE_TO_READ_HEAD;
@@ -472,46 +444,30 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
         valueAccept.setUnconverter(uc);
 
         stack.checkCount();
-
-        boolean primitive = readOneWithoutStack(valueAccept);
-        if(primitive) {
+        if(readOneWithoutStack(valueAccept)) {
             stack.reduceCount();
             if(uc.getResult() != null) {
                 return;
             }
-            if(stack.getTopCount() == 0) {
+        }
+        while(true) {
+            while(stack.getTopCount() == 0) {
                 if(stack.topIsArray()) {
-                    uc.writeArrayEnd();
+                    uc.writeArrayEnd(true);
                     stack.pop();
+                    //stack.reduceCount();
                 } else if(stack.topIsMap()) {
-                    uc.writeMapEnd();
+                    uc.writeMapEnd(true);
                     stack.pop();
+                    //stack.reduceCount();
                 } else {
-                    // FIXME error?
+                    throw new RuntimeException("invalid stack"); // FIXME error?
                 }
                 if(uc.getResult() != null) {
                     return;
                 }
             }
-        }
-        while(true) {
-            if(readOneWithoutStack(valueAccept)) {
-                stack.reduceCount();
-                if(stack.getTopCount() == 0) {
-                    if(stack.topIsArray()) {
-                        uc.writeArrayEnd();
-                        stack.pop();
-                    } else if(stack.topIsMap()) {
-                        uc.writeMapEnd();
-                        stack.pop();
-                    } else {
-                        // FIXME error?
-                    }
-                    if(uc.getResult() != null) {
-                        return;
-                    }
-                }
-            }
+            readOne(valueAccept);
         }
     }
 
@@ -524,8 +480,8 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
         }
         int targetDepth = stack.getDepth()-1;
         while(true) {
-            if(readOneWithoutStack(skipAccept)) {
-                stack.reduceCount();
+            while(stack.getTopCount() == 0) {
+                stack.pop();
                 if(stack.getTopCount() == 0) {
                     stack.pop();
                     if(stack.getDepth() <= targetDepth) {
@@ -533,6 +489,7 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
                     }
                 }
             }
+            readOne(valueAccept);
         }
     }
 }

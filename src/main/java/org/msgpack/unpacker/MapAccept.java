@@ -24,10 +24,5 @@ final class MapAccept extends Accept {
     void acceptMap(int size) {
         this.size = size;
     }
-
-    @Override
-    void acceptEmptyMap() {
-        size = 0;
-    }
 }
 
