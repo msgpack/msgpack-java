@@ -33,10 +33,6 @@ class TrueValueImpl extends AbstractBooleanValue {
         return true;
     }
 
-    public BooleanValue asBooleanValue() {
-        return this;
-    }
-
     public void writeTo(Packer pk) throws IOException {
         pk.writeBoolean(true);
     }
@@ -52,8 +48,16 @@ class TrueValueImpl extends AbstractBooleanValue {
         return ((BooleanValue) o).getBoolean() == true;
     }
 
-	public int hashCode() {
+    public int hashCode() {
         return 1231;
+    }
+
+    public String toString() {
+        return "true";
+    }
+
+    public StringBuilder toString(StringBuilder sb) {
+        return sb.append("true");
     }
 }
 

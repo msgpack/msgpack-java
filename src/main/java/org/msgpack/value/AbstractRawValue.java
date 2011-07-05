@@ -48,11 +48,59 @@ abstract class AbstractRawValue extends AbstractValue implements RawValue {
     }
 
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        return toString(new StringBuilder()).toString();
+    }
+
+    public StringBuilder toString(StringBuilder sb) {
+        String s = getString();
         sb.append("\"");
-        sb.append(getString());  // TODO escape
+        for(int i=0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            if(ch < 0x20) {
+                switch(ch) {
+                case '\n':
+                    sb.append("\\n");
+                    break;
+                case '\r':
+                    sb.append("\\r");
+                    break;
+                case '\t':
+                    sb.append("\\t");
+                    break;
+                case '\f':
+                    sb.append("\\f");
+                    break;
+                case '\b':
+                    sb.append("\\b");
+                    break;
+                default:
+                    escapeChar(sb, ch);
+                    break;
+                }
+            } else {
+                switch(ch) {
+                case '\\':
+                    sb.append("\\\\");
+                    break;
+                case '"':
+                    sb.append("\\\"");
+                    break;
+                default:
+                    sb.append(ch);
+                    break;
+                }
+            }
+        }
         sb.append("\"");
-        return sb.toString();
+        return sb;
+    }
+
+    private void escapeChar(StringBuilder sb, char ch) {
+        sb.append("\\u");
+        sb.append(((int)ch >> 12) & 0xF);
+        sb.append(((int)ch >> 8) & 0xF);
+        sb.append(((int)ch >> 4) & 0xF);
+        sb.append((int)ch & 0xF);
     }
 }
 

@@ -90,5 +90,9 @@ class FloatValueImpl extends FloatValue {
     public String toString() {
         return Float.toString(value);
     }
+
+    public StringBuilder toString(StringBuilder sb) {
+        return sb.append(Float.toString(value));
+    }
 }
 

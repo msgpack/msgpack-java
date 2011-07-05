@@ -34,22 +34,8 @@ abstract class AbstractBooleanValue extends AbstractValue implements BooleanValu
         return !getBoolean();
     }
 
-    public String toString() {
-        if(getBoolean()) {
-            return "true";
-        } else {
-            return "false";
-        }
+    public BooleanValue asBooleanValue() {
+        return this;
     }
-
-    // TODO equals
-
-	public int hashCode() {
-		if(getBoolean()) {
-			return 1231;
-		} else {
-			return 1237;
-		}
-	}
 }
 

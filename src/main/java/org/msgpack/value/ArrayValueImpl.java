@@ -138,18 +138,21 @@ class ArrayValueImpl extends AbstractArrayValue {
     }
 
     public String toString() {
+        return toString(new StringBuilder()).toString();
+    }
+
+    public StringBuilder toString(StringBuilder sb) {
         if(array.length == 0) {
-            return "[]";
+            return sb.append("[]");
         }
-        StringBuilder sb = new StringBuilder();
         sb.append("[");
         sb.append(array[0]);
         for(int i=1; i < array.length; i++) {
             sb.append(",");
-            sb.append(array[i]);
+            array[i].toString(sb);
         }
         sb.append("]");
-        return sb.toString();
+        return sb;
     }
 }
 

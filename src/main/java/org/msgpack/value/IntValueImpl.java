@@ -118,5 +118,9 @@ class IntValueImpl extends IntegerValue {
     public String toString() {
         return Integer.toString(value);
     }
+
+    public StringBuilder toString(StringBuilder sb) {
+        return sb.append(Integer.toString(value));
+    }
 }
 

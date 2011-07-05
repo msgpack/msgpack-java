@@ -123,5 +123,9 @@ class LongValueImpl extends IntegerValue {
     public String toString() {
         return Long.toString(value);
     }
+
+    public StringBuilder toString(StringBuilder sb) {
+        return sb.append(Long.toString(value));
+    }
 }
 

@@ -124,5 +124,9 @@ class BigIntegerValueImpl extends IntegerValue {
     public String toString() {
         return value.toString();
     }
+
+    public StringBuilder toString(StringBuilder sb) {
+        return sb.append(value.toString());
+    }
 }
 
