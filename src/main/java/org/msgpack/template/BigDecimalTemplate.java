@@ -18,13 +18,31 @@
 package org.msgpack.template;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
+import org.msgpack.MessageTypeException;
 
 
-public interface Template {
-    public void write(Packer pk, Object v) throws IOException;
+public class BigDecimalTemplate implements Template {
+    private BigDecimalTemplate() { }
 
-    public Object read(Unpacker u, Object to) throws IOException;
+    public void write(Packer pk, Object target) throws IOException {
+        if(target == null) {
+            throw new MessageTypeException("Attempted to write null");
+        }
+        pk.writeString(((BigDecimal)target).toString());
+    }
+
+    public Object read(Unpacker u, Object to) throws IOException {
+        String temp = u.readString();
+        return new BigDecimal(temp);
+    }
+
+    static public BigDecimalTemplate getInstance() {
+        return instance;
+    }
+
+    static final BigDecimalTemplate instance = new BigDecimalTemplate();
 }
 

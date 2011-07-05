@@ -18,13 +18,32 @@
 package org.msgpack.template;
 
 import java.io.IOException;
+import java.util.Date;
+
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
+import org.msgpack.MessageTypeException;
 
 
-public interface Template {
-    public void write(Packer pk, Object v) throws IOException;
+public class DateTemplate implements Template {
+    private DateTemplate() { }
 
-    public Object read(Unpacker u, Object to) throws IOException;
+    public void write(Packer pk, Object target) throws IOException {
+        if(target == null) {
+            throw new MessageTypeException("Attempted to write null");
+        }
+        pk.writeLong(((Date)target).getTime());
+    }
+
+    public Object read(Unpacker u, Object to) throws IOException {
+        long temp = u.readLong();
+        return new Date(temp);
+    }
+
+    static public DateTemplate getInstance() {
+        return instance;
+    }
+
+    static final DateTemplate instance = new DateTemplate();
 }
 
