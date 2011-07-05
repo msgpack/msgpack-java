@@ -26,7 +26,6 @@ import java.util.NoSuchElementException;
 import java.lang.Iterable;
 import org.msgpack.value.Value;
 import org.msgpack.packer.Unconverter;
-import org.msgpack.io.EndOfBufferException;
 
 public abstract class Unpacker implements Iterable<Value> {
     public abstract void readNil() throws IOException;
@@ -77,51 +76,8 @@ public abstract class Unpacker implements Iterable<Value> {
         return new String(readByteArray(), "UTF-8");
     }
 
-
-    public class Iterator implements java.util.Iterator<Value> {
-        private final Unconverter uc;
-        private IOException exception;
-
-        public Iterator() {
-            this.uc = new Unconverter();
-        }
-
-        public boolean hasNext() {
-            if(uc.getResult() != null) {
-                return true;
-            }
-            try {
-                readValue(uc);  // protected method
-            } catch (EndOfBufferException ex) {
-                return false;
-            } catch (IOException ex) {
-                // TODO error
-                exception = ex;
-                return false;
-            }
-            return uc.getResult() != null;
-        }
-
-        public Value next() {
-            if(!hasNext()) {
-                throw new NoSuchElementException();
-            }
-            Value v = uc.getResult();
-            uc.resetResult();
-            return v;
-        }
-
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-
-        public IOException getException() {
-            return exception;
-        }
-    }
-
-    public Iterator iterator() {
-        return new Iterator();
+    public UnpackerIterator iterator() {
+        return new UnpackerIterator(this);
     }
 
     public abstract void skip() throws IOException;
@@ -136,14 +92,14 @@ public abstract class Unpacker implements Iterable<Value> {
     }
 
 
-    public <T> T read(T to) throws IOException {
-        // TODO template
-        return null;
-    }
+    //public <T> T read(T to) throws IOException {
+    //    // TODO template
+    //    return null;
+    //}
 
-    public <T> T read(Class<T> klass) throws IOException {
-        // TODO template
-        return null;
-    }
+    //public <T> T read(Class<T> klass) throws IOException {
+    //    // TODO template
+    //    return null;
+    //}
 }
 

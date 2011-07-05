@@ -23,10 +23,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import org.msgpack.value.Value;
 import org.msgpack.packer.Unconverter;
+import org.msgpack.io.EndOfBufferException;
 
-public class UnpackerIterator {
-}
-/*
 public class UnpackerIterator implements Iterator<Value> {
     private final Unpacker u;
     private final Unconverter uc;
@@ -43,7 +41,7 @@ public class UnpackerIterator implements Iterator<Value> {
         }
         try {
             u.readValue(uc);
-        } catch (EOFException ex) {  // TODO NeedMoreBufferError
+        } catch (EndOfBufferException ex) {
             return false;
         } catch (IOException ex) {
             // TODO error
@@ -63,12 +61,11 @@ public class UnpackerIterator implements Iterator<Value> {
     }
 
     public void remove() {
-		throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
 
     public IOException getException() {
         return exception;
     }
 }
-*/
 
