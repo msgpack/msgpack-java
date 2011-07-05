@@ -20,6 +20,23 @@ public class TestSet {
     public void testBoolean(boolean v) throws Exception {
     }
 
+    public void testBooleanArray() throws Exception {
+	// FIXME testBooleanArray(null);
+	testBooleanArray(new boolean[0]);
+	testBooleanArray(new boolean[] { true });
+	testBooleanArray(new boolean[] { false });
+	testBooleanArray(new boolean[] { true, false });
+	Random rand = new Random();
+	boolean[] v = new boolean[100];
+	for (int i = 0; i < v.length; ++i) {
+	    v[i] = rand.nextBoolean();
+	}
+	testBooleanArray(v);
+    }
+
+    public void testBooleanArray(boolean[] v) throws Exception {
+    }
+
     public void testByte() throws Exception {
 	testShort((byte) 0);
 	testShort((byte) -1);
@@ -35,6 +52,22 @@ public class TestSet {
     }
 
     public void testByte(byte v) throws Exception {
+    }
+
+    public void testByteArray() throws Exception {
+	// FIXME testByteArray(null);
+	Random rand = new Random(System.currentTimeMillis());
+	byte[] b0 = new byte[0];
+	testByteArray(b0);
+	byte[] b1 = new byte[10];
+	rand.nextBytes(b1);
+	testByteArray(b1);
+	byte[] b2 = new byte[1024];
+	rand.nextBytes(b2);
+	testByteArray(b2);
+    }
+
+    public void testByteArray(byte[] v) throws Exception {
     }
 
     public void testShort() throws Exception {
@@ -54,6 +87,29 @@ public class TestSet {
     public void testShort(short v) throws Exception {
     }
 
+    public void testShortArray() throws Exception {
+	// FIXME testShortArray(null);
+	testShortArray(new short[0]);
+	testShortArray(new short[] { 0 });
+	testShortArray(new short[] { -1 });
+	testShortArray(new short[] { 1 });
+	testShortArray(new short[] { 0, -1, 1 });
+	testShortArray(new short[] { Short.MIN_VALUE });
+	testShortArray(new short[] { Short.MAX_VALUE });
+	testShortArray(new short[] { Short.MIN_VALUE, Short.MAX_VALUE });
+	Random rand = new Random();
+	byte[] bytes = new byte[2];
+	short[] v = new short[100];
+	for (int i = 0; i < v.length; ++i) {
+	    rand.nextBytes(bytes);
+	    v[i] = (short) ((bytes[0] << 8) | (bytes[1] & 0xff));
+	}
+	testShortArray(v);
+    }
+
+    public void testShortArray(short[] v) throws Exception {
+    }
+
     public void testInteger() throws Exception {
 	testInteger(0);
 	testInteger(-1);
@@ -67,6 +123,27 @@ public class TestSet {
     }
 
     public void testInteger(int v) throws Exception {
+    }
+
+    public void testIntegerArray() throws Exception {
+	// FIXME testIntegerArray(null);
+	testIntegerArray(new int[0]);
+	testIntegerArray(new int[] { 0 });
+	testIntegerArray(new int[] { -1 });
+	testIntegerArray(new int[] { 1 });
+	testIntegerArray(new int[] { 0, -1, 1 });
+	testIntegerArray(new int[] { Integer.MIN_VALUE });
+	testIntegerArray(new int[] { Integer.MAX_VALUE });
+	testIntegerArray(new int[] { Integer.MIN_VALUE, Integer.MAX_VALUE });
+	Random rand = new Random();
+	int[] v = new int[100];
+	for (int i = 0; i < v.length; ++i) {
+	    v[i] = rand.nextInt();
+	}
+	testIntegerArray(v);
+    }
+
+    public void testIntegerArray(int[] v) throws Exception {
     }
 
     public void testLong() throws Exception {
@@ -84,16 +161,37 @@ public class TestSet {
     public void testLong(long v) throws Exception {
     }
 
+    public void testLongArray() throws Exception {
+	// FIXME testLongArray(null);
+	testLongArray(new long[0]);
+	testLongArray(new long[] { 0 });
+	testLongArray(new long[] { -1 });
+	testLongArray(new long[] { 1 });
+	testLongArray(new long[] { 0, -1, 1 });
+	testLongArray(new long[] { Long.MIN_VALUE });
+	testLongArray(new long[] { Long.MAX_VALUE });
+	testLongArray(new long[] { Long.MIN_VALUE, Long.MAX_VALUE });
+	Random rand = new Random();
+	long[] v = new long[100];
+	for (int i = 0; i < v.length; ++i) {
+	    v[i] = rand.nextLong();
+	}
+	testLongArray(v);
+    }
+
+    public void testLongArray(long[] v) throws Exception {
+    }
+
     public void testFloat() throws Exception {
 	testFloat((float) 0.0);
 	testFloat((float) -0.0);
 	testFloat((float) 1.0);
 	testFloat((float) -1.0);
-	testFloat((float) Float.MAX_VALUE);
-	testFloat((float) Float.MIN_VALUE);
-	testFloat((float) Float.NaN);
-	testFloat((float) Float.NEGATIVE_INFINITY);
-	testFloat((float) Float.POSITIVE_INFINITY);
+	testFloat(Float.MAX_VALUE);
+	testFloat(Float.MIN_VALUE);
+	testFloat(Float.NaN);
+	testFloat(Float.NEGATIVE_INFINITY);
+	testFloat(Float.POSITIVE_INFINITY);
 	Random rand = new Random();
 	for (int i = 0; i < 1000; i++) {
 	    testFloat(rand.nextFloat());
@@ -103,16 +201,41 @@ public class TestSet {
     public void testFloat(float v) throws Exception {
     }
 
+    public void testFloatArray() throws Exception {
+	// FIXME testFloatArray(null);
+	testFloatArray(new float[0]);
+	testFloatArray(new float[] { (float) 0.0 });
+	testFloatArray(new float[] { (float) -0.0 });
+	testFloatArray(new float[] { (float) -1.0 });
+	testFloatArray(new float[] { (float) 1.0 });
+	testFloatArray(new float[] { (float) 0.0, (float) -0.0, (float) -1.0, (float) 1.0 });
+	testFloatArray(new float[] { Float.MAX_VALUE });
+	testFloatArray(new float[] { Float.MIN_VALUE });
+	testFloatArray(new float[] { Float.NaN });
+	testFloatArray(new float[] { Float.NEGATIVE_INFINITY });
+	testFloatArray(new float[] { Float.POSITIVE_INFINITY });
+	testFloatArray(new float[] { Float.MAX_VALUE, Float.MIN_VALUE, Float.NaN, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY });
+	Random rand = new Random();
+	float[] v = new float[100];
+	for (int i = 0; i < v.length; ++i) {
+	    v[i] = rand.nextFloat();
+	}
+	testFloatArray(v);
+    }
+
+    public void testFloatArray(float[] v) throws Exception {
+    }
+
     public void testDouble() throws Exception {
 	testDouble((double) 0.0);
 	testDouble((double) -0.0);
 	testDouble((double) 1.0);
 	testDouble((double) -1.0);
-	testDouble((double) Double.MAX_VALUE);
-	testDouble((double) Double.MIN_VALUE);
-	testDouble((double) Double.NaN);
-	testDouble((double) Double.NEGATIVE_INFINITY);
-	testDouble((double) Double.POSITIVE_INFINITY);
+	testDouble(Double.MAX_VALUE);
+	testDouble(Double.MIN_VALUE);
+	testDouble(Double.NaN);
+	testDouble(Double.NEGATIVE_INFINITY);
+	testDouble(Double.POSITIVE_INFINITY);
 	Random rand = new Random();
 	for (int i = 0; i < 1000; i++) {
 	    testDouble(rand.nextDouble());
@@ -122,10 +245,36 @@ public class TestSet {
     public void testDouble(double v) throws Exception {
     }
 
+    public void testDoubleArray() throws Exception {
+	// FIXME testDoubleArray(null);
+	testDoubleArray(new double[0]);
+	testDoubleArray(new double[] { (double) 0.0 });
+	testDoubleArray(new double[] { (double) -0.0 });
+	testDoubleArray(new double[] { (double) -1.0 });
+	testDoubleArray(new double[] { (double) 1.0 });
+	testDoubleArray(new double[] { (double) 0.0, (double) -0.0, (double) -1.0, (double) 1.0 });
+	testDoubleArray(new double[] { Double.MAX_VALUE });
+	testDoubleArray(new double[] { Double.MIN_VALUE });
+	testDoubleArray(new double[] { Double.NaN });
+	testDoubleArray(new double[] { Double.NEGATIVE_INFINITY });
+	testDoubleArray(new double[] { Double.POSITIVE_INFINITY });
+	testDoubleArray(new double[] { Double.MAX_VALUE, Double.MIN_VALUE, Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY });
+	Random rand = new Random();
+	double[] v = new double[100];
+	for (int i = 0; i < v.length; ++i) {
+	    v[i] = rand.nextDouble();
+	}
+	testDoubleArray(v);
+    }
+
+    public void testDoubleArray(double[] v) throws Exception {
+    }
+
     public void testNil() throws Exception {
     }
 
     public void testBigInteger() throws Exception {
+	// FIXME testBigInteger(null);
 	testBigInteger(BigInteger.valueOf(0));
 	testBigInteger(BigInteger.valueOf(-1));
 	testBigInteger(BigInteger.valueOf(1));
@@ -145,6 +294,7 @@ public class TestSet {
     }
 
     public void testBigDecimal() throws Exception {
+	// FIXME testBigDecimal(null);
 	testBigDecimal(BigDecimal.valueOf(0));
 	testBigDecimal(BigDecimal.valueOf(-1));
 	testBigDecimal(BigDecimal.valueOf(1));
@@ -152,14 +302,6 @@ public class TestSet {
 	testBigDecimal(BigDecimal.valueOf(Integer.MAX_VALUE));
 	testBigDecimal(BigDecimal.valueOf(Long.MIN_VALUE));
 	testBigDecimal(BigDecimal.valueOf(Long.MAX_VALUE));
-	
-	testBigInteger(BigInteger.valueOf(0));
-	testBigInteger(BigInteger.valueOf(-1));
-	testBigInteger(BigInteger.valueOf(1));
-	testBigInteger(BigInteger.valueOf(Integer.MIN_VALUE));
-	testBigInteger(BigInteger.valueOf(Integer.MAX_VALUE));
-	testBigInteger(BigInteger.valueOf(Long.MIN_VALUE));
-	testBigInteger(BigInteger.valueOf(Long.MAX_VALUE));
 	// TODO
     }
 
@@ -167,6 +309,7 @@ public class TestSet {
     }
 
     public void testString() throws Exception {
+	// TODO testString(null);
 	testString("");
 	testString("a");
 	testString("ab");
@@ -211,22 +354,8 @@ public class TestSet {
     public void testString(String v) throws Exception {
     }
 
-    public void testByteArray() throws Exception {
-	Random rand = new Random(System.currentTimeMillis());
-	byte[] b0 = new byte[0];
-	testByteArray(b0);
-	byte[] b1 = new byte[10];
-	rand.nextBytes(b1);
-	testByteArray(b1);
-	byte[] b2 = new byte[1024];
-	rand.nextBytes(b2);
-	testByteArray(b2);
-    }
-
-    public void testByteArray(byte[] v) throws Exception {
-    }
-
     public void testByteBuffer() throws Exception {
+	// FIXME testByteBuffer(null);
 	Random rand = new Random(System.currentTimeMillis());
 	byte[] b0 = new byte[0];
 	testByteBuffer(ByteBuffer.wrap(b0));
@@ -242,6 +371,7 @@ public class TestSet {
     }
 
     public void testDate() throws Exception {
+	// FIXME testDate(null);
 	Date d0 = new Date();
 	testDate(d0);
     }
