@@ -1,5 +1,6 @@
 package org.msgpack;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
@@ -175,9 +176,6 @@ public class TestStreamPackStreamUnpack extends TestSet {
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
 	StreamUnpacker unpacker = new StreamUnpacker(in);
 	byte[] ret = unpacker.readByteArray();
-	assertEquals(v.length, ret.length);
-	for (int i = 0; i < v.length; ++i) {
-	    assertEquals(v[i], ret[i]);
-	}
+	assertArrayEquals(v, ret);
     }
 }

@@ -1,5 +1,6 @@
 package org.msgpack;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -45,9 +46,6 @@ public class TestBufferPackConvert extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	Value value = unpacker.readValue();
-	// FIXME? false <= assertTrue(value.isRaw());
-	//System.out.println("## value: " + value.getClass());
-	// following result is expected?
 	assertTrue(value.isInteger());
 	byte ret = new Converter(value).readByte();
 	assertEquals(v, ret);
@@ -66,9 +64,6 @@ public class TestBufferPackConvert extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	Value value = unpacker.readValue();
-	// FIXME assertTrue(value.isShort());
-	//System.out.println("## value: " + value.getClass());
-	// following result is expected?
 	assertTrue(value.isInteger());
 	short ret = new Converter(value).readShort();
 	assertEquals(v, ret);
@@ -105,9 +100,6 @@ public class TestBufferPackConvert extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	Value value = unpacker.readValue();
-	// FIXME assertTrue(value.isLong());
-	//System.out.println("## value: " + value.getClass());
-	// following result is expected?
 	assertTrue(value.isInteger());
 	long ret = new Converter(value).readLong();
 	assertEquals(v, ret);
@@ -144,9 +136,6 @@ public class TestBufferPackConvert extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	Value value = unpacker.readValue();
-	// FIXME assertTrue(value.isDouble());
-	//System.out.println("## value: " + value.getClass());
-	// following result is expected?
 	assertTrue(value.isFloat());
 	double ret = new Converter(value).readDouble();
 	assertEquals(v, ret, 10e-10);
@@ -215,9 +204,6 @@ public class TestBufferPackConvert extends TestSet {
 	Value value = unpacker.readValue();
 	assertTrue(value.isRaw());
 	byte[] ret = new Converter(value).readByteArray();
-	assertEquals(v.length, ret.length);
-	for (int i = 0; i < v.length; ++i) {
-	    assertEquals(v[i], ret[i]);
-	}
+	assertArrayEquals(v, ret);
     }
 }
