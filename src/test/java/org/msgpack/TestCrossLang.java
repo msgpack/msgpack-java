@@ -62,7 +62,7 @@ public class TestCrossLang {
             assertTrue(bt.hasNext());
             Value av = at.next();
             Value bv = bt.next();
-            //assertEquals(av, bv);
+            assertEquals(av, bv);
         }
         assertFalse(bt.hasNext());
     }
