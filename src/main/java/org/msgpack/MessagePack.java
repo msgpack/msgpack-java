@@ -71,18 +71,6 @@ public class MessagePack {
         return pk.toByteArray();
     }
 
-    public <T> T read(InputStream in, T v) throws IOException {
-        // TODO
-        Template tmpl = getTemplate(v.getClass());
-        return (T)tmpl.read(new StreamUnpacker(in), v);
-    }
-
-    public <T> T read(InputStream in, Class<T> c) throws IOException {
-        // TODO
-        Template tmpl = getTemplate(c);
-        return (T)tmpl.read(new StreamUnpacker(in), null);
-    }
-
     public Value read(byte[] b) throws IOException {  // TODO IOException
         return read(b, 0, b.length);
     }
@@ -93,6 +81,10 @@ public class MessagePack {
 
     public Value read(ByteBuffer buf) throws IOException {  // TODO IOException
         return new BufferUnpacker().wrap(buf).readValue();
+    }
+
+    public Value read(InputStream in) throws IOException {
+        return new StreamUnpacker(in).readValue();
     }
 
     public <T> T read(byte[] b, T v) throws IOException {  // TODO IOException
@@ -125,6 +117,18 @@ public class MessagePack {
         BufferUnpacker u = new BufferUnpacker();
         u.wrap(b);
         return null;
+    }
+
+    public <T> T read(InputStream in, T v) throws IOException {
+        // TODO
+        Template tmpl = getTemplate(v.getClass());
+        return (T)tmpl.read(new StreamUnpacker(in), v);
+    }
+
+    public <T> T read(InputStream in, Class<T> c) throws IOException {
+        // TODO
+        Template tmpl = getTemplate(c);
+        return (T)tmpl.read(new StreamUnpacker(in), null);
     }
 
     public <T> T convert(Value v, T to) throws IOException {  // TODO IOException
@@ -162,41 +166,82 @@ public class MessagePack {
         registry.register(type, tmpl);
     }
 
-    /*
-    // TODO
-    private static final MessagePack globalMessagePack;
+
+    private static final MessagePack globalMessagePack = new MessagePack();
 
     @Deprecated
-    public static <T> T unpack(InputStream in, T v) {
-        return globalMessagePack.unpack(in, v);
+    public static byte[] pack(Object obj) throws IOException {  // TODO IOException
+        return globalMessagePack.write(obj);
     }
 
     @Deprecated
-    public static <T> T unpack(InputStream in, Class<T> c) {
-        return globalMessagePack.unpack(in, c);
+    public static void pack(OutputStream out, Object obj) throws IOException {
+        globalMessagePack.write(out, obj);
     }
 
     @Deprecated
-    public static <T> T unpack(byte[] b, T v) {
-        return globalMessagePack.unpack(b, v);
+    public static byte[] pack(Object obj, Template tmpl) throws IOException {  // TODO IOException
+        BufferPacker pk = new BufferPacker();
+        tmpl.write(pk, obj);
+        return pk.toByteArray();
     }
 
     @Deprecated
-    public static <T> T unpack(byte[] b, Class<T> c) {
-        return globalMessagePack.unpack(b, c);
+    public static void pack(OutputStream out, Object obj, Template tmpl) throws IOException {
+        StreamPacker pk = new StreamPacker(out);
+        tmpl.write(pk, obj);
     }
 
     @Deprecated
-    public static <T> T unpack(ByteBuffer b, T v) {
-        return globalMessagePack.unpack(b, v);
+    public static Value unpack(byte[] buffer) throws IOException {
+        return globalMessagePack.read(buffer);
     }
 
     @Deprecated
-    public static <T> T unpack(ByteBuffer b, Class<T> c) {
-        return globalMessagePack.unpack(b, c);
+    public static <T> T unpack(byte[] buffer, Template tmpl) throws IOException {
+        BufferUnpacker u = new BufferUnpacker().wrap(buffer);
+        return (T)tmpl.read(u, null);
     }
-    */
 
+    @Deprecated
+    public static <T> T unpack(byte[] buffer, Template tmpl, T to) throws IOException {
+        BufferUnpacker u = new BufferUnpacker().wrap(buffer);
+        return (T)tmpl.read(u, to);
+    }
 
+    @Deprecated
+    public static <T> T unpack(byte[] buffer, Class<T> klass) throws IOException {
+        return globalMessagePack.read(buffer, klass);
+    }
+
+    @Deprecated
+    public static <T> T unpack(byte[] buffer, T to) throws IOException {
+        return globalMessagePack.read(buffer, to);
+    }
+
+    @Deprecated
+    public static Value unpack(InputStream in) throws IOException {
+        return globalMessagePack.read(in);
+    }
+
+    @Deprecated
+    public static Object unpack(InputStream in, Template tmpl) throws IOException, MessageTypeException {
+        return tmpl.read(new StreamUnpacker(in), null);
+    }
+
+    @Deprecated
+    public static <T> T unpack(InputStream in, Template tmpl, T to) throws IOException, MessageTypeException {
+        return (T)tmpl.read(new StreamUnpacker(in), to);
+    }
+
+    @Deprecated
+    public static <T> T unpack(InputStream in, Class<T> klass) throws IOException {
+        return globalMessagePack.read(in, klass);
+    }
+
+    @Deprecated
+    public static <T> T unpack(InputStream in, T to) throws IOException {
+        return globalMessagePack.read(in, to);
+    }
 }
 
