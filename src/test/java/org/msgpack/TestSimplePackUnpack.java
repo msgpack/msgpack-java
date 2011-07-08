@@ -22,13 +22,13 @@ public class TestSimplePackUnpack {
     @Test
     public void testSimplePackUnpack() throws IOException {
         MessagePack msgpack = new MessagePack();
-        byte[] raw = msgpack.pack(new int[] {1,2,3});
+        byte[] raw = msgpack.write(new int[] {1,2,3});
 
-        Value v = msgpack.unpack(raw);
-        int[] a = msgpack.unpack(raw, new int[3]);
+        Value v = msgpack.read(raw);
+        int[] a = msgpack.read(raw, new int[3]);
 
-        Value vb = msgpack.unpack(ByteBuffer.wrap(raw));
-        int[] ab = msgpack.unpack(ByteBuffer.wrap(raw), new int[3]);
+        Value vb = msgpack.read(ByteBuffer.wrap(raw));
+        int[] ab = msgpack.read(ByteBuffer.wrap(raw), new int[3]);
     }
 }
 

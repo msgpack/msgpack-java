@@ -24,9 +24,9 @@ public class TestSimpleConvertUnconvert {
     @Test
     public void testSimpleConvert() throws IOException {
         MessagePack msgpack = new MessagePack();
-        byte[] raw = msgpack.pack(new int[] {1,2,3});
+        byte[] raw = msgpack.write(new int[] {1,2,3});
 
-        Value v = msgpack.unpack(raw);
+        Value v = msgpack.read(raw);
 
         int[] array = msgpack.convert(v, new int[3]);
         assertArrayEquals(new int[] {1,2,3}, array);
