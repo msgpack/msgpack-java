@@ -158,6 +158,9 @@ public class MessagePack {
         registry.register(type, tmpl);
     }
 
+    public Template getTemplate(Class<?> type) {
+	return registry.lookup(type);
+    }
     private static final MessagePack globalMessagePack = new MessagePack();
 
     @Deprecated
