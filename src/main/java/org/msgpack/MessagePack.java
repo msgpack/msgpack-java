@@ -45,57 +45,57 @@ public class MessagePack {
 	registry = new TemplateRegistry(parent.registry);
     }
 
-    public byte[] pack(Object v) throws IOException {
-	return pack(v, getTemplate(v.getClass()));
+    public byte[] write(Object v) throws IOException {
+        return write(v, getTemplate(v.getClass()));
     }
 
-    public byte[] pack(Object v, Template tmpl) throws IOException { // TODO IOException
-	BufferPacker pk = new BufferPacker();
-	tmpl.write(pk, v);
-	return pk.toByteArray();
+    public byte[] write(Object v, Template tmpl) throws IOException { // TODO IOException
+        BufferPacker pk = new BufferPacker();
+        tmpl.write(pk, v);
+        return pk.toByteArray();
     }
 
-    public void pack(OutputStream out, Object v) throws IOException {
-	pack(out, v, getTemplate(v.getClass()));
+    public void write(OutputStream out, Object v) throws IOException {
+        write(out, v, getTemplate(v.getClass()));
     }
 
-    public void pack(OutputStream out, Object v, Template tmpl) throws IOException {
+    public void write(OutputStream out, Object v, Template tmpl) throws IOException {
         StreamPacker pk = new StreamPacker(out);
         tmpl.write(pk, v);
     }
 
-    public byte[] pack(Value v) throws IOException {  // TODO IOException
+    public byte[] write(Value v) throws IOException {  // TODO IOException
         // FIXME ValueTemplate should do this
         BufferPacker pk = new BufferPacker();
         pk.write(v);
         return pk.toByteArray();
     }
 
-    public <T> T unpack(InputStream in, T v) throws IOException {
+    public <T> T read(InputStream in, T v) throws IOException {
         // TODO
         Template tmpl = getTemplate(v.getClass());
         return (T)tmpl.read(new StreamUnpacker(in), v);
     }
 
-    public <T> T unpack(InputStream in, Class<T> c) throws IOException {
+    public <T> T read(InputStream in, Class<T> c) throws IOException {
         // TODO
         Template tmpl = getTemplate(c);
         return (T)tmpl.read(new StreamUnpacker(in), null);
     }
 
-    public Value unpack(byte[] b) throws IOException {  // TODO IOException
-        return unpack(b, 0, b.length);
+    public Value read(byte[] b) throws IOException {  // TODO IOException
+        return read(b, 0, b.length);
     }
 
-    public Value unpack(byte[] b, int off, int len) throws IOException {  // TODO IOException
+    public Value read(byte[] b, int off, int len) throws IOException {  // TODO IOException
         return new BufferUnpacker().wrap(b, off, len).readValue();
     }
 
-    public Value unpack(ByteBuffer buf) throws IOException {  // TODO IOException
+    public Value read(ByteBuffer buf) throws IOException {  // TODO IOException
         return new BufferUnpacker().wrap(buf).readValue();
     }
 
-    public <T> T unpack(byte[] b, T v) throws IOException {  // TODO IOException
+    public <T> T read(byte[] b, T v) throws IOException {  // TODO IOException
         // TODO
         Template tmpl = getTemplate(v.getClass());
         BufferUnpacker u = new BufferUnpacker();
@@ -103,7 +103,7 @@ public class MessagePack {
         return (T)tmpl.read(u, v);
     }
 
-    public <T> T unpack(byte[] b, Class<T> c) throws IOException {  // TODO IOException
+    public <T> T read(byte[] b, Class<T> c) throws IOException {  // TODO IOException
         // TODO
         Template tmpl = getTemplate(c);
         BufferUnpacker u = new BufferUnpacker();
@@ -111,7 +111,7 @@ public class MessagePack {
         return (T)tmpl.read(u, null);
     }
 
-    public <T> T unpack(ByteBuffer b, T v) throws IOException {  // TODO IOException
+    public <T> T read(ByteBuffer b, T v) throws IOException {  // TODO IOException
         // TODO
         Template tmpl = getTemplate(v.getClass());
         BufferUnpacker u = new BufferUnpacker();
@@ -119,7 +119,7 @@ public class MessagePack {
         return (T)tmpl.read(u, v);
     }
 
-    public <T> T unpack(ByteBuffer b, Class<T> c) {  // TODO IOException
+    public <T> T read(ByteBuffer b, Class<T> c) {  // TODO IOException
         // TODO
         Template tmpl = getTemplate(c);
         BufferUnpacker u = new BufferUnpacker();
