@@ -170,8 +170,9 @@ public class Unconverter extends Packer {
     }
 
     @Override
-    public void write(Value v) {
+    public Packer write(Value v) {
         put(v);
+        return this;
     }
 
     private void put(Value v) {

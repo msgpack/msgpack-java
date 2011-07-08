@@ -21,9 +21,12 @@ import java.math.BigInteger;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.msgpack.value.Value;
+import org.msgpack.MessagePack;
 import org.msgpack.MessagePackable;
 
 public abstract class Packer {
+    protected MessagePack msgpack;  // TODO initialize
+
     public abstract void writeNil() throws IOException;
 
     public abstract void writeBoolean(boolean v) throws IOException;
@@ -68,120 +71,148 @@ public abstract class Packer {
         writeMapEnd(true);
     }
 
-    public void write(Value v) throws IOException {
+
+    public Packer write(Object o) throws IOException {
+        msgpack.getTemplate(o.getClass()).write(this, o);
+        return this;
+    }
+
+    public Packer write(Value v) throws IOException {
         v.writeTo(this);
+        return this;
     }
 
-    public void write(MessagePackable v) throws IOException {
-        v.writeTo(this);
-    }
-
-    /* TODO
-    public void write(boolean v) throws IOException {
-        writeBoolean(v);
-    }
-
-    public void write(byte v) throws IOException {
-        writeByte(v);
-    }
-
-    public void write(short v) throws IOException {
-        writeShort(v);
-    }
-
-    public void write(int v) throws IOException {
-        writeInt(v);
-    }
-
-    public void write(long v) throws IOException {
-        writeLong(v);
-    }
-
-    public void write(float v) throws IOException {
-        writeFloat(v);
-    }
-
-    public void write(double v) throws IOException {
-        writeDouble(v);
-    }
-
-    public void write(Boolean v) throws IOException {
-        if(v == null) {
-            writeNil();
-        } else {
-            writeBoolean(v);
-        }
-    }
-
-    public void write(Byte v) throws IOException {
-        if(v == null) {
-            writeNil();
-        } else {
-            writeByte(v);
-        }
-    }
-
-    public void write(Short v) throws IOException {
-        if(v == null) {
-            writeNil();
-        } else {
-            writeShort(v);
-        }
-    }
-
-    public void write(Integer v) throws IOException {
-        if(v == null) {
-            writeNil();
-        } else {
-            writeInt(v);
-        }
-    }
-
-    public void write(Long v) throws IOException {
-        if(v == null) {
-            writeNil();
-        } else {
-            writeLong(v);
-        }
-    }
-
-    public void write(Float v) throws IOException {
-        if(v == null) {
-            writeNil();
-        } else {
-            writeFloat(v);
-        }
-    }
-
-    public void write(Double v) throws IOException {
-        if(v == null) {
-            writeNil();
-        } else {
-            writeDouble(v);
-        }
-    }
-
-    public abstract void write(String s) throws IOException;
-
-    public void write(byte[] b) throws IOException {
-        writeByteArray(b.length);
-        writeByteArray(b);
-    }
-
-    public void write(byte[] b, int off, int len) throws IOException {
-        writeByteArray(len);
-        writeByteArray(b, off, len);
-    }
-
-    public void write(ByteBuffer b) throws IOException {
-        // TODO
-    }
-
-    public void write(MessagePackable o) throws IOException {
-        o.writeTo(this);
-    }
-
-    public abstract void write(Object o) throws IOException;
-    */
+//    public Packer write(Object o) throws IOException {
+//        msgpack.getTemplate(o.getClass()).write(this, o);
+//        return this;
+//    }
+//
+//    public Packer write(Value v) throws IOException {
+//        v.writeTo(this);
+//        return this;
+//    }
+//
+//    public Packer write(MessagePackable v) throws IOException {
+//        v.writeTo(this);
+//        return this;
+//    }
+//
+//    public Packer write(boolean v) throws IOException {
+//        writeBoolean(v);
+//        return this;
+//    }
+//
+//    public Packer write(byte v) throws IOException {
+//        writeByte(v);
+//        return this;
+//    }
+//
+//    public Packer write(short v) throws IOException {
+//        writeShort(v);
+//        return this;
+//    }
+//
+//    public Packer write(int v) throws IOException {
+//        writeInt(v);
+//        return this;
+//    }
+//
+//    public Packer write(long v) throws IOException {
+//        writeLong(v);
+//        return this;
+//    }
+//
+//    public Packer write(float v) throws IOException {
+//        writeFloat(v);
+//        return this;
+//    }
+//
+//    public Packer write(double v) throws IOException {
+//        writeDouble(v);
+//        return this;
+//    }
+//
+//    public Packer write(Boolean v) throws IOException {
+//        if(v == null) {
+//            writeNil();
+//        } else {
+//            writeBoolean(v);
+//        }
+//        return this;
+//    }
+//
+//    public Packer write(Byte v) throws IOException {
+//        if(v == null) {
+//            writeNil();
+//        } else {
+//            writeByte(v);
+//        }
+//        return this;
+//    }
+//
+//    public Packer write(Short v) throws IOException {
+//        if(v == null) {
+//            writeNil();
+//        } else {
+//            writeShort(v);
+//        }
+//        return this;
+//    }
+//
+//    public Packer write(Integer v) throws IOException {
+//        if(v == null) {
+//            writeNil();
+//        } else {
+//            writeInt(v);
+//        }
+//        return this;
+//    }
+//
+//    public Packer write(Long v) throws IOException {
+//        if(v == null) {
+//            writeNil();
+//        } else {
+//            writeLong(v);
+//        }
+//        return this;
+//    }
+//
+//    public Packer write(Float v) throws IOException {
+//        if(v == null) {
+//            writeNil();
+//        } else {
+//            writeFloat(v);
+//        }
+//        return this;
+//    }
+//
+//    public Packer write(Double v) throws IOException {
+//        if(v == null) {
+//            writeNil();
+//        } else {
+//            writeDouble(v);
+//        }
+//        return this;
+//    }
+//
+//    public Packer write(String s) throws IOException {
+//        writeString(s);
+//        return this;
+//    }
+//
+//    public Packer write(byte[] b) throws IOException {
+//        writeByteArray(b);
+//        return this;
+//    }
+//
+//    public Packer write(byte[] b, int off, int len) throws IOException {
+//        writeByteArray(b, off, len);
+//        return this;
+//    }
+//
+//    //public Packer write(ByteBuffer b) throws IOException {
+//    //    writeByteBuffer(b);
+//    //    return this;
+//    //}
 }
 

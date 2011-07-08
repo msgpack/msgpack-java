@@ -150,7 +150,7 @@ public class MessagePack {
         return pk.getResult();
     }
 
-    protected Template getTemplate(Class<?> c) {
+    public Template getTemplate(Class<?> c) {
         Template tmpl = registry.lookup(c);
         if(tmpl == null) {
             throw new MessageTypeException("Can't find template for "+c+" class. Try to add @Message annotation to the class or call MessagePack.register(Type).");

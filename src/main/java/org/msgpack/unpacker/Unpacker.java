@@ -25,9 +25,12 @@ import java.math.BigInteger;
 import java.util.NoSuchElementException;
 import java.lang.Iterable;
 import org.msgpack.value.Value;
+import org.msgpack.MessagePack;
 import org.msgpack.packer.Unconverter;
 
 public abstract class Unpacker implements Iterable<Value> {
+    protected MessagePack msgpack;  // TODO initialize
+
     public abstract void readNil() throws IOException;
 
     public abstract boolean tryReadNil() throws IOException;
@@ -92,14 +95,12 @@ public abstract class Unpacker implements Iterable<Value> {
     }
 
 
-    //public <T> T read(T to) throws IOException {
-    //    // TODO template
-    //    return null;
-    //}
+    public <T> T read(T to) throws IOException {
+        return (T)msgpack.getTemplate(to.getClass()).read(this, to);
+    }
 
-    //public <T> T read(Class<T> klass) throws IOException {
-    //    // TODO template
-    //    return null;
-    //}
+    public <T> T read(Class<T> klass) throws IOException {
+        return (T)msgpack.getTemplate(klass).read(this, null);
+    }
 }
 
