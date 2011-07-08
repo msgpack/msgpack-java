@@ -21,18 +21,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.math.BigInteger;
+
+import org.msgpack.template.FieldList;
 import org.msgpack.template.Template;
-import org.msgpack.packer.Packer;
 import org.msgpack.packer.StreamPacker;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.packer.Unconverter;
-import org.msgpack.unpacker.Unpacker;
 import org.msgpack.unpacker.StreamUnpacker;
 import org.msgpack.unpacker.BufferUnpacker;
 import org.msgpack.unpacker.Converter;
 import org.msgpack.value.Value;
-import org.msgpack.template.*;
+
 
 public class MessagePack {
     private TemplateRegistry registry;
@@ -41,22 +40,22 @@ public class MessagePack {
 	registry = new TemplateRegistry();
     }
 
-    public MessagePack(MessagePack parent) {
-	registry = new TemplateRegistry(parent.registry);
+    public MessagePack(MessagePack msgpack) {
+	registry = new TemplateRegistry(msgpack.registry);
     }
 
     public byte[] pack(Object v) throws IOException {
-	return pack(v, getTemplate(v.getClass()));
+	return pack(v, registry.lookup(v.getClass()));
     }
 
-    public byte[] pack(Object v, Template tmpl) throws IOException { // TODO IOException
+    public byte[] pack(Object v, Template tmpl) throws IOException {
 	BufferPacker pk = new BufferPacker();
 	tmpl.write(pk, v);
 	return pk.toByteArray();
     }
 
     public void pack(OutputStream out, Object v) throws IOException {
-	pack(out, v, getTemplate(v.getClass()));
+	pack(out, v, registry.lookup(v.getClass()));
     }
 
     public void pack(OutputStream out, Object v, Template tmpl) throws IOException {
@@ -64,7 +63,7 @@ public class MessagePack {
         tmpl.write(pk, v);
     }
 
-    public byte[] pack(Value v) throws IOException {  // TODO IOException
+    public byte[] pack(Value v) throws IOException {
         // FIXME ValueTemplate should do this
         BufferPacker pk = new BufferPacker();
         pk.write(v);
@@ -72,94 +71,85 @@ public class MessagePack {
     }
 
     public <T> T unpack(InputStream in, T v) throws IOException {
-        // TODO
-        Template tmpl = getTemplate(v.getClass());
+        Template tmpl = registry.lookup(v.getClass());
         return (T)tmpl.read(new StreamUnpacker(in), v);
     }
 
     public <T> T unpack(InputStream in, Class<T> c) throws IOException {
-        // TODO
-        Template tmpl = getTemplate(c);
+        Template tmpl = registry.lookup(c);
         return (T)tmpl.read(new StreamUnpacker(in), null);
     }
 
-    public Value unpack(byte[] b) throws IOException {  // TODO IOException
+    public Value unpack(byte[] b) throws IOException {
         return unpack(b, 0, b.length);
     }
 
-    public Value unpack(byte[] b, int off, int len) throws IOException {  // TODO IOException
+    public Value unpack(byte[] b, int off, int len) throws IOException {
         return new BufferUnpacker().wrap(b, off, len).readValue();
     }
 
-    public Value unpack(ByteBuffer buf) throws IOException {  // TODO IOException
+    public Value unpack(ByteBuffer buf) throws IOException {
         return new BufferUnpacker().wrap(buf).readValue();
     }
 
-    public <T> T unpack(byte[] b, T v) throws IOException {  // TODO IOException
-        // TODO
-        Template tmpl = getTemplate(v.getClass());
+    public <T> T unpack(byte[] b, T v) throws IOException {
+        Template tmpl = registry.lookup(v.getClass());
         BufferUnpacker u = new BufferUnpacker();
         u.wrap(b);
         return (T)tmpl.read(u, v);
     }
 
-    public <T> T unpack(byte[] b, Class<T> c) throws IOException {  // TODO IOException
-        // TODO
-        Template tmpl = getTemplate(c);
+    public <T> T unpack(byte[] b, Class<T> c) throws IOException {
+        Template tmpl = registry.lookup(c);
         BufferUnpacker u = new BufferUnpacker();
         u.wrap(b);
         return (T)tmpl.read(u, null);
     }
 
-    public <T> T unpack(ByteBuffer b, T v) throws IOException {  // TODO IOException
-        // TODO
-        Template tmpl = getTemplate(v.getClass());
+    public <T> T unpack(ByteBuffer b, T v) throws IOException {
+        Template tmpl = registry.lookup(v.getClass());
         BufferUnpacker u = new BufferUnpacker();
         u.wrap(b);
         return (T)tmpl.read(u, v);
     }
 
-    public <T> T unpack(ByteBuffer b, Class<T> c) {  // TODO IOException
-        // TODO
-        Template tmpl = getTemplate(c);
+    public <T> T unpack(ByteBuffer b, Class<T> c) {
+        Template tmpl = registry.lookup(c);
         BufferUnpacker u = new BufferUnpacker();
         u.wrap(b);
         return null;
     }
 
-    public <T> T convert(Value v, T to) throws IOException {  // TODO IOException
-        // TODO
-        Template tmpl = getTemplate(to.getClass());
+    public <T> T convert(Value v, T to) throws IOException {
+        Template tmpl = registry.lookup(to.getClass());
         return (T)tmpl.read(new Converter(v), to);
     }
 
-    public <T> T convert(Value v, Class<T> c) throws IOException {  // TODO IOException
-        // TODO
-        Template tmpl = getTemplate(c);
-        return (T)tmpl.read(new Converter(v), null);
+    public <T> T convert(Value v, Class<T> c) throws IOException {
+        Template tmpl = registry.lookup(c);
+        return (T) tmpl.read(new Converter(v), null);
     }
 
-    public Value unconvert(Object v) throws IOException {  // TODO IOException
-        Template tmpl = getTemplate(v.getClass());
+    public Value unconvert(Object v) throws IOException {
+        Template tmpl = registry.lookup(v.getClass());
         Unconverter pk = new Unconverter();
         tmpl.write(pk, v);
         return pk.getResult();
-    }
-
-    protected Template getTemplate(Class<?> c) {
-        Template tmpl = registry.lookup(c);
-        if(tmpl == null) {
-            throw new MessageTypeException("Can't find template for "+c+" class. Try to add @Message annotation to the class or call MessagePack.register(Type).");
-        }
-        return tmpl;
     }
 
     public void register(Class<?> type) {
 	registry.register(type);
     }
 
-    public void registerTemplate(Class<?> type, Template tmpl) {
+    // TODO #MN
+    // public void forceRegister(Class<?> type);
+
+    public void register(Class<?> type, Template tmpl) {
         registry.register(type, tmpl);
+    }
+
+    public void register(Class<?> type, FieldList flist) {
+	registry.register(type, flist);
     }
 
     /*
