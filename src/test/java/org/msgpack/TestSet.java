@@ -3,7 +3,11 @@ package org.msgpack;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.junit.Ignore;
@@ -273,41 +277,6 @@ public class TestSet {
     public void testNil() throws Exception {
     }
 
-    public void testBigInteger() throws Exception {
-	// FIXME testBigInteger(null);
-	testBigInteger(BigInteger.valueOf(0));
-	testBigInteger(BigInteger.valueOf(-1));
-	testBigInteger(BigInteger.valueOf(1));
-	testBigInteger(BigInteger.valueOf(Integer.MIN_VALUE));
-	testBigInteger(BigInteger.valueOf(Integer.MAX_VALUE));
-	testBigInteger(BigInteger.valueOf(Long.MIN_VALUE));
-	testBigInteger(BigInteger.valueOf(Long.MAX_VALUE));
-	BigInteger max = BigInteger.valueOf(Long.MAX_VALUE).setBit(63);
-	testBigInteger(max);
-	Random rand = new Random();
-	for (int i = 0; i < 1000; i++) {
-	    testBigInteger(max.subtract(BigInteger.valueOf(Math.abs(rand.nextLong()))));
-	}
-    }
-
-    public void testBigInteger(BigInteger v) throws Exception {
-    }
-
-    public void testBigDecimal() throws Exception {
-	// FIXME testBigDecimal(null);
-	testBigDecimal(BigDecimal.valueOf(0));
-	testBigDecimal(BigDecimal.valueOf(-1));
-	testBigDecimal(BigDecimal.valueOf(1));
-	testBigDecimal(BigDecimal.valueOf(Integer.MIN_VALUE));
-	testBigDecimal(BigDecimal.valueOf(Integer.MAX_VALUE));
-	testBigDecimal(BigDecimal.valueOf(Long.MIN_VALUE));
-	testBigDecimal(BigDecimal.valueOf(Long.MAX_VALUE));
-	// TODO
-    }
-
-    public void testBigDecimal(BigDecimal v) throws Exception {
-    }
-
     public void testString() throws Exception {
 	// TODO testString(null);
 	testString("");
@@ -368,6 +337,83 @@ public class TestSet {
     }
 
     public void testByteBuffer(ByteBuffer v) throws Exception {
+    }
+
+    public void testList() throws Exception {
+	// FIXME testList(null);
+	List<Integer> list0 = new ArrayList<Integer>();
+	testList(list0);
+	List<Integer> list1 = new ArrayList<Integer>();
+	Random rand1 = new Random();
+	for (int i = 0; i < 1000; ++i) {
+	    list1.add(rand1.nextInt());
+	}
+	testList(list1);
+	List<String> list2 = new ArrayList<String>();
+	Random rand2 = new Random();
+	for (int i = 0; i < 1000; ++i) {
+	    list2.add("xx" + rand2.nextInt());
+	}
+	testList(list2);
+    }
+
+    public void testList(List v) throws Exception {
+    }
+
+    public void testMap() throws Exception {
+	// FIXME testMap(null);
+	Map<Integer, Integer> map0 = new HashMap<Integer, Integer>();
+	testMap(map0);
+	Map<Integer, Integer> map1 = new HashMap<Integer, Integer>();
+	Random rand1 = new Random();
+	for (int i = 0; i < 1000; ++i) {
+	    map1.put(rand1.nextInt(), rand1.nextInt());
+	}
+	testMap(map1);
+	Map<String, Integer> map2 = new HashMap<String, Integer>();
+	Random rand2 = new Random();
+	for (int i = 0; i < 1000; ++i) {
+	    map2.put("xx" + rand2.nextInt(), rand2.nextInt());
+	}
+	testMap(map2);
+    }
+
+    public void testMap(Map v) throws Exception {
+    }
+
+    public void testBigInteger() throws Exception {
+	// FIXME testBigInteger(null);
+	testBigInteger(BigInteger.valueOf(0));
+	testBigInteger(BigInteger.valueOf(-1));
+	testBigInteger(BigInteger.valueOf(1));
+	testBigInteger(BigInteger.valueOf(Integer.MIN_VALUE));
+	testBigInteger(BigInteger.valueOf(Integer.MAX_VALUE));
+	testBigInteger(BigInteger.valueOf(Long.MIN_VALUE));
+	testBigInteger(BigInteger.valueOf(Long.MAX_VALUE));
+	BigInteger max = BigInteger.valueOf(Long.MAX_VALUE).setBit(63);
+	testBigInteger(max);
+	Random rand = new Random();
+	for (int i = 0; i < 1000; i++) {
+	    testBigInteger(max.subtract(BigInteger.valueOf(Math.abs(rand.nextLong()))));
+	}
+    }
+
+    public void testBigInteger(BigInteger v) throws Exception {
+    }
+
+    public void testBigDecimal() throws Exception {
+	// FIXME testBigDecimal(null);
+	testBigDecimal(BigDecimal.valueOf(0));
+	testBigDecimal(BigDecimal.valueOf(-1));
+	testBigDecimal(BigDecimal.valueOf(1));
+	testBigDecimal(BigDecimal.valueOf(Integer.MIN_VALUE));
+	testBigDecimal(BigDecimal.valueOf(Integer.MAX_VALUE));
+	testBigDecimal(BigDecimal.valueOf(Long.MIN_VALUE));
+	testBigDecimal(BigDecimal.valueOf(Long.MAX_VALUE));
+	// TODO
+    }
+
+    public void testBigDecimal(BigDecimal v) throws Exception {
     }
 
     public void testDate() throws Exception {

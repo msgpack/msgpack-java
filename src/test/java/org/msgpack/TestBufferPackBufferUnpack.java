@@ -4,6 +4,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
+import java.util.List;
 
 import org.junit.Test;
 import org.msgpack.packer.BufferPacker;
@@ -180,5 +181,15 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	byte[] ret = unpacker.readByteArray();
 	assertArrayEquals(v, ret);
+    }
+
+    @Test @Override
+    public void testList() throws Exception {
+	super.testList();
+    }
+
+    @Override
+    public void testList(List v) throws Exception {
+	// TODO
     }
 }
