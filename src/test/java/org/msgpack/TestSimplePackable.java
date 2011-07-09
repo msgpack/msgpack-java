@@ -91,5 +91,56 @@ public class TestSimplePackable {
         assertArrayEquals(a.f1, b.f1);
         assertEquals(a.f2, b.f2);
     }
+
+    // some files are NULLABLE or OPTIONAL
+    public static class Sample02 implements MessagePackable {
+        public String f0;         // nullable
+        public Long f1;           // optional
+        public Integer f2;        // nullable
+        public String f3;         // optional
+
+        public Sample02() { }
+
+        public void writeTo(Packer pk) throws IOException {
+            pk.writeArrayBegin(4);
+                pk.writeOptional(f0);
+                pk.writeOptional(f1);
+                pk.writeOptional(f2);
+                pk.writeOptional(f3);
+            pk.writeArrayEnd();
+        }
+
+        public void readFrom(Unpacker u) throws IOException {
+            u.readArrayBegin();
+                f0 = u.readOptional(String.class);
+                f1 = u.readOptional(Long.class);
+                f2 = u.readOptional(Integer.class);
+                f3 = u.readOptional(String.class);
+            u.readArrayEnd();
+        }
+    }
+
+    @Test
+    public void testSample02() throws IOException {
+        Sample02 a = new Sample02();
+        a.f0 = "aaa";
+        a.f1 = null;
+        a.f2 = null;
+        a.f3 = "bbb";
+
+        BufferPacker pk = new BufferPacker();
+        a.writeTo(pk);
+
+        byte[] raw = pk.toByteArray();
+
+        BufferUnpacker u = new BufferUnpacker().wrap(raw);
+        Sample02 b = new Sample02();
+        b.readFrom(u);
+
+        assertEquals(a.f0, b.f0);
+        assertEquals(a.f1, b.f1);
+        assertEquals(a.f2, b.f2);
+        assertEquals(a.f3, b.f3);
+    }
 }
 

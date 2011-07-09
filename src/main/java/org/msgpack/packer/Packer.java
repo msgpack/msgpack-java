@@ -25,7 +25,7 @@ import org.msgpack.MessagePack;
 import org.msgpack.MessagePackable;
 
 public abstract class Packer {
-    protected MessagePack msgpack;  // TODO initialize
+    protected MessagePack msgpack = new MessagePack();  // TODO initialize
 
     public abstract void writeNil() throws IOException;
 
@@ -75,6 +75,14 @@ public abstract class Packer {
     public Packer write(Object o) throws IOException {
         msgpack.getTemplate(o.getClass()).write(this, o);
         return this;
+    }
+
+    public Packer writeOptional(Object o) throws IOException {
+        if(o == null) {
+            writeNil();
+            return this;
+        }
+        return write(o);
     }
 
     public Packer write(Value v) throws IOException {

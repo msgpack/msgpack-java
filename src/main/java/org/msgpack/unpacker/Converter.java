@@ -38,19 +38,35 @@ public class Converter extends Unpacker {
     }
 
     @Override
-    public void readNil() {
-        if(!tryReadNil()) {
-            throw new MessageTypeException("Expected nil but got not nil value");
-        }
-    }
-
-    @Override
     public boolean tryReadNil() {
+        stack.checkCount();
         if(getTop().isNil()) {
             stack.reduceCount();
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean trySkipNil() {
+        if(stack.getDepth() > 0 && stack.getTopCount() <= 0) {
+            // end of array or map
+            return true;
+        }
+
+        if(getTop().isNil()) {
+            stack.reduceCount();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void readNil() {
+        if(!getTop().isNil()) {
+            throw new MessageTypeException("Expected nil but got not nil value");
+        }
+        stack.reduceCount();
     }
 
     @Override

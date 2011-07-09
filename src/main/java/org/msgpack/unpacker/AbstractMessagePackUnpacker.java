@@ -292,22 +292,47 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
 
     @Override
     public boolean tryReadNil() throws IOException {
-        // optimized not to allocate nilAccept
         stack.checkCount();
         int b = getHeadByte() & 0xff;
-        if(b != 0xc0) {
-            return false;
+        if(b == 0xc0) {
+            // nil is read
+            stack.reduceCount();
+            headByte = REQUIRE_TO_READ_HEAD;
+            return true;
         }
-        stack.reduceCount();
-        headByte = REQUIRE_TO_READ_HEAD;
-        return true;
+        // not nil
+        return false;
+    }
+
+    @Override
+    public boolean trySkipNil() throws IOException {
+        if(stack.getDepth() > 0 && stack.getTopCount() <= 0) {
+            // end of array or map
+            return true;
+        }
+
+        int b = getHeadByte() & 0xff;
+        if(b == 0xc0) {
+            // nil is skipped
+            stack.reduceCount();
+            headByte = REQUIRE_TO_READ_HEAD;
+            return true;
+        }
+        // not nil
+        return false;
     }
 
     @Override
     public void readNil() throws IOException {
-        if(!tryReadNil()) {
-            throw new MessageTypeException("Expected nil but got not nil value");
+        // optimized not to allocate nilAccept
+        stack.checkCount();
+        int b = getHeadByte() & 0xff;
+        if(b == 0xc0) {
+            stack.reduceCount();
+            headByte = REQUIRE_TO_READ_HEAD;
+            return;
         }
+        throw new MessageTypeException("Expected nil but got not nil value");
     }
 
     @Override
