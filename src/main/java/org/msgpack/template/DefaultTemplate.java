@@ -30,7 +30,8 @@ import org.msgpack.unpacker.Unpacker;
 public class DefaultTemplate implements Template {
     private TemplateRegistry registry;
 
-    private Class<?> targetClass;
+    // this field should be deleted?
+    //private Class<?> targetClass;
 
     private Type lookupType;
 
@@ -42,7 +43,7 @@ public class DefaultTemplate implements Template {
 
     public DefaultTemplate(TemplateRegistry registry, Class<?> targetClass, Type lookupType) {
 	this.registry = registry;
-	this.targetClass = targetClass;
+	//this.targetClass = targetClass;
 	this.lookupType = lookupType;
 	this.messagePackable = MessagePackable.class.isAssignableFrom(targetClass);
     }

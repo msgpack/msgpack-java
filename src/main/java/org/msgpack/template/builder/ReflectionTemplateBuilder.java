@@ -341,9 +341,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    } else if (t.equals(double.class)) {
 		res[i] = new DoubleFieldEntry(e);
 	    } else {
-		Template tmpl = registry.lookup((Class<?>) e.getGenericType());
-		// TODO #MN
-		//Template tmpl = msgpack.lookup(e.getGenericType(), true);
+		Template tmpl = registry.lookup((Class<?>) e.getGenericType(), true);
 		res[i] = new ObjectFieldEntry(e, tmpl);
 	    }
 	}
