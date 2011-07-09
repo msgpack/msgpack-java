@@ -174,9 +174,12 @@ public class TemplateRegistry {
 	    if (tmpl != null) {
 		return tmpl;
 	    }
-	    tmpl = parent.lookupGenericImpl(pType);
-	    if (tmpl != null) {
-		return tmpl;
+	    try {
+		tmpl = parent.lookupGenericImpl(pType);
+		if (tmpl != null) {
+		    return tmpl;
+		}
+	    } catch (NullPointerException e) { // ignore
 	    }
 	    targetType = pType.getRawType();
 	}
@@ -185,9 +188,12 @@ public class TemplateRegistry {
 	if (tmpl != null) {
 	    return tmpl;
 	}
-	tmpl = parent.cache.get(targetType);
-	if (tmpl != null) {
-	    return tmpl;
+	try {
+	    tmpl = parent.cache.get(targetType);
+	    if (tmpl != null) {
+		return tmpl;
+	    }
+	} catch (NullPointerException e) { // ignore
 	}
 
 	// TODO #MN builder -> selector
@@ -218,10 +224,13 @@ public class TemplateRegistry {
 		register(targetClass, tmpl);
 		return tmpl;
 	    } else {
-		tmpl = parent.cache.get(infType);
-		if (tmpl != null) {
-		    parent.register(targetClass, tmpl);
-		    return tmpl;
+		try {
+		    tmpl = parent.cache.get(infType);
+		    if (tmpl != null) {
+			parent.register(targetClass, tmpl);
+			return tmpl;
+		    }
+		} catch (NullPointerException e) { // ignore
 		}
 	    }
 	}
@@ -235,10 +244,13 @@ public class TemplateRegistry {
 		    register(targetClass, tmpl);
 		    return tmpl;
 		} else {
-		    tmpl = parent.cache.get(superClass);
-		    if (tmpl != null) {
-			register(targetClass, tmpl);
-			return tmpl;
+		    try {
+			tmpl = parent.cache.get(superClass);
+			if (tmpl != null) {
+			    register(targetClass, tmpl);
+			    return tmpl;
+			}
+		    } catch (NullPointerException e) { // ignore
 		    }
 		}
 	    }
