@@ -19,13 +19,16 @@ package org.msgpack.packer;
 
 import java.math.BigInteger;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import org.msgpack.value.Value;
 import org.msgpack.MessagePack;
-import org.msgpack.MessagePackable;
+
 
 public abstract class Packer {
-    protected MessagePack msgpack = new MessagePack();  // TODO initialize
+    protected MessagePack msgpack;
+
+    protected Packer(MessagePack msgpack) {
+	this.msgpack = msgpack;
+    }
 
     public abstract void writeNil() throws IOException;
 

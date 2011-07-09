@@ -18,11 +18,18 @@
 package org.msgpack.packer;
 
 import java.io.OutputStream;
+
+import org.msgpack.MessagePack;
 import org.msgpack.io.StreamOutput;
+
 
 public class StreamPacker extends AbstractMessagePackPacker {
     public StreamPacker(OutputStream stream) {
-        super(new StreamOutput(stream));
+        this(new MessagePack(), stream);
+    }
+
+    public StreamPacker(MessagePack msgpack, OutputStream stream) {
+	super(msgpack, new StreamOutput(stream));
     }
 }
 

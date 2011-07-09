@@ -18,10 +18,12 @@
 package org.msgpack.packer;
 
 import java.math.BigInteger;
-import java.io.IOException;
+
+import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueFactory;
+
 
 public class Unconverter extends Packer {
     private PackerStack stack;
@@ -30,6 +32,11 @@ public class Unconverter extends Packer {
     private Value topContainer;
 
     public Unconverter() {
+	this(new MessagePack());
+    }
+
+    public Unconverter(MessagePack msgpack) {
+	super(msgpack);
         this.stack = new PackerStack();
         this.values = new Object[PackerStack.MAX_STACK_SIZE];
     }

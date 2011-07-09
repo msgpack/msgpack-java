@@ -17,19 +17,29 @@
 //
 package org.msgpack.unpacker;
 
-import java.io.EOFException;
-import java.util.List;
-import java.util.LinkedList;
 import java.nio.ByteBuffer;
+
+import org.msgpack.MessagePack;
 import org.msgpack.io.LinkedBufferInput;
 
+
 public class BufferUnpacker extends AbstractMessagePackUnpacker {
+    private static final int DEFAULT_BUFFER_SIZE = 512;  // TODO default buffer size
+
     public BufferUnpacker() {
-        this(512);  // TODO default buffer size
+        this(DEFAULT_BUFFER_SIZE);
     }
 
     public BufferUnpacker(int bufferSize) {
-        super(new LinkedBufferInput(bufferSize));
+	this(new MessagePack(), bufferSize);
+    }
+
+    public BufferUnpacker(MessagePack msgpack) {
+	this(msgpack, DEFAULT_BUFFER_SIZE);
+    }
+
+    public BufferUnpacker(MessagePack msgpack, int bufferSize) {
+	super(msgpack, new LinkedBufferInput(bufferSize));
     }
 
     public BufferUnpacker wrap(byte[] b) {

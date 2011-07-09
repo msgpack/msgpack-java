@@ -19,11 +19,14 @@ package org.msgpack.unpacker;
 
 import java.io.EOFException;
 import java.math.BigInteger;
+
+import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Unconverter;
 import org.msgpack.value.Value;
 import org.msgpack.value.ArrayValue;
 import org.msgpack.value.MapValue;
+
 
 public class Converter extends Unpacker {
     private final UnpackerStack stack;
@@ -31,6 +34,11 @@ public class Converter extends Unpacker {
     private Value value;
 
     public Converter(Value value) {
+	this(new MessagePack(), value);
+    }
+
+    public Converter(MessagePack msgpack, Value value) {
+	super(msgpack);
         this.stack = new UnpackerStack();
         this.values = new Object[UnpackerStack.MAX_STACK_SIZE];
         this.values[0] = value;

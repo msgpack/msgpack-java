@@ -17,19 +17,20 @@
 //
 package org.msgpack.unpacker;
 
-import java.io.InputStream;
 import java.io.IOException;
-import java.io.EOFException;
-import java.nio.ByteBuffer;
 import java.math.BigInteger;
-import java.util.NoSuchElementException;
 import java.lang.Iterable;
 import org.msgpack.value.Value;
 import org.msgpack.MessagePack;
 import org.msgpack.packer.Unconverter;
 
+
 public abstract class Unpacker implements Iterable<Value> {
-    protected MessagePack msgpack = new MessagePack();  // TODO initialize
+    protected MessagePack msgpack;
+
+    protected Unpacker(MessagePack msgpack) {
+	this.msgpack = msgpack;
+    }
 
     public abstract boolean tryReadNil() throws IOException;
 
@@ -90,32 +91,32 @@ public abstract class Unpacker implements Iterable<Value> {
     protected abstract void readValue(Unconverter uc) throws IOException;
 
     public Value readValue() throws IOException {
-        Unconverter uc = new Unconverter();
+        Unconverter uc = new Unconverter(msgpack);
         readValue(uc);
         return uc.getResult();
     }
 
 
     public <T> T read(T to) throws IOException {
-        return (T)msgpack.getTemplate(to.getClass()).read(this, to);
+        return (T) msgpack.getTemplate(to.getClass()).read(this, to);
     }
 
     public <T> T read(Class<T> klass) throws IOException {
-        return (T)msgpack.getTemplate(klass).read(this, null);
+        return (T) msgpack.getTemplate(klass).read(this, null);
     }
 
     public <T> T readOptional(Class<T> klass, T defaultValue) throws IOException {
         if(trySkipNil()) {
             return defaultValue;
         }
-        return (T)msgpack.getTemplate(klass).read(this, null);
+        return (T) msgpack.getTemplate(klass).read(this, null);
     }
 
     public <T> T readOptional(T to, T defaultValue) throws IOException {
         if(trySkipNil()) {
             return defaultValue;
         }
-        return (T)msgpack.getTemplate(to.getClass()).read(this, to);
+        return (T) msgpack.getTemplate(to.getClass()).read(this, to);
     }
 
     public <T> T readOptional(Class<T> klass) throws IOException {

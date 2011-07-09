@@ -18,12 +18,12 @@
 package org.msgpack.unpacker;
 
 import java.io.IOException;
-import java.io.EOFException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import org.msgpack.value.Value;
 import org.msgpack.packer.Unconverter;
 import org.msgpack.io.EndOfBufferException;
+
 
 public class UnpackerIterator implements Iterator<Value> {
     private final Unpacker u;
@@ -32,7 +32,7 @@ public class UnpackerIterator implements Iterator<Value> {
 
     public UnpackerIterator(Unpacker u) {
         this.u = u;
-        this.uc = new Unconverter();
+        this.uc = new Unconverter(u.msgpack);
     }
 
     public boolean hasNext() {

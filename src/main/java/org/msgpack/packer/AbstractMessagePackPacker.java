@@ -21,15 +21,18 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import org.msgpack.io.Output;
+import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
+
 
 abstract class AbstractMessagePackPacker extends Packer {
     protected final Output out;
 
     private PackerStack stack = new PackerStack();
 
-    protected AbstractMessagePackPacker(Output out) {
-        this.out = out;
+    protected AbstractMessagePackPacker(MessagePack msgpack, Output out) {
+	super(msgpack);
+	this.out = out;
     }
 
     @Override

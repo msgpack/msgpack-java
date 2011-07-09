@@ -20,9 +20,12 @@ package org.msgpack.unpacker;
 import java.io.IOException;
 import java.io.EOFException;
 import java.math.BigInteger;
+
+import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Unconverter;
 import org.msgpack.io.Input;
+
 
 abstract class AbstractMessagePackUnpacker extends Unpacker {
     protected final Input in;
@@ -46,8 +49,9 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
     private final ValueAccept valueAccept = new ValueAccept();
     private final SkipAccept skipAccept = new SkipAccept();
 
-    protected AbstractMessagePackUnpacker(Input in) {
-        this.in = in;
+    protected AbstractMessagePackUnpacker(MessagePack msgpack, Input in) {
+	super(msgpack);
+	this.in = in;
     }
 
     private byte getHeadByte() throws IOException {
