@@ -104,12 +104,12 @@ public abstract class Unpacker implements Iterable<Value> {
 
 
     public <T> T read(T to) throws IOException {
-        Template<? super T> tmpl = msgpack.getTemplate((Class<T>) to.getClass());  // FIXME T -> ? extends T
+        Template<? super T> tmpl = msgpack.lookup((Class<T>) to.getClass());  // FIXME T -> ? extends T
         return (T) tmpl.read(this, to);  // FIXME down cast
     }
 
     public <T> T read(Class<T> klass) throws IOException {
-        Template<? super T> tmpl = msgpack.getTemplate(klass);  // FIXME T -> ? extends T
+        Template<? super T> tmpl = msgpack.lookup(klass);  // FIXME T -> ? extends T
         return (T) tmpl.read(this, null);  // FIXME down cast
     }
 
@@ -117,7 +117,7 @@ public abstract class Unpacker implements Iterable<Value> {
         if(trySkipNil()) {
             return defaultValue;
         }
-        Template<? super T> tmpl = msgpack.getTemplate((Class<T>) to.getClass());  // FIXME T -> ? extends T
+        Template<? super T> tmpl = msgpack.lookup((Class<T>) to.getClass());  // FIXME T -> ? extends T
         return (T) tmpl.read(this, to);  // FIXME down cast
     }
 
@@ -125,7 +125,7 @@ public abstract class Unpacker implements Iterable<Value> {
         if(trySkipNil()) {
             return defaultValue;
         }
-        Template<? super T> tmpl = (Template<? super T>) msgpack.getTemplate(klass);  // FIXME T -> ? extends T
+        Template<? super T> tmpl = (Template<? super T>) msgpack.lookup(klass);  // FIXME T -> ? extends T
         return (T) tmpl.read(this, null);  // FIXME down cast
     }
 

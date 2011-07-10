@@ -29,7 +29,7 @@ public class MapTemplate<K,V> implements Template<Map<K,V>> {
     private Template<K> keyTemplate;
     private Template<V> valueTemplate;
 
-    private MapTemplate(Template<K> keyTemplate, Template<V> valueTemplate) {
+    public MapTemplate(Template<K> keyTemplate, Template<V> valueTemplate) {
         this.keyTemplate = keyTemplate;
         this.valueTemplate = valueTemplate;
     }

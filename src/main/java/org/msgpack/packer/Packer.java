@@ -78,7 +78,7 @@ public abstract class Packer {
 
 
     public Packer write(Object o) throws IOException {
-        Template tmpl = msgpack.getTemplate(o.getClass());
+        Template tmpl = msgpack.lookup(o.getClass());
         tmpl.write(this, o);
         return this;
     }
@@ -97,7 +97,7 @@ public abstract class Packer {
     }
 
 //    public Packer write(Object o) throws IOException {
-//        msgpack.getTemplate(o.getClass()).write(this, o);
+//        msgpack.lookup(o.getClass()).write(this, o);
 //        return this;
 //    }
 //

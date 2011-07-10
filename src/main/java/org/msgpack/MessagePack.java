@@ -153,7 +153,7 @@ public class MessagePack {
         registry.register(type, tmpl);
     }
 
-    public <T> Template<? super T> getTemplate(Class<T> type) {
+    public <T> Template<? super T> lookup(Class<T> type) {
 	return registry.lookup(type);
     }
 
