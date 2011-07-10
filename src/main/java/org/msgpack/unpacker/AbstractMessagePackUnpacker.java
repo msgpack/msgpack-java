@@ -228,7 +228,7 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
             }
         case 0xdc:  // array 16
             {
-                int count = in.getShort() & 0xff;
+                int count = in.getShort() & 0xffff;
                 a.acceptArray(count);
                 stack.reduceCount();
                 stack.pushArray(count);
@@ -251,7 +251,7 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
             }
         case 0xde:  // map 16
             {
-                int count = in.getShort() & 0xff;
+                int count = in.getShort() & 0xffff;
                 a.acceptMap(count);
                 stack.reduceCount();
                 stack.pushMap(count);
