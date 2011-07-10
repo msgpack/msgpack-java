@@ -342,43 +342,55 @@ public class TestSet {
     public void testList() throws Exception {
 	// FIXME testList(null);
 	List<Integer> list0 = new ArrayList<Integer>();
-	testList(list0);
+	testList(list0, Integer.class);
 	List<Integer> list1 = new ArrayList<Integer>();
 	Random rand1 = new Random();
-	for (int i = 0; i < 1000; ++i) {
+	for (int i = 0; i < 10; ++i) {
 	    list1.add(rand1.nextInt());
 	}
-	testList(list1);
+	testList(list1, Integer.class);
 	List<String> list2 = new ArrayList<String>();
 	Random rand2 = new Random();
-	for (int i = 0; i < 1000; ++i) {
+	for (int i = 0; i < 100; ++i) {
 	    list2.add("xx" + rand2.nextInt());
 	}
-	testList(list2);
+	testList(list2, String.class);
+	List<String> list3 = new ArrayList<String>();
+	Random rand3 = new Random();
+	for (int i = 0; i < 1000; ++i) {
+	    list3.add("xx" + rand3.nextInt());
+	}
+	testList(list3, String.class);
     }
 
-    public void testList(List v) throws Exception {
+    public void testList(List v, Class<?> elementClass) throws Exception {
     }
 
     public void testMap() throws Exception {
 	// FIXME testMap(null);
 	Map<Integer, Integer> map0 = new HashMap<Integer, Integer>();
-	testMap(map0);
+	testMap(map0, Integer.class, Integer.class);
 	Map<Integer, Integer> map1 = new HashMap<Integer, Integer>();
 	Random rand1 = new Random();
-	for (int i = 0; i < 1000; ++i) {
+	for (int i = 0; i < 10; ++i) {
 	    map1.put(rand1.nextInt(), rand1.nextInt());
 	}
-	testMap(map1);
+	testMap(map1, Integer.class, Integer.class);
 	Map<String, Integer> map2 = new HashMap<String, Integer>();
 	Random rand2 = new Random();
-	for (int i = 0; i < 1000; ++i) {
+	for (int i = 0; i < 100; ++i) {
 	    map2.put("xx" + rand2.nextInt(), rand2.nextInt());
 	}
-	testMap(map2);
+	testMap(map2, String.class, Integer.class);
+	Map<String, Integer> map3 = new HashMap<String, Integer>();
+	Random rand3= new Random();
+	for (int i = 0; i < 1000; ++i) {
+	    map3.put("xx" + rand3.nextInt(), rand3.nextInt());
+	}
+	testMap(map3, String.class, Integer.class);
     }
 
-    public void testMap(Map v) throws Exception {
+    public void testMap(Map v, Class<?> keyElementClass, Class<?> valueElementClass) throws Exception {
     }
 
     public void testBigInteger() throws Exception {
