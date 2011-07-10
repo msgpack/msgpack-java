@@ -5,6 +5,11 @@ import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import org.msgpack.packer.StreamPacker;
@@ -193,4 +198,76 @@ public class TestStreamPackBufferUnpack extends TestSet {
 	byte[] ret = unpacker.readByteArray();
 	assertArrayEquals(v, ret);
     }
+
+//    @Test @Override
+//    public void testList() throws Exception {
+//	super.testList();
+//    }
+//
+//    @Override
+//    public void testList(List v, Class<?> elementClass) throws Exception {
+//	ByteArrayOutputStream out = new ByteArrayOutputStream();
+//	StreamPacker packer = new StreamPacker(out);
+//	// TODO #MN
+//	System.out.println("## v.size: " + v.size());
+//	packer.writeArrayBegin(v.size());
+//	for (Object o : v) {
+//	    packer.write(o);
+//	}
+//	packer.writeArrayEnd();
+//	byte[] bytes = out.toByteArray();
+//	BufferUnpacker unpacker = new BufferUnpacker();
+//	unpacker.wrap(bytes);
+//	int size = unpacker.readArrayBegin();
+//	// TODO #MN
+//	System.out.println("## ret.size: " + size);
+//	List ret = new ArrayList(size);
+//	for (int i = 0; i < size; ++i) {
+//	    ret.add(unpacker.read(elementClass));
+//	}
+//	unpacker.readArrayEnd();
+//	assertEquals(v.size(), ret.size());
+//	Iterator v_iter = v.iterator();
+//	Iterator ret_iter = ret.iterator();
+//	while (v_iter.hasNext()) {
+//	    assertEquals(v_iter.next(), ret_iter.next());
+//	}
+//    }
+//
+//    @Test @Override
+//    public void testMap() throws Exception {
+//	super.testMap();
+//    }
+//
+//    @Override
+//    public void testMap(Map v, Class<?> keyElementClass, Class<?> valueElementClass) throws Exception {
+//	ByteArrayOutputStream out = new ByteArrayOutputStream();
+//	StreamPacker packer = new StreamPacker(out);
+//	// TODO #MN
+//	System.out.println("## v.size: " + v.size());
+//	packer.writeMapBegin(v.size());
+//	for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
+//	    packer.write(e.getKey());
+//	    packer.write(e.getValue());
+//	}
+//	packer.writeMapEnd();
+//	byte[] bytes = out.toByteArray();
+//	BufferUnpacker unpacker = new BufferUnpacker();
+//	unpacker.wrap(bytes);
+//	int size = unpacker.readMapBegin();
+//	// TODO #MN
+//	System.out.println("## ret.size: " + size);
+//	Map ret = new HashMap(size);
+//	for (int i = 0; i < size; ++i) {
+//	    Object key = unpacker.read(keyElementClass);
+//	    Object value = unpacker.read(valueElementClass);
+//	    ret.put(key, value);
+//	}
+//	unpacker.readMapEnd();
+//	assertEquals(v.size(), ret.size());
+//	for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
+//	    Object value = ret.get(e.getKey());
+//	    assertEquals(e.getValue(), value);
+//	}
+//    }
 }
