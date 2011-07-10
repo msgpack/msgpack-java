@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.msgpack.MessagePack;
-import org.msgpack.value.Value;
+import org.msgpack.type.Value;
 import org.msgpack.packer.Packer;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.unpacker.Unpacker;

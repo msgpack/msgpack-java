@@ -20,7 +20,7 @@ package org.msgpack.unpacker;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.lang.Iterable;
-import org.msgpack.value.Value;
+import org.msgpack.type.Value;
 import org.msgpack.MessagePack;
 import org.msgpack.packer.Unconverter;
 

@@ -15,27 +15,11 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.value;
+package org.msgpack.type;
 
-abstract class AbstractBooleanValue extends AbstractValue implements BooleanValue {
-    public ValueType getType() {
-        return ValueType.BOOLEAN;
-    }
+import java.util.List;
 
-    public boolean isBoolean() {
-        return true;
-    }
-
-    public boolean isTrue() {
-        return getBoolean();
-    }
-
-    public boolean isFalse() {
-        return !getBoolean();
-    }
-
-    public BooleanValue asBooleanValue() {
-        return this;
-    }
+public interface ArrayValue extends Value, List<Value> {
+    public Value[] getElementArray();
 }
 

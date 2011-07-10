@@ -15,50 +15,49 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.value;
+package org.msgpack.type;
 
 import java.io.IOException;
 import org.msgpack.packer.Packer;
 
-public class NilValue extends AbstractValue {
-    private NilValue() { }
+class FalseValueImpl extends AbstractBooleanValue {
+    private FalseValueImpl() { }
 
-    private static NilValue instance = new NilValue();
+    private static FalseValueImpl instance = new FalseValueImpl();
 
-    static NilValue getInstance() {
+    static FalseValueImpl getInstance() {
         return instance;
     }
 
-    public ValueType getType() {
-        return ValueType.NIL;
-    }
-
-    public boolean isNil() {
-        return true;
-    }
-
-    public NilValue asNilValue() {
-        return this;
-    }
-
-    public String toString() {
-        return "null";
-    }
-
-    public StringBuilder toString(StringBuilder sb) {
-        return sb.append("null");
+    public boolean getBoolean() {
+        return false;
     }
 
     public void writeTo(Packer pk) throws IOException {
-        pk.writeNil();
+        pk.writeBoolean(false);
     }
 
     public boolean equals(Object o) {
-        return o == this;
+        if(o == this) {
+            return true;
+        }
+        if(!(o instanceof BooleanValue)) {
+            return false;
+        }
+
+        return ((BooleanValue) o).getBoolean() == false;
     }
 
     public int hashCode() {
-        return 0;
+        return 1237;
+    }
+
+    public String toString() {
+        return "false";
+    }
+
+    public StringBuilder toString(StringBuilder sb) {
+        return sb.append("false");
     }
 }
 

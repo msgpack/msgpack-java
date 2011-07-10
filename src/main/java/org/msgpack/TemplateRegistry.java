@@ -46,7 +46,7 @@ import org.msgpack.template.ValueTemplate;
 import org.msgpack.template.builder.AbstractTemplateBuilder;
 import org.msgpack.template.builder.ReflectionTemplateBuilder;
 import org.msgpack.template.builder.TemplateBuilder;
-import org.msgpack.value.Value;
+import org.msgpack.type.Value;
 
 
 public class TemplateRegistry {

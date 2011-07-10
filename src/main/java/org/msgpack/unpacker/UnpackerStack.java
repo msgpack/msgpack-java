@@ -18,8 +18,8 @@
 package org.msgpack.unpacker;
 
 import org.msgpack.MessageTypeException;
-import org.msgpack.value.Value;
-import org.msgpack.value.ValueFactory;
+import org.msgpack.type.Value;
+import org.msgpack.type.ValueFactory;
 
 final class UnpackerStack {
     private int top;

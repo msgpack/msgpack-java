@@ -21,7 +21,7 @@ import java.io.IOException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
-import org.msgpack.value.Value;
+import org.msgpack.type.Value;
 
 
 public class ValueTemplate implements Template {

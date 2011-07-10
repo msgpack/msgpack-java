@@ -18,8 +18,8 @@
 package org.msgpack.unpacker;
 
 import java.math.BigInteger;
-import org.msgpack.value.Value;
-import org.msgpack.value.ValueFactory;
+import org.msgpack.type.Value;
+import org.msgpack.type.ValueFactory;
 import org.msgpack.packer.Unconverter;
 
 final class ValueAccept extends Accept {

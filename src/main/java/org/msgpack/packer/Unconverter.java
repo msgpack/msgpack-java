@@ -21,8 +21,8 @@ import java.math.BigInteger;
 
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
-import org.msgpack.value.Value;
-import org.msgpack.value.ValueFactory;
+import org.msgpack.type.Value;
+import org.msgpack.type.ValueFactory;
 
 
 public class Unconverter extends Packer {

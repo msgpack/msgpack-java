@@ -29,7 +29,7 @@ import org.msgpack.packer.Unconverter;
 import org.msgpack.unpacker.StreamUnpacker;
 import org.msgpack.unpacker.BufferUnpacker;
 import org.msgpack.unpacker.Converter;
-import org.msgpack.value.Value;
+import org.msgpack.type.Value;
 
 
 public class MessagePack {

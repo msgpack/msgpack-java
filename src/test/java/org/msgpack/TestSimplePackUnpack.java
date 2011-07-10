@@ -14,7 +14,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.msgpack.MessagePack;
-import org.msgpack.value.Value;
+import org.msgpack.type.Value;
 
 import org.junit.Test;
 

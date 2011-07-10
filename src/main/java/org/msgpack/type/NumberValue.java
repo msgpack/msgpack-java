@@ -15,24 +15,12 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.value;
+package org.msgpack.type;
 
-import java.util.AbstractList;
+import java.math.BigInteger;
 import org.msgpack.MessageTypeException;
 
-abstract class AbstractArrayValue extends AbstractList<Value> implements ArrayValue {
-    public ValueType getType() {
-        return ValueType.ARRAY;
-    }
-
-    public boolean isArray() {
-        return true;
-    }
-
-    public ArrayValue asArrayValue() {
-        return this;
-    }
-
+public abstract class NumberValue extends Number implements Value {
     public boolean isNil() {
         return false;
     }
@@ -46,6 +34,10 @@ abstract class AbstractArrayValue extends AbstractList<Value> implements ArrayVa
     }
 
     public boolean isFloat() {
+        return false;
+    }
+
+    public boolean isArray() {
         return false;
     }
 
@@ -70,6 +62,10 @@ abstract class AbstractArrayValue extends AbstractList<Value> implements ArrayVa
     }
 
     public FloatValue asFloatValue() {
+        throw new MessageTypeException();
+    }
+
+    public ArrayValue asArrayValue() {
         throw new MessageTypeException();
     }
 

@@ -19,7 +19,7 @@ package org.msgpack.packer;
 
 import java.math.BigInteger;
 import java.io.IOException;
-import org.msgpack.value.Value;
+import org.msgpack.type.Value;
 import org.msgpack.MessagePack;
 
 
