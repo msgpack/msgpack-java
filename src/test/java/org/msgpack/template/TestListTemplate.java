@@ -48,7 +48,7 @@ public class TestListTemplate {
 	@Override
 	public void testList(List v, Class<?> elementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
-	    Template elementTemplate = msgpack.getTemplate(elementClass);
+	    Template elementTemplate = msgpack.lookup(elementClass);
 	    Template tmpl = new ListTemplate(elementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
@@ -69,7 +69,7 @@ public class TestListTemplate {
 	@Override
 	public void testList(List v, Class<?> elementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
-	    Template elementTemplate = msgpack.getTemplate(elementClass);
+	    Template elementTemplate = msgpack.lookup(elementClass);
 	    Template tmpl = new ListTemplate(elementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
@@ -91,7 +91,7 @@ public class TestListTemplate {
 	@Override
 	public void testList(List v, Class<?> elementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
-	    Template elementTemplate = msgpack.getTemplate(elementClass);
+	    Template elementTemplate = msgpack.lookup(elementClass);
 	    Template tmpl = new ListTemplate(elementTemplate);
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
@@ -112,7 +112,7 @@ public class TestListTemplate {
 	@Override
 	public void testList(List v, Class<?> elementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
-	    Template elementTemplate = msgpack.getTemplate(elementClass);
+	    Template elementTemplate = msgpack.lookup(elementClass);
 	    Template tmpl = new ListTemplate(elementTemplate);
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);

@@ -49,8 +49,8 @@ public class TestMapTemplate {
 	@Override
 	public void testMap(Map v, Class<?> keyElementClass, Class<?> valueElementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
-	    Template keyElementTemplate = msgpack.getTemplate(keyElementClass);
-	    Template valueElementTemplate = msgpack.getTemplate(valueElementClass);
+	    Template keyElementTemplate = msgpack.lookup(keyElementClass);
+	    Template valueElementTemplate = msgpack.lookup(valueElementClass);
 	    Template tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
@@ -71,8 +71,8 @@ public class TestMapTemplate {
 	@Override
 	public void testMap(Map v, Class<?> keyElementClass, Class<?> valueElementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
-	    Template keyElementTemplate = msgpack.getTemplate(keyElementClass);
-	    Template valueElementTemplate = msgpack.getTemplate(valueElementClass);
+	    Template keyElementTemplate = msgpack.lookup(keyElementClass);
+	    Template valueElementTemplate = msgpack.lookup(valueElementClass);
 	    Template tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
@@ -94,8 +94,8 @@ public class TestMapTemplate {
 	@Override
 	public void testMap(Map v, Class<?> keyElementClass, Class<?> valueElementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
-	    Template keyElementTemplate = msgpack.getTemplate(keyElementClass);
-	    Template valueElementTemplate = msgpack.getTemplate(valueElementClass);
+	    Template keyElementTemplate = msgpack.lookup(keyElementClass);
+	    Template valueElementTemplate = msgpack.lookup(valueElementClass);
 	    Template tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
@@ -116,8 +116,8 @@ public class TestMapTemplate {
 	@Override
 	public void testMap(Map v, Class<?> keyElementClass, Class<?> valueElementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
-	    Template keyElementTemplate = msgpack.getTemplate(keyElementClass);
-	    Template valueElementTemplate = msgpack.getTemplate(valueElementClass);
+	    Template keyElementTemplate = msgpack.lookup(keyElementClass);
+	    Template valueElementTemplate = msgpack.lookup(valueElementClass);
 	    Template tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
