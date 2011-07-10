@@ -15,7 +15,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack;
+package org.msgpack.template;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -23,6 +23,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigInteger;
 
+import org.msgpack.MessagePack;
+import org.msgpack.MessageTypeException;
 import org.msgpack.template.BigIntegerTemplate;
 import org.msgpack.template.BooleanTemplate;
 import org.msgpack.template.ByteArrayTemplate;
@@ -60,7 +62,7 @@ public class TemplateRegistry {
 
     private Map<Type, GenericTemplate> genericCache;
 
-    TemplateRegistry() {
+    public TemplateRegistry() {
 	this(null);
     }
 

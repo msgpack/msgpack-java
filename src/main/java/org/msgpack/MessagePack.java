@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.msgpack.template.Template;
+import org.msgpack.template.TemplateRegistry;
 import org.msgpack.packer.StreamPacker;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.packer.Unconverter;
