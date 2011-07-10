@@ -33,10 +33,14 @@ abstract class BufferedOutput implements Output {
         this.bufferSize = bufferSize;
     }
 
+    private void allocateNewBuffer() {
+        buffer = new byte[bufferSize];
+        castByteBuffer = ByteBuffer.wrap(buffer);
+    }
+
     private void reserve(int len) throws IOException {
         if(buffer == null) {
-            buffer = new byte[bufferSize];
-            castByteBuffer = ByteBuffer.wrap(buffer);
+            allocateNewBuffer();
             return;
         }
         if(bufferSize - filled < len) {
@@ -54,15 +58,14 @@ abstract class BufferedOutput implements Output {
                 flushBuffer(b, off, len);
                 return;
             }
-            buffer = new byte[bufferSize];
-            castByteBuffer = ByteBuffer.wrap(buffer);
+            allocateNewBuffer();
         }
         if(len <= bufferSize - filled) {
             System.arraycopy(b, off, buffer, filled, len);
             filled += len;
-        } else if(len < bufferSize) {
+        } else if(len <= bufferSize) {
             if(!flushBuffer(buffer, 0, filled)) {
-                buffer = new byte[bufferSize];
+                allocateNewBuffer();
             }
             filled = 0;
             System.arraycopy(b, off, buffer, 0, len);
@@ -80,15 +83,14 @@ abstract class BufferedOutput implements Output {
                 flushByteBuffer(bb);
                 return;
             }
-            buffer = new byte[bufferSize];
-            castByteBuffer = ByteBuffer.wrap(buffer);
+            allocateNewBuffer();
         }
         if(len <= bufferSize - filled) {
             bb.get(buffer, filled, len);
             filled += len;
-        } else if(len < bufferSize) {
+        } else if(len <= bufferSize) {
             if(!flushBuffer(buffer, 0, filled)) {
-                buffer = new byte[bufferSize];
+                allocateNewBuffer();
             }
             filled = 0;
             bb.get(buffer, 0, len);
