@@ -29,7 +29,7 @@ public class MapTemplate implements Template {
     private Template keyTemplate;
     private Template valueTemplate;
 
-    private MapTemplate(Template keyTemplate, Template valueTemplate) {
+    public MapTemplate(Template keyTemplate, Template valueTemplate) {
         this.keyTemplate = keyTemplate;
         this.valueTemplate = valueTemplate;
     }
