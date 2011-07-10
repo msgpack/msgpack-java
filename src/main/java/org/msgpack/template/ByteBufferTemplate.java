@@ -32,15 +32,12 @@ public class ByteBufferTemplate implements Template {
         if(target == null) {
             throw new MessageTypeException("Attempted to write null");
         }
-        ByteBuffer buf = (ByteBuffer) target;
-        byte[] bytes = buf.array();
-        pk.writeByteArray(bytes);
+        ByteBuffer bb = (ByteBuffer) target;
+        pk.writeByteBuffer(bb);
     }
 
     public Object read(Unpacker u, Object to) throws IOException {
-	byte[] bytes = u.readByteArray();  // TODO read to 'to' obj
-	ByteBuffer buf = ByteBuffer.wrap(bytes);
-	return buf;
+	return u.readByteBuffer();  // TODO read to 'to' obj?
     }
 
     static public ByteBufferTemplate getInstance() {

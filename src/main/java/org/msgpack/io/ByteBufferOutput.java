@@ -53,6 +53,11 @@ public class ByteBufferOutput implements Output {
         buffer.put(b, off, len);
     }
 
+    public void write(ByteBuffer bb) throws IOException {
+        reserve(bb.remaining());
+        buffer.put(bb);
+    }
+
     public void writeByte(byte v) throws IOException {
         reserve(1);
         buffer.put(v);

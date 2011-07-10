@@ -19,6 +19,7 @@ package org.msgpack.packer;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import org.msgpack.io.Output;
 import org.msgpack.MessagePack;
@@ -200,6 +201,25 @@ abstract class AbstractMessagePackPacker extends Packer {
             out.writeByteAndInt((byte)0xdb, len);
         }
         out.write(b, off, len);
+        stack.reduceCount();
+    }
+
+    @Override
+    public void writeByteBuffer(ByteBuffer bb) throws IOException {
+        int len = bb.remaining();
+        if(len < 32) {
+            out.writeByte((byte)(0xa0 | len));
+        } else if(len < 65536) {
+            out.writeByteAndShort((byte)0xda, (short)len);
+        } else {
+            out.writeByteAndInt((byte)0xdb, len);
+        }
+        int pos = bb.position();
+        try {
+            out.write(bb);
+        } finally {
+            bb.position(pos);
+        }
         stack.reduceCount();
     }
 

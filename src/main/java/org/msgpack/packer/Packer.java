@@ -19,6 +19,7 @@ package org.msgpack.packer;
 
 import java.math.BigInteger;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import org.msgpack.type.Value;
 import org.msgpack.MessagePack;
 
@@ -54,7 +55,7 @@ public abstract class Packer {
 
     public abstract void writeByteArray(byte[] b, int off, int len) throws IOException;
 
-    //public abstract void writeByteArray(ByteBuffer b) throws IOException;
+    public abstract void writeByteBuffer(ByteBuffer bb) throws IOException;
 
     public abstract void writeString(String s) throws IOException;
 

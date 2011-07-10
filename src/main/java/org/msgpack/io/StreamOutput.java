@@ -20,6 +20,7 @@ package org.msgpack.io;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.DataOutputStream;
+import java.nio.ByteBuffer;
 
 public class StreamOutput implements Output {
     private DataOutputStream out;
@@ -30,6 +31,20 @@ public class StreamOutput implements Output {
 
     public void write(byte[] b, int off, int len) throws IOException {
         out.write(b, off, len);
+    }
+
+    public void write(ByteBuffer bb) throws IOException {
+        if(bb.hasArray()) {
+            byte[] array = bb.array();
+            int offset = bb.arrayOffset();
+            out.write(array, offset, bb.remaining());
+            bb.position(bb.limit());
+        } else {
+            int pos = bb.position();
+            byte[] buf = new byte[bb.remaining()];
+            bb.get(buf);
+            out.write(buf);
+        }
     }
 
     public void writeByte(byte v) throws IOException {

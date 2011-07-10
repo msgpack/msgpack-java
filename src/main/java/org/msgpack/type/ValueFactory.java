@@ -18,6 +18,7 @@
 package org.msgpack.type;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 
 public final class ValueFactory {
     public static NilValue nilValue() {
@@ -78,6 +79,17 @@ public final class ValueFactory {
 
     public static RawValue rawValue(String s) {
         return new StringRawValueImpl(s);
+    }
+
+    public static RawValue rawValue(ByteBuffer bb) {
+        int pos = bb.position();
+        try {
+            byte[] buf = new byte[bb.remaining()];
+            bb.get(buf);
+            return new ByteArrayRawValueImpl(buf, true);
+        } finally {
+            bb.position(pos);
+        }
     }
 
     public static ArrayValue arrayValue() {

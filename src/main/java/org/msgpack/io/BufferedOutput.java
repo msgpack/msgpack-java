@@ -73,6 +73,32 @@ abstract class BufferedOutput implements Output {
         }
     }
 
+    public void write(ByteBuffer bb) throws IOException {
+        int len = bb.remaining();
+        if(buffer == null) {
+            if(bufferSize < len) {
+                flushByteBuffer(bb);
+                return;
+            }
+            buffer = new byte[bufferSize];
+            castByteBuffer = ByteBuffer.wrap(buffer);
+        }
+        if(len <= bufferSize - filled) {
+            bb.get(buffer, filled, len);
+            filled += len;
+        } else if(len < bufferSize) {
+            if(!flushBuffer(buffer, 0, filled)) {
+                buffer = new byte[bufferSize];
+            }
+            filled = 0;
+            bb.get(buffer, 0, len);
+            filled = len;
+        } else {
+            flush();
+            flushByteBuffer(bb);
+        }
+    }
+
     public void writeByte(byte v) throws IOException {
         reserve(1);
         buffer[filled++] = v;
@@ -155,6 +181,19 @@ abstract class BufferedOutput implements Output {
                 buffer = null;
             }
             filled = 0;
+        }
+    }
+
+    protected void flushByteBuffer(ByteBuffer bb) throws IOException {
+        if(bb.hasArray()) {
+            byte[] array = bb.array();
+            int offset = bb.arrayOffset();
+            flushBuffer(array, offset+bb.position(), bb.remaining());
+            bb.position(bb.limit());
+        } else {
+            byte[] buf = new byte[bb.remaining()];
+            bb.get(buf);
+            flushBuffer(buf, 0, buf.length);
         }
     }
 
