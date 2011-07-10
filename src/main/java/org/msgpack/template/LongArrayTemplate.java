@@ -23,34 +23,30 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class LongArrayTemplate implements Template {
+public class LongArrayTemplate implements Template<long[]> {
     private LongArrayTemplate() { }
 
-    public void write(Packer pk, Object target) throws IOException {
+    public void write(Packer pk, long[] target) throws IOException {
         if(target == null) {
             throw new MessageTypeException("Attempted to write null");
         }
-        long[] array = (long[]) target;
-        pk.writeArrayBegin(array.length);
-        for(long a : array) {
+        pk.writeArrayBegin(target.length);
+        for(long a : target) {
             pk.writeLong(a);
         }
         pk.writeArrayEnd();
     }
 
-    public Object read(Unpacker u, Object to) throws IOException {
+    public long[] read(Unpacker u, long[] to) throws IOException {
         int n = u.readArrayBegin();
-        long[] array;
-        if(to != null && ((long[]) to).length == n) {
-            array = (long[]) to;
-        } else {
-            array = new long[n];
+        if(to == null || to.length != n) {
+            to = new long[n];
         }
         for(int i=0; i < n; i++) {
-            array[i] = u.readLong();
+            to[i] = u.readLong();
         }
         u.readArrayEnd();
-        return array;
+        return to;
     }
 
     static public LongArrayTemplate getInstance() {

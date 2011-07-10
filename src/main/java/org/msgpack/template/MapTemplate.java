@@ -25,43 +25,43 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class MapTemplate implements Template {
-    private Template keyTemplate;
-    private Template valueTemplate;
+public class MapTemplate<K,V> implements Template<Map<K,V>> {
+    private Template<K> keyTemplate;
+    private Template<V> valueTemplate;
 
-    private MapTemplate(Template keyTemplate, Template valueTemplate) {
+    private MapTemplate(Template<K> keyTemplate, Template<V> valueTemplate) {
         this.keyTemplate = keyTemplate;
         this.valueTemplate = valueTemplate;
     }
 
-    public void write(Packer pk, Object target) throws IOException {
+    public void write(Packer pk, Map<K,V> target) throws IOException {
         if(!(target instanceof Map)) {
             if(target == null) {
                 throw new MessageTypeException("Attempted to write null");
             }
             throw new MessageTypeException("Target is not a Map but "+target.getClass());
         }
-        Map<Object,Object> map = (Map<Object,Object>) target;
+        Map<K,V> map = (Map<K,V>) target;
         pk.writeMapBegin(map.size());
-        for(Map.Entry<Object,Object> pair : map.entrySet()) {
+        for(Map.Entry<K,V> pair : map.entrySet()) {
             keyTemplate.write(pk, pair.getKey());
             valueTemplate.write(pk, pair.getValue());
         }
         pk.writeMapEnd();
     }
 
-    public Object read(Unpacker u, Object to) throws IOException {
+    public Map<K,V> read(Unpacker u, Map<K,V> to) throws IOException {
         int n = u.readMapBegin();
-        Map<Object,Object> map;
+        Map<K,V> map;
         if(to != null) {
-            map = (Map<Object,Object>) to;
+            map = (Map<K,V>) to;
             map.clear();
         } else {
-            map = new HashMap<Object,Object>(n);
+            map = new HashMap<K,V>(n);
         }
         for(int i=0; i < n; i++) {
-            Object key = keyTemplate.read(u, null);
-            Object value = valueTemplate.read(u, null);
+            K key = keyTemplate.read(u, null);
+            V value = valueTemplate.read(u, null);
             map.put(key, value);
         }
         u.readMapEnd();

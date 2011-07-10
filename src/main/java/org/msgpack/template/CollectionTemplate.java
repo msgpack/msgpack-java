@@ -25,43 +25,38 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class CollectionTemplate implements Template {
-    private Template elementTemplate;
+public class CollectionTemplate<E> implements Template<Collection<E>> {
+    private Template<E> elementTemplate;
 
-    private CollectionTemplate(Template elementTemplate) {
+    private CollectionTemplate(Template<E> elementTemplate) {
         this.elementTemplate = elementTemplate;
     }
 
-    public void write(Packer pk, Object target) throws IOException {
-        if(!(target instanceof Collection)) {
-            if(target == null) {
-                throw new MessageTypeException("Attempted to write null");
-            }
-            throw new MessageTypeException("Target is not a Collection but "+target.getClass());
+    public void write(Packer pk, Collection<E> target) throws IOException {
+        if(target == null) {
+            throw new MessageTypeException("Attempted to write null");
         }
-        Collection<Object> col = (Collection<Object>) target;
+        Collection<E> col = target;
         pk.writeArrayBegin(col.size());
-        for(Object e : col) {
+        for(E e : col) {
             elementTemplate.write(pk, e);
         }
         pk.writeArrayEnd();
     }
 
-    public Object read(Unpacker u, Object to) throws IOException {
+    public Collection<E> read(Unpacker u, Collection<E> to) throws IOException {
         int n = u.readArrayBegin();
-        Collection<Object> col;
-        if(to != null) {
-            col = (Collection<Object>) to;
-            col.clear();
+        if(to == null) {
+            to = new LinkedList<E>();
         } else {
-            col = new LinkedList<Object>();
+            to.clear();
         }
         for(int i=0; i < n; i++) {
-            Object e = elementTemplate.read(u, null);
-            col.add(e);
+            E e = elementTemplate.read(u, null);
+            to.add(e);
         }
         u.readArrayEnd();
-        return col;
+        return to;
     }
 }
 

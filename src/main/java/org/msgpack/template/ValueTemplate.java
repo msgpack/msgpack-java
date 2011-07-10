@@ -24,18 +24,18 @@ import org.msgpack.MessageTypeException;
 import org.msgpack.type.Value;
 
 
-public class ValueTemplate implements Template {
+public class ValueTemplate implements Template<Value> {
     private ValueTemplate() { }
 
-    public void write(Packer pk, Object target) throws IOException {
+    public void write(Packer pk, Value target) throws IOException {
         if(target == null) {
             // FIXME NullPointerException?
             throw new MessageTypeException("Attempted to write null.");
         }
-        pk.write((Value)target);
+        pk.write(target);
     }
 
-    public Object read(Unpacker u, Object to) throws IOException {
+    public Value read(Unpacker u, Value to) throws IOException {
         return u.readValue();
     }
 

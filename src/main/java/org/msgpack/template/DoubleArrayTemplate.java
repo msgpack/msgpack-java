@@ -23,34 +23,30 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class DoubleArrayTemplate implements Template {
+public class DoubleArrayTemplate implements Template<double[]> {
     private DoubleArrayTemplate() { }
 
-    public void write(Packer pk, Object target) throws IOException {
+    public void write(Packer pk, double[] target) throws IOException {
         if(target == null) {
             throw new MessageTypeException("Attempted to write null");
         }
-        double[] array = (double[]) target;
-        pk.writeArrayBegin(array.length);
-        for(double a : array) {
+        pk.writeArrayBegin(target.length);
+        for(double a : target) {
             pk.writeDouble(a);
         }
         pk.writeArrayEnd();
     }
 
-    public Object read(Unpacker u, Object to) throws IOException {
+    public double[] read(Unpacker u, double[] to) throws IOException {
         int n = u.readArrayBegin();
-        double[] array;
-        if(to != null && ((double[]) to).length == n) {
-            array = (double[]) to;
-        } else {
-            array = new double[n];
+        if(to == null || to.length != n) {
+            to = new double[n];
         }
         for(int i=0; i < n; i++) {
-            array[i] = u.readDouble();
+            to[i] = u.readDouble();
         }
         u.readArrayEnd();
-        return array;
+        return to;
     }
 
     static public DoubleArrayTemplate getInstance() {

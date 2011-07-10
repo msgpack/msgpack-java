@@ -23,17 +23,17 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class BooleanTemplate implements Template {
+public class BooleanTemplate implements Template<Boolean> {
     private BooleanTemplate() { }
 
-    public void write(Packer pk, Object target) throws IOException {
+    public void write(Packer pk, Boolean target) throws IOException {
         if(target == null) {
             throw new MessageTypeException("Attempted to write null");
         }
-        pk.writeBoolean((Boolean)target);
+        pk.writeBoolean(target);
     }
 
-    public Object read(Unpacker u, Object to) throws IOException {
+    public Boolean read(Unpacker u, Boolean to) throws IOException {
         return u.readBoolean();
     }
 

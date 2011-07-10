@@ -22,9 +22,9 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 
 
-public interface Template {
-    public void write(Packer pk, Object v) throws IOException;
+public interface Template<T> {
+    public void write(Packer pk, T v) throws IOException;
 
-    public Object read(Unpacker u, Object to) throws IOException;
+    public T read(Unpacker u, T to) throws IOException;
 }
 

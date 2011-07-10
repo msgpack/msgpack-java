@@ -48,7 +48,7 @@ public class MessagePack {
         return write(v, registry.lookup(v.getClass()));
     }
 
-    public byte[] write(Object v, Template tmpl) throws IOException { // TODO IOException
+    public <T> byte[] write(T v, Template<T> tmpl) throws IOException { // TODO IOException
         BufferPacker pk = new BufferPacker(this);
         tmpl.write(pk, v);
         return pk.toByteArray();
@@ -58,7 +58,7 @@ public class MessagePack {
         write(out, v, registry.lookup(v.getClass()));
     }
 
-    public void write(OutputStream out, Object v, Template tmpl) throws IOException {
+    public <T> void write(OutputStream out, T v, Template<T> tmpl) throws IOException {
         StreamPacker pk = new StreamPacker(this, out);
         tmpl.write(pk, v);
     }
@@ -95,54 +95,48 @@ public class MessagePack {
     }
 
     public <T> T read(byte[] b, Class<T> c) throws IOException {  // TODO IOException
-        // TODO
-        Template tmpl = registry.lookup(c);
+        Template<T> tmpl = registry.lookup(c);
         BufferUnpacker u = new BufferUnpacker(this);
         u.wrap(b);
-        return (T) tmpl.read(u, null);
+        return tmpl.read(u, null);
     }
 
     public <T> T read(ByteBuffer b, T v) throws IOException {  // TODO IOException
-        // TODO
-        Template tmpl = registry.lookup(v.getClass());
+        Template<T> tmpl = registry.lookup(v.getClass());
         BufferUnpacker u = new BufferUnpacker(this);
         u.wrap(b);
-        return (T) tmpl.read(u, v);
+        return tmpl.read(u, v);
     }
 
     public <T> T read(ByteBuffer b, Class<T> c) {  // TODO IOException
-        // TODO
-        Template tmpl = registry.lookup(c);
+        Template<T> tmpl = registry.lookup(c);
         BufferUnpacker u = new BufferUnpacker(this);
         u.wrap(b);
         return null;
     }
 
     public <T> T read(InputStream in, T v) throws IOException {
-        // TODO
-        Template tmpl = registry.lookup(v.getClass());
-        return (T) tmpl.read(new StreamUnpacker(this, in), v);
+        Template<T> tmpl = registry.lookup(v.getClass());
+        return tmpl.read(new StreamUnpacker(this, in), v);
     }
 
     public <T> T read(InputStream in, Class<T> c) throws IOException {
-        // TODO
-        Template tmpl = registry.lookup(c);
-        return (T) tmpl.read(new StreamUnpacker(this, in), null);
+        Template<T> tmpl = registry.lookup(c);
+        return tmpl.read(new StreamUnpacker(this, in), null);
     }
 
     public <T> T convert(Value v, T to) throws IOException {  // TODO IOException
-        // TODO
-        Template tmpl = registry.lookup(to.getClass());
-        return (T) tmpl.read(new Converter(this, v), to);
+        Template<T> tmpl = registry.lookup(to.getClass());
+        return tmpl.read(new Converter(this, v), to);
     }
 
     public <T> T convert(Value v, Class<T> c) throws IOException {
-        Template tmpl = registry.lookup(c);
-        return (T) tmpl.read(new Converter(this, v), null);
+        Template<T> tmpl = registry.lookup(c);
+        return tmpl.read(new Converter(this, v), null);
     }
 
-    public Value unconvert(Object v) throws IOException {
-        Template tmpl = registry.lookup(v.getClass());
+    public <T> Value unconvert(T v) throws IOException {
+        Template<T> tmpl = registry.lookup(v.getClass());
         Unconverter pk = new Unconverter(this);
         tmpl.write(pk, v);
         return pk.getResult();
@@ -155,13 +149,15 @@ public class MessagePack {
     // TODO #MN
     // public void forceRegister(Class<?> type);
 
-    public void register(Class<?> type, Template tmpl) {
+    public <T> void register(Class<T> type, Template<? super T> tmpl) {
         registry.register(type, tmpl);
     }
 
-    public Template getTemplate(Class<?> type) {
+    public <T> Template<? super T> getTemplate(Class<T> type) {
 	return registry.lookup(type);
     }
+
+
     private static final MessagePack globalMessagePack = new MessagePack();
 
     @Deprecated
@@ -175,12 +171,12 @@ public class MessagePack {
     }
 
     @Deprecated
-    public static byte[] pack(Object obj, Template tmpl) throws IOException {  // TODO IOException
+    public static <T> byte[] pack(T obj, Template<T> tmpl) throws IOException {  // TODO IOException
 	return globalMessagePack.write(obj, tmpl);
     }
 
     @Deprecated
-    public static void pack(OutputStream out, Object obj, Template tmpl) throws IOException {
+    public static <T> void pack(OutputStream out, T obj, Template<T> tmpl) throws IOException {
 	globalMessagePack.write(out, obj, tmpl);
     }
 
@@ -190,15 +186,15 @@ public class MessagePack {
     }
 
     @Deprecated
-    public static <T> T unpack(byte[] buffer, Template tmpl) throws IOException {
+    public static <T> T unpack(byte[] buffer, Template<T> tmpl) throws IOException {
         BufferUnpacker u = new BufferUnpacker(globalMessagePack).wrap(buffer);
-        return (T) tmpl.read(u, null);
+        return tmpl.read(u, null);
     }
 
     @Deprecated
-    public static <T> T unpack(byte[] buffer, Template tmpl, T to) throws IOException {
+    public static <T> T unpack(byte[] buffer, Template<T> tmpl, T to) throws IOException {
         BufferUnpacker u = new BufferUnpacker(globalMessagePack).wrap(buffer);
-        return (T) tmpl.read(u, to);
+        return tmpl.read(u, to);
     }
 
     @Deprecated
@@ -217,12 +213,12 @@ public class MessagePack {
     }
 
     @Deprecated
-    public static Object unpack(InputStream in, Template tmpl) throws IOException, MessageTypeException {
+    public static <T> T unpack(InputStream in, Template<T> tmpl) throws IOException, MessageTypeException {
         return tmpl.read(new StreamUnpacker(globalMessagePack, in), null);
     }
 
     @Deprecated
-    public static <T> T unpack(InputStream in, Template tmpl, T to) throws IOException, MessageTypeException {
+    public static <T> T unpack(InputStream in, Template<T> tmpl, T to) throws IOException, MessageTypeException {
         return (T) tmpl.read(new StreamUnpacker(globalMessagePack, in), to);
     }
 

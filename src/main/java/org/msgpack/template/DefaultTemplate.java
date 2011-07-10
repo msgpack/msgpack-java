@@ -26,7 +26,7 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 
 
-public class DefaultTemplate implements Template {
+public class DefaultTemplate<T> implements Template<T> {
     private TemplateRegistry registry;
 
     // this field should be deleted?
@@ -36,38 +36,38 @@ public class DefaultTemplate implements Template {
 
     private boolean messagePackable;
 
-    public DefaultTemplate(TemplateRegistry registry, Class<?> targetClass) {
-	this(registry, targetClass, (Type) targetClass);
+    public DefaultTemplate(TemplateRegistry registry, Class<T> targetClass) {
+        this(registry, targetClass, (Type) targetClass);
     }
 
-    public DefaultTemplate(TemplateRegistry registry, Class<?> targetClass, Type lookupType) {
-	this.registry = registry;
-	//this.targetClass = targetClass;
-	this.lookupType = lookupType;
-	this.messagePackable = MessagePackable.class.isAssignableFrom(targetClass);
+    public DefaultTemplate(TemplateRegistry registry, Class<T> targetClass, Type lookupType) {
+        this.registry = registry;
+        //this.targetClass = targetClass;
+        this.lookupType = lookupType;
+        this.messagePackable = MessagePackable.class.isAssignableFrom(targetClass);
     }
 
     public void write(Packer pk, Object target) throws IOException {
-	if (messagePackable) {
-	    if (target == null) {
-		throw new NullPointerException("target is null");
-	    }
-	    ((MessagePackable) target).writeTo(pk);
-	    return;
-	}
-	Template tmpl = registry.tryLookup(lookupType);
-	if (tmpl == this || tmpl == null) {
-	    throw new MessageTypeException("Template lookup fail: " + lookupType);
-	}
-	tmpl.write(pk, target);
+        if (messagePackable) {
+            if (target == null) {
+                throw new NullPointerException("target is null");
+            }
+            ((MessagePackable) target).writeTo(pk);
+            return;
+        }
+        Template<Object> tmpl = registry.tryLookup(lookupType);
+        if (tmpl == this || tmpl == null) {
+            throw new MessageTypeException("Template lookup fail: " + lookupType);
+        }
+        tmpl.write(pk, target);
     }
 
     public Object read(Unpacker pac, Object to) throws IOException {
-	// TODO #MN
-	Template tmpl = registry.tryLookup(lookupType);
-	if (tmpl == this || tmpl == null) {
-	    throw new MessageTypeException("Template lookup fail: " + lookupType);
-	}
-	return tmpl.read(pac, to);
+        // TODO #MN
+        Template<Object> tmpl = registry.tryLookup(lookupType);
+        if (tmpl == this || tmpl == null) {
+            throw new MessageTypeException("Template lookup fail: " + lookupType);
+        }
+        return tmpl.read(pac, to);
     }
 }

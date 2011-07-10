@@ -40,7 +40,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	return buildTemplate(c, entries);
     }
 
-    public Template buildTemplate(Class<?> c, FieldList flist) throws TemplateBuildException {
+    public <T> Template<T> buildTemplate(Class<T> c, FieldList flist) throws TemplateBuildException {
 	try {
 	    checkValidation(c);
 	    return buildTemplate(c, getFieldEntryReader().convertFieldEntries(c, flist));
@@ -49,7 +49,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	}
     }
 
-    public abstract Template buildTemplate(Class<?> type, FieldEntry[] entries);
+    public abstract <T> Template<T> buildTemplate(Class<T> type, FieldEntry[] entries);
 
     protected void checkValidation(Class<?> type) {
 	if (type.isInterface()) {

@@ -23,34 +23,30 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class FloatArrayTemplate implements Template {
+public class FloatArrayTemplate implements Template<float[]> {
     private FloatArrayTemplate() { }
 
-    public void write(Packer pk, Object target) throws IOException {
+    public void write(Packer pk, float[] target) throws IOException {
         if(target == null) {
             throw new MessageTypeException("Attempted to write null");
         }
-        float[] array = (float[]) target;
-        pk.writeArrayBegin(array.length);
-        for(float a : array) {
+        pk.writeArrayBegin(target.length);
+        for(float a : target) {
             pk.writeFloat(a);
         }
         pk.writeArrayEnd();
     }
 
-    public Object read(Unpacker u, Object to) throws IOException {
+    public float[] read(Unpacker u, float[] to) throws IOException {
         int n = u.readArrayBegin();
-        float[] array;
-        if(to != null && ((float[]) to).length == n) {
-            array = (float[]) to;
-        } else {
-            array = new float[n];
+        if(to == null || to.length != n) {
+            to = new float[n];
         }
         for(int i=0; i < n; i++) {
-            array[i] = u.readFloat();
+            to[i] = u.readFloat();
         }
         u.readArrayEnd();
-        return array;
+        return to;
     }
 
     static public FloatArrayTemplate getInstance() {

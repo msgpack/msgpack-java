@@ -24,17 +24,17 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class BigDecimalTemplate implements Template {
+public class BigDecimalTemplate implements Template<BigDecimal> {
     private BigDecimalTemplate() { }
 
-    public void write(Packer pk, Object target) throws IOException {
+    public void write(Packer pk, BigDecimal target) throws IOException {
         if(target == null) {
             throw new MessageTypeException("Attempted to write null");
         }
-        pk.writeString(((BigDecimal)target).toString());
+        pk.writeString(target.toString());
     }
 
-    public Object read(Unpacker u, Object to) throws IOException {
+    public BigDecimal read(Unpacker u, BigDecimal to) throws IOException {
         String temp = u.readString();
         return new BigDecimal(temp);
     }

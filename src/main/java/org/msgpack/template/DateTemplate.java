@@ -25,17 +25,17 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class DateTemplate implements Template {
+public class DateTemplate implements Template<Date> {
     private DateTemplate() { }
 
-    public void write(Packer pk, Object target) throws IOException {
+    public void write(Packer pk, Date target) throws IOException {
         if(target == null) {
             throw new MessageTypeException("Attempted to write null");
         }
-        pk.writeLong(((Date)target).getTime());
+        pk.writeLong(target.getTime());
     }
 
-    public Object read(Unpacker u, Object to) throws IOException {
+    public Date read(Unpacker u, Date to) throws IOException {
         long temp = u.readLong();
         return new Date(temp);
     }

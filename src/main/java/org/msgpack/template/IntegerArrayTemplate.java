@@ -23,26 +23,25 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class IntegerArrayTemplate implements Template {
+public class IntegerArrayTemplate implements Template<int[]> {
     private IntegerArrayTemplate() { }
 
-    public void write(Packer pk, Object target) throws IOException {
+    public void write(Packer pk, int[] target) throws IOException {
         if(target == null) {
             throw new MessageTypeException("Attempted to write null");
         }
-        int[] array = (int[]) target;
-        pk.writeArrayBegin(array.length);
-        for(int a : array) {
+        pk.writeArrayBegin(target.length);
+        for(int a : target) {
             pk.writeInt(a);
         }
         pk.writeArrayEnd();
     }
 
-    public Object read(Unpacker u, Object to) throws IOException {
+    public int[] read(Unpacker u, int[] to) throws IOException {
         int n = u.readArrayBegin();
         int[] array;
-        if(to != null && ((int[]) to).length == n) {
-            array = (int[]) to;
+        if(to != null && to.length == n) {
+            array = to;
         } else {
             array = new int[n];
         }

@@ -25,43 +25,40 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class ListTemplate implements Template {
-    private Template elementTemplate;
+public class ListTemplate<E> implements Template<List<E>> {
+    private Template<E> elementTemplate;
 
-    private ListTemplate(Template elementTemplate) {
+    private ListTemplate(Template<E> elementTemplate) {
         this.elementTemplate = elementTemplate;
     }
 
-    public void write(Packer pk, Object target) throws IOException {
+    public void write(Packer pk, List<E> target) throws IOException {
         if(!(target instanceof List)) {
             if(target == null) {
                 throw new MessageTypeException("Attempted to write null");
             }
             throw new MessageTypeException("Target is not a List but "+target.getClass());
         }
-        List<Object> list = (List<Object>) target;
-        pk.writeArrayBegin(list.size());
-        for(Object e : list) {
+        pk.writeArrayBegin(target.size());
+        for(E e : target) {
             elementTemplate.write(pk, e);
         }
         pk.writeArrayEnd();
     }
 
-    public Object read(Unpacker u, Object to) throws IOException {
+    public List<E> read(Unpacker u, List<E> to) throws IOException {
         int n = u.readArrayBegin();
-        List<Object> list;
-        if(to != null) {
-            list = (List<Object>) to;
-            list.clear();
+        if(to == null) {
+            to = new ArrayList<E>(n);
         } else {
-            list = new ArrayList<Object>(n);
+            to.clear();
         }
         for(int i=0; i < n; i++) {
-            Object e = elementTemplate.read(u, null);
-            list.add(e);
+            E e = elementTemplate.read(u, null);
+            to.add(e);
         }
         u.readArrayEnd();
-        return list;
+        return to;
     }
 }
 

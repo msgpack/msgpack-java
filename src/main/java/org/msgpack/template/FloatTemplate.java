@@ -23,17 +23,17 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class FloatTemplate implements Template {
+public class FloatTemplate implements Template<Float> {
     private FloatTemplate() { }
 
-    public void write(Packer pk, Object target) throws IOException {
+    public void write(Packer pk, Float target) throws IOException {
         if(target == null) {
             throw new MessageTypeException("Attempted to write null");
         }
-        pk.writeFloat((Float)target);
+        pk.writeFloat(target);
     }
 
-    public Object read(Unpacker u, Object to) throws IOException {
+    public Float read(Unpacker u, Float to) throws IOException {
         return u.readFloat();
     }
 

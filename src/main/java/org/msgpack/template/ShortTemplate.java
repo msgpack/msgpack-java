@@ -23,17 +23,17 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class ShortTemplate implements Template {
+public class ShortTemplate implements Template<Short> {
     private ShortTemplate() { }
 
-    public void write(Packer pk, Object target) throws IOException {
+    public void write(Packer pk, Short target) throws IOException {
         if(target == null) {
             throw new MessageTypeException("Attempted to write null");
         }
-        pk.writeShort((Short)target);
+        pk.writeShort(target);
     }
 
-    public Object read(Unpacker u, Object to) throws IOException {
+    public Short read(Unpacker u, Short to) throws IOException {
         return u.readShort();
     }
 

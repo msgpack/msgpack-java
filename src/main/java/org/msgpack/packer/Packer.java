@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.msgpack.type.Value;
 import org.msgpack.MessagePack;
+import org.msgpack.template.Template;
 
 
 public abstract class Packer {
@@ -77,7 +78,8 @@ public abstract class Packer {
 
 
     public Packer write(Object o) throws IOException {
-        msgpack.getTemplate(o.getClass()).write(this, o);
+        Template tmpl = msgpack.getTemplate(o.getClass());
+        tmpl.write(this, o);
         return this;
     }
 

@@ -24,17 +24,17 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class BigIntegerTemplate implements Template {
+public class BigIntegerTemplate implements Template<BigInteger> {
     private BigIntegerTemplate() { }
 
-    public void write(Packer pk, Object target) throws IOException {
+    public void write(Packer pk, BigInteger target) throws IOException {
         if(target == null) {
             throw new MessageTypeException("Attempted to write null");
         }
         pk.writeBigInteger((BigInteger)target);
     }
 
-    public Object read(Unpacker u, Object to) throws IOException {
+    public BigInteger read(Unpacker u, BigInteger to) throws IOException {
         return u.readBigInteger();
     }
 

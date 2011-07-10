@@ -23,17 +23,17 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class DoubleTemplate implements Template {
+public class DoubleTemplate implements Template<Double> {
     private DoubleTemplate() { }
 
-    public void write(Packer pk, Object target) throws IOException {
+    public void write(Packer pk, Double target) throws IOException {
         if(target == null) {
             throw new MessageTypeException("Attempted to write null");
         }
-        pk.writeDouble((Double)target);
+        pk.writeDouble(target);
     }
 
-    public Object read(Unpacker u, Object to) throws IOException {
+    public Double read(Unpacker u, Double to) throws IOException {
         return u.readDouble();
     }
 

@@ -23,34 +23,30 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class ShortArrayTemplate implements Template {
+public class ShortArrayTemplate implements Template<short[]> {
     private ShortArrayTemplate() { }
 
-    public void write(Packer pk, Object target) throws IOException {
+    public void write(Packer pk, short[] target) throws IOException {
         if(target == null) {
             throw new MessageTypeException("Attempted to write null");
         }
-        short[] array = (short[]) target;
-        pk.writeArrayBegin(array.length);
-        for(short a : array) {
+        pk.writeArrayBegin(target.length);
+        for(short a : target) {
             pk.writeShort(a);
         }
         pk.writeArrayEnd();
     }
 
-    public Object read(Unpacker u, Object to) throws IOException {
+    public short[] read(Unpacker u, short[] to) throws IOException {
         int n = u.readArrayBegin();
-        short[] array;
-        if(to != null && ((short[]) to).length == n) {
-            array = (short[]) to;
-        } else {
-            array = new short[n];
+        if(to == null || to.length != n) {
+            to = new short[n];
         }
         for(int i=0; i < n; i++) {
-            array[i] = u.readShort();
+            to[i] = u.readShort();
         }
         u.readArrayEnd();
-        return array;
+        return to;
     }
 
     static public ShortArrayTemplate getInstance() {

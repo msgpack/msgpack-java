@@ -179,14 +179,14 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	}
     }
 
-    static class ReflectionTemplate implements Template {
-	private Class<?> targetClass;
+    static class ReflectionTemplate<T> implements Template<T> {
+	private Class<T> targetClass;
 
 	private ReflectionFieldEntry[] entries;
 
 	private int minimumArrayLength;
 
-	ReflectionTemplate(Class<?> targetClass, ReflectionFieldEntry[] entries) {
+	ReflectionTemplate(Class<T> targetClass, ReflectionFieldEntry[] entries) {
 	    this.targetClass = targetClass;
 	    this.entries = entries;
 	    this.minimumArrayLength = 0;
@@ -198,7 +198,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    }
 	}
 
-	public void write(Packer packer, Object target) throws IOException {
+	public void write(Packer packer, T target) throws IOException {
 	    try {
 		packer.writeArrayBegin(entries.length);
 		for (ReflectionFieldEntry e : entries) {
@@ -226,7 +226,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    }
 	}
 
-	public Object read(Unpacker unpacker, Object to) throws IOException, MessageTypeException {
+	public T read(Unpacker unpacker, T to) throws IOException, MessageTypeException {
 	    try {
 		if (to == null) {
 		    to = targetClass.newInstance();
@@ -306,7 +306,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     @Override
-    public Template buildTemplate(Class<?> type, FieldEntry[] entries) {
+    public <T> Template<T> buildTemplate(Class<T> type, FieldEntry[] entries) {
 	if (entries == null) {
 	    throw new NullPointerException("entries is null: " + type);
 	}
@@ -341,7 +341,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    } else if (t.equals(double.class)) {
 		res[i] = new DoubleFieldEntry(e);
 	    } else {
-		Template tmpl = registry.lookup((Class<?>) e.getGenericType(), true);
+		Template<?> tmpl = registry.lookup((Class<?>) e.getGenericType(), true);
 		res[i] = new ObjectFieldEntry(e, tmpl);
 	    }
 	}

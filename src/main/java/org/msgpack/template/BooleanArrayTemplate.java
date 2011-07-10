@@ -23,34 +23,30 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class BooleanArrayTemplate implements Template {
+public class BooleanArrayTemplate implements Template<boolean[]> {
     private BooleanArrayTemplate() { }
 
-    public void write(Packer pk, Object target) throws IOException {
+    public void write(Packer pk, boolean[] target) throws IOException {
         if(target == null) {
             throw new MessageTypeException("Attempted to write null");
         }
-        boolean[] array = (boolean[]) target;
-        pk.writeArrayBegin(array.length);
-        for(boolean a : array) {
+        pk.writeArrayBegin(target.length);
+        for(boolean a : target) {
             pk.writeBoolean(a);
         }
         pk.writeArrayEnd();
     }
 
-    public Object read(Unpacker u, Object to) throws IOException {
+    public boolean[] read(Unpacker u, boolean[] to) throws IOException {
         int n = u.readArrayBegin();
-        boolean[] array;
-        if(to != null && ((boolean[]) to).length == n) {
-            array = (boolean[]) to;
-        } else {
-            array = new boolean[n];
+        if(to == null || to.length != n) {
+            to = new boolean[n];
         }
         for(int i=0; i < n; i++) {
-            array[i] = u.readBoolean();
+            to[i] = u.readBoolean();
         }
         u.readArrayEnd();
-        return array;
+        return to;
     }
 
     static public BooleanArrayTemplate getInstance() {

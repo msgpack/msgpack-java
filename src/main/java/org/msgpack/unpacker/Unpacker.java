@@ -23,6 +23,7 @@ import java.math.BigInteger;
 import java.lang.Iterable;
 import org.msgpack.type.Value;
 import org.msgpack.MessagePack;
+import org.msgpack.template.Template;
 import org.msgpack.packer.Unconverter;
 
 
@@ -103,25 +104,29 @@ public abstract class Unpacker implements Iterable<Value> {
 
 
     public <T> T read(T to) throws IOException {
-        return (T) msgpack.getTemplate(to.getClass()).read(this, to);
+        Template<? super T> tmpl = msgpack.getTemplate((Class<T>) to.getClass());  // FIXME T -> ? extends T
+        return (T) tmpl.read(this, to);  // FIXME down cast
     }
 
     public <T> T read(Class<T> klass) throws IOException {
-        return (T) msgpack.getTemplate(klass).read(this, null);
-    }
-
-    public <T> T readOptional(Class<T> klass, T defaultValue) throws IOException {
-        if(trySkipNil()) {
-            return defaultValue;
-        }
-        return (T) msgpack.getTemplate(klass).read(this, null);
+        Template<? super T> tmpl = msgpack.getTemplate(klass);  // FIXME T -> ? extends T
+        return (T) tmpl.read(this, null);  // FIXME down cast
     }
 
     public <T> T readOptional(T to, T defaultValue) throws IOException {
         if(trySkipNil()) {
             return defaultValue;
         }
-        return (T) msgpack.getTemplate(to.getClass()).read(this, to);
+        Template<? super T> tmpl = msgpack.getTemplate((Class<T>) to.getClass());  // FIXME T -> ? extends T
+        return (T) tmpl.read(this, to);  // FIXME down cast
+    }
+
+    public <T> T readOptional(Class<T> klass, T defaultValue) throws IOException {
+        if(trySkipNil()) {
+            return defaultValue;
+        }
+        Template<? super T> tmpl = (Template<? super T>) msgpack.getTemplate(klass);  // FIXME T -> ? extends T
+        return (T) tmpl.read(this, null);  // FIXME down cast
     }
 
     public <T> T readOptional(Class<T> klass) throws IOException {
