@@ -15,7 +15,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.value;
+package org.msgpack.type;
 
 import java.util.Arrays;
 import java.io.UnsupportedEncodingException;
@@ -23,28 +23,44 @@ import java.io.IOException;
 import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
 
-class StringRawValueImpl extends AbstractRawValue {
-    private String string;
+class ByteArrayRawValueImpl extends AbstractRawValue {
+    private static ByteArrayRawValueImpl emptyInstance = new ByteArrayRawValueImpl(new byte[0], true);
 
-    StringRawValueImpl(String string) {
-        this.string = string;
+    public static RawValue getEmptyInstance() {
+        return emptyInstance;
+    }
+
+    private byte[] bytes;
+
+    ByteArrayRawValueImpl(byte[] bytes, boolean gift) {
+        if(gift) {
+            this.bytes = bytes;
+        } else {
+            this.bytes = new byte[bytes.length];
+            System.arraycopy(bytes, 0, this.bytes, 0, bytes.length);
+        }
+    }
+
+    ByteArrayRawValueImpl(byte[] b, int off, int len) {
+        this.bytes = new byte[len];
+        System.arraycopy(b, off, this.bytes, 0, len);
     }
 
     public byte[] getByteArray() {
+        return bytes;
+    }
+
+    public String getString() {
         // TODO encoding error
         try {
-            return string.getBytes("UTF-8");
+            return new String(bytes, "UTF-8");
         } catch (UnsupportedEncodingException ex) {
             throw new MessageTypeException();
         }
     }
 
-    public String getString() {
-        return string;
-    }
-
     public void writeTo(Packer pk) throws IOException {
-        pk.writeString(string);
+        pk.writeByteArray(bytes);
     }
 
     public boolean equals(Object o) {
@@ -55,11 +71,11 @@ class StringRawValueImpl extends AbstractRawValue {
             return false;
         }
 
-        if(o.getClass() == StringRawValueImpl.class) {
-            return string.equals(((StringRawValueImpl) o).string);
-        }
+        return Arrays.equals(bytes, ((RawValue) o).getByteArray());
+    }
 
-        return Arrays.equals(getByteArray(), ((RawValue) o).getByteArray());
+    public int hashCode() {
+        return Arrays.hashCode(bytes);
     }
 }
 

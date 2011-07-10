@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Arrays;
 
 import org.msgpack.MessagePack;
-import org.msgpack.value.Value;
+import org.msgpack.type.Value;
 
 import org.junit.Test;
 

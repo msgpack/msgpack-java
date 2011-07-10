@@ -20,7 +20,7 @@ package org.msgpack.unpacker;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import org.msgpack.value.Value;
+import org.msgpack.type.Value;
 import org.msgpack.packer.Unconverter;
 import org.msgpack.io.EndOfBufferException;
 

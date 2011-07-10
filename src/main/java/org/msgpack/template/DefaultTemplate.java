@@ -22,7 +22,6 @@ import java.lang.reflect.Type;
 
 import org.msgpack.MessagePackable;
 import org.msgpack.MessageTypeException;
-import org.msgpack.TemplateRegistry;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 

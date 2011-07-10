@@ -18,11 +18,12 @@
 package org.msgpack.packer;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
-import org.msgpack.value.Value;
-import org.msgpack.value.ValueFactory;
+import org.msgpack.type.Value;
+import org.msgpack.type.ValueFactory;
 
 
 public class Unconverter extends Packer {
@@ -97,6 +98,11 @@ public class Unconverter extends Packer {
     @Override
     public void writeByteArray(byte[] b, int off, int len) {
         put(ValueFactory.rawValue(b, off, len));
+    }
+
+    @Override
+    public void writeByteBuffer(ByteBuffer bb) {
+        put(ValueFactory.rawValue(bb));
     }
 
     @Override

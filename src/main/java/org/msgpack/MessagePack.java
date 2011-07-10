@@ -23,13 +23,14 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.msgpack.template.Template;
+import org.msgpack.template.TemplateRegistry;
 import org.msgpack.packer.StreamPacker;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.packer.Unconverter;
 import org.msgpack.unpacker.StreamUnpacker;
 import org.msgpack.unpacker.BufferUnpacker;
 import org.msgpack.unpacker.Converter;
-import org.msgpack.value.Value;
+import org.msgpack.type.Value;
 
 
 public class MessagePack {

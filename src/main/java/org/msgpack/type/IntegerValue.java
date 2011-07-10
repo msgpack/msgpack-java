@@ -15,23 +15,39 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.value;
+package org.msgpack.type;
 
-public abstract class FloatValue extends NumberValue {
+import java.math.BigInteger;
+import org.msgpack.MessageTypeException;
+
+public abstract class IntegerValue extends NumberValue {
     public ValueType getType() {
-        return ValueType.FLOAT;
+        return ValueType.INTEGER;
     }
 
-    public boolean isFloat() {
+    public boolean isInteger() {
         return true;
     }
 
-    public FloatValue asFloatValue() {
+    public IntegerValue asIntegerValue() {
         return this;
     }
 
-    public abstract float getFloat();
+    public abstract BigInteger bigIntegerValue();
 
-    public abstract double getDouble();
+    public abstract byte getByte();
+
+    public abstract short getShort();
+
+    public abstract int getInt();
+
+    public abstract long getLong();
+
+    public BigInteger getBigInteger() {
+        return bigIntegerValue();
+    }
+
+    // TODO equals
+    // TODO hashCode
 }
 

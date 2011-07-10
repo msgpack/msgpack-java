@@ -23,10 +23,10 @@ import java.lang.reflect.Modifier;
 
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
-import org.msgpack.TemplateRegistry;
 import org.msgpack.packer.Packer;
 import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
+import org.msgpack.template.TemplateRegistry;
 import org.msgpack.unpacker.Unpacker;
 
 

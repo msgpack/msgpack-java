@@ -18,9 +18,10 @@
 package org.msgpack.unpacker;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import java.lang.Iterable;
-import org.msgpack.value.Value;
+import org.msgpack.type.Value;
 import org.msgpack.MessagePack;
 import org.msgpack.packer.Unconverter;
 
@@ -56,6 +57,10 @@ public abstract class Unpacker implements Iterable<Value> {
     public abstract double readDouble() throws IOException;
 
     public abstract byte[] readByteArray() throws IOException;
+
+    public ByteBuffer readByteBuffer() throws IOException {
+        return ByteBuffer.wrap(readByteArray());
+    }
 
 
     public abstract int readArrayBegin() throws IOException;
