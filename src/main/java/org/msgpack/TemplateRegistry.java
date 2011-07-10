@@ -60,7 +60,7 @@ public class TemplateRegistry {
 
     private Map<Type, GenericTemplate> genericCache;
 
-    TemplateRegistry() {
+    public TemplateRegistry() {
 	this(null);
     }
 
