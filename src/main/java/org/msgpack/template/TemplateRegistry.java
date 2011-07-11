@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
@@ -104,6 +105,7 @@ public class TemplateRegistry {
         register(double[].class, DoubleArrayTemplate.getInstance());
         register(String.class, StringTemplate.getInstance());
         register(byte[].class, ByteArrayTemplate.getInstance());
+        register(ByteBuffer.class, ByteBufferTemplate.getInstance());
         register(Value.class, ValueTemplate.getInstance());
     }
 
