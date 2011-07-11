@@ -363,7 +363,7 @@ public class TestSet {
 	testList(list3, String.class);
     }
 
-    public void testList(List v, Class<?> elementClass) throws Exception {
+    public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
     }
 
     public void testMap() throws Exception {
@@ -390,7 +390,7 @@ public class TestSet {
 	testMap(map3, String.class, Integer.class);
     }
 
-    public void testMap(Map v, Class<?> keyElementClass, Class<?> valueElementClass) throws Exception {
+    public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
     }
 
     public void testBigInteger() throws Exception {

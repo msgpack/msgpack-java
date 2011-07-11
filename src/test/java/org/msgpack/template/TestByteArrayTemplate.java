@@ -43,13 +43,13 @@ public class TestByteArrayTemplate {
 
 	@Override
 	public void testByteArray(byte[] v) throws Exception {
-	    Template tmpl = ByteArrayTemplate.instance;
+	    Template<byte[]> tmpl = ByteArrayTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
-	    byte[] ret = (byte[]) tmpl.read(unpacker, null);
+	    byte[] ret = tmpl.read(unpacker, null);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i]);
@@ -65,14 +65,14 @@ public class TestByteArrayTemplate {
 
 	@Override
 	public void testByteArray(byte[] v) throws Exception {
-	    Template tmpl = ByteArrayTemplate.instance;
+	    Template<byte[]> tmpl = ByteArrayTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = new BufferUnpacker();
 	    unpacker.wrap(bytes);
-	    byte[] ret = (byte[]) tmpl.read(unpacker, null);
+	    byte[] ret = tmpl.read(unpacker, null);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i]);
@@ -88,13 +88,13 @@ public class TestByteArrayTemplate {
 
 	@Override
 	public void testByteArray(byte[] v) throws Exception {
-	    Template tmpl = ByteArrayTemplate.instance;
+	    Template<byte[]> tmpl = ByteArrayTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    BufferUnpacker unpacker = new BufferUnpacker();
 	    unpacker.wrap(bytes);
-	    byte[] ret = (byte[]) tmpl.read(unpacker, null);
+	    byte[] ret = tmpl.read(unpacker, null);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i]);
@@ -110,12 +110,12 @@ public class TestByteArrayTemplate {
 
 	@Override
 	public void testByteArray(byte[] v) throws Exception {
-	    Template tmpl = ByteArrayTemplate.instance;
+	    Template<byte[]> tmpl = ByteArrayTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
-	    byte[] ret = (byte[]) tmpl.read(unpacker, null);
+	    byte[] ret = tmpl.read(unpacker, null);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i]);

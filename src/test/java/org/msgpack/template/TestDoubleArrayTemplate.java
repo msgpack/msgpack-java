@@ -89,7 +89,7 @@ public class TestDoubleArrayTemplate {
 
 	@Override
 	public void testDoubleArray(double[] v) throws Exception {
-	    Template tmpl = DoubleArrayTemplate.instance;
+	    Template<double[]> tmpl = DoubleArrayTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
@@ -109,7 +109,7 @@ public class TestDoubleArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    double[] ret = (double[]) tmpl.read(unpacker, ret0);
+	    double[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i], 10e-10);
@@ -131,7 +131,7 @@ public class TestDoubleArrayTemplate {
 
 	@Override
 	public void testDoubleArray(double[] v) throws Exception {
-	    Template tmpl = DoubleArrayTemplate.instance;
+	    Template<double[]> tmpl = DoubleArrayTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
@@ -152,7 +152,7 @@ public class TestDoubleArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    double[] ret = (double[]) tmpl.read(unpacker, ret0);
+	    double[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i], 10e-10);
@@ -174,7 +174,7 @@ public class TestDoubleArrayTemplate {
 
 	@Override
 	public void testDoubleArray(double[] v) throws Exception {
-	    Template tmpl = DoubleArrayTemplate.instance;
+	    Template<double[]> tmpl = DoubleArrayTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
@@ -194,7 +194,7 @@ public class TestDoubleArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    double[] ret = (double[]) tmpl.read(unpacker, ret0);
+	    double[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i], 10e-10);
@@ -216,7 +216,7 @@ public class TestDoubleArrayTemplate {
 
 	@Override
 	public void testDoubleArray(double[] v) throws Exception {
-	    Template tmpl = DoubleArrayTemplate.instance;
+	    Template<double[]> tmpl = DoubleArrayTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
@@ -235,7 +235,7 @@ public class TestDoubleArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    double[] ret = (double[]) tmpl.read(unpacker, ret0);
+	    double[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i], 10e-10);

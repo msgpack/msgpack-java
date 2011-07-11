@@ -194,7 +194,7 @@ public class TestBufferPackStreamUnpack extends TestSet {
     }
 
     @Override
-    public void testList(List v, Class<?> elementClass) throws Exception {
+    public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	BufferPacker packer = new BufferPacker(msgpack);
 	packer.writeArrayBegin(v.size());
@@ -224,7 +224,7 @@ public class TestBufferPackStreamUnpack extends TestSet {
     }
 
     @Override
-    public void testMap(Map v, Class<?> keyElementClass, Class<?> valueElementClass) throws Exception {
+    public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	BufferPacker packer = new BufferPacker(msgpack);
 	packer.writeMapBegin(v.size());

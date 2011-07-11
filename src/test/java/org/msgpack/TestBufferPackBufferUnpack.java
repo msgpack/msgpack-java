@@ -204,7 +204,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
     }
 
     @Override
-    public void testList(List v, Class<?> elementClass) throws Exception {
+    public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	BufferPacker packer = new BufferPacker();
 	packer.writeArrayBegin(v.size());
 	for (Object o : v) {
@@ -234,7 +234,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
     }
 
     @Override
-    public void testMap(Map v, Class<?> keyElementClass, Class<?> valueElementClass) throws Exception {
+    public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	BufferPacker packer = new BufferPacker();
 	packer.writeMapBegin(v.size());
 	for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {

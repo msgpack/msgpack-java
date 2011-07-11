@@ -89,7 +89,7 @@ public class TestLongArrayTemplate {
 
 	@Override
 	public void testLongArray(long[] v) throws Exception {
-	    Template tmpl = LongArrayTemplate.instance;
+	    Template<long[]> tmpl = LongArrayTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
@@ -109,7 +109,7 @@ public class TestLongArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    long[] ret = (long[]) tmpl.read(unpacker, ret0);
+	    long[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i]);
@@ -131,7 +131,7 @@ public class TestLongArrayTemplate {
 
 	@Override
 	public void testLongArray(long[] v) throws Exception {
-	    Template tmpl = LongArrayTemplate.instance;
+	    Template<long[]> tmpl = LongArrayTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
@@ -152,7 +152,7 @@ public class TestLongArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    long[] ret = (long[]) tmpl.read(unpacker, ret0);
+	    long[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i]);
@@ -174,7 +174,7 @@ public class TestLongArrayTemplate {
 
 	@Override
 	public void testLongArray(long[] v) throws Exception {
-	    Template tmpl = LongArrayTemplate.instance;
+	    Template<long[]> tmpl = LongArrayTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
@@ -194,7 +194,7 @@ public class TestLongArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    long[] ret = (long[]) tmpl.read(unpacker, ret0);
+	    long[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i]);
@@ -216,7 +216,7 @@ public class TestLongArrayTemplate {
 
 	@Override
 	public void testLongArray(long[] v) throws Exception {
-	    Template tmpl = LongArrayTemplate.instance;
+	    Template<long[]> tmpl = LongArrayTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
@@ -235,7 +235,7 @@ public class TestLongArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    long[] ret = (long[]) tmpl.read(unpacker, ret0);
+	    long[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i]);

@@ -47,7 +47,7 @@ public class TestMapTemplate {
 	}
 
 	@Override
-	public void testMap(Map v, Class<?> keyElementClass, Class<?> valueElementClass) throws Exception {
+	public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
 	    Template keyElementTemplate = msgpack.lookup(keyElementClass);
 	    Template valueElementTemplate = msgpack.lookup(valueElementClass);
@@ -69,7 +69,7 @@ public class TestMapTemplate {
 	}
 
 	@Override
-	public void testMap(Map v, Class<?> keyElementClass, Class<?> valueElementClass) throws Exception {
+	public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
 	    Template keyElementTemplate = msgpack.lookup(keyElementClass);
 	    Template valueElementTemplate = msgpack.lookup(valueElementClass);
@@ -92,7 +92,7 @@ public class TestMapTemplate {
 	}
 
 	@Override
-	public void testMap(Map v, Class<?> keyElementClass, Class<?> valueElementClass) throws Exception {
+	public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
 	    Template keyElementTemplate = msgpack.lookup(keyElementClass);
 	    Template valueElementTemplate = msgpack.lookup(valueElementClass);
@@ -114,7 +114,7 @@ public class TestMapTemplate {
 	}
 
 	@Override
-	public void testMap(Map v, Class<?> keyElementClass, Class<?> valueElementClass) throws Exception {
+	public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
 	    Template keyElementTemplate = msgpack.lookup(keyElementClass);
 	    Template valueElementTemplate = msgpack.lookup(valueElementClass);

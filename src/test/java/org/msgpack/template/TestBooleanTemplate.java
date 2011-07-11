@@ -43,13 +43,13 @@ public class TestBooleanTemplate {
 
 	@Override
 	public void testBoolean(boolean v) throws Exception {
-	    Template tmpl = BooleanTemplate.instance;
+	    Template<Boolean> tmpl = BooleanTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
-	    boolean ret = (Boolean) tmpl.read(unpacker, null);
+	    boolean ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -62,14 +62,14 @@ public class TestBooleanTemplate {
 
 	@Override
 	public void testBoolean(boolean v) throws Exception {
-	    Template tmpl = BooleanTemplate.instance;
+	    Template<Boolean> tmpl = BooleanTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = new BufferUnpacker();
 	    unpacker.wrap(bytes);
-	    boolean ret = (Boolean) tmpl.read(unpacker, null);
+	    boolean ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -82,13 +82,13 @@ public class TestBooleanTemplate {
 
 	@Override
 	public void testBoolean(boolean v) throws Exception {
-	    Template tmpl = BooleanTemplate.instance;
+	    Template<Boolean> tmpl = BooleanTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    BufferUnpacker unpacker = new BufferUnpacker();
 	    unpacker.wrap(bytes);
-	    boolean ret = (Boolean) tmpl.read(unpacker, null);
+	    boolean ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -101,12 +101,12 @@ public class TestBooleanTemplate {
 
 	@Override
 	public void testBoolean(boolean v) throws Exception {
-	    Template tmpl = BooleanTemplate.instance;
+	    Template<Boolean> tmpl = BooleanTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
-	    boolean ret = (Boolean) tmpl.read(unpacker, null);
+	    boolean ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }

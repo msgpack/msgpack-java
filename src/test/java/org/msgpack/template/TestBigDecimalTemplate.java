@@ -44,13 +44,13 @@ public class TestBigDecimalTemplate {
 
 	@Override
 	public void testBigDecimal(BigDecimal v) throws Exception {
-	    Template tmpl = BigDecimalTemplate.instance;
+	    Template<BigDecimal> tmpl = BigDecimalTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
-	    BigDecimal ret = (BigDecimal) tmpl.read(unpacker, null);
+	    BigDecimal ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -63,14 +63,14 @@ public class TestBigDecimalTemplate {
 
 	@Override
 	public void testBigDecimal(BigDecimal v) throws Exception {
-	    Template tmpl = BigDecimalTemplate.instance;
+	    Template<BigDecimal> tmpl = BigDecimalTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = new BufferUnpacker();
 	    unpacker.wrap(bytes);
-	    BigDecimal ret = (BigDecimal) tmpl.read(unpacker, null);
+	    BigDecimal ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -83,13 +83,13 @@ public class TestBigDecimalTemplate {
 
 	@Override
 	public void testBigDecimal(BigDecimal v) throws Exception {
-	    Template tmpl = BigDecimalTemplate.instance;
+	    Template<BigDecimal> tmpl = BigDecimalTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    BufferUnpacker unpacker = new BufferUnpacker();
 	    unpacker.wrap(bytes);
-	    BigDecimal ret = (BigDecimal) tmpl.read(unpacker, null);
+	    BigDecimal ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -102,12 +102,12 @@ public class TestBigDecimalTemplate {
 
 	@Override
 	public void testBigDecimal(BigDecimal v) throws Exception {
-	    Template tmpl = BigDecimalTemplate.instance;
+	    Template<BigDecimal> tmpl = BigDecimalTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
-	    BigDecimal ret = (BigDecimal) tmpl.read(unpacker, null);
+	    BigDecimal ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }

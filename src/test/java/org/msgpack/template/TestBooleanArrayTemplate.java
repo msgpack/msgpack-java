@@ -89,7 +89,7 @@ public class TestBooleanArrayTemplate {
 
 	@Override
 	public void testBooleanArray(boolean[] v) throws Exception {
-	    Template tmpl = BooleanArrayTemplate.instance;
+	    Template<boolean[]> tmpl = BooleanArrayTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
@@ -109,7 +109,7 @@ public class TestBooleanArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    boolean[] ret = (boolean[]) tmpl.read(unpacker, ret0);
+	    boolean[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i]);
@@ -131,7 +131,7 @@ public class TestBooleanArrayTemplate {
 
 	@Override
 	public void testBooleanArray(boolean[] v) throws Exception {
-	    Template tmpl = BooleanArrayTemplate.instance;
+	    Template<boolean[]> tmpl = BooleanArrayTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
@@ -152,7 +152,7 @@ public class TestBooleanArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    boolean[] ret = (boolean[]) tmpl.read(unpacker, ret0);
+	    boolean[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i]);
@@ -174,7 +174,7 @@ public class TestBooleanArrayTemplate {
 
 	@Override
 	public void testBooleanArray(boolean[] v) throws Exception {
-	    Template tmpl = BooleanArrayTemplate.instance;
+	    Template<boolean[]> tmpl = BooleanArrayTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
@@ -194,7 +194,7 @@ public class TestBooleanArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    boolean[] ret = (boolean[]) tmpl.read(unpacker, ret0);
+	    boolean[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i]);
@@ -216,7 +216,7 @@ public class TestBooleanArrayTemplate {
 
 	@Override
 	public void testBooleanArray(boolean[] v) throws Exception {
-	    Template tmpl = BooleanArrayTemplate.instance;
+	    Template<boolean[]> tmpl = BooleanArrayTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
@@ -235,7 +235,7 @@ public class TestBooleanArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    boolean[] ret = (boolean[]) tmpl.read(unpacker, ret0);
+	    boolean[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i]);

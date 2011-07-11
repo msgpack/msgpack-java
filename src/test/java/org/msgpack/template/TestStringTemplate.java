@@ -43,13 +43,13 @@ public class TestStringTemplate {
 
 	@Override
 	public void testString(String v) throws Exception {
-	    Template tmpl = StringTemplate.instance;
+	    Template<String> tmpl = StringTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
-	    String ret = (String) tmpl.read(unpacker, null);
+	    String ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -62,14 +62,14 @@ public class TestStringTemplate {
 
 	@Override
 	public void testString(String v) throws Exception {
-	    Template tmpl = StringTemplate.instance;
+	    Template<String> tmpl = StringTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = new BufferUnpacker();
 	    unpacker.wrap(bytes);
-	    String ret = (String) tmpl.read(unpacker, null);
+	    String ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -82,13 +82,13 @@ public class TestStringTemplate {
 
 	@Override
 	public void testString(String v) throws Exception {
-	    Template tmpl = StringTemplate.instance;
+	    Template<String> tmpl = StringTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    BufferUnpacker unpacker = new BufferUnpacker();
 	    unpacker.wrap(bytes);
-	    String ret = (String) tmpl.read(unpacker, null);
+	    String ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -101,12 +101,12 @@ public class TestStringTemplate {
 
 	@Override
 	public void testString(String v) throws Exception {
-	    Template tmpl = StringTemplate.instance;
+	    Template<String> tmpl = StringTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
-	    String ret = (String) tmpl.read(unpacker, null);
+	    String ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }

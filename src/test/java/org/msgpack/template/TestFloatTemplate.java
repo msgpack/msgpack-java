@@ -43,13 +43,13 @@ public class TestFloatTemplate {
 
 	@Override
 	public void testFloat(float v) throws Exception {
-	    Template tmpl = FloatTemplate.instance;
+	    Template<Float> tmpl = FloatTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
-	    Float ret = (Float) tmpl.read(unpacker, null);
+	    Float ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret, 10e-10);
 	}
     }
@@ -62,14 +62,14 @@ public class TestFloatTemplate {
 
 	@Override
 	public void testFloat(float v) throws Exception {
-	    Template tmpl = FloatTemplate.instance;
+	    Template<Float> tmpl = FloatTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = new BufferUnpacker();
 	    unpacker.wrap(bytes);
-	    Float ret = (Float) tmpl.read(unpacker, null);
+	    Float ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret, 10e-10);
 	}
     }
@@ -82,13 +82,13 @@ public class TestFloatTemplate {
 
 	@Override
 	public void testFloat(float v) throws Exception {
-	    Template tmpl = FloatTemplate.instance;
+	    Template<Float> tmpl = FloatTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    BufferUnpacker unpacker = new BufferUnpacker();
 	    unpacker.wrap(bytes);
-	    Float ret = (Float) tmpl.read(unpacker, null);
+	    Float ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret, 10e-10);
 	}
     }
@@ -101,12 +101,12 @@ public class TestFloatTemplate {
 
 	@Override
 	public void testFloat(float v) throws Exception {
-	    Template tmpl = FloatTemplate.instance;
+	    Template<Float> tmpl = FloatTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
-	    Float ret = (Float) tmpl.read(unpacker, null);
+	    Float ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret, 10e-10);
 	}
     }

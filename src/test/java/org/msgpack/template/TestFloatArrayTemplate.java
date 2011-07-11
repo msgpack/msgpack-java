@@ -89,7 +89,7 @@ public class TestFloatArrayTemplate {
 
 	@Override
 	public void testFloatArray(float[] v) throws Exception {
-	    Template tmpl = FloatArrayTemplate.instance;
+	    Template<float[]> tmpl = FloatArrayTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
@@ -109,7 +109,7 @@ public class TestFloatArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    float[] ret = (float[]) tmpl.read(unpacker, ret0);
+	    float[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i], 10e-10);
@@ -131,7 +131,7 @@ public class TestFloatArrayTemplate {
 
 	@Override
 	public void testFloatArray(float[] v) throws Exception {
-	    Template tmpl = FloatArrayTemplate.instance;
+	    Template<float[]> tmpl = FloatArrayTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
@@ -152,7 +152,7 @@ public class TestFloatArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    float[] ret = (float[]) tmpl.read(unpacker, ret0);
+	    float[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i], 10e-10);
@@ -174,7 +174,7 @@ public class TestFloatArrayTemplate {
 
 	@Override
 	public void testFloatArray(float[] v) throws Exception {
-	    Template tmpl = FloatArrayTemplate.instance;
+	    Template<float[]> tmpl = FloatArrayTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
@@ -194,7 +194,7 @@ public class TestFloatArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    float[] ret = (float[]) tmpl.read(unpacker, ret0);
+	    float[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i], 10e-10);
@@ -216,7 +216,7 @@ public class TestFloatArrayTemplate {
 
 	@Override
 	public void testFloatArray(float[] v) throws Exception {
-	    Template tmpl = FloatArrayTemplate.instance;
+	    Template<float[]> tmpl = FloatArrayTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
@@ -235,7 +235,7 @@ public class TestFloatArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    float[] ret = (float[]) tmpl.read(unpacker, ret0);
+	    float[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i], 10e-10);

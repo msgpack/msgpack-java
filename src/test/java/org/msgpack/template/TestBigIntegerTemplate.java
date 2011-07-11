@@ -44,13 +44,13 @@ public class TestBigIntegerTemplate {
 
 	@Override
 	public void testBigInteger(BigInteger v) throws Exception {
-	    Template tmpl = BigIntegerTemplate.instance;
+	    Template<BigInteger> tmpl = BigIntegerTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
-	    BigInteger ret = (BigInteger) tmpl.read(unpacker, null);
+	    BigInteger ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -63,14 +63,14 @@ public class TestBigIntegerTemplate {
 
 	@Override
 	public void testBigInteger(BigInteger v) throws Exception {
-	    Template tmpl = BigIntegerTemplate.instance;
+	    Template<BigInteger> tmpl = BigIntegerTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = new BufferUnpacker();
 	    unpacker.wrap(bytes);
-	    BigInteger ret = (BigInteger) tmpl.read(unpacker, null);
+	    BigInteger ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -83,13 +83,13 @@ public class TestBigIntegerTemplate {
 
 	@Override
 	public void testBigInteger(BigInteger v) throws Exception {
-	    Template tmpl = BigIntegerTemplate.instance;
+	    Template<BigInteger> tmpl = BigIntegerTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    BufferUnpacker unpacker = new BufferUnpacker();
 	    unpacker.wrap(bytes);
-	    BigInteger ret = (BigInteger) tmpl.read(unpacker, null);
+	    BigInteger ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -102,12 +102,12 @@ public class TestBigIntegerTemplate {
 
 	@Override
 	public void testBigInteger(BigInteger v) throws Exception {
-	    Template tmpl = BigIntegerTemplate.instance;
+	    Template<BigInteger> tmpl = BigIntegerTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
-	    BigInteger ret = (BigInteger) tmpl.read(unpacker, null);
+	    BigInteger ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }

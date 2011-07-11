@@ -1,6 +1,6 @@
 package org.msgpack.template;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -50,19 +50,14 @@ public class TestByteBufferTemplate {
 
 	@Override
 	public void testByteBuffer(ByteBuffer v) throws Exception {
-	    Template tmpl = ByteBufferTemplate.instance;
+	    Template<ByteBuffer> tmpl = ByteBufferTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
-	    ByteBuffer ret = (ByteBuffer) tmpl.read(unpacker, null);
-	    byte[] v2 = toByteArray(v);
-	    byte[] ret2 = toByteArray(ret);
-	    assertEquals(v2.length, ret2.length);
-	    for (int i = 0; i < v2.length; ++i) {
-		assertEquals(v2[i], ret2[i]);
-	    }
+	    ByteBuffer ret = tmpl.read(unpacker, null);
+	    assertArrayEquals(toByteArray(v), toByteArray(ret));
 	}
     }
 
@@ -74,20 +69,15 @@ public class TestByteBufferTemplate {
 
 	@Override
 	public void testByteBuffer(ByteBuffer v) throws Exception {
-	    Template tmpl = ByteBufferTemplate.instance;
+	    Template<ByteBuffer> tmpl = ByteBufferTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = new BufferUnpacker();
 	    unpacker.wrap(bytes);
-	    ByteBuffer ret = (ByteBuffer) tmpl.read(unpacker, null);
-	    byte[] v2 = toByteArray(v);
-	    byte[] ret2 = toByteArray(ret);
-	    assertEquals(v2.length, ret2.length);
-	    for (int i = 0; i < v2.length; ++i) {
-		assertEquals(v2[i], ret2[i]);
-	    }
+	    ByteBuffer ret = tmpl.read(unpacker, null);
+	    assertArrayEquals(toByteArray(v), toByteArray(ret));
 	}
     }
 
@@ -99,19 +89,14 @@ public class TestByteBufferTemplate {
 
 	@Override
 	public void testByteBuffer(ByteBuffer v) throws Exception {
-	    Template tmpl = ByteBufferTemplate.instance;
+	    Template<ByteBuffer> tmpl = ByteBufferTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    BufferUnpacker unpacker = new BufferUnpacker();
 	    unpacker.wrap(bytes);
-	    ByteBuffer ret = (ByteBuffer) tmpl.read(unpacker, null);
-	    byte[] v2 = toByteArray(v);
-	    byte[] ret2 = toByteArray(ret);
-	    assertEquals(v2.length, ret2.length);
-	    for (int i = 0; i < v2.length; ++i) {
-		assertEquals(v2[i], ret2[i]);
-	    }
+	    ByteBuffer ret = tmpl.read(unpacker, null);
+	    assertArrayEquals(toByteArray(v), toByteArray(ret));
 	}
     }
 
@@ -123,18 +108,13 @@ public class TestByteBufferTemplate {
 
 	@Override
 	public void testByteBuffer(ByteBuffer v) throws Exception {
-	    Template tmpl = ByteBufferTemplate.instance;
+	    Template<ByteBuffer> tmpl = ByteBufferTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
-	    ByteBuffer ret = (ByteBuffer) tmpl.read(unpacker, null);
-	    byte[] v2 = toByteArray(v);
-	    byte[] ret2 = toByteArray(ret);
-	    assertEquals(v2.length, ret2.length);
-	    for (int i = 0; i < v2.length; ++i) {
-		assertEquals(v2[i], ret2[i]);
-	    }
+	    ByteBuffer ret = tmpl.read(unpacker, null);
+	    assertArrayEquals(toByteArray(v), toByteArray(ret));
 	}
     }
 }

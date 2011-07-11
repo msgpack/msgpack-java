@@ -46,7 +46,7 @@ public class TestListTemplate {
 	}
 
 	@Override
-	public void testList(List v, Class<?> elementClass) throws Exception {
+	public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
 	    Template elementTemplate = msgpack.lookup(elementClass);
 	    Template tmpl = new ListTemplate(elementTemplate);
@@ -67,7 +67,7 @@ public class TestListTemplate {
 	}
 
 	@Override
-	public void testList(List v, Class<?> elementClass) throws Exception {
+	public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
 	    Template elementTemplate = msgpack.lookup(elementClass);
 	    Template tmpl = new ListTemplate(elementTemplate);
@@ -89,7 +89,7 @@ public class TestListTemplate {
 	}
 
 	@Override
-	public void testList(List v, Class<?> elementClass) throws Exception {
+	public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
 	    Template elementTemplate = msgpack.lookup(elementClass);
 	    Template tmpl = new ListTemplate(elementTemplate);
@@ -110,7 +110,7 @@ public class TestListTemplate {
 	}
 
 	@Override
-	public void testList(List v, Class<?> elementClass) throws Exception {
+	public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
 	    Template elementTemplate = msgpack.lookup(elementClass);
 	    Template tmpl = new ListTemplate(elementTemplate);

@@ -89,7 +89,7 @@ public class TestShortArrayTemplate {
 
 	@Override
 	public void testShortArray(short[] v) throws Exception {
-	    Template tmpl = ShortArrayTemplate.instance;
+	    Template<short[]> tmpl = ShortArrayTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
@@ -109,7 +109,7 @@ public class TestShortArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    short[] ret = (short[]) tmpl.read(unpacker, ret0);
+	    short[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i]);
@@ -131,7 +131,7 @@ public class TestShortArrayTemplate {
 
 	@Override
 	public void testShortArray(short[] v) throws Exception {
-	    Template tmpl = ShortArrayTemplate.instance;
+	    Template<short[]> tmpl = ShortArrayTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    StreamPacker packer = new StreamPacker(out);
 	    tmpl.write(packer, v);
@@ -152,7 +152,7 @@ public class TestShortArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    short[] ret = (short[]) tmpl.read(unpacker, ret0);
+	    short[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i]);
@@ -174,7 +174,7 @@ public class TestShortArrayTemplate {
 
 	@Override
 	public void testShortArray(short[] v) throws Exception {
-	    Template tmpl = ShortArrayTemplate.instance;
+	    Template<short[]> tmpl = ShortArrayTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
@@ -194,7 +194,7 @@ public class TestShortArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    short[] ret = (short[]) tmpl.read(unpacker, ret0);
+	    short[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i]);
@@ -216,7 +216,7 @@ public class TestShortArrayTemplate {
 
 	@Override
 	public void testShortArray(short[] v) throws Exception {
-	    Template tmpl = ShortArrayTemplate.instance;
+	    Template<short[]> tmpl = ShortArrayTemplate.instance;
 	    BufferPacker packer = new BufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
@@ -235,7 +235,7 @@ public class TestShortArrayTemplate {
 	    default:
 		throw new IllegalArgumentException();
 	    }
-	    short[] ret = (short[]) tmpl.read(unpacker, ret0);
+	    short[] ret = tmpl.read(unpacker, ret0);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
 		assertEquals(v[i], ret[i]);
