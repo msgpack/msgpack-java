@@ -22,10 +22,10 @@ public class MessagePackableTypeFieldsClassNotNullable {
 
     @Override
     public boolean equals(Object o) {
-	if (! (o instanceof MessagePackableTypeFieldsClass)) {
+	if (! (o instanceof MessagePackableTypeFieldsClassNotNullable)) {
 	    return false;
 	}
-	MessagePackableTypeFieldsClass that = new MessagePackableTypeFieldsClass();
+	MessagePackableTypeFieldsClassNotNullable that = (MessagePackableTypeFieldsClassNotNullable) o;
 	// f0
 	if (f0 == null) {
 	    if (that.f0 != null) {

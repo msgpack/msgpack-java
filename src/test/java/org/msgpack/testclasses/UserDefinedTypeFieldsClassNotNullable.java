@@ -16,10 +16,10 @@ public class UserDefinedTypeFieldsClassNotNullable {
 
     @Override
     public boolean equals(Object o) {
-	if (! (o instanceof UserDefinedTypeFieldsClass)) {
+	if (! (o instanceof UserDefinedTypeFieldsClassNotNullable)) {
 	    return false;
 	}
-	UserDefinedTypeFieldsClass that = (UserDefinedTypeFieldsClass) o;
+	UserDefinedTypeFieldsClassNotNullable that = (UserDefinedTypeFieldsClassNotNullable) o;
 	// f0
 	if (f0 == null) {
 	    if (that.f0 != null) {

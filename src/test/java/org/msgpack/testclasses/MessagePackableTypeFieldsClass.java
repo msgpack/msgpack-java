@@ -24,7 +24,7 @@ public class MessagePackableTypeFieldsClass {
 	if (! (o instanceof MessagePackableTypeFieldsClass)) {
 	    return false;
 	}
-	MessagePackableTypeFieldsClass that = new MessagePackableTypeFieldsClass();
+	MessagePackableTypeFieldsClass that = (MessagePackableTypeFieldsClass) o;
 	// f0
 	if (f0 == null) {
 	    if (that.f0 != null) {
@@ -56,35 +56,47 @@ public class MessagePackableTypeFieldsClass {
 
         public void writeTo(Packer packer) throws IOException {
             packer.writeArrayBegin(3);
+            {
                 packer.writeString(f0);
                 packer.writeArrayBegin(f1.length);
+                {
                     for(int e : f1) {
                         packer.writeInt(e);
                     }
+                }
                 packer.writeArrayEnd();
                 packer.writeArrayBegin(f2.size());
+                {
                     for(String e : f2) {
                         packer.writeString(e);
                     }
+                }
                 packer.writeArrayEnd();
+            }
             packer.writeArrayEnd();
         }
 
         public void readFrom(Unpacker uunpacker) throws IOException {
             uunpacker.readArrayBegin();
+            {
                 f0 = uunpacker.readString();
                 int nf1 = uunpacker.readArrayBegin();
+                {
                     f1 = new int[nf1];
                     for(int i=0; i < nf1; i++) {
                         f1[i] = uunpacker.readInt();
                     }
+                }
                 uunpacker.readArrayEnd();
                 int nf2 = uunpacker.readArrayBegin();
+                {
                     f2 = new ArrayList<String>(nf2);
                     for(int i=0; i < nf2; i++) {
                         f2.add(uunpacker.readString());
                     }
+                }
                 uunpacker.readArrayEnd();
+            }
             uunpacker.readArrayEnd();
         }
 
