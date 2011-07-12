@@ -2,6 +2,7 @@ package org.msgpack.testclasses;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Ignore;
@@ -18,6 +19,33 @@ public class MessagePackableTypeFieldsClassNotNullable {
     public String f0;
     @NotNullable
     public NestedClass f1;
+
+    @Override
+    public boolean equals(Object o) {
+	if (! (o instanceof MessagePackableTypeFieldsClass)) {
+	    return false;
+	}
+	MessagePackableTypeFieldsClass that = new MessagePackableTypeFieldsClass();
+	// f0
+	if (f0 == null) {
+	    if (that.f0 != null) {
+		return false;
+	    }
+	}
+	if (! f0.equals(that.f0)) {
+	    return false;
+	}
+	// f1
+	if (f1 == null) {
+	    if (that.f1 != null) {
+		return false;
+	    }
+	}
+	if (! f1.equals(that.f1)) {
+	    return false;
+	}
+	return true;
+    }
 
     public MessagePackableTypeFieldsClassNotNullable() {}
 
@@ -61,6 +89,51 @@ public class MessagePackableTypeFieldsClassNotNullable {
                     }
                 uunpacker.readArrayEnd();
             uunpacker.readArrayEnd();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (! (o instanceof NestedClass)) {
+        	return false;
+            }
+            NestedClass that = (NestedClass) o;
+            // f0
+            if (f0 == null) {
+        	if (that.f0 != null) {
+        	    return false;
+        	}
+            }
+            if (! f0.equals(that.f0)) {
+        	return false;
+            }
+            // f1
+            if (f1 == null) {
+        	if (that.f1 != null) {
+        	    return false;
+        	}
+            }
+            if (f1.length != that.f1.length) {
+        	return false;
+            }
+            for (int i = 0; i < f1.length; ++i) {
+        	if (f1[i] != that.f1[i]) {
+        	    return false;
+        	}
+            }
+            // f2
+            if (f2 == null) {
+        	if (that.f2 != null) {
+        	    return false;
+        	}
+            }
+            Iterator<String> this_f2_iter = f2.iterator();
+            Iterator<String> that_f2_iter = that.f2.iterator();
+            for (; this_f2_iter.hasNext(); ) {
+        	if (! this_f2_iter.next().equals(that_f2_iter.next())) {
+        	    return false;
+        	}
+            }
+            return true;
         }
     }
 }

@@ -11,12 +11,59 @@ public class UserDefinedTypeFieldsClass {
 
     public UserDefinedTypeFieldsClass () {}
 
+    @Override
+    public boolean equals(Object o) {
+	if (! (o instanceof UserDefinedTypeFieldsClass)) {
+	    return false;
+	}
+	UserDefinedTypeFieldsClass that = (UserDefinedTypeFieldsClass) o;
+	// f0
+	if (f0 == null) {
+	    if (that.f0 != null) {
+		return false;
+	    }
+	}
+	if (! f0.equals(that.f0)) {
+	    return false;
+	}
+	// f1
+	if (f1 == null) {
+	    if (that.f1 != null) {
+		return false;
+	    }
+	}
+	if (! f1.equals(that.f1)) {
+	    return false;
+	}
+	return true;
+    }
+
     @Ignore @Message
     public static class NestedClass1 {
 	public int f0;
 	public String f1;
 
 	public NestedClass1() {}
+
+	@Override
+	public boolean equals(Object o) {
+	    if (! (o instanceof NestedClass1)) {
+		return false;
+	    }
+	    NestedClass1 that = (NestedClass1) o;
+	    if (f0 != that.f0) {
+		return false;
+	    }
+	    if (f1 == null) {
+		if (that.f1 != null) {
+		    return false;
+		}
+	    }
+	    if (! f1.equals(that.f1)) {
+		return false;
+	    }
+	    return true;
+	}
     }
 
     @Ignore @Message
@@ -25,5 +72,25 @@ public class UserDefinedTypeFieldsClass {
 	public String f1;
 
 	public NestedClass2() {}
+
+	@Override
+	public boolean equals(Object o) {
+	    if (! (o instanceof NestedClass2)) {
+		return false;
+	    }
+	    NestedClass2 that = (NestedClass2) o;
+	    if (f0 != that.f0) {
+		return false;
+	    }
+	    if (f1 == null) {
+		if (that.f1 != null) {
+		    return false;
+		}
+	    }
+	    if (! f1.equals(that.f1)) {
+		return false;
+	    }
+	    return true;
+	}
     }
 }

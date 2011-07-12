@@ -6,5 +6,4 @@ import org.msgpack.annotation.Message;
 
 @Ignore @Message
 public interface Interface {
-
 }
