@@ -27,6 +27,7 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
 import org.msgpack.MessagePack;
+import org.msgpack.MessagePackable;
 import org.msgpack.MessageTypeException;
 import org.msgpack.template.BigIntegerTemplate;
 import org.msgpack.template.BooleanTemplate;
@@ -210,25 +211,31 @@ public class TemplateRegistry {
 	} catch (NullPointerException e) { // ignore
 	}
 
+	Class<?> targetClass = (Class<?>) targetType;
+
+	if (MessagePackable.class.isAssignableFrom(targetClass)) {
+	    tmpl = new MessagePackableTemplate(targetClass);
+	    register(targetClass, tmpl);
+	    return tmpl;
+	}
+
 	// TODO #MN builder -> selector
 	// find match TemplateBuilder
 	if (builder != null) {
 	    if (forceLoad) {
-		tmpl = builder.loadTemplate(targetType);
+		tmpl = builder.loadTemplate(targetClass);
 		if (tmpl != null) {
-		    register(targetType, tmpl);
+		    register(targetClass, tmpl);
 		    return tmpl;
 		}
 	    }
 
-	    tmpl = builder.buildTemplate(targetType);
+	    tmpl = builder.buildTemplate(targetClass);
 	    if (tmpl != null) {
-		register(targetType, tmpl);
+		register(targetClass, tmpl);
 		return tmpl;
 	    }
 	}
-
-	Class<?> targetClass = (Class<?>) targetType;
 
 	// lookup template of interface type
 	Class<?>[] infTypes = targetClass.getInterfaces();
