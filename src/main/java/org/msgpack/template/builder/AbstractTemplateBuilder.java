@@ -32,8 +32,9 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
     }
 
     @Override
-    public Template buildTemplate(Type type) throws TemplateBuildException {
-	Class<?> c = (Class<?>) type;
+    public <T> Template<T> buildTemplate(Type type) throws TemplateBuildException {
+	Class<T> c = (Class<T>) type;
+	checkValidation(c);
 	FieldEntryReader reader = getFieldEntryReader();
 	FieldOption implicitOption = reader.readImplicitFieldOption(c);
 	FieldEntry[] entries = reader.readFieldEntries(c, implicitOption);
@@ -69,7 +70,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
     }
 
     @Override
-    public Template loadTemplate(Type type) {
+    public <T> Template<T> loadTemplate(Type type) {
 	return null;
     }
 }

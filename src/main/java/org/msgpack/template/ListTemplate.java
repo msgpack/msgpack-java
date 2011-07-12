@@ -33,14 +33,14 @@ public class ListTemplate<E> implements Template<List<E>> {
     }
 
     public void write(Packer pk, List<E> target) throws IOException {
-        if(!(target instanceof List)) {
-            if(target == null) {
+        if (! (target instanceof List)) {
+            if (target == null) {
                 throw new MessageTypeException("Attempted to write null");
             }
-            throw new MessageTypeException("Target is not a List but "+target.getClass());
+            throw new MessageTypeException("Target is not a List but " + target.getClass());
         }
         pk.writeArrayBegin(target.size());
-        for(E e : target) {
+        for (E e : target) {
             elementTemplate.write(pk, e);
         }
         pk.writeArrayEnd();
@@ -48,12 +48,12 @@ public class ListTemplate<E> implements Template<List<E>> {
 
     public List<E> read(Unpacker u, List<E> to) throws IOException {
         int n = u.readArrayBegin();
-        if(to == null) {
+        if (to == null) {
             to = new ArrayList<E>(n);
         } else {
             to.clear();
         }
-        for(int i=0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             E e = elementTemplate.read(u, null);
             to.add(e);
         }

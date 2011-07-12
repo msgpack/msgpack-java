@@ -23,10 +23,10 @@ import org.msgpack.template.Template;
 
 
 public interface TemplateBuilder {
-    Template buildTemplate(Type type) throws TemplateBuildException;
+    <T> Template<T> buildTemplate(Type type) throws TemplateBuildException;
 
     void writeTemplate(Type type, String directoryName);
 
-    Template loadTemplate(Type type);
+    <T> Template<T> loadTemplate(Type type);
 }
 
