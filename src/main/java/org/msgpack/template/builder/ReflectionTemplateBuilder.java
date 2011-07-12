@@ -294,15 +294,8 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 
     private TemplateRegistry registry;
 
-    private FieldEntryReader reader = new FieldEntryReader();
-
     public ReflectionTemplateBuilder(TemplateRegistry registry) {
 	this.registry = registry;
-    }
-
-    @Override
-    public FieldEntryReader getFieldEntryReader() {
-	return reader;
     }
 
     @Override
