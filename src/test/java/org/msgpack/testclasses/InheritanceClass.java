@@ -6,8 +6,8 @@ import org.msgpack.annotation.Message;
 
 @Ignore @Message
 public class InheritanceClass extends SuperClass {
-    public String f2;
-    public int f3;
+    public String f1;
+    public int f2;
 
     public InheritanceClass() {}
 
@@ -17,17 +17,24 @@ public class InheritanceClass extends SuperClass {
 	    return false;
 	}
 	InheritanceClass that = (InheritanceClass) o;
-	// f2
-	if (f2 == null) {
-	    if (that.f2 != null) {
+	// f0
+	if (f0 == null) {
+	    if (that.f0 != null) {
 		return false;
 	    }
 	}
-	if (! f2.equals(that.f2)) {
+	if (! f0.equals(that.f0)) {
 	    return false;
 	}
-	// f3
-	if (f3 != that.f3) {
+	// f1
+	if (f2 != that.f2) {
+	    return false;
+	}
+	if (! f1.equals(that.f1)) {
+	    return false;
+	}
+	// f2
+	if (f2 != that.f2) {
 	    return false;
 	}
 	return true;

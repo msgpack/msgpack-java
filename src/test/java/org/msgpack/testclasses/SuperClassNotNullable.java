@@ -9,8 +9,23 @@ import org.msgpack.annotation.NotNullable;
 public class SuperClassNotNullable {
     @NotNullable
     public String f0;
-    @NotNullable
-    protected int f1;
 
     public SuperClassNotNullable() {}
+
+    @Override
+    public boolean equals(Object o) {
+	if (! (o instanceof SuperClassNotNullable)) {
+	    return false;
+	}
+	SuperClassNotNullable that = (SuperClassNotNullable) o;
+	if (f0 == null) {
+	    if (that.f0 != null) {
+		return false;
+	    }
+	}
+	if (! f0.equals(that.f0)) {
+	    return false;
+	}
+	return true;
+    }
 }

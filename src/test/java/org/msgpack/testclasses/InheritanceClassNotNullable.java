@@ -6,11 +6,11 @@ import org.msgpack.annotation.NotNullable;
 
 
 @Ignore @Message
-public class InheritanceClassNotNullable extends SuperClass {
+public class InheritanceClassNotNullable extends SuperClassNotNullable {
     @NotNullable
-    public String f2;
+    public String f1;
     @NotNullable
-    public int f3;
+    public int f2;
 
     public InheritanceClassNotNullable() {}
 
@@ -20,17 +20,17 @@ public class InheritanceClassNotNullable extends SuperClass {
 	    return false;
 	}
 	InheritanceClassNotNullable that = (InheritanceClassNotNullable) o;
-	// f2
-	if (f2 == null) {
-	    if (that.f2 != null) {
+	// f1
+	if (f1 == null) {
+	    if (that.f1 != null) {
 		return false;
 	    }
 	}
-	if (! f2.equals(that.f2)) {
+	if (! f1.equals(that.f1)) {
 	    return false;
 	}
-	// f3
-	if (f3 != that.f3) {
+	// f2
+	if (f2 != that.f2) {
 	    return false;
 	}
 	return true;

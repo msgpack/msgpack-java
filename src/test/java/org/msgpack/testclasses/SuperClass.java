@@ -7,7 +7,6 @@ import org.msgpack.annotation.Message;
 @Ignore @Message
 public class SuperClass {
     public String f0;
-    protected int f1;
 
     public SuperClass() {}
 
@@ -23,9 +22,6 @@ public class SuperClass {
 	    }
 	}
 	if (! f0.equals(that.f0)) {
-	    return false;
-	}
-	if (f1 != that.f1) {
 	    return false;
 	}
 	return true;
