@@ -40,9 +40,9 @@
       <version>1.4.3</version>
     </dependency>
     <dependency>
-      <groupId>javassist</groupId>
+      <groupId>org.javassist</groupId>
       <artifactId>javassist</artifactId>
-      <version>3.12.1.GA</version>
+      <version>3.15.0-GA</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
@@ -131,13 +131,6 @@
       <id>msgpack.org</id>
       <name>MessagePack Maven2 Repository</name>
       <url>http://msgpack.org/maven2</url>
-    </repository>
-    <repository>
-      <id>repository.jboss.org</id>
-      <url>https://repository.jboss.org/nexus/content/groups/public/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
     </repository>
   </repositories>
 
