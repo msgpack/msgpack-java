@@ -17,6 +17,8 @@
 //
 package org.msgpack.template;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.lang.reflect.ParameterizedType;
@@ -56,7 +58,7 @@ public class TemplateRegistry {
 
     private TemplateRegistry parent = null;
 
-    private Map<Type, Template> cache;
+    private Map<Type, Template<?>> cache;
 
     // TODO #MN current version is reflection-based template builder only, builder -> selector
     private TemplateBuilder builder;
@@ -69,7 +71,7 @@ public class TemplateRegistry {
 
     public TemplateRegistry(TemplateRegistry registry) {
 	parent = registry;
-	cache = new HashMap<Type, Template>();
+	cache = new HashMap<Type, Template<?>>();
 	genericCache = new HashMap<Type, GenericTemplate>();
 	// TODO #MN builder -> selector
 	if (parent == null) {
@@ -107,6 +109,14 @@ public class TemplateRegistry {
         register(byte[].class, ByteArrayTemplate.getInstance());
         register(ByteBuffer.class, ByteBufferTemplate.getInstance());
         register(Value.class, ValueTemplate.getInstance());
+        //register(Value.class, AnyTemplate.getInstance(this));
+        register(List.class, new ListTemplate(AnyTemplate.getInstance(this)));
+        register(Collection.class, new CollectionTemplate(AnyTemplate.getInstance(this)));
+        register(Map.class, new MapTemplate(AnyTemplate.getInstance(this), AnyTemplate.getInstance(this)));
+
+        registerGeneric(List.class, new GenericTemplate1(this, ListTemplate.class));
+        registerGeneric(Collection.class, new GenericTemplate1(this, CollectionTemplate.class));
+        registerGeneric(Map.class, new GenericTemplate2(this, MapTemplate.class));
     }
 
     public void register(Class<?> targetClass) {
