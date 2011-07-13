@@ -35,50 +35,57 @@ import org.msgpack.annotation.Required;
 import org.msgpack.template.FieldList;
 import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
+import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.builder.TemplateBuildException;
 
 
 public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 
-    @Override
-    public <T> Template<T> buildTemplate(Type type) throws TemplateBuildException {
-	Class<T> c = (Class<T>) type;
-	checkValidation(c);
-	FieldOption implicitOption = readImplicitFieldOption(c);
-	FieldEntry[] entries = readFieldEntries(c, implicitOption);
-	return buildTemplate(c, entries);
+    protected TemplateRegistry registry;
+
+    protected AbstractTemplateBuilder(TemplateRegistry registry) {
+	this.registry = registry;
     }
 
-    public <T> Template<T> buildTemplate(Class<T> c, FieldList flist) throws TemplateBuildException {
+    @Override
+    public <T> Template<T> buildTemplate(Type targetType) throws TemplateBuildException {
+	Class<T> targetClass = (Class<T>) targetType;
+	checkClassValidation(targetClass);
+	FieldOption implicitOption = readImplicitFieldOption(targetClass);
+	FieldEntry[] entries = readFieldEntries(targetClass, implicitOption);
+	return buildTemplate(targetClass, entries);
+    }
+
+    public <T> Template<T> buildTemplate(Class<T> targetClass, FieldList flist) throws TemplateBuildException {
 	try {
-	    checkValidation(c);
-	    return buildTemplate(c, convertFieldEntries(c, flist));
+	    checkClassValidation(targetClass);
+	    return buildTemplate(targetClass, convertFieldEntries(targetClass, flist));
 	} catch (NoSuchFieldException e) {
 	    throw new TemplateBuildException(e);
 	}
     }
 
-    public abstract <T> Template<T> buildTemplate(Class<T> type, FieldEntry[] entries);
+    public abstract <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries);
 
-    protected void checkValidation(Class<?> type) {
-	if (type.isInterface()) {
-	    throw new TemplateBuildException("Cannot build template for interface: " + type.getName());
+    protected void checkClassValidation(Class<?> targetClass) {
+	if (targetClass.isInterface()) {
+	    throw new TemplateBuildException("Cannot build template for interface: " + targetClass.getName());
 	}
-	if (type.isArray()) {
-	    throw new TemplateBuildException("Cannot build template for array class: " + type.getName());
+	if (targetClass.isArray()) {
+	    throw new TemplateBuildException("Cannot build template for array class: " + targetClass.getName());
 	}
-	if (type.isPrimitive()) {
-	    throw new TemplateBuildException("Cannot build template of primitive type: " + type.getName());
+	if (targetClass.isPrimitive()) {
+	    throw new TemplateBuildException("Cannot build template of primitive type: " + targetClass.getName());
 	}
     }
 
     @Override
-    public void writeTemplate(Type type, String directoryName) {
-	throw new UnsupportedOperationException(type.toString());
+    public void writeTemplate(Type targetType, String directoryName) {
+	throw new UnsupportedOperationException(targetType.toString());
     }
 
     @Override
-    public <T> Template<T> loadTemplate(Type type) {
+    public <T> Template<T> loadTemplate(Type targetType) {
 	return null;
     }
 

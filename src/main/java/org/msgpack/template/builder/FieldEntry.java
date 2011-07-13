@@ -23,7 +23,6 @@ import java.lang.reflect.Type;
 import org.msgpack.template.FieldOption;
 
 
-
 public class FieldEntry {
     private Field field;
 
@@ -87,7 +86,7 @@ public class FieldEntry {
 	return option == FieldOption.NOTNULLABLE;
     }
 
-    static String arrayTypeToString(Class<?> type) {
+    private static String arrayTypeToString(Class<?> type) {
 	int dim = 1;
 	Class<?> baseType = type.getComponentType();
 	while (baseType.isArray()) {

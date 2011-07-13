@@ -21,10 +21,8 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
-import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.unpacker.Unpacker;
@@ -37,11 +35,11 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    super(e.getField(), e.getOption());
 	}
 
-	public abstract void write(Packer packer, Object target) throws IOException;
+	abstract void write(Packer packer, Object target) throws IOException;
 
-	public abstract void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException;
+	abstract void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException;
 
-	public void setNull(Object target) throws IllegalAccessException {
+	void setNull(Object target) throws IllegalAccessException {
 	    getField().set(target, null);
 	}
     }
@@ -51,10 +49,10 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    super(e);
 	}
 
-	public void write(Packer packer, Object target) throws IOException {
+	void write(Packer packer, Object target) throws IOException {
 	}
 
-	public void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
+	void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
 	}
     }
 
@@ -66,11 +64,11 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    this.template = template;
 	}
 
-	public void write(Packer packer, Object target) throws IOException {
+	void write(Packer packer, Object target) throws IOException {
 	    template.write(packer, target);
 	}
 
-	public void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
+	void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
 	    Field f = getField();
 	    Class<Object> type = (Class<Object>) f.getType();
 	    Object fieldReference = f.get(target);
@@ -86,11 +84,11 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    super(e);
 	}
 
-	public void write(Packer packer, Object target) throws IOException {
+	void write(Packer packer, Object target) throws IOException {
 	    packer.writeBoolean((Boolean) target);
 	}
 
-	public void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
+	void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
 	    getField().setBoolean(target, unpacker.readBoolean());
 	}
     }
@@ -100,11 +98,11 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    super(e);
 	}
 
-	public void write(Packer packer, Object target) throws IOException {
+	void write(Packer packer, Object target) throws IOException {
 	    packer.writeByte((Byte) target);
 	}
 
-	public void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
+	void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
 	    getField().setByte(target, unpacker.readByte());
 	}
     }
@@ -114,11 +112,11 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    super(e);
 	}
 
-	public void write(Packer packer, Object target) throws IOException {
+	void write(Packer packer, Object target) throws IOException {
 	    packer.writeShort((Short) target);
 	}
 
-	public void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
+	void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
 	    getField().setShort(target, unpacker.readShort());
 	}
     }
@@ -128,11 +126,11 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    super(e);
 	}
 
-	public void write(Packer packer, Object target) throws IOException {
+	void write(Packer packer, Object target) throws IOException {
 	    packer.writeInt((Integer) target);
 	}
 
-	public void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
+	void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
 	    getField().setInt(target, unpacker.readInt());
 	}
     }
@@ -142,11 +140,11 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    super(e);
 	}
 
-	public void write(Packer packer, Object target) throws IOException {
+	void write(Packer packer, Object target) throws IOException {
 	    packer.writeLong((Long) target);
 	}
 
-	public void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
+	void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
 	    getField().setLong(target, unpacker.readLong());
 	}
     }
@@ -156,11 +154,11 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    super(e);
 	}
 
-	public void write(Packer packer, Object target) throws IOException {
+	void write(Packer packer, Object target) throws IOException {
 	    packer.writeFloat((Float) target);
 	}
 
-	public void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
+	void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
 	    getField().setFloat(target, unpacker.readFloat());
 	}
     }
@@ -170,11 +168,11 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    super(e);
 	}
 
-	public void write(Packer packer, Object target) throws IOException {
+	void write(Packer packer, Object target) throws IOException {
 	    packer.writeDouble((Double) target);
 	}
 
-	public void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
+	void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
 	    getField().setDouble(target, unpacker.readDouble());
 	}
     }
@@ -184,20 +182,21 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 
 	private ReflectionFieldEntry[] entries;
 
-	private int minimumArrayLength;
+	private int minArrayLength;
 
 	ReflectionTemplate(Class<T> targetClass, ReflectionFieldEntry[] entries) {
 	    this.targetClass = targetClass;
 	    this.entries = entries;
-	    this.minimumArrayLength = 0;
+	    minArrayLength = 0;
 	    for (int i = 0; i < entries.length; i++) {
 		ReflectionFieldEntry e = entries[i];
-		if (e.isRequired() || e.isNotNullable()) {
-		    this.minimumArrayLength = i + 1;
+		if (e.isRequired() || !e.isNotNullable()) {
+		    minArrayLength = i + 1;
 		}
 	    }
 	}
 
+	@Override
 	public void write(Packer packer, T target) throws IOException {
 	    try {
 		packer.writeArrayBegin(entries.length);
@@ -208,7 +207,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 		    }
 		    Object obj = e.getField().get(target);
 		    if (obj == null) {
-			if (!e.isNotNullable() && !e.isOptional()) {
+			if (e.isNotNullable() && !e.isOptional()) {
 			    throw new MessageTypeException();
 			}
 			packer.writeNil();
@@ -226,6 +225,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    }
 	}
 
+	@Override
 	public T read(Unpacker unpacker, T to) throws IOException, MessageTypeException {
 	    try {
 		if (to == null) {
@@ -233,12 +233,12 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 		}
 
 		int length = unpacker.readArrayBegin();
-		if (length < minimumArrayLength) {
+		if (length < minArrayLength) {
 		    throw new MessageTypeException();
 		}
 
 		int i;
-		for (i = 0; i < minimumArrayLength; ++i) {
+		for (i = 0; i < minArrayLength; ++i) {
 		    ReflectionFieldEntry e = entries[i];
 		    if (!e.isAvailable()) {
 			unpacker.readValue(); // FIXME
@@ -251,8 +251,8 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 			    throw new MessageTypeException();
 			} else if (e.isOptional()) {
 			    // Optional + nil => keep default value
-			} else { // Nullable
-				 // Nullable + nil => set null
+			} else { // nullable
+				 // nullable + nil => set null
 			    e.setNull(to);
 			}
 		    } else {
@@ -292,10 +292,8 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	}
     }
 
-    private TemplateRegistry registry;
-
     public ReflectionTemplateBuilder(TemplateRegistry registry) {
-	this.registry = registry;
+	super(registry);
     }
 
     @Override
@@ -334,7 +332,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    } else if (t.equals(double.class)) {
 		res[i] = new DoubleFieldEntry(e);
 	    } else {
-		Template<?> tmpl = registry.lookup(e.getGenericType(), true);
+		Template tmpl = registry.lookup(e.getGenericType(), true);
 		res[i] = new ObjectFieldEntry(e, tmpl);
 	    }
 	}
