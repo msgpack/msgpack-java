@@ -24,7 +24,9 @@ public class TestReflectionOrdinalEnumStreamPackStreamUnpack extends TestSet {
     @Override
     public void testEnumTypeFieldsClass(EnumTypeFieldsClass v) throws Exception {
 	TemplateRegistry registry = new TemplateRegistry();
-	ReflectionOrdinalEnumTemplateBuilder builder = new ReflectionOrdinalEnumTemplateBuilder(registry);
+	registry.register(EnumTypeFieldsClass.SampleEnum.class,
+		new ReflectionOrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClass.SampleEnum.class));
+	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<EnumTypeFieldsClass> tmpl = builder.buildTemplate(EnumTypeFieldsClass.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	StreamPacker packer = new StreamPacker(out);
@@ -47,7 +49,9 @@ public class TestReflectionOrdinalEnumStreamPackStreamUnpack extends TestSet {
     @Override
     public void testEnumTypeFieldsClassNotNullable(EnumTypeFieldsClassNotNullable v) throws Exception {
 	TemplateRegistry registry = new TemplateRegistry();
-	ReflectionOrdinalEnumTemplateBuilder builder = new ReflectionOrdinalEnumTemplateBuilder(registry);
+	registry.register(EnumTypeFieldsClassNotNullable.SampleEnum.class,
+		new ReflectionOrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClassNotNullable.SampleEnum.class));
+	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<EnumTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(EnumTypeFieldsClassNotNullable.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	StreamPacker packer = new StreamPacker(out);
