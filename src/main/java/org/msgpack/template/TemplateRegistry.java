@@ -50,6 +50,7 @@ import org.msgpack.template.StringTemplate;
 import org.msgpack.template.Template;
 import org.msgpack.template.ValueTemplate;
 import org.msgpack.template.builder.AbstractTemplateBuilder;
+import org.msgpack.template.builder.ReflectionOrdinalEnumTemplateBuilder;
 import org.msgpack.template.builder.ReflectionTemplateBuilder;
 import org.msgpack.template.builder.TemplateBuilder;
 import org.msgpack.type.Value;
@@ -78,7 +79,8 @@ public class TemplateRegistry {
 	if (parent == null) {
 	    registerDefaultTemplates();
 	    // TODO #MN builder -> selector
-	    builder = new ReflectionTemplateBuilder(this);
+	    //builder = new ReflectionTemplateBuilder(this);
+	    builder = new ReflectionOrdinalEnumTemplateBuilder(this);
 	} else {
 	    builder = registry.builder;
 	}
