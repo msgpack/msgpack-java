@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Ignore;
-import org.msgpack.testclasses.AbstractClass;
 import org.msgpack.testclasses.EnumTypeFieldsClass;
 import org.msgpack.testclasses.EnumTypeFieldsClassNotNullable;
 import org.msgpack.testclasses.FinalClass;
