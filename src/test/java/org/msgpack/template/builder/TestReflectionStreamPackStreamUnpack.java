@@ -221,10 +221,25 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 
     @Test @Override
     public void testFinalClass() throws Exception {
+	super.testFinalClass();
+    }
+
+    @Override
+    public void testFinalClass(FinalClass v) throws Exception {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
-	// TODO #MN
 	Template<FinalClass> tmpl = builder.buildTemplate(FinalClass.class);
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	StreamPacker packer = new StreamPacker(out);
+	tmpl.write(packer, v);
+	byte[] bytes = out.toByteArray();
+	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	FinalClass ret = tmpl.read(unpacker, null);
+	if (v == null) {
+	    assertEquals(null, ret);
+	    return;
+	}
+	assertEquals(v, ret);
     }
 
     @Test @Override

@@ -228,6 +228,16 @@ public class TestSet {
     }
 
     public void testFinalClass() throws Exception {
+	// TODO #MN
+	//testFinalClass(null);
+	//testFinalClass(new FinalClass());
+	FinalClass v = new FinalClass();
+	v.f0 = 10;
+	v.f1 = "muga";
+	testFinalClass(v);
+    }
+
+    public void testFinalClass(FinalClass v) throws Exception {
     }
 
     public void testAbstractClass() throws Exception {
