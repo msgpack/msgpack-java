@@ -20,8 +20,11 @@ package org.msgpack.template.builder;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 
 import org.msgpack.MessageTypeException;
+import org.msgpack.annotation.Message;
+import org.msgpack.annotation.MessagePackMessage;
 import org.msgpack.packer.Packer;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
@@ -294,6 +297,12 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 
     public ReflectionTemplateBuilder(TemplateRegistry registry) {
 	super(registry);
+    }
+
+    @Override
+    public boolean matchType(Type targetType) {
+	return AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, Message.class)
+		|| AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, MessagePackMessage.class);
     }
 
     @Override

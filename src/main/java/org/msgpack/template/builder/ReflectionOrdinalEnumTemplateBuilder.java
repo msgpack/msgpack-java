@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.msgpack.MessageTypeException;
+import org.msgpack.annotation.MessagePackOrdinalEnum;
+import org.msgpack.annotation.OrdinalEnum;
 import org.msgpack.packer.Packer;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
@@ -66,6 +68,12 @@ public class ReflectionOrdinalEnumTemplateBuilder extends ReflectionTemplateBuil
 
     public ReflectionOrdinalEnumTemplateBuilder(TemplateRegistry registry) {
 	super(registry);
+    }
+
+    @Override
+    public boolean matchType(Type targetType) {
+	return AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, OrdinalEnum.class)
+		|| AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, MessagePackOrdinalEnum.class);
     }
 
     @Override

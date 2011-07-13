@@ -231,7 +231,10 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	}
     }
 
-    private static boolean isAnnotated(AccessibleObject ao, Class<? extends Annotation> with) {
+    public static boolean isAnnotated(Class<?> targetClass, Class<? extends Annotation> with) {
+	return targetClass.getAnnotation(with) != null;
+    }
+    public static boolean isAnnotated(AccessibleObject ao, Class<? extends Annotation> with) {
 	return ao.getAnnotation(with) != null;
     }
 }

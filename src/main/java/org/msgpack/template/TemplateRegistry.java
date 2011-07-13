@@ -53,6 +53,7 @@ import org.msgpack.template.builder.AbstractTemplateBuilder;
 import org.msgpack.template.builder.ReflectionOrdinalEnumTemplateBuilder;
 import org.msgpack.template.builder.ReflectionTemplateBuilder;
 import org.msgpack.template.builder.TemplateBuilder;
+import org.msgpack.template.builder.TemplateBuilderChain;
 import org.msgpack.type.Value;
 
 
@@ -63,7 +64,8 @@ public class TemplateRegistry {
     private Map<Type, Template<?>> cache;
 
     // TODO #MN current version is reflection-based template builder only, builder -> selector
-    private TemplateBuilder builder;
+    //private TemplateBuilder builder;
+    private TemplateBuilderChain chain;
 
     private Map<Type, GenericTemplate> genericCache;
 
@@ -80,9 +82,13 @@ public class TemplateRegistry {
 	    registerDefaultTemplates();
 	    // TODO #MN builder -> selector
 	    //builder = new ReflectionTemplateBuilder(this);
-	    builder = new ReflectionOrdinalEnumTemplateBuilder(this);
+	    //builder = new ReflectionOrdinalEnumTemplateBuilder(this);
+	    chain = new TemplateBuilderChain();
+	    chain.init(this);
 	} else {
-	    builder = registry.builder;
+	    // TODO #MN
+	    //builder = registry.builder;
+	    chain = registry.chain;
 	}
     }
 
@@ -124,7 +130,8 @@ public class TemplateRegistry {
 
     public void register(Class<?> targetClass) {
 	// TODO #MN builder -> selector
-	register(targetClass, builder.buildTemplate(targetClass));
+	//register(targetClass, builder.buildTemplate(targetClass));
+	register(targetClass, chain.select(targetClass).buildTemplate(targetClass));
     }
 
     public void register(Class<?> targetClass, final FieldList flist) {
@@ -132,7 +139,8 @@ public class TemplateRegistry {
 	    throw new NullPointerException("FieldList object is null");
 	}
 	// TODO #MN builder -> selector
-	register(targetClass, ((AbstractTemplateBuilder) builder).buildTemplate(targetClass, flist));
+	//register(targetClass, ((AbstractTemplateBuilder) builder).buildTemplate(targetClass, flist));
+	register(targetClass, ((AbstractTemplateBuilder) chain.select(targetClass)).buildTemplate(targetClass, flist));
     }
 
     public synchronized void register(Type targetType, final Template tmpl) {
@@ -223,6 +231,7 @@ public class TemplateRegistry {
 
 	// TODO #MN builder -> selector
 	// find match TemplateBuilder
+	TemplateBuilder builder = chain.select(targetClass);
 	if (builder != null) {
 	    if (forceLoad) {
 		tmpl = builder.loadTemplate(targetClass);
