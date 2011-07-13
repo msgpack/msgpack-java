@@ -35,9 +35,11 @@ public class TemplateBuilderChain {
 
     public void init(TemplateRegistry registry) {
 	// TODO #MN
-	templateBuilders.add(new ReflectionOrdinalEnumTemplateBuilder(registry));
+	// add javassist-based template builder
+	// add beans-based template builder
 	templateBuilders.add(new ReflectionTemplateBuilder(registry));
-	forceTemplateBuilder = new ReflectionOrdinalEnumTemplateBuilder(registry);
+	templateBuilders.add(new ReflectionOrdinalEnumTemplateBuilder(registry));
+	forceTemplateBuilder = new ReflectionTemplateBuilder(registry);
     }
 
     public TemplateBuilder select(Type targetType) {

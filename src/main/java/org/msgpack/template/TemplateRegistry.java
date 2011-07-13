@@ -50,8 +50,6 @@ import org.msgpack.template.StringTemplate;
 import org.msgpack.template.Template;
 import org.msgpack.template.ValueTemplate;
 import org.msgpack.template.builder.AbstractTemplateBuilder;
-import org.msgpack.template.builder.ReflectionOrdinalEnumTemplateBuilder;
-import org.msgpack.template.builder.ReflectionTemplateBuilder;
 import org.msgpack.template.builder.TemplateBuilder;
 import org.msgpack.template.builder.TemplateBuilderChain;
 import org.msgpack.type.Value;
@@ -63,8 +61,6 @@ public class TemplateRegistry {
 
     private Map<Type, Template<?>> cache;
 
-    // TODO #MN current version is reflection-based template builder only, builder -> selector
-    //private TemplateBuilder builder;
     private TemplateBuilderChain chain;
 
     private Map<Type, GenericTemplate> genericCache;
@@ -77,22 +73,16 @@ public class TemplateRegistry {
 	parent = registry;
 	cache = new HashMap<Type, Template<?>>();
 	genericCache = new HashMap<Type, GenericTemplate>();
-	// TODO #MN builder -> selector
 	if (parent == null) {
-	    registerDefaultTemplates();
-	    // TODO #MN builder -> selector
-	    //builder = new ReflectionTemplateBuilder(this);
-	    //builder = new ReflectionOrdinalEnumTemplateBuilder(this);
+	    registerTemplates();
 	    chain = new TemplateBuilderChain();
 	    chain.init(this);
 	} else {
-	    // TODO #MN
-	    //builder = registry.builder;
 	    chain = registry.chain;
 	}
     }
 
-    private void registerDefaultTemplates() {
+    private void registerTemplates() {
         register(boolean.class, BooleanTemplate.getInstance());
         register(Boolean.class, BooleanTemplate.getInstance());
         register(byte.class, ByteTemplate.getInstance());
@@ -129,8 +119,6 @@ public class TemplateRegistry {
     }
 
     public void register(Class<?> targetClass) {
-	// TODO #MN builder -> selector
-	//register(targetClass, builder.buildTemplate(targetClass));
 	register(targetClass, chain.select(targetClass).buildTemplate(targetClass));
     }
 
@@ -138,8 +126,6 @@ public class TemplateRegistry {
 	if (flist == null) {
 	    throw new NullPointerException("FieldList object is null");
 	}
-	// TODO #MN builder -> selector
-	//register(targetClass, ((AbstractTemplateBuilder) builder).buildTemplate(targetClass, flist));
 	register(targetClass, ((AbstractTemplateBuilder) chain.select(targetClass)).buildTemplate(targetClass, flist));
     }
 
@@ -229,7 +215,6 @@ public class TemplateRegistry {
 	    return tmpl;
 	}
 
-	// TODO #MN builder -> selector
 	// find match TemplateBuilder
 	TemplateBuilder builder = chain.select(targetClass);
 	if (builder != null) {
@@ -288,9 +273,7 @@ public class TemplateRegistry {
 	    }
 
 	    if (forceBuild) {
-		// TODO #MN
-		// tmpl = builderSelectorRegistry.getForceBuilder().buildTemplate(target);
-		tmpl = builder.buildTemplate(targetClass);
+		tmpl = chain.select(targetClass).buildTemplate(targetClass);
 		register(targetClass, tmpl);
 		return tmpl;
 	    }

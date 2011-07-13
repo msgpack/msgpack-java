@@ -32,7 +32,7 @@ import org.msgpack.template.builder.TemplateBuildException;
 import org.msgpack.unpacker.Unpacker;
 
 
-public class ReflectionOrdinalEnumTemplateBuilder extends ReflectionTemplateBuilder {
+public class ReflectionOrdinalEnumTemplateBuilder extends AbstractTemplateBuilder {
 
     static class ReflectionOrdinalEnumTemplate<T> implements Template<T> {
 	private T[] entries;
@@ -78,15 +78,12 @@ public class ReflectionOrdinalEnumTemplateBuilder extends ReflectionTemplateBuil
 
     @Override
     public <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries) {
-	return super.buildTemplate(targetClass, entries);
+	throw new UnsupportedOperationException("fatal error: " + targetClass.getName());
     }
 
     @Override
     public <T> Template<T> buildTemplate(Type targetType) {
 	Class<T> targetClass = (Class<T>) targetType;
-	if (! targetClass.isEnum()) {
-	    return super.buildTemplate(targetClass);
-	}
 	checkOrdinalEnumValidation(targetClass);
 	return new ReflectionOrdinalEnumTemplate<T>(targetClass);
     }
