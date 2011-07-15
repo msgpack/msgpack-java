@@ -23,6 +23,7 @@ import org.msgpack.io.LinkedBufferOutput;
 
 public class BufferPacker extends AbstractMessagePackPacker {
     private static final int DEFAULT_BUFFER_SIZE = 512; // TODO default buffer size
+
     public BufferPacker() {
         this(DEFAULT_BUFFER_SIZE);
     }

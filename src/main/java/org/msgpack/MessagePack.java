@@ -44,12 +44,42 @@ public class MessagePack {
 	registry = new TemplateRegistry(msgpack.registry);
     }
 
+
+    public StreamPacker createStreamPacker(OutputStream stream) {
+        return new StreamPacker(this, stream);
+    }
+
+    public BufferPacker createBufferPacker() {
+        return new BufferPacker(this);
+    }
+
+    public BufferPacker createBufferPacker(int bufferSize) {
+        return new BufferPacker(this, bufferSize);
+    }
+
+    public StreamUnpacker createStreamUnpacker(InputStream stream) {
+        return new StreamUnpacker(this, stream);
+    }
+
+    public BufferUnpacker createBufferUnpacker(byte[] b) {
+        return new BufferUnpacker(this).wrap(b);
+    }
+
+    public BufferUnpacker createBufferUnpacker(byte[] b, int off, int len) {
+        return new BufferUnpacker(this).wrap(b, off, len);
+    }
+
+    public BufferUnpacker createBufferUnpacker(ByteBuffer bb) {
+        return new BufferUnpacker(this).wrap(bb);
+    }
+
+
     public byte[] write(Object v) throws IOException {
         return write(v, registry.lookup(v.getClass()));
     }
 
     public <T> byte[] write(T v, Template<T> tmpl) throws IOException { // TODO IOException
-        BufferPacker pk = new BufferPacker(this);
+        BufferPacker pk = createBufferPacker();
         tmpl.write(pk, v);
         return pk.toByteArray();
     }
@@ -59,13 +89,13 @@ public class MessagePack {
     }
 
     public <T> void write(OutputStream out, T v, Template<T> tmpl) throws IOException {
-        StreamPacker pk = new StreamPacker(this, out);
+        StreamPacker pk = createStreamPacker(out);
         tmpl.write(pk, v);
     }
 
     public byte[] write(Value v) throws IOException {  // TODO IOException
         // FIXME ValueTemplate should do this
-        BufferPacker pk = new BufferPacker(this);
+        BufferPacker pk = createBufferPacker();
         pk.write(v);
         return pk.toByteArray();
     }
@@ -75,54 +105,50 @@ public class MessagePack {
     }
 
     public Value read(byte[] b, int off, int len) throws IOException {  // TODO IOException
-        return new BufferUnpacker(this).wrap(b, off, len).readValue();
+        return createBufferUnpacker(b, off, len).readValue();
     }
 
     public Value read(ByteBuffer buf) throws IOException {  // TODO IOException
-        return new BufferUnpacker(this).wrap(buf).readValue();
+        return createBufferUnpacker(buf).readValue();
     }
 
     public Value read(InputStream in) throws IOException {
-        return new StreamUnpacker(this, in).readValue();
+        return createStreamUnpacker(in).readValue();
     }
 
     public <T> T read(byte[] b, T v) throws IOException {  // TODO IOException
         // TODO
         Template tmpl = registry.lookup(v.getClass());
-        BufferUnpacker u = new BufferUnpacker(this);
-        u.wrap(b);
+        BufferUnpacker u = createBufferUnpacker(b);
         return (T) tmpl.read(u, v);
     }
 
     public <T> T read(byte[] b, Class<T> c) throws IOException {  // TODO IOException
         Template<T> tmpl = registry.lookup(c);
-        BufferUnpacker u = new BufferUnpacker(this);
-        u.wrap(b);
+        BufferUnpacker u = createBufferUnpacker(b);
         return tmpl.read(u, null);
     }
 
     public <T> T read(ByteBuffer b, T v) throws IOException {  // TODO IOException
         Template<T> tmpl = registry.lookup(v.getClass());
-        BufferUnpacker u = new BufferUnpacker(this);
-        u.wrap(b);
+        BufferUnpacker u = createBufferUnpacker(b);
         return tmpl.read(u, v);
     }
 
     public <T> T read(ByteBuffer b, Class<T> c) {  // TODO IOException
         Template<T> tmpl = registry.lookup(c);
-        BufferUnpacker u = new BufferUnpacker(this);
-        u.wrap(b);
+        BufferUnpacker u = createBufferUnpacker(b);
         return null;
     }
 
     public <T> T read(InputStream in, T v) throws IOException {
         Template<T> tmpl = registry.lookup(v.getClass());
-        return tmpl.read(new StreamUnpacker(this, in), v);
+        return tmpl.read(createStreamUnpacker(in), v);
     }
 
     public <T> T read(InputStream in, Class<T> c) throws IOException {
         Template<T> tmpl = registry.lookup(c);
-        return tmpl.read(new StreamUnpacker(this, in), null);
+        return tmpl.read(createStreamUnpacker(in), null);
     }
 
     public <T> T convert(Value v, T to) throws IOException {  // TODO IOException
@@ -142,6 +168,7 @@ public class MessagePack {
         return pk.getResult();
     }
 
+
     public void register(Class<?> type) {
 	registry.register(type);
     }
@@ -149,11 +176,11 @@ public class MessagePack {
     // TODO #MN
     // public void forceRegister(Class<?> type);
 
-    public <T> void register(Class<T> type, Template<? super T> tmpl) {
+    public <T> void register(Class<T> type, Template<T> tmpl) {
         registry.register(type, tmpl);
     }
 
-    public <T> Template<? super T> lookup(Class<T> type) {
+    public <T> Template<T> lookup(Class<T> type) {
 	return registry.lookup(type);
     }
 
