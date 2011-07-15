@@ -141,6 +141,13 @@ public class Converter extends Unpacker {
     }
 
     @Override
+    public String readString() {
+        String str = getTop().asRawValue().getString();
+        stack.reduceCount();
+        return str;
+    }
+
+    @Override
     public int readArrayBegin() {
         Value v = getTop();
         if(!v.isArray()) {
