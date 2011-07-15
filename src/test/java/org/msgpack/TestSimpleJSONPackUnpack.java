@@ -35,9 +35,9 @@ public class TestSimpleJSONPackUnpack {
                         ValueFactory.integerValue(1),
                         ValueFactory.rawValue("k2"),
                         ValueFactory.arrayValue(new Value[] {
-                            ValueFactory.rawValue("a"),
-                            ValueFactory.rawValue("b"),
-                            ValueFactory.rawValue("c")
+                            ValueFactory.nilValue(),
+                            ValueFactory.booleanValue(true),
+                            ValueFactory.booleanValue(false)
                         }),
                         ValueFactory.rawValue("k3"),
                         ValueFactory.floatValue(0.1)
@@ -46,7 +46,7 @@ public class TestSimpleJSONPackUnpack {
         byte[] raw = bo.toByteArray();
 
         String str = new String(raw);
-        assertEquals("{\"k1\":1,\"k2\":[\"a\",\"b\",\"c\"],\"k3\":0.1}", str);
+        assertEquals("{\"k1\":1,\"k2\":[null,true,false],\"k3\":0.1}", str);
     }
 }
 

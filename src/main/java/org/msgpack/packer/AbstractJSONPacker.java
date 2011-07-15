@@ -55,15 +55,19 @@ public abstract class AbstractJSONPacker extends Packer {
     }
 
     public void writeNil() throws IOException {
+        beginElement();
         out.write(NULL, 0, NULL.length);
+        endElement();
     }
 
     public void writeBoolean(boolean v) throws IOException {
+        beginElement();
         if(v) {
             out.write(TRUE, 0, TRUE.length);
         } else {
             out.write(FALSE, 0, FALSE.length);
         }
+        endElement();
     }
 
     public void writeByte(byte v) throws IOException {
