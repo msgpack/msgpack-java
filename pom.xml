@@ -40,6 +40,11 @@
       <version>1.4.3</version>
     </dependency>
     <dependency>
+      <groupId>com.googlecode.json-simple</groupId>
+      <artifactId>json-simple</artifactId>
+      <version>1.1</version>
+    </dependency>
+    <dependency>
       <groupId>org.javassist</groupId>
       <artifactId>javassist</artifactId>
       <version>3.15.0-GA</version>

@@ -31,7 +31,7 @@ import org.msgpack.type.MapValue;
 public class Converter extends Unpacker {
     private final UnpackerStack stack;
     private Object[] values;
-    private Value value;
+    protected Value value;
 
     public Converter(Value value) {
 	this(new MessagePack(), value);
@@ -50,6 +50,9 @@ public class Converter extends Unpacker {
         stack.checkCount();
         if(getTop().isNil()) {
             stack.reduceCount();
+            if(stack.getDepth() == 0) {
+                value = null;
+            }
             return true;
         }
         return false;
@@ -57,6 +60,10 @@ public class Converter extends Unpacker {
 
     @Override
     public boolean trySkipNil() {
+        if(value == null) {
+            value = nextValue();
+        }
+
         if(stack.getDepth() > 0 && stack.getTopCount() <= 0) {
             // end of array or map
             return true;
@@ -64,6 +71,9 @@ public class Converter extends Unpacker {
 
         if(getTop().isNil()) {
             stack.reduceCount();
+            if(stack.getDepth() == 0) {
+                value = null;
+            }
             return true;
         }
         return false;
@@ -75,6 +85,9 @@ public class Converter extends Unpacker {
             throw new MessageTypeException("Expected nil but got not nil value");
         }
         stack.reduceCount();
+        if(stack.getDepth() == 0) {
+            value = null;
+        }
     }
 
     @Override
@@ -88,6 +101,9 @@ public class Converter extends Unpacker {
     public byte readByte() {
         byte v = getTop().asIntegerValue().getByte();
         stack.reduceCount();
+        if(stack.getDepth() == 0) {
+            value = null;
+        }
         return v;
     }
 
@@ -95,6 +111,9 @@ public class Converter extends Unpacker {
     public short readShort() {
         short v = getTop().asIntegerValue().getShort();
         stack.reduceCount();
+        if(stack.getDepth() == 0) {
+            value = null;
+        }
         return v;
     }
 
@@ -102,6 +121,9 @@ public class Converter extends Unpacker {
     public int readInt() {
         int v = getTop().asIntegerValue().getInt();
         stack.reduceCount();
+        if(stack.getDepth() == 0) {
+            value = null;
+        }
         return v;
     }
 
@@ -109,6 +131,9 @@ public class Converter extends Unpacker {
     public long readLong() {
         long v = getTop().asIntegerValue().getLong();
         stack.reduceCount();
+        if(stack.getDepth() == 0) {
+            value = null;
+        }
         return v;
     }
 
@@ -116,6 +141,9 @@ public class Converter extends Unpacker {
     public BigInteger readBigInteger() {
         BigInteger v = getTop().asIntegerValue().getBigInteger();
         stack.reduceCount();
+        if(stack.getDepth() == 0) {
+            value = null;
+        }
         return v;
     }
 
@@ -123,6 +151,9 @@ public class Converter extends Unpacker {
     public float readFloat() {
         float v = getTop().asFloatValue().getFloat();
         stack.reduceCount();
+        if(stack.getDepth() == 0) {
+            value = null;
+        }
         return v;
     }
 
@@ -130,6 +161,9 @@ public class Converter extends Unpacker {
     public double readDouble() {
         double v = getTop().asFloatValue().getDouble();
         stack.reduceCount();
+        if(stack.getDepth() == 0) {
+            value = null;
+        }
         return v;
     }
 
@@ -137,6 +171,9 @@ public class Converter extends Unpacker {
     public byte[] readByteArray() {
         byte[] raw = getTop().asRawValue().getByteArray();
         stack.reduceCount();
+        if(stack.getDepth() == 0) {
+            value = null;
+        }
         return raw;
     }
 
@@ -144,6 +181,9 @@ public class Converter extends Unpacker {
     public String readString() {
         String str = getTop().asRawValue().getString();
         stack.reduceCount();
+        if(stack.getDepth() == 0) {
+            value = null;
+        }
         return str;
     }
 
@@ -154,6 +194,7 @@ public class Converter extends Unpacker {
             throw new MessageTypeException("Expected array but got not array value");
         }
         ArrayValue a = v.asArrayValue();
+        stack.reduceCount();
         stack.pushArray(a.size());
         values[stack.getDepth()] = a.getElementArray();
         return a.size();
@@ -175,6 +216,10 @@ public class Converter extends Unpacker {
             }
         }
         stack.pop();
+
+        if(stack.getDepth() == 0) {
+            value = null;
+        }
     }
 
     @Override
@@ -184,6 +229,7 @@ public class Converter extends Unpacker {
             throw new MessageTypeException("Expected array but got not array value");
         }
         MapValue m = v.asMapValue();
+        stack.reduceCount();
         stack.pushMap(m.size());
         values[stack.getDepth()] = m.getKeyValueArray();
         return m.size();
@@ -205,9 +251,23 @@ public class Converter extends Unpacker {
             }
         }
         stack.pop();
+
+        if(stack.getDepth() == 0) {
+            value = null;
+        }
+    }
+
+    // FIXME throws IOException?
+    protected Value nextValue() {
+        // FIXME EOFError?
+        throw new NullPointerException("Value is not set");
     }
 
     private Value getTop() {
+        if(value == null) {
+            this.value = nextValue();
+        }
+
         stack.checkCount();
         if(stack.getDepth() == 0) {
             if(stack.getTopCount() < 0) {
@@ -230,6 +290,9 @@ public class Converter extends Unpacker {
         Value v = getTop();
         if(!v.isArray() && !v.isMap()) {
             stack.reduceCount();
+            if(stack.getDepth() == 0) {
+                value = null;
+            }
             if(uc.getResult() != null) {
                 return;
             }
@@ -245,6 +308,9 @@ public class Converter extends Unpacker {
                     stack.pop();
                 } else {
                     throw new RuntimeException("invalid stack"); // FIXME error?
+                }
+                if(stack.getDepth() == 0) {
+                    value = null;
                 }
                 if(uc.getResult() != null) {
                     return;
@@ -280,12 +346,18 @@ public class Converter extends Unpacker {
         Value v = getTop();
         if(!v.isArray() && !v.isMap()) {
             stack.reduceCount();
+            if(stack.getDepth() == 0) {
+                value = null;
+            }
             return;
         }
         int targetDepth = stack.getDepth();
         while(true) {
             while(stack.getTopCount() == 0) {
                 stack.pop();
+                if(stack.getDepth() == 0) {
+                    value = null;
+                }
                 if(stack.getDepth() <= targetDepth) {
                     return;
                 }
