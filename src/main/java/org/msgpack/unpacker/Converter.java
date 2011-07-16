@@ -225,8 +225,8 @@ public class Converter extends Unpacker {
     @Override
     public int readMapBegin() {
         Value v = getTop();
-        if(!v.isArray()) {
-            throw new MessageTypeException("Expected array but got not array value");
+        if(!v.isMap()) {
+            throw new MessageTypeException("Expected map but got not map value");
         }
         MapValue m = v.asMapValue();
         stack.reduceCount();
