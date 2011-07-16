@@ -22,6 +22,21 @@ public class ListTypeFieldsClass {
     }
 
     @Override
+    public String toString() {
+	StringBuilder sb = new StringBuilder();
+	sb.append(this.getClass().getName());
+	sb.append("[");
+	sb.append("f0 = " + f0 + ", "); // f0
+	sb.append("f1 = " + f1 + ", "); // f1
+	sb.append("f2 = " + f2 + ", "); // f2
+	sb.append("f3 = " + f3 + ", "); // f3
+	sb.append("f4 = " + f4 + ", "); // f4
+	sb.append("f5 = " + f5);
+	sb.append("]");
+	return sb.toString();
+    }
+
+    @Override
     public boolean equals(Object o) {
 	if (! (o instanceof ListTypeFieldsClass)) {
 	    return false;
@@ -148,6 +163,17 @@ public class ListTypeFieldsClass {
 	public String f1;
 
 	public NestedClass() {}
+
+	@Override
+	public String toString() {
+	    StringBuilder sb = new StringBuilder();
+	    sb.append(this.getClass().getName());
+	    sb.append("[");
+	    sb.append("f0 = " + f0 + ", "); // f0
+	    sb.append("f1 = " + f1); // f1
+	    sb.append("]");
+	    return sb.toString();
+	}
 
 	@Override
 	public boolean equals(Object o) {
