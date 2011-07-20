@@ -48,10 +48,6 @@ public class TestReflectionBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	PrimitiveTypeFieldsClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -71,10 +67,6 @@ public class TestReflectionBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	PrimitiveTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -94,10 +86,6 @@ public class TestReflectionBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	ReferenceTypeFieldsClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -117,10 +105,6 @@ public class TestReflectionBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	ReferenceTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -140,10 +124,6 @@ public class TestReflectionBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	ListTypeFieldsClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -163,10 +143,6 @@ public class TestReflectionBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	ListTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -186,10 +162,6 @@ public class TestReflectionBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	MapTypeFieldsClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -209,10 +181,6 @@ public class TestReflectionBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	MapTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -232,10 +200,6 @@ public class TestReflectionBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	FinalClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -278,10 +242,6 @@ public class TestReflectionBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	ModifiersFieldsClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -301,10 +261,6 @@ public class TestReflectionBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	ModifiersFieldsClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -324,10 +280,6 @@ public class TestReflectionBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	UserDefinedTypeFieldsClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -347,10 +299,6 @@ public class TestReflectionBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	UserDefinedTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -370,10 +318,6 @@ public class TestReflectionBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	InheritanceClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -393,10 +337,6 @@ public class TestReflectionBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	InheritanceClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -416,10 +356,6 @@ public class TestReflectionBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	MessagePackableTypeFieldsClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -439,10 +375,6 @@ public class TestReflectionBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	MessagePackableTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 

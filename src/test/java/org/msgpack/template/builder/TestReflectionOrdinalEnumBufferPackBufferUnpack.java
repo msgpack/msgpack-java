@@ -31,10 +31,6 @@ public class TestReflectionOrdinalEnumBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	EnumTypeFieldsClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -56,10 +52,6 @@ public class TestReflectionOrdinalEnumBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = new BufferUnpacker();
 	unpacker.wrap(bytes);
 	EnumTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 }

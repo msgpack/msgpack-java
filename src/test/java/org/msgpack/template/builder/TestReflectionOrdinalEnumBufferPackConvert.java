@@ -35,10 +35,6 @@ public class TestReflectionOrdinalEnumBufferPackConvert extends TestSet {
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
 	EnumTypeFieldsClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -62,10 +58,6 @@ public class TestReflectionOrdinalEnumBufferPackConvert extends TestSet {
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
 	EnumTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 }

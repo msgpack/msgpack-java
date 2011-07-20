@@ -51,10 +51,6 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	PrimitiveTypeFieldsClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -74,10 +70,6 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	PrimitiveTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -97,10 +89,6 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	ReferenceTypeFieldsClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -120,10 +108,6 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	ReferenceTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -143,10 +127,6 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	ListTypeFieldsClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -166,10 +146,6 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	ListTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -189,10 +165,6 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	MapTypeFieldsClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -212,10 +184,6 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	MapTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -235,10 +203,6 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	FinalClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -281,10 +245,6 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	ModifiersFieldsClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -304,10 +264,6 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	ModifiersFieldsClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -327,10 +283,6 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	UserDefinedTypeFieldsClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -350,10 +302,6 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	UserDefinedTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -373,10 +321,6 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	InheritanceClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -396,10 +340,6 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	InheritanceClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -419,10 +359,6 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	MessagePackableTypeFieldsClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -442,10 +378,6 @@ public class TestReflectionStreamPackStreamUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	MessagePackableTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 

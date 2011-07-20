@@ -32,10 +32,6 @@ public class TestReflectionOrdinalEnumBufferPackStreamUnpack extends TestSet {
 	byte[] bytes = packer.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	EnumTypeFieldsClass ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 
@@ -56,10 +52,6 @@ public class TestReflectionOrdinalEnumBufferPackStreamUnpack extends TestSet {
 	byte[] bytes = packer.toByteArray();
 	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
 	EnumTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
-	if (v == null) {
-	    assertEquals(null, ret);
-	    return;
-	}
 	assertEquals(v, ret);
     }
 }
