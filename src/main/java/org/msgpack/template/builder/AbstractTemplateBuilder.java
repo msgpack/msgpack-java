@@ -89,7 +89,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	return null;
     }
 
-    private FieldEntry[] convertFieldEntries(Class<?> targetClass, FieldList flist) throws NoSuchFieldException {
+    protected FieldEntry[] convertFieldEntries(Class<?> targetClass, FieldList flist) throws NoSuchFieldException {
 	List<FieldList.Entry> src = flist.getList();
 	FieldEntry[] result = new FieldEntry[src.size()];
 	for(int i=0; i < src.size(); i++) {
@@ -103,7 +103,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	return result;
     }
 
-    private FieldEntry[] readFieldEntries(Class<?> targetClass, FieldOption implicitOption) {
+    protected FieldEntry[] readFieldEntries(Class<?> targetClass, FieldOption implicitOption) {
 	Field[] allFields = readAllFields(targetClass);
 
 	/* index:
@@ -153,7 +153,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	return result;
     }
 
-    private FieldOption readImplicitFieldOption(Class<?> targetClass) {
+    protected FieldOption readImplicitFieldOption(Class<?> targetClass) {
 	Message m = targetClass.getAnnotation(Message.class);
 	if (m == null) {
 	    return FieldOption.DEFAULT;
