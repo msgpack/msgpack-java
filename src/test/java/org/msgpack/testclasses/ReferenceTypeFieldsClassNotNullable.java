@@ -13,28 +13,126 @@ import org.msgpack.template.builder.TestSet;
 public class ReferenceTypeFieldsClassNotNullable {
     @NotNullable
     public Byte f0;
+
     @NotNullable
     public Short f1;
+
     @NotNullable
     public Integer f2;
+
     @NotNullable
     public Long f3;
+
     @NotNullable
     public Float f4;
+
     @NotNullable
     public Double f5;
+
     @NotNullable
     public Boolean f6;
+
     @NotNullable
     public BigInteger f7;
+
     @NotNullable
     public String f8;
+
     @NotNullable
     public byte[] f9;
+
     @NotNullable
     public ByteBuffer f10;
 
     public ReferenceTypeFieldsClassNotNullable() {}
+
+    public Byte getF0() {
+        return f0;
+    }
+
+    public void setF0(Byte f0) {
+        this.f0 = f0;
+    }
+
+    public Short getF1() {
+        return f1;
+    }
+
+    public void setF1(Short f1) {
+        this.f1 = f1;
+    }
+
+    public Integer getF2() {
+        return f2;
+    }
+
+    public void setF2(Integer f2) {
+        this.f2 = f2;
+    }
+
+    public Long getF3() {
+        return f3;
+    }
+
+    public void setF3(Long f3) {
+        this.f3 = f3;
+    }
+
+    public Float getF4() {
+        return f4;
+    }
+
+    public void setF4(Float f4) {
+        this.f4 = f4;
+    }
+
+    public Double getF5() {
+        return f5;
+    }
+
+    public void setF5(Double f5) {
+        this.f5 = f5;
+    }
+
+    public Boolean getF6() {
+        return f6;
+    }
+
+    public void setF6(Boolean f6) {
+        this.f6 = f6;
+    }
+
+    public BigInteger getF7() {
+        return f7;
+    }
+
+    public void setF7(BigInteger f7) {
+        this.f7 = f7;
+    }
+
+    public String getF8() {
+        return f8;
+    }
+
+    public void setF8(String f8) {
+        this.f8 = f8;
+    }
+
+    public byte[] getF9() {
+        return f9;
+    }
+
+    public void setF9(byte[] f9) {
+        this.f9 = f9;
+    }
+
+    public ByteBuffer getF10() {
+        return f10;
+    }
+
+    public void setF10(ByteBuffer f10) {
+        this.f10 = f10;
+    }
 
     @Override
     public boolean equals(Object o) {

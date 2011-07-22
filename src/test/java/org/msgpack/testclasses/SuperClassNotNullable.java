@@ -12,6 +12,14 @@ public class SuperClassNotNullable {
 
     public SuperClassNotNullable() {}
 
+    public String getF0() {
+        return f0;
+    }
+
+    public void setF0(String f0) {
+        this.f0 = f0;
+    }
+
     @Override
     public boolean equals(Object o) {
 	if (! (o instanceof SuperClassNotNullable)) {

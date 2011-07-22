@@ -9,11 +9,46 @@ import org.msgpack.annotation.Message;
 @Ignore @Message
 public class MapTypeFieldsClass {
     public Map<Integer, Integer> f0;
+
     public Map<Integer, Integer> f1;
+
     public Map<String, Integer> f2;
+
     public Map<String, NestedClass> f3;
 
     public MapTypeFieldsClass() {
+    }
+
+    public Map<Integer, Integer> getF0() {
+        return f0;
+    }
+
+    public void setF0(Map<Integer, Integer> f0) {
+        this.f0 = f0;
+    }
+
+    public Map<Integer, Integer> getF1() {
+        return f1;
+    }
+
+    public void setF1(Map<Integer, Integer> f1) {
+        this.f1 = f1;
+    }
+
+    public Map<String, Integer> getF2() {
+        return f2;
+    }
+
+    public void setF2(Map<String, Integer> f2) {
+        this.f2 = f2;
+    }
+
+    public Map<String, NestedClass> getF3() {
+        return f3;
+    }
+
+    public void setF3(Map<String, NestedClass> f3) {
+        this.f3 = f3;
     }
 
     @Override
@@ -82,6 +117,14 @@ public class MapTypeFieldsClass {
 	public String f0;
 
 	public NestedClass() {}
+
+	public String getF0() {
+	    return f0;
+	}
+
+	public void setF0(String f0) {
+	    this.f0 = f0;
+	}
 
 	@Override
 	public boolean equals(Object o) {

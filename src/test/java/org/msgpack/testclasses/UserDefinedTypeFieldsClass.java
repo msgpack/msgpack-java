@@ -7,9 +7,26 @@ import org.msgpack.annotation.Message;
 @Ignore @Message
 public class UserDefinedTypeFieldsClass {
     public NestedClass1 f0;
+
     public NestedClass2 f1;
 
     public UserDefinedTypeFieldsClass () {}
+
+    public NestedClass1 getF0() {
+        return f0;
+    }
+
+    public void setF0(NestedClass1 f0) {
+        this.f0 = f0;
+    }
+
+    public NestedClass2 getF1() {
+        return f1;
+    }
+
+    public void setF1(NestedClass2 f1) {
+        this.f1 = f1;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -41,9 +58,26 @@ public class UserDefinedTypeFieldsClass {
     @Ignore @Message
     public static class NestedClass1 {
 	public int f0;
+
 	public String f1;
 
 	public NestedClass1() {}
+
+	public int getF0() {
+	    return f0;
+	}
+
+	public void setF0(int f0) {
+	    this.f0 = f0;
+	}
+
+	public String getF1() {
+	    return f1;
+	}
+
+	public void setF1(String f1) {
+	    this.f1 = f1;
+	}
 
 	@Override
 	public boolean equals(Object o) {
@@ -69,9 +103,26 @@ public class UserDefinedTypeFieldsClass {
     @Ignore @Message
     public static class NestedClass2 {
 	public int f0;
+
 	public String f1;
 
 	public NestedClass2() {}
+
+	public int getF0() {
+	    return f0;
+	}
+
+	public void setF0(int f0) {
+	    this.f0 = f0;
+	}
+
+	public String getF1() {
+	    return f1;
+	}
+
+	public void setF1(String f1) {
+	    this.f1 = f1;
+	}
 
 	@Override
 	public boolean equals(Object o) {

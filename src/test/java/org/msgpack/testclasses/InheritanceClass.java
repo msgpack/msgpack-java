@@ -7,9 +7,26 @@ import org.msgpack.annotation.Message;
 @Ignore @Message
 public class InheritanceClass extends SuperClass {
     public String f1;
+
     public int f2;
 
     public InheritanceClass() {}
+
+    public String getF1() {
+        return f1;
+    }
+
+    public void setF1(String f1) {
+        this.f1 = f1;
+    }
+
+    public int getF2() {
+        return f2;
+    }
+
+    public void setF2(int f2) {
+        this.f2 = f2;
+    }
 
     @Override
     public boolean equals(Object o) {

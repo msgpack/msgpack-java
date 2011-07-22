@@ -7,12 +7,48 @@ import org.msgpack.annotation.Message;
 @Ignore @Message
 public class ModifiersFieldsClass {
     public int f0;
+
     public final int f1 = 1;
+
     private int f2;
+
     protected int f3;
+
     int f4;
 
     public ModifiersFieldsClass() {}
+
+    public int getF0() {
+        return f0;
+    }
+
+    public void setF0(int f0) {
+        this.f0 = f0;
+    }
+
+    public int getF2() {
+        return f2;
+    }
+
+    public void setF2(int f2) {
+        this.f2 = f2;
+    }
+
+    public int getF3() {
+        return f3;
+    }
+
+    public void setF3(int f3) {
+        this.f3 = f3;
+    }
+
+    public int getF4() {
+        return f4;
+    }
+
+    public void setF4(int f4) {
+        this.f4 = f4;
+    }
 
     @Override
     public boolean equals(Object o) {

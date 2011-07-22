@@ -12,28 +12,66 @@ import org.msgpack.template.builder.TestSet;
 @Ignore @Message
 public class ListTypeFieldsClass {
     public List<Integer> f0;
+
     public List<Integer> f1;
+
     public List<String> f2;
+
     public List<List<String>> f3;
+
     public List<NestedClass> f4;
+
     public List<ByteBuffer> f5;
 
     public ListTypeFieldsClass() {
     }
 
-    @Override
-    public String toString() {
-	StringBuilder sb = new StringBuilder();
-	sb.append(this.getClass().getName());
-	sb.append("[");
-	sb.append("f0 = " + f0 + ", "); // f0
-	sb.append("f1 = " + f1 + ", "); // f1
-	sb.append("f2 = " + f2 + ", "); // f2
-	sb.append("f3 = " + f3 + ", "); // f3
-	sb.append("f4 = " + f4 + ", "); // f4
-	sb.append("f5 = " + f5);
-	sb.append("]");
-	return sb.toString();
+    public List<Integer> getF0() {
+        return f0;
+    }
+
+    public void setF0(List<Integer> f0) {
+        this.f0 = f0;
+    }
+
+    public List<Integer> getF1() {
+        return f1;
+    }
+
+    public void setF1(List<Integer> f1) {
+        this.f1 = f1;
+    }
+
+    public List<String> getF2() {
+        return f2;
+    }
+
+    public void setF2(List<String> f2) {
+        this.f2 = f2;
+    }
+
+    public List<List<String>> getF3() {
+        return f3;
+    }
+
+    public void setF3(List<List<String>> f3) {
+        this.f3 = f3;
+    }
+
+    public List<NestedClass> getF4() {
+        return f4;
+    }
+
+    public void setF4(List<NestedClass> f4) {
+        this.f4 = f4;
+    }
+
+    public List<ByteBuffer> getF5() {
+        return f5;
+    }
+
+    public void setF5(List<ByteBuffer> f5) {
+        this.f5 = f5;
     }
 
     @Override
@@ -160,19 +198,25 @@ public class ListTypeFieldsClass {
     @Ignore @Message
     public static class NestedClass {
 	public byte[] f0;
+
 	public String f1;
 
 	public NestedClass() {}
 
-	@Override
-	public String toString() {
-	    StringBuilder sb = new StringBuilder();
-	    sb.append(this.getClass().getName());
-	    sb.append("[");
-	    sb.append("f0 = " + f0 + ", "); // f0
-	    sb.append("f1 = " + f1); // f1
-	    sb.append("]");
-	    return sb.toString();
+	public byte[] getF0() {
+	    return f0;
+	}
+
+	public void setF0(byte[] f0) {
+	    this.f0 = f0;
+	}
+
+	public String getF1() {
+	    return f1;
+	}
+
+	public void setF1(String f1) {
+	    this.f1 = f1;
 	}
 
 	@Override

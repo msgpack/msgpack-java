@@ -10,10 +10,27 @@ import org.msgpack.annotation.OrdinalEnum;
 public class EnumTypeFieldsClassNotNullable {
     @NotNullable
     public int f0;
+
     @NotNullable
     public SampleEnum f1;
 
     public EnumTypeFieldsClassNotNullable() {}
+
+    public int getF0() {
+        return f0;
+    }
+
+    public void setF0(int f0) {
+        this.f0 = f0;
+    }
+
+    public SampleEnum getF1() {
+        return f1;
+    }
+
+    public void setF1(SampleEnum f1) {
+        this.f1 = f1;
+    }
 
     @Override
     public boolean equals(Object o) {

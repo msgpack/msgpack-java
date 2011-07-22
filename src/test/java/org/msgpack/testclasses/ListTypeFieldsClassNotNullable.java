@@ -14,18 +14,71 @@ import org.msgpack.template.builder.TestSet;
 public class ListTypeFieldsClassNotNullable {
     @NotNullable
     public List<Integer> f0;
+
     @NotNullable
     public List<Integer> f1;
+
     @NotNullable
     public List<String> f2;
+
     @NotNullable
     public List<List<String>> f3;
+
     @NotNullable
     public List<NestedClass> f4;
+
     @NotNullable
     public List<ByteBuffer> f5;
 
     public ListTypeFieldsClassNotNullable() {
+    }
+
+    public List<Integer> getF0() {
+        return f0;
+    }
+
+    public void setF0(List<Integer> f0) {
+        this.f0 = f0;
+    }
+
+    public List<Integer> getF1() {
+        return f1;
+    }
+
+    public void setF1(List<Integer> f1) {
+        this.f1 = f1;
+    }
+
+    public List<String> getF2() {
+        return f2;
+    }
+
+    public void setF2(List<String> f2) {
+        this.f2 = f2;
+    }
+
+    public List<List<String>> getF3() {
+        return f3;
+    }
+
+    public void setF3(List<List<String>> f3) {
+        this.f3 = f3;
+    }
+
+    public List<NestedClass> getF4() {
+        return f4;
+    }
+
+    public void setF4(List<NestedClass> f4) {
+        this.f4 = f4;
+    }
+
+    public List<ByteBuffer> getF5() {
+        return f5;
+    }
+
+    public void setF5(List<ByteBuffer> f5) {
+        this.f5 = f5;
     }
 
     @Override
@@ -153,10 +206,27 @@ public class ListTypeFieldsClassNotNullable {
     public static class NestedClass {
 	@NotNullable
 	public byte[] f0;
+
 	@NotNullable
 	public String f1;
 
 	public NestedClass() {}
+
+	public byte[] getF0() {
+	    return f0;
+	}
+
+	public void setF0(byte[] f0) {
+	    this.f0 = f0;
+	}
+
+	public String getF1() {
+	    return f1;
+	}
+
+	public void setF1(String f1) {
+	    this.f1 = f1;
+	}
 
 	@Override
 	public boolean equals(Object o) {

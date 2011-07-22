@@ -9,10 +9,27 @@ import org.msgpack.annotation.NotNullable;
 public class InheritanceClassNotNullable extends SuperClassNotNullable {
     @NotNullable
     public String f1;
+
     @NotNullable
     public int f2;
 
     public InheritanceClassNotNullable() {}
+
+    public String getF1() {
+        return f1;
+    }
+
+    public void setF1(String f1) {
+        this.f1 = f1;
+    }
+
+    public int getF2() {
+        return f2;
+    }
+
+    public void setF2(int f2) {
+        this.f2 = f2;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -15,9 +15,26 @@ import org.msgpack.unpacker.Unpacker;
 @Ignore @Message
 public class MessagePackableTypeFieldsClass {
     public String f0;
+
     public NestedClass f1;
 
     public MessagePackableTypeFieldsClass() {}
+
+    public String getF0() {
+        return f0;
+    }
+
+    public void setF0(String f0) {
+        this.f0 = f0;
+    }
+
+    public NestedClass getF1() {
+        return f1;
+    }
+
+    public void setF1(NestedClass f1) {
+        this.f1 = f1;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -49,12 +66,38 @@ public class MessagePackableTypeFieldsClass {
     @Ignore
     public static class NestedClass implements MessagePackable {
         public String f0;
+
         public int[] f1;
+
         public List<String> f2;
 
         public NestedClass() { }
 
-        public void writeTo(Packer packer) throws IOException {
+        public String getF0() {
+	    return f0;
+	}
+
+	public void setF0(String f0) {
+	    this.f0 = f0;
+	}
+
+	public int[] getF1() {
+	    return f1;
+	}
+
+	public void setF1(int[] f1) {
+	    this.f1 = f1;
+	}
+
+	public List<String> getF2() {
+	    return f2;
+	}
+
+	public void setF2(List<String> f2) {
+	    this.f2 = f2;
+	}
+
+	public void writeTo(Packer packer) throws IOException {
             packer.writeArrayBegin(3);
             {
                 packer.writeString(f0);

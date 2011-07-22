@@ -8,9 +8,26 @@ import org.msgpack.annotation.OrdinalEnum;
 @Ignore @Message
 public class EnumTypeFieldsClass {
     public int f0;
+
     public SampleEnum f1;
 
     public EnumTypeFieldsClass() {}
+
+    public int getF0() {
+        return f0;
+    }
+
+    public void setF0(int f0) {
+        this.f0 = f0;
+    }
+
+    public SampleEnum getF1() {
+        return f1;
+    }
+
+    public void setF1(SampleEnum f1) {
+        this.f1 = f1;
+    }
 
     @Override
     public boolean equals(Object o) {

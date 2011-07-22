@@ -9,10 +9,27 @@ import org.msgpack.annotation.NotNullable;
 public class UserDefinedTypeFieldsClassNotNullable {
     @NotNullable
     public NestedClass1 f0;
+
     @NotNullable
     public NestedClass2 f1;
 
     public UserDefinedTypeFieldsClassNotNullable () {}
+
+    public NestedClass1 getF0() {
+        return f0;
+    }
+
+    public void setF0(NestedClass1 f0) {
+        this.f0 = f0;
+    }
+
+    public NestedClass2 getF1() {
+        return f1;
+    }
+
+    public void setF1(NestedClass2 f1) {
+        this.f1 = f1;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -45,10 +62,27 @@ public class UserDefinedTypeFieldsClassNotNullable {
     public static class NestedClass1 {
 	@NotNullable
 	public int f0;
+
 	@NotNullable
 	public String f1;
 
 	public NestedClass1() {}
+
+	public int getF0() {
+	    return f0;
+	}
+
+	public void setF0(int f0) {
+	    this.f0 = f0;
+	}
+
+	public String getF1() {
+	    return f1;
+	}
+
+	public void setF1(String f1) {
+	    this.f1 = f1;
+	}
 
 	@Override
 	public boolean equals(Object o) {
@@ -75,10 +109,27 @@ public class UserDefinedTypeFieldsClassNotNullable {
     public static class NestedClass2 {
 	@NotNullable
 	public int f0;
+
 	@NotNullable
 	public String f1;
 
 	public NestedClass2() {}
+
+	public int getF0() {
+	    return f0;
+	}
+
+	public void setF0(int f0) {
+	    this.f0 = f0;
+	}
+
+	public String getF1() {
+	    return f1;
+	}
+
+	public void setF1(String f1) {
+	    this.f1 = f1;
+	}
 
 	@Override
 	public boolean equals(Object o) {

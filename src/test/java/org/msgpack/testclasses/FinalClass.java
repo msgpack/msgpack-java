@@ -7,9 +7,26 @@ import org.msgpack.annotation.Message;
 @Ignore @Message
 public final class FinalClass {
     public int f0;
+
     public String f1;
 
     public FinalClass() {
+    }
+
+    public int getF0() {
+        return f0;
+    }
+
+    public void setF0(int f0) {
+        this.f0 = f0;
+    }
+
+    public String getF1() {
+        return f1;
+    }
+
+    public void setF1(String f1) {
+        this.f1 = f1;
     }
 
     @Override
