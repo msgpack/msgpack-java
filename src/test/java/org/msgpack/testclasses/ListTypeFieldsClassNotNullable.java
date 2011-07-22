@@ -5,12 +5,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Ignore;
+import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
 import org.msgpack.annotation.NotNullable;
 import org.msgpack.template.builder.TestSet;
 
 
-@Ignore @Message
+@Ignore @Message @Beans
 public class ListTypeFieldsClassNotNullable {
     @NotNullable
     public List<Integer> f0;
@@ -202,7 +203,7 @@ public class ListTypeFieldsClassNotNullable {
 	return true;
     }
 
-    @Ignore @Message
+    @Ignore @Message @Beans
     public static class NestedClass {
 	@NotNullable
 	public byte[] f0;

@@ -1,11 +1,12 @@
 package org.msgpack.testclasses;
 
 import org.junit.Ignore;
+import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
 import org.msgpack.annotation.NotNullable;
 
 
-@Ignore @Message
+@Ignore @Message @Beans
 public class PrimitiveTypeFieldsClassNotNullable {
     @NotNullable
     public byte f0;

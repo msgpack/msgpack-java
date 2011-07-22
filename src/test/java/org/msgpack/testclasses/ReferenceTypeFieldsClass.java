@@ -4,11 +4,12 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
 import org.junit.Ignore;
+import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
 import org.msgpack.template.builder.TestSet;
 
 
-@Ignore @Message
+@Ignore @Message @Beans
 public class ReferenceTypeFieldsClass {
     public Byte f0;
 

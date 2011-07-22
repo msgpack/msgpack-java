@@ -3,10 +3,11 @@ package org.msgpack.testclasses;
 import java.util.Map;
 
 import org.junit.Ignore;
+import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
 
 
-@Ignore @Message
+@Ignore @Message @Beans
 public class MapTypeFieldsClass {
     public Map<Integer, Integer> f0;
 
@@ -112,7 +113,7 @@ public class MapTypeFieldsClass {
 	return true;
     }
 
-    @Ignore @Message
+    @Ignore @Message @Beans
     public static class NestedClass {
 	public String f0;
 

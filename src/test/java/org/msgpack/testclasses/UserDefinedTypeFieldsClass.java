@@ -1,10 +1,11 @@
 package org.msgpack.testclasses;
 
 import org.junit.Ignore;
+import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
 
 
-@Ignore @Message
+@Ignore @Message @Beans
 public class UserDefinedTypeFieldsClass {
     public NestedClass1 f0;
 
@@ -55,7 +56,7 @@ public class UserDefinedTypeFieldsClass {
 	return true;
     }
 
-    @Ignore @Message
+    @Ignore @Message @Beans
     public static class NestedClass1 {
 	public int f0;
 
@@ -100,7 +101,7 @@ public class UserDefinedTypeFieldsClass {
 	}
     }
 
-    @Ignore @Message
+    @Ignore @Message @Beans
     public static class NestedClass2 {
 	public int f0;
 

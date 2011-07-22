@@ -1,11 +1,12 @@
 package org.msgpack.testclasses;
 
 import org.junit.Ignore;
+import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
 import org.msgpack.annotation.NotNullable;
 
 
-@Ignore @Message
+@Ignore @Message @Beans
 public class UserDefinedTypeFieldsClassNotNullable {
     @NotNullable
     public NestedClass1 f0;
@@ -58,7 +59,7 @@ public class UserDefinedTypeFieldsClassNotNullable {
 	return true;
     }
 
-    @Ignore @Message
+    @Ignore @Message @Beans
     public static class NestedClass1 {
 	@NotNullable
 	public int f0;
@@ -105,7 +106,7 @@ public class UserDefinedTypeFieldsClassNotNullable {
 	}
     }
 
-    @Ignore @Message
+    @Ignore @Message @Beans
     public static class NestedClass2 {
 	@NotNullable
 	public int f0;

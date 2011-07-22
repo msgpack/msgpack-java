@@ -4,12 +4,13 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
 import org.junit.Ignore;
+import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
 import org.msgpack.annotation.NotNullable;
 import org.msgpack.template.builder.TestSet;
 
 
-@Ignore @Message
+@Ignore @Message @Beans
 public class ReferenceTypeFieldsClassNotNullable {
     @NotNullable
     public Byte f0;

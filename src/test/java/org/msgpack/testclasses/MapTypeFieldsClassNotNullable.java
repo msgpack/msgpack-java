@@ -3,11 +3,12 @@ package org.msgpack.testclasses;
 import java.util.Map;
 
 import org.junit.Ignore;
+import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
 import org.msgpack.annotation.NotNullable;
 
 
-@Ignore @Message
+@Ignore @Message @Beans
 public class MapTypeFieldsClassNotNullable {
     @NotNullable
     public Map<Integer, Integer> f0;
@@ -117,7 +118,7 @@ public class MapTypeFieldsClassNotNullable {
 	return true;
     }
 
-    @Ignore @Message
+    @Ignore @Message @Beans
     public static class NestedClass {
 	@NotNullable
 	public String f0;

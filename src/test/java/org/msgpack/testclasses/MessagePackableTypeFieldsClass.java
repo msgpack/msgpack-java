@@ -7,12 +7,13 @@ import java.util.List;
 
 import org.junit.Ignore;
 import org.msgpack.MessagePackable;
+import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 
 
-@Ignore @Message
+@Ignore @Message @Beans
 public class MessagePackableTypeFieldsClass {
     public String f0;
 

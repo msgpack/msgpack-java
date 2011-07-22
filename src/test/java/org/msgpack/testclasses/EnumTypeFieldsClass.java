@@ -1,11 +1,12 @@
 package org.msgpack.testclasses;
 
 import org.junit.Ignore;
+import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
 import org.msgpack.annotation.OrdinalEnum;
 
 
-@Ignore @Message
+@Ignore @Message @Beans
 public class EnumTypeFieldsClass {
     public int f0;
 

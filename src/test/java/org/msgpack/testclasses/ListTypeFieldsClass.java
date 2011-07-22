@@ -5,11 +5,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Ignore;
+import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
 import org.msgpack.template.builder.TestSet;
 
 
-@Ignore @Message
+@Ignore @Message @Beans
 public class ListTypeFieldsClass {
     public List<Integer> f0;
 
@@ -195,7 +196,7 @@ public class ListTypeFieldsClass {
 	return true;
     }
 
-    @Ignore @Message
+    @Ignore @Message @Beans
     public static class NestedClass {
 	public byte[] f0;
 

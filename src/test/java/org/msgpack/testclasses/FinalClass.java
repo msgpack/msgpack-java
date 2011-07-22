@@ -1,10 +1,11 @@
 package org.msgpack.testclasses;
 
 import org.junit.Ignore;
+import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
 
 
-@Ignore @Message
+@Ignore @Message @Beans
 public final class FinalClass {
     public int f0;
 
