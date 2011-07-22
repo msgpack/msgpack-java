@@ -17,57 +17,35 @@
 //
 package org.msgpack.template.builder;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
 import org.msgpack.template.FieldOption;
 
 
-public class FieldEntry {
-    private Field field;
+public abstract class FieldEntry {
 
-    private FieldOption option;
+    protected FieldOption option;
+
+    public abstract String getName();
+
+    public abstract Class<?> getType();
+
+    public abstract Type getGenericType();
 
     public FieldEntry() {
-	this(null, FieldOption.IGNORE);
+	this(FieldOption.IGNORE);
     }
 
-    public FieldEntry(final FieldEntry e) {
-	this(e.field, e.option);
-    }
-
-    public FieldEntry(final Field field, final FieldOption option) {
-	this.field = field;
+    public FieldEntry(FieldOption option) {
 	this.option = option;
-    }
-
-    public Field getField() {
-	return field;
-    }
-
-    public String getName() {
-	return field.getName();
-    }
-
-    public Class<?> getType() {
-	return field.getType();
-    }
-
-    public String getJavaTypeName() {
-	Class<?> type = field.getType();
-	if (type.isArray()) {
-	    return arrayTypeToString(type);
-	} else {
-	    return type.getName();
-	}
-    }
-
-    public Type getGenericType() {
-	return field.getGenericType();
     }
 
     public FieldOption getOption() {
 	return option;
+    }
+
+    public void setOption(FieldOption option) {
+	this.option = option;
     }
 
     public boolean isAvailable() {
@@ -86,7 +64,16 @@ public class FieldEntry {
 	return option == FieldOption.NOTNULLABLE;
     }
 
-    private static String arrayTypeToString(Class<?> type) {
+    public String getJavaTypeName() {
+	Class<?> type = getType();
+	if (type.isArray()) {
+	    return arrayTypeToString(type);
+	} else {
+	    return type.getName();
+	}
+    }
+
+    public String arrayTypeToString(Class<?> type) {
 	int dim = 1;
 	Class<?> baseType = type.getComponentType();
 	while (baseType.isArray()) {

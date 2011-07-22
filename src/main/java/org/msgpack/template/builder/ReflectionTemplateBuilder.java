@@ -33,8 +33,8 @@ import org.msgpack.unpacker.Unpacker;
 
 public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 
-    static abstract class ReflectionFieldEntry extends FieldEntry {
-	ReflectionFieldEntry(FieldEntry e) {
+    static abstract class ReflectionFieldEntry extends DefaultFieldEntry {
+	ReflectionFieldEntry(final DefaultFieldEntry e) {
 	    super(e.getField(), e.getOption());
 	}
 
@@ -48,7 +48,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     static class NullFieldEntry extends ReflectionFieldEntry {
-	NullFieldEntry(FieldEntry e) {
+	NullFieldEntry(final DefaultFieldEntry e) {
 	    super(e);
 	}
 
@@ -62,15 +62,17 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
     static class ObjectFieldEntry extends ReflectionFieldEntry {
 	private Template template;
 
-	ObjectFieldEntry(FieldEntry e, Template template) {
+	ObjectFieldEntry(final DefaultFieldEntry e, Template template) {
 	    super(e);
 	    this.template = template;
 	}
 
+	@Override
 	void write(Packer packer, Object target) throws IOException {
 	    template.write(packer, target);
 	}
 
+	@Override
 	void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
 	    Field f = getField();
 	    Class<Object> type = (Class<Object>) f.getType();
@@ -83,7 +85,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     static class BooleanFieldEntry extends ReflectionFieldEntry {
-	BooleanFieldEntry(FieldEntry e) {
+	BooleanFieldEntry(final DefaultFieldEntry e) {
 	    super(e);
 	}
 
@@ -97,7 +99,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     static class ByteFieldEntry extends ReflectionFieldEntry {
-	ByteFieldEntry(FieldEntry e) {
+	ByteFieldEntry(final DefaultFieldEntry e) {
 	    super(e);
 	}
 
@@ -111,7 +113,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     static class ShortFieldEntry extends ReflectionFieldEntry {
-	ShortFieldEntry(FieldEntry e) {
+	ShortFieldEntry(final DefaultFieldEntry e) {
 	    super(e);
 	}
 
@@ -125,7 +127,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     static class IntFieldEntry extends ReflectionFieldEntry {
-	IntFieldEntry(FieldEntry e) {
+	IntFieldEntry(final DefaultFieldEntry e) {
 	    super(e);
 	}
 
@@ -139,7 +141,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     static class LongFieldEntry extends ReflectionFieldEntry {
-	LongFieldEntry(FieldEntry e) {
+	LongFieldEntry(final DefaultFieldEntry e) {
 	    super(e);
 	}
 
@@ -153,7 +155,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     static class FloatFieldEntry extends ReflectionFieldEntry {
-	FloatFieldEntry(FieldEntry e) {
+	FloatFieldEntry(final DefaultFieldEntry e) {
 	    super(e);
 	}
 
@@ -167,7 +169,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     static class DoubleFieldEntry extends ReflectionFieldEntry {
-	DoubleFieldEntry(FieldEntry e) {
+	DoubleFieldEntry(final DefaultFieldEntry e) {
 	    super(e);
 	}
 
@@ -313,7 +315,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 
 	// TODO Now it is simply cast.
 	for (FieldEntry e : entries) {
-	    Field f = ((FieldEntry) e).getField();
+	    Field f = ((DefaultFieldEntry) e).getField();
 	    int mod = f.getModifiers();
 	    if (!Modifier.isPublic(mod)) {
 		f.setAccessible(true);
@@ -322,7 +324,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 
 	ReflectionFieldEntry[] res = new ReflectionFieldEntry[entries.length];
 	for (int i = 0; i < entries.length; i++) {
-	    FieldEntry e = (FieldEntry) entries[i];
+	    DefaultFieldEntry e = (DefaultFieldEntry) entries[i];
 	    Class<?> t = e.getType();
 	    if (!e.isAvailable()) {
 		res[i] = new NullFieldEntry(e);

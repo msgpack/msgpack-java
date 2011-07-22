@@ -95,9 +95,9 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	for(int i=0; i < src.size(); i++) {
 	    FieldList.Entry s = src.get(i);
 	    if(s.isAvailable()) {
-		result[i] = new FieldEntry(targetClass.getDeclaredField(s.getName()), s.getOption());
+		result[i] = new DefaultFieldEntry(targetClass.getDeclaredField(s.getName()), s.getOption());
 	    } else {
-		result[i] = new FieldEntry();
+		result[i] = new DefaultFieldEntry();
 	    }
 	}
 	return result;
@@ -134,7 +134,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	    while(indexed.size() <= index) {
 		indexed.add(null);
 	    }
-	    indexed.set(index, new FieldEntry(f, opt));
+	    indexed.set(index, new DefaultFieldEntry(f, opt));
 
 	    if(maxIndex < index) {
 		maxIndex = index;
@@ -145,7 +145,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	for(int i=0; i < indexed.size(); i++) {
 	    FieldEntry e = indexed.get(i);
 	    if(e == null) {
-		result[i] = new FieldEntry();
+		result[i] = new DefaultFieldEntry();
 	    } else {
 		result[i] = e;
 	    }

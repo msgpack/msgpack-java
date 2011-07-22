@@ -37,6 +37,7 @@ public class TemplateBuilderChain {
 	// TODO #MN
 	// add javassist-based template builder
 	// add beans-based template builder
+	// add reflection-based beans template builder
 	templateBuilders.add(new ReflectionTemplateBuilder(registry));
 	templateBuilders.add(new ReflectionOrdinalEnumTemplateBuilder(registry));
 	forceTemplateBuilder = new ReflectionTemplateBuilder(registry);
