@@ -56,6 +56,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	return buildTemplate(targetClass, entries);
     }
 
+    @Override
     public <T> Template<T> buildTemplate(Class<T> targetClass, FieldList flist) throws TemplateBuildException {
 	try {
 	    checkClassValidation(targetClass);

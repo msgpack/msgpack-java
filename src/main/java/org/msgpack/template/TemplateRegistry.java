@@ -60,7 +60,7 @@ public class TemplateRegistry {
 
     private TemplateBuilderChain chain;
 
-    private Map<Type, Template<?>> cache;
+    private Map<Type, Template<Type>> cache;
 
     private Map<Type, GenericTemplate> genericCache;
 
@@ -70,7 +70,7 @@ public class TemplateRegistry {
 
     public TemplateRegistry(TemplateRegistry registry) {
 	parent = registry;
-	cache = new HashMap<Type, Template<?>>();
+	cache = new HashMap<Type, Template<Type>>();
 	genericCache = new HashMap<Type, GenericTemplate>();
 	if (parent == null) {
 	    registerTemplates();
@@ -117,18 +117,18 @@ public class TemplateRegistry {
         registerGeneric(Map.class, new GenericTemplate2(this, MapTemplate.class));
     }
 
-    public void register(Class<?> targetClass) {
+    public void register(final Class<?> targetClass) {
 	register(targetClass, chain.select(targetClass).buildTemplate(targetClass));
     }
 
-    public void register(Class<?> targetClass, final FieldList flist) {
+    public void register(final Class<?> targetClass, final FieldList flist) {
 	if (flist == null) {
 	    throw new NullPointerException("FieldList object is null");
 	}
-	register(targetClass, ((AbstractTemplateBuilder) chain.select(targetClass)).buildTemplate(targetClass, flist));
+	register(targetClass, chain.select(targetClass).buildTemplate(targetClass, flist));
     }
 
-    public synchronized void register(Type targetType, final Template tmpl) {
+    public synchronized void register(final Type targetType, final Template tmpl) {
         if (targetType instanceof ParameterizedType) {
             cache.put(((ParameterizedType) targetType).getRawType(), tmpl);
         } else {
@@ -136,7 +136,7 @@ public class TemplateRegistry {
         }
     }
 
-    public synchronized void registerGeneric(Type targetType, final GenericTemplate tmpl) {
+    public synchronized void registerGeneric(final Type targetType, final GenericTemplate tmpl) {
 	if(targetType instanceof ParameterizedType) {
 	    genericCache.put(((ParameterizedType) targetType).getRawType(), tmpl);
 	} else {
@@ -144,8 +144,8 @@ public class TemplateRegistry {
 	}
     }
 
-    public boolean unregister(Type targetType) {
-	Template tmpl = cache.remove(targetType);
+    public boolean unregister(final Type targetType) {
+	Template<Type> tmpl = cache.remove(targetType);
 	return tmpl != null;
     }
 
