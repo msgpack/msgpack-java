@@ -21,10 +21,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 
-public class GenericTemplate1 implements GenericTemplate {
+public class GenericCollectionTemplate implements GenericTemplate {
     Constructor<? extends Template> constructor;
 
-    public GenericTemplate1(TemplateRegistry registry, Class<? extends Template> tmpl) {
+    public GenericCollectionTemplate(TemplateRegistry registry, Class<? extends Template> tmpl) {
 	try {
 	    constructor = tmpl.getConstructor(new Class<?>[]{ Template.class });
 	    constructor.newInstance(new Object[]{ AnyTemplate.getInstance(registry) });

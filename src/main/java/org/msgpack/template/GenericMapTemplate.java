@@ -21,10 +21,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 
-public class GenericTemplate2 implements GenericTemplate {
+public class GenericMapTemplate implements GenericTemplate {
     Constructor<? extends Template> constructor;
 
-    public GenericTemplate2(TemplateRegistry registry, Class<? extends Template> tmpl) {
+    public GenericMapTemplate(TemplateRegistry registry, Class<? extends Template> tmpl) {
 	try {
 	    constructor = tmpl.getConstructor(new Class<?>[] { Template.class, Template.class });
 	    constructor.newInstance(new Object[] {

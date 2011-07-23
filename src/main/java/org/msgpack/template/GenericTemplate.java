@@ -21,4 +21,3 @@ package org.msgpack.template;
 public interface GenericTemplate {
     public Template build(Template[] params);
 }
-
