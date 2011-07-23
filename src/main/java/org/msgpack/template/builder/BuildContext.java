@@ -17,201 +17,245 @@
 //
 package org.msgpack.template.builder;
 
-import java.lang.reflect.Constructor;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.msgpack.*;
+import org.msgpack.packer.Packer;
 import org.msgpack.template.*;
+import org.msgpack.unpacker.Unpacker;
 
 import javassist.CannotCompileException;
 import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.CtNewConstructor;
+import javassist.CtMethod;
+import javassist.CtNewMethod;
 import javassist.NotFoundException;
 
-public class BuildContext extends BuildContextBase<FieldEntry> {
-    protected FieldEntry[] entries;
-    protected Class<?> origClass;
-    protected String origName;
-    protected Template<?>[] templates;
-    protected int minimumArrayLength;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public abstract class BuildContext<T extends FieldEntry> {
+
+    private static Logger LOG = LoggerFactory.getLogger(BuildContext.class);
+
+    protected JavassistTemplateBuilder director;
+
+    protected String tmplName;
+
+    protected CtClass tmplCtClass;
+
+    protected abstract Template buildTemplate(Class<?> targetClass, T[] entries, Template[] templates);
+
+    protected abstract void setSuperClass() throws CannotCompileException, NotFoundException;
+
+    protected abstract void buildConstructor() throws CannotCompileException, NotFoundException;
 
     public BuildContext(JavassistTemplateBuilder director) {
-	super(director);
+	this.director = director;
     }
 
-    public Template buildTemplate(Class targetClass, FieldEntry[] entries, Template[] templates) {
-	this.entries = entries;
-	this.templates = templates;
-	this.origClass = targetClass;
-	this.origName = this.origClass.getName();
-	return build(this.origName);
+    protected Template build(final String className) {
+	try {
+	    reset(className, false);
+	    LOG.debug("started generating template class %s for original class %s", 
+		    new Object[] { tmplCtClass.getName(), className });
+	    buildClass();
+	    buildConstructor();
+	    buildMethodInit();
+	    buildWriteMethod();
+	    buildReadMethod();
+	    LOG.debug("finished generating template class %s for original class %s", 
+		    new Object[] { tmplCtClass.getName(), className });
+	    return buildInstance(createClass());
+	} catch (Exception e) {
+	    String code = getBuiltString();
+	    if (code != null) {
+		LOG.error("builder: " + code, e);
+		throw new TemplateBuildException("Cannot compile: " + code, e);
+	    } else {
+		throw new TemplateBuildException(e);
+	    }
+	}
     }
 
-    protected void setSuperClass() throws CannotCompileException, NotFoundException {
-	tmplCtClass.setSuperclass(director.getCtClass(
-		JavassistTemplateBuilder.JavassistTemplate.class.getName()));
+    protected void reset(String className, boolean isWritten) {
+	String tmplName = null;
+	if (!isWritten) {
+	    tmplName = className + "_$$_Template" + "_" + director.hashCode() + "_" + director.nextSeqId();
+	} else {
+	    tmplName = className + "_$$_Template";
+	}
+	tmplCtClass = director.makeCtClass(tmplName);
     }
 
-    protected void buildConstructor() throws CannotCompileException,
+    protected void buildClass() throws CannotCompileException,
 	    NotFoundException {
-	// Constructor(Class targetClass, Template[] templates)
-	CtConstructor newCtCons = CtNewConstructor.make(
-		new CtClass[] {
-			director.getCtClass(Class.class.getName()),
-			director.getCtClass(Template.class.getName() + "[]")
-		}, new CtClass[0], tmplCtClass);
-	tmplCtClass.addConstructor(newCtCons);
-    }
-
-    protected Template buildInstance(Class<?> c) throws NoSuchMethodException,
-	    InstantiationException, IllegalAccessException, InvocationTargetException {
-	Constructor<?> cons = c.getConstructor(new Class[] { Class.class, Template[].class });
-	Object tmpl = cons.newInstance(new Object[] { this.origClass, this.templates });
-	return (Template) tmpl;
+	setSuperClass();
+	tmplCtClass.addInterface(director.getCtClass(Template.class.getName()));
     }
 
     protected void buildMethodInit() {
-	minimumArrayLength = 0;
-	for (int i = 0; i < entries.length; i++) {
-	    FieldEntry e = entries[i];
-	    // TODO #MN
-	    if (e.isRequired() || !e.isNotNullable()) {
-		minimumArrayLength = i + 1;
-	    }
-	}
     }
 
-    protected String buildWriteMethodBody() {
-	resetStringBuilder();
-	buildString("{");
-	buildString("%s _$$_t = (%s) $2;", this.origName, this.origName);
-	buildString("$1.writeArrayBegin(%d);", entries.length);
-	for (int i = 0; i < entries.length; i++) {
-	    FieldEntry e = entries[i];
-	    if (!e.isAvailable()) {
-		buildString("$1.writeNil();");
-		continue;
-	    }
-	    Class<?> type = e.getType();
-	    if (type.isPrimitive()) {
-		buildString("$1.%s(_$$_t.%s);", primitiveWriteName(type),
-			e.getName());
+    protected abstract Template buildInstance(Class<?> c) throws NoSuchMethodException,
+    	InstantiationException, IllegalAccessException, InvocationTargetException;
+
+    protected void buildWriteMethod() throws CannotCompileException,
+	    NotFoundException {
+	LOG.debug("started generating write method in template class %s",
+		new Object[] { tmplCtClass.getName() });
+	String mbody = buildWriteMethodBody();
+	int mod = javassist.Modifier.PUBLIC;
+	CtClass returnType = CtClass.voidType;
+	String mname = "write";
+	CtClass[] paramTypes = new CtClass[] {
+		director.getCtClass(Packer.class.getName()),
+		director.getCtClass(Object.class.getName())
+	};
+	CtClass[] exceptTypes = new CtClass[] { 
+		director.getCtClass(IOException.class.getName())
+	};
+	LOG.debug("compiling write method body: %s", new Object[] { mbody });
+	CtMethod newCtMethod = CtNewMethod.make(mod, returnType, mname, paramTypes, exceptTypes, mbody, tmplCtClass);
+	tmplCtClass.addMethod(newCtMethod);
+	LOG.debug("finished generating write method in template class %s",
+		new Object[] { tmplCtClass.getName() });
+    }
+
+    protected abstract String buildWriteMethodBody();
+
+    protected void buildReadMethod() throws CannotCompileException,
+	    NotFoundException {
+	LOG.debug("started generating read method in template class %s",
+		new Object[] { tmplCtClass.getName() });
+	String mbody = buildReadMethodBody();
+	int mod = javassist.Modifier.PUBLIC;
+	CtClass returnType = director.getCtClass(Object.class.getName());
+	String mname = "read";
+	CtClass[] paramTypes = new CtClass[] {
+		director.getCtClass(Unpacker.class.getName()),
+		director.getCtClass(Object.class.getName())
+	};
+	CtClass[] exceptTypes = new CtClass[] {
+		director.getCtClass(MessageTypeException.class.getName())
+	};
+	LOG.debug("compiling read method body: %s", new Object[] { mbody });
+	CtMethod newCtMethod = CtNewMethod.make(mod, returnType, mname, paramTypes, exceptTypes, mbody, tmplCtClass);
+	tmplCtClass.addMethod(newCtMethod);
+	LOG.debug("finished generating read method in template class %s",
+		new Object[] { tmplCtClass.getName() });
+    }
+
+    protected abstract String buildReadMethodBody();
+
+    protected Class<?> createClass() throws CannotCompileException {
+	return (Class<?>) tmplCtClass.toClass(null, null);
+    }
+
+    protected void saveClass(final String directoryName)
+	    throws CannotCompileException, IOException {
+	tmplCtClass.writeFile(directoryName);
+    }
+
+    protected StringBuilder stringBuilder = null;
+
+    protected void resetStringBuilder() {
+	stringBuilder = new StringBuilder();
+    }
+
+    protected void buildString(String str) {
+	stringBuilder.append(str);
+    }
+
+    protected void buildString(String format, Object... args) {
+	stringBuilder.append(String.format(format, args));
+    }
+
+    protected String getBuiltString() {
+	if (stringBuilder == null) {
+	    return null;
+	}
+	return stringBuilder.toString();
+    }
+
+    protected String primitiveWriteName(Class<?> type) {
+	if (type == boolean.class) {
+	    return "writeBoolean";
+	} else if (type == byte.class) {
+	    return "writeByte";
+	} else if (type == short.class) {
+	    return "writeShort";
+	} else if (type == int.class) {
+	    return "writeInt";
+	} else if (type == long.class) {
+	    return "writeLong";
+	} else if (type == float.class) {
+	    return "writeFloat";
+	} else if (type == double.class) {
+	    return "writeDouble";
+	}
+	return null;
+    }
+
+    protected String primitiveReadName(Class<?> type) {
+	if (type == boolean.class) {
+	    return "readBoolean";
+	} else if (type == byte.class) {
+	    return "readByte";
+	} else if (type == short.class) {
+	    return "readShort";
+	} else if (type == int.class) {
+	    return "readInt";
+	} else if (type == long.class) {
+	    return "readLong";
+	} else if (type == float.class) {
+	    return "readFloat";
+	} else if (type == double.class) {
+	    return "readDouble";
+	}
+	return null;
+    }
+
+    protected abstract void writeTemplate(Class<?> targetClass, T[] entries, Template[] templates, String directoryName);
+
+    protected void write(final String className, final String directoryName) {
+	try {
+	    reset(className, true);
+	    buildClass();
+	    buildConstructor();
+	    buildMethodInit();
+	    buildWriteMethod();
+	    buildReadMethod();
+	    saveClass(directoryName);
+	} catch (Exception e) {
+	    String code = getBuiltString();
+	    if (code != null) {
+		LOG.error("builder: " + code, e);
+		throw new TemplateBuildException("Cannot compile: " + code, e);
 	    } else {
-		buildString("if (_$$_t.%s == null) {", e.getName());
-		if (e.isNotNullable() && !e.isOptional()) {
-		    buildString("throw new %s();",
-			    MessageTypeException.class.getName());
-		} else {
-		    buildString("$1.writeNil();");
-		}
-		buildString("} else {");
-		buildString("  this.templates[%d].write($1, _$$_t.%s);", i, e.getName());
-		buildString("}");
+		throw new TemplateBuildException(e);
 	    }
 	}
-	buildString("$1.writeArrayEnd();");
-	buildString("}");
-	return getBuiltString();
     }
 
-    protected String buildReadMethodBody() {
-	resetStringBuilder();
-	buildString("{ ");
+    protected abstract Template loadTemplate(Class<?> targetClass, T[] entries, Template[] templates);
 
-	buildString("%s _$$_t;", origName);
-	buildString("if ($2 == null) {");
-	buildString("  _$$_t = new %s();", origName);
-	buildString("} else {");
-	buildString("  _$$_t = (%s) $2;", origName);
-	buildString("}");
-
-	buildString("int length = $1.readArrayBegin();");
-	buildString("if(length < %d) {", minimumArrayLength);
-	buildString("  throw new %s();", MessageTypeException.class.getName());
-	buildString("}");
-
-	int i;
-	for (i = 0; i < minimumArrayLength; i++) {
-	    FieldEntry e = entries[i];
-	    if (!e.isAvailable()) {
-		buildString("$1.skip();"); // TODO #MN
-		continue;
-	    }
-
-	    buildString("if($1.tryReadNil()) {");
-	    if (e.isRequired()) {
-		// Required + nil => exception
-		buildString("throw new %s();", MessageTypeException.class.getName());
-	    } else if (e.isOptional()) {
-		// Optional + nil => keep default value
-	    } else { // Nullable
-		     // Nullable + nil => set null
-		buildString("_$$_t.%s = null;", e.getName());
-	    }
-	    buildString("} else {");
-	    Class<?> type = e.getType();
-	    if (type.isPrimitive()) {
-		buildString("_$$_t.%s = $1.%s();", e.getName(), primitiveReadName(type));
+    protected Template load(final String className) {
+	String tmplName = className + "_$$_Template";
+	try {
+	    Class<?> tmplClass = getClass().getClassLoader()
+		    .loadClass(tmplName);
+	    return buildInstance(tmplClass);
+	} catch (ClassNotFoundException e) {
+	    return null;
+	} catch (Exception e) {
+	    String code = getBuiltString();
+	    if (code != null) {
+		LOG.error("builder: " + code, e);
+		throw new TemplateBuildException("Cannot compile: " + code, e);
 	    } else {
-		buildString(
-			"_$$_t.%s = (%s) this.templates[%d].read($1, _$$_t.%s);",
-			e.getName(), e.getJavaTypeName(), i, e.getName());
+		throw new TemplateBuildException(e);
 	    }
-	    buildString("}");
 	}
-
-	for (; i < entries.length; i++) {
-	    buildString("if (length <= %d) { return _$$_t; }", i);
-
-	    FieldEntry e = entries[i];
-	    if (!e.isAvailable()) {
-		buildString("$1.skip();"); // TODO #MN
-		continue;
-	    }
-
-	    buildString("if($1.tryReadNil()) {");
-	    // this is Optional field becaue i >= minimumArrayLength
-	    // Optional + nil => keep default value
-	    buildString("} else {");
-	    Class<?> type = e.getType();
-	    if (type.isPrimitive()) {
-		buildString("_$$_t.%s = $1.%s();", e.getName(), primitiveReadName(type));
-	    } else {
-		buildString("_$$_t.%s = (%s) this.templates[%d].read($1, _$$_t.%s);",
-			e.getName(), e.getJavaTypeName(), i, e.getName());
-	    }
-	    buildString("}");
-	}
-
-	// latter entries are all Optional + nil => keep default value
-
-	buildString("for(int i = %d; i < length; i++) {", i);
-	buildString("  $1.skip();"); // TODO #MN
-	buildString("}");
-
-	buildString("$1.readArrayEnd();");
-	buildString("return _$$_t;");
-
-	buildString("}");
-	return getBuiltString();
-    }
-
-    @Override
-    public void writeTemplate(Class<?> targetClass, FieldEntry[] entries, Template[] templates, String directoryName) {
-	this.entries = entries;
-	this.templates = templates;
-	this.origClass = targetClass;
-	this.origName = this.origClass.getName();
-	write(this.origName, directoryName);
-    }
-
-    @Override
-    public Template loadTemplate(Class<?> targetClass, FieldEntry[] entries, Template[] templates) {
-	this.entries = entries;
-	this.templates = templates;
-	this.origClass = targetClass;
-	this.origName = this.origClass.getName();
-	return load(this.origName);
     }
 }

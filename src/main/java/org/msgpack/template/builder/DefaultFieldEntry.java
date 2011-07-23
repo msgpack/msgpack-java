@@ -17,10 +17,14 @@
 //
 package org.msgpack.template.builder;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
+import org.msgpack.MessageTypeException;
+import org.msgpack.packer.Packer;
 import org.msgpack.template.FieldOption;
+import org.msgpack.unpacker.Unpacker;
 
 
 public class DefaultFieldEntry extends FieldEntry {
@@ -60,5 +64,21 @@ public class DefaultFieldEntry extends FieldEntry {
     @Override
     public Type getGenericType() {
 	return field.getGenericType();
+    }
+
+    @Override
+    public Object get(Object target) {
+	try {
+	    return getField().get(target);
+	} catch (IllegalArgumentException e) {
+	    throw new MessageTypeException(e);
+	} catch (IllegalAccessException e) {
+	    throw new MessageTypeException(e);
+	}
+    }
+
+    @Override
+    public void set(Object target, Object value) {
+	throw new UnsupportedOperationException("fatal error");
     }
 }

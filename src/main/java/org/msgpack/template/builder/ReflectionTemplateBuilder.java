@@ -52,9 +52,11 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    super(e);
 	}
 
+	@Override
 	void write(Packer packer, Object target) throws IOException {
 	}
 
+	@Override
 	void read(Unpacker unpacker, Object target) throws IOException, MessageTypeException, IllegalAccessException {
 	}
     }
@@ -183,18 +185,18 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     static class ReflectionTemplate<T> implements Template<T> {
-	private Class<T> targetClass;
+	protected Class<T> targetClass;
 
-	private ReflectionFieldEntry[] entries;
+	protected FieldEntry[] entries;
 
-	private int minArrayLength;
+	protected int minArrayLength;
 
-	ReflectionTemplate(Class<T> targetClass, ReflectionFieldEntry[] entries) {
+	ReflectionTemplate(Class<T> targetClass, FieldEntry[] entries) {
 	    this.targetClass = targetClass;
 	    this.entries = entries;
 	    minArrayLength = 0;
 	    for (int i = 0; i < entries.length; i++) {
-		ReflectionFieldEntry e = entries[i];
+		FieldEntry e = entries[i];
 		if (e.isRequired() || !e.isNotNullable()) {
 		    minArrayLength = i + 1;
 		}
@@ -205,12 +207,13 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	public void write(Packer packer, T target) throws IOException {
 	    try {
 		packer.writeArrayBegin(entries.length);
-		for (ReflectionFieldEntry e : entries) {
+		for (FieldEntry entry : entries) {
+		    ReflectionFieldEntry e = (ReflectionFieldEntry) entry;
 		    if (!e.isAvailable()) {
 			packer.writeNil();
 			continue;
 		    }
-		    Object obj = e.getField().get(target);
+		    Object obj = e.get(target);
 		    if (obj == null) {
 			if (e.isNotNullable() && !e.isOptional()) {
 			    throw new MessageTypeException();
@@ -244,7 +247,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 
 		int i;
 		for (i = 0; i < minArrayLength; ++i) {
-		    ReflectionFieldEntry e = entries[i];
+		    ReflectionFieldEntry e = (ReflectionFieldEntry) entries[i];
 		    if (!e.isAvailable()) {
 			unpacker.readValue(); // FIXME
 			continue;
@@ -267,7 +270,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 
 		int max = length < entries.length ? length : entries.length;
 		for (; i < max; ++i) {
-		    ReflectionFieldEntry e = entries[i];
+		    ReflectionFieldEntry e = (ReflectionFieldEntry) entries[i];
 		    if (!e.isAvailable()) {
 			unpacker.readValue(); // FIXME
 			continue;

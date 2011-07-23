@@ -57,6 +57,7 @@ public class BeansFieldEntry extends FieldEntry {
 	return getPropertyDescriptor().getReadMethod().getGenericReturnType();
     }
 
+    @Override
     public Object get(Object target) {
 	try {
 	    return getPropertyDescriptor().getReadMethod().invoke(target);
@@ -69,6 +70,7 @@ public class BeansFieldEntry extends FieldEntry {
 	}
     }
 
+    @Override
     public void set(Object target, Object value) {
 	try {
 	    getPropertyDescriptor().getWriteMethod().invoke(target, value);

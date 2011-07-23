@@ -26,12 +26,6 @@ public abstract class FieldEntry {
 
     protected FieldOption option;
 
-    public abstract String getName();
-
-    public abstract Class<?> getType();
-
-    public abstract Type getGenericType();
-
     public FieldEntry() {
 	this(FieldOption.IGNORE);
     }
@@ -64,6 +58,16 @@ public abstract class FieldEntry {
 	return option == FieldOption.NOTNULLABLE;
     }
 
+    public abstract String getName();
+
+    public abstract Class<?> getType();
+
+    public abstract Type getGenericType();
+
+    public abstract Object get(Object target);
+
+    public abstract void set(Object target, Object value);
+
     public String getJavaTypeName() {
 	Class<?> type = getType();
 	if (type.isArray()) {
@@ -87,4 +91,5 @@ public abstract class FieldEntry {
 	}
 	return sb.toString();
     }
+
 }

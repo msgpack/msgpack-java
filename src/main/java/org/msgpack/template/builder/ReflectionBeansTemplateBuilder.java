@@ -39,6 +39,7 @@ import org.msgpack.packer.Packer;
 import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
+import org.msgpack.template.builder.ReflectionTemplateBuilder.ReflectionFieldEntry;
 import org.msgpack.unpacker.Unpacker;
 
 
@@ -68,10 +69,10 @@ public class ReflectionBeansTemplateBuilder extends AbstractTemplateBuilder {
 	}
     }
 
-    static class ObjectFieldEntry extends ReflectionBeansFieldEntry {
+    static class BeansObjectFieldEntry extends ReflectionBeansFieldEntry {
 	Template template;
 
-	ObjectFieldEntry(final BeansFieldEntry entry, final Template template) {
+	BeansObjectFieldEntry(final BeansFieldEntry entry, final Template template) {
 	    super(entry);
 	    this.template = template;
 	}
@@ -92,21 +93,21 @@ public class ReflectionBeansTemplateBuilder extends AbstractTemplateBuilder {
 	}
     }
 
-    static class BeansReflectionTemplate<T> implements Template<T> {
+    static class ReflectionBeansTemplate<T> implements Template<T> {
 	private Class<T> targetClass;
 
-	private ReflectionBeansFieldEntry[] entries = null;
+	private FieldEntry[] entries = null;
 
-	protected int minimumArrayLength;
+	protected int minArrayLength;
 
-	BeansReflectionTemplate(Class<T> targetClass, ReflectionBeansFieldEntry[] entries) {
+	ReflectionBeansTemplate(Class<T> targetClass, FieldEntry[] entries) {
 	    this.targetClass = targetClass;
 	    this.entries = entries;
-	    this.minimumArrayLength = 0;
+	    minArrayLength = 0;
 	    for (int i = 0; i < entries.length; i++) {
-		ReflectionBeansFieldEntry e = entries[i];
+		FieldEntry e = entries[i];
 		if (e.isRequired() || !e.isNotNullable()) {
-		    this.minimumArrayLength = i + 1;
+		    minArrayLength = i + 1;
 		}
 	    }
 	}
@@ -115,7 +116,8 @@ public class ReflectionBeansTemplateBuilder extends AbstractTemplateBuilder {
 	public
 	void write(Packer pk, T v) throws IOException {
 	    pk.writeArrayBegin(entries.length);
-	    for (ReflectionBeansFieldEntry e : entries) {
+	    for (FieldEntry entry : entries) {
+		ReflectionBeansFieldEntry e = (ReflectionBeansFieldEntry) entry;
 		if (!e.isAvailable()) {
 		    pk.writeNil();
 		    continue;
@@ -141,13 +143,13 @@ public class ReflectionBeansTemplateBuilder extends AbstractTemplateBuilder {
 		}
 
 		int length = u.readArrayBegin();
-		if (length < minimumArrayLength) {
+		if (length < minArrayLength) {
 		    throw new MessageTypeException();
 		}
 
 		int i;
-		for (i = 0; i < minimumArrayLength; i++) {
-		    ReflectionBeansFieldEntry e = entries[i];
+		for (i = 0; i < minArrayLength; i++) {
+		    ReflectionBeansFieldEntry e = (ReflectionBeansFieldEntry) entries[i];
 		    if (!e.isAvailable()) {
 			u.readValue(); // TODO #MN
 			continue;
@@ -171,7 +173,7 @@ public class ReflectionBeansTemplateBuilder extends AbstractTemplateBuilder {
 
 		int max = length < entries.length ? length : entries.length;
 		for (; i < max; i++) {
-		    ReflectionBeansFieldEntry e = entries[i];
+		    ReflectionBeansFieldEntry e = (ReflectionBeansFieldEntry) entries[i];
 		    if (!e.isAvailable()) {
 			u.readValue(); // TODO #MN
 			continue;
@@ -236,10 +238,10 @@ public class ReflectionBeansTemplateBuilder extends AbstractTemplateBuilder {
 		beansEntries[i] = new ReflectionBeansFieldEntry(e);
 	    } else {
 		Template tmpl = registry.lookup(e.getGenericType(), true);
-		beansEntries[i] = new ObjectFieldEntry(e, tmpl);
+		beansEntries[i] = new BeansObjectFieldEntry(e, tmpl);
 	    }
 	}
-	return new BeansReflectionTemplate(targetClass, beansEntries);
+	return new ReflectionBeansTemplate(targetClass, beansEntries);
     }
 
     @Override

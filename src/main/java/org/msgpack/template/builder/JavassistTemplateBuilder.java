@@ -50,14 +50,7 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
 
     protected ClassPool pool;
 
-    private int seqId = 0;
-
-    BuildContextFactory buildContextFactory = new BuildContextFactory() {
-	@Override
-	public BuildContextBase createBuildContext(JavassistTemplateBuilder builder) {
-	    return new BuildContext(builder);
-	}
-    };
+    protected int seqId = 0;
 
     public JavassistTemplateBuilder(TemplateRegistry registry) {
 	super(registry);
@@ -109,12 +102,8 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
 	return seqId++;
     }
 
-    public void setBuildContextFactory(BuildContextFactory factory){
-	buildContextFactory = factory;
-    }
-
-    public BuildContextFactory getBuildContextFacotry() {
-	return buildContextFactory;
+    public BuildContext createBuildContext() {
+	return new DefaultBuildContext(this);
     }
 
     @Override
@@ -128,7 +117,7 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
 	//	}
 	//}
 	Template<?>[] tmpls = toTemplate(entries);
-	BuildContextBase bc = getBuildContextFacotry().createBuildContext(this);
+	BuildContext bc = createBuildContext();
 	return bc.buildTemplate(targetClass, entries, tmpls);
     }
 
@@ -157,7 +146,7 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
 
     private void writeTemplate(Class<?> targetClass, FieldEntry[] entries, String directoryName) {
 	Template[] tmpls = toTemplate(entries);
-	BuildContextBase bc = getBuildContextFacotry().createBuildContext(this);
+	BuildContext bc = createBuildContext();
 	bc.writeTemplate(targetClass, entries, tmpls, directoryName);
     }
 
@@ -172,7 +161,7 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
 
     private <T> Template<T> loadTemplate(Class<T> targetClass, FieldEntry[] entries) {
 	Template[] tmpls = toTemplate(entries);
-	BuildContextBase bc = getBuildContextFacotry().createBuildContext(this);
+	BuildContext bc = createBuildContext();
 	return bc.loadTemplate(targetClass, entries, tmpls);
     }
 }
