@@ -25,11 +25,10 @@ public class TestBufferPackBufferUnpack extends TestSet {
     @Override
     public void testBoolean(boolean v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeBoolean(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	boolean ret = unpacker.readBoolean();
 	assertEquals(v, ret);
     }
@@ -42,11 +41,10 @@ public class TestBufferPackBufferUnpack extends TestSet {
     @Override
     public void testByte(byte v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeByte(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	byte ret = unpacker.readByte();
 	assertEquals(v, ret);
     }
@@ -59,11 +57,10 @@ public class TestBufferPackBufferUnpack extends TestSet {
     @Override
     public void testShort(short v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeShort(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	short ret = unpacker.readShort();
 	assertEquals(v, ret);
     }
@@ -76,11 +73,10 @@ public class TestBufferPackBufferUnpack extends TestSet {
     @Override
     public void testInteger(int v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeInt(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	int ret = unpacker.readInt();
 	assertEquals(v, ret);
     }
@@ -93,11 +89,10 @@ public class TestBufferPackBufferUnpack extends TestSet {
     @Override
     public void testLong(long v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeLong(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	long ret = unpacker.readLong();
 	assertEquals(v, ret);
     }
@@ -110,11 +105,10 @@ public class TestBufferPackBufferUnpack extends TestSet {
     @Override
     public void testFloat(float v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeFloat(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	float ret = unpacker.readFloat();
 	assertEquals(v, ret, 10e-10);
     }
@@ -127,11 +121,10 @@ public class TestBufferPackBufferUnpack extends TestSet {
     @Override
     public void testDouble(double v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeDouble(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	double ret = unpacker.readDouble();
 	assertEquals(v, ret, 10e-10);
     }
@@ -139,11 +132,10 @@ public class TestBufferPackBufferUnpack extends TestSet {
     @Test @Override
     public void testNil() throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeNil();
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	unpacker.readNil();
     }
 
@@ -155,11 +147,10 @@ public class TestBufferPackBufferUnpack extends TestSet {
     @Override
     public void testBigInteger(BigInteger v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeBigInteger(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	BigInteger ret = unpacker.readBigInteger();
 	assertEquals(v, ret);
     }
@@ -172,11 +163,10 @@ public class TestBufferPackBufferUnpack extends TestSet {
     @Override
     public void testString(String v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeString(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	String ret = unpacker.readString();
 	assertEquals(v, ret);
     }
@@ -189,11 +179,10 @@ public class TestBufferPackBufferUnpack extends TestSet {
     @Override
     public void testByteArray(byte[] v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeByteArray(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	byte[] ret = unpacker.readByteArray();
 	assertArrayEquals(v, ret);
     }
@@ -205,15 +194,15 @@ public class TestBufferPackBufferUnpack extends TestSet {
 
     @Override
     public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
-	BufferPacker packer = new BufferPacker();
+	MessagePack msgpack = new MessagePack();
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeArrayBegin(v.size());
 	for (Object o : v) {
 	    packer.write(o);
 	}
 	packer.writeArrayEnd();
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker();
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	int size = unpacker.readArrayBegin();
 	List ret = new ArrayList(size);
 	for (int i = 0; i < size; ++i) {
@@ -235,7 +224,8 @@ public class TestBufferPackBufferUnpack extends TestSet {
 
     @Override
     public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
-	BufferPacker packer = new BufferPacker();
+	MessagePack msgpack = new MessagePack();
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeMapBegin(v.size());
 	for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
 	    packer.write(e.getKey());
@@ -243,8 +233,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	}
 	packer.writeMapEnd();
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker();
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	int size = unpacker.readMapBegin();
 	Map ret = new HashMap(size);
 	for (int i = 0; i < size; ++i) {

@@ -30,11 +30,10 @@ public class TestStreamPackConvert extends TestSet {
     public void testBoolean(boolean v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(msgpack, out);
+	StreamPacker packer = msgpack.createStreamPacker(out);
 	packer.writeBoolean(v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isBoolean());
 	boolean ret = new Converter(value).readBoolean();
@@ -50,11 +49,10 @@ public class TestStreamPackConvert extends TestSet {
     public void testByte(byte v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(msgpack, out);
+	StreamPacker packer = msgpack.createStreamPacker(out);
 	packer.writeByte(v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isInteger());
 	byte ret = new Converter(value).readByte();
@@ -70,11 +68,10 @@ public class TestStreamPackConvert extends TestSet {
     public void testShort(short v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(msgpack, out);
+	StreamPacker packer = msgpack.createStreamPacker(out);
 	packer.writeShort(v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isInteger());
 	short ret = new Converter(value).readShort();
@@ -90,11 +87,10 @@ public class TestStreamPackConvert extends TestSet {
     public void testInteger(int v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(msgpack, out);
+	StreamPacker packer = msgpack.createStreamPacker(out);
 	packer.writeInt(v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isInteger());
 	int ret = new Converter(value).readInt();
@@ -110,11 +106,10 @@ public class TestStreamPackConvert extends TestSet {
     public void testLong(long v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(msgpack, out);
+	StreamPacker packer = msgpack.createStreamPacker(out);
 	packer.writeLong(v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isInteger());
 	long ret = new Converter(value).readLong();
@@ -130,11 +125,10 @@ public class TestStreamPackConvert extends TestSet {
     public void testFloat(float v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(msgpack, out);
+	StreamPacker packer = msgpack.createStreamPacker(out);
 	packer.writeFloat(v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isFloat());
 	float ret = new Converter(value).readFloat();
@@ -150,11 +144,10 @@ public class TestStreamPackConvert extends TestSet {
     public void testDouble(double v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(msgpack, out);
+	StreamPacker packer = msgpack.createStreamPacker(out);
 	packer.writeDouble(v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isFloat());
 	double ret = new Converter(value).readDouble();
@@ -165,11 +158,10 @@ public class TestStreamPackConvert extends TestSet {
     public void testNil() throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(msgpack, out);
+	StreamPacker packer = msgpack.createStreamPacker(out);
 	packer.writeNil();
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isNil());
 	new Converter(value).readNil();
@@ -184,11 +176,10 @@ public class TestStreamPackConvert extends TestSet {
     public void testBigInteger(BigInteger v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(msgpack, out);
+	StreamPacker packer = msgpack.createStreamPacker(out);
 	packer.writeBigInteger(v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isInteger());
 	BigInteger ret = new Converter(value).readBigInteger();
@@ -204,11 +195,10 @@ public class TestStreamPackConvert extends TestSet {
     public void testString(String v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(msgpack, out);
+	StreamPacker packer = msgpack.createStreamPacker(out);
 	packer.writeString(v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isRaw());
 	String ret = new Converter(value).readString();
@@ -224,11 +214,10 @@ public class TestStreamPackConvert extends TestSet {
     public void testByteArray(byte[] v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(msgpack, out);
+	StreamPacker packer = msgpack.createStreamPacker(out);
 	packer.writeByteArray(v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isRaw());
 	byte[] ret = new Converter(value).readByteArray();
@@ -244,15 +233,14 @@ public class TestStreamPackConvert extends TestSet {
     public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
     	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(msgpack, out);
+	StreamPacker packer = msgpack.createStreamPacker(out);
 	packer.writeArrayBegin(v.size());
 	for (Object o : v) {
 	    packer.write(o);
 	}
 	packer.writeArrayEnd();
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	int size = unpacker.readArrayBegin();
 	List ret = new ArrayList(size);
 	for (int i = 0; i < size; ++i) {
@@ -277,7 +265,7 @@ public class TestStreamPackConvert extends TestSet {
     public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
     	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(msgpack, out);
+	StreamPacker packer = msgpack.createStreamPacker(out);
 	packer.writeMapBegin(v.size());
 	for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
 	    packer.write(e.getKey());
@@ -285,8 +273,7 @@ public class TestStreamPackConvert extends TestSet {
 	}
 	packer.writeMapEnd();
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	int size = unpacker.readMapBegin();
 	Map ret = new HashMap(size);
 	for (int i = 0; i < size; ++i) {

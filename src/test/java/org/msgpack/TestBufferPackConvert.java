@@ -28,11 +28,10 @@ public class TestBufferPackConvert extends TestSet {
     @Override
     public void testBoolean(boolean v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeBoolean(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isBoolean());
 	boolean ret = new Converter(value).readBoolean();
@@ -47,11 +46,10 @@ public class TestBufferPackConvert extends TestSet {
     @Override
     public void testByte(byte v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeByte(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isInteger());
 	byte ret = new Converter(value).readByte();
@@ -66,11 +64,10 @@ public class TestBufferPackConvert extends TestSet {
     @Override
     public void testShort(short v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeShort(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isInteger());
 	short ret = new Converter(value).readShort();
@@ -85,11 +82,10 @@ public class TestBufferPackConvert extends TestSet {
     @Override
     public void testInteger(int v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeInt(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isInteger());
 	int ret = new Converter(value).readInt();
@@ -104,11 +100,10 @@ public class TestBufferPackConvert extends TestSet {
     @Override
     public void testLong(long v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeLong(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isInteger());
 	long ret = new Converter(value).readLong();
@@ -123,11 +118,10 @@ public class TestBufferPackConvert extends TestSet {
     @Override
     public void testFloat(float v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeFloat(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isFloat());
 	float ret = new Converter(value).readFloat();
@@ -142,11 +136,10 @@ public class TestBufferPackConvert extends TestSet {
     @Override
     public void testDouble(double v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeDouble(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isFloat());
 	double ret = new Converter(value).readDouble();
@@ -156,11 +149,10 @@ public class TestBufferPackConvert extends TestSet {
     @Test @Override
     public void testNil() throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeNil();
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isNil());
 	new Converter(value).readNil();
@@ -174,11 +166,10 @@ public class TestBufferPackConvert extends TestSet {
     @Override
     public void testBigInteger(BigInteger v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeBigInteger(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isInteger());
 	BigInteger ret = new Converter(value).readBigInteger();
@@ -193,11 +184,10 @@ public class TestBufferPackConvert extends TestSet {
     @Override
     public void testString(String v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeString(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isRaw());
 	String ret = new Converter(value).readString();
@@ -212,11 +202,10 @@ public class TestBufferPackConvert extends TestSet {
     @Override
     public void testByteArray(byte[] v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeByteArray(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	assertTrue(value.isRaw());
 	byte[] ret = new Converter(value).readByteArray();
@@ -231,15 +220,14 @@ public class TestBufferPackConvert extends TestSet {
     @Override
     public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeArrayBegin(v.size());
 	for (Object o : v) {
 	    packer.write(o);
 	}
 	packer.writeArrayEnd();
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	int size = unpacker.readArrayBegin();
 	List ret = new ArrayList(size);
 	for (int i = 0; i < size; ++i) {
@@ -263,7 +251,7 @@ public class TestBufferPackConvert extends TestSet {
     @Override
     public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	BufferPacker packer = new BufferPacker(msgpack);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeMapBegin(v.size());
 	for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
 	    packer.write(e.getKey());
@@ -271,8 +259,7 @@ public class TestBufferPackConvert extends TestSet {
 	}
 	packer.writeMapEnd();
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker(msgpack);
-	unpacker.wrap(bytes);
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	int size = unpacker.readMapBegin();
 	Map ret = new HashMap(size);
 	for (int i = 0; i < size; ++i) {
