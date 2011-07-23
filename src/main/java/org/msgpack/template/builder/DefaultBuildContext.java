@@ -31,10 +31,14 @@ import javassist.NotFoundException;
 
 public class DefaultBuildContext extends BuildContext<FieldEntry> {
     protected FieldEntry[] entries;
+
     protected Class<?> origClass;
+
     protected String origName;
+
     protected Template<?>[] templates;
-    protected int minimumArrayLength;
+
+    protected int minArrayLength;
 
     public DefaultBuildContext(JavassistTemplateBuilder director) {
 	super(director);
@@ -44,8 +48,8 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 	this.entries = entries;
 	this.templates = templates;
 	this.origClass = targetClass;
-	this.origName = this.origClass.getName();
-	return build(this.origName);
+	this.origName = origClass.getName();
+	return build(origName);
     }
 
     protected void setSuperClass() throws CannotCompileException, NotFoundException {
@@ -67,17 +71,17 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
     protected Template buildInstance(Class<?> c) throws NoSuchMethodException,
 	    InstantiationException, IllegalAccessException, InvocationTargetException {
 	Constructor<?> cons = c.getConstructor(new Class[] { Class.class, Template[].class });
-	Object tmpl = cons.newInstance(new Object[] { this.origClass, this.templates });
+	Object tmpl = cons.newInstance(new Object[] { origClass, templates });
 	return (Template) tmpl;
     }
 
     protected void buildMethodInit() {
-	minimumArrayLength = 0;
+	minArrayLength = 0;
 	for (int i = 0; i < entries.length; i++) {
 	    FieldEntry e = entries[i];
-	    // TODO #MN
 	    if (e.isRequired() || !e.isNotNullable()) {
-		minimumArrayLength = i + 1;
+		// TODO #MN
+		minArrayLength = i + 1;
 	    }
 	}
     }
@@ -85,7 +89,7 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
     protected String buildWriteMethodBody() {
 	resetStringBuilder();
 	buildString("{");
-	buildString("%s _$$_t = (%s) $2;", this.origName, this.origName);
+	buildString("%s _$$_t = (%s) $2;", origName, origName);
 	buildString("$1.writeArrayBegin(%d);", entries.length);
 	for (int i = 0; i < entries.length; i++) {
 	    FieldEntry e = entries[i];
@@ -127,19 +131,19 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 	buildString("}");
 
 	buildString("int length = $1.readArrayBegin();");
-	buildString("if(length < %d) {", minimumArrayLength);
+	buildString("if (length < %d) {", minArrayLength);
 	buildString("  throw new %s();", MessageTypeException.class.getName());
 	buildString("}");
 
 	int i;
-	for (i = 0; i < minimumArrayLength; i++) {
+	for (i = 0; i < minArrayLength; i++) {
 	    FieldEntry e = entries[i];
 	    if (!e.isAvailable()) {
 		buildString("$1.skip();"); // TODO #MN
 		continue;
 	    }
 
-	    buildString("if($1.tryReadNil()) {");
+	    buildString("if ($1.tryReadNil()) {");
 	    if (e.isRequired()) {
 		// Required + nil => exception
 		buildString("throw new %s();", MessageTypeException.class.getName());
@@ -154,8 +158,7 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 	    if (type.isPrimitive()) {
 		buildString("_$$_t.%s = $1.%s();", e.getName(), primitiveReadName(type));
 	    } else {
-		buildString(
-			"_$$_t.%s = (%s) this.templates[%d].read($1, _$$_t.%s);",
+		buildString("_$$_t.%s = (%s) this.templates[%d].read($1, _$$_t.%s);",
 			e.getName(), e.getJavaTypeName(), i, e.getName());
 	    }
 	    buildString("}");
@@ -170,7 +173,7 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 		continue;
 	    }
 
-	    buildString("if($1.tryReadNil()) {");
+	    buildString("if ($1.tryReadNil()) {");
 	    // this is Optional field becaue i >= minimumArrayLength
 	    // Optional + nil => keep default value
 	    buildString("} else {");
@@ -186,7 +189,7 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 
 	// latter entries are all Optional + nil => keep default value
 
-	buildString("for(int i = %d; i < length; i++) {", i);
+	buildString("for (int i = %d; i < length; i++) {", i);
 	buildString("  $1.skip();"); // TODO #MN
 	buildString("}");
 
@@ -202,8 +205,8 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 	this.entries = entries;
 	this.templates = templates;
 	this.origClass = targetClass;
-	this.origName = this.origClass.getName();
-	write(this.origName, directoryName);
+	this.origName = origClass.getName();
+	write(origName, directoryName);
     }
 
     @Override
@@ -211,7 +214,7 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 	this.entries = entries;
 	this.templates = templates;
 	this.origClass = targetClass;
-	this.origName = this.origClass.getName();
-	return load(this.origName);
+	this.origName = origClass.getName();
+	return load(origName);
     }
 }

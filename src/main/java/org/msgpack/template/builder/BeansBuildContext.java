@@ -32,10 +32,14 @@ import javassist.NotFoundException;
 
 public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
     protected BeansFieldEntry[] entries;
+
     protected Class<?> origClass;
+
     protected String origName;
-    protected Template[] templates;
-    protected int minimumArrayLength;
+
+    protected Template<?>[] templates;
+
+    protected int minArrayLength;
 
     public BeansBuildContext(JavassistTemplateBuilder director) {
 	super(director);
@@ -45,8 +49,8 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
 	this.entries = entries;
 	this.templates = templates;
 	this.origClass = targetClass;
-	this.origName = this.origClass.getName();
-	return build(this.origName);
+	this.origName = origClass.getName();
+	return build(origName);
     }
 
     protected void setSuperClass() throws CannotCompileException, NotFoundException {
@@ -62,8 +66,8 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
 			director.getCtClass(Class.class.getName()),
 			director.getCtClass(Template.class.getName() + "[]")
 		},
-		new CtClass[0], this.tmplCtClass);
-	this.tmplCtClass.addConstructor(newCtCons);
+		new CtClass[0], tmplCtClass);
+	tmplCtClass.addConstructor(newCtCons);
     }
 
     protected Template buildInstance(Class<?> c) throws NoSuchMethodException,
@@ -75,11 +79,12 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
     }
 
     protected void buildMethodInit() {
-	this.minimumArrayLength = 0;
+	minArrayLength = 0;
 	for (int i = 0; i < entries.length; i++) {
 	    FieldEntry e = entries[i];
 	    if (e.isRequired() || !e.isNotNullable()) {
-		this.minimumArrayLength = i + 1;
+		// TODO #MN
+		minArrayLength = i + 1;
 	    }
 	}
     }
@@ -89,11 +94,11 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
 	resetStringBuilder();
 	buildString("{");
 	buildString("%s _$$_t = (%s)$2;", origName, origName);
-	buildString("$1.packArray(%d);", entries.length);
+	buildString("$1.writeArrayBegin(%d);", entries.length);
 	for (int i = 0; i < entries.length; i++) {
 	    BeansFieldEntry e = entries[i];
 	    if (!e.isAvailable()) {
-		buildString("$1.packNil();");
+		buildString("$1.writeNil();");
 		continue;
 	    }
 	    Class<?> type = e.getType();
@@ -104,13 +109,14 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
 		if (e.isNotNullable() && !e.isOptional()) {
 		    buildString("throw new %s();", MessageTypeException.class.getName());
 		} else {
-		    buildString("$1.packNil();");
+		    buildString("$1.writeNil();");
 		}
 		buildString("} else {");
-		buildString("  this.templates[%d].pack($1, _$$_t.%s());", i, e.getGetterName());
+		buildString("  this.templates[%d].write($1, _$$_t.%s());", i, e.getGetterName());
 		buildString("}");
 	    }
 	}
+	buildString("$1.writeArrayEnd();");
 	buildString("}");
 	return getBuiltString();
     }
@@ -120,27 +126,27 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
 	resetStringBuilder();
 	buildString("{ ");
 
-	buildString("%s _$$_t;", this.origName);
+	buildString("%s _$$_t;", origName);
 	buildString("if($2 == null) {");
-	buildString("  _$$_t = new %s();", this.origName);
+	buildString("  _$$_t = new %s();", origName);
 	buildString("} else {");
-	buildString("  _$$_t = (%s)$2;", this.origName);
+	buildString("  _$$_t = (%s)$2;", origName);
 	buildString("}");
 
-	buildString("int length = $1.unpackArray();");
-	buildString("if(length < %d) {", this.minimumArrayLength);
+	buildString("int length = $1.readArrayBegin();");
+	buildString("if(length < %d) {", minArrayLength);
 	buildString("  throw new %s();", MessageTypeException.class.getName());
 	buildString("}");
 
 	int i;
-	for (i = 0; i < this.minimumArrayLength; i++) {
+	for (i = 0; i < minArrayLength; i++) {
 	    BeansFieldEntry e = entries[i];
 	    if (!e.isAvailable()) {
-		buildString("$1.unpackObject();");
+		buildString("$1.skip();"); // TODO #MN
 		continue;
 	    }
 
-	    buildString("if($1.tryUnpackNull()) {");
+	    buildString("if ($1.tryReadNil()) {");
 	    if (e.isRequired()) {
 		// Required + nil => exception
 		buildString("throw new %s();", MessageTypeException.class.getName());
@@ -155,7 +161,7 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
 	    if (type.isPrimitive()) {
 		buildString("_$$_t.set%s( $1.%s() );", e.getName(), primitiveReadName(type));
 	    } else {
-		buildString("_$$_t.set%s( (%s)this.templates[%d].unpack($1, _$$_t.get%s()) );",
+		buildString("_$$_t.set%s( (%s)this.templates[%d].read($1, _$$_t.get%s()) );",
 			e.getName(), e.getJavaTypeName(), i, e.getName());
 	    }
 	    buildString("}");
@@ -166,11 +172,11 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
 
 	    BeansFieldEntry e = entries[i];
 	    if (!e.isAvailable()) {
-		buildString("$1.unpackObject();");
+		buildString("$1.skip();"); // TODO #MN
 		continue;
 	    }
 
-	    buildString("if($1.tryUnpackNull()) {");
+	    buildString("if($1.tryReadNil()) {");
 	    // this is Optional field becaue i >= minimumArrayLength
 	    // Optional + nil => keep default value
 	    buildString("} else {");
@@ -178,7 +184,7 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
 	    if (type.isPrimitive()) {
 		buildString("_$$_t.%s( $1.%s() );", e.getSetterName(), primitiveReadName(type));
 	    } else {
-		buildString("_$$_t.%s( (%s)this.templates[%d].unpack($1, _$$_t.%s()) );",
+		buildString("_$$_t.%s( (%s)this.templates[%d].read($1, _$$_t.%s()) );",
 			e.getSetterName(), e.getJavaTypeName(), i, e.getGetterName());
 	    }
 	    buildString("}");
@@ -187,7 +193,7 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
 	// latter entries are all Optional + nil => keep default value
 
 	buildString("for(int i=%d; i < length; i++) {", i);
-	buildString("  $1.unpackObject();");
+	buildString("  $1.skip();"); // TODO #MN
 	buildString("}");
 
 	buildString("return _$$_t;");
