@@ -9,7 +9,7 @@ public class JavassistBeansTemplateBuilder extends JavassistTemplateBuilder {
     }
 
     @Override
-    public BuildContext createBuildContext() {
+    protected BuildContext createBuildContext() {
 	return new BeansBuildContext(this);
     }
 }

@@ -37,9 +37,13 @@ import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.builder.TemplateBuildException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public abstract class AbstractTemplateBuilder implements TemplateBuilder {
+
+    private static Logger LOG = LoggerFactory.getLogger(AbstractTemplateBuilder.class);
 
     protected TemplateRegistry registry;
 
@@ -48,7 +52,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
     }
 
     @Override
-    public <T> Template<T> buildTemplate(Type targetType) throws TemplateBuildException {
+    public <T> Template<T> buildTemplate(final Type targetType) throws TemplateBuildException {
 	Class<T> targetClass = (Class<T>) targetType;
 	checkClassValidation(targetClass);
 	FieldOption implicitOption = readImplicitFieldOption(targetClass);
@@ -57,18 +61,14 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
     }
 
     @Override
-    public <T> Template<T> buildTemplate(Class<T> targetClass, FieldList flist) throws TemplateBuildException {
-	try {
-	    checkClassValidation(targetClass);
-	    return buildTemplate(targetClass, convertFieldEntries(targetClass, flist));
-	} catch (NoSuchFieldException e) {
-	    throw new TemplateBuildException(e);
-	}
+    public <T> Template<T> buildTemplate(final Class<T> targetClass, final FieldList flist) throws TemplateBuildException {
+	checkClassValidation(targetClass);
+	return buildTemplate(targetClass, toFieldEntries(targetClass, flist));
     }
 
-    public abstract <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries);
+    protected abstract <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries);
 
-    protected void checkClassValidation(Class<?> targetClass) {
+    protected void checkClassValidation(final Class<?> targetClass) {
 	if (targetClass.isInterface()) {
 	    throw new TemplateBuildException("Cannot build template for interface: " + targetClass.getName());
 	}
@@ -90,18 +90,24 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	return null;
     }
 
-    protected FieldEntry[] convertFieldEntries(Class<?> targetClass, FieldList flist) throws NoSuchFieldException {
+    private FieldEntry[] toFieldEntries(Class<?> targetClass, FieldList flist) {
 	List<FieldList.Entry> src = flist.getList();
-	FieldEntry[] result = new FieldEntry[src.size()];
-	for(int i=0; i < src.size(); i++) {
+	FieldEntry[] entries = new FieldEntry[src.size()];
+	for (int i = 0; i < src.size(); i++) {
 	    FieldList.Entry s = src.get(i);
-	    if(s.isAvailable()) {
-		result[i] = new DefaultFieldEntry(targetClass.getDeclaredField(s.getName()), s.getOption());
+	    if (s.isAvailable()) {
+		try {
+		    entries[i] = new DefaultFieldEntry(targetClass.getDeclaredField(s.getName()), s.getOption());
+		} catch (SecurityException e) {
+		    throw new TemplateBuildException(e);
+		} catch (NoSuchFieldException e) {
+		    throw new TemplateBuildException(e);
+		}
 	    } else {
-		result[i] = new DefaultFieldEntry();
+		entries[i] = new DefaultFieldEntry();
 	    }
 	}
-	return result;
+	return entries;
     }
 
     protected FieldEntry[] readFieldEntries(Class<?> targetClass, FieldOption implicitOption) {
@@ -117,35 +123,35 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	 */
 	List<FieldEntry> indexed = new ArrayList<FieldEntry>();
 	int maxIndex = -1;
-	for(Field f : allFields) {
+	for (Field f : allFields) {
 	    FieldOption opt = readFieldOption(f, implicitOption);
-	    if(opt == FieldOption.IGNORE) {
+	    if (opt == FieldOption.IGNORE) {
 		// skip
 		continue;
 	    }
 
 	    int index = readFieldIndex(f, maxIndex);
-	    if(indexed.size() > index && indexed.get(index) != null) {
+	    if (indexed.size() > index && indexed.get(index) != null) {
 		throw new TemplateBuildException("duplicated index: "+index);
 	    }
-	    if(index < 0) {
+	    if (index < 0) {
 		throw new TemplateBuildException("invalid index: "+index);
 	    }
 
-	    while(indexed.size() <= index) {
+	    while (indexed.size() <= index) {
 		indexed.add(null);
 	    }
 	    indexed.set(index, new DefaultFieldEntry(f, opt));
 
-	    if(maxIndex < index) {
+	    if (maxIndex < index) {
 		maxIndex = index;
 	    }
 	}
 
 	FieldEntry[] result = new FieldEntry[maxIndex+1];
-	for(int i=0; i < indexed.size(); i++) {
+	for (int i=0; i < indexed.size(); i++) {
 	    FieldEntry e = indexed.get(i);
-	    if(e == null) {
+	    if (e == null) {
 		result[i] = new DefaultFieldEntry();
 	    } else {
 		result[i] = e;
@@ -171,14 +177,14 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	// order: [fields of super class, ..., fields of this class]
 	List<Field[]> succ = new ArrayList<Field[]>();
 	int total = 0;
-	for(Class<?> c = targetClass; c != Object.class; c = c.getSuperclass()) {
+	for (Class<?> c = targetClass; c != Object.class; c = c.getSuperclass()) {
 	    Field[] fields = c.getDeclaredFields();
 	    total += fields.length;
 	    succ.add(fields);
 	}
 	Field[] result = new Field[total];
 	int off = 0;
-	for(int i=succ.size()-1; i >= 0; i--) {
+	for (int i = succ.size()-1; i >= 0; i--) {
 	    Field[] fields = succ.get(i);
 	    System.arraycopy(fields, 0, result, off, fields.length);
 	    off += fields.length;
@@ -188,11 +194,11 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 
     private static FieldOption readFieldOption(Field field, FieldOption implicitOption) {
 	int mod = field.getModifiers();
-	if(Modifier.isStatic(mod) || Modifier.isFinal(mod)) {
+	if (Modifier.isStatic(mod) || Modifier.isFinal(mod)) {
 	    return FieldOption.IGNORE;
 	}
 
-	if(isAnnotated(field, Ignore.class)) {
+	if (isAnnotated(field, Ignore.class)) {
 	    return FieldOption.IGNORE;
 	} else if(isAnnotated(field, Required.class)) {
 	    return FieldOption.REQUIRED;
@@ -206,7 +212,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	    }
 	}
 
-	if(implicitOption != FieldOption.DEFAULT) {
+	if (implicitOption != FieldOption.DEFAULT) {
 	    return implicitOption;
 	}
 
@@ -214,7 +220,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	//   transient : Ignore
 	//   public    : Required
 	//   others    : Ignore
-	if(Modifier.isTransient(mod)) {
+	if (Modifier.isTransient(mod)) {
 	    return FieldOption.IGNORE;
 	} else if(Modifier.isPublic(mod)) {
 	    return FieldOption.REQUIRED;
@@ -225,7 +231,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 
     private static int readFieldIndex(Field field, int maxIndex) {
 	Index a = field.getAnnotation(Index.class);
-	if(a == null) {
+	if (a == null) {
 	    return maxIndex + 1;
 	} else {
 	    return a.value();
@@ -235,6 +241,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
     public static boolean isAnnotated(Class<?> targetClass, Class<? extends Annotation> with) {
 	return targetClass.getAnnotation(with) != null;
     }
+
     public static boolean isAnnotated(AccessibleObject ao, Class<? extends Annotation> with) {
 	return ao.getAnnotation(with) != null;
     }

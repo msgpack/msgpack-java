@@ -90,19 +90,19 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
 	pool.appendClassPath(new LoaderClassPath(cl));
     }
 
-    public CtClass makeCtClass(String className) {
+    protected CtClass makeCtClass(String className) {
 	return pool.makeClass(className);
     }
 
-    public CtClass getCtClass(String className) throws NotFoundException {
+    protected CtClass getCtClass(String className) throws NotFoundException {
 	return pool.get(className);
     }
 
-    public int nextSeqId() {
+    protected int nextSeqId() {
 	return seqId++;
     }
 
-    public BuildContext createBuildContext() {
+    protected BuildContext createBuildContext() {
 	return new DefaultBuildContext(this);
     }
 
