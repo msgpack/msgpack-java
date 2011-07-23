@@ -26,21 +26,26 @@ import org.msgpack.template.TemplateRegistry;
 
 public class TemplateBuilderChain {
 
-    protected List<TemplateBuilder> templateBuilders = new ArrayList<TemplateBuilder>();
+    protected List<TemplateBuilder> templateBuilders;
 
     protected TemplateBuilder forceTemplateBuilder = null;
 
     public TemplateBuilderChain() {
+	templateBuilders = new ArrayList<TemplateBuilder>();
     }
 
     public void init(TemplateRegistry registry) {
-	// TODO #MN
-	// add javassist-based template builder
-	// add beans-based template builder
-	// add reflection-based beans template builder
-	templateBuilders.add(new ReflectionTemplateBuilder(registry));
-	templateBuilders.add(new ReflectionOrdinalEnumTemplateBuilder(registry));
-	forceTemplateBuilder = new ReflectionTemplateBuilder(registry);
+	if (isSupportJavassist()) {
+	    forceTemplateBuilder = new JavassistTemplateBuilder(registry);
+	    templateBuilders.add(forceTemplateBuilder);
+	    templateBuilders.add(new ReflectionOrdinalEnumTemplateBuilder(registry));
+	    templateBuilders.add(new JavassistBeansTemplateBuilder(registry));
+	} else {
+	    forceTemplateBuilder = new ReflectionTemplateBuilder(registry);
+	    templateBuilders.add(forceTemplateBuilder);
+	    templateBuilders.add(new ReflectionOrdinalEnumTemplateBuilder(registry));
+	    templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
+	}
     }
 
     public TemplateBuilder select(Type targetType) {
@@ -50,5 +55,13 @@ public class TemplateBuilderChain {
 	    }
 	}
 	return forceTemplateBuilder;
+    }
+
+    private static boolean isSupportJavassist(){
+	try {
+	    return !System.getProperty("java.vm.name").equals("Dalvik");
+	} catch (Exception e) {
+	    return true;
+	}
     }
 }

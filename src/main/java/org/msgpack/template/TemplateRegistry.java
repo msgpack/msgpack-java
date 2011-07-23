@@ -26,7 +26,6 @@ import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
-import org.msgpack.MessagePack;
 import org.msgpack.MessagePackable;
 import org.msgpack.MessageTypeException;
 import org.msgpack.template.BigIntegerTemplate;
@@ -59,9 +58,9 @@ public class TemplateRegistry {
 
     private TemplateRegistry parent = null;
 
-    private Map<Type, Template<?>> cache;
-
     private TemplateBuilderChain chain;
+
+    private Map<Type, Template<?>> cache;
 
     private Map<Type, GenericTemplate> genericCache;
 
