@@ -53,10 +53,10 @@ public class TestMapTemplate {
 	    Template valueElementTemplate = msgpack.lookup(valueElementClass);
 	    Template tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
-	    StreamPacker packer = new StreamPacker(out);
+	    StreamPacker packer = msgpack.createStreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
-	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	    StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
 	    String ret = (String) tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
@@ -75,11 +75,10 @@ public class TestMapTemplate {
 	    Template valueElementTemplate = msgpack.lookup(valueElementClass);
 	    Template tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
-	    StreamPacker packer = new StreamPacker(out);
+	    StreamPacker packer = msgpack.createStreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
-	    BufferUnpacker unpacker = new BufferUnpacker();
-	    unpacker.wrap(bytes);
+	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    String ret = (String) tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
@@ -97,11 +96,10 @@ public class TestMapTemplate {
 	    Template keyElementTemplate = msgpack.lookup(keyElementClass);
 	    Template valueElementTemplate = msgpack.lookup(valueElementClass);
 	    Template tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
-	    BufferPacker packer = new BufferPacker();
+	    BufferPacker packer = msgpack.createBufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
-	    BufferUnpacker unpacker = new BufferUnpacker();
-	    unpacker.wrap(bytes);
+	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    String ret = (String) tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
@@ -119,10 +117,10 @@ public class TestMapTemplate {
 	    Template keyElementTemplate = msgpack.lookup(keyElementClass);
 	    Template valueElementTemplate = msgpack.lookup(valueElementClass);
 	    Template tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
-	    BufferPacker packer = new BufferPacker();
+	    BufferPacker packer = msgpack.createBufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
-	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	    StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
 	    String ret = (String) tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}

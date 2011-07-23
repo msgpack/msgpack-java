@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import org.junit.Test;
+import org.msgpack.MessagePack;
 import org.msgpack.TestSet;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.packer.StreamPacker;
@@ -43,12 +44,13 @@ public class TestByteArrayTemplate {
 
 	@Override
 	public void testByteArray(byte[] v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
 	    Template<byte[]> tmpl = ByteArrayTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
-	    StreamPacker packer = new StreamPacker(out);
+	    StreamPacker packer = msgpack.createStreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
-	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	    StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
 	    byte[] ret = tmpl.read(unpacker, null);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
@@ -65,13 +67,13 @@ public class TestByteArrayTemplate {
 
 	@Override
 	public void testByteArray(byte[] v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
 	    Template<byte[]> tmpl = ByteArrayTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
-	    StreamPacker packer = new StreamPacker(out);
+	    StreamPacker packer = msgpack.createStreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
-	    BufferUnpacker unpacker = new BufferUnpacker();
-	    unpacker.wrap(bytes);
+	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    byte[] ret = tmpl.read(unpacker, null);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
@@ -88,12 +90,12 @@ public class TestByteArrayTemplate {
 
 	@Override
 	public void testByteArray(byte[] v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
 	    Template<byte[]> tmpl = ByteArrayTemplate.instance;
-	    BufferPacker packer = new BufferPacker();
+	    BufferPacker packer = msgpack.createBufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
-	    BufferUnpacker unpacker = new BufferUnpacker();
-	    unpacker.wrap(bytes);
+	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    byte[] ret = tmpl.read(unpacker, null);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {
@@ -110,11 +112,12 @@ public class TestByteArrayTemplate {
 
 	@Override
 	public void testByteArray(byte[] v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
 	    Template<byte[]> tmpl = ByteArrayTemplate.instance;
-	    BufferPacker packer = new BufferPacker();
+	    BufferPacker packer = msgpack.createBufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
-	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	    StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
 	    byte[] ret = tmpl.read(unpacker, null);
 	    assertEquals(v.length, ret.length);
 	    for (int i = 0; i < v.length; ++i) {

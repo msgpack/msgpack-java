@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import org.junit.Test;
+import org.msgpack.MessagePack;
 import org.msgpack.TestSet;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.packer.StreamPacker;
@@ -89,12 +90,13 @@ public class TestIntegerArrayTemplate {
 
 	@Override
 	public void testIntegerArray(int[] v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
 	    Template<int[]> tmpl = IntegerArrayTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
-	    StreamPacker packer = new StreamPacker(out);
+	    StreamPacker packer = msgpack.createStreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
-	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	    StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
 	    int[] ret0;
 	    switch (index) {
 	    case 0:
@@ -131,13 +133,13 @@ public class TestIntegerArrayTemplate {
 
 	@Override
 	public void testIntegerArray(int[] v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
 	    Template<int[]> tmpl = IntegerArrayTemplate.instance;
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
-	    StreamPacker packer = new StreamPacker(out);
+	    StreamPacker packer = msgpack.createStreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
-	    BufferUnpacker unpacker = new BufferUnpacker();
-	    unpacker.wrap(bytes);
+	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    int[] ret0;
 	    switch (index) {
 	    case 0:
@@ -174,12 +176,12 @@ public class TestIntegerArrayTemplate {
 
 	@Override
 	public void testIntegerArray(int[] v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
 	    Template<int[]> tmpl = IntegerArrayTemplate.instance;
-	    BufferPacker packer = new BufferPacker();
+	    BufferPacker packer = msgpack.createBufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
-	    BufferUnpacker unpacker = new BufferUnpacker();
-	    unpacker.wrap(bytes);
+	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    int[] ret0;
 	    switch (index) {
 	    case 0:
@@ -216,11 +218,12 @@ public class TestIntegerArrayTemplate {
 
 	@Override
 	public void testIntegerArray(int[] v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
 	    Template<int[]> tmpl = IntegerArrayTemplate.instance;
-	    BufferPacker packer = new BufferPacker();
+	    BufferPacker packer = msgpack.createBufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
-	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	    StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
 	    int[] ret0;
 	    switch (index) {
 	    case 0:

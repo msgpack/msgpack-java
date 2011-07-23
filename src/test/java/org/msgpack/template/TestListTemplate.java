@@ -51,10 +51,10 @@ public class TestListTemplate {
 	    Template elementTemplate = msgpack.lookup(elementClass);
 	    Template tmpl = new ListTemplate(elementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
-	    StreamPacker packer = new StreamPacker(out);
+	    StreamPacker packer = msgpack.createStreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
-	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	    StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
 	    String ret = (String) tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
@@ -72,11 +72,10 @@ public class TestListTemplate {
 	    Template elementTemplate = msgpack.lookup(elementClass);
 	    Template tmpl = new ListTemplate(elementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
-	    StreamPacker packer = new StreamPacker(out);
+	    StreamPacker packer = msgpack.createStreamPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
-	    BufferUnpacker unpacker = new BufferUnpacker();
-	    unpacker.wrap(bytes);
+	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    String ret = (String) tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
@@ -93,11 +92,10 @@ public class TestListTemplate {
 	    MessagePack msgpack = new MessagePack();
 	    Template elementTemplate = msgpack.lookup(elementClass);
 	    Template tmpl = new ListTemplate(elementTemplate);
-	    BufferPacker packer = new BufferPacker();
+	    BufferPacker packer = msgpack.createBufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
-	    BufferUnpacker unpacker = new BufferUnpacker();
-	    unpacker.wrap(bytes);
+	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    String ret = (String) tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
@@ -114,10 +112,10 @@ public class TestListTemplate {
 	    MessagePack msgpack = new MessagePack();
 	    Template elementTemplate = msgpack.lookup(elementClass);
 	    Template tmpl = new ListTemplate(elementTemplate);
-	    BufferPacker packer = new BufferPacker();
+	    BufferPacker packer = msgpack.createBufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
-	    StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	    StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
 	    String ret = (String) tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
