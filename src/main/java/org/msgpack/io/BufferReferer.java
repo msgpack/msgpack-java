@@ -18,29 +18,9 @@
 package org.msgpack.io;
 
 import java.io.IOException;
-import java.io.Closeable;
-import java.io.EOFException;
-import java.nio.ByteBuffer;
 
-public interface Input extends Closeable {
-    public int read(byte[] b, int off, int len) throws IOException;
 
-    public boolean tryRefer(BufferReferer ref, int len) throws IOException;
-
-    public byte readByte() throws IOException;
-
-    public void advance();
-
-    public byte getByte() throws IOException;
-
-    public short getShort() throws IOException;
-
-    public int getInt() throws IOException;
-
-    public long getLong() throws IOException;
-
-    public float getFloat() throws IOException;
-
-    public double getDouble() throws IOException;
+public interface BufferReferer {
+    public void refer(byte[] b, int off, int len, boolean gift) throws IOException;
 }
 

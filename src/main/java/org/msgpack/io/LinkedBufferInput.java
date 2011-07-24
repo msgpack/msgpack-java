@@ -17,6 +17,7 @@
 //
 package org.msgpack.io;
 
+import java.io.IOException;
 import java.io.EOFException;
 import java.util.List;
 import java.util.LinkedList;
@@ -60,6 +61,20 @@ public class LinkedBufferInput implements Input {
             }
         }
         return olen - len;
+    }
+
+    public boolean tryRefer(BufferReferer ref, int len) throws IOException {
+        ByteBuffer bb = link.peekFirst();
+        if(bb == null) {
+            throw new EndOfBufferException();
+        } else if(bb.remaining() < len) {
+            return false;
+        } else if(!bb.hasArray()) {
+            return false;
+        }
+        ref.refer(bb.array(), bb.arrayOffset()+bb.position(), len, true);
+        bb.position(bb.position()+len);
+        return true;
     }
 
     public byte readByte() throws EOFException {

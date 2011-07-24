@@ -15,32 +15,28 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.io;
+package org.msgpack.unpacker;
 
 import java.io.IOException;
-import java.io.Closeable;
-import java.io.EOFException;
-import java.nio.ByteBuffer;
 
-public interface Input extends Closeable {
-    public int read(byte[] b, int off, int len) throws IOException;
 
-    public boolean tryRefer(BufferReferer ref, int len) throws IOException;
+final class StringAccept extends Accept {
+    String value;
 
-    public byte readByte() throws IOException;
+    @Override
+    void acceptRaw(byte[] raw) {
+        // TODO encoding error
+        this.value = new String(raw);
+    }
 
-    public void advance();
+    @Override
+    void acceptEmptyRaw() {
+        this.value = "";
+    }
 
-    public byte getByte() throws IOException;
-
-    public short getShort() throws IOException;
-
-    public int getInt() throws IOException;
-
-    public long getLong() throws IOException;
-
-    public float getFloat() throws IOException;
-
-    public double getDouble() throws IOException;
+    @Override
+    public void refer(byte[] b, int off, int len, boolean gift) throws IOException {
+        this.value = new String(b, off, len);
+    }
 }
 

@@ -263,6 +263,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 
     @Override
     public boolean matchType(Type targetType) {
+        // TODO reject enum
 	return AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, Message.class)
 		|| AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, MessagePackMessage.class);
     }

@@ -49,6 +49,10 @@ public class StreamInput implements Input {
         return len;
     }
 
+    public boolean tryRefer(BufferReferer ref, int size) throws IOException {
+        return false;
+    }
+
     public byte readByte() throws IOException {
         int n = in.read();
         if(n < 0) {

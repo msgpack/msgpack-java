@@ -17,6 +17,9 @@
 //
 package org.msgpack.unpacker;
 
+import java.io.IOException;
+
+
 final class ByteArrayAccept extends Accept {
     byte[] value;
 
@@ -28,6 +31,13 @@ final class ByteArrayAccept extends Accept {
     @Override
     void acceptEmptyRaw() {
         this.value = new byte[0];
+    }
+
+    @Override
+    public void refer(byte[] b, int off, int len, boolean gift) throws IOException {
+        // TODO gift
+        this.value = new byte[len];
+        System.arraycopy(b, off, value, 0, len);
     }
 }
 

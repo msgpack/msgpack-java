@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import org.msgpack.io.Input;
 import org.msgpack.io.StreamInput;
+import org.msgpack.io.BufferReferer;
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Unconverter;
@@ -45,6 +46,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     private final BigIntegerAccept bigIntegerAccept = new BigIntegerAccept();
     private final DoubleAccept doubleAccept = new DoubleAccept();
     private final ByteArrayAccept byteArrayAccept = new ByteArrayAccept();
+    private final StringAccept stringAccept = new StringAccept();
     private final ArrayAccept arrayAccept = new ArrayAccept();
     private final MapAccept mapAccept = new MapAccept();
     private final ValueAccept valueAccept = new ValueAccept();
@@ -110,9 +112,11 @@ public class MessagePackUnpacker extends AbstractUnpacker {
                 headByte = REQUIRE_TO_READ_HEAD;
                 return true;
             }
-            readRawBody(count);
-            a.acceptRaw(raw);
-            raw = null;
+            if(!tryReferRawBody(a, count)) {
+                readRawBody(count);
+                a.acceptRaw(raw);
+                raw = null;
+            }
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         }
@@ -210,9 +214,11 @@ public class MessagePackUnpacker extends AbstractUnpacker {
                     return true;
                 }
                 in.advance();
-                readRawBody(count);
-                a.acceptRaw(raw);
-                raw = null;
+                if(!tryReferRawBody(a, count)) {
+                    readRawBody(count);
+                    a.acceptRaw(raw);
+                    raw = null;
+                }
                 headByte = REQUIRE_TO_READ_HEAD;
                 return true;
             }
@@ -229,9 +235,11 @@ public class MessagePackUnpacker extends AbstractUnpacker {
                     return true;
                 }
                 in.advance();
-                readRawBody(count);
-                a.acceptRaw(raw);
-                raw = null;
+                if(!tryReferRawBody(a, count)) {
+                    readRawBody(count);
+                    a.acceptRaw(raw);
+                    raw = null;
+                }
                 headByte = REQUIRE_TO_READ_HEAD;
                 return true;
             }
@@ -287,6 +295,10 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             headByte = REQUIRE_TO_READ_HEAD;
             throw new MessageTypeException("Invalid byte: "+b);  // TODO error
         }
+    }
+
+    private boolean tryReferRawBody(BufferReferer referer, int size) throws IOException {
+        return in.tryRefer(referer, size);
     }
 
     private void readRawBody(int size) throws IOException {
@@ -421,9 +433,16 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         return doubleAccept.value;
     }
 
+    @Override
     public byte[] readByteArray() throws IOException {
         readOne(byteArrayAccept);
         return byteArrayAccept.value;
+    }
+
+    @Override
+    public String readString() throws IOException {
+        readOne(stringAccept);
+        return stringAccept.value;
     }
 
     @Override

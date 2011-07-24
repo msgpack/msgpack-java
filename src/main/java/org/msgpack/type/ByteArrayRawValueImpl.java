@@ -42,6 +42,7 @@ class ByteArrayRawValueImpl extends AbstractRawValue {
     }
 
     ByteArrayRawValueImpl(byte[] b, int off, int len) {
+        // TODO reference
         this.bytes = new byte[len];
         System.arraycopy(b, off, this.bytes, 0, len);
     }
