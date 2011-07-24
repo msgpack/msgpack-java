@@ -15,7 +15,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.msgpack.MessagePack;
-import org.msgpack.packer.JSONStreamPacker;
+import org.msgpack.packer.JSONPacker;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
 
@@ -27,7 +27,7 @@ public class TestSimpleJSONPackUnpack {
         MessagePack msgpack = new MessagePack();
         ByteArrayOutputStream bo = new ByteArrayOutputStream();
 
-        JSONStreamPacker pk = new JSONStreamPacker(msgpack, bo);
+        JSONPacker pk = new JSONPacker(msgpack, bo);
 
         pk.write(
                 ValueFactory.mapValue(new Value[] {

@@ -26,11 +26,11 @@ import org.msgpack.io.EndOfBufferException;
 
 
 public class UnpackerIterator implements Iterator<Value> {
-    private final Unpacker u;
+    private final AbstractUnpacker u;  // FIXME -> Unpacker
     private final Unconverter uc;
     private IOException exception;
 
-    public UnpackerIterator(Unpacker u) {
+    public UnpackerIterator(AbstractUnpacker u) {
         this.u = u;
         this.uc = new Unconverter(u.msgpack);
     }

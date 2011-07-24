@@ -19,15 +19,16 @@ package org.msgpack.unpacker;
 
 import java.io.IOException;
 import java.io.EOFException;
+import java.io.InputStream;
 import java.math.BigInteger;
-
+import org.msgpack.io.Input;
+import org.msgpack.io.StreamInput;
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Unconverter;
-import org.msgpack.io.Input;
 
 
-abstract class AbstractMessagePackUnpacker extends Unpacker {
+public class MessagePackUnpacker extends AbstractUnpacker {
     protected final Input in;
 
     private static final byte REQUIRE_TO_READ_HEAD = (byte)0xc6;
@@ -49,9 +50,17 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
     private final ValueAccept valueAccept = new ValueAccept();
     private final SkipAccept skipAccept = new SkipAccept();
 
-    protected AbstractMessagePackUnpacker(MessagePack msgpack, Input in) {
-	super(msgpack);
-	this.in = in;
+    public MessagePackUnpacker(InputStream stream) {
+        this(new MessagePack(), stream);
+    }
+
+    public MessagePackUnpacker(MessagePack msgpack, InputStream stream) {
+        this(msgpack, new StreamInput(stream));
+    }
+
+    protected MessagePackUnpacker(MessagePack msgpack, Input in) {
+        super(msgpack);
+        this.in = in;
     }
 
     private byte getHeadByte() throws IOException {

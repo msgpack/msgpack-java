@@ -6,12 +6,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import org.junit.Test;
-import org.msgpack.packer.StreamPacker;
+import org.msgpack.MessagePack;
+import org.msgpack.packer.Packer;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.Template;
 import org.msgpack.testclasses.EnumTypeFieldsClass;
 import org.msgpack.testclasses.EnumTypeFieldsClassNotNullable;
-import org.msgpack.unpacker.StreamUnpacker;
+import org.msgpack.unpacker.Unpacker;
 
 
 public class TestReflectionOrdinalEnumStreamPackStreamUnpack extends TestSet {
@@ -29,10 +30,10 @@ public class TestReflectionOrdinalEnumStreamPackStreamUnpack extends TestSet {
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<EnumTypeFieldsClass> tmpl = builder.buildTemplate(EnumTypeFieldsClass.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	EnumTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -50,10 +51,10 @@ public class TestReflectionOrdinalEnumStreamPackStreamUnpack extends TestSet {
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<EnumTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(EnumTypeFieldsClassNotNullable.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	EnumTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }

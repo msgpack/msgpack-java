@@ -26,7 +26,7 @@ import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
 
 
-public class Unconverter extends Packer {
+public class Unconverter extends AbstractPacker {
     private PackerStack stack;
     private Object[] values;
     private Value result;

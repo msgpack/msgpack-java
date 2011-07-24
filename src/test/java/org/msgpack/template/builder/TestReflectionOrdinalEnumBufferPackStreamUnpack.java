@@ -5,12 +5,13 @@ import static org.junit.Assert.assertEquals;
 import java.io.ByteArrayInputStream;
 
 import org.junit.Test;
+import org.msgpack.MessagePack;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.Template;
 import org.msgpack.testclasses.EnumTypeFieldsClass;
 import org.msgpack.testclasses.EnumTypeFieldsClassNotNullable;
-import org.msgpack.unpacker.StreamUnpacker;
+import org.msgpack.unpacker.Unpacker;
 
 
 public class TestReflectionOrdinalEnumBufferPackStreamUnpack extends TestSet {
@@ -27,10 +28,10 @@ public class TestReflectionOrdinalEnumBufferPackStreamUnpack extends TestSet {
 		new ReflectionOrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClass.SampleEnum.class));
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<EnumTypeFieldsClass> tmpl = builder.buildTemplate(EnumTypeFieldsClass.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	EnumTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -47,10 +48,10 @@ public class TestReflectionOrdinalEnumBufferPackStreamUnpack extends TestSet {
 		new ReflectionOrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClassNotNullable.SampleEnum.class));
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<EnumTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(EnumTypeFieldsClassNotNullable.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	EnumTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }

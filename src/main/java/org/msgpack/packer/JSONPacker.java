@@ -18,14 +18,16 @@
 package org.msgpack.packer;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import org.msgpack.io.Output;
+import org.msgpack.io.StreamOutput;
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 
 
-public abstract class AbstractJSONPacker extends Packer {
+public class JSONPacker extends AbstractPacker {
     private static final byte[] NULL = new byte[] { 0x6e, 0x75, 0x6c, 0x6c };
     private static final byte[] TRUE = new byte[] { 0x74, 0x72, 0x75, 0x65 };
     private static final byte[] FALSE = new byte[] { 0x66, 0x61, 0x6c, 0x73, 0x65 };
@@ -47,7 +49,15 @@ public abstract class AbstractJSONPacker extends Packer {
 
     private PackerStack stack = new PackerStack();
 
-    protected AbstractJSONPacker(MessagePack msgpack, Output out) {
+    public JSONPacker(OutputStream stream) {
+        this(new MessagePack(), stream);
+    }
+
+    public JSONPacker(MessagePack msgpack, OutputStream stream) {
+	this(msgpack, new StreamOutput(stream));
+    }
+
+    protected JSONPacker(MessagePack msgpack, Output out) {
         super(msgpack);
         this.out = out;
         this.stack = new PackerStack();
@@ -224,6 +234,10 @@ public abstract class AbstractJSONPacker extends Packer {
         flag &= ~FLAG_FIRST_ELEMENT;
         flags[stack.getDepth()] = flag;
         stack.reduceCount();
+    }
+
+    public void close() throws IOException {
+        out.close();
     }
 }
 

@@ -17,24 +17,33 @@
 //
 package org.msgpack.packer;
 
-import java.io.OutputStream;
-import java.io.IOException;
-
 import org.msgpack.MessagePack;
-import org.msgpack.io.StreamOutput;
+import org.msgpack.io.Output;
+import org.msgpack.io.LinkedBufferOutput;
 
 
-public class StreamPacker extends AbstractMessagePackPacker {
-    public StreamPacker(OutputStream stream) {
-        this(new MessagePack(), stream);
+public class JSONBufferPacker extends JSONPacker {
+    private static final int DEFAULT_BUFFER_SIZE = 512; // TODO default buffer size
+
+    public JSONBufferPacker() {
+        this(DEFAULT_BUFFER_SIZE);
     }
 
-    public StreamPacker(MessagePack msgpack, OutputStream stream) {
-	super(msgpack, new StreamOutput(stream));
+    public JSONBufferPacker(int bufferSize) {
+        this(new MessagePack(), bufferSize);
     }
 
-    public void close() throws IOException {
-        out.close();
+    public JSONBufferPacker(MessagePack msgpack) {
+	this(msgpack, DEFAULT_BUFFER_SIZE);
+    }
+
+    public JSONBufferPacker(MessagePack msgpack, int bufferSize) {
+	super(msgpack, new LinkedBufferOutput(bufferSize));
+    }
+
+    public byte[] toByteArray() {
+        LinkedBufferOutput bo = (LinkedBufferOutput) out;
+        return ((LinkedBufferOutput) bo).toByteArray();
     }
 }
 

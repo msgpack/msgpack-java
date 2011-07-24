@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.msgpack.packer.BufferPacker;
-import org.msgpack.unpacker.StreamUnpacker;
+import org.msgpack.unpacker.Unpacker;
 
 
 public class TestBufferPackStreamUnpack extends TestSet {
@@ -29,7 +29,7 @@ public class TestBufferPackStreamUnpack extends TestSet {
 	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeBoolean(v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	boolean ret = unpacker.readBoolean();
 	assertEquals(v, ret);
     }
@@ -45,7 +45,7 @@ public class TestBufferPackStreamUnpack extends TestSet {
 	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeByte(v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	byte ret = unpacker.readByte();
 	assertEquals(v, ret);
     }
@@ -61,7 +61,7 @@ public class TestBufferPackStreamUnpack extends TestSet {
 	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeShort(v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	short ret = unpacker.readShort();
 	assertEquals(v, ret);
     }
@@ -77,7 +77,7 @@ public class TestBufferPackStreamUnpack extends TestSet {
 	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeInt(v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	int ret = unpacker.readInt();
 	assertEquals(v, ret);
     }
@@ -93,7 +93,7 @@ public class TestBufferPackStreamUnpack extends TestSet {
 	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeLong(v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	long ret = unpacker.readLong();
 	assertEquals(v, ret);
     }
@@ -109,7 +109,7 @@ public class TestBufferPackStreamUnpack extends TestSet {
 	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeFloat(v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	float ret = unpacker.readFloat();
 	assertEquals(v, ret, 10e-10);
     }
@@ -125,7 +125,7 @@ public class TestBufferPackStreamUnpack extends TestSet {
 	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeDouble(v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	double ret = unpacker.readDouble();
 	assertEquals(v, ret, 10e-10);
     }
@@ -136,7 +136,7 @@ public class TestBufferPackStreamUnpack extends TestSet {
 	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeNil();
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	unpacker.readNil();
     }
 
@@ -151,7 +151,7 @@ public class TestBufferPackStreamUnpack extends TestSet {
 	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeBigInteger(v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	BigInteger ret = unpacker.readBigInteger();
 	assertEquals(v, ret);
     }
@@ -167,7 +167,7 @@ public class TestBufferPackStreamUnpack extends TestSet {
 	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeString(v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	String ret = unpacker.readString();
 	assertEquals(v, ret);
     }
@@ -183,7 +183,7 @@ public class TestBufferPackStreamUnpack extends TestSet {
 	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeByteArray(v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	byte[] ret = unpacker.readByteArray();
 	assertArrayEquals(v, ret);
     }
@@ -203,7 +203,7 @@ public class TestBufferPackStreamUnpack extends TestSet {
 	}
 	packer.writeArrayEnd();
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	int size = unpacker.readArrayBegin();
 	List ret = new ArrayList(size);
 	for (int i = 0; i < size; ++i) {
@@ -234,7 +234,7 @@ public class TestBufferPackStreamUnpack extends TestSet {
 	}
 	packer.writeMapEnd();
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	int size = unpacker.readMapBegin();
 	Map ret = new HashMap(size);
 	for (int i = 0; i < size; ++i) {

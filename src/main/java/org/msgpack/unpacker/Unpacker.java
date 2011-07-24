@@ -28,118 +28,69 @@ import org.msgpack.template.Template;
 import org.msgpack.packer.Unconverter;
 
 
-public abstract class Unpacker implements Iterable<Value>, Closeable {
-    protected MessagePack msgpack;
+public interface Unpacker extends Iterable<Value>, Closeable {
+    public boolean tryReadNil() throws IOException;
 
-    protected Unpacker(MessagePack msgpack) {
-	this.msgpack = msgpack;
-    }
+    public boolean trySkipNil() throws IOException;
 
-    public abstract boolean tryReadNil() throws IOException;
-
-    public abstract boolean trySkipNil() throws IOException;
-
-    public abstract void readNil() throws IOException;
+    public void readNil() throws IOException;
 
 
-    public abstract boolean readBoolean() throws IOException;
+    public boolean readBoolean() throws IOException;
 
-    public abstract byte readByte() throws IOException;
+    public byte readByte() throws IOException;
 
-    public abstract short readShort() throws IOException;
+    public short readShort() throws IOException;
 
-    public abstract int readInt() throws IOException;
+    public int readInt() throws IOException;
 
-    public abstract long readLong() throws IOException;
+    public long readLong() throws IOException;
 
-    public abstract BigInteger readBigInteger() throws IOException;
+    public BigInteger readBigInteger() throws IOException;
 
-    public abstract float readFloat() throws IOException;
+    public float readFloat() throws IOException;
 
-    public abstract double readDouble() throws IOException;
+    public double readDouble() throws IOException;
 
-    public abstract byte[] readByteArray() throws IOException;
+    public byte[] readByteArray() throws IOException;
 
-    public ByteBuffer readByteBuffer() throws IOException {
-        return ByteBuffer.wrap(readByteArray());
-    }
+    public ByteBuffer readByteBuffer() throws IOException;
 
 
-    public abstract int readArrayBegin() throws IOException;
+    public int readArrayBegin() throws IOException;
 
-    public abstract void readArrayEnd(boolean check) throws IOException;
+    public void readArrayEnd(boolean check) throws IOException;
 
-    public void readArrayEnd() throws IOException {
-        readArrayEnd(false);
-    }
+    public void readArrayEnd() throws IOException;
 
 
-    public abstract int readMapBegin() throws IOException;
+    public int readMapBegin() throws IOException;
 
-    public abstract void readMapEnd(boolean check) throws IOException;
+    public void readMapEnd(boolean check) throws IOException;
 
-    public void readMapEnd() throws IOException {
-        readMapEnd(false);
-    }
+    public void readMapEnd() throws IOException;
 
 
-    public String readString() throws IOException {
-        // TODO encoding exception
-        return new String(readByteArray(), "UTF-8");
-    }
+    public String readString() throws IOException;
 
-    public UnpackerIterator iterator() {
-        return new UnpackerIterator(this);
-    }
+    public UnpackerIterator iterator();
 
-    public abstract void skip() throws IOException;
+    public void skip() throws IOException;
 
 
-    protected abstract void readValue(Unconverter uc) throws IOException;
-
-    public Value readValue() throws IOException {
-        Unconverter uc = new Unconverter(msgpack);
-        readValue(uc);
-        return uc.getResult();
-    }
+    public Value readValue() throws IOException;
 
 
-    public <T> T read(Class<T> klass) throws IOException {
-        Template<? super T> tmpl = msgpack.lookup(klass);
-        return (T) tmpl.read(this, null);
-    }
+    public <T> T read(Class<T> klass) throws IOException;
 
-    public <T> T read(T to) throws IOException {
-        Template<? super T> tmpl = msgpack.lookup((Class<T>) to.getClass());
-        return (T) tmpl.read(this, to);
-    }
+    public <T> T read(T to) throws IOException;
 
-    public <T> T readOptional(Class<T> klass) throws IOException {
-        return readOptional(klass, null);
-    }
+    public <T> T readOptional(Class<T> klass) throws IOException;
 
-    public <T> T readOptional(Class<T> klass, T defaultValue) throws IOException {
-        if(trySkipNil()) {
-            return defaultValue;
-        }
-        Template<? super T> tmpl = (Template<? super T>) msgpack.lookup(klass);
-        return (T) tmpl.read(this, null);
-    }
+    public <T> T readOptional(Class<T> klass, T defaultValue) throws IOException;
 
-    public <T> T readOptional(T to, T defaultValue) throws IOException {
-        if(trySkipNil()) {
-            return defaultValue;
-        }
-        Template<? super T> tmpl = msgpack.lookup((Class<T>) to.getClass());
-        return (T) tmpl.read(this, to);
-    }
+    public <T> T readOptional(T to, T defaultValue) throws IOException;
 
-    public <T> T readOptional(T to) throws IOException {
-        return readOptional(to, null);
-    }
-
-
-    public void close() throws IOException {
-    }
+    public <T> T readOptional(T to) throws IOException;
 }
 

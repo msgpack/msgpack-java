@@ -3,6 +3,7 @@ package org.msgpack.template.builder;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.msgpack.MessagePack;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.Template;
@@ -25,10 +26,10 @@ public class TestReflectionOrdinalEnumBufferPackBufferUnpack extends TestSet {
 		new ReflectionOrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClass.SampleEnum.class));
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<EnumTypeFieldsClass> tmpl = builder.buildTemplate(EnumTypeFieldsClass.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker();
+	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
 	unpacker.wrap(bytes);
 	EnumTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -46,10 +47,10 @@ public class TestReflectionOrdinalEnumBufferPackBufferUnpack extends TestSet {
 		new ReflectionOrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClassNotNullable.SampleEnum.class));
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<EnumTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(EnumTypeFieldsClassNotNullable.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = new BufferUnpacker();
+	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
 	unpacker.wrap(bytes);
 	EnumTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);

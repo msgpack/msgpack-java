@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-import org.msgpack.packer.StreamPacker;
-import org.msgpack.unpacker.StreamUnpacker;
+import org.msgpack.packer.Packer;
+import org.msgpack.unpacker.Unpacker;
 
 
 public class TestStreamPackStreamUnpack extends TestSet {
@@ -28,10 +28,10 @@ public class TestStreamPackStreamUnpack extends TestSet {
     public void testBoolean(boolean v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeBoolean(v);
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(in);
+	Unpacker unpacker = msgpack.createUnpacker(in);
 	boolean ret = unpacker.readBoolean();
 	assertEquals(v, ret);
     }
@@ -45,10 +45,10 @@ public class TestStreamPackStreamUnpack extends TestSet {
     public void testByte(byte v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeByte(v);
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(in);
+	Unpacker unpacker = msgpack.createUnpacker(in);
 	byte ret = unpacker.readByte();
 	assertEquals(v, ret);
     }
@@ -62,10 +62,10 @@ public class TestStreamPackStreamUnpack extends TestSet {
     public void testShort(short v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeShort(v);
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(in);
+	Unpacker unpacker = msgpack.createUnpacker(in);
 	short ret = unpacker.readShort();
 	assertEquals(v, ret);
     }
@@ -79,10 +79,10 @@ public class TestStreamPackStreamUnpack extends TestSet {
     public void testInteger(int v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeInt(v);
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(in);
+	Unpacker unpacker = msgpack.createUnpacker(in);
 	int ret = unpacker.readInt();
 	assertEquals(v, ret);
     }
@@ -96,10 +96,10 @@ public class TestStreamPackStreamUnpack extends TestSet {
     public void testLong(long v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeLong(v);
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(in);
+	Unpacker unpacker = msgpack.createUnpacker(in);
 	long ret = unpacker.readLong();
 	assertEquals(v, ret);
     }
@@ -108,10 +108,10 @@ public class TestStreamPackStreamUnpack extends TestSet {
     public void testFloat(float v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeFloat(v);
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(in);
+	Unpacker unpacker = msgpack.createUnpacker(in);
 	float ret = unpacker.readFloat();
 	assertEquals(v, ret, 10e-10);
     }
@@ -125,10 +125,10 @@ public class TestStreamPackStreamUnpack extends TestSet {
     public void testDouble(double v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeDouble(v);
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(in);
+	Unpacker unpacker = msgpack.createUnpacker(in);
 	double ret = unpacker.readDouble();
 	assertEquals(v, ret, 10e-10);
     }
@@ -137,10 +137,10 @@ public class TestStreamPackStreamUnpack extends TestSet {
     public void testNil() throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeNil();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(in);
+	Unpacker unpacker = msgpack.createUnpacker(in);
 	unpacker.readNil();
     }
 
@@ -153,10 +153,10 @@ public class TestStreamPackStreamUnpack extends TestSet {
     public void testBigInteger(BigInteger v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeBigInteger(v);
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(in);
+	Unpacker unpacker = msgpack.createUnpacker(in);
 	BigInteger ret = unpacker.readBigInteger();
 	assertEquals(v, ret);
     }
@@ -170,10 +170,10 @@ public class TestStreamPackStreamUnpack extends TestSet {
     public void testString(String v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeString(v);
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(in);
+	Unpacker unpacker = msgpack.createUnpacker(in);
 	String ret = unpacker.readString();
 	assertEquals(v, ret);
     }
@@ -187,10 +187,10 @@ public class TestStreamPackStreamUnpack extends TestSet {
     public void testByteArray(byte[] v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeByteArray(v);
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(in);
+	Unpacker unpacker = msgpack.createUnpacker(in);
 	byte[] ret = unpacker.readByteArray();
 	assertArrayEquals(v, ret);
     }
@@ -204,14 +204,14 @@ public class TestStreamPackStreamUnpack extends TestSet {
     public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
     	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeArrayBegin(v.size());
 	for (Object o : v) {
 	    packer.write(o);
 	}
 	packer.writeArrayEnd();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(in);
+	Unpacker unpacker = msgpack.createUnpacker(in);
 	int size = unpacker.readArrayBegin();
 	List ret = new ArrayList(size);
 	for (int i = 0; i < size; ++i) {
@@ -235,7 +235,7 @@ public class TestStreamPackStreamUnpack extends TestSet {
     public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
     	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeMapBegin(v.size());
 	for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
 	    packer.write(e.getKey());
@@ -243,7 +243,7 @@ public class TestStreamPackStreamUnpack extends TestSet {
 	}
 	packer.writeMapEnd();
 	ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	StreamUnpacker unpacker = msgpack.createStreamUnpacker(in);
+	Unpacker unpacker = msgpack.createUnpacker(in);
 	int size = unpacker.readMapBegin();
 	Map ret = new HashMap(size);
 	for (int i = 0; i < size; ++i) {

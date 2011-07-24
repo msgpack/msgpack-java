@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-import org.msgpack.packer.StreamPacker;
+import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.BufferUnpacker;
 
 
@@ -27,7 +27,7 @@ public class TestStreamPackBufferUnpack extends TestSet {
     public void testBoolean(boolean v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeBoolean(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
@@ -44,7 +44,7 @@ public class TestStreamPackBufferUnpack extends TestSet {
     public void testByte(byte v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeByte(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
@@ -61,7 +61,7 @@ public class TestStreamPackBufferUnpack extends TestSet {
     public void testShort(short v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeShort(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
@@ -78,7 +78,7 @@ public class TestStreamPackBufferUnpack extends TestSet {
     public void testInteger(int v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeInt(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
@@ -95,7 +95,7 @@ public class TestStreamPackBufferUnpack extends TestSet {
     public void testLong(long v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeLong(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
@@ -112,7 +112,7 @@ public class TestStreamPackBufferUnpack extends TestSet {
     public void testFloat(float v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeFloat(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
@@ -129,7 +129,7 @@ public class TestStreamPackBufferUnpack extends TestSet {
     public void testDouble(double v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeDouble(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
@@ -141,7 +141,7 @@ public class TestStreamPackBufferUnpack extends TestSet {
     public void testNil() throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeNil();
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
@@ -157,7 +157,7 @@ public class TestStreamPackBufferUnpack extends TestSet {
     public void testBigInteger(BigInteger v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeBigInteger(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
@@ -174,7 +174,7 @@ public class TestStreamPackBufferUnpack extends TestSet {
     public void testString(String v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeString(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
@@ -191,7 +191,7 @@ public class TestStreamPackBufferUnpack extends TestSet {
     public void testByteArray(byte[] v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeByteArray(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
@@ -208,7 +208,7 @@ public class TestStreamPackBufferUnpack extends TestSet {
     public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
     	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeArrayBegin(v.size());
 	for (Object o : v) {
 	    packer.write(o);
@@ -239,7 +239,7 @@ public class TestStreamPackBufferUnpack extends TestSet {
     public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
     	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = msgpack.createStreamPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	packer.writeMapBegin(v.size());
 	for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
 	    packer.write(e.getKey());

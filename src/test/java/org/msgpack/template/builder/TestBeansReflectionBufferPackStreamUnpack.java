@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 import java.io.ByteArrayInputStream;
 
 import org.junit.Test;
+import org.msgpack.MessagePack;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.Template;
@@ -29,7 +30,7 @@ import org.msgpack.testclasses.ReferenceTypeFieldsClass;
 import org.msgpack.testclasses.ReferenceTypeFieldsClassNotNullable;
 import org.msgpack.testclasses.UserDefinedTypeFieldsClass;
 import org.msgpack.testclasses.UserDefinedTypeFieldsClassNotNullable;
-import org.msgpack.unpacker.StreamUnpacker;
+import org.msgpack.unpacker.Unpacker;
 
 
 public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
@@ -44,10 +45,10 @@ public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	Template<PrimitiveTypeFieldsClass> tmpl = builder.buildTemplate(PrimitiveTypeFieldsClass.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	PrimitiveTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -62,10 +63,10 @@ public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	Template<PrimitiveTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(PrimitiveTypeFieldsClassNotNullable.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	PrimitiveTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -80,10 +81,10 @@ public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	Template<ReferenceTypeFieldsClass> tmpl = builder.buildTemplate(ReferenceTypeFieldsClass.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	ReferenceTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -98,10 +99,10 @@ public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	Template<ReferenceTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(ReferenceTypeFieldsClassNotNullable.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	ReferenceTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -116,10 +117,10 @@ public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	Template<ListTypeFieldsClass> tmpl = builder.buildTemplate(ListTypeFieldsClass.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	ListTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -134,10 +135,10 @@ public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	Template<ListTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(ListTypeFieldsClassNotNullable.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	ListTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -152,10 +153,10 @@ public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	Template<MapTypeFieldsClass> tmpl = builder.buildTemplate(MapTypeFieldsClass.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	MapTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -170,10 +171,10 @@ public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	Template<MapTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(MapTypeFieldsClassNotNullable.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	MapTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -188,10 +189,10 @@ public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	Template<FinalClass> tmpl = builder.buildTemplate(FinalClass.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	FinalClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -229,10 +230,10 @@ public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	Template<ModifiersFieldsClass> tmpl = builder.buildTemplate(ModifiersFieldsClass.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	ModifiersFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -247,10 +248,10 @@ public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	Template<ModifiersFieldsClassNotNullable> tmpl = builder.buildTemplate(ModifiersFieldsClassNotNullable.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	ModifiersFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -265,10 +266,10 @@ public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	Template<UserDefinedTypeFieldsClass> tmpl = builder.buildTemplate(UserDefinedTypeFieldsClass.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	UserDefinedTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -283,10 +284,10 @@ public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	Template<UserDefinedTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(UserDefinedTypeFieldsClassNotNullable.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	UserDefinedTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -301,10 +302,10 @@ public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	Template<InheritanceClass> tmpl = builder.buildTemplate(InheritanceClass.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	InheritanceClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -319,10 +320,10 @@ public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	Template<InheritanceClassNotNullable> tmpl = builder.buildTemplate(InheritanceClassNotNullable.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	InheritanceClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -337,10 +338,10 @@ public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	Template<MessagePackableTypeFieldsClass> tmpl = builder.buildTemplate(MessagePackableTypeFieldsClass.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	MessagePackableTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -355,10 +356,10 @@ public class TestBeansReflectionBufferPackStreamUnpack extends TestSet {
 	TemplateRegistry registry = new TemplateRegistry();
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	Template<MessagePackableTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(MessagePackableTypeFieldsClassNotNullable.class);
-	BufferPacker packer = new BufferPacker();
+	BufferPacker packer = new MessagePack().createBufferPacker();
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	MessagePackableTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }

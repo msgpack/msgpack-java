@@ -8,7 +8,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import org.junit.Test;
-import org.msgpack.packer.StreamPacker;
+import org.msgpack.MessagePack;
+import org.msgpack.packer.Packer;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.Template;
 import org.msgpack.testclasses.AbstractClass;
@@ -30,7 +31,7 @@ import org.msgpack.testclasses.ReferenceTypeFieldsClass;
 import org.msgpack.testclasses.ReferenceTypeFieldsClassNotNullable;
 import org.msgpack.testclasses.UserDefinedTypeFieldsClass;
 import org.msgpack.testclasses.UserDefinedTypeFieldsClassNotNullable;
-import org.msgpack.unpacker.StreamUnpacker;
+import org.msgpack.unpacker.Unpacker;
 
 
 public class TestJavassistStreamPackStreamUnpack extends TestSet {
@@ -46,10 +47,10 @@ public class TestJavassistStreamPackStreamUnpack extends TestSet {
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
 	Template<PrimitiveTypeFieldsClass> tmpl = builder.buildTemplate(PrimitiveTypeFieldsClass.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	PrimitiveTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -65,10 +66,10 @@ public class TestJavassistStreamPackStreamUnpack extends TestSet {
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
 	Template<PrimitiveTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(PrimitiveTypeFieldsClassNotNullable.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	PrimitiveTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -84,10 +85,10 @@ public class TestJavassistStreamPackStreamUnpack extends TestSet {
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
 	Template<ReferenceTypeFieldsClass> tmpl = builder.buildTemplate(ReferenceTypeFieldsClass.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	ReferenceTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -103,10 +104,10 @@ public class TestJavassistStreamPackStreamUnpack extends TestSet {
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
 	Template<ReferenceTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(ReferenceTypeFieldsClassNotNullable.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	ReferenceTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -122,10 +123,10 @@ public class TestJavassistStreamPackStreamUnpack extends TestSet {
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
 	Template<ListTypeFieldsClass> tmpl = builder.buildTemplate(ListTypeFieldsClass.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	ListTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -141,10 +142,10 @@ public class TestJavassistStreamPackStreamUnpack extends TestSet {
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
 	Template<ListTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(ListTypeFieldsClassNotNullable.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	ListTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -160,10 +161,10 @@ public class TestJavassistStreamPackStreamUnpack extends TestSet {
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
 	Template<MapTypeFieldsClass> tmpl = builder.buildTemplate(MapTypeFieldsClass.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	MapTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -179,10 +180,10 @@ public class TestJavassistStreamPackStreamUnpack extends TestSet {
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
 	Template<MapTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(MapTypeFieldsClassNotNullable.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	MapTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -198,10 +199,10 @@ public class TestJavassistStreamPackStreamUnpack extends TestSet {
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
 	Template<FinalClass> tmpl = builder.buildTemplate(FinalClass.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	FinalClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -240,10 +241,10 @@ public class TestJavassistStreamPackStreamUnpack extends TestSet {
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
 	Template<ModifiersFieldsClass> tmpl = builder.buildTemplate(ModifiersFieldsClass.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	ModifiersFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -276,10 +277,10 @@ public class TestJavassistStreamPackStreamUnpack extends TestSet {
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
 	Template<UserDefinedTypeFieldsClass> tmpl = builder.buildTemplate(UserDefinedTypeFieldsClass.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	UserDefinedTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -295,10 +296,10 @@ public class TestJavassistStreamPackStreamUnpack extends TestSet {
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
 	Template<UserDefinedTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(UserDefinedTypeFieldsClassNotNullable.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	UserDefinedTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -314,10 +315,10 @@ public class TestJavassistStreamPackStreamUnpack extends TestSet {
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
 	Template<InheritanceClass> tmpl = builder.buildTemplate(InheritanceClass.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	InheritanceClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -333,10 +334,10 @@ public class TestJavassistStreamPackStreamUnpack extends TestSet {
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
 	Template<InheritanceClassNotNullable> tmpl = builder.buildTemplate(InheritanceClassNotNullable.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	InheritanceClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -352,10 +353,10 @@ public class TestJavassistStreamPackStreamUnpack extends TestSet {
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
 	Template<MessagePackableTypeFieldsClass> tmpl = builder.buildTemplate(MessagePackableTypeFieldsClass.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	MessagePackableTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -371,10 +372,10 @@ public class TestJavassistStreamPackStreamUnpack extends TestSet {
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
 	Template<MessagePackableTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(MessagePackableTypeFieldsClassNotNullable.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	StreamPacker packer = new StreamPacker(out);
+	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	StreamUnpacker unpacker = new StreamUnpacker(new ByteArrayInputStream(bytes));
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	MessagePackableTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }

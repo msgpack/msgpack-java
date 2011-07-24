@@ -11,9 +11,9 @@ import org.junit.Test;
 import org.msgpack.MessagePack;
 import org.msgpack.TestSet;
 import org.msgpack.packer.BufferPacker;
-import org.msgpack.packer.StreamPacker;
+import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.BufferUnpacker;
-import org.msgpack.unpacker.StreamUnpacker;
+import org.msgpack.unpacker.Unpacker;
 
 
 @Ignore
@@ -51,10 +51,10 @@ public class TestListTemplate {
 	    Template elementTemplate = msgpack.lookup(elementClass);
 	    Template tmpl = new ListTemplate(elementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
-	    StreamPacker packer = msgpack.createStreamPacker(out);
+	    Packer packer = msgpack.createPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
-	    StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
+	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	    String ret = (String) tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
@@ -72,7 +72,7 @@ public class TestListTemplate {
 	    Template elementTemplate = msgpack.lookup(elementClass);
 	    Template tmpl = new ListTemplate(elementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
-	    StreamPacker packer = msgpack.createStreamPacker(out);
+	    Packer packer = msgpack.createPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
@@ -115,7 +115,7 @@ public class TestListTemplate {
 	    BufferPacker packer = msgpack.createBufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
-	    StreamUnpacker unpacker = msgpack.createStreamUnpacker(new ByteArrayInputStream(bytes));
+	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	    String ret = (String) tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}

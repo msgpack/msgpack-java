@@ -21,14 +21,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
-import org.msgpack.packer.StreamPacker;
+import org.msgpack.packer.Packer;
 import org.msgpack.packer.BufferPacker;
+import org.msgpack.packer.MessagePackPacker;
+import org.msgpack.packer.MessagePackBufferPacker;
 import org.msgpack.packer.Unconverter;
-import org.msgpack.unpacker.StreamUnpacker;
+import org.msgpack.unpacker.Unpacker;
 import org.msgpack.unpacker.BufferUnpacker;
+import org.msgpack.unpacker.MessagePackUnpacker;
+import org.msgpack.unpacker.MessagePackBufferUnpacker;
 import org.msgpack.unpacker.Converter;
 import org.msgpack.type.Value;
 
@@ -45,32 +48,36 @@ public class MessagePack {
     }
 
 
-    public StreamPacker createStreamPacker(OutputStream stream) {
-        return new StreamPacker(this, stream);
+    public Packer createPacker(OutputStream stream) {
+        return new MessagePackPacker(this, stream);
     }
 
     public BufferPacker createBufferPacker() {
-        return new BufferPacker(this);
+        return new MessagePackBufferPacker(this);
     }
 
     public BufferPacker createBufferPacker(int bufferSize) {
-        return new BufferPacker(this, bufferSize);
+        return new MessagePackBufferPacker(this, bufferSize);
     }
 
-    public StreamUnpacker createStreamUnpacker(InputStream stream) {
-        return new StreamUnpacker(this, stream);
+    public Unpacker createUnpacker(InputStream stream) {
+        return new MessagePackUnpacker(this, stream);
+    }
+
+    public BufferUnpacker createBufferUnpacker() {
+        return new MessagePackBufferUnpacker();
     }
 
     public BufferUnpacker createBufferUnpacker(byte[] b) {
-        return new BufferUnpacker(this).wrap(b);
+        return createBufferUnpacker().wrap(b);
     }
 
     public BufferUnpacker createBufferUnpacker(byte[] b, int off, int len) {
-        return new BufferUnpacker(this).wrap(b, off, len);
+        return createBufferUnpacker().wrap(b, off, len);
     }
 
     public BufferUnpacker createBufferUnpacker(ByteBuffer bb) {
-        return new BufferUnpacker(this).wrap(bb);
+        return createBufferUnpacker().wrap(bb);
     }
 
 
@@ -89,7 +96,7 @@ public class MessagePack {
     }
 
     public <T> void write(OutputStream out, T v, Template<T> tmpl) throws IOException {
-        StreamPacker pk = createStreamPacker(out);
+        Packer pk = createPacker(out);
         tmpl.write(pk, v);
     }
 
@@ -113,7 +120,7 @@ public class MessagePack {
     }
 
     public Value read(InputStream in) throws IOException {
-        return createStreamUnpacker(in).readValue();
+        return createUnpacker(in).readValue();
     }
 
     public <T> T read(byte[] b, T v) throws IOException {  // TODO IOException
@@ -143,12 +150,12 @@ public class MessagePack {
 
     public <T> T read(InputStream in, T v) throws IOException {
         Template<T> tmpl = registry.lookup(v.getClass());
-        return tmpl.read(createStreamUnpacker(in), v);
+        return tmpl.read(createUnpacker(in), v);
     }
 
     public <T> T read(InputStream in, Class<T> c) throws IOException {
         Template<T> tmpl = registry.lookup(c);
-        return tmpl.read(createStreamUnpacker(in), null);
+        return tmpl.read(createUnpacker(in), null);
     }
 
     public <T> T convert(Value v, T to) throws IOException {  // TODO IOException
@@ -214,13 +221,13 @@ public class MessagePack {
 
     @Deprecated
     public static <T> T unpack(byte[] buffer, Template<T> tmpl) throws IOException {
-        BufferUnpacker u = new BufferUnpacker(globalMessagePack).wrap(buffer);
+        BufferUnpacker u = new MessagePackBufferUnpacker(globalMessagePack).wrap(buffer);
         return tmpl.read(u, null);
     }
 
     @Deprecated
     public static <T> T unpack(byte[] buffer, Template<T> tmpl, T to) throws IOException {
-        BufferUnpacker u = new BufferUnpacker(globalMessagePack).wrap(buffer);
+        BufferUnpacker u = new MessagePackBufferUnpacker(globalMessagePack).wrap(buffer);
         return tmpl.read(u, to);
     }
 
@@ -241,12 +248,12 @@ public class MessagePack {
 
     @Deprecated
     public static <T> T unpack(InputStream in, Template<T> tmpl) throws IOException, MessageTypeException {
-        return tmpl.read(new StreamUnpacker(globalMessagePack, in), null);
+        return tmpl.read(new MessagePackUnpacker(globalMessagePack, in), null);
     }
 
     @Deprecated
     public static <T> T unpack(InputStream in, Template<T> tmpl, T to) throws IOException, MessageTypeException {
-        return (T) tmpl.read(new StreamUnpacker(globalMessagePack, in), to);
+        return (T) tmpl.read(new MessagePackUnpacker(globalMessagePack, in), to);
     }
 
     @Deprecated

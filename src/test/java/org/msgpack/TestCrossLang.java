@@ -18,7 +18,7 @@ import java.util.Map;
 
 import org.msgpack.MessagePack;
 import org.msgpack.type.Value;
-import org.msgpack.packer.StreamPacker;
+import org.msgpack.packer.BufferPacker;
 import org.msgpack.unpacker.BufferUnpacker;
 
 import org.junit.Test;
@@ -52,8 +52,8 @@ public class TestCrossLang {
         byte[] a = readTestData();
         byte[] b = readCompactTestData();
 
-        BufferUnpacker au = new BufferUnpacker().wrap(a);
-        BufferUnpacker bu = new BufferUnpacker().wrap(b);
+        BufferUnpacker au = msgpack.createBufferUnpacker().wrap(a);
+        BufferUnpacker bu = msgpack.createBufferUnpacker().wrap(b);
 
         Iterator<Value> at = au.iterator();
         Iterator<Value> bt = bu.iterator();
@@ -73,15 +73,14 @@ public class TestCrossLang {
         byte[] a = readTestData();
         byte[] b = readCompactTestData();
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        StreamPacker pk = new StreamPacker(out);
+        BufferPacker pk = msgpack.createBufferPacker();
 
-        BufferUnpacker au = new BufferUnpacker().wrap(a);
+        BufferUnpacker au = msgpack.createBufferUnpacker().wrap(a);
         for(Value av : au) {
             pk.write(av);
         }
 
-        byte[] c = out.toByteArray();
+        byte[] c = pk.toByteArray();
 
         assertEquals(b.length, c.length);
         assertArrayEquals(b, c);

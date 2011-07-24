@@ -23,39 +23,13 @@ import org.msgpack.MessagePack;
 import org.msgpack.io.LinkedBufferInput;
 
 
-public class BufferUnpacker extends AbstractMessagePackUnpacker {
-    private static final int DEFAULT_BUFFER_SIZE = 512;  // TODO default buffer size
+public interface BufferUnpacker extends Unpacker {
+    public BufferUnpacker wrap(byte[] b);
 
-    public BufferUnpacker() {
-        this(DEFAULT_BUFFER_SIZE);
-    }
+    public BufferUnpacker wrap(byte[] b, int off, int len);
 
-    public BufferUnpacker(int bufferSize) {
-	this(new MessagePack(), bufferSize);
-    }
+    public BufferUnpacker wrap(ByteBuffer buf);
 
-    public BufferUnpacker(MessagePack msgpack) {
-	this(msgpack, DEFAULT_BUFFER_SIZE);
-    }
-
-    public BufferUnpacker(MessagePack msgpack, int bufferSize) {
-	super(msgpack, new LinkedBufferInput(bufferSize));
-    }
-
-    public BufferUnpacker wrap(byte[] b) {
-        return wrap(b, 0, b.length);
-    }
-
-    public BufferUnpacker wrap(byte[] b, int off, int len) {
-        ((LinkedBufferInput) in).clear();
-        ((LinkedBufferInput) in).feed(b, off, len, true);
-        return this;
-    }
-
-    public BufferUnpacker wrap(ByteBuffer buf) {
-        ((LinkedBufferInput) in).clear();
-        ((LinkedBufferInput) in).feed(buf, true);
-        return this;
-    }
+    // TODO feed
 }
 

@@ -19,21 +19,31 @@ package org.msgpack.packer;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import org.msgpack.io.Output;
+import org.msgpack.io.StreamOutput;
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 
 
-abstract class AbstractMessagePackPacker extends Packer {
+public class MessagePackPacker extends AbstractPacker {
     protected final Output out;
 
     private PackerStack stack = new PackerStack();
 
-    protected AbstractMessagePackPacker(MessagePack msgpack, Output out) {
-	super(msgpack);
-	this.out = out;
+    public MessagePackPacker(OutputStream stream) {
+        this(new MessagePack(), stream);
+    }
+
+    public MessagePackPacker(MessagePack msgpack, OutputStream stream) {
+        this(msgpack, new StreamOutput(stream));
+    }
+
+    protected MessagePackPacker(MessagePack msgpack, Output out) {
+        super(msgpack);
+        this.out = out;
     }
 
     @Override

@@ -68,6 +68,8 @@ public class TestSimplePackable {
 
     @Test
     public void testSample01() throws IOException {
+        MessagePack msgpack = new MessagePack();
+
         Sample01 a = new Sample01();
         a.f0 = "aaa";
         a.f1 = new int[3];
@@ -78,12 +80,12 @@ public class TestSimplePackable {
         a.f2.add("xx");
         a.f2.add("yy");
 
-        BufferPacker pk = new BufferPacker();
+        BufferPacker pk = msgpack.createBufferPacker();
         a.writeTo(pk);
 
         byte[] raw = pk.toByteArray();
 
-        BufferUnpacker u = new BufferUnpacker().wrap(raw);
+        BufferUnpacker u = msgpack.createBufferUnpacker().wrap(raw);
         Sample01 b = new Sample01();
         b.readFrom(u);
 
@@ -122,18 +124,20 @@ public class TestSimplePackable {
 
     @Test
     public void testSample02() throws IOException {
+        MessagePack msgpack = new MessagePack();
+
         Sample02 a = new Sample02();
         a.f0 = "aaa";
         a.f1 = null;
         a.f2 = null;
         a.f3 = "bbb";
 
-        BufferPacker pk = new BufferPacker();
+        BufferPacker pk = msgpack.createBufferPacker();
         a.writeTo(pk);
 
         byte[] raw = pk.toByteArray();
 
-        BufferUnpacker u = new BufferUnpacker().wrap(raw);
+        BufferUnpacker u = msgpack.createBufferUnpacker().wrap(raw);
         Sample02 b = new Sample02();
         b.readFrom(u);
 

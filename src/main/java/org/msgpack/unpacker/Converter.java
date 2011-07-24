@@ -28,7 +28,7 @@ import org.msgpack.type.ArrayValue;
 import org.msgpack.type.MapValue;
 
 
-public class Converter extends Unpacker {
+public class Converter extends AbstractUnpacker {
     private final UnpackerStack stack;
     private Object[] values;
     protected Value value;
