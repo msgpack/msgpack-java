@@ -40,11 +40,11 @@ public class MessagePack {
     private TemplateRegistry registry;
 
     public MessagePack() {
-	registry = new TemplateRegistry();
+        registry = new TemplateRegistry();
     }
 
     public MessagePack(MessagePack msgpack) {
-	registry = new TemplateRegistry(msgpack.registry);
+        registry = new TemplateRegistry(msgpack.registry);
     }
 
 
@@ -177,7 +177,7 @@ public class MessagePack {
 
 
     public void register(Class<?> type) {
-	registry.register(type);
+        registry.register(type);
     }
 
     // TODO #MN
@@ -188,7 +188,7 @@ public class MessagePack {
     }
 
     public <T> Template<T> lookup(Class<T> type) {
-	return registry.lookup(type);
+        return registry.lookup(type);
     }
 
 
@@ -206,12 +206,12 @@ public class MessagePack {
 
     @Deprecated
     public static <T> byte[] pack(T obj, Template<T> tmpl) throws IOException {  // TODO IOException
-	return globalMessagePack.write(obj, tmpl);
+        return globalMessagePack.write(obj, tmpl);
     }
 
     @Deprecated
     public static <T> void pack(OutputStream out, T obj, Template<T> tmpl) throws IOException {
-	globalMessagePack.write(out, obj, tmpl);
+        globalMessagePack.write(out, obj, tmpl);
     }
 
     @Deprecated

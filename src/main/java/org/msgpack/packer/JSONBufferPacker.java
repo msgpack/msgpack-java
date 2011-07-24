@@ -22,7 +22,7 @@ import org.msgpack.io.Output;
 import org.msgpack.io.LinkedBufferOutput;
 
 
-public class JSONBufferPacker extends JSONPacker {
+public class JSONBufferPacker extends JSONPacker implements BufferPacker {
     private static final int DEFAULT_BUFFER_SIZE = 512; // TODO default buffer size
 
     public JSONBufferPacker() {
