@@ -52,6 +52,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 
     @Override
     public <T> Template<T> buildTemplate(final Type targetType) throws TemplateBuildException {
+	@SuppressWarnings("unchecked")
 	Class<T> targetClass = (Class<T>) targetType;
 	checkClassValidation(targetClass);
 	FieldOption implicitOption = readImplicitFieldOption(targetClass);
@@ -236,7 +237,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	return targetClass.getAnnotation(with) != null;
     }
 
-    public static boolean isAnnotated(AccessibleObject ao, Class<? extends Annotation> with) {
-	return ao.getAnnotation(with) != null;
+    public static boolean isAnnotated(AccessibleObject accessibleObject, Class<? extends Annotation> with) {
+	return accessibleObject.getAnnotation(with) != null;
     }
 }

@@ -36,11 +36,13 @@ public class TemplateBuilderChain {
 
     public void init(TemplateRegistry registry) {
 	if (isSupportJavassist()) {
+	    // use dynamic code generation
 	    forceTemplateBuilder = new JavassistTemplateBuilder(registry);
 	    templateBuilders.add(forceTemplateBuilder);
 	    templateBuilders.add(new ReflectionOrdinalEnumTemplateBuilder(registry));
 	    templateBuilders.add(new JavassistBeansTemplateBuilder(registry));
 	} else {
+	    // use reflection
 	    forceTemplateBuilder = new ReflectionTemplateBuilder(registry);
 	    templateBuilders.add(forceTemplateBuilder);
 	    templateBuilders.add(new ReflectionOrdinalEnumTemplateBuilder(registry));
