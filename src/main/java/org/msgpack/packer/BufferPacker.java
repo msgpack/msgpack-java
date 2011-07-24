@@ -20,5 +20,7 @@ package org.msgpack.packer;
 
 public interface BufferPacker extends Packer {
     public byte[] toByteArray();
+
+    public void clear();
 }
 

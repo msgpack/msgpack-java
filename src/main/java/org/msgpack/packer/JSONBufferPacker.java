@@ -42,8 +42,11 @@ public class JSONBufferPacker extends JSONPacker implements BufferPacker {
     }
 
     public byte[] toByteArray() {
-        LinkedBufferOutput bo = (LinkedBufferOutput) out;
-        return ((LinkedBufferOutput) bo).toByteArray();
+        return ((LinkedBufferOutput) out).toByteArray();
+    }
+
+    public void clear() {
+        ((LinkedBufferOutput) out).clear();
     }
 }
 

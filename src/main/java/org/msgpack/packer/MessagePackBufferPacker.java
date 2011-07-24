@@ -41,8 +41,11 @@ public class MessagePackBufferPacker extends MessagePackPacker implements Buffer
     }
 
     public byte[] toByteArray() {
-        LinkedBufferOutput bo = (LinkedBufferOutput) out;
-        return ((LinkedBufferOutput) bo).toByteArray();
+        return ((LinkedBufferOutput) out).toByteArray();
+    }
+
+    public void clear() {
+        ((LinkedBufferOutput) out).clear();
     }
 }
 

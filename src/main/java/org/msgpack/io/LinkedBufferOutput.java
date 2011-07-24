@@ -64,6 +64,12 @@ public class LinkedBufferOutput extends BufferedOutput {
         return false;
     }
 
+    public void clear() {
+        link.clear();
+        size = 0;
+        filled = 0;
+    }
+
     public void close() {
     }
 }
