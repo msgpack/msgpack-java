@@ -521,5 +521,9 @@ abstract class AbstractMessagePackUnpacker extends Unpacker {
             readOne(valueAccept);
         }
     }
+
+    public void close() throws IOException {
+        in.close();
+    }
 }
 

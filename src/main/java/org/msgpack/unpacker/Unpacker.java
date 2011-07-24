@@ -18,6 +18,7 @@
 package org.msgpack.unpacker;
 
 import java.io.IOException;
+import java.io.Closeable;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import java.lang.Iterable;
@@ -27,7 +28,7 @@ import org.msgpack.template.Template;
 import org.msgpack.packer.Unconverter;
 
 
-public abstract class Unpacker implements Iterable<Value> {
+public abstract class Unpacker implements Iterable<Value>, Closeable {
     protected MessagePack msgpack;
 
     protected Unpacker(MessagePack msgpack) {
@@ -135,6 +136,10 @@ public abstract class Unpacker implements Iterable<Value> {
 
     public <T> T readOptional(T to) throws IOException {
         return readOptional(to, null);
+    }
+
+
+    public void close() throws IOException {
     }
 }
 

@@ -292,5 +292,8 @@ public class LinkedBufferInput implements Input {
             writable = -1;
         }
     }
+
+    public void close() {
+    }
 }
 

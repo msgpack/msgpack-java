@@ -301,5 +301,9 @@ abstract class AbstractMessagePackPacker extends Packer {
         }
         stack.pop();
     }
+
+    public void close() throws IOException {
+        out.close();
+    }
 }
 

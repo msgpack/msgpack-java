@@ -103,5 +103,9 @@ public class StreamOutput implements Output {
 
     public void flush() throws IOException {
     }
+
+    public void close() throws IOException {
+        out.close();
+    }
 }
 
