@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
+import org.json.simple.JSONValue;
 import org.msgpack.io.Output;
 import org.msgpack.io.StreamOutput;
 import org.msgpack.MessagePack;
@@ -130,19 +131,19 @@ public class JSONPacker extends AbstractPacker {
     }
 
     public void writeByteArray(byte[] b, int off, int len) throws IOException {
-        beginElement();
+        beginStringElement();
         out.writeByte(QUOTE);
-        out.write(b, off, len);  // FIXME escape
+        escape(out, b, off, len);
         out.writeByte(QUOTE);
         endElement();
     }
 
     public void writeByteBuffer(ByteBuffer bb) throws IOException {
-        beginElement();
+        beginStringElement();
         out.writeByte(QUOTE);
         int pos = bb.position();
         try {
-            out.write(bb);  // FIXME escape
+            escape(out, bb);
         } finally {
             bb.position(pos);
         }
@@ -151,10 +152,9 @@ public class JSONPacker extends AbstractPacker {
     }
 
     public void writeString(String s) throws IOException {
-        beginElement();
-        byte[] b = s.getBytes();
+        beginStringElement();
         out.writeByte(QUOTE);
-        out.write(b, 0, b.length);  // FIXME escape
+        escape(out, s);
         out.writeByte(QUOTE);
         endElement();
     }
@@ -215,6 +215,14 @@ public class JSONPacker extends AbstractPacker {
 
     private void beginElement() throws IOException {
         int flag = flags[stack.getDepth()];
+        if((flag & FLAG_MAP_KEY) != 0) {
+            throw new IOException("Key of a map must be a string in JSON");
+        }
+        beginStringElement();
+    }
+
+    private void beginStringElement() throws IOException {
+        int flag = flags[stack.getDepth()];
         if((flag & FLAG_MAP_VALUE) != 0) {
             out.writeByte(COLON);
         } else if(stack.getDepth() > 0 && (flag & FLAG_FIRST_ELEMENT) == 0) {
@@ -238,6 +246,25 @@ public class JSONPacker extends AbstractPacker {
 
     public void close() throws IOException {
         out.close();
+    }
+
+    private static void escape(Output out, byte[] b, int off, int len) throws IOException {
+        // TODO optimize
+        escape(out, new String(b, off, len));
+    }
+
+    private static void escape(Output out, ByteBuffer bb) throws IOException {
+        // TODO optimize
+        byte[] b = new byte[bb.remaining()];
+        bb.get(b);
+        escape(out, new String(b));
+    }
+
+    private static void escape(Output out, String s) throws IOException {
+        // TODO optimize
+        String e = JSONValue.escape(s);
+        byte[] raw = e.getBytes();
+        out.write(raw, 0, raw.length);
     }
 }
 
