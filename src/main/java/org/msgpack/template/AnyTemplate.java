@@ -24,7 +24,7 @@ import org.msgpack.type.Value;
 import org.msgpack.unpacker.Unpacker;
 
 
-public class AnyTemplate<T> implements Template<T> {
+public class AnyTemplate<T> extends AbstractTemplate<T> {
     private static AnyTemplate INSTANCE = null;
 
     public static AnyTemplate getInstance(TemplateRegistry registry) {

@@ -23,7 +23,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class BooleanTemplate implements Template<Boolean> {
+public class BooleanTemplate extends AbstractTemplate<Boolean> {
     private BooleanTemplate() { }
 
     public void write(Packer pk, Boolean target) throws IOException {

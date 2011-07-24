@@ -24,7 +24,7 @@ import org.msgpack.MessagePackable;
 import org.msgpack.MessageTypeException;
 
 
-public class MessagePackableTemplate implements Template<MessagePackable> {
+public class MessagePackableTemplate extends AbstractTemplate<MessagePackable> {
     private Class<?> targetClass;
 
     MessagePackableTemplate(Class<?> targetClass) {

@@ -23,7 +23,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class LongArrayTemplate implements Template<long[]> {
+public class LongArrayTemplate extends AbstractTemplate<long[]> {
     private LongArrayTemplate() { }
 
     public void write(Packer pk, long[] target) throws IOException {

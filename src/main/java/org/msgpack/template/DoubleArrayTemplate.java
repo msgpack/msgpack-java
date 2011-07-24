@@ -23,7 +23,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class DoubleArrayTemplate implements Template<double[]> {
+public class DoubleArrayTemplate extends AbstractTemplate<double[]> {
     private DoubleArrayTemplate() { }
 
     public void write(Packer pk, double[] target) throws IOException {

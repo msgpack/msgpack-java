@@ -24,7 +24,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class BigDecimalTemplate implements Template<BigDecimal> {
+public class BigDecimalTemplate extends AbstractTemplate<BigDecimal> {
     private BigDecimalTemplate() { }
 
     public void write(Packer pk, BigDecimal target) throws IOException {

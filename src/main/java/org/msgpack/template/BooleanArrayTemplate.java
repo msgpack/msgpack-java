@@ -23,7 +23,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class BooleanArrayTemplate implements Template<boolean[]> {
+public class BooleanArrayTemplate extends AbstractTemplate<boolean[]> {
     private BooleanArrayTemplate() { }
 
     public void write(Packer pk, boolean[] target) throws IOException {

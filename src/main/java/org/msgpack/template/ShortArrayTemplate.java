@@ -23,7 +23,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class ShortArrayTemplate implements Template<short[]> {
+public class ShortArrayTemplate extends AbstractTemplate<short[]> {
     private ShortArrayTemplate() { }
 
     public void write(Packer pk, short[] target) throws IOException {

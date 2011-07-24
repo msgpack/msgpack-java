@@ -23,7 +23,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class FloatTemplate implements Template<Float> {
+public class FloatTemplate extends AbstractTemplate<Float> {
     private FloatTemplate() { }
 
     public void write(Packer pk, Float target) throws IOException {

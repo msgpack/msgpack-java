@@ -25,7 +25,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class DateTemplate implements Template<Date> {
+public class DateTemplate extends AbstractTemplate<Date> {
     private DateTemplate() { }
 
     public void write(Packer pk, Date target) throws IOException {

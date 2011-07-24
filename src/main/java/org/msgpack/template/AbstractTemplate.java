@@ -20,27 +20,23 @@ package org.msgpack.template;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.MessageTypeException;
 
 
-public class LongTemplate extends AbstractTemplate<Long> {
-    private LongTemplate() { }
-
-    public void write(Packer pk, Long target) throws IOException {
-        if(target == null) {
-            throw new MessageTypeException("Attempted to write null");
+public abstract class AbstractTemplate<T> implements Template<T> {
+    public void write(Packer pk, T v, boolean optional) throws IOException {
+        if(optional && v == null) {
+            pk.writeNil();
+        } else {
+            write(pk, v);
         }
-        pk.writeLong(target);
     }
 
-    public Long read(Unpacker u, Long to) throws IOException {
-        return u.readLong();
+    public T read(Unpacker u, T to, boolean optional) throws IOException {
+        if(optional && u.trySkipNil()) {
+            return null;
+        } else {
+            return read(u, to);
+        }
     }
-
-    static public LongTemplate getInstance() {
-        return instance;
-    }
-
-    static final LongTemplate instance = new LongTemplate();
 }
 

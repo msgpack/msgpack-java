@@ -24,7 +24,7 @@ import org.msgpack.MessageTypeException;
 import org.msgpack.type.Value;
 
 
-public class ValueTemplate implements Template<Value> {
+public class ValueTemplate extends AbstractTemplate<Value> {
     private ValueTemplate() { }
 
     public void write(Packer pk, Value target) throws IOException {

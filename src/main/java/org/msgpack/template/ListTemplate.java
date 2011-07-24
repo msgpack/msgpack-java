@@ -25,7 +25,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class ListTemplate<E> implements Template<List<E>> {
+public class ListTemplate<E> extends AbstractTemplate<List<E>> {
     private Template<E> elementTemplate;
 
     public ListTemplate(Template<E> elementTemplate) {

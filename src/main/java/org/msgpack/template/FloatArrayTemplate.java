@@ -23,7 +23,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class FloatArrayTemplate implements Template<float[]> {
+public class FloatArrayTemplate extends AbstractTemplate<float[]> {
     private FloatArrayTemplate() { }
 
     public void write(Packer pk, float[] target) throws IOException {
