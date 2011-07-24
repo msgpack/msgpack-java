@@ -46,10 +46,6 @@ public abstract class FieldEntry {
 	return option != FieldOption.IGNORE;
     }
 
-    public boolean isRequired() {
-	return option == FieldOption.REQUIRED;
-    }
-
     public boolean isOptional() {
 	return option == FieldOption.OPTIONAL;
     }

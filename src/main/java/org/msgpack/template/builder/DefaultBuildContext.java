@@ -38,8 +38,6 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 
     protected Template<?>[] templates;
 
-    protected int minArrayLength;
-
     public DefaultBuildContext(JavassistTemplateBuilder director) {
 	super(director);
     }
@@ -76,14 +74,6 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
     }
 
     protected void buildMethodInit() {
-	minArrayLength = 0;
-	for (int i = 0; i < entries.length; i++) {
-	    FieldEntry e = entries[i];
-	    if (e.isRequired() || !e.isNotNullable()) {
-		// TODO #MN
-		minArrayLength = i + 1;
-	    }
-	}
     }
 
     protected String buildWriteMethodBody() {
@@ -103,7 +93,7 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 			e.getName());
 	    } else {
 		buildString("if (_$$_t.%s == null) {", e.getName());
-		if (e.isNotNullable() && !e.isOptional()) {
+		if (e.isNotNullable()) {
 		    buildString("throw new %s();",
 			    MessageTypeException.class.getName());
 		} else {
@@ -130,30 +120,22 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 	buildString("  _$$_t = (%s) $2;", origName);
 	buildString("}");
 
-	buildString("int length = $1.readArrayBegin();");
-	buildString("if (length < %d) {", minArrayLength);
-	buildString("  throw new %s();", MessageTypeException.class.getName());
-	buildString("}");
+	buildString("$1.readArrayBegin();");
 
 	int i;
-	for (i = 0; i < minArrayLength; i++) {
+	for (i = 0; i < entries.length; i++) {
 	    FieldEntry e = entries[i];
 	    if (!e.isAvailable()) {
 		buildString("$1.skip();"); // TODO #MN
 		continue;
 	    }
 
-	    buildString("if ($1.tryReadNil()) {");
-	    if (e.isRequired()) {
-		// Required + nil => exception
-		buildString("throw new %s();", MessageTypeException.class.getName());
-	    } else if (e.isOptional()) {
-		// Optional + nil => keep default value
-	    } else { // Nullable
-		     // Nullable + nil => set null
+            if (e.isOptional()) {
+	        buildString("if($1.trySkipNil()) {");
 		buildString("_$$_t.%s = null;", e.getName());
-	    }
-	    buildString("} else {");
+	        buildString("} else {");
+            }
+
 	    Class<?> type = e.getType();
 	    if (type.isPrimitive()) {
 		buildString("_$$_t.%s = $1.%s();", e.getName(), primitiveReadName(type));
@@ -161,37 +143,11 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 		buildString("_$$_t.%s = (%s) this.templates[%d].read($1, _$$_t.%s);",
 			e.getName(), e.getJavaTypeName(), i, e.getName());
 	    }
-	    buildString("}");
+
+            if (e.isOptional()) {
+	        buildString("}");
+            }
 	}
-
-	for (; i < entries.length; i++) {
-	    buildString("if (length <= %d) { return _$$_t; }", i);
-
-	    FieldEntry e = entries[i];
-	    if (!e.isAvailable()) {
-		buildString("$1.skip();"); // TODO #MN
-		continue;
-	    }
-
-	    buildString("if ($1.tryReadNil()) {");
-	    // this is Optional field becaue i >= minimumArrayLength
-	    // Optional + nil => keep default value
-	    buildString("} else {");
-	    Class<?> type = e.getType();
-	    if (type.isPrimitive()) {
-		buildString("_$$_t.%s = $1.%s();", e.getName(), primitiveReadName(type));
-	    } else {
-		buildString("_$$_t.%s = (%s) this.templates[%d].read($1, _$$_t.%s);",
-			e.getName(), e.getJavaTypeName(), i, e.getName());
-	    }
-	    buildString("}");
-	}
-
-	// latter entries are all Optional + nil => keep default value
-
-	buildString("for (int i = %d; i < length; i++) {", i);
-	buildString("  $1.skip();"); // TODO #MN
-	buildString("}");
 
 	buildString("$1.readArrayEnd();");
 	buildString("return _$$_t;");

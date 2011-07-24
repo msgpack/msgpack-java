@@ -27,6 +27,7 @@ import org.msgpack.annotation.MessagePackOrdinalEnum;
 import org.msgpack.annotation.OrdinalEnum;
 import org.msgpack.packer.Packer;
 import org.msgpack.template.Template;
+import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.builder.TemplateBuildException;
 import org.msgpack.unpacker.Unpacker;
@@ -34,7 +35,7 @@ import org.msgpack.unpacker.Unpacker;
 
 public class ReflectionOrdinalEnumTemplateBuilder extends AbstractTemplateBuilder {
 
-    static class ReflectionOrdinalEnumTemplate<T> implements Template<T> {
+    static class ReflectionOrdinalEnumTemplate<T> extends AbstractTemplate<T> {
 	private T[] entries;
 
 	private Map<T, Integer> reverse;
