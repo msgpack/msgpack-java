@@ -31,6 +31,7 @@ import org.msgpack.annotation.Message;
 import org.msgpack.annotation.MessagePackMessage;
 import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
+import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.TemplateRegistry;
 
 
@@ -38,7 +39,7 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
 
     private static Logger LOG = LoggerFactory.getLogger(JavassistTemplateBuilder.class);
 
-    public static abstract class JavassistTemplate<T> implements Template<T> {
+    public static abstract class JavassistTemplate<T> extends AbstractTemplate<T> {
 	public Class<T> targetClass;
 	public Template<?>[] templates;
 

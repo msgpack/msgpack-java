@@ -19,7 +19,6 @@ package org.msgpack.template;
 
 public enum FieldOption {
     IGNORE,
-    REQUIRED,
     OPTIONAL,
     NOTNULLABLE,
     DEFAULT;

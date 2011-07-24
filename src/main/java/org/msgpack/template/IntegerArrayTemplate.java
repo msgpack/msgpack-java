@@ -23,7 +23,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class IntegerArrayTemplate implements Template<int[]> {
+public class IntegerArrayTemplate extends AbstractTemplate<int[]> {
     private IntegerArrayTemplate() { }
 
     public void write(Packer pk, int[] target) throws IOException {

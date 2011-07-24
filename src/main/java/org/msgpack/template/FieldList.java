@@ -47,18 +47,6 @@ public class FieldList {
 	public boolean isAvailable() {
 	    return option != FieldOption.IGNORE;
 	}
-
-	public boolean isRequired() {
-	    return option == FieldOption.REQUIRED;
-	}
-
-	public boolean isOptional() {
-	    return option == FieldOption.OPTIONAL;
-	}
-
-	public boolean isNullable() {
-	    return option == FieldOption.NOTNULLABLE;
-	}
     }
 
     private ArrayList<Entry> list;
@@ -68,7 +56,7 @@ public class FieldList {
     }
 
     public void add(final String name) {
-	add(name, FieldOption.REQUIRED);
+	add(name, FieldOption.DEFAULT);
     }
 
     public void add(final String name, final FieldOption option) {
@@ -76,7 +64,7 @@ public class FieldList {
     }
 
     public void put(final int index, final String name) {
-	put(index, name, FieldOption.REQUIRED);
+	put(index, name, FieldOption.DEFAULT);
     }
 
     public void put(final int index, final String name, final FieldOption option) {

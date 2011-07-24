@@ -63,5 +63,8 @@ public class LinkedBufferOutput extends BufferedOutput {
         size += len;
         return false;
     }
+
+    public void close() {
+    }
 }
 

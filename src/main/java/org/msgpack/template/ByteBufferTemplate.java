@@ -25,7 +25,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class ByteBufferTemplate implements Template<ByteBuffer> {
+public class ByteBufferTemplate extends AbstractTemplate<ByteBuffer> {
     private ByteBufferTemplate() { }
 
     public void write(Packer pk, ByteBuffer target) throws IOException {

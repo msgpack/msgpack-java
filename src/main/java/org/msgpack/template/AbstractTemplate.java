@@ -15,15 +15,28 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.annotation;
+package org.msgpack.template;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.io.IOException;
+import org.msgpack.packer.Packer;
+import org.msgpack.unpacker.Unpacker;
 
 
-@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Required {
+public abstract class AbstractTemplate<T> implements Template<T> {
+    public void write(Packer pk, T v, boolean optional) throws IOException {
+        if(optional && v == null) {
+            pk.writeNil();
+        } else {
+            write(pk, v);
+        }
+    }
+
+    public T read(Unpacker u, T to, boolean optional) throws IOException {
+        if(optional && u.trySkipNil()) {
+            return null;
+        } else {
+            return read(u, to);
+        }
+    }
 }
+

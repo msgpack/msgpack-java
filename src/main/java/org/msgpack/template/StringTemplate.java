@@ -23,7 +23,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class StringTemplate implements Template<String> {
+public class StringTemplate extends AbstractTemplate<String> {
     private StringTemplate() { }
 
     public void write(Packer pk, String target) throws IOException {

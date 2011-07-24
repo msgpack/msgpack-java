@@ -26,7 +26,7 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 
 
-public class DefaultTemplate<T> implements Template<T> {
+public class DefaultTemplate<T> extends AbstractTemplate<T> {
     private TemplateRegistry registry;
 
     // this field should be deleted?

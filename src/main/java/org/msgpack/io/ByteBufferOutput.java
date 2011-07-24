@@ -126,5 +126,8 @@ public class ByteBufferOutput implements Output {
 
     public void flush() throws IOException {
     }
+
+    public void close() {
+    }
 }
 

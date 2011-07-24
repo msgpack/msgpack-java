@@ -100,5 +100,9 @@ public class StreamInput implements Input {
         require(8);
         return castByteBuffer.getDouble(0);
     }
+
+    public void close() throws IOException {
+        in.close();
+    }
 }
 

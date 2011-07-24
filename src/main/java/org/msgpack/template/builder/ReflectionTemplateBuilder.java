@@ -27,6 +27,7 @@ import org.msgpack.annotation.Message;
 import org.msgpack.annotation.MessagePackMessage;
 import org.msgpack.packer.Packer;
 import org.msgpack.template.Template;
+import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.unpacker.Unpacker;
 
@@ -184,23 +185,14 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	}
     }
 
-    static class ReflectionTemplate<T> implements Template<T> {
+    static class ReflectionTemplate<T> extends AbstractTemplate<T> {
 	protected Class<T> targetClass;
 
 	protected FieldEntry[] entries;
 
-	protected int minArrayLength;
-
 	ReflectionTemplate(Class<T> targetClass, FieldEntry[] entries) {
 	    this.targetClass = targetClass;
 	    this.entries = entries;
-	    minArrayLength = 0;
-	    for (int i = 0; i < entries.length; i++) {
-		FieldEntry e = entries[i];
-		if (e.isRequired() || !e.isNotNullable()) {
-		    minArrayLength = i + 1;
-		}
-	    }
 	}
 
 	@Override
@@ -215,7 +207,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 		    }
 		    Object obj = e.get(target);
 		    if (obj == null) {
-			if (e.isNotNullable() && !e.isOptional()) {
+			if (e.isNotNullable()) {
 			    throw new MessageTypeException();
 			}
 			packer.writeNil();
@@ -234,60 +226,25 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	}
 
 	@Override
-	public T read(Unpacker unpacker, T to) throws IOException, MessageTypeException {
+	public T read(Unpacker unpacker, T to) throws IOException {
 	    try {
 		if (to == null) {
 		    to = targetClass.newInstance();
 		}
 
-		int length = unpacker.readArrayBegin();
-		if (length < minArrayLength) {
-		    throw new MessageTypeException();
-		}
+		unpacker.readArrayBegin();
 
-		int i;
-		for (i = 0; i < minArrayLength; ++i) {
+                for (int i=0; i < entries.length; i++) {
 		    ReflectionFieldEntry e = (ReflectionFieldEntry) entries[i];
-		    if (!e.isAvailable()) {
-			unpacker.readValue(); // FIXME
-			continue;
-		    }
+                    if(!e.isAvailable()) {
+                        unpacker.skip();
+                    } else if(e.isOptional() && unpacker.trySkipNil()) {
+                        e.setNull(to);
+                    } else {
+                        e.read(unpacker, to);
+                    }
+                }
 
-		    if (unpacker.tryReadNil()) {
-			if (e.isRequired()) {
-			    // Required + nil => exception
-			    throw new MessageTypeException();
-			} else if (e.isOptional()) {
-			    // Optional + nil => keep default value
-			} else { // nullable
-				 // nullable + nil => set null
-			    e.setNull(to);
-			}
-		    } else {
-			e.read(unpacker, to);
-		    }
-		}
-
-		int max = length < entries.length ? length : entries.length;
-		for (; i < max; ++i) {
-		    ReflectionFieldEntry e = (ReflectionFieldEntry) entries[i];
-		    if (!e.isAvailable()) {
-			unpacker.readValue(); // FIXME
-			continue;
-		    }
-
-		    if (unpacker.tryReadNil()) {
-			// this is Optional field becaue i >= minimumArrayLength
-			// Optional + nil => keep default value
-		    } else {
-			e.read(unpacker, to);
-		    }
-		}
-
-		// latter entries are all Optional + nil => keep default value
-		for (; i < length; ++i) {
-		    unpacker.readValue(); // FIXME
-		}
 		unpacker.readArrayEnd();
 		return to;
 	    } catch (MessageTypeException e) {

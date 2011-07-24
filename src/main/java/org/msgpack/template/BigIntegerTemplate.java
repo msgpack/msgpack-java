@@ -24,7 +24,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class BigIntegerTemplate implements Template<BigInteger> {
+public class BigIntegerTemplate extends AbstractTemplate<BigInteger> {
     private BigIntegerTemplate() { }
 
     public void write(Packer pk, BigInteger target) throws IOException {

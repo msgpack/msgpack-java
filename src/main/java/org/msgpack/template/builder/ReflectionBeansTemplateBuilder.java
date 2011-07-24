@@ -34,10 +34,10 @@ import org.msgpack.annotation.Index;
 import org.msgpack.annotation.MessagePackBeans;
 import org.msgpack.annotation.NotNullable;
 import org.msgpack.annotation.Optional;
-import org.msgpack.annotation.Required;
 import org.msgpack.packer.Packer;
 import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
+import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.builder.ReflectionTemplateBuilder.ReflectionFieldEntry;
 import org.msgpack.unpacker.Unpacker;
@@ -93,108 +93,60 @@ public class ReflectionBeansTemplateBuilder extends AbstractTemplateBuilder {
 	}
     }
 
-    static class ReflectionBeansTemplate<T> implements Template<T> {
+    static class ReflectionBeansTemplate<T> extends AbstractTemplate<T> {
 	private Class<T> targetClass;
 
 	private FieldEntry[] entries = null;
 
-	protected int minArrayLength;
-
 	ReflectionBeansTemplate(Class<T> targetClass, FieldEntry[] entries) {
 	    this.targetClass = targetClass;
 	    this.entries = entries;
-	    minArrayLength = 0;
-	    for (int i = 0; i < entries.length; i++) {
-		FieldEntry e = entries[i];
-		if (e.isRequired() || !e.isNotNullable()) {
-		    minArrayLength = i + 1;
-		}
-	    }
 	}
 
 	@Override
 	public
-	void write(Packer pk, T v) throws IOException {
-	    pk.writeArrayBegin(entries.length);
+	void write(Packer packer, T v) throws IOException {
+	    packer.writeArrayBegin(entries.length);
 	    for (FieldEntry entry : entries) {
 		ReflectionBeansFieldEntry e = (ReflectionBeansFieldEntry) entry;
 		if (!e.isAvailable()) {
-		    pk.writeNil();
+		    packer.writeNil();
 		    continue;
 		}
 		Object obj = e.get(v);
 		if (obj == null) {
-		    if (e.isNotNullable() && !e.isOptional()) {
+		    if (e.isNotNullable()) {
 			throw new MessageTypeException();
 		    }
-		    pk.writeNil();
+		    packer.writeNil();
 		} else {
-		    e.write(pk, obj);
+		    e.write(packer, obj);
 		}
 	    }
-	    pk.writeArrayEnd();
+	    packer.writeArrayEnd();
 	}
 
 	@Override
-	public T read(Unpacker u, T to) throws IOException {
+	public T read(Unpacker unpacker, T to) throws IOException {
 	    try {
 		if (to == null) {
 		    to = targetClass.newInstance();
 		}
 
-		int length = u.readArrayBegin();
-		if (length < minArrayLength) {
-		    throw new MessageTypeException();
-		}
+                unpacker.readArrayBegin();
 
-		int i;
-		for (i = 0; i < minArrayLength; i++) {
+                for (int i=0; i < entries.length; i++) {
 		    ReflectionBeansFieldEntry e = (ReflectionBeansFieldEntry) entries[i];
-		    if (!e.isAvailable()) {
-			u.readValue(); // TODO #MN
-			continue;
-		    }
+                    if(!e.isAvailable()) {
+                        unpacker.skip();
+                    } else if(e.isOptional() && unpacker.trySkipNil()) {
+                        e.setNull(to);
+                    } else {
+                        e.read(unpacker, to);
+                    }
+                }
 
-		    if (u.tryReadNil()) {
-			if (e.isRequired()) {
-			    // Required + nil => exception
-			    throw new MessageTypeException();
-			} else if (e.isOptional()) {
-			    // Optional + nil => keep default value
-			} else { // Nullable
-				 // Nullable + nil => set null
-			    e.setNull(to);
-			}
-		    } else {
-			e.read(u, to);
-			// e.set(to, pac.unpack(e.getType()));
-		    }
-		}
-
-		int max = length < entries.length ? length : entries.length;
-		for (; i < max; i++) {
-		    ReflectionBeansFieldEntry e = (ReflectionBeansFieldEntry) entries[i];
-		    if (!e.isAvailable()) {
-			u.readValue(); // TODO #MN
-			continue;
-		    }
-
-		    if (u.tryReadNil()) {
-			// this is Optional field becaue i >= minimumArrayLength
-			// Optional + nil => keep default value
-		    } else {
-			e.read(u, to);
-			// e.set(to, pac.unpack(e.getType()));
-		    }
-		}
-
-		// latter entries are all Optional + nil => keep default value
-
-		for (; i < length; i++) {
-		    u.readValue();
-		}
-
-		u.readArrayEnd();
+		unpacker.readArrayEnd();
 		return to;
 	    } catch (MessageTypeException e) {
 		throw e;
@@ -315,16 +267,10 @@ public class ReflectionBeansTemplateBuilder extends AbstractTemplateBuilder {
     private FieldOption readMethodOption(Method method) {
 	if (isAnnotated(method, Ignore.class)) {
 	    return FieldOption.IGNORE;
-	} else if (isAnnotated(method, Required.class)) {
-	    return FieldOption.REQUIRED;
 	} else if (isAnnotated(method, Optional.class)) {
 	    return FieldOption.OPTIONAL;
 	} else if (isAnnotated(method, NotNullable.class)) {
-	    if (method.getDeclaringClass().isPrimitive()) {
-		return FieldOption.REQUIRED;
-	    } else {
-		return FieldOption.NOTNULLABLE;
-	    }
+            return FieldOption.NOTNULLABLE;
 	}
 	return FieldOption.DEFAULT;
     }

@@ -31,7 +31,6 @@ import org.msgpack.annotation.Message;
 import org.msgpack.annotation.MessagePackMessage;
 import org.msgpack.annotation.NotNullable;
 import org.msgpack.annotation.Optional;
-import org.msgpack.annotation.Required;
 import org.msgpack.template.FieldList;
 import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
@@ -200,16 +199,10 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 
 	if (isAnnotated(field, Ignore.class)) {
 	    return FieldOption.IGNORE;
-	} else if(isAnnotated(field, Required.class)) {
-	    return FieldOption.REQUIRED;
 	} else if(isAnnotated(field, Optional.class)) {
 	    return FieldOption.OPTIONAL;
 	} else if(isAnnotated(field, NotNullable.class)) {
-	    if(field.getDeclaringClass().isPrimitive()) {
-		return FieldOption.REQUIRED;
-	    } else {
-		return FieldOption.NOTNULLABLE;
-	    }
+            return FieldOption.NOTNULLABLE;
 	}
 
 	if (implicitOption != FieldOption.DEFAULT) {
@@ -218,12 +211,13 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 
 	// default mode:
 	//   transient : Ignore
-	//   public    : Required
+	//   public    : NotNullable  // FIXME
 	//   others    : Ignore
 	if (Modifier.isTransient(mod)) {
 	    return FieldOption.IGNORE;
 	} else if(Modifier.isPublic(mod)) {
-	    return FieldOption.REQUIRED;
+            // FIXME primitive->NOTNULLABLE, otherwise->OPTIONAL
+	    return FieldOption.NOTNULLABLE;
 	} else {
 	    return FieldOption.IGNORE;
 	}

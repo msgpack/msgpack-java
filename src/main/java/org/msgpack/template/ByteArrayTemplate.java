@@ -23,7 +23,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class ByteArrayTemplate implements Template<byte[]> {
+public class ByteArrayTemplate extends AbstractTemplate<byte[]> {
     private ByteArrayTemplate() { }
 
     public void write(Packer pk, byte[] target) throws IOException {

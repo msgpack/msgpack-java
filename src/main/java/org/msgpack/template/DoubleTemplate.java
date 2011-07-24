@@ -23,7 +23,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class DoubleTemplate implements Template<Double> {
+public class DoubleTemplate extends AbstractTemplate<Double> {
     private DoubleTemplate() { }
 
     public void write(Packer pk, Double target) throws IOException {

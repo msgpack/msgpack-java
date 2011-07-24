@@ -23,7 +23,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class LongTemplate implements Template<Long> {
+public class LongTemplate extends AbstractTemplate<Long> {
     private LongTemplate() { }
 
     public void write(Packer pk, Long target) throws IOException {

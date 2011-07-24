@@ -25,7 +25,7 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
 
-public class MapTemplate<K,V> implements Template<Map<K,V>> {
+public class MapTemplate<K,V> extends AbstractTemplate<Map<K,V>> {
     private Template<K> keyTemplate;
     private Template<V> valueTemplate;
 

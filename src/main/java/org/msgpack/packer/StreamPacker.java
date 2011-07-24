@@ -18,6 +18,7 @@
 package org.msgpack.packer;
 
 import java.io.OutputStream;
+import java.io.IOException;
 
 import org.msgpack.MessagePack;
 import org.msgpack.io.StreamOutput;
@@ -30,6 +31,10 @@ public class StreamPacker extends AbstractMessagePackPacker {
 
     public StreamPacker(MessagePack msgpack, OutputStream stream) {
 	super(msgpack, new StreamOutput(stream));
+    }
+
+    public void close() throws IOException {
+        out.close();
     }
 }
 

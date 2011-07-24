@@ -19,13 +19,14 @@ package org.msgpack.packer;
 
 import java.math.BigInteger;
 import java.io.IOException;
+import java.io.Closeable;
 import java.nio.ByteBuffer;
 import org.msgpack.type.Value;
 import org.msgpack.MessagePack;
 import org.msgpack.template.Template;
 
 
-public abstract class Packer {
+public abstract class Packer implements Closeable {
     protected MessagePack msgpack;
 
     protected Packer(MessagePack msgpack) {
@@ -94,6 +95,10 @@ public abstract class Packer {
     public Packer write(Value v) throws IOException {
         v.writeTo(this);
         return this;
+    }
+
+
+    public void close() throws IOException {
     }
 
 //    public Packer write(Object o) throws IOException {
