@@ -57,5 +57,35 @@ public class MessagePackBufferUnpacker extends MessagePackUnpacker implements Bu
         ((LinkedBufferInput) in).feed(buf, true);
         return this;
     }
+
+    public MessagePackBufferUnpacker feed(byte[] b) {
+        ((LinkedBufferInput) in).feed(b);
+        return this;
+    }
+
+    public MessagePackBufferUnpacker feed(byte[] b, boolean nocopy) {
+        ((LinkedBufferInput) in).feed(b, nocopy);
+        return this;
+    }
+
+    public MessagePackBufferUnpacker feed(byte[] b, int off, int len) {
+        ((LinkedBufferInput) in).feed(b, off, len);
+        return this;
+    }
+
+    public MessagePackBufferUnpacker feed(byte[] b, int off, int len, boolean nocopy) {
+        ((LinkedBufferInput) in).feed(b, off, len, nocopy);
+        return this;
+    }
+
+    public MessagePackBufferUnpacker feed(ByteBuffer b) {
+        ((LinkedBufferInput) in).feed(b);
+        return this;
+    }
+
+    public MessagePackBufferUnpacker feed(ByteBuffer buf, boolean nocopy) {
+        ((LinkedBufferInput) in).feed(buf, nocopy);
+        return this;
+    }
 }
 

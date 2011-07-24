@@ -34,15 +34,26 @@ public class Converter extends AbstractUnpacker {
     protected Value value;
 
     public Converter(Value value) {
-	this(new MessagePack(), value);
+        this(new MessagePack(), value);
     }
 
     public Converter(MessagePack msgpack, Value value) {
-	super(msgpack);
+        super(msgpack);
         this.stack = new UnpackerStack();
         this.values = new Object[UnpackerStack.MAX_STACK_SIZE];
-        this.values[0] = value;
         this.value = value;
+    }
+
+    // FIXME throws IOException?
+    protected Value nextValue() {
+        // FIXME EOFError?
+        throw new NullPointerException("Value is not set");
+    }
+
+    private void ensureValue() {
+        if(value == null) {
+            value = nextValue();
+        }
     }
 
     @Override
@@ -60,9 +71,7 @@ public class Converter extends AbstractUnpacker {
 
     @Override
     public boolean trySkipNil() {
-        if(value == null) {
-            value = nextValue();
-        }
+        ensureValue();
 
         if(stack.getDepth() > 0 && stack.getTopCount() <= 0) {
             // end of array or map
@@ -257,24 +266,16 @@ public class Converter extends AbstractUnpacker {
         }
     }
 
-    // FIXME throws IOException?
-    protected Value nextValue() {
-        // FIXME EOFError?
-        throw new NullPointerException("Value is not set");
-    }
-
     private Value getTop() {
-        if(value == null) {
-            this.value = nextValue();
-        }
+        ensureValue();
 
         stack.checkCount();
         if(stack.getDepth() == 0) {
-            if(stack.getTopCount() < 0) {
-                //throw new EOFException();  // TODO
-                throw new RuntimeException(new EOFException());
-            }
-            return (Value) values[0];
+            //if(stack.getTopCount() < 0) {
+            //    //throw new EOFException();  // TODO
+            //    throw new RuntimeException(new EOFException());
+            //}
+            return value;
         }
         Value[] array = (Value[]) values[stack.getDepth()];
         return array[array.length - stack.getTopCount()];
@@ -289,6 +290,7 @@ public class Converter extends AbstractUnpacker {
         stack.checkCount();
         Value v = getTop();
         if(!v.isArray() && !v.isMap()) {
+            uc.write(v);
             stack.reduceCount();
             if(stack.getDepth() == 0) {
                 value = null;
@@ -299,7 +301,7 @@ public class Converter extends AbstractUnpacker {
         }
 
         while(true) {
-            while(stack.getTopCount() == 0) {
+            while(stack.getDepth() != 0 && stack.getTopCount() == 0) {
                 if(stack.topIsArray()) {
                     uc.writeArrayEnd(true);
                     stack.pop();

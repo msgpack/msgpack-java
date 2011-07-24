@@ -30,6 +30,16 @@ public interface BufferUnpacker extends Unpacker {
 
     public BufferUnpacker wrap(ByteBuffer buf);
 
-    // TODO feed
+    public BufferUnpacker feed(byte[] b);
+
+    public BufferUnpacker feed(byte[] b, boolean nocopy);
+
+    public BufferUnpacker feed(byte[] b, int off, int len);
+
+    public BufferUnpacker feed(byte[] b, int off, int len, boolean nocopy);
+
+    public BufferUnpacker feed(ByteBuffer b);
+
+    public BufferUnpacker feed(ByteBuffer buf, boolean nocopy);
 }
 

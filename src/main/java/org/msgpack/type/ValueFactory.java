@@ -19,6 +19,8 @@ package org.msgpack.type;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.Map;
 
 public final class ValueFactory {
     public static NilValue nilValue() {
