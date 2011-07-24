@@ -14,8 +14,10 @@
   </configurations>
 
   <dependencies>
-    <dependency org="junit" name="junit" rev="4.8.1" conf="test->default"/>
-    <dependency org="javassist" name="javassist" rev="3.12.1.GA"/>
-    <dependency org="org.slf4j" name="slf4j-api" rev="1.4.3"/>
+    <dependency org="com.googlecode.json-simple" name="json-simple" rev="1.1"/>
+    <dependency org="org.javassist" name="javassist" rev="3.15.0-GA"/>
+    <dependency org="org.slf4j" name="slf4j-api" rev="1.6.1"/>
+    <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1"/>
+    <dependency org="junit" name="junit" rev="4.8.2" conf="test->default"/>
   </dependencies>
 </ivy-module>
