@@ -26,9 +26,13 @@ import org.msgpack.MessageTypeException;
 public class LongArrayTemplate extends AbstractTemplate<long[]> {
     private LongArrayTemplate() { }
 
-    public void write(Packer pk, long[] target) throws IOException {
+    public void write(Packer pk, long[] target, boolean required) throws IOException {
         if(target == null) {
-            throw new MessageTypeException("Attempted to write null");
+            if(required) {
+                throw new MessageTypeException("Attempted to write null");
+            }
+            pk.writeNil();
+            return;
         }
         pk.writeArrayBegin(target.length);
         for(long a : target) {
@@ -37,7 +41,10 @@ public class LongArrayTemplate extends AbstractTemplate<long[]> {
         pk.writeArrayEnd();
     }
 
-    public long[] read(Unpacker u, long[] to) throws IOException {
+    public long[] read(Unpacker u, long[] to, boolean required) throws IOException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
         int n = u.readArrayBegin();
         if(to == null || to.length != n) {
             to = new long[n];

@@ -26,9 +26,13 @@ import org.msgpack.MessageTypeException;
 public class IntegerArrayTemplate extends AbstractTemplate<int[]> {
     private IntegerArrayTemplate() { }
 
-    public void write(Packer pk, int[] target) throws IOException {
+    public void write(Packer pk, int[] target, boolean required) throws IOException {
         if(target == null) {
-            throw new MessageTypeException("Attempted to write null");
+            if(required) {
+                throw new MessageTypeException("Attempted to write null");
+            }
+            pk.writeNil();
+            return;
         }
         pk.writeArrayBegin(target.length);
         for(int a : target) {
@@ -37,7 +41,10 @@ public class IntegerArrayTemplate extends AbstractTemplate<int[]> {
         pk.writeArrayEnd();
     }
 
-    public int[] read(Unpacker u, int[] to) throws IOException {
+    public int[] read(Unpacker u, int[] to, boolean required) throws IOException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
         int n = u.readArrayBegin();
         int[] array;
         if(to != null && to.length == n) {

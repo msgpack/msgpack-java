@@ -110,7 +110,8 @@ public abstract class BuildContext<T extends FieldEntry> {
 	String mname = "write";
 	CtClass[] paramTypes = new CtClass[] {
 		director.getCtClass(Packer.class.getName()),
-		director.getCtClass(Object.class.getName())
+		director.getCtClass(Object.class.getName()),
+                CtClass.booleanType
 	};
 	CtClass[] exceptTypes = new CtClass[] { 
 		director.getCtClass(IOException.class.getName())
@@ -134,7 +135,8 @@ public abstract class BuildContext<T extends FieldEntry> {
 	String mname = "read";
 	CtClass[] paramTypes = new CtClass[] {
 		director.getCtClass(Unpacker.class.getName()),
-		director.getCtClass(Object.class.getName())
+		director.getCtClass(Object.class.getName()),
+                CtClass.booleanType
 	};
 	CtClass[] exceptTypes = new CtClass[] {
 		director.getCtClass(MessageTypeException.class.getName())

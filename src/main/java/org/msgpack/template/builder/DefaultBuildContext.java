@@ -79,8 +79,18 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
     protected String buildWriteMethodBody() {
 	resetStringBuilder();
 	buildString("{");
+
+        buildString("if($2 == null) {");
+        buildString("  if($3) {");
+        buildString("    throw new %s(\"Attempted to write null\");", MessageTypeException.class.getName());
+        buildString("  }");
+        buildString("  $1.writeNil();");
+        buildString("  return;");
+        buildString("}");
+
 	buildString("%s _$$_t = (%s) $2;", origName, origName);
 	buildString("$1.writeArrayBegin(%d);", entries.length);
+
 	for (int i = 0; i < entries.length; i++) {
 	    FieldEntry e = entries[i];
 	    if (!e.isAvailable()) {
@@ -104,6 +114,7 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 		buildString("}");
 	    }
 	}
+
 	buildString("$1.writeArrayEnd();");
 	buildString("}");
 	return getBuiltString();
@@ -112,6 +123,10 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
     protected String buildReadMethodBody() {
 	resetStringBuilder();
 	buildString("{ ");
+
+        buildString("if(!$3 && $1.trySkipNil()) {");
+        buildString("  return null;");
+        buildString("}");
 
 	buildString("%s _$$_t;", origName);
 	buildString("if ($2 == null) {");

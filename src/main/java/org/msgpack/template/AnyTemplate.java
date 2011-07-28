@@ -40,17 +40,23 @@ public class AnyTemplate<T> extends AbstractTemplate<T> {
 	
     }
 
-    public void write(Packer pk, T target) throws IOException {
+    public void write(Packer pk, T target, boolean required) throws IOException {
 	if(target instanceof Value) {
 	    pk.write((Value) target);
 	} else if(target == null) {
+            if(required) {
+		throw new MessageTypeException("Attempted to write null");
+            }
 	    pk.writeNil();
 	} else {
 	    registry.lookup(target.getClass()).write(pk, target);
 	}
     }
 
-    public T read(Unpacker u, T to) throws IOException, MessageTypeException {
+    public T read(Unpacker u, T to, boolean required) throws IOException, MessageTypeException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
 	return u.read(to);
     }
 }

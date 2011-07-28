@@ -49,7 +49,7 @@ public class ReflectionOrdinalEnumTemplateBuilder extends AbstractTemplateBuilde
 	}
 
 	@Override
-	public void write(Packer pk, T target) throws IOException {
+	public void write(Packer pk, T target, boolean required) throws IOException {
 	    Integer ord = reverse.get(target);
 	    if (ord == null) {
 		throw new MessageTypeException();
@@ -58,7 +58,7 @@ public class ReflectionOrdinalEnumTemplateBuilder extends AbstractTemplateBuilde
 	}
 
 	@Override
-	public T read(Unpacker pac, T to) throws IOException, MessageTypeException {
+	public T read(Unpacker pac, T to, boolean required) throws IOException, MessageTypeException {
 	    int ord = pac.readInt();
 	    if (entries.length <= ord) {
 		throw new MessageTypeException();

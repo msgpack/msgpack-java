@@ -27,14 +27,21 @@ import org.msgpack.MessageTypeException;
 public class BigDecimalTemplate extends AbstractTemplate<BigDecimal> {
     private BigDecimalTemplate() { }
 
-    public void write(Packer pk, BigDecimal target) throws IOException {
+    public void write(Packer pk, BigDecimal target, boolean required) throws IOException {
         if(target == null) {
-            throw new MessageTypeException("Attempted to write null");
+            if(required) {
+                throw new MessageTypeException("Attempted to write null");
+            }
+            pk.writeNil();
+            return;
         }
         pk.writeString(target.toString());
     }
 
-    public BigDecimal read(Unpacker u, BigDecimal to) throws IOException {
+    public BigDecimal read(Unpacker u, BigDecimal to, boolean required) throws IOException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
         String temp = u.readString();
         return new BigDecimal(temp);
     }

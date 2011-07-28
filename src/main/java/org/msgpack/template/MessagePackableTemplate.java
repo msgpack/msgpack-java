@@ -31,14 +31,21 @@ public class MessagePackableTemplate extends AbstractTemplate<MessagePackable> {
 	this.targetClass = targetClass;
     }
 
-    public void write(Packer pk, MessagePackable target) throws IOException {
+    public void write(Packer pk, MessagePackable target, boolean required) throws IOException {
         if(target == null) {
-            throw new MessageTypeException("Attempted to write null");
+            if(required) {
+                throw new MessageTypeException("Attempted to write null");
+            }
+            pk.writeNil();
+            return;
         }
         target.writeTo(pk);
     }
 
-    public MessagePackable read(Unpacker u, MessagePackable to) throws IOException {
+    public MessagePackable read(Unpacker u, MessagePackable to, boolean required) throws IOException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
 	if (to == null) {
 	    try {
 		to = (MessagePackable) targetClass.newInstance();

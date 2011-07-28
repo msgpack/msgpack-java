@@ -26,14 +26,21 @@ import org.msgpack.MessageTypeException;
 public class BooleanTemplate extends AbstractTemplate<Boolean> {
     private BooleanTemplate() { }
 
-    public void write(Packer pk, Boolean target) throws IOException {
+    public void write(Packer pk, Boolean target, boolean required) throws IOException {
         if(target == null) {
-            throw new MessageTypeException("Attempted to write null");
+            if(required) {
+                throw new MessageTypeException("Attempted to write null");
+            }
+            pk.writeNil();
+            return;
         }
         pk.writeBoolean(target);
     }
 
-    public Boolean read(Unpacker u, Boolean to) throws IOException {
+    public Boolean read(Unpacker u, Boolean to, boolean required) throws IOException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
         return u.readBoolean();
     }
 

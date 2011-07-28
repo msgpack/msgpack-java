@@ -89,7 +89,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             return true;
         }
 
-        byte b = getHeadByte();
+        final int b = (int)getHeadByte();
 
         if((b & 0x80) == 0) {  // Positive Fixnum
             //System.out.println("positive fixnum "+b);
@@ -141,6 +141,10 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             return false;
         }
 
+        return readOneWithoutStackLarge(a, b);
+    }
+
+    private boolean readOneWithoutStackLarge(Accept a, final int b) throws IOException {
         switch(b & 0xff) {
         case 0xc0:  // nil
             a.acceptNil();

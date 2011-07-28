@@ -26,14 +26,21 @@ import org.msgpack.MessageTypeException;
 public class LongTemplate extends AbstractTemplate<Long> {
     private LongTemplate() { }
 
-    public void write(Packer pk, Long target) throws IOException {
+    public void write(Packer pk, Long target, boolean required) throws IOException {
         if(target == null) {
-            throw new MessageTypeException("Attempted to write null");
+            if(required) {
+                throw new MessageTypeException("Attempted to write null");
+            }
+            pk.writeNil();
+            return;
         }
         pk.writeLong(target);
     }
 
-    public Long read(Unpacker u, Long to) throws IOException {
+    public Long read(Unpacker u, Long to, boolean required) throws IOException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
         return u.readLong();
     }
 

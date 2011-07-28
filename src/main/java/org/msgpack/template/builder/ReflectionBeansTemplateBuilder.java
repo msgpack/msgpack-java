@@ -70,12 +70,12 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
 	}
 
 	@Override
-	public void write(Packer packer, Object v) throws IOException {
+	public void write(Packer packer, Object v, boolean required) throws IOException {
 	    packer.write(v);
 	}
 
 	@Override
-	public Object read(Unpacker unpacker, Object to) throws IOException {
+	public Object read(Unpacker unpacker, Object to, boolean required) throws IOException {
 	    Object o = unpacker.read(entry.getType());
 	    entry.set(to, o);
 	    return o;

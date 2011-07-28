@@ -28,14 +28,21 @@ import org.msgpack.MessageTypeException;
 public class DateTemplate extends AbstractTemplate<Date> {
     private DateTemplate() { }
 
-    public void write(Packer pk, Date target) throws IOException {
+    public void write(Packer pk, Date target, boolean required) throws IOException {
         if(target == null) {
-            throw new MessageTypeException("Attempted to write null");
+            if(required) {
+                throw new MessageTypeException("Attempted to write null");
+            }
+            pk.writeNil();
+            return;
         }
         pk.writeLong(target.getTime());
     }
 
-    public Date read(Unpacker u, Date to) throws IOException {
+    public Date read(Unpacker u, Date to, boolean required) throws IOException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
         long temp = u.readLong();
         return new Date(temp);
     }

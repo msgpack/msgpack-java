@@ -23,22 +23,12 @@ import org.msgpack.unpacker.Unpacker;
 
 
 public abstract class AbstractTemplate<T> implements Template<T> {
-    @Override
-    public void write(Packer pk, T v, boolean optional) throws IOException {
-        if(optional && v == null) {
-            pk.writeNil();
-        } else {
-            write(pk, v);
-        }
+    public void write(Packer pk, T v) throws IOException {
+        write(pk, v, false);
     }
 
-    @Override
-    public T read(Unpacker u, T to, boolean optional) throws IOException {
-        if(optional && u.trySkipNil()) {
-            return null;
-        } else {
-            return read(u, to);
-        }
+    public T read(Unpacker u, T to) throws IOException {
+        return read(u, to, false);
     }
 }
 

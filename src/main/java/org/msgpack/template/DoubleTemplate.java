@@ -26,14 +26,21 @@ import org.msgpack.MessageTypeException;
 public class DoubleTemplate extends AbstractTemplate<Double> {
     private DoubleTemplate() { }
 
-    public void write(Packer pk, Double target) throws IOException {
+    public void write(Packer pk, Double target, boolean required) throws IOException {
         if(target == null) {
-            throw new MessageTypeException("Attempted to write null");
+            if(required) {
+                throw new MessageTypeException("Attempted to write null");
+            }
+            pk.writeNil();
+            return;
         }
         pk.writeDouble(target);
     }
 
-    public Double read(Unpacker u, Double to) throws IOException {
+    public Double read(Unpacker u, Double to, boolean required) throws IOException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
         return u.readDouble();
     }
 

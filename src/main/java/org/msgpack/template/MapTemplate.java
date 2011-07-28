@@ -34,10 +34,14 @@ public class MapTemplate<K,V> extends AbstractTemplate<Map<K,V>> {
         this.valueTemplate = valueTemplate;
     }
 
-    public void write(Packer pk, Map<K,V> target) throws IOException {
+    public void write(Packer pk, Map<K,V> target, boolean required) throws IOException {
         if(!(target instanceof Map)) {
             if(target == null) {
-                throw new MessageTypeException("Attempted to write null");
+                if(required) {
+                    throw new MessageTypeException("Attempted to write null");
+                }
+                pk.writeNil();
+                return;
             }
             throw new MessageTypeException("Target is not a Map but "+target.getClass());
         }
@@ -50,7 +54,10 @@ public class MapTemplate<K,V> extends AbstractTemplate<Map<K,V>> {
         pk.writeMapEnd();
     }
 
-    public Map<K,V> read(Unpacker u, Map<K,V> to) throws IOException {
+    public Map<K,V> read(Unpacker u, Map<K,V> to, boolean required) throws IOException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
         int n = u.readMapBegin();
         Map<K,V> map;
         if(to != null) {

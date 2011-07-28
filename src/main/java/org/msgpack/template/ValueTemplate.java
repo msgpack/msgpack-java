@@ -27,15 +27,21 @@ import org.msgpack.type.Value;
 public class ValueTemplate extends AbstractTemplate<Value> {
     private ValueTemplate() { }
 
-    public void write(Packer pk, Value target) throws IOException {
+    public void write(Packer pk, Value target, boolean required) throws IOException {
         if(target == null) {
-            // FIXME NullPointerException?
-            throw new MessageTypeException("Attempted to write null.");
+            if(required) {
+                throw new MessageTypeException("Attempted to write null");
+            }
+            pk.writeNil();
+            return;
         }
         pk.write(target);
     }
 
-    public Value read(Unpacker u, Value to) throws IOException {
+    public Value read(Unpacker u, Value to, boolean required) throws IOException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
         return u.readValue();
     }
 

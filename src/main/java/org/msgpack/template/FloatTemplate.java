@@ -26,14 +26,21 @@ import org.msgpack.MessageTypeException;
 public class FloatTemplate extends AbstractTemplate<Float> {
     private FloatTemplate() { }
 
-    public void write(Packer pk, Float target) throws IOException {
+    public void write(Packer pk, Float target, boolean required) throws IOException {
         if(target == null) {
-            throw new MessageTypeException("Attempted to write null");
+            if(required) {
+                throw new MessageTypeException("Attempted to write null");
+            }
+            pk.writeNil();
+            return;
         }
         pk.writeFloat(target);
     }
 
-    public Float read(Unpacker u, Float to) throws IOException {
+    public Float read(Unpacker u, Float to, boolean required) throws IOException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
         return u.readFloat();
     }
 

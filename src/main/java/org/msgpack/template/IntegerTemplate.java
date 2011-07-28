@@ -26,14 +26,21 @@ import org.msgpack.MessageTypeException;
 public class IntegerTemplate extends AbstractTemplate<Integer> {
     private IntegerTemplate() { }
 
-    public void write(Packer pk, Integer target) throws IOException {
+    public void write(Packer pk, Integer target, boolean required) throws IOException {
         if(target == null) {
-            throw new MessageTypeException("Attempted to write null");
+            if(required) {
+                throw new MessageTypeException("Attempted to write null");
+            }
+            pk.writeNil();
+            return;
         }
         pk.writeInt(target);
     }
 
-    public Integer read(Unpacker u, Integer to) throws IOException {
+    public Integer read(Unpacker u, Integer to, boolean required) throws IOException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
         return u.readInt();
     }
 

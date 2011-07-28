@@ -32,10 +32,14 @@ public class ListTemplate<E> extends AbstractTemplate<List<E>> {
         this.elementTemplate = elementTemplate;
     }
 
-    public void write(Packer pk, List<E> target) throws IOException {
+    public void write(Packer pk, List<E> target, boolean required) throws IOException {
         if (! (target instanceof List)) {
             if (target == null) {
-                throw new MessageTypeException("Attempted to write null");
+                if(required) {
+                    throw new MessageTypeException("Attempted to write null");
+                }
+                pk.writeNil();
+                return;
             }
             throw new MessageTypeException("Target is not a List but " + target.getClass());
         }
@@ -46,7 +50,10 @@ public class ListTemplate<E> extends AbstractTemplate<List<E>> {
         pk.writeArrayEnd();
     }
 
-    public List<E> read(Unpacker u, List<E> to) throws IOException {
+    public List<E> read(Unpacker u, List<E> to, boolean required) throws IOException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
         int n = u.readArrayBegin();
         if (to == null) {
             to = new ArrayList<E>(n);

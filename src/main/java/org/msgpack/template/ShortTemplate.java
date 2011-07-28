@@ -26,14 +26,21 @@ import org.msgpack.MessageTypeException;
 public class ShortTemplate extends AbstractTemplate<Short> {
     private ShortTemplate() { }
 
-    public void write(Packer pk, Short target) throws IOException {
+    public void write(Packer pk, Short target, boolean required) throws IOException {
         if(target == null) {
-            throw new MessageTypeException("Attempted to write null");
+            if(required) {
+                throw new MessageTypeException("Attempted to write null");
+            }
+            pk.writeNil();
+            return;
         }
         pk.writeShort(target);
     }
 
-    public Short read(Unpacker u, Short to) throws IOException {
+    public Short read(Unpacker u, Short to, boolean required) throws IOException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
         return u.readShort();
     }
 

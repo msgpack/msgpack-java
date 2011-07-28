@@ -27,14 +27,21 @@ import org.msgpack.MessageTypeException;
 public class BigIntegerTemplate extends AbstractTemplate<BigInteger> {
     private BigIntegerTemplate() { }
 
-    public void write(Packer pk, BigInteger target) throws IOException {
+    public void write(Packer pk, BigInteger target, boolean required) throws IOException {
         if(target == null) {
-            throw new MessageTypeException("Attempted to write null");
+            if(required) {
+                throw new MessageTypeException("Attempted to write null");
+            }
+            pk.writeNil();
+            return;
         }
         pk.writeBigInteger((BigInteger)target);
     }
 
-    public BigInteger read(Unpacker u, BigInteger to) throws IOException {
+    public BigInteger read(Unpacker u, BigInteger to, boolean required) throws IOException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
         return u.readBigInteger();
     }
 

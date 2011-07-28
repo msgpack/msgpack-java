@@ -26,14 +26,21 @@ import org.msgpack.MessageTypeException;
 public class ByteTemplate extends AbstractTemplate<Byte> {
     private ByteTemplate() { }
 
-    public void write(Packer pk, Byte target) throws IOException {
+    public void write(Packer pk, Byte target, boolean required) throws IOException {
         if(target == null) {
-            throw new MessageTypeException("Attempted to write null");
+            if(required) {
+                throw new MessageTypeException("Attempted to write null");
+            }
+            pk.writeNil();
+            return;
         }
         pk.writeByte(target);
     }
 
-    public Byte read(Unpacker u, Byte to) throws IOException {
+    public Byte read(Unpacker u, Byte to, boolean required) throws IOException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
         return u.readByte();
     }
 

@@ -47,10 +47,14 @@ public class DefaultTemplate<T> extends AbstractTemplate<T> {
         this.messagePackable = MessagePackable.class.isAssignableFrom(targetClass);
     }
 
-    public void write(Packer pk, Object target) throws IOException {
+    public void write(Packer pk, Object target, boolean required) throws IOException {
         if (messagePackable) {
             if (target == null) {
-                throw new NullPointerException("target is null");
+                if(required) {
+                    throw new NullPointerException("Attempted to write nil");
+                }
+                pk.writeNil();
+                return;
             }
             ((MessagePackable) target).writeTo(pk);
             return;
@@ -62,12 +66,15 @@ public class DefaultTemplate<T> extends AbstractTemplate<T> {
         tmpl.write(pk, target);
     }
 
-    public Object read(Unpacker pac, Object to) throws IOException {
+    public Object read(Unpacker u, Object to, boolean required) throws IOException {
+        if(!required && u.trySkipNil()) {
+            return null;
+        }
         // TODO #MN
         Template<Object> tmpl = registry.tryLookup(lookupType);
         if (tmpl == this || tmpl == null) {
             throw new MessageTypeException("Template lookup fail: " + lookupType);
         }
-        return tmpl.read(pac, to);
+        return tmpl.read(u, to);
     }
 }
