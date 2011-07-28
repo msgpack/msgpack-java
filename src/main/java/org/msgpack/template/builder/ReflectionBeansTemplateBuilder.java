@@ -22,12 +22,12 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-import org.msgpack.MessageTypeException;
 import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Ignore;
 import org.msgpack.annotation.Index;
@@ -37,11 +37,21 @@ import org.msgpack.annotation.Optional;
 import org.msgpack.packer.Packer;
 import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
-import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.TemplateRegistry;
+import org.msgpack.template.builder.ReflectionTemplateBuilder.BooleanFieldTemplate;
+import org.msgpack.template.builder.ReflectionTemplateBuilder.ByteFieldTemplate;
+import org.msgpack.template.builder.ReflectionTemplateBuilder.DoubleFieldTemplate;
+import org.msgpack.template.builder.ReflectionTemplateBuilder.FloatFieldTemplate;
+import org.msgpack.template.builder.ReflectionTemplateBuilder.IntFieldTemplate;
+import org.msgpack.template.builder.ReflectionTemplateBuilder.LongFieldTemplate;
+import org.msgpack.template.builder.ReflectionTemplateBuilder.NullFieldTemplate;
 import org.msgpack.template.builder.ReflectionTemplateBuilder.ObjectFieldTemplate;
+import org.msgpack.template.builder.ReflectionTemplateBuilder.ReflectionClassTemplate;
 import org.msgpack.template.builder.ReflectionTemplateBuilder.ReflectionFieldTemplate;
+import org.msgpack.template.builder.ReflectionTemplateBuilder.ShortFieldTemplate;
 import org.msgpack.unpacker.Unpacker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -50,7 +60,9 @@ import org.msgpack.unpacker.Unpacker;
  * @author takeshita
  *
  */
-public class ReflectionBeansTemplateBuilder extends AbstractTemplateBuilder {
+public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
+
+    private static Logger LOG = LoggerFactory.getLogger(ReflectionBeansTemplateBuilder.class);
 
     static class ReflectionBeansFieldTemplate extends ReflectionFieldTemplate {
 	ReflectionBeansFieldTemplate(final FieldEntry entry) {
@@ -70,95 +82,6 @@ public class ReflectionBeansTemplateBuilder extends AbstractTemplateBuilder {
 	}
     }
 
-    static class BeansObjectFieldTemplate extends ReflectionBeansFieldTemplate {
-	Template template;
-
-	BeansObjectFieldTemplate(final FieldEntry entry, final Template template) {
-	    super(entry);
-	    this.template = template;
-	}
-
-	@Override
-	public void write(Packer packer, Object v) throws IOException {
-	    template.write(packer, v);
-	}
-
-	@Override
-	public Object read(Unpacker unpacker, Object target) throws IOException {
-	    Class<Object> type = (Class<Object>) entry.getType();
-	    Object fieldReference = entry.get(target);
-	    Object valueReference = template.read(unpacker, fieldReference);
-	    if (valueReference != fieldReference) {
-		entry.set(target, valueReference);
-	    }
-	    return valueReference;
-	}
-    }
-
-    static class ReflectionBeansTemplate<T> extends AbstractTemplate<T> {
-	private Class<T> targetClass;
-
-	private ReflectionFieldTemplate[] templates = null;
-
-	ReflectionBeansTemplate(Class<T> targetClass, ReflectionFieldTemplate[] templates) {
-	    this.targetClass = targetClass;
-	    this.templates = templates;
-	}
-
-	@Override
-	public
-	void write(Packer packer, T v) throws IOException {
-	    packer.writeArrayBegin(templates.length);
-	    for (ReflectionFieldTemplate tmpl : templates) {
-		if (!tmpl.entry.isAvailable()) {
-		    packer.writeNil();
-		    continue;
-		}
-		Object obj = tmpl.entry.get(v);
-		if (obj == null) {
-		    if (tmpl.entry.isNotNullable()) {
-			throw new MessageTypeException();
-		    }
-		    packer.writeNil();
-		} else {
-		    tmpl.write(packer, obj);
-		}
-	    }
-	    packer.writeArrayEnd();
-	}
-
-	@Override
-	public T read(Unpacker unpacker, T to) throws IOException {
-	    try {
-		if (to == null) {
-		    to = targetClass.newInstance();
-		}
-
-                unpacker.readArrayBegin();
-
-                for (int i=0; i < templates.length; i++) {
-		    ReflectionBeansFieldTemplate e = (ReflectionBeansFieldTemplate) templates[i];
-                    if(!e.entry.isAvailable()) {
-                        unpacker.skip();
-                    } else if(e.entry.isOptional() && unpacker.trySkipNil()) {
-                        e.setNil(to);
-                    } else {
-                        e.read(unpacker, to);
-                    }
-                }
-
-		unpacker.readArrayEnd();
-		return to;
-	    } catch (MessageTypeException e) {
-		throw e;
-	    } catch (IOException e) {
-		throw e;
-	    } catch (Exception e) {
-		throw new MessageTypeException(e);
-	    }
-	}
-    }
-
     public ReflectionBeansTemplateBuilder(TemplateRegistry registry) {
 	super(registry);
     }
@@ -170,35 +93,23 @@ public class ReflectionBeansTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     @Override
-    public <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries) {
-	ReflectionBeansFieldTemplate[] beansEntries = new ReflectionBeansFieldTemplate[entries.length];
+    protected ReflectionFieldTemplate[] toTemplates(FieldEntry[] entries) {
+	ReflectionFieldTemplate[] tmpls = new ReflectionFieldTemplate[entries.length];
 	for (int i = 0; i < entries.length; i++) {
-	    FieldEntry e = (FieldEntry) entries[i];
+	    FieldEntry e = entries[i];
 	    Class<?> type = e.getType();
-	    if (type.equals(boolean.class)) {
-		beansEntries[i] = new ReflectionBeansFieldTemplate(e);
-	    } else if (type.equals(byte.class)) {
-		beansEntries[i] = new ReflectionBeansFieldTemplate(e);
-	    } else if (type.equals(short.class)) {
-		beansEntries[i] = new ReflectionBeansFieldTemplate(e);
-	    } else if (type.equals(int.class)) {
-		beansEntries[i] = new ReflectionBeansFieldTemplate(e);
-	    } else if (type.equals(long.class)) {
-		beansEntries[i] = new ReflectionBeansFieldTemplate(e);
-	    } else if (type.equals(float.class)) {
-		beansEntries[i] = new ReflectionBeansFieldTemplate(e);
-	    } else if (type.equals(double.class)) {
-		beansEntries[i] = new ReflectionBeansFieldTemplate(e);
+	    if (type.isPrimitive()) {
+		tmpls[i] = new ReflectionBeansFieldTemplate(e);
 	    } else {
 		Template tmpl = registry.lookup(e.getGenericType(), true);
-		beansEntries[i] = new BeansObjectFieldTemplate(e, tmpl);
+		tmpls[i] = new ObjectFieldTemplate(e, tmpl);
 	    }
 	}
-	return new ReflectionBeansTemplate(targetClass, beansEntries);
+	return tmpls;
     }
 
     @Override
-    public FieldEntry[] readFieldEntries(Class<?> targetClass, FieldOption implicitOption) {
+    public FieldEntry[] toFieldEntries(Class<?> targetClass, FieldOption implicitOption) {
 	BeanInfo desc;
 	try {
 	    desc = Introspector.getBeanInfo(targetClass);

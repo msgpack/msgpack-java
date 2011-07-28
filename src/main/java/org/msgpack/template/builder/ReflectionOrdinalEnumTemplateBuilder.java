@@ -84,6 +84,7 @@ public class ReflectionOrdinalEnumTemplateBuilder extends AbstractTemplateBuilde
 
     @Override
     public <T> Template<T> buildTemplate(Type targetType) {
+	@SuppressWarnings("unchecked")
 	Class<T> targetClass = (Class<T>) targetType;
 	checkOrdinalEnumValidation(targetClass);
 	return new ReflectionOrdinalEnumTemplate<T>(targetClass);
@@ -91,8 +92,7 @@ public class ReflectionOrdinalEnumTemplateBuilder extends AbstractTemplateBuilde
 
     protected void checkOrdinalEnumValidation(Class<?> targetClass) {
 	if(! targetClass.isEnum()) {
-	    throw new TemplateBuildException(
-		    "tried to build ordinal enum template of non-enum class: " + targetClass.getName());
+	    throw new TemplateBuildException("tried to build ordinal enum template of non-enum class: " + targetClass.getName());
 	}
     }
 }

@@ -55,15 +55,16 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	@SuppressWarnings("unchecked")
 	Class<T> targetClass = (Class<T>) targetType;
 	checkClassValidation(targetClass);
-	FieldOption implicitOption = readImplicitFieldOption(targetClass);
-	FieldEntry[] entries = readFieldEntries(targetClass, implicitOption);
+	FieldOption fieldOption = getFieldOption(targetClass);
+	FieldEntry[] entries = toFieldEntries(targetClass, fieldOption);
 	return buildTemplate(targetClass, entries);
     }
 
     @Override
-    public <T> Template<T> buildTemplate(final Class<T> targetClass, final FieldList flist) throws TemplateBuildException {
+    public <T> Template<T> buildTemplate(final Class<T> targetClass, final FieldList fieldList) throws TemplateBuildException {
 	checkClassValidation(targetClass);
-	return buildTemplate(targetClass, toFieldEntries(targetClass, flist));
+	FieldEntry[] entries = toFieldEntries(targetClass, fieldList);
+	return buildTemplate(targetClass, entries);
     }
 
     protected abstract <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries);
@@ -80,17 +81,20 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	}
     }
 
-    @Override
-    public void writeTemplate(Type targetType, String directoryName) {
-	throw new UnsupportedOperationException(targetType.toString());
+    protected FieldOption getFieldOption(Class<?> targetClass) {
+	Message m = targetClass.getAnnotation(Message.class);
+	if (m == null) {
+	    return FieldOption.DEFAULT;
+	}
+	MessagePackMessage mpm = targetClass.getAnnotation(MessagePackMessage.class);
+	if (mpm == null) {
+	    return FieldOption.DEFAULT;
+	}
+	// TODO #MN
+	return m.value();
     }
 
-    @Override
-    public <T> Template<T> loadTemplate(Type targetType) {
-	return null;
-    }
-
-    private FieldEntry[] toFieldEntries(Class<?> targetClass, FieldList flist) {
+    private FieldEntry[] toFieldEntries(final Class<?> targetClass, final FieldList flist) {
 	List<FieldList.Entry> src = flist.getList();
 	FieldEntry[] entries = new FieldEntry[src.size()];
 	for (int i = 0; i < src.size(); i++) {
@@ -110,8 +114,8 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	return entries;
     }
 
-    protected FieldEntry[] readFieldEntries(Class<?> targetClass, FieldOption implicitOption) {
-	Field[] allFields = readAllFields(targetClass);
+    protected FieldEntry[] toFieldEntries(final Class<?> targetClass, final FieldOption from) {
+	Field[] fields = getFields(targetClass);
 
 	/* index:
 	 *   @Index(0) int field_a;   // 0
@@ -123,14 +127,14 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	 */
 	List<FieldEntry> indexed = new ArrayList<FieldEntry>();
 	int maxIndex = -1;
-	for (Field f : allFields) {
-	    FieldOption opt = readFieldOption(f, implicitOption);
+	for (Field f : fields) {
+	    FieldOption opt = getFieldOption(f, from);
 	    if (opt == FieldOption.IGNORE) {
 		// skip
 		continue;
 	    }
 
-	    int index = readFieldIndex(f, maxIndex);
+	    int index = getFieldIndex(f, maxIndex);
 	    if (indexed.size() > index && indexed.get(index) != null) {
 		throw new TemplateBuildException("duplicated index: "+index);
 	    }
@@ -148,32 +152,19 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	    }
 	}
 
-	FieldEntry[] result = new FieldEntry[maxIndex+1];
-	for (int i=0; i < indexed.size(); i++) {
+	FieldEntry[] entries = new FieldEntry[maxIndex+1];
+	for (int i = 0; i < indexed.size(); i++) {
 	    FieldEntry e = indexed.get(i);
 	    if (e == null) {
-		result[i] = new DefaultFieldEntry();
+		entries[i] = new DefaultFieldEntry();
 	    } else {
-		result[i] = e;
+		entries[i] = e;
 	    }
 	}
-	return result;
+	return entries;
     }
 
-    protected FieldOption readImplicitFieldOption(Class<?> targetClass) {
-	Message m = targetClass.getAnnotation(Message.class);
-	if (m == null) {
-	    return FieldOption.DEFAULT;
-	}
-	MessagePackMessage mpm = targetClass.getAnnotation(MessagePackMessage.class);
-	if (mpm == null) {
-	    return FieldOption.DEFAULT;
-	}
-	// TODO #MN
-	return m.value();
-    }
-
-    private Field[] readAllFields(Class<?> targetClass) {
+    private Field[] getFields(Class<?> targetClass) {
 	// order: [fields of super class, ..., fields of this class]
 	List<Field[]> succ = new ArrayList<Field[]>();
 	int total = 0;
@@ -192,7 +183,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	return result;
     }
 
-    private static FieldOption readFieldOption(Field field, FieldOption implicitOption) {
+    private FieldOption getFieldOption(Field field, FieldOption from) {
 	int mod = field.getModifiers();
 	if (Modifier.isStatic(mod) || Modifier.isFinal(mod)) {
 	    return FieldOption.IGNORE;
@@ -206,8 +197,8 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
             return FieldOption.NOTNULLABLE;
 	}
 
-	if (implicitOption != FieldOption.DEFAULT) {
-	    return implicitOption;
+	if (from != FieldOption.DEFAULT) {
+	    return from;
 	}
 
 	// default mode:
@@ -224,13 +215,23 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	}
     }
 
-    private static int readFieldIndex(Field field, int maxIndex) {
+    private int getFieldIndex(final Field field, int maxIndex) {
 	Index a = field.getAnnotation(Index.class);
 	if (a == null) {
 	    return maxIndex + 1;
 	} else {
 	    return a.value();
 	}
+    }
+
+    @Override
+    public void writeTemplate(Type targetType, String directoryName) {
+	throw new UnsupportedOperationException(targetType.toString());
+    }
+
+    @Override
+    public <T> Template<T> loadTemplate(Type targetType) {
+	return null;
     }
 
     public static boolean isAnnotated(Class<?> targetClass, Class<? extends Annotation> with) {

@@ -30,9 +30,13 @@ import org.msgpack.template.Template;
 import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.unpacker.Unpacker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
+
+    private static Logger LOG = LoggerFactory.getLogger(ReflectionBeansTemplateBuilder.class);
 
     protected static abstract class ReflectionFieldTemplate extends AbstractTemplate<Object> {
 	protected FieldEntry entry;
@@ -61,7 +65,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	}
     }
 
-    public static class ObjectFieldTemplate extends ReflectionFieldTemplate {
+    protected static class ObjectFieldTemplate extends ReflectionFieldTemplate {
 	private Template template;
 
 	public ObjectFieldTemplate(final FieldEntry entry, Template template) {
@@ -302,7 +306,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 
 		unpacker.readArrayBegin();
 
-                for (int i=0; i < templates.length; i++) {
+                for (int i = 0; i < templates.length; i++) {
 		    ReflectionFieldTemplate tmpl = templates[i];
                     if (!tmpl.entry.isAvailable()) {
                         unpacker.skip();
@@ -336,45 +340,50 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     @Override
-    public <T> Template<T> buildTemplate(Class<T> type, FieldEntry[] entries) {
+    public <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries) {
 	if (entries == null) {
-	    throw new NullPointerException("entries is null: " + type);
+	    throw new NullPointerException("entries is null: " + targetClass);
 	}
 
-	// TODO Now it is simply cast.
+	ReflectionFieldTemplate[] tmpls = toTemplates(entries);
+	return new ReflectionClassTemplate(targetClass, tmpls);
+    }
+
+    protected ReflectionFieldTemplate[] toTemplates(FieldEntry[] entries) {
+	// TODO Now it is simply cast. #SF
 	for (FieldEntry entry : entries) {
-	    Field f = ((DefaultFieldEntry) entry).getField();
-	    int mod = f.getModifiers();
+	    Field field = ((DefaultFieldEntry) entry).getField();
+	    int mod = field.getModifiers();
 	    if (!Modifier.isPublic(mod)) {
-		f.setAccessible(true);
+		field.setAccessible(true);
 	    }
 	}
 
-	ReflectionFieldTemplate[] tmpls = new ReflectionFieldTemplate[entries.length];
+	ReflectionFieldTemplate[] templates = new ReflectionFieldTemplate[entries.length];
 	for (int i = 0; i < entries.length; i++) {
 	    FieldEntry entry = entries[i];
 	    Class<?> t = entry.getType();
 	    if (!entry.isAvailable()) {
-		tmpls[i] = new NullFieldTemplate(entry);
+		templates[i] = new NullFieldTemplate(entry);
 	    } else if (t.equals(boolean.class)) {
-		tmpls[i] = new BooleanFieldTemplate(entry);
+		templates[i] = new BooleanFieldTemplate(entry);
 	    } else if (t.equals(byte.class)) {
-		tmpls[i] = new ByteFieldTemplate(entry);
+		templates[i] = new ByteFieldTemplate(entry);
 	    } else if (t.equals(short.class)) {
-		tmpls[i] = new ShortFieldTemplate(entry);
+		templates[i] = new ShortFieldTemplate(entry);
 	    } else if (t.equals(int.class)) {
-		tmpls[i] = new IntFieldTemplate(entry);
+		templates[i] = new IntFieldTemplate(entry);
 	    } else if (t.equals(long.class)) {
-		tmpls[i] = new LongFieldTemplate(entry);
+		templates[i] = new LongFieldTemplate(entry);
 	    } else if (t.equals(float.class)) {
-		tmpls[i] = new FloatFieldTemplate(entry);
+		templates[i] = new FloatFieldTemplate(entry);
 	    } else if (t.equals(double.class)) {
-		tmpls[i] = new DoubleFieldTemplate(entry);
+		templates[i] = new DoubleFieldTemplate(entry);
 	    } else {
-		Template tmpl = registry.lookup(entry.getGenericType(), true);
-		tmpls[i] = new ObjectFieldTemplate(entry, tmpl);
+		Template template = registry.lookup(entry.getGenericType(), true);
+		templates[i] = new ObjectFieldTemplate(entry, template);
 	    }
 	}
-	return new ReflectionClassTemplate(type, tmpls);
+	return templates;
     }
 }

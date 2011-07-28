@@ -141,8 +141,8 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
     public void writeTemplate(Type targetType, String directoryName) {
 	Class<?> targetClass = (Class<?>)targetType;
 	checkClassValidation(targetClass);
-	FieldOption implicitOption = readImplicitFieldOption(targetClass);
-	FieldEntry[] entries = readFieldEntries(targetClass, implicitOption);
+	FieldOption implicitOption = getFieldOption(targetClass);
+	FieldEntry[] entries = toFieldEntries(targetClass, implicitOption);
 	writeTemplate(targetClass, entries, directoryName);
     }
 
@@ -156,8 +156,8 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
     public <T> Template<T> loadTemplate(Type targetType) {
 	Class<T> targetClass = (Class) targetType;
 	checkClassValidation(targetClass);
-	FieldOption implicitOption = readImplicitFieldOption(targetClass);
-	FieldEntry[] entries = readFieldEntries(targetClass, implicitOption);
+	FieldOption implicitOption = getFieldOption(targetClass);
+	FieldEntry[] entries = toFieldEntries(targetClass, implicitOption);
 	return loadTemplate(targetClass, entries);
     }
 
