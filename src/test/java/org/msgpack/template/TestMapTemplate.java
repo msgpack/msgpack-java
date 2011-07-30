@@ -21,13 +21,13 @@ import org.msgpack.unpacker.Unpacker;
 public class TestMapTemplate {
 
     @Test
-    public void testStreamPackStreamUnpack() throws Exception {
-	new TestStreamPackStreamUnpack().testMap();
+    public void testPackUnpack() throws Exception {
+	new TestPackUnpack().testMap();
     }
 
     @Test
-    public void testStreamPackBufferUnpack() throws Exception {
-	new TestStreamPackBufferUnpack().testMap();
+    public void testPackBufferUnpack() throws Exception {
+	new TestPackBufferUnpack().testMap();
     }
 
     @Test
@@ -36,11 +36,11 @@ public class TestMapTemplate {
     }
 
     @Test
-    public void testBufferPackStreamUnpack() throws Exception {
-	new TestBufferPackStreamUnpack().testMap();
+    public void testBufferPackUnpack() throws Exception {
+	new TestBufferPackUnpack().testMap();
     }
 
-    private static class TestStreamPackStreamUnpack extends TestSet {
+    private static class TestPackUnpack extends TestSet {
 	@Test @Override
 	public void testMap() throws Exception {
 	    super.testMap();
@@ -62,7 +62,7 @@ public class TestMapTemplate {
 	}
     }
 
-    private static class TestStreamPackBufferUnpack extends TestSet {
+    private static class TestPackBufferUnpack extends TestSet {
 	@Test @Override
 	public void testMap() throws Exception {
 	    super.testMap();
@@ -105,7 +105,7 @@ public class TestMapTemplate {
 	}
     }
 
-    private static class TestBufferPackStreamUnpack extends TestSet {
+    private static class TestBufferPackUnpack extends TestSet {
 	@Test @Override
 	public void testMap() throws Exception {
 	    super.testMap();

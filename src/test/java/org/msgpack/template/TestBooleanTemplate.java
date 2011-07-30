@@ -17,13 +17,13 @@ import org.msgpack.unpacker.Unpacker;
 public class TestBooleanTemplate {
 
     @Test
-    public void testStreamPackStreamUnpack() throws Exception {
-	new TestStreamPackStreamUnpack().testBoolean();
+    public void testPackUnpack() throws Exception {
+	new TestPackUnpack().testBoolean();
     }
 
     @Test
-    public void testStreamPackBufferUnpack() throws Exception {
-	new TestStreamPackBufferUnpack().testBoolean();
+    public void testPackBufferUnpack() throws Exception {
+	new TestPackBufferUnpack().testBoolean();
     }
 
     @Test
@@ -32,11 +32,11 @@ public class TestBooleanTemplate {
     }
 
     @Test
-    public void testBufferPackStreamUnpack() throws Exception {
-	new TestBufferPackStreamUnpack().testBoolean();
+    public void testBufferPackUnpack() throws Exception {
+	new TestBufferPackUnpack().testBoolean();
     }
 
-    private static class TestStreamPackStreamUnpack extends TestSet {
+    private static class TestPackUnpack extends TestSet {
 	@Test @Override
 	public void testBoolean() throws Exception {
 	    super.testBoolean();
@@ -56,7 +56,7 @@ public class TestBooleanTemplate {
 	}
     }
 
-    private static class TestStreamPackBufferUnpack extends TestSet {
+    private static class TestPackBufferUnpack extends TestSet {
 	@Test @Override
 	public void testBoolean() throws Exception {
 	    super.testBoolean();
@@ -95,7 +95,7 @@ public class TestBooleanTemplate {
 	}
     }
 
-    private static class TestBufferPackStreamUnpack extends TestSet {
+    private static class TestBufferPackUnpack extends TestSet {
 	@Test @Override
 	public void testBoolean() throws Exception {
 	    super.testBoolean();

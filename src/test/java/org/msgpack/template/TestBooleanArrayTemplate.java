@@ -17,33 +17,33 @@ import org.msgpack.unpacker.Unpacker;
 public class TestBooleanArrayTemplate {
 
     @Test
-    public void testStreamPackStreamUnpack00() throws Exception {
-	new TestStreamPackStreamUnpack(0).testBooleanArray();
+    public void testPackUnpack00() throws Exception {
+	new TestPackUnpack(0).testBooleanArray();
     }
 
     @Test
-    public void testStreamPackStreamUnpack01() throws Exception {
-	new TestStreamPackStreamUnpack(1).testBooleanArray();
+    public void testPackUnpack01() throws Exception {
+	new TestPackUnpack(1).testBooleanArray();
     }
 
     @Test
-    public void testStreamPackStreamUnpack02() throws Exception {
-	new TestStreamPackStreamUnpack(2).testBooleanArray();
+    public void testPackUnpack02() throws Exception {
+	new TestPackUnpack(2).testBooleanArray();
     }
 
     @Test
-    public void testStreamPackBufferUnpack00() throws Exception {
-	new TestStreamPackBufferUnpack(0).testBooleanArray();
+    public void testPackBufferUnpack00() throws Exception {
+	new TestPackBufferUnpack(0).testBooleanArray();
     }
 
     @Test
-    public void testStreamPackBufferUnpack01() throws Exception {
-	new TestStreamPackBufferUnpack(1).testBooleanArray();
+    public void testPackBufferUnpack01() throws Exception {
+	new TestPackBufferUnpack(1).testBooleanArray();
     }
 
     @Test
-    public void testStreamPackBufferUnpack02() throws Exception {
-	new TestStreamPackBufferUnpack(2).testBooleanArray();
+    public void testPackBufferUnpack02() throws Exception {
+	new TestPackBufferUnpack(2).testBooleanArray();
     }
 
     @Test
@@ -62,24 +62,24 @@ public class TestBooleanArrayTemplate {
     }
 
     @Test
-    public void testBufferPackStreamUnpack00() throws Exception {
-	new TestBufferPackStreamUnpack(0).testBooleanArray();
+    public void testBufferPackUnpack00() throws Exception {
+	new TestBufferPackUnpack(0).testBooleanArray();
     }
 
     @Test
-    public void testBufferPackStreamUnpack01() throws Exception {
-	new TestBufferPackStreamUnpack(1).testBooleanArray();
+    public void testBufferPackUnpack01() throws Exception {
+	new TestBufferPackUnpack(1).testBooleanArray();
     }
 
     @Test
-    public void testBufferPackStreamUnpack02() throws Exception {
-	new TestBufferPackStreamUnpack(2).testBooleanArray();
+    public void testBufferPackUnpack02() throws Exception {
+	new TestBufferPackUnpack(2).testBooleanArray();
     }
 
-    private static class TestStreamPackStreamUnpack extends TestSet {
+    private static class TestPackUnpack extends TestSet {
 	private int index;
 
-	TestStreamPackStreamUnpack(int i) {
+	TestPackUnpack(int i) {
 	    index = i;
 	}
 
@@ -119,10 +119,10 @@ public class TestBooleanArrayTemplate {
 	}
     }
 
-    private static class TestStreamPackBufferUnpack extends TestSet {
+    private static class TestPackBufferUnpack extends TestSet {
 	private int index;
 
-	TestStreamPackBufferUnpack(int i) {
+	TestPackBufferUnpack(int i) {
 	    index = i;
 	}
 
@@ -204,10 +204,10 @@ public class TestBooleanArrayTemplate {
 	}
     }
 
-    private static class TestBufferPackStreamUnpack extends TestSet {
+    private static class TestBufferPackUnpack extends TestSet {
 	private int index;
 
-	TestBufferPackStreamUnpack(int i) {
+	TestBufferPackUnpack(int i) {
 	    index = i;
 	}
 

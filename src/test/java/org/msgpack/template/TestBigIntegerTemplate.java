@@ -18,13 +18,13 @@ import org.msgpack.unpacker.Unpacker;
 public class TestBigIntegerTemplate {
 
     @Test
-    public void testStreamPackStreamUnpack() throws Exception {
-	new TestStreamPackStreamUnpack().testBigInteger();
+    public void testPackUnpack() throws Exception {
+	new TestPackUnpack().testBigInteger();
     }
 
     @Test
-    public void testStreamPackBufferUnpack() throws Exception {
-	new TestStreamPackBufferUnpack().testBigInteger();
+    public void testPackBufferUnpack() throws Exception {
+	new TestPackBufferUnpack().testBigInteger();
     }
 
     @Test
@@ -33,11 +33,11 @@ public class TestBigIntegerTemplate {
     }
 
     @Test
-    public void testBufferPackStreamUnpack() throws Exception {
-	new TestBufferPackStreamUnpack().testBigInteger();
+    public void testBufferPackUnpack() throws Exception {
+	new TestBufferPackUnpack().testBigInteger();
     }
 
-    private static class TestStreamPackStreamUnpack extends TestSet {
+    private static class TestPackUnpack extends TestSet {
 	@Test @Override
 	public void testBigInteger() throws Exception {
 	    super.testBigInteger();
@@ -57,7 +57,7 @@ public class TestBigIntegerTemplate {
 	}
     }
 
-    private static class TestStreamPackBufferUnpack extends TestSet {
+    private static class TestPackBufferUnpack extends TestSet {
 	@Test @Override
 	public void testBigInteger() throws Exception {
 	    super.testBigInteger();
@@ -96,7 +96,7 @@ public class TestBigIntegerTemplate {
 	}
     }
 
-    private static class TestBufferPackStreamUnpack extends TestSet {
+    private static class TestBufferPackUnpack extends TestSet {
 	@Test @Override
 	public void testBigInteger() throws Exception {
 	    super.testBigInteger();

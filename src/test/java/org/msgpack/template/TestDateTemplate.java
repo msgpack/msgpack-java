@@ -18,13 +18,13 @@ import org.msgpack.unpacker.Unpacker;
 public class TestDateTemplate {
 
     @Test
-    public void testStreamPackStreamUnpack() throws Exception {
-	new TestStreamPackStreamUnpack().testDate();
+    public void testPackUnpack() throws Exception {
+	new TestPackUnpack().testDate();
     }
 
     @Test
-    public void testStreamPackBufferUnpack() throws Exception {
-	new TestStreamPackBufferUnpack().testDate();
+    public void testPackBufferUnpack() throws Exception {
+	new TestPackBufferUnpack().testDate();
     }
 
     @Test
@@ -33,11 +33,11 @@ public class TestDateTemplate {
     }
 
     @Test
-    public void testBufferPackStreamUnpack() throws Exception {
-	new TestBufferPackStreamUnpack().testDate();
+    public void testBufferPackUnpack() throws Exception {
+	new TestBufferPackUnpack().testDate();
     }
 
-    private static class TestStreamPackStreamUnpack extends TestSet {
+    private static class TestPackUnpack extends TestSet {
 	@Test @Override
 	public void testDate() throws Exception {
 	    super.testDate();
@@ -57,7 +57,7 @@ public class TestDateTemplate {
 	}
     }
 
-    private static class TestStreamPackBufferUnpack extends TestSet {
+    private static class TestPackBufferUnpack extends TestSet {
 	@Test @Override
 	public void testDate() throws Exception {
 	    super.testDate();
@@ -96,7 +96,7 @@ public class TestDateTemplate {
 	}
     }
 
-    private static class TestBufferPackStreamUnpack extends TestSet {
+    private static class TestBufferPackUnpack extends TestSet {
 	@Test @Override
 	public void testDate() throws Exception {
 	    super.testDate();

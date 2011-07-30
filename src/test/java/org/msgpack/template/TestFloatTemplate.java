@@ -17,13 +17,13 @@ import org.msgpack.unpacker.Unpacker;
 public class TestFloatTemplate {
 
     @Test
-    public void testStreamPackStreamUnpack() throws Exception {
-	new TestStreamPackStreamUnpack().testFloat();
+    public void testPackUnpack() throws Exception {
+	new TestPackUnpack().testFloat();
     }
 
     @Test
-    public void testStreamPackBufferUnpack() throws Exception {
-	new TestStreamPackBufferUnpack().testFloat();
+    public void testPackBufferUnpack() throws Exception {
+	new TestPackBufferUnpack().testFloat();
     }
 
     @Test
@@ -32,11 +32,11 @@ public class TestFloatTemplate {
     }
 
     @Test
-    public void testBufferPackStreamUnpack() throws Exception {
-	new TestBufferPackStreamUnpack().testFloat();
+    public void testBufferPackUnpack() throws Exception {
+	new TestBufferPackUnpack().testFloat();
     }
 
-    private static class TestStreamPackStreamUnpack extends TestSet {
+    private static class TestPackUnpack extends TestSet {
 	@Test @Override
 	public void testFloat() throws Exception {
 	    super.testFloat();
@@ -56,7 +56,7 @@ public class TestFloatTemplate {
 	}
     }
 
-    private static class TestStreamPackBufferUnpack extends TestSet {
+    private static class TestPackBufferUnpack extends TestSet {
 	@Test @Override
 	public void testFloat() throws Exception {
 	    super.testFloat();
@@ -95,7 +95,7 @@ public class TestFloatTemplate {
 	}
     }
 
-    private static class TestBufferPackStreamUnpack extends TestSet {
+    private static class TestBufferPackUnpack extends TestSet {
 	@Test @Override
 	public void testFloat() throws Exception {
 	    super.testFloat();

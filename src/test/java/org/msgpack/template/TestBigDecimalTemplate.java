@@ -18,13 +18,13 @@ import org.msgpack.unpacker.Unpacker;
 public class TestBigDecimalTemplate {
 
     @Test
-    public void testStreamPackStreamUnpack() throws Exception {
-	new TestStreamPackStreamUnpack().testBigDecimal();
+    public void testPackUnpack() throws Exception {
+	new TestPackUnpack().testBigDecimal();
     }
 
     @Test
-    public void testStreamPackBufferUnpack() throws Exception {
-	new TestStreamPackBufferUnpack().testBigDecimal();
+    public void testPackBufferUnpack() throws Exception {
+	new TestPackBufferUnpack().testBigDecimal();
     }
 
     @Test
@@ -33,11 +33,11 @@ public class TestBigDecimalTemplate {
     }
 
     @Test
-    public void testBufferPackStreamUnpack() throws Exception {
-	new TestBufferPackStreamUnpack().testBigDecimal();
+    public void testBufferPackUnpack() throws Exception {
+	new TestBufferPackUnpack().testBigDecimal();
     }
 
-    private static class TestStreamPackStreamUnpack extends TestSet {
+    private static class TestPackUnpack extends TestSet {
 	@Test @Override
 	public void testBigDecimal() throws Exception {
 	    super.testBigDecimal();
@@ -57,7 +57,7 @@ public class TestBigDecimalTemplate {
 	}
     }
 
-    private static class TestStreamPackBufferUnpack extends TestSet {
+    private static class TestPackBufferUnpack extends TestSet {
 	@Test @Override
 	public void testBigDecimal() throws Exception {
 	    super.testBigDecimal();
@@ -96,7 +96,7 @@ public class TestBigDecimalTemplate {
 	}
     }
 
-    private static class TestBufferPackStreamUnpack extends TestSet {
+    private static class TestBufferPackUnpack extends TestSet {
 	@Test @Override
 	public void testBigDecimal() throws Exception {
 	    super.testBigDecimal();

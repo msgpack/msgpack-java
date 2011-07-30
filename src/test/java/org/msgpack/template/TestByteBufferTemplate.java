@@ -24,13 +24,13 @@ public class TestByteBufferTemplate {
     }
 
     @Test
-    public void testStreamPackStreamUnpack() throws Exception {
-	new TestStreamPackStreamUnpack().testByteBuffer();
+    public void testPackUnpack() throws Exception {
+	new TestPackUnpack().testByteBuffer();
     }
 
     @Test
-    public void testStreamPackBufferUnpack() throws Exception {
-	new TestStreamPackBufferUnpack().testByteBuffer();
+    public void testPackBufferUnpack() throws Exception {
+	new TestPackBufferUnpack().testByteBuffer();
     }
 
     @Test
@@ -39,11 +39,11 @@ public class TestByteBufferTemplate {
     }
 
     @Test
-    public void testBufferPackStreamUnpack() throws Exception {
-	new TestBufferPackStreamUnpack().testByteBuffer();
+    public void testBufferPackUnpack() throws Exception {
+	new TestBufferPackUnpack().testByteBuffer();
     }
 
-    private static class TestStreamPackStreamUnpack extends TestSet {
+    private static class TestPackUnpack extends TestSet {
 	@Test @Override
 	public void testByteBuffer() throws Exception {
 	    super.testByteBuffer();
@@ -63,7 +63,7 @@ public class TestByteBufferTemplate {
 	}
     }
 
-    private static class TestStreamPackBufferUnpack extends TestSet {
+    private static class TestPackBufferUnpack extends TestSet {
 	@Test @Override
 	public void testByteBuffer() throws Exception {
 	    super.testByteBuffer();
@@ -102,7 +102,7 @@ public class TestByteBufferTemplate {
 	}
     }
 
-    private static class TestBufferPackStreamUnpack extends TestSet {
+    private static class TestBufferPackUnpack extends TestSet {
 	@Test @Override
 	public void testByteBuffer() throws Exception {
 	    super.testByteBuffer();
