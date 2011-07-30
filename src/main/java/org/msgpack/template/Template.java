@@ -25,10 +25,10 @@ import org.msgpack.unpacker.Unpacker;
 public interface Template<T> {
     public void write(Packer pk, T v) throws IOException;
 
-    public void write(Packer pk, T v, boolean optional) throws IOException;
+    public void write(Packer pk, T v, boolean required) throws IOException;
 
     public T read(Unpacker u, T to) throws IOException;
 
-    public T read(Unpacker u, T to, boolean optional) throws IOException;
+    public T read(Unpacker u, T to, boolean required) throws IOException;
 }
 
