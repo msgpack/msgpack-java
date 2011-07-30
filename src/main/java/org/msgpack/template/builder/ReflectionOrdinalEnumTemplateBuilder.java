@@ -19,8 +19,6 @@ package org.msgpack.template.builder;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.msgpack.MessageTypeException;
 import org.msgpack.annotation.MessagePackOrdinalEnum;
@@ -31,39 +29,33 @@ import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.builder.TemplateBuildException;
 import org.msgpack.unpacker.Unpacker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class ReflectionOrdinalEnumTemplateBuilder extends AbstractTemplateBuilder {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ReflectionOrdinalEnumTemplateBuilder.class);
+
     static class ReflectionOrdinalEnumTemplate<T> extends AbstractTemplate<T> {
 	private T[] entries;
 
-	private Map<T, Integer> reverse;
-
 	ReflectionOrdinalEnumTemplate(Class<T> targetClass) {
 	    entries = targetClass.getEnumConstants();
-	    reverse = new HashMap<T, Integer>();
-	    for (int i = 0; i < entries.length; ++i) {
-		reverse.put(entries[i], i);
-	    }
 	}
 
 	@Override
 	public void write(Packer pk, T target, boolean required) throws IOException {
-	    Integer ord = reverse.get(target);
-	    if (ord == null) {
-		throw new MessageTypeException();
-	    }
-	    pk.writeInt((int) ord);
+	    pk.writeInt(((Enum) target).ordinal());
 	}
 
 	@Override
 	public T read(Unpacker pac, T to, boolean required) throws IOException, MessageTypeException {
-	    int ord = pac.readInt();
-	    if (entries.length <= ord) {
-		throw new MessageTypeException();
+	    int ordinal = pac.readInt();
+	    if (ordinal < 0 || ordinal >= entries.length) {
+		throw new MessageTypeException("illegal ordinal");
 	    }
-	    return entries[ord];
+	    return entries[ordinal];
 	}
     }
 
@@ -73,8 +65,11 @@ public class ReflectionOrdinalEnumTemplateBuilder extends AbstractTemplateBuilde
 
     @Override
     public boolean matchType(Type targetType) {
-	return AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, OrdinalEnum.class)
-		|| AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, MessagePackOrdinalEnum.class);
+	Class<?> targetClass = (Class<?>) targetType;
+	boolean match = AbstractTemplateBuilder.isAnnotated(targetClass, OrdinalEnum.class)
+		|| AbstractTemplateBuilder.isAnnotated(targetClass, MessagePackOrdinalEnum.class);
+	LOG.debug("matched type: " + targetClass.getName());
+	return match;
     }
 
     @Override
