@@ -17,7 +17,10 @@
 //
 package org.msgpack.template.builder;
 
+import java.io.IOException;
 import java.lang.Thread;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 
 import javassist.ClassPool;
@@ -29,10 +32,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.msgpack.annotation.Message;
 import org.msgpack.annotation.MessagePackMessage;
+import org.msgpack.packer.Packer;
 import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
 import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.TemplateRegistry;
+import org.msgpack.template.builder.ReflectionTemplateBuilder.ReflectionFieldTemplate;
+import org.msgpack.unpacker.Unpacker;
 
 
 public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
@@ -110,14 +116,6 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
 
     @Override
     public <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries) {
-	// FIXME private / packagefields
-	//for(FieldEntry e : entries) {
-	//	Field f = e.getField();
-	//	int mod = f.getModifiers();
-	//	if(!Modifier.isPublic(mod)) {
-	//		f.setAccessible(true);
-	//	}
-	//}
 	Template<?>[] tmpls = toTemplate(entries);
 	BuildContext bc = createBuildContext();
 	return bc.buildTemplate(targetClass, entries, tmpls);

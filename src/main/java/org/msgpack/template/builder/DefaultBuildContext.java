@@ -17,11 +17,16 @@
 //
 package org.msgpack.template.builder;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 
 import org.msgpack.*;
+import org.msgpack.packer.Packer;
 import org.msgpack.template.*;
+import org.msgpack.unpacker.Unpacker;
 
 import javassist.CannotCompileException;
 import javassist.CtClass;
@@ -78,97 +83,147 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 
     protected String buildWriteMethodBody() {
 	resetStringBuilder();
-	buildString("{");
+	buildString("\n{\n");
 
-        buildString("if($2 == null) {");
-        buildString("  if($3) {");
-        buildString("    throw new %s(\"Attempted to write null\");", MessageTypeException.class.getName());
-        buildString("  }");
-        buildString("  $1.writeNil();");
-        buildString("  return;");
-        buildString("}");
+        buildString("  if ($2 == null) {\n");
+        buildString("    if ($3) {\n");
+        buildString("      throw new %s(\"Attempted to write null\");\n", MessageTypeException.class.getName());
+        buildString("    }\n");
+        buildString("    $1.writeNil();\n");
+        buildString("    return;\n");
+        buildString("  }\n");
 
-	buildString("%s _$$_t = (%s) $2;", origName, origName);
-	buildString("$1.writeArrayBegin(%d);", entries.length);
+	buildString("  %s _$$_t = (%s) $2;\n", origName, origName);
+	buildString("  $1.writeArrayBegin(%d);\n", entries.length);
 
 	for (int i = 0; i < entries.length; i++) {
 	    FieldEntry e = entries[i];
 	    if (!e.isAvailable()) {
-		buildString("$1.writeNil();");
+		buildString("  $1.writeNil();\n");
 		continue;
 	    }
-	    Class<?> type = e.getType();
-	    if (type.isPrimitive()) {
-		buildString("$1.%s(_$$_t.%s);", primitiveWriteName(type),
-			e.getName());
-	    } else {
-		buildString("if (_$$_t.%s == null) {", e.getName());
-		if (e.isNotNullable()) {
-		    buildString("throw new %s();",
-			    MessageTypeException.class.getName());
+	    DefaultFieldEntry de = (DefaultFieldEntry) e;
+	    boolean isPrivate = Modifier.isPrivate(de.getField().getModifiers());
+	    Class<?> type = de.getType();
+	    if (type.isPrimitive()) { // primitive types
+		if (!isPrivate) {
+		    buildString("  $1.%s(_$$_t.%s);\n", primitiveWriteName(type), de.getName());
 		} else {
-		    buildString("$1.writeNil();");
+		    buildString("  %s.writePrivateField($1, _$$_t, \"%s\", templates[%d]);\n",
+			    DefaultBuildContext.class.getName(), de.getName(), i);
 		}
-		buildString("} else {");
-		buildString("  this.templates[%d].write($1, _$$_t.%s);", i, e.getName());
-		buildString("}");
+	    } else { // reference types
+		buildString("  if (_$$_t.%s == null) {\n", de.getName());
+		if (de.isNotNullable()) {
+		    buildString("    throw new %s();\n", MessageTypeException.class.getName());
+		} else {
+		    buildString("    $1.writeNil();\n");
+		}
+		buildString("  } else {\n");
+		if (!isPrivate) {
+		    buildString("    templates[%d].write($1, _$$_t.%s);\n", i, de.getName());
+		    buildString("  }\n");
+		} else {
+		    buildString("    %s.writePrivateField($1, _$$_t, \"%s\", templates[%d]);\n",
+			    DefaultBuildContext.class.getName(), de.getName(), i);
+		}
 	    }
 	}
 
-	buildString("$1.writeArrayEnd();");
-	buildString("}");
+	buildString("  $1.writeArrayEnd();\n");
+	buildString("}\n");
 	return getBuiltString();
+    }
+
+    public static void writePrivateField(Packer packer, Object target, String fieldName, Template tmpl) {
+	try {
+	    System.out.println("class name: " + target.getClass().getName());
+	    System.out.println("field name: " + fieldName);
+	    Field field = target.getClass().getDeclaredField(fieldName);
+	    field.setAccessible(true);
+	    Object valueReference = field.get(target);
+	    tmpl.write(packer, valueReference);
+	    field.setAccessible(false);
+	} catch (Exception e) {
+	    throw new MessageTypeException(e);
+	}
     }
 
     protected String buildReadMethodBody() {
 	resetStringBuilder();
-	buildString("{ ");
+	buildString("\n{\n");
 
-        buildString("if(!$3 && $1.trySkipNil()) {");
-        buildString("  return null;");
-        buildString("}");
+        buildString("  if (!$3 && $1.trySkipNil()) {\n");
+        buildString("    return null;\n");
+        buildString("  }\n");
 
-	buildString("%s _$$_t;", origName);
-	buildString("if ($2 == null) {");
-	buildString("  _$$_t = new %s();", origName);
-	buildString("} else {");
-	buildString("  _$$_t = (%s) $2;", origName);
-	buildString("}");
-
-	buildString("$1.readArrayBegin();");
+	buildString("  %s _$$_t;\n", origName);
+	buildString("  if ($2 == null) {\n");
+	buildString("    _$$_t = new %s();\n", origName);
+	buildString("  } else {\n");
+	buildString("    _$$_t = (%s) $2;\n", origName);
+	buildString("  }\n");
+	buildString("  $1.readArrayBegin();\n");
 
 	int i;
 	for (i = 0; i < entries.length; i++) {
 	    FieldEntry e = entries[i];
 	    if (!e.isAvailable()) {
-		buildString("$1.skip();"); // TODO #MN
+		buildString("  $1.skip();\n");
 		continue;
 	    }
 
             if (e.isOptional()) {
-	        buildString("if($1.trySkipNil()) {");
-		buildString("_$$_t.%s = null;", e.getName());
-	        buildString("} else {");
+	        buildString("  if ($1.trySkipNil()) {");
+		buildString("    _$$_t.%s = null;\n", e.getName());
+	        buildString("  } else {\n");
             }
 
-	    Class<?> type = e.getType();
+	    DefaultFieldEntry de = (DefaultFieldEntry) e;
+	    boolean isPrivate = Modifier.isPrivate(de.getField().getModifiers());
+	    Class<?> type = de.getType();
 	    if (type.isPrimitive()) {
-		buildString("_$$_t.%s = $1.%s();", e.getName(), primitiveReadName(type));
+		if (!isPrivate) {
+		    buildString("    _$$_t.%s = $1.%s();\n", de.getName(), primitiveReadName(type));
+		} else {
+		    buildString("    %s.readPrivateField($1, _$$_t, \"%s\", templates[%d]);\n",
+			    DefaultBuildContext.class.getName(), de.getName(), i);
+		}
 	    } else {
-		buildString("_$$_t.%s = (%s) this.templates[%d].read($1, _$$_t.%s);",
-			e.getName(), e.getJavaTypeName(), i, e.getName());
+		if (!isPrivate) {
+		    buildString("    _$$_t.%s = (%s) this.templates[%d].read($1, _$$_t.%s);\n",
+			    de.getName(), de.getJavaTypeName(), i, de.getName());
+		} else {
+		    buildString("    %s.readPrivateField($1, _$$_t, \"%s\", templates[%d]);\n",
+			    DefaultBuildContext.class.getName(), de.getName(), i);
+		}
 	    }
 
-            if (e.isOptional()) {
-	        buildString("}");
+            if (de.isOptional()) {
+	        buildString("  }\n");
             }
 	}
 
-	buildString("$1.readArrayEnd();");
-	buildString("return _$$_t;");
+	buildString("  $1.readArrayEnd();\n");
+	buildString("  return _$$_t;\n");
 
-	buildString("}");
+	buildString("}\n");
 	return getBuiltString();
+    }
+
+    public static void readPrivateField(Unpacker unpacker, Object target, String fieldName, Template tmpl) {
+	try {
+	    Field field = target.getClass().getDeclaredField(fieldName);
+	    field.setAccessible(true);
+	    Object fieldReference = field.get(target);
+	    Object valueReference = tmpl.read(unpacker, fieldReference);
+	    if (valueReference != fieldReference) {
+		field.set(target, valueReference);
+	    }
+	    field.setAccessible(false);
+	} catch (Exception e) {
+	    throw new MessageTypeException(e);
+	}
     }
 
     @Override
