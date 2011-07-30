@@ -255,12 +255,14 @@ public class TestJavassistBufferPackBufferUnpack extends TestSet {
     public void testModifiersFieldsClassNotNullable(ModifiersFieldsClassNotNullable v) throws Exception {
 	TemplateRegistry registry = new TemplateRegistry();
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
-	try {
-	    builder.buildTemplate(ModifiersFieldsClassNotNullable.class);
-	    fail();
-	} catch (Throwable t) {
-	    assertTrue(t instanceof TemplateBuildException);
-	}
+	Template<ModifiersFieldsClassNotNullable> tmpl = builder.buildTemplate(ModifiersFieldsClassNotNullable.class);
+	BufferPacker packer = new MessagePack().createBufferPacker();
+	tmpl.write(packer, v);
+	byte[] bytes = packer.toByteArray();
+	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
+	unpacker.wrap(bytes);
+	ModifiersFieldsClassNotNullable ret = tmpl.read(unpacker, null);
+	assertEquals(v, ret);
     }
 
     @Test @Override

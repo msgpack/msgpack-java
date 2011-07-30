@@ -12,16 +12,13 @@ public class ModifiersFieldsClassNotNullable {
     public int f0;
 
     @NotNullable
-    public final int f1 = 1;
+    private int f1;
 
     @NotNullable
-    private int f2;
+    protected int f2;
 
     @NotNullable
-    protected int f3;
-
-    @NotNullable
-    int f4;
+    int f3;
 
     public ModifiersFieldsClassNotNullable() {}
 
@@ -49,14 +46,6 @@ public class ModifiersFieldsClassNotNullable {
         this.f3 = f3;
     }
 
-    public int getF4() {
-        return f4;
-    }
-
-    public void setF4(int f4) {
-        this.f4 = f4;
-    }
-
     @Override
     public boolean equals(Object o) {
 	if (! (o instanceof ModifiersFieldsClassNotNullable)) {
@@ -73,9 +62,6 @@ public class ModifiersFieldsClassNotNullable {
 	    return false;
 	}
 	if (f3 != that.f3) {
-	    return false;
-	}
-	if (f4 != that.f4) {
 	    return false;
 	}
 	return true;

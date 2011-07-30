@@ -25,7 +25,7 @@ public class TestSet {
     }
 
     public void testBooleanArray() throws Exception {
-	// FIXME testBooleanArray(null);
+	// FIXME testBooleanArray(null); 
 	testBooleanArray(new boolean[0]);
 	testBooleanArray(new boolean[] { true });
 	testBooleanArray(new boolean[] { false });
@@ -278,7 +278,7 @@ public class TestSet {
     }
 
     public void testString() throws Exception {
-	// TODO testString(null);
+	// TODO testString(null); 
 	testString("");
 	testString("a");
 	testString("ab");
@@ -340,7 +340,7 @@ public class TestSet {
     }
 
     public void testList() throws Exception {
-	// FIXME testList(null);
+	// TODO testList(null, Integer.class);
 	List<Integer> list0 = new ArrayList<Integer>();
 	testList(list0, Integer.class);
 	List<Integer> list1 = new ArrayList<Integer>();
@@ -367,7 +367,7 @@ public class TestSet {
     }
 
     public void testMap() throws Exception {
-	// FIXME testMap(null);
+	// TODO testMap(null, Integer.class, Integer.class);
 	Map<Integer, Integer> map0 = new HashMap<Integer, Integer>();
 	testMap(map0, Integer.class, Integer.class);
 	Map<Integer, Integer> map1 = new HashMap<Integer, Integer>();
@@ -394,7 +394,7 @@ public class TestSet {
     }
 
     public void testBigInteger() throws Exception {
-	// FIXME testBigInteger(null);
+	// TODO testBigInteger(null); 
 	testBigInteger(BigInteger.valueOf(0));
 	testBigInteger(BigInteger.valueOf(-1));
 	testBigInteger(BigInteger.valueOf(1));
@@ -414,7 +414,7 @@ public class TestSet {
     }
 
     public void testBigDecimal() throws Exception {
-	// FIXME testBigDecimal(null);
+	testBigDecimal(null);
 	testBigDecimal(BigDecimal.valueOf(0));
 	testBigDecimal(BigDecimal.valueOf(-1));
 	testBigDecimal(BigDecimal.valueOf(1));
@@ -422,14 +422,14 @@ public class TestSet {
 	testBigDecimal(BigDecimal.valueOf(Integer.MAX_VALUE));
 	testBigDecimal(BigDecimal.valueOf(Long.MIN_VALUE));
 	testBigDecimal(BigDecimal.valueOf(Long.MAX_VALUE));
-	// TODO
+	// TODO for next version #MN 
     }
 
     public void testBigDecimal(BigDecimal v) throws Exception {
     }
 
     public void testDate() throws Exception {
-	// FIXME testDate(null);
+	testDate(null);
 	Date d0 = new Date();
 	testDate(d0);
     }

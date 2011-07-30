@@ -9,13 +9,11 @@ import org.msgpack.annotation.Message;
 public class ModifiersFieldsClass {
     public int f0;
 
-    public final int f1 = 1;
+    private int f1;
 
-    private int f2;
+    protected int f2;
 
-    protected int f3;
-
-    int f4;
+    int f3;
 
     public ModifiersFieldsClass() {}
 
@@ -43,14 +41,6 @@ public class ModifiersFieldsClass {
         this.f3 = f3;
     }
 
-    public int getF4() {
-        return f4;
-    }
-
-    public void setF4(int f4) {
-        this.f4 = f4;
-    }
-
     @Override
     public boolean equals(Object o) {
 	if (! (o instanceof ModifiersFieldsClass)) {
@@ -67,9 +57,6 @@ public class ModifiersFieldsClass {
 	    return false;
 	}
 	if (f3 != that.f3) {
-	    return false;
-	}
-	if (f4 != that.f4) {
 	    return false;
 	}
 	return true;
