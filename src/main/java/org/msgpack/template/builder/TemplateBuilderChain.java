@@ -33,15 +33,20 @@ public class TemplateBuilderChain {
     }
 
     public void init(TemplateRegistry registry) {
+	if (registry == null) {
+	    throw new NullPointerException("registry is null");
+	}
+
+	TemplateBuilder builder;
 	if (isSupportJavassist()) {
 	    // use dynamic code generation
-	    TemplateBuilder builder = new JavassistTemplateBuilder(registry);
+	    builder = new JavassistTemplateBuilder(registry);
 	    templateBuilders.add(builder);
 	    templateBuilders.add(new ReflectionOrdinalEnumTemplateBuilder(registry));
 	    templateBuilders.add(new JavassistBeansTemplateBuilder(registry));
 	} else {
 	    // use reflection
-	    TemplateBuilder builder = new ReflectionTemplateBuilder(registry);
+	    builder = new ReflectionTemplateBuilder(registry);
 	    templateBuilders.add(builder);
 	    templateBuilders.add(new ReflectionOrdinalEnumTemplateBuilder(registry));
 	    templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
