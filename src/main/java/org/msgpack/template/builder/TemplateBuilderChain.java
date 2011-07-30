@@ -28,8 +28,6 @@ public class TemplateBuilderChain {
 
     protected List<TemplateBuilder> templateBuilders;
 
-    protected TemplateBuilder forceTemplateBuilder = null;
-
     public TemplateBuilderChain() {
 	templateBuilders = new ArrayList<TemplateBuilder>();
     }
@@ -37,14 +35,14 @@ public class TemplateBuilderChain {
     public void init(TemplateRegistry registry) {
 	if (isSupportJavassist()) {
 	    // use dynamic code generation
-	    forceTemplateBuilder = new JavassistTemplateBuilder(registry);
-	    templateBuilders.add(forceTemplateBuilder);
+	    TemplateBuilder builder = new JavassistTemplateBuilder(registry);
+	    templateBuilders.add(builder);
 	    templateBuilders.add(new ReflectionOrdinalEnumTemplateBuilder(registry));
 	    templateBuilders.add(new JavassistBeansTemplateBuilder(registry));
 	} else {
 	    // use reflection
-	    forceTemplateBuilder = new ReflectionTemplateBuilder(registry);
-	    templateBuilders.add(forceTemplateBuilder);
+	    TemplateBuilder builder = new ReflectionTemplateBuilder(registry);
+	    templateBuilders.add(builder);
 	    templateBuilders.add(new ReflectionOrdinalEnumTemplateBuilder(registry));
 	    templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
 	}
@@ -56,7 +54,7 @@ public class TemplateBuilderChain {
 		return tb;
 	    }
 	}
-	return forceTemplateBuilder;
+	return null;
     }
 
     private static boolean isSupportJavassist(){
