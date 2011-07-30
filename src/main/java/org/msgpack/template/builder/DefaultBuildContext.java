@@ -137,8 +137,6 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 
     public static void writePrivateField(Packer packer, Object target, String fieldName, Template tmpl) {
 	try {
-	    System.out.println("class name: " + target.getClass().getName());
-	    System.out.println("field name: " + fieldName);
 	    Field field = target.getClass().getDeclaredField(fieldName);
 	    field.setAccessible(true);
 	    Object valueReference = field.get(target);
