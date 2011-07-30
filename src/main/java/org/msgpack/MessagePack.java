@@ -47,7 +47,6 @@ public class MessagePack {
         registry = new TemplateRegistry(msgpack.registry);
     }
 
-
     public Packer createPacker(OutputStream stream) {
         return new MessagePackPacker(this, stream);
     }
@@ -179,9 +178,6 @@ public class MessagePack {
     public void register(Class<?> type) {
         registry.register(type);
     }
-
-    // TODO #MN
-    // public void forceRegister(Class<?> type);
 
     public <T> void register(Class<T> type, Template<T> tmpl) {
         registry.register(type, tmpl);
