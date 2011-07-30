@@ -185,7 +185,11 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 
     private FieldOption getFieldOption(Field field, FieldOption from) {
 	int mod = field.getModifiers();
-	if (Modifier.isStatic(mod) || Modifier.isFinal(mod)) {
+	// default mode:
+	//   transient, static, final : Ignore
+	//   primitive type : NotNullable
+	//   reference type : Ignore
+	if (Modifier.isStatic(mod) || Modifier.isFinal(mod) || Modifier.isTransient(mod)) {
 	    return FieldOption.IGNORE;
 	}
 
@@ -201,17 +205,10 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	    return from;
 	}
 
-	// default mode:
-	//   transient : Ignore
-	//   public    : NotNullable  // FIXME
-	//   others    : Ignore
-	if (Modifier.isTransient(mod)) {
-	    return FieldOption.IGNORE;
-	} else if(Modifier.isPublic(mod)) {
-            // FIXME primitive->NOTNULLABLE, otherwise->OPTIONAL
+	if (field.getType().isPrimitive()) {
 	    return FieldOption.NOTNULLABLE;
 	} else {
-	    return FieldOption.IGNORE;
+	    return FieldOption.OPTIONAL;
 	}
     }
 
