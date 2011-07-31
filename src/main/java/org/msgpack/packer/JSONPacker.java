@@ -21,6 +21,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.MalformedInputException;
 import org.json.simple.JSONValue;
 import org.msgpack.io.Output;
 import org.msgpack.io.StreamOutput;
@@ -49,6 +54,7 @@ public class JSONPacker extends AbstractPacker {
     private int[] flags;
 
     private PackerStack stack = new PackerStack();
+    private CharsetDecoder decoder;
 
     public JSONPacker(OutputStream stream) {
         this(new MessagePack(), stream);
@@ -63,6 +69,9 @@ public class JSONPacker extends AbstractPacker {
         this.out = out;
         this.stack = new PackerStack();
         this.flags = new int[PackerStack.MAX_STACK_SIZE];
+        this.decoder = Charset.forName("UTF-8").newDecoder().
+            onMalformedInput(CodingErrorAction.REPORT).
+            onUnmappableCharacter(CodingErrorAction.REPORT);
     }
 
     public void writeNil() throws IOException {
@@ -118,6 +127,10 @@ public class JSONPacker extends AbstractPacker {
 
     public void writeFloat(float v) throws IOException {
         beginElement();
+        Float r = v;
+        if(r.isInfinite() || r.isNaN()) {
+            throw new IOException("JSONPacker doesn't support NaN and infinite float value");
+        }
         byte[] b = Float.toString(v).getBytes();  // TODO optimize
         out.write(b, 0, b.length);
         endElement();
@@ -125,6 +138,10 @@ public class JSONPacker extends AbstractPacker {
 
     public void writeDouble(double v) throws IOException {
         beginElement();
+        Double r = v;
+        if(r.isInfinite() || r.isNaN()) {
+            throw new IOException("JSONPacker doesn't support NaN and infinite float value");
+        }
         byte[] b = Double.toString(v).getBytes();  // TODO optimize
         out.write(b, 0, b.length);
         endElement();
@@ -248,19 +265,17 @@ public class JSONPacker extends AbstractPacker {
         out.close();
     }
 
-    private static void escape(Output out, byte[] b, int off, int len) throws IOException {
-        // TODO optimize
-        escape(out, new String(b, off, len));
+    private void escape(Output out, byte[] b, int off, int len) throws IOException {
+        escape(out, ByteBuffer.wrap(b, off, len));
     }
 
-    private static void escape(Output out, ByteBuffer bb) throws IOException {
+    private void escape(Output out, ByteBuffer bb) throws IOException {
         // TODO optimize
-        byte[] b = new byte[bb.remaining()];
-        bb.get(b);
-        escape(out, new String(b));
+        String str = decoder.decode(bb).toString();
+        escape(out, str);
     }
 
-    private static void escape(Output out, String s) throws IOException {
+    private void escape(Output out, String s) throws IOException {
         // TODO optimize
         String e = JSONValue.escape(s);
         byte[] raw = e.getBytes();
