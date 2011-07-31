@@ -34,4 +34,3 @@ public interface TemplateBuilder {
 
     <T> Template<T> loadTemplate(Type targetType);
 }
-

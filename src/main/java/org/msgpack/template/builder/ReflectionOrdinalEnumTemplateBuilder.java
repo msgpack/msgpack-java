@@ -17,16 +17,12 @@
 //
 package org.msgpack.template.builder;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 
-import org.msgpack.MessageTypeException;
-import org.msgpack.packer.Packer;
+import org.msgpack.template.OrdinalEnumTemplate;
 import org.msgpack.template.Template;
-import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.builder.TemplateBuildException;
-import org.msgpack.unpacker.Unpacker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,28 +30,6 @@ import org.slf4j.LoggerFactory;
 public class ReflectionOrdinalEnumTemplateBuilder extends AbstractTemplateBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReflectionOrdinalEnumTemplateBuilder.class);
-
-    static class ReflectionOrdinalEnumTemplate<T> extends AbstractTemplate<T> {
-	private T[] entries;
-
-	ReflectionOrdinalEnumTemplate(Class<T> targetClass) {
-	    entries = targetClass.getEnumConstants();
-	}
-
-	@Override
-	public void write(Packer pk, T target, boolean required) throws IOException {
-	    pk.writeInt(((Enum) target).ordinal());
-	}
-
-	@Override
-	public T read(Unpacker pac, T to, boolean required) throws IOException, MessageTypeException {
-	    int ordinal = pac.readInt();
-	    if (ordinal < 0 || ordinal >= entries.length) {
-		throw new MessageTypeException("illegal ordinal");
-	    }
-	    return entries[ordinal];
-	}
-    }
 
     public ReflectionOrdinalEnumTemplateBuilder(TemplateRegistry registry) {
 	super(registry);
@@ -77,11 +51,11 @@ public class ReflectionOrdinalEnumTemplateBuilder extends AbstractTemplateBuilde
     }
 
     @Override
-    public <T> Template<T> buildTemplate(Type targetType) {
+    public <T> Template<T> buildTemplate(Type targetType) throws TemplateBuildException {
 	@SuppressWarnings("unchecked")
 	Class<T> targetClass = (Class<T>) targetType;
 	checkOrdinalEnumValidation(targetClass);
-	return new ReflectionOrdinalEnumTemplate<T>(targetClass);
+	return new OrdinalEnumTemplate<T>(targetClass);
     }
 
     protected void checkOrdinalEnumValidation(Class<?> targetClass) {
