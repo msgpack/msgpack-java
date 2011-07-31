@@ -18,6 +18,7 @@
 package org.msgpack.unpacker;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import org.msgpack.io.BufferReferer;
 import org.msgpack.MessageTypeException;
 
@@ -99,7 +100,7 @@ abstract class Accept implements BufferReferer {
         throw new MessageTypeException("Unexpected float value");
     }
 
-    public void refer(byte[] b, int off, int size, boolean gift) throws IOException {
+    public void refer(ByteBuffer bb, boolean gift) throws IOException {
         throw new MessageTypeException("Unexpected raw value");
     }
 }
