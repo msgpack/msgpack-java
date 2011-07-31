@@ -18,10 +18,23 @@
 package org.msgpack.unpacker;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.MalformedInputException;
 
 
 final class StringAccept extends Accept {
     String value;
+    private CharsetDecoder decoder;
+
+    public StringAccept() {
+        this.decoder = Charset.forName("UTF-8").newDecoder().
+            onMalformedInput(CodingErrorAction.REPORT).
+            onUnmappableCharacter(CodingErrorAction.REPORT);
+    }
 
     @Override
     void acceptRaw(byte[] raw) {
@@ -35,8 +48,9 @@ final class StringAccept extends Accept {
     }
 
     @Override
-    public void refer(byte[] b, int off, int len, boolean gift) throws IOException {
-        this.value = new String(b, off, len);
+    public void refer(ByteBuffer bb, boolean gift) throws IOException {
+        // TODO encoding error
+        this.value = decoder.decode(bb).toString();
     }
 }
 

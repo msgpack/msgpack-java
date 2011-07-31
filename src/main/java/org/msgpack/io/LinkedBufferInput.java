@@ -69,11 +69,22 @@ public class LinkedBufferInput implements Input {
             throw new EndOfBufferException();
         } else if(bb.remaining() < len) {
             return false;
-        } else if(!bb.hasArray()) {
-            return false;
         }
-        ref.refer(bb.array(), bb.arrayOffset()+bb.position(), len, true);
-        bb.position(bb.position()+len);
+        boolean success = false;
+        int pos = bb.position();
+        int lim = bb.limit();
+        try {
+            bb.limit(pos+len);
+            ref.refer(bb, true);
+            success = true;
+        } finally {
+            bb.limit(lim);
+            if(success) {
+                bb.position(pos+len);
+            } else {
+                bb.position(pos);
+            }
+        }
         return true;
     }
 

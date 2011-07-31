@@ -18,6 +18,7 @@
 package org.msgpack.unpacker;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
@@ -96,9 +97,11 @@ final class ValueAccept extends Accept {
     }
 
     @Override
-    public void refer(byte[] b, int off, int len, boolean gift) throws IOException {
+    public void refer(ByteBuffer bb, boolean gift) throws IOException {
         // TODO gift
-        uc.write(ValueFactory.rawValue(b, off, len));
+        byte[] raw = new byte[bb.remaining()];
+        bb.get(raw);
+        uc.write(ValueFactory.rawValue(raw, true));
     }
 
     @Override
