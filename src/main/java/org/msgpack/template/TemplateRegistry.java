@@ -118,14 +118,14 @@ public class TemplateRegistry {
     }
 
     public void register(final Class<?> targetClass) {
-	register(targetClass, chain.select(targetClass).buildTemplate(targetClass));
+	register(targetClass, chain.select(targetClass, false).buildTemplate(targetClass));
     }
 
     public void register(final Class<?> targetClass, final FieldList flist) {
 	if (flist == null) {
 	    throw new NullPointerException("FieldList object is null");
 	}
-	register(targetClass, chain.select(targetClass).buildTemplate(targetClass, flist));
+	register(targetClass, chain.select(targetClass, false).buildTemplate(targetClass, flist));
     }
 
     public synchronized void register(final Type targetType, final Template tmpl) {
@@ -215,7 +215,7 @@ public class TemplateRegistry {
 	}
 
 	// find match TemplateBuilder
-	TemplateBuilder builder = chain.select(targetClass);
+	TemplateBuilder builder = chain.select(targetClass, true);
 	if (builder != null) {
 	    if (forceLoad) {
 		tmpl = builder.loadTemplate(targetClass);
@@ -272,7 +272,7 @@ public class TemplateRegistry {
 	    }
 
 	    if (forceBuild) {
-		tmpl = chain.select(targetClass).buildTemplate(targetClass);
+		tmpl = chain.select(targetClass, true).buildTemplate(targetClass);
 		register(targetClass, tmpl);
 		return tmpl;
 	    }

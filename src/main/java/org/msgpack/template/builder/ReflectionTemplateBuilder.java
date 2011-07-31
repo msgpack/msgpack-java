@@ -344,9 +344,19 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     @Override
-    public boolean matchType(Type targetType) {
-	return AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, Message.class)
-		|| AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, MessagePackMessage.class);
+    public boolean matchType(Type targetType, boolean hasAnnotation) {
+	Class<?> targetClass = (Class<?>) targetType;
+	boolean matched;
+	if (hasAnnotation) {
+	    matched = AbstractTemplateBuilder.isAnnotated(targetClass, Message.class)
+	    	|| AbstractTemplateBuilder.isAnnotated(targetClass, MessagePackMessage.class);
+	} else {
+	    matched = !targetClass.isEnum() || !targetClass.isInterface();
+	}
+	if (matched) {
+	    LOG.debug("matched type: " + targetClass.getName());
+	}
+	return matched;
     }
 
     @Override

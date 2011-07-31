@@ -87,9 +87,19 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
     }
 
     @Override
-    public boolean matchType(Type targetType) {
-	return AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, Beans.class)
-		|| AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, MessagePackBeans.class);
+    public boolean matchType(Type targetType, boolean hasAnnotation) {
+	Class<?> targetClass = (Class<?>) targetType;
+	boolean matched;
+	if (hasAnnotation) {
+	    matched = AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, Beans.class)
+			|| AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, MessagePackBeans.class);
+	} else {
+	    matched = !targetClass.isEnum() || !targetClass.isInterface();
+	}
+	if (matched) {
+	    LOG.debug("matched type: " + targetClass.getName());
+	}
+	return matched;
     }
 
     @Override

@@ -17,10 +17,7 @@
 //
 package org.msgpack.template.builder;
 
-import java.io.IOException;
 import java.lang.Thread;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 
 import javassist.ClassPool;
@@ -32,13 +29,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.msgpack.annotation.Message;
 import org.msgpack.annotation.MessagePackMessage;
-import org.msgpack.packer.Packer;
 import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
 import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.TemplateRegistry;
-import org.msgpack.template.builder.ReflectionTemplateBuilder.ReflectionFieldTemplate;
-import org.msgpack.unpacker.Unpacker;
 
 
 public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
@@ -88,10 +82,19 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     @Override
-    public boolean matchType(Type targetType) {
-        // TODO reject enum
-	return AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, Message.class)
-		|| AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, MessagePackMessage.class);
+    public boolean matchType(Type targetType, boolean hasAnnotation) {
+	Class<?> targetClass = (Class<?>) targetType;
+	boolean matched;
+	if (hasAnnotation) {
+	    matched = AbstractTemplateBuilder.isAnnotated(targetClass, Message.class)
+	    	|| AbstractTemplateBuilder.isAnnotated(targetClass, MessagePackMessage.class);
+	} else {
+	    matched = !targetClass.isEnum() || !targetClass.isInterface();
+	}
+	if (matched) {
+	    LOG.debug("matched type: " + targetClass.getName());
+	}
+	return matched;
     }
 
     public void addClassLoader(ClassLoader cl) {

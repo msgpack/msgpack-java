@@ -53,20 +53,20 @@ public class TemplateBuilderChain {
 	}
     }
 
-    public TemplateBuilder select(Type targetType) {
-	for (TemplateBuilder tb : templateBuilders) {
-	    if (tb.matchType(targetType)) {
-		return tb;
-	    }
-	}
-	return null;
-    }
-
     private static boolean isSupportJavassist(){
 	try {
 	    return !System.getProperty("java.vm.name").equals("Dalvik");
 	} catch (Exception e) {
 	    return true;
 	}
+    }
+
+    public TemplateBuilder select(Type targetType, boolean hasAnnotation) {
+	for (TemplateBuilder tb : templateBuilders) {
+	    if (tb.matchType(targetType, hasAnnotation)) {
+		return tb;
+	    }
+	}
+	return null;
     }
 }

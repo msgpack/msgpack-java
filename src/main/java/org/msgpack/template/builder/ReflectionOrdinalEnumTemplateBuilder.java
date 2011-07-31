@@ -64,12 +64,19 @@ public class ReflectionOrdinalEnumTemplateBuilder extends AbstractTemplateBuilde
     }
 
     @Override
-    public boolean matchType(Type targetType) {
+    public boolean matchType(Type targetType, boolean hasAnnotation) {
 	Class<?> targetClass = (Class<?>) targetType;
-	boolean match = AbstractTemplateBuilder.isAnnotated(targetClass, OrdinalEnum.class)
-		|| AbstractTemplateBuilder.isAnnotated(targetClass, MessagePackOrdinalEnum.class);
-	LOG.debug("matched type: " + targetClass.getName());
-	return match;
+	boolean matched;
+	if (hasAnnotation) {
+	    matched = AbstractTemplateBuilder.isAnnotated(targetClass, OrdinalEnum.class)
+	    	|| AbstractTemplateBuilder.isAnnotated(targetClass, MessagePackOrdinalEnum.class);
+	} else {
+	    matched = targetClass.isEnum();
+	}
+	if (matched) {
+	    LOG.debug("matched type: " + targetClass.getName());
+	}
+	return matched;
     }
 
     @Override
