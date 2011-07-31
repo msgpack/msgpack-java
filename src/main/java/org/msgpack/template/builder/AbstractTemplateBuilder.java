@@ -29,20 +29,18 @@ import org.msgpack.annotation.Ignore;
 import org.msgpack.annotation.Index;
 import org.msgpack.annotation.Message;
 import org.msgpack.annotation.MessagePackMessage;
+import org.msgpack.annotation.MessagePackOrdinalEnum;
 import org.msgpack.annotation.NotNullable;
 import org.msgpack.annotation.Optional;
+import org.msgpack.annotation.OrdinalEnum;
 import org.msgpack.template.FieldList;
 import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.builder.TemplateBuildException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public abstract class AbstractTemplateBuilder implements TemplateBuilder {
-
-    private static Logger LOG = LoggerFactory.getLogger(AbstractTemplateBuilder.class);
 
     protected TemplateRegistry registry;
 
@@ -237,5 +235,23 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 
     public static boolean isAnnotated(AccessibleObject accessibleObject, Class<? extends Annotation> with) {
 	return accessibleObject.getAnnotation(with) != null;
+    }
+
+    public static boolean matchAtClassTemplateBuilder(Class<?> targetClass, boolean hasAnnotation) {
+	if (hasAnnotation) {
+	    return AbstractTemplateBuilder.isAnnotated(targetClass, Message.class)
+		    || AbstractTemplateBuilder.isAnnotated(targetClass, MessagePackMessage.class);
+	} else {
+	    return !targetClass.isEnum() || !targetClass.isInterface();
+	}
+    }
+
+    public static boolean matchAtOrdinalEnumTemplateBuilder(Class<?> targetClass, boolean hasAnnotation) {
+	if (hasAnnotation) {
+	    return AbstractTemplateBuilder.isAnnotated(targetClass, OrdinalEnum.class)
+		    || AbstractTemplateBuilder.isAnnotated(targetClass, MessagePackOrdinalEnum.class);
+	} else {
+	    return targetClass.isEnum();
+	}
     }
 }

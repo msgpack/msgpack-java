@@ -27,8 +27,6 @@ import javassist.NotFoundException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.msgpack.annotation.Message;
-import org.msgpack.annotation.MessagePackMessage;
 import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
 import org.msgpack.template.AbstractTemplate;
@@ -84,13 +82,7 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
     @Override
     public boolean matchType(Type targetType, boolean hasAnnotation) {
 	Class<?> targetClass = (Class<?>) targetType;
-	boolean matched;
-	if (hasAnnotation) {
-	    matched = AbstractTemplateBuilder.isAnnotated(targetClass, Message.class)
-	    	|| AbstractTemplateBuilder.isAnnotated(targetClass, MessagePackMessage.class);
-	} else {
-	    matched = !targetClass.isEnum() || !targetClass.isInterface();
-	}
+	boolean matched = matchAtClassTemplateBuilder(targetClass, hasAnnotation);
 	if (matched) {
 	    LOG.debug("matched type: " + targetClass.getName());
 	}

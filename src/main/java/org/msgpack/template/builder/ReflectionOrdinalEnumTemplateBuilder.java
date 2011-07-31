@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import org.msgpack.MessageTypeException;
-import org.msgpack.annotation.MessagePackOrdinalEnum;
-import org.msgpack.annotation.OrdinalEnum;
 import org.msgpack.packer.Packer;
 import org.msgpack.template.Template;
 import org.msgpack.template.AbstractTemplate;
@@ -66,13 +64,7 @@ public class ReflectionOrdinalEnumTemplateBuilder extends AbstractTemplateBuilde
     @Override
     public boolean matchType(Type targetType, boolean hasAnnotation) {
 	Class<?> targetClass = (Class<?>) targetType;
-	boolean matched;
-	if (hasAnnotation) {
-	    matched = AbstractTemplateBuilder.isAnnotated(targetClass, OrdinalEnum.class)
-	    	|| AbstractTemplateBuilder.isAnnotated(targetClass, MessagePackOrdinalEnum.class);
-	} else {
-	    matched = targetClass.isEnum();
-	}
+	boolean matched = matchAtOrdinalEnumTemplateBuilder(targetClass, hasAnnotation);
 	if (matched) {
 	    LOG.debug("matched type: " + targetClass.getName());
 	}
