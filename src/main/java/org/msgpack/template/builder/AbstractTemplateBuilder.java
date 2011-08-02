@@ -242,7 +242,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	    return AbstractTemplateBuilder.isAnnotated(targetClass, Message.class)
 		    || AbstractTemplateBuilder.isAnnotated(targetClass, MessagePackMessage.class);
 	} else {
-	    return !targetClass.isEnum() || !targetClass.isInterface();
+	    return !targetClass.isEnum() && !targetClass.isInterface();
 	}
     }
 
