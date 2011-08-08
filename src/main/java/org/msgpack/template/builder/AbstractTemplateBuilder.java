@@ -20,6 +20,7 @@ package org.msgpack.template.builder;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -244,6 +245,13 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 	} else {
 	    return !targetClass.isEnum() && !targetClass.isInterface();
 	}
+    }
+
+    public static boolean matchAtArrayTemplateBuilder(Class<?> targetClass, boolean hasAnnotation) {
+	if (((Type) targetClass) instanceof GenericArrayType){
+	    return true;
+	}
+	return targetClass.isArray();
     }
 
     public static boolean matchAtOrdinalEnumTemplateBuilder(Class<?> targetClass, boolean hasAnnotation) {

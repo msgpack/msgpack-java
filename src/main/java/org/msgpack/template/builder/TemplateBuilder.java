@@ -24,6 +24,7 @@ import org.msgpack.template.Template;
 
 
 public interface TemplateBuilder {
+
     boolean matchType(Type targetType, boolean forceBuild);
 
     <T> Template<T> buildTemplate(Type targetType) throws TemplateBuildException;

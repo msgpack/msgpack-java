@@ -38,22 +38,21 @@ public class TemplateBuilderChain {
 	}
 
 	TemplateBuilder builder;
-	if (isSupportJavassist()) {
-	    // use dynamic code generation
+	templateBuilders.add(new ArrayTemplateBuilder(registry));
+	templateBuilders.add(new OrdinalEnumTemplateBuilder(registry));
+	if (enableDynamicCodeGeneration()) { // use dynamic code generation
 	    builder = new JavassistTemplateBuilder(registry);
 	    templateBuilders.add(builder);
-	    templateBuilders.add(new ReflectionOrdinalEnumTemplateBuilder(registry));
 	    templateBuilders.add(new JavassistBeansTemplateBuilder(registry));
-	} else {
-	    // use reflection
+	} else { // use reflection
 	    builder = new ReflectionTemplateBuilder(registry);
 	    templateBuilders.add(builder);
-	    templateBuilders.add(new ReflectionOrdinalEnumTemplateBuilder(registry));
+	    templateBuilders.add(new OrdinalEnumTemplateBuilder(registry));
 	    templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
 	}
     }
 
-    private static boolean isSupportJavassist(){
+    private static boolean enableDynamicCodeGeneration(){
 	try {
 	    return !System.getProperty("java.vm.name").equals("Dalvik");
 	} catch (Exception e) {
