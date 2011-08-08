@@ -14,7 +14,7 @@ import org.msgpack.unpacker.BufferUnpacker;
 import org.msgpack.unpacker.Converter;
 
 
-public class TestReflectionOrdinalEnumBufferPackConvert extends TestSet {
+public class TestOrdinalEnumBufferPackConvert extends TestSet {
 
     @Test @Override
     public void testEnumTypeFieldsClass() throws Exception {
@@ -25,7 +25,7 @@ public class TestReflectionOrdinalEnumBufferPackConvert extends TestSet {
     public void testEnumTypeFieldsClass(EnumTypeFieldsClass v) throws Exception {
 	TemplateRegistry registry = new TemplateRegistry();
 	registry.register(EnumTypeFieldsClass.SampleEnum.class,
-		new ReflectionOrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClass.SampleEnum.class));
+		new OrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClass.SampleEnum.class));
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<EnumTypeFieldsClass> tmpl = builder.buildTemplate(EnumTypeFieldsClass.class);
 	BufferPacker packer = new MessagePack().createBufferPacker();
@@ -48,7 +48,7 @@ public class TestReflectionOrdinalEnumBufferPackConvert extends TestSet {
     public void testEnumTypeFieldsClassNotNullable(EnumTypeFieldsClassNotNullable v) throws Exception {
 	TemplateRegistry registry = new TemplateRegistry();
 	registry.register(EnumTypeFieldsClassNotNullable.SampleEnum.class,
-		new ReflectionOrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClassNotNullable.SampleEnum.class));
+		new OrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClassNotNullable.SampleEnum.class));
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<EnumTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(EnumTypeFieldsClassNotNullable.class);
 	BufferPacker packer = new MessagePack().createBufferPacker();

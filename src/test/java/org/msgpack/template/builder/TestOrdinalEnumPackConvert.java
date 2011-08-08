@@ -11,10 +11,12 @@ import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.Template;
 import org.msgpack.testclasses.EnumTypeFieldsClass;
 import org.msgpack.testclasses.EnumTypeFieldsClassNotNullable;
+import org.msgpack.type.Value;
 import org.msgpack.unpacker.BufferUnpacker;
+import org.msgpack.unpacker.Converter;
 
 
-public class TestReflectionOrdinalEnumPackBufferUnpack extends TestSet {
+public class TestOrdinalEnumPackConvert extends TestSet {
 
     @Test @Override
     public void testEnumTypeFieldsClass() throws Exception {
@@ -25,15 +27,17 @@ public class TestReflectionOrdinalEnumPackBufferUnpack extends TestSet {
     public void testEnumTypeFieldsClass(EnumTypeFieldsClass v) throws Exception {
 	TemplateRegistry registry = new TemplateRegistry();
 	registry.register(EnumTypeFieldsClass.SampleEnum.class,
-		new ReflectionOrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClass.SampleEnum.class));
+		new OrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClass.SampleEnum.class));
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<EnumTypeFieldsClass> tmpl = builder.buildTemplate(EnumTypeFieldsClass.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	BufferUnpacker u = new MessagePack().createBufferUnpacker();
+	u.wrap(bytes);
+	Value value = u.readValue();
+	Converter unpacker = new Converter(value);
 	EnumTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -47,15 +51,17 @@ public class TestReflectionOrdinalEnumPackBufferUnpack extends TestSet {
     public void testEnumTypeFieldsClassNotNullable(EnumTypeFieldsClassNotNullable v) throws Exception {
 	TemplateRegistry registry = new TemplateRegistry();
 	registry.register(EnumTypeFieldsClassNotNullable.SampleEnum.class,
-		new ReflectionOrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClassNotNullable.SampleEnum.class));
+		new OrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClassNotNullable.SampleEnum.class));
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<EnumTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(EnumTypeFieldsClassNotNullable.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	BufferUnpacker u = new MessagePack().createBufferUnpacker();
+	u.wrap(bytes);
+	Value value = u.readValue();
+	Converter unpacker = new Converter(value);
 	EnumTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }

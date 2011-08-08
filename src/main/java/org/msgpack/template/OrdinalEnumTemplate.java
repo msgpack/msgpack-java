@@ -23,6 +23,7 @@ import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 
+
 public class OrdinalEnumTemplate<T> extends AbstractTemplate<T> {
     private T[] entries;
 
@@ -30,6 +31,7 @@ public class OrdinalEnumTemplate<T> extends AbstractTemplate<T> {
 	entries = targetClass.getEnumConstants();
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public void write(Packer pk, T target, boolean required) throws IOException {
 	pk.writeInt(((Enum) target).ordinal());

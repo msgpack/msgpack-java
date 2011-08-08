@@ -27,11 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class ReflectionOrdinalEnumTemplateBuilder extends AbstractTemplateBuilder {
+public class OrdinalEnumTemplateBuilder extends AbstractTemplateBuilder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ReflectionOrdinalEnumTemplateBuilder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OrdinalEnumTemplateBuilder.class);
 
-    public ReflectionOrdinalEnumTemplateBuilder(TemplateRegistry registry) {
+    public OrdinalEnumTemplateBuilder(TemplateRegistry registry) {
 	super(registry);
     }
 
