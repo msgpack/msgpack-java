@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import org.junit.Test;
@@ -30,10 +31,10 @@ import org.msgpack.testclasses.ReferenceTypeFieldsClass;
 import org.msgpack.testclasses.ReferenceTypeFieldsClassNotNullable;
 import org.msgpack.testclasses.UserDefinedTypeFieldsClass;
 import org.msgpack.testclasses.UserDefinedTypeFieldsClassNotNullable;
-import org.msgpack.unpacker.BufferUnpacker;
+import org.msgpack.unpacker.Unpacker;
 
 
-public class TestBeansReflectionPackBufferUnpack extends TestSet {
+public class TestReflectionBeansPackStreamUnpack extends TestSet {
 
     @Test @Override
     public void testPrimitiveTypeFieldsClass() throws Exception {
@@ -49,8 +50,7 @@ public class TestBeansReflectionPackBufferUnpack extends TestSet {
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	PrimitiveTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -69,8 +69,7 @@ public class TestBeansReflectionPackBufferUnpack extends TestSet {
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	PrimitiveTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -89,8 +88,7 @@ public class TestBeansReflectionPackBufferUnpack extends TestSet {
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	ReferenceTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -109,8 +107,7 @@ public class TestBeansReflectionPackBufferUnpack extends TestSet {
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	ReferenceTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -129,8 +126,7 @@ public class TestBeansReflectionPackBufferUnpack extends TestSet {
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	ListTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -149,8 +145,7 @@ public class TestBeansReflectionPackBufferUnpack extends TestSet {
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	ListTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -169,8 +164,7 @@ public class TestBeansReflectionPackBufferUnpack extends TestSet {
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	MapTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -189,8 +183,7 @@ public class TestBeansReflectionPackBufferUnpack extends TestSet {
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	MapTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -209,8 +202,7 @@ public class TestBeansReflectionPackBufferUnpack extends TestSet {
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	FinalClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -252,8 +244,7 @@ public class TestBeansReflectionPackBufferUnpack extends TestSet {
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	ModifiersFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -272,8 +263,7 @@ public class TestBeansReflectionPackBufferUnpack extends TestSet {
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	ModifiersFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -292,8 +282,7 @@ public class TestBeansReflectionPackBufferUnpack extends TestSet {
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	UserDefinedTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -312,8 +301,7 @@ public class TestBeansReflectionPackBufferUnpack extends TestSet {
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	UserDefinedTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -332,8 +320,7 @@ public class TestBeansReflectionPackBufferUnpack extends TestSet {
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	InheritanceClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -352,8 +339,7 @@ public class TestBeansReflectionPackBufferUnpack extends TestSet {
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	InheritanceClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -372,8 +358,7 @@ public class TestBeansReflectionPackBufferUnpack extends TestSet {
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	MessagePackableTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
@@ -392,8 +377,7 @@ public class TestBeansReflectionPackBufferUnpack extends TestSet {
 	Packer packer = new MessagePack().createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker unpacker = new MessagePack().createBufferUnpacker();
-	unpacker.wrap(bytes);
+	Unpacker unpacker = new MessagePack().createUnpacker(new ByteArrayInputStream(bytes));
 	MessagePackableTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
