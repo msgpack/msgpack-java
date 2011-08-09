@@ -23,6 +23,7 @@ import org.msgpack.unpacker.Unpacker;
 
 
 public abstract class AbstractTemplate<T> implements Template<T> {
+
     public void write(Packer pk, T v) throws IOException {
         write(pk, v, false);
     }

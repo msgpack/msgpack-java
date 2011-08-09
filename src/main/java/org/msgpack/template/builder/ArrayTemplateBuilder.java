@@ -46,16 +46,16 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(ArrayTemplateBuilder.class);
 
     static class ReflectionMultidimentionalArrayTemplate extends AbstractTemplate {
-	private Class<?> componentClass;
+	private Class componentClass;
 
 	private Template componentTemplate;
 
-	public ReflectionMultidimentionalArrayTemplate(Class<?> componentClass, Template componentTemplate) {
+	public ReflectionMultidimentionalArrayTemplate(Class componentClass, Template componentTemplate) {
 	    this.componentClass = componentClass;
 	    this.componentTemplate = componentTemplate;
 	}
 
-	Class<?> getComponentClass() {
+	Class getComponentClass() {
 	    return componentClass;
 	}
 
@@ -140,7 +140,7 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
 	return toTemplate(arrayType, baseType, baseClass, dim);
     }
 
-    private Template toTemplate(Type arrayType, Type genericBaseType, Class<?> baseClass, int dim) {
+    private Template toTemplate(Type arrayType, Type genericBaseType, Class baseClass, int dim) {
 	if (dim == 1) {
 	    if (baseClass == boolean.class) {
 		return BooleanArrayTemplate.getInstance();

@@ -43,8 +43,8 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	    this.entry = entry;
 	}
 
-	void setNil(Object target) {
-	    entry.set(target, null);
+	void setNil(Object v) {
+	    entry.set(v, null);
 	}
     }
 
