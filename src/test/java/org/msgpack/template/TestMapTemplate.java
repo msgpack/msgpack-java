@@ -17,7 +17,6 @@ import org.msgpack.unpacker.BufferUnpacker;
 import org.msgpack.unpacker.Unpacker;
 
 
-@Ignore
 public class TestMapTemplate {
 
     @Test
@@ -49,15 +48,15 @@ public class TestMapTemplate {
 	@Override
 	public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
-	    Template keyElementTemplate = msgpack.lookup(keyElementClass);
-	    Template valueElementTemplate = msgpack.lookup(valueElementClass);
-	    Template tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
+	    Template<K> keyElementTemplate = msgpack.lookup(keyElementClass);
+	    Template<V> valueElementTemplate = msgpack.lookup(valueElementClass);
+	    Template<Map<K, V>> tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    Packer packer = msgpack.createPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
-	    String ret = (String) tmpl.read(unpacker, null);
+	    Map<K, V> ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -71,15 +70,15 @@ public class TestMapTemplate {
 	@Override
 	public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
-	    Template keyElementTemplate = msgpack.lookup(keyElementClass);
-	    Template valueElementTemplate = msgpack.lookup(valueElementClass);
-	    Template tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
+	    Template<K> keyElementTemplate = msgpack.lookup(keyElementClass);
+	    Template<V> valueElementTemplate = msgpack.lookup(valueElementClass);
+	    Template<Map<K, V>> tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    Packer packer = msgpack.createPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
-	    String ret = (String) tmpl.read(unpacker, null);
+	    Map<K, V> ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -93,14 +92,14 @@ public class TestMapTemplate {
 	@Override
 	public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
-	    Template keyElementTemplate = msgpack.lookup(keyElementClass);
-	    Template valueElementTemplate = msgpack.lookup(valueElementClass);
-	    Template tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
+	    Template<K> keyElementTemplate = msgpack.lookup(keyElementClass);
+	    Template<V> valueElementTemplate = msgpack.lookup(valueElementClass);
+	    Template<Map<K, V>> tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
 	    BufferPacker packer = msgpack.createBufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
-	    String ret = (String) tmpl.read(unpacker, null);
+	    Map<K, V> ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -114,14 +113,14 @@ public class TestMapTemplate {
 	@Override
 	public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
-	    Template keyElementTemplate = msgpack.lookup(keyElementClass);
-	    Template valueElementTemplate = msgpack.lookup(valueElementClass);
-	    Template tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
+	    Template<K> keyElementTemplate = msgpack.lookup(keyElementClass);
+	    Template<V> valueElementTemplate = msgpack.lookup(valueElementClass);
+	    Template<Map<K, V>> tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
 	    BufferPacker packer = msgpack.createBufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
-	    String ret = (String) tmpl.read(unpacker, null);
+	    Map<K, V> ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }

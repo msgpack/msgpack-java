@@ -16,7 +16,6 @@ import org.msgpack.unpacker.BufferUnpacker;
 import org.msgpack.unpacker.Unpacker;
 
 
-@Ignore
 public class TestListTemplate {
 
     @Test
@@ -48,14 +47,14 @@ public class TestListTemplate {
 	@Override
 	public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
-	    Template elementTemplate = msgpack.lookup(elementClass);
-	    Template tmpl = new ListTemplate(elementTemplate);
+	    Template<E> elementTemplate = msgpack.lookup(elementClass);
+	    Template<List<E>> tmpl = new ListTemplate(elementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    Packer packer = msgpack.createPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
-	    String ret = (String) tmpl.read(unpacker, null);
+	    List<E> ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -69,14 +68,14 @@ public class TestListTemplate {
 	@Override
 	public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
-	    Template elementTemplate = msgpack.lookup(elementClass);
-	    Template tmpl = new ListTemplate(elementTemplate);
+	    Template<E> elementTemplate = msgpack.lookup(elementClass);
+	    Template<List<E>> tmpl = new ListTemplate(elementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    Packer packer = msgpack.createPacker(out);
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
-	    String ret = (String) tmpl.read(unpacker, null);
+	    List<E> ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -90,13 +89,13 @@ public class TestListTemplate {
 	@Override
 	public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
-	    Template elementTemplate = msgpack.lookup(elementClass);
-	    Template tmpl = new ListTemplate(elementTemplate);
+	    Template<E> elementTemplate = msgpack.lookup(elementClass);
+	    Template<List<E>> tmpl = new ListTemplate(elementTemplate);
 	    BufferPacker packer = msgpack.createBufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
-	    String ret = (String) tmpl.read(unpacker, null);
+	    List<E> ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
@@ -110,13 +109,13 @@ public class TestListTemplate {
 	@Override
 	public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
-	    Template elementTemplate = msgpack.lookup(elementClass);
-	    Template tmpl = new ListTemplate(elementTemplate);
+	    Template<E> elementTemplate = msgpack.lookup(elementClass);
+	    Template<List<E>> tmpl = new ListTemplate(elementTemplate);
 	    BufferPacker packer = msgpack.createBufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
-	    String ret = (String) tmpl.read(unpacker, null);
+	    List<E> ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }

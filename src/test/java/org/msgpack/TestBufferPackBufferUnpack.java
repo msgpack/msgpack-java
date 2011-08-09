@@ -196,13 +196,21 @@ public class TestBufferPackBufferUnpack extends TestSet {
     public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	BufferPacker packer = msgpack.createBufferPacker();
-	packer.writeArrayBegin(v.size());
-	for (Object o : v) {
-	    packer.write(o);
+	if (v == null) {
+	    packer.writeNil();
+	} else {
+	    packer.writeArrayBegin(v.size());
+	    for (Object o : v) {
+		packer.write(o);
+	    }
+	    packer.writeArrayEnd();
 	}
-	packer.writeArrayEnd();
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	if (unpacker.trySkipNil()) {
+	    assertEquals(null, v);
+	    return;
+	}
 	int size = unpacker.readArrayBegin();
 	List ret = new ArrayList(size);
 	for (int i = 0; i < size; ++i) {
@@ -226,14 +234,22 @@ public class TestBufferPackBufferUnpack extends TestSet {
     public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	BufferPacker packer = msgpack.createBufferPacker();
-	packer.writeMapBegin(v.size());
-	for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
-	    packer.write(e.getKey());
-	    packer.write(e.getValue());
+	if (v == null) {
+	    packer.writeNil();
+	} else {
+	    packer.writeMapBegin(v.size());
+	    for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
+		packer.write(e.getKey());
+		packer.write(e.getValue());
+	    }
+	    packer.writeMapEnd();
 	}
-	packer.writeMapEnd();
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	if (unpacker.trySkipNil()) {
+	    assertEquals(null, v);
+	    return;
+	}
 	int size = unpacker.readMapBegin();
 	Map ret = new HashMap(size);
 	for (int i = 0; i < size; ++i) {

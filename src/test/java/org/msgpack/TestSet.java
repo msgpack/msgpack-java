@@ -340,7 +340,7 @@ public class TestSet {
     }
 
     public void testList() throws Exception {
-	// TODO testList(null, Integer.class);
+	testList(null, Integer.class);
 	List<Integer> list0 = new ArrayList<Integer>();
 	testList(list0, Integer.class);
 	List<Integer> list1 = new ArrayList<Integer>();
@@ -367,7 +367,7 @@ public class TestSet {
     }
 
     public void testMap() throws Exception {
-	// TODO testMap(null, Integer.class, Integer.class);
+	testMap(null, Integer.class, Integer.class);
 	Map<Integer, Integer> map0 = new HashMap<Integer, Integer>();
 	testMap(map0, Integer.class, Integer.class);
 	Map<Integer, Integer> map1 = new HashMap<Integer, Integer>();

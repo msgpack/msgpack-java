@@ -198,13 +198,21 @@ public class TestUnconvertReconvert extends TestSet {
     public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
-	packer.writeArrayBegin(v.size());
-	for (Object o : v) {
-	    packer.write(o);
-	}
-	packer.writeArrayEnd();
+        if (v == null) {
+            packer.writeNil();
+        } else {
+            packer.writeArrayBegin(v.size());
+            for (Object o : v) {
+        	packer.write(o);
+            }
+            packer.writeArrayEnd();
+        }
         Value r = packer.getResult();
 	Converter unpacker = new Converter(msgpack, r);
+	if (unpacker.trySkipNil()) {
+	    assertEquals(null, v);
+	    return;
+	}
         Value ret = unpacker.readValue();
         assertEquals(r, ret);
     }
@@ -218,14 +226,22 @@ public class TestUnconvertReconvert extends TestSet {
     public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
-	packer.writeMapBegin(v.size());
-	for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
-	    packer.write(e.getKey());
-	    packer.write(e.getValue());
-	}
-	packer.writeMapEnd();
+        if (v == null) {
+            packer.writeNil();
+        } else {
+            packer.writeMapBegin(v.size());
+            for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
+        	packer.write(e.getKey());
+        	packer.write(e.getValue());
+            }
+            packer.writeMapEnd();
+        }
         Value r = packer.getResult();
 	Converter unpacker = new Converter(msgpack, r);
+	if (unpacker.trySkipNil()) {
+	    assertEquals(null, v);
+	    return;
+	}
         Value ret = unpacker.readValue();
         assertEquals(r, ret);
     }

@@ -236,13 +236,21 @@ public class TestJSONPackBufferUnpack extends TestSet {
 	MessagePack msgpack = new JSON();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeArrayBegin(v.size());
-	for (Object o : v) {
-	    packer.write(o);
+	if (v == null) {
+	    packer.writeNil();
+	} else {
+	    packer.writeArrayBegin(v.size());
+	    for (Object o : v) {
+		packer.write(o);
+	    }
+	    packer.writeArrayEnd();
 	}
-	packer.writeArrayEnd();
 	byte[] bytes = out.toByteArray();
 	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
+        if (unpacker.trySkipNil()) {
+            assertEquals(null, v);
+            return;
+        }
 	int size = unpacker.readArrayBegin();
 	List ret = new ArrayList(size);
 	for (int i = 0; i < size; ++i) {
@@ -267,23 +275,31 @@ public class TestJSONPackBufferUnpack extends TestSet {
 	MessagePack msgpack = new JSON();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeMapBegin(v.size());
-	for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
-            if(!(e.getKey() instanceof String)) {
-                try {
-                    packer.write(e.getKey());
-                    fail("JSONPacker should reject non-String value for the map key");
-                } catch (IOException ex) {
-                    assertTrue(ex instanceof IOException);
-                }
-                return;
-            }
-	    packer.write(e.getKey());
-	    packer.write(e.getValue());
+	if (v == null) {
+	    packer.writeNil();
+	} else {
+	    packer.writeMapBegin(v.size());
+	    for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
+		if (!(e.getKey() instanceof String)) {
+		    try {
+			packer.write(e.getKey());
+			fail("JSONPacker should reject non-String value for the map key");
+		    } catch (IOException ex) {
+			assertTrue(ex instanceof IOException);
+		    }
+		    return;
+		}
+		packer.write(e.getKey());
+		packer.write(e.getValue());
+	    }
+	    packer.writeMapEnd();
 	}
-	packer.writeMapEnd();
 	byte[] bytes = out.toByteArray();
 	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	if (unpacker.trySkipNil()) {
+	    assertEquals(null, v);
+	    return;
+	}
 	int size = unpacker.readMapBegin();
 	Map ret = new HashMap(size);
 	for (int i = 0; i < size; ++i) {
