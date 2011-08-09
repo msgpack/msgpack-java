@@ -33,8 +33,8 @@ public class CollectionTemplate<E> extends AbstractTemplate<Collection<E>> {
     }
 
     public void write(Packer pk, Collection<E> target, boolean required) throws IOException {
-        if(target == null) {
-            if(required) {
+        if (target == null) {
+            if (required) {
                 throw new MessageTypeException("Attempted to write null");
             }
             pk.writeNil();
@@ -42,23 +42,23 @@ public class CollectionTemplate<E> extends AbstractTemplate<Collection<E>> {
         }
         Collection<E> col = target;
         pk.writeArrayBegin(col.size());
-        for(E e : col) {
+        for (E e : col) {
             elementTemplate.write(pk, e);
         }
         pk.writeArrayEnd();
     }
 
     public Collection<E> read(Unpacker u, Collection<E> to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+        if (!required && u.trySkipNil()) {
             return null;
         }
         int n = u.readArrayBegin();
-        if(to == null) {
+        if (to == null) {
             to = new LinkedList<E>();
         } else {
             to.clear();
         }
-        for(int i=0; i < n; i++) {
+        for (int i= 0; i < n; i++) {
             E e = elementTemplate.read(u, null);
             to.add(e);
         }

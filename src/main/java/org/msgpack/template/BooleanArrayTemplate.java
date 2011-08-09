@@ -27,29 +27,29 @@ public class BooleanArrayTemplate extends AbstractTemplate<boolean[]> {
     private BooleanArrayTemplate() { }
 
     public void write(Packer pk, boolean[] target, boolean required) throws IOException {
-        if(target == null) {
-            if(required) {
+        if (target == null) {
+            if (required) {
                 throw new MessageTypeException("Attempted to write null");
             }
             pk.writeNil();
             return;
         }
         pk.writeArrayBegin(target.length);
-        for(boolean a : target) {
+        for (boolean a : target) {
             pk.writeBoolean(a);
         }
         pk.writeArrayEnd();
     }
 
     public boolean[] read(Unpacker u, boolean[] to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+        if (!required && u.trySkipNil()) {
             return null;
         }
         int n = u.readArrayBegin();
-        if(to == null || to.length != n) {
+        if (to == null || to.length != n) {
             to = new boolean[n];
         }
-        for(int i=0; i < n; i++) {
+        for (int i=0; i < n; i++) {
             to[i] = u.readBoolean();
         }
         u.readArrayEnd();

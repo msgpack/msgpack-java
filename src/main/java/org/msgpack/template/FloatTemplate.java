@@ -27,8 +27,8 @@ public class FloatTemplate extends AbstractTemplate<Float> {
     private FloatTemplate() { }
 
     public void write(Packer pk, Float target, boolean required) throws IOException {
-        if(target == null) {
-            if(required) {
+        if (target == null) {
+            if (required) {
                 throw new MessageTypeException("Attempted to write null");
             }
             pk.writeNil();
@@ -38,7 +38,7 @@ public class FloatTemplate extends AbstractTemplate<Float> {
     }
 
     public Float read(Unpacker u, Float to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+        if (!required && u.trySkipNil()) {
             return null;
         }
         return u.readFloat();

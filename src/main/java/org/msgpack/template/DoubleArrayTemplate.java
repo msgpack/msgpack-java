@@ -27,29 +27,29 @@ public class DoubleArrayTemplate extends AbstractTemplate<double[]> {
     private DoubleArrayTemplate() { }
 
     public void write(Packer pk, double[] target, boolean required) throws IOException {
-        if(target == null) {
-            if(required) {
+        if (target == null) {
+            if (required) {
                 throw new MessageTypeException("Attempted to write null");
             }
             pk.writeNil();
             return;
         }
         pk.writeArrayBegin(target.length);
-        for(double a : target) {
+        for (double a : target) {
             pk.writeDouble(a);
         }
         pk.writeArrayEnd();
     }
 
     public double[] read(Unpacker u, double[] to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+        if (!required && u.trySkipNil()) {
             return null;
         }
         int n = u.readArrayBegin();
-        if(to == null || to.length != n) {
+        if (to == null || to.length != n) {
             to = new double[n];
         }
-        for(int i=0; i < n; i++) {
+        for (int i=0; i < n; i++) {
             to[i] = u.readDouble();
         }
         u.readArrayEnd();

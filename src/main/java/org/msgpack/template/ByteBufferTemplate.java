@@ -29,8 +29,8 @@ public class ByteBufferTemplate extends AbstractTemplate<ByteBuffer> {
     private ByteBufferTemplate() { }
 
     public void write(Packer pk, ByteBuffer target, boolean required) throws IOException {
-        if(target == null) {
-            if(required) {
+        if (target == null) {
+            if (required) {
                 throw new MessageTypeException("Attempted to write null");
             }
             pk.writeNil();
@@ -40,7 +40,7 @@ public class ByteBufferTemplate extends AbstractTemplate<ByteBuffer> {
     }
 
     public ByteBuffer read(Unpacker u, ByteBuffer to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+        if (!required && u.trySkipNil()) {
             return null;
         }
 	return u.readByteBuffer();  // TODO read to 'to' obj?

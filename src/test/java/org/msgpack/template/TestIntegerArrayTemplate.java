@@ -103,19 +103,24 @@ public class TestIntegerArrayTemplate {
 		ret0 = null;
 		break;
 	    case 1:
-		ret0 = new int[v.length];
+		if (v == null) {
+		    ret0 = new int[0];
+		} else {
+		    ret0 = new int[v.length];
+		}
 		break;
 	    case 2:
-		ret0 = new int[(int) v.length / 2];
+		if (v == null) {
+		    ret0 = new int[0];
+		} else {
+		    ret0 = new int[(int) v.length / 2];
+		}
 		break;
 	    default:
 		throw new IllegalArgumentException();
 	    }
 	    int[] ret = tmpl.read(unpacker, ret0);
-	    assertEquals(v.length, ret.length);
-	    for (int i = 0; i < v.length; ++i) {
-		assertEquals(v[i], ret[i]);
-	    }
+	    assertIntegerArrayEquals(v, ret);
 	}
     }
 
@@ -146,19 +151,24 @@ public class TestIntegerArrayTemplate {
 		ret0 = null;
 		break;
 	    case 1:
-		ret0 = new int[v.length];
+		if (v == null) {
+		    ret0 = new int[0];
+		} else {
+		    ret0 = new int[v.length];
+		}
 		break;
 	    case 2:
-		ret0 = new int[(int) v.length / 2];
+		if (v == null) {
+		    ret0 = new int[0];
+		} else {
+		    ret0 = new int[(int) v.length / 2];
+		}
 		break;
 	    default:
 		throw new IllegalArgumentException();
 	    }
 	    int[] ret = tmpl.read(unpacker, ret0);
-	    assertEquals(v.length, ret.length);
-	    for (int i = 0; i < v.length; ++i) {
-		assertEquals(v[i], ret[i]);
-	    }
+	    assertIntegerArrayEquals(v, ret);
 	}
     }
 
@@ -188,19 +198,24 @@ public class TestIntegerArrayTemplate {
 		ret0 = null;
 		break;
 	    case 1:
-		ret0 = new int[v.length];
+		if (v == null) {
+		    ret0 = new int[0];
+		} else {
+		    ret0 = new int[v.length];
+		}
 		break;
 	    case 2:
-		ret0 = new int[(int) v.length / 2];
+		if (v == null) {
+		    ret0 = new int[0];
+		} else {
+		    ret0 = new int[(int) v.length / 2];
+		}
 		break;
 	    default:
 		throw new IllegalArgumentException();
 	    }
 	    int[] ret = tmpl.read(unpacker, ret0);
-	    assertEquals(v.length, ret.length);
-	    for (int i = 0; i < v.length; ++i) {
-		assertEquals(v[i], ret[i]);
-	    }
+	    assertIntegerArrayEquals(v, ret);
 	}
     }
 
@@ -230,19 +245,35 @@ public class TestIntegerArrayTemplate {
 		ret0 = null;
 		break;
 	    case 1:
-		ret0 = new int[v.length];
+		if (v == null) {
+		    ret0 = new int[0];
+		} else {
+		    ret0 = new int[v.length];
+		}
 		break;
 	    case 2:
-		ret0 = new int[(int) v.length / 2];
+		if (v == null) {
+		    ret0 = new int[0];
+		} else {
+		    ret0 = new int[(int) v.length / 2];
+		}
 		break;
 	    default:
 		throw new IllegalArgumentException();
 	    }
 	    int[] ret = tmpl.read(unpacker, ret0);
-	    assertEquals(v.length, ret.length);
-	    for (int i = 0; i < v.length; ++i) {
-		assertEquals(v[i], ret[i]);
-	    }
+	    assertIntegerArrayEquals(v, ret);
+	}
+    }
+
+    public static void assertIntegerArrayEquals(int[] v, int[] ret) {
+	if (v == null) {
+	    assertEquals(null, ret);
+	    return;
+	}
+	assertEquals(v.length, ret.length);
+	for (int i = 0; i < v.length; ++i) {
+	    assertEquals(v[i], ret[i]);
 	}
     }
 }

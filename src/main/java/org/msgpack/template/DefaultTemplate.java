@@ -50,7 +50,7 @@ public class DefaultTemplate<T> extends AbstractTemplate<T> {
     public void write(Packer pk, Object target, boolean required) throws IOException {
         if (messagePackable) {
             if (target == null) {
-                if(required) {
+                if (required) {
                     throw new NullPointerException("Attempted to write nil");
                 }
                 pk.writeNil();
@@ -67,7 +67,7 @@ public class DefaultTemplate<T> extends AbstractTemplate<T> {
     }
 
     public Object read(Unpacker u, Object to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+        if (!required && u.trySkipNil()) {
             return null;
         }
         // TODO #MN

@@ -27,15 +27,15 @@ public class FloatArrayTemplate extends AbstractTemplate<float[]> {
     private FloatArrayTemplate() { }
 
     public void write(Packer pk, float[] target, boolean required) throws IOException {
-        if(target == null) {
-            if(required) {
+        if (target == null) {
+            if (required) {
                 throw new MessageTypeException("Attempted to write null");
             }
             pk.writeNil();
             return;
         }
         pk.writeArrayBegin(target.length);
-        for(float a : target) {
+        for (float a : target) {
             pk.writeFloat(a);
         }
         pk.writeArrayEnd();
@@ -46,10 +46,10 @@ public class FloatArrayTemplate extends AbstractTemplate<float[]> {
             return null;
         }
         int n = u.readArrayBegin();
-        if(to == null || to.length != n) {
+        if (to == null || to.length != n) {
             to = new float[n];
         }
-        for(int i=0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             to[i] = u.readFloat();
         }
         u.readArrayEnd();

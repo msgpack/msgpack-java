@@ -27,8 +27,8 @@ public class StringTemplate extends AbstractTemplate<String> {
     private StringTemplate() { }
 
     public void write(Packer pk, String target, boolean required) throws IOException {
-        if(target == null) {
-            if(required) {
+        if (target == null) {
+            if (required) {
                 throw new MessageTypeException("Attempted to write null");
             }
             pk.writeNil();
@@ -38,7 +38,7 @@ public class StringTemplate extends AbstractTemplate<String> {
     }
 
     public String read(Unpacker u, String to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+        if (!required && u.trySkipNil()) {
             return null;
         }
         return u.readString();

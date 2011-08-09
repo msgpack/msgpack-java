@@ -35,9 +35,9 @@ public class MapTemplate<K,V> extends AbstractTemplate<Map<K,V>> {
     }
 
     public void write(Packer pk, Map<K,V> target, boolean required) throws IOException {
-        if(!(target instanceof Map)) {
-            if(target == null) {
-                if(required) {
+        if (!(target instanceof Map)) {
+            if (target == null) {
+                if (required) {
                     throw new MessageTypeException("Attempted to write null");
                 }
                 pk.writeNil();
@@ -47,7 +47,7 @@ public class MapTemplate<K,V> extends AbstractTemplate<Map<K,V>> {
         }
         Map<K,V> map = (Map<K,V>) target;
         pk.writeMapBegin(map.size());
-        for(Map.Entry<K,V> pair : map.entrySet()) {
+        for (Map.Entry<K,V> pair : map.entrySet()) {
             keyTemplate.write(pk, pair.getKey());
             valueTemplate.write(pk, pair.getValue());
         }
@@ -55,18 +55,18 @@ public class MapTemplate<K,V> extends AbstractTemplate<Map<K,V>> {
     }
 
     public Map<K,V> read(Unpacker u, Map<K,V> to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+        if (!required && u.trySkipNil()) {
             return null;
         }
         int n = u.readMapBegin();
         Map<K,V> map;
-        if(to != null) {
+        if (to != null) {
             map = (Map<K,V>) to;
             map.clear();
         } else {
             map = new HashMap<K,V>(n);
         }
-        for(int i=0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             K key = keyTemplate.read(u, null);
             V value = valueTemplate.read(u, null);
             map.put(key, value);

@@ -27,29 +27,29 @@ public class LongArrayTemplate extends AbstractTemplate<long[]> {
     private LongArrayTemplate() { }
 
     public void write(Packer pk, long[] target, boolean required) throws IOException {
-        if(target == null) {
-            if(required) {
+        if (target == null) {
+            if (required) {
                 throw new MessageTypeException("Attempted to write null");
             }
             pk.writeNil();
             return;
         }
         pk.writeArrayBegin(target.length);
-        for(long a : target) {
+        for (long a : target) {
             pk.writeLong(a);
         }
         pk.writeArrayEnd();
     }
 
     public long[] read(Unpacker u, long[] to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+        if (!required && u.trySkipNil()) {
             return null;
         }
         int n = u.readArrayBegin();
-        if(to == null || to.length != n) {
+        if (to == null || to.length != n) {
             to = new long[n];
         }
-        for(int i=0; i < n; i++) {
+        for (int i=0; i < n; i++) {
             to[i] = u.readLong();
         }
         u.readArrayEnd();

@@ -32,8 +32,8 @@ public class MessagePackableTemplate extends AbstractTemplate<MessagePackable> {
     }
 
     public void write(Packer pk, MessagePackable target, boolean required) throws IOException {
-        if(target == null) {
-            if(required) {
+        if (target == null) {
+            if (required) {
                 throw new MessageTypeException("Attempted to write null");
             }
             pk.writeNil();
@@ -43,7 +43,7 @@ public class MessagePackableTemplate extends AbstractTemplate<MessagePackable> {
     }
 
     public MessagePackable read(Unpacker u, MessagePackable to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+        if (!required && u.trySkipNil()) {
             return null;
         }
 	if (to == null) {

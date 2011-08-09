@@ -35,7 +35,7 @@ public class ListTemplate<E> extends AbstractTemplate<List<E>> {
     public void write(Packer pk, List<E> target, boolean required) throws IOException {
         if (! (target instanceof List)) {
             if (target == null) {
-                if(required) {
+                if (required) {
                     throw new MessageTypeException("Attempted to write null");
                 }
                 pk.writeNil();
@@ -51,7 +51,7 @@ public class ListTemplate<E> extends AbstractTemplate<List<E>> {
     }
 
     public List<E> read(Unpacker u, List<E> to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+        if (!required && u.trySkipNil()) {
             return null;
         }
         int n = u.readArrayBegin();

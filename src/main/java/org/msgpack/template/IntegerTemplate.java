@@ -27,8 +27,8 @@ public class IntegerTemplate extends AbstractTemplate<Integer> {
     private IntegerTemplate() { }
 
     public void write(Packer pk, Integer target, boolean required) throws IOException {
-        if(target == null) {
-            if(required) {
+        if (target == null) {
+            if (required) {
                 throw new MessageTypeException("Attempted to write null");
             }
             pk.writeNil();
@@ -38,7 +38,7 @@ public class IntegerTemplate extends AbstractTemplate<Integer> {
     }
 
     public Integer read(Unpacker u, Integer to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+        if (!required && u.trySkipNil()) {
             return null;
         }
         return u.readInt();

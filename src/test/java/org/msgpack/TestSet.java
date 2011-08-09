@@ -25,7 +25,7 @@ public class TestSet {
     }
 
     public void testBooleanArray() throws Exception {
-	// FIXME testBooleanArray(null); 
+	testBooleanArray(null); 
 	testBooleanArray(new boolean[0]);
 	testBooleanArray(new boolean[] { true });
 	testBooleanArray(new boolean[] { false });
@@ -59,7 +59,7 @@ public class TestSet {
     }
 
     public void testByteArray() throws Exception {
-	// FIXME testByteArray(null);
+	// TODO testByteArray(null); // #MN considering next version
 	Random rand = new Random(System.currentTimeMillis());
 	byte[] b0 = new byte[0];
 	testByteArray(b0);
@@ -92,7 +92,7 @@ public class TestSet {
     }
 
     public void testShortArray() throws Exception {
-	// FIXME testShortArray(null);
+	testShortArray(null);
 	testShortArray(new short[0]);
 	testShortArray(new short[] { 0 });
 	testShortArray(new short[] { -1 });
@@ -130,7 +130,7 @@ public class TestSet {
     }
 
     public void testIntegerArray() throws Exception {
-	// FIXME testIntegerArray(null);
+	testIntegerArray(null);
 	testIntegerArray(new int[0]);
 	testIntegerArray(new int[] { 0 });
 	testIntegerArray(new int[] { -1 });
@@ -166,7 +166,7 @@ public class TestSet {
     }
 
     public void testLongArray() throws Exception {
-	// FIXME testLongArray(null);
+	testLongArray(null);
 	testLongArray(new long[0]);
 	testLongArray(new long[] { 0 });
 	testLongArray(new long[] { -1 });
@@ -206,7 +206,7 @@ public class TestSet {
     }
 
     public void testFloatArray() throws Exception {
-	// FIXME testFloatArray(null);
+	testFloatArray(null);
 	testFloatArray(new float[0]);
 	testFloatArray(new float[] { (float) 0.0 });
 	testFloatArray(new float[] { (float) -0.0 });
@@ -250,7 +250,7 @@ public class TestSet {
     }
 
     public void testDoubleArray() throws Exception {
-	// FIXME testDoubleArray(null);
+	testDoubleArray(null);
 	testDoubleArray(new double[0]);
 	testDoubleArray(new double[] { (double) 0.0 });
 	testDoubleArray(new double[] { (double) -0.0 });
@@ -278,7 +278,7 @@ public class TestSet {
     }
 
     public void testString() throws Exception {
-	// TODO testString(null); 
+	// TODO testString(null); // #MN considering next version 
 	testString("");
 	testString("a");
 	testString("ab");
@@ -324,7 +324,7 @@ public class TestSet {
     }
 
     public void testByteBuffer() throws Exception {
-	// FIXME testByteBuffer(null);
+	// FIXME testByteBuffer(null); // #MN considering next version
 	Random rand = new Random(System.currentTimeMillis());
 	byte[] b0 = new byte[0];
 	testByteBuffer(ByteBuffer.wrap(b0));
@@ -394,7 +394,7 @@ public class TestSet {
     }
 
     public void testBigInteger() throws Exception {
-	// TODO testBigInteger(null); 
+	// TODO testBigInteger(null); // #MN considering next version
 	testBigInteger(BigInteger.valueOf(0));
 	testBigInteger(BigInteger.valueOf(-1));
 	testBigInteger(BigInteger.valueOf(1));
@@ -422,7 +422,6 @@ public class TestSet {
 	testBigDecimal(BigDecimal.valueOf(Integer.MAX_VALUE));
 	testBigDecimal(BigDecimal.valueOf(Long.MIN_VALUE));
 	testBigDecimal(BigDecimal.valueOf(Long.MAX_VALUE));
-	// TODO for next version #MN 
     }
 
     public void testBigDecimal(BigDecimal v) throws Exception {

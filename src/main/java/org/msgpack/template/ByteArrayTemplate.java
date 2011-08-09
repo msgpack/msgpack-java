@@ -27,8 +27,8 @@ public class ByteArrayTemplate extends AbstractTemplate<byte[]> {
     private ByteArrayTemplate() { }
 
     public void write(Packer pk, byte[] target, boolean required) throws IOException {
-        if(target == null) {
-            if(required) {
+        if (target == null) {
+            if (required) {
                 throw new MessageTypeException("Attempted to write null");
             }
             pk.writeNil();
@@ -38,7 +38,7 @@ public class ByteArrayTemplate extends AbstractTemplate<byte[]> {
     }
 
     public byte[] read(Unpacker u, byte[] to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+        if (!required && u.trySkipNil()) {
             return null;
         }
         return u.readByteArray();  // TODO read to 'to' obj

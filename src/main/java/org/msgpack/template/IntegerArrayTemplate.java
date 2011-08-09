@@ -27,32 +27,32 @@ public class IntegerArrayTemplate extends AbstractTemplate<int[]> {
     private IntegerArrayTemplate() { }
 
     public void write(Packer pk, int[] target, boolean required) throws IOException {
-        if(target == null) {
-            if(required) {
+        if (target == null) {
+            if (required) {
                 throw new MessageTypeException("Attempted to write null");
             }
             pk.writeNil();
             return;
         }
         pk.writeArrayBegin(target.length);
-        for(int a : target) {
+        for (int a : target) {
             pk.writeInt(a);
         }
         pk.writeArrayEnd();
     }
 
     public int[] read(Unpacker u, int[] to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+        if (!required && u.trySkipNil()) {
             return null;
         }
         int n = u.readArrayBegin();
         int[] array;
-        if(to != null && to.length == n) {
+        if (to != null && to.length == n) {
             array = to;
         } else {
             array = new int[n];
         }
-        for(int i=0; i < n; i++) {
+        for (int i=0; i < n; i++) {
             array[i] = u.readInt();
         }
         u.readArrayEnd();

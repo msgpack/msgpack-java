@@ -27,29 +27,29 @@ public class ShortArrayTemplate extends AbstractTemplate<short[]> {
     private ShortArrayTemplate() { }
 
     public void write(Packer pk, short[] target, boolean required) throws IOException {
-        if(target == null) {
-            if(required) {
+        if (target == null) {
+            if (required) {
                 throw new MessageTypeException("Attempted to write null");
             }
             pk.writeNil();
             return;
         }
         pk.writeArrayBegin(target.length);
-        for(short a : target) {
+        for (short a : target) {
             pk.writeShort(a);
         }
         pk.writeArrayEnd();
     }
 
     public short[] read(Unpacker u, short[] to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+        if (!required && u.trySkipNil()) {
             return null;
         }
         int n = u.readArrayBegin();
-        if(to == null || to.length != n) {
+        if (to == null || to.length != n) {
             to = new short[n];
         }
-        for(int i=0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             to[i] = u.readShort();
         }
         u.readArrayEnd();
