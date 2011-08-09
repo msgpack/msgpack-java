@@ -32,6 +32,7 @@ import org.msgpack.template.FieldList;
 import org.msgpack.template.FloatArrayTemplate;
 import org.msgpack.template.IntegerArrayTemplate;
 import org.msgpack.template.LongArrayTemplate;
+import org.msgpack.template.ObjectArrayTemplate;
 import org.msgpack.template.ShortArrayTemplate;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
@@ -43,55 +44,6 @@ import org.slf4j.LoggerFactory;
 public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArrayTemplateBuilder.class);
-
-    static class ReflectionObjectArrayTemplate extends AbstractTemplate {
-	private Class<?> componentClass;
-
-	private Template elementTemplate;
-
-	public ReflectionObjectArrayTemplate(Class<?> componentClass, Template elementTemplate) {
-	    this.componentClass = componentClass;
-	    this.elementTemplate = elementTemplate;
-	}
-
-	@Override
-	public void write(Packer packer, Object v, boolean required) throws IOException {
-	    if (v == null) {
-		if (required) {
-		    throw new MessageTypeException("Attempted to write null");
-		}
-		packer.writeNil();
-		return;
-	    }
-	    if (!(v instanceof Object[]) || !componentClass.isAssignableFrom(v.getClass().getComponentType())) {
-		throw new MessageTypeException();
-	    }
-
-	    Object[] array = (Object[]) v;
-	    int length = array.length;
-	    packer.writeArrayBegin(length);
-	    for (int i = 0; i < length; i++) {
-		elementTemplate.write(packer,array[i], required);
-	    }
-	    packer.writeArrayEnd();
-	}
-
-	@Override
-	public Object read(Unpacker unpacker, Object to, boolean required) throws IOException {
-	    if (!required && unpacker.trySkipNil()) {
-		return null;
-	    }
-
-	    int length = unpacker.readArrayBegin();
-	    Object[] array = (Object[]) Array.newInstance(componentClass,
-		    length);
-	    for (int i = 0; i < length; i++) {
-		array[i] = elementTemplate.read(unpacker, null, required);
-	    }
-	    unpacker.readArrayEnd();
-	    return array;
-	}
-    }
 
     static class ReflectionMultidimentionalArrayTemplate extends AbstractTemplate {
 	private Class<?> componentClass;
@@ -168,13 +120,11 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
 	    GenericArrayType type = (GenericArrayType) arrayType;
 	    baseType = type.getGenericComponentType();
 	    while (baseType instanceof GenericArrayType) {
-		baseType = ((GenericArrayType) baseType)
-			.getGenericComponentType();
+		baseType = ((GenericArrayType) baseType).getGenericComponentType();
 		dim += 1;
 	    }
 	    if (baseType instanceof ParameterizedType) {
-		baseClass = (Class<?>) ((ParameterizedType) baseType)
-			.getRawType();
+		baseClass = (Class<?>) ((ParameterizedType) baseType).getRawType();
 	    } else {
 		baseClass = (Class<?>) baseType;
 	    }
@@ -188,19 +138,6 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
 	    baseType = baseClass;
 	}
 	return toTemplate(arrayType, baseType, baseClass, dim);
-
-    }
-
-    @Override
-    public <T> Template<T> buildTemplate(Class<T> targetClass, FieldList flist) throws TemplateBuildException {
-	// TODO Auto-generated method stub
-	return null;
-    }
-
-    @Override
-    protected <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries) {
-	// TODO Auto-generated method stub
-	return null;
     }
 
     private Template toTemplate(Type arrayType, Type genericBaseType, Class<?> baseClass, int dim) {
@@ -219,18 +156,28 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
 		return DoubleArrayTemplate.getInstance();
 	    } else {
 		Template baseTemplate = registry.lookup(genericBaseType);
-		return new ReflectionObjectArrayTemplate(baseClass, baseTemplate);
+		return new ObjectArrayTemplate(baseClass, baseTemplate);
 	    }
 	} else if (dim == 2) {
-	    Class<?> componentClass = Array.newInstance(baseClass, 0).getClass();
+	    Class componentClass = Array.newInstance(baseClass, 0).getClass();
 	    Template componentTemplate = toTemplate(arrayType, genericBaseType, baseClass, dim - 1);
 	    return new ReflectionMultidimentionalArrayTemplate(componentClass, componentTemplate);
 	} else {
 	    ReflectionMultidimentionalArrayTemplate componentTemplate =
 		(ReflectionMultidimentionalArrayTemplate) toTemplate(arrayType, genericBaseType, baseClass, dim - 1);
-	    Class<?> componentClass = Array.newInstance(componentTemplate.getComponentClass(), 0).getClass();
+	    Class componentClass = Array.newInstance(componentTemplate.getComponentClass(), 0).getClass();
 	    return new ReflectionMultidimentionalArrayTemplate(componentClass, componentTemplate);
 	}
+    }
+
+    @Override
+    public <T> Template<T> buildTemplate(Class<T> targetClass, FieldList flist) throws TemplateBuildException {
+	throw new UnsupportedOperationException(targetClass.getName());
+    }
+
+    @Override
+    protected <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries) {
+	throw new UnsupportedOperationException(targetClass.getName());
     }
 
     @Override
