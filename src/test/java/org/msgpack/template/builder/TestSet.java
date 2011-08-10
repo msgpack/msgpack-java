@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Ignore;
+import org.msgpack.MessageTypeException;
 import org.msgpack.testclasses.EnumTypeFieldsClass;
 import org.msgpack.testclasses.EnumTypeFieldsClassNotNullable;
 import org.msgpack.testclasses.FinalClass;
@@ -37,8 +39,7 @@ public class TestSet {
     }
 
     public void testPrimitiveTypeFieldsClass() throws Exception {
-	// TODO #MN
-	//testPrimitiveTypeFieldsClass(null);
+	testPrimitiveTypeFieldsClass(null);
 	testPrimitiveTypeFieldsClass(new PrimitiveTypeFieldsClass());
 	PrimitiveTypeFieldsClass v = new PrimitiveTypeFieldsClass();
         v.f0 = (byte) 0;
@@ -55,8 +56,7 @@ public class TestSet {
     }
 
     public void testPrimitiveTypeFieldsClassNotNullable() throws Exception {
-	// TODO #MN
-	//testPrimitiveTypeFieldsClassNotNullable(null);
+	testPrimitiveTypeFieldsClassNotNullable(null);
 	testPrimitiveTypeFieldsClassNotNullable(new PrimitiveTypeFieldsClassNotNullable());
 	PrimitiveTypeFieldsClassNotNullable v = new PrimitiveTypeFieldsClassNotNullable();
 	v.f0 = (byte) 0;
@@ -73,9 +73,8 @@ public class TestSet {
     }
 
     public void testReferenceTypeFieldsClass() throws Exception {
-	// TODO #MN
-	//testReferenceTypeFieldsClass(null);
-	//testReferenceTypeFieldsClass(new ReferenceTypeFieldsClass());
+	testReferenceTypeFieldsClass(null);
+	testReferenceTypeFieldsClass(new ReferenceTypeFieldsClass());
 	ReferenceTypeFieldsClass v = new ReferenceTypeFieldsClass();
         v.f0 = 0;
         v.f1 = 1;
@@ -95,9 +94,13 @@ public class TestSet {
     }
 
     public void testReferenceTypeFieldsClassNotNullable() throws Exception {
-	// TODO #MN
-	//testReferenceTypeFieldsClassNotNullable(null);
-	//testReferenceTypeFieldsClassNotNullable(new ReferenceTypeFieldsClassNotNullable());
+	testReferenceTypeFieldsClassNotNullable(null);
+	try {
+	    testReferenceTypeFieldsClassNotNullable(new ReferenceTypeFieldsClassNotNullable());
+	    Assert.fail();
+	} catch (Throwable t) {
+	    Assert.assertTrue(t instanceof MessageTypeException);
+	}
 	ReferenceTypeFieldsClassNotNullable v = new ReferenceTypeFieldsClassNotNullable();
         v.f0 = 0;
         v.f1 = 1;
@@ -117,9 +120,8 @@ public class TestSet {
     }
 
     public void testListTypeFieldsClass() throws Exception {
-	// TODO #MN
-	//testListTypeFieldsClass(null);
-	//testListTypeFieldsClass(new ListTypeFieldsClass());
+	testListTypeFieldsClass(null);
+	testListTypeFieldsClass(new ListTypeFieldsClass());
 	ListTypeFieldsClass v = new ListTypeFieldsClass();
         v.f0 = new ArrayList<Integer>();
         v.f1 = new ArrayList<Integer>();
@@ -148,9 +150,13 @@ public class TestSet {
     }
 
     public void testListTypeFieldsClassNotNullable() throws Exception {
-	// TODO #MN
-	//testListTypeFieldsClassNotNullable(null);
-	//testListTypeFieldsClassNotNullable(new ListTypeFieldsClassNotNullable());
+	testListTypeFieldsClassNotNullable(null);
+	try {
+	    testListTypeFieldsClassNotNullable(new ListTypeFieldsClassNotNullable());
+	    Assert.fail();
+	} catch (Throwable t) {
+	    Assert.assertTrue(t instanceof MessageTypeException);
+	}
 	ListTypeFieldsClassNotNullable v = new ListTypeFieldsClassNotNullable();
         v.f0 = new ArrayList<Integer>();
         v.f1 = new ArrayList<Integer>();
@@ -179,9 +185,8 @@ public class TestSet {
     }
 
     public void testMapTypeFieldsClass() throws Exception {
-	// TODO #MN
-	//testMapTypeFieldsClass(null);
-	//testMapTypeFieldsClass(new MapTypeFieldsClass());
+	testMapTypeFieldsClass(null);
+	testMapTypeFieldsClass(new MapTypeFieldsClass());
 	MapTypeFieldsClass v = new MapTypeFieldsClass();
         v.f0 = new HashMap<Integer, Integer>();
         v.f1 = new HashMap<Integer, Integer>();
@@ -203,9 +208,13 @@ public class TestSet {
     }
 
     public void testMapTypeFieldsClassNotNullable() throws Exception {
-	// TODO #MN
-	//testMapTypeFieldsClass(null);
-	//testMapTypeFieldsClassNotNullable(new MapTypeFieldsClassNotNullable());
+	testMapTypeFieldsClass(null);
+	try {
+	    testMapTypeFieldsClassNotNullable(new MapTypeFieldsClassNotNullable());
+	    Assert.fail();
+	} catch (Throwable t) {
+	    Assert.assertTrue(t instanceof MessageTypeException);
+	}
 	MapTypeFieldsClassNotNullable v = new MapTypeFieldsClassNotNullable();
         v.f0 = new HashMap<Integer, Integer>();
         v.f1 = new HashMap<Integer, Integer>();
@@ -227,9 +236,8 @@ public class TestSet {
     }
 
     public void testFinalClass() throws Exception {
-	// TODO #MN
-	//testFinalClass(null);
-	//testFinalClass(new FinalClass());
+	testFinalClass(null);
+	testFinalClass(new FinalClass());
 	FinalClass v = new FinalClass();
 	v.f0 = 10;
 	v.f1 = "muga";
@@ -246,9 +254,8 @@ public class TestSet {
     }
 
     public void testEnumTypeFieldsClass() throws Exception {
-	// TODO #MN
-	//testEnumTypeFieldsClass(null);
-	//testEnumTypeFieldsClass(new EnumTypeFieldsClass());
+	testEnumTypeFieldsClass(null);
+	testEnumTypeFieldsClass(new EnumTypeFieldsClass());
 	EnumTypeFieldsClass v = new EnumTypeFieldsClass();
 	v.f0 = 0;
 	v.f1 = EnumTypeFieldsClass.SampleEnum.ONE;
@@ -259,9 +266,13 @@ public class TestSet {
     }
 
     public void testEnumTypeFieldsClassNotNullable() throws Exception {
-	// TODO #MN
-	//testEnumTypeFieldsClassNotNullable(null);
-	//testEnumTypeFieldsClassNotNullable(new EnumTypeFieldsClassNotNullable());
+	testEnumTypeFieldsClassNotNullable(null);
+	try {
+	    testEnumTypeFieldsClassNotNullable(new EnumTypeFieldsClassNotNullable());
+	    Assert.fail();
+	} catch (Throwable t) {
+	    Assert.assertTrue(t instanceof MessageTypeException);
+	}
 	EnumTypeFieldsClassNotNullable v = new EnumTypeFieldsClassNotNullable();
 	v.f0 = 0;
 	v.f1 = EnumTypeFieldsClassNotNullable.SampleEnum.ONE;
@@ -272,9 +283,8 @@ public class TestSet {
     }
 
     public void testModifiersFieldsClass() throws Exception {
-	// TODO #MN
-	//testModifiersFieldsClass(null);
-	//testModifiersFieldsClass(new ModifiersFieldsClass());
+	testModifiersFieldsClass(null);
+	testModifiersFieldsClass(new ModifiersFieldsClass());
 	ModifiersFieldsClass v = new ModifiersFieldsClass();
 	v.f0 = 0;
 	testModifiersFieldsClass(v);
@@ -284,9 +294,8 @@ public class TestSet {
     }
 
     public void testModifiersFieldsClassNotNullable() throws Exception {
-	// TODO #MN
-	//testModifiersFieldsClassNotNullable(null);
-	//testModifiersFieldsClassNotNullable(new ModifiersFieldsClassNotNullable());
+	testModifiersFieldsClassNotNullable(null);
+	testModifiersFieldsClassNotNullable(new ModifiersFieldsClassNotNullable());
 	ModifiersFieldsClassNotNullable v = new ModifiersFieldsClassNotNullable();
 	v.f0 = 0;
 	testModifiersFieldsClassNotNullable(v);
@@ -296,9 +305,8 @@ public class TestSet {
     }
 
     public void testUserDefinedTypeFieldsClass() throws Exception {
-	// TODO #MN
-	//testUserDefinedTypeFieldsClass(null);
-	//testUserDefinedTypeFieldsClass(new UserDefinedTypeFieldsClass());
+	testUserDefinedTypeFieldsClass(null);
+	testUserDefinedTypeFieldsClass(new UserDefinedTypeFieldsClass());
 	UserDefinedTypeFieldsClass v = new UserDefinedTypeFieldsClass();
 	v.f0 = new UserDefinedTypeFieldsClass.NestedClass1();
 	v.f0.f0 = 0;
@@ -313,9 +321,13 @@ public class TestSet {
     }
 
     public void testUserDefinedTypeFieldsClassNotNullable() throws Exception {
-	// TODO #MN
-	//testUserDefinedTypeFieldsClassNotNullable(null);
-	//testUserDefinedTypeFieldsClassNotNullable(new UserDefinedTypeFieldsClassNotNullable());
+	testUserDefinedTypeFieldsClassNotNullable(null);
+	try {
+	    testUserDefinedTypeFieldsClassNotNullable(new UserDefinedTypeFieldsClassNotNullable());
+	    Assert.fail();
+	} catch (Throwable t) {
+	    Assert.assertTrue(t instanceof MessageTypeException);
+	}
 	UserDefinedTypeFieldsClassNotNullable v = new UserDefinedTypeFieldsClassNotNullable();
 	v.f0 = new UserDefinedTypeFieldsClassNotNullable.NestedClass1();
 	v.f0.f0 = 0;
@@ -330,9 +342,8 @@ public class TestSet {
     }
 
     public void testInheritanceClass() throws Exception {
-	// TOOD #MN
-	//testInheritanceClass(null);
-	//testInheritanceClass(new InheritanceClass());
+	testInheritanceClass(null);
+	testInheritanceClass(new InheritanceClass());
 	InheritanceClass v = new InheritanceClass();
 	v.f0 = "muga";
 	v.f1 = "furuhashi";
@@ -344,9 +355,13 @@ public class TestSet {
     }
 
     public void testInheritanceClassNotNullable() throws Exception {
-	// TOOD #MN
-	//testInheritanceClassNotNullable(null);
-	//testInheritanceClassNotNullable(new InheritanceClassNotNullable());
+	testInheritanceClassNotNullable(null);
+	try {
+	    testInheritanceClassNotNullable(new InheritanceClassNotNullable());
+	    Assert.fail();
+	} catch (Throwable t) {
+	    Assert.assertTrue(t instanceof MessageTypeException);
+	}
 	InheritanceClassNotNullable v = new InheritanceClassNotNullable();
 	v.f0 = "muga";
 	v.f1 = "furuhashi";
@@ -358,9 +373,8 @@ public class TestSet {
     }
 
     public void testMessagePackableTypeFieldsClass() throws Exception {
-	// TODO #MN
-	//testMessagePackableTypeFieldsClass(null);
-	//testMessagePackableTypeFieldsClass(new MessagePackableTypeFieldsClass());
+	testMessagePackableTypeFieldsClass(null);
+	testMessagePackableTypeFieldsClass(new MessagePackableTypeFieldsClass());
 	MessagePackableTypeFieldsClass v = new MessagePackableTypeFieldsClass();
 	v.f0 = "muga";
 	v.f1 = new MessagePackableTypeFieldsClass.NestedClass();
@@ -377,9 +391,13 @@ public class TestSet {
     }
 
     public void testMessagePackableTypeFieldsClassNotNullable() throws Exception {
-	// TODO #MN
-	//testMessagePackableTypeFieldsClassNotNullable(null);
-	//testMessagePackableTypeFieldsClassNotNullable(new MessagePackableTypeFieldsClassNotNullable());
+	testMessagePackableTypeFieldsClassNotNullable(null);
+	try {
+	    testMessagePackableTypeFieldsClassNotNullable(new MessagePackableTypeFieldsClassNotNullable());
+	    Assert.fail();
+	} catch (Throwable t) {
+	    Assert.assertTrue(t instanceof MessageTypeException);
+	}
 	MessagePackableTypeFieldsClassNotNullable v = new MessagePackableTypeFieldsClassNotNullable();
 	v.f0 = "muga";
 	v.f1 = new MessagePackableTypeFieldsClassNotNullable.NestedClass();
