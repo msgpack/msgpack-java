@@ -321,7 +321,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
                     } else if (tmpl.entry.isOptional() && unpacker.trySkipNil()) {
                         tmpl.setNil(to);
                     } else {
-                        tmpl.read(unpacker, to, true);
+                        tmpl.read(unpacker, to, false);
                     }
                 }
 
