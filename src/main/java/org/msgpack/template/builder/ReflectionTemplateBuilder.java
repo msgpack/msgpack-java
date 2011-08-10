@@ -285,7 +285,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 		    Object obj = tmpl.entry.get(target);
 		    if (obj == null) {
 			if (tmpl.entry.isNotNullable()) {
-			    throw new MessageTypeException();
+			    throw new MessageTypeException(tmpl.entry.getName() + " cannot be null by @NotNullable");
 			}
 			packer.writeNil();
 		    } else {
