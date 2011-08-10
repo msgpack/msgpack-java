@@ -17,18 +17,22 @@ public class EnumTypeFieldsClassNotNullable {
 
     public EnumTypeFieldsClassNotNullable() {}
 
+    @NotNullable
     public int getF0() {
         return f0;
     }
 
+    @NotNullable
     public void setF0(int f0) {
         this.f0 = f0;
     }
 
+    @NotNullable
     public SampleEnum getF1() {
         return f1;
     }
 
+    @NotNullable
     public void setF1(SampleEnum f1) {
         this.f1 = f1;
     }

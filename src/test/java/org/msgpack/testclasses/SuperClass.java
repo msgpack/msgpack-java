@@ -30,8 +30,10 @@ public class SuperClass {
 		return false;
 	    }
 	}
-	if (! f0.equals(that.f0)) {
-	    return false;
+	if (that.f0 != null) {
+	    if (! f0.equals(that.f0)) {
+		return false;
+	    }
 	}
 	return true;
     }

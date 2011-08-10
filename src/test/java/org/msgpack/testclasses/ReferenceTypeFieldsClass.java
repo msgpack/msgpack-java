@@ -134,7 +134,7 @@ public class ReferenceTypeFieldsClass {
 		return false;
 	    }
 	}
-	if (! f0.equals(that.f0)) {
+	if (that.f0 != null && ! f0.equals(that.f0)) {
 	    return false;
 	}
 	if (f1 == null) {
@@ -142,7 +142,7 @@ public class ReferenceTypeFieldsClass {
 		return false;
 	    }
 	}
-	if (! f1.equals(that.f1)) {
+	if (that.f1 != null && ! f1.equals(that.f1)) {
 	    return false;
 	}
 	if (f2 == null) {
@@ -150,7 +150,7 @@ public class ReferenceTypeFieldsClass {
 		return false;
 	    }
 	}
-	if (! f2.equals(that.f2)) {
+	if (that.f2 != null && ! f2.equals(that.f2)) {
 	    return false;
 	}
 	if (f3 == null) {
@@ -158,7 +158,7 @@ public class ReferenceTypeFieldsClass {
 		return false;
 	    }
 	}
-	if (! f3.equals(that.f3)) {
+	if (that.f3 != null && ! f3.equals(that.f3)) {
 	    return false;
 	}
 	if (f4 == null) {
@@ -166,7 +166,7 @@ public class ReferenceTypeFieldsClass {
 		return false;
 	    }
 	}
-	if (! f4.equals(that.f4)) {
+	if (that.f4 != null && ! f4.equals(that.f4)) {
 	    return false;
 	}
 	if (f5 == null) {
@@ -174,7 +174,7 @@ public class ReferenceTypeFieldsClass {
 		return false;
 	    }
 	}
-	if (! f5.equals(that.f5)) {
+	if (that.f5 != null && ! f5.equals(that.f5)) {
 	    return false;
 	}
 	if (f6 == null) {
@@ -182,7 +182,7 @@ public class ReferenceTypeFieldsClass {
 		return false;
 	    }
 	}
-	if (! f6.equals(that.f6)) {
+	if (that.f6 != null && ! f6.equals(that.f6)) {
 	    return false;
 	}
 	if (f7 == null) {
@@ -190,7 +190,7 @@ public class ReferenceTypeFieldsClass {
 		return false;
 	    }
 	}
-	if (! f7.equals(that.f7)) {
+	if (that.f7 != null && ! f7.equals(that.f7)) {
 	    return false;
 	}
 	if (f8 == null) {
@@ -198,7 +198,7 @@ public class ReferenceTypeFieldsClass {
 		return false;
 	    }
 	}
-	if (! f8.equals(that.f8)) {
+	if (that.f8 != null && ! f8.equals(that.f8)) {
 	    return false;
 	}
 	if (f9 == null) {
@@ -206,9 +206,11 @@ public class ReferenceTypeFieldsClass {
 		return false;
 	    }
 	}
-	for (int i = 0; i < f9.length; ++i) {
-	    if (f9[i] != that.f9[i]) {
-		return false;
+	if (that.f9 != null) {
+	    for (int i = 0; i < f9.length; ++i) {
+		if (f9[i] != that.f9[i]) {
+		    return false;
+		}
 	    }
 	}
 	if (f10 == null) {
@@ -216,11 +218,13 @@ public class ReferenceTypeFieldsClass {
 		return false;
 	    }
 	}
-	byte[] b0 = TestSet.toByteArray(f10);
-	byte[] b1 = TestSet.toByteArray(that.f10);
-	for (int i = 0; i < b0.length; ++i) {
-	    if (b0[i] != b1[i]) {
-		return false;
+	if (that.f10 != null) {
+	    byte[] b0 = TestSet.toByteArray(f10);
+	    byte[] b1 = TestSet.toByteArray(that.f10);
+	    for (int i = 0; i < b0.length; ++i) {
+		if (b0[i] != b1[i]) {
+		    return false;
+		}
 	    }
 	}
 	return true;

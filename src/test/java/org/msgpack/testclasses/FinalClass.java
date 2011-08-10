@@ -44,8 +44,10 @@ public final class FinalClass {
 		return false;
 	    }
 	}
-	if (! f1.equals(that.f1)) {
-	    return false;
+	if (that.f1 != null) {
+	    if (! f1.equals(that.f1)) {
+		return false;
+	    }
 	}
 	return true;
     }

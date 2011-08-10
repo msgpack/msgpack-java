@@ -64,11 +64,13 @@ public class MapTypeFieldsClass {
 		return false;
 	    }
 	}
-	for (Map.Entry<Integer, Integer> e : f0.entrySet()) {
-	    Integer key = e.getKey();
-	    Integer val = that.f0.get(key);
-	    if (! e.getValue().equals(val)) {
-		return false;
+	if (that.f0 != null) {
+	    for (Map.Entry<Integer, Integer> e : f0.entrySet()) {
+		Integer key = e.getKey();
+		Integer val = that.f0.get(key);
+		if (!e.getValue().equals(val)) {
+		    return false;
+		}
 	    }
 	}
 	// f1
@@ -77,11 +79,13 @@ public class MapTypeFieldsClass {
 		return false;
 	    }
 	}
-	for (Map.Entry<Integer, Integer> e : f1.entrySet()) {
-	    Integer key = e.getKey();
-	    Integer val = that.f1.get(key);
-	    if (! e.getValue().equals(val)) {
-		return false;
+	if (that.f1 != null) {
+	    for (Map.Entry<Integer, Integer> e : f1.entrySet()) {
+		Integer key = e.getKey();
+		Integer val = that.f1.get(key);
+		if (!e.getValue().equals(val)) {
+		    return false;
+		}
 	    }
 	}
 	// f2
@@ -90,11 +94,13 @@ public class MapTypeFieldsClass {
 		return false;
 	    }
 	}
-	for (Map.Entry<String, Integer> e : f2.entrySet()) {
-	    String key = e.getKey();
-	    Integer val = that.f2.get(key);
-	    if (! e.getValue().equals(val)) {
-		return false;
+	if (that.f2 != null) {
+	    for (Map.Entry<String, Integer> e : f2.entrySet()) {
+		String key = e.getKey();
+		Integer val = that.f2.get(key);
+		if (!e.getValue().equals(val)) {
+		    return false;
+		}
 	    }
 	}
 	// f3
@@ -103,11 +109,13 @@ public class MapTypeFieldsClass {
 		return false;
 	    }
 	}
-	for (Map.Entry<String, NestedClass> e : f3.entrySet()) {
-	    String key = e.getKey();
-	    NestedClass val = that.f3.get(key);
-	    if (! e.getValue().equals(val)) {
-		return false;
+	if (that.f3 != null) {
+	    for (Map.Entry<String, NestedClass> e : f3.entrySet()) {
+		String key = e.getKey();
+		NestedClass val = that.f3.get(key);
+		if (!e.getValue().equals(val)) {
+		    return false;
+		}
 	    }
 	}
 	return true;
@@ -132,9 +140,15 @@ public class MapTypeFieldsClass {
 	    if (! (o instanceof NestedClass)) {
 		return false;
 	    }
+	    NestedClass that = (NestedClass) o;
 	    // f0
 	    if (f0 == null) {
-		if (this.f0 != null) {
+		if (that.f0 != null) {
+		    return false;
+		}
+	    }
+	    if (that.f0 != null) {
+		if (! f0.equals(that.f0)) {
 		    return false;
 		}
 	    }

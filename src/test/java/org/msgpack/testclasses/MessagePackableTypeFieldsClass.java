@@ -49,8 +49,10 @@ public class MessagePackableTypeFieldsClass {
 		return false;
 	    }
 	}
-	if (! f0.equals(that.f0)) {
-	    return false;
+	if (that.f0 != null) {
+	    if (! f0.equals(that.f0)) {
+		return false;
+	    }
 	}
 	// f1
 	if (f1 == null) {
@@ -58,8 +60,10 @@ public class MessagePackableTypeFieldsClass {
 		return false;
 	    }
 	}
-	if (! f1.equals(that.f1)) {
-	    return false;
+	if (that.f1 != null) {
+	    if (! f1.equals(that.f1)) {
+		return false;
+	    }
 	}
 	return true;
     }
@@ -156,8 +160,10 @@ public class MessagePackableTypeFieldsClass {
         	    return false;
         	}
             }
-            if (! f0.equals(that.f0)) {
-        	return false;
+            if (that.f0 != null) {
+        	if (! f0.equals(that.f0)) {
+        	    return false;
+        	}
             }
             // f1
             if (f1 == null) {
@@ -165,12 +171,14 @@ public class MessagePackableTypeFieldsClass {
         	    return false;
         	}
             }
-            if (f1.length != that.f1.length) {
-        	return false;
-            }
-            for (int i = 0; i < f1.length; ++i) {
-        	if (f1[i] != that.f1[i]) {
+            if (that.f1 != null) {
+        	if (f1.length != that.f1.length) {
         	    return false;
+        	}
+        	for (int i = 0; i < f1.length; ++i) {
+        	    if (f1[i] != that.f1[i]) {
+        		return false;
+        	    }
         	}
             }
             // f2
@@ -179,11 +187,13 @@ public class MessagePackableTypeFieldsClass {
         	    return false;
         	}
             }
-            Iterator<String> this_f2_iter = f2.iterator();
-            Iterator<String> that_f2_iter = that.f2.iterator();
-            for (; this_f2_iter.hasNext(); ) {
-        	if (! this_f2_iter.next().equals(that_f2_iter.next())) {
-        	    return false;
+            if (that.f2 != null) {
+        	Iterator<String> this_f2_iter = f2.iterator();
+        	Iterator<String> that_f2_iter = that.f2.iterator();
+        	for (; this_f2_iter.hasNext(); ) {
+        	    if (! this_f2_iter.next().equals(that_f2_iter.next())) {
+        		return false;
+        	    }
         	}
             }
             return true;

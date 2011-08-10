@@ -13,10 +13,12 @@ public class SuperClassNotNullable {
 
     public SuperClassNotNullable() {}
 
+    @NotNullable
     public String getF0() {
         return f0;
     }
 
+    @NotNullable
     public void setF0(String f0) {
         this.f0 = f0;
     }
@@ -32,8 +34,10 @@ public class SuperClassNotNullable {
 		return false;
 	    }
 	}
-	if (! f0.equals(that.f0)) {
-	    return false;
+	if (that.f0 != null) {
+	    if (! f0.equals(that.f0)) {
+		return false;
+	    }
 	}
 	return true;
     }

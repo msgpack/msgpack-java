@@ -41,8 +41,10 @@ public class UserDefinedTypeFieldsClass {
 		return false;
 	    }
 	}
-	if (! f0.equals(that.f0)) {
-	    return false;
+	if (that.f0 != null) {
+	    if (! f0.equals(that.f0)) {
+		return false;
+	    }
 	}
 	// f1
 	if (f1 == null) {
@@ -50,8 +52,10 @@ public class UserDefinedTypeFieldsClass {
 		return false;
 	    }
 	}
-	if (! f1.equals(that.f1)) {
-	    return false;
+	if (that.f1 != null) {
+	    if (! f1.equals(that.f1)) {
+		return false;
+	    }
 	}
 	return true;
     }
@@ -94,8 +98,10 @@ public class UserDefinedTypeFieldsClass {
 		    return false;
 		}
 	    }
-	    if (! f1.equals(that.f1)) {
-		return false;
+	    if (that.f1 != null) {
+		if (! f1.equals(that.f1)) {
+		    return false;
+		}
 	    }
 	    return true;
 	}
@@ -139,8 +145,10 @@ public class UserDefinedTypeFieldsClass {
 		    return false;
 		}
 	    }
-	    if (! f1.equals(that.f1)) {
-		return false;
+	    if (that.f1 != null) {
+		if (! f1.equals(that.f1)) {
+		    return false;
+		}
 	    }
 	    return true;
 	}

@@ -41,15 +41,21 @@ public class InheritanceClass extends SuperClass {
 		return false;
 	    }
 	}
-	if (! f0.equals(that.f0)) {
-	    return false;
+	if (that.f0 != null) {
+	    if (! f0.equals(that.f0)) {
+		return false;
+	    }
 	}
 	// f1
-	if (f2 != that.f2) {
-	    return false;
+	if (f1 == null) {
+	    if (that.f1 != null) {
+		return false;
+	    }
 	}
-	if (! f1.equals(that.f1)) {
-	    return false;
+	if (that.f1 != null) {
+	    if (! f1.equals(that.f1)) {
+		return false;
+	    }
 	}
 	// f2
 	if (f2 != that.f2) {

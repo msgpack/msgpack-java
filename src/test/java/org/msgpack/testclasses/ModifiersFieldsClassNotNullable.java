@@ -22,26 +22,32 @@ public class ModifiersFieldsClassNotNullable {
 
     public ModifiersFieldsClassNotNullable() {}
 
+    @NotNullable
     public int getF0() {
         return f0;
     }
 
+    @NotNullable
     public void setF0(int f0) {
         this.f0 = f0;
     }
 
+    @NotNullable
     public int getF2() {
         return f2;
     }
 
+    @NotNullable
     public void setF2(int f2) {
         this.f2 = f2;
     }
 
+    @NotNullable
     public int getF3() {
         return f3;
     }
 
+    @NotNullable
     public void setF3(int f3) {
         this.f3 = f3;
     }

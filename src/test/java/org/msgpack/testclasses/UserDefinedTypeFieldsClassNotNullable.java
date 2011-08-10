@@ -16,18 +16,22 @@ public class UserDefinedTypeFieldsClassNotNullable {
 
     public UserDefinedTypeFieldsClassNotNullable () {}
 
+    @NotNullable
     public NestedClass1 getF0() {
         return f0;
     }
 
+    @NotNullable
     public void setF0(NestedClass1 f0) {
         this.f0 = f0;
     }
 
+    @NotNullable
     public NestedClass2 getF1() {
         return f1;
     }
 
+    @NotNullable
     public void setF1(NestedClass2 f1) {
         this.f1 = f1;
     }
@@ -44,8 +48,10 @@ public class UserDefinedTypeFieldsClassNotNullable {
 		return false;
 	    }
 	}
-	if (! f0.equals(that.f0)) {
-	    return false;
+	if (that.f0 != null) {
+	    if (! f0.equals(that.f0)) {
+		return false;
+	    }
 	}
 	// f1
 	if (f1 == null) {
@@ -53,8 +59,10 @@ public class UserDefinedTypeFieldsClassNotNullable {
 		return false;
 	    }
 	}
-	if (! f1.equals(that.f1)) {
-	    return false;
+	if (that.f1 != null) {
+	    if (! f1.equals(that.f1)) {
+		return false;
+	    }
 	}
 	return true;
     }
@@ -69,18 +77,22 @@ public class UserDefinedTypeFieldsClassNotNullable {
 
 	public NestedClass1() {}
 
+	@NotNullable
 	public int getF0() {
 	    return f0;
 	}
 
+	@NotNullable
 	public void setF0(int f0) {
 	    this.f0 = f0;
 	}
 
+	@NotNullable
 	public String getF1() {
 	    return f1;
 	}
 
+	@NotNullable
 	public void setF1(String f1) {
 	    this.f1 = f1;
 	}
@@ -99,8 +111,10 @@ public class UserDefinedTypeFieldsClassNotNullable {
 		    return false;
 		}
 	    }
-	    if (! f1.equals(that.f1)) {
-		return false;
+	    if (that.f1 != null) {
+		if (! f1.equals(that.f1)) {
+		    return false;
+		}
 	    }
 	    return true;
 	}
@@ -116,18 +130,22 @@ public class UserDefinedTypeFieldsClassNotNullable {
 
 	public NestedClass2() {}
 
+	@NotNullable
 	public int getF0() {
 	    return f0;
 	}
 
+	@NotNullable
 	public void setF0(int f0) {
 	    this.f0 = f0;
 	}
 
+	@NotNullable
 	public String getF1() {
 	    return f1;
 	}
 
+	@NotNullable
 	public void setF1(String f1) {
 	    this.f1 = f1;
 	}
@@ -146,8 +164,10 @@ public class UserDefinedTypeFieldsClassNotNullable {
 		    return false;
 		}
 	    }
-	    if (! f1.equals(that.f1)) {
-		return false;
+	    if (that.f1 != null) {
+		if (! f1.equals(that.f1)) {
+		    return false;
+		}
 	    }
 	    return true;
 	}
