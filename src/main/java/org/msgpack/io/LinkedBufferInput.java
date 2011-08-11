@@ -84,6 +84,9 @@ public class LinkedBufferInput implements Input {
             } else {
                 bb.position(pos);
             }
+            if(bb.remaining() == 0) {
+                removeFirstLink(bb);
+            }
         }
         return true;
     }

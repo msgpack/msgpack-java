@@ -54,6 +54,55 @@ public class TestBufferUnpacker {
                 n++;
             }
         }
+        assertEquals(50, n);
+    }
+
+    @Test
+    public void testElevenBytes() throws Exception {
+        List<Value> vs = new ArrayList<Value>();
+
+        BufferPacker pk = new MessagePack().createBufferPacker();
+        for(int i=0; i < 55; i++) {
+            Value v = createComplexType();
+            vs.add(v);
+            pk.write(v);
+        }
+        byte[] raw = pk.toByteArray();
+
+        int n = 0;
+        BufferUnpacker u = new MessagePack().createBufferUnpacker();
+        UnpackerIterator it = u.iterator();
+
+        for(int i=0; i < raw.length; i+=11) {
+            u.feed(raw, i, 11);
+            while(it.hasNext()) {
+                Value v = it.next();
+                assertEquals(vs.get(n), v);
+                n++;
+            }
+        }
+        assertEquals(55, n);
+    }
+
+    @Test
+    public void testEachObject() throws Exception {
+        BufferUnpacker u = new MessagePack().createBufferUnpacker();
+        UnpackerIterator it = u.iterator();
+
+        for(int i=0; i < 50; i++) {
+            Value v = createComplexType();
+            BufferPacker pk = new MessagePack().createBufferPacker();
+            pk.write(v);
+            byte[] raw = pk.toByteArray();
+            //pk.reset();
+
+            u.feed(raw, 0, raw.length);
+
+            assertTrue(it.hasNext());
+            Value ov = it.next();
+            assertEquals(v, ov);
+            //assertFalse(it.hasNext());
+        }
     }
 
     public Value createComplexType() throws Exception {

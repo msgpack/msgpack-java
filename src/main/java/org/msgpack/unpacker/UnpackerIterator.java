@@ -18,11 +18,11 @@
 package org.msgpack.unpacker;
 
 import java.io.IOException;
+import java.io.EOFException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import org.msgpack.type.Value;
 import org.msgpack.packer.Unconverter;
-import org.msgpack.io.EndOfBufferException;
 
 
 public class UnpackerIterator implements Iterator<Value> {
@@ -41,7 +41,7 @@ public class UnpackerIterator implements Iterator<Value> {
         }
         try {
             u.readValue(uc);
-        } catch (EndOfBufferException ex) {
+        } catch (EOFException ex) {
             return false;
         } catch (IOException ex) {
             // TODO error
