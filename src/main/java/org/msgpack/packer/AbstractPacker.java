@@ -17,9 +17,7 @@
 //
 package org.msgpack.packer;
 
-import java.math.BigInteger;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import org.msgpack.type.Value;
 import org.msgpack.MessagePack;
 import org.msgpack.template.Template;
@@ -44,7 +42,6 @@ public abstract class AbstractPacker implements Packer {
     public void writeMapEnd() throws IOException {
         writeMapEnd(true);
     }
-
 
     public Packer write(Object o) throws IOException {
         Template tmpl = msgpack.lookup(o.getClass());

@@ -19,10 +19,7 @@ package org.msgpack;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import org.msgpack.template.Template;
-import org.msgpack.template.TemplateRegistry;
 import org.msgpack.packer.Packer;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.packer.JSONPacker;
@@ -31,7 +28,6 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.unpacker.BufferUnpacker;
 import org.msgpack.unpacker.JSONUnpacker;
 import org.msgpack.unpacker.JSONBufferUnpacker;
-import org.msgpack.type.Value;
 
 
 public class JSON extends MessagePack {

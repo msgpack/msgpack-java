@@ -26,6 +26,14 @@ import org.msgpack.template.TemplateRegistry;
 
 public class TemplateBuilderChain {
 
+    private static boolean enableDynamicCodeGeneration(){
+	try {
+	    return !System.getProperty("java.vm.name").equals("Dalvik");
+	} catch (Exception e) {
+	    return true;
+	}
+    }
+
     protected List<TemplateBuilder> templateBuilders;
 
     public TemplateBuilderChain() {
@@ -49,14 +57,6 @@ public class TemplateBuilderChain {
 	    templateBuilders.add(builder);
 	    templateBuilders.add(new OrdinalEnumTemplateBuilder(registry));
 	    templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
-	}
-    }
-
-    private static boolean enableDynamicCodeGeneration(){
-	try {
-	    return !System.getProperty("java.vm.name").equals("Dalvik");
-	} catch (Exception e) {
-	    return true;
 	}
     }
 
