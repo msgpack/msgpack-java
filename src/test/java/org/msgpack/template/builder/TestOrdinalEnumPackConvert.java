@@ -25,16 +25,17 @@ public class TestOrdinalEnumPackConvert extends TestSet {
 
     @Override
     public void testEnumTypeFieldsClass(EnumTypeFieldsClass v) throws Exception {
+	MessagePack msgpack = new MessagePack();
 	TemplateRegistry registry = new TemplateRegistry();
 	registry.register(EnumTypeFieldsClass.SampleEnum.class,
 		new OrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClass.SampleEnum.class));
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<EnumTypeFieldsClass> tmpl = builder.buildTemplate(EnumTypeFieldsClass.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	Packer packer = new MessagePack().createPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker u = new MessagePack().createBufferUnpacker();
+	BufferUnpacker u = msgpack.createBufferUnpacker();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -49,16 +50,17 @@ public class TestOrdinalEnumPackConvert extends TestSet {
 
     @Override
     public void testEnumTypeFieldsClassNotNullable(EnumTypeFieldsClassNotNullable v) throws Exception {
+	MessagePack msgpack = new MessagePack();
 	TemplateRegistry registry = new TemplateRegistry();
 	registry.register(EnumTypeFieldsClassNotNullable.SampleEnum.class,
 		new OrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClassNotNullable.SampleEnum.class));
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<EnumTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(EnumTypeFieldsClassNotNullable.class);
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	Packer packer = new MessagePack().createPacker(out);
+	Packer packer = msgpack.createPacker(out);
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
-	BufferUnpacker u = new MessagePack().createBufferUnpacker();
+	BufferUnpacker u = msgpack.createBufferUnpacker();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
