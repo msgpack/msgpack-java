@@ -97,7 +97,7 @@ public class TemplateRegistry {
         register(double.class, DoubleTemplate.getInstance());
         register(Double.class, DoubleTemplate.getInstance());
         register(BigInteger.class, BigIntegerTemplate.getInstance());
-        register(boolean[].class, ByteArrayTemplate.getInstance());
+        register(boolean[].class, BooleanArrayTemplate.getInstance());
         register(short[].class, ShortArrayTemplate.getInstance());
         register(int[].class, IntegerArrayTemplate.getInstance());
         register(long[].class, LongArrayTemplate.getInstance());
