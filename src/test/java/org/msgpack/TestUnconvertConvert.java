@@ -3,7 +3,6 @@ package org.msgpack;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
 
-import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -214,14 +213,14 @@ public class TestUnconvertConvert extends TestSet {
 	    return;
 	}
 	int size = unpacker.readArrayBegin();
-	List ret = new ArrayList(size);
+	List<E> ret = new ArrayList<E>(size);
 	for (int i = 0; i < size; ++i) {
 	    ret.add(unpacker.read(elementClass));
 	}
 	unpacker.readArrayEnd();
 	assertEquals(v.size(), ret.size());
-	Iterator v_iter = v.iterator();
-	Iterator ret_iter = ret.iterator();
+	Iterator<E> v_iter = v.iterator();
+	Iterator<E> ret_iter = ret.iterator();
 	while (v_iter.hasNext()) {
 	    assertEquals(v_iter.next(), ret_iter.next());
 	}
@@ -240,7 +239,7 @@ public class TestUnconvertConvert extends TestSet {
             packer.writeNil();
         } else {
             packer.writeMapBegin(v.size());
-            for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
+            for (Map.Entry<K, V> e : ((Map<K, V>) v).entrySet()) {
         	packer.write(e.getKey());
         	packer.write(e.getValue());
             }
@@ -253,15 +252,15 @@ public class TestUnconvertConvert extends TestSet {
 	    return;
 	}
 	int size = unpacker.readMapBegin();
-	Map ret = new HashMap(size);
+	Map<K, V> ret = new HashMap<K, V>(size);
 	for (int i = 0; i < size; ++i) {
-	    Object key = unpacker.read(keyElementClass);
-	    Object value = unpacker.read(valueElementClass);
+	    K key = unpacker.read(keyElementClass);
+	    V value = unpacker.read(valueElementClass);
 	    ret.put(key, value);
 	}
 	unpacker.readMapEnd();
 	assertEquals(v.size(), ret.size());
-	for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
+	for (Map.Entry<K, V> e : ((Map<K, V>) v).entrySet()) {
 	    Object value = ret.get(e.getKey());
 	    assertEquals(e.getValue(), value);
 	}

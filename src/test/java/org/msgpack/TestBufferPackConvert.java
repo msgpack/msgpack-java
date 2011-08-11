@@ -237,15 +237,15 @@ public class TestBufferPackConvert extends TestSet {
 	    return;
 	}
 	int size = unpacker.readArrayBegin();
-	List ret = new ArrayList(size);
+	List<E> ret = new ArrayList<E>(size);
 	for (int i = 0; i < size; ++i) {
 	    Value value = unpacker.readValue();
 	    ret.add(new Converter(value).read(elementClass));
 	}
 	unpacker.readArrayEnd();
 	assertEquals(v.size(), ret.size());
-	Iterator v_iter = v.iterator();
-	Iterator ret_iter = ret.iterator();
+	Iterator<E> v_iter = v.iterator();
+	Iterator<E> ret_iter = ret.iterator();
 	while (v_iter.hasNext()) {
 	    assertEquals(v_iter.next(), ret_iter.next());
 	}
@@ -264,7 +264,7 @@ public class TestBufferPackConvert extends TestSet {
 	    packer.writeNil();
 	} else {
 	    packer.writeMapBegin(v.size());
-	    for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
+	    for (Map.Entry<K, V> e : ((Map<K, V>) v).entrySet()) {
 		packer.write(e.getKey());
 		packer.write(e.getValue());
 	    }
@@ -277,17 +277,17 @@ public class TestBufferPackConvert extends TestSet {
 	    return;
 	}
 	int size = unpacker.readMapBegin();
-	Map ret = new HashMap(size);
+	Map<K, V> ret = new HashMap<K, V>(size);
 	for (int i = 0; i < size; ++i) {
 	    Value keyValue = unpacker.readValue();
-	    Object key = new Converter(keyValue).read(keyElementClass);
+	    K key = new Converter(keyValue).read(keyElementClass);
 	    Value valueValue = unpacker.readValue();
-	    Object value = new Converter(valueValue).read(valueElementClass);
+	    V value = new Converter(valueValue).read(valueElementClass);
 	    ret.put(key, value);
 	}
 	unpacker.readMapEnd();
 	assertEquals(v.size(), ret.size());
-	for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
+	for (Map.Entry<K, V> e : ((Map<K, V>) v).entrySet()) {
 	    Object value = ret.get(e.getKey());
 	    assertEquals(e.getValue(), value);
 	}

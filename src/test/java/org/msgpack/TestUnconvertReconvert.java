@@ -1,13 +1,8 @@
 package org.msgpack;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertArrayEquals;
 
-import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -230,7 +225,7 @@ public class TestUnconvertReconvert extends TestSet {
             packer.writeNil();
         } else {
             packer.writeMapBegin(v.size());
-            for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
+            for (Map.Entry<K, V> e : ((Map<K, V>) v).entrySet()) {
         	packer.write(e.getKey());
         	packer.write(e.getValue());
             }
