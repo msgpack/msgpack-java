@@ -48,7 +48,6 @@ import org.msgpack.template.ShortTemplate;
 import org.msgpack.template.StringTemplate;
 import org.msgpack.template.Template;
 import org.msgpack.template.ValueTemplate;
-import org.msgpack.template.builder.AbstractTemplateBuilder;
 import org.msgpack.template.builder.TemplateBuilder;
 import org.msgpack.template.builder.TemplateBuilderChain;
 import org.msgpack.type.Value;
@@ -144,12 +143,12 @@ public class TemplateRegistry {
 	}
     }
 
-    public boolean unregister(final Type targetType) {
+    public synchronized boolean unregister(final Type targetType) {
 	Template<Type> tmpl = cache.remove(targetType);
 	return tmpl != null;
     }
 
-    public void unregister() {
+    public synchronized void unregister() {
 	cache.clear();
     }
 

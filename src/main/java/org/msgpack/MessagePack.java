@@ -183,10 +183,17 @@ public class MessagePack {
         registry.register(type, tmpl);
     }
 
+    public boolean unregister(Class<?> type) {
+	return registry.unregister(type);
+    }
+
+    public void unregister() {
+	registry.unregister();
+    }
+
     public <T> Template<T> lookup(Class<T> type) {
         return registry.lookup(type);
     }
-
 
     private static final MessagePack globalMessagePack = new MessagePack();
 
