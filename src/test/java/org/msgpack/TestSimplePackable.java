@@ -94,30 +94,41 @@ public class TestSimplePackable {
         assertEquals(a.f2, b.f2);
     }
 
-    // some files are NULLABLE or OPTIONAL
+    // some files are OPTIONAL or NULLABLE
     public static class Sample02 implements MessagePackable {
         public String f0;         // nullable
-        public Long f1;           // optional
-        public Integer f2;        // nullable
+        public long f1;           // primitive
+        public Integer f2;        // required
         public String f3;         // optional
 
         public Sample02() { }
 
         public void writeTo(Packer pk) throws IOException {
             pk.writeArrayBegin(4);
-                pk.writeOptional(f0);
-                pk.writeOptional(f1);
-                pk.writeOptional(f2);
-                pk.writeOptional(f3);
+                pk.write(f0);
+                pk.writeLong(f1);
+                if(f2 == null) {
+                    throw new MessageTypeException("f2 is required but null");
+                }
+                pk.write(f2);
+                pk.write(f3);
             pk.writeArrayEnd();
         }
 
         public void readFrom(Unpacker u) throws IOException {
             u.readArrayBegin();
-                f0 = u.readOptional(String.class);
-                f1 = u.readOptional(Long.class);
-                f2 = u.readOptional(Integer.class);
-                f3 = u.readOptional(String.class);
+                f0 = u.read(String.class);
+                f1 = u.readLong();
+                if(u.trySkipNil()) {
+                    f2 = null;
+                } else {
+                    f2 = u.read(Integer.class);
+                }
+                if(u.trySkipNil()) {
+                    f3 = null;
+                } else {
+                    f3 = u.read(String.class);
+                }
             u.readArrayEnd();
         }
     }
@@ -128,9 +139,9 @@ public class TestSimplePackable {
 
         Sample02 a = new Sample02();
         a.f0 = "aaa";
-        a.f1 = null;
-        a.f2 = null;
-        a.f3 = "bbb";
+        a.f1 = 1;
+        a.f2 = 22;
+        a.f3 = null;
 
         BufferPacker pk = msgpack.createBufferPacker();
         a.writeTo(pk);

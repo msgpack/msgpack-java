@@ -44,20 +44,20 @@ public abstract class AbstractPacker implements Packer {
     }
 
     public Packer write(Object o) throws IOException {
+        if(o == null) {
+            writeNil();
+            return this;
+        }
         Template tmpl = msgpack.lookup(o.getClass());
         tmpl.write(this, o);
         return this;
     }
 
-    public Packer writeOptional(Object o) throws IOException {
-        if(o == null) {
+    public Packer write(Value v) throws IOException {
+        if(v == null) {
             writeNil();
             return this;
         }
-        return write(o);
-    }
-
-    public Packer write(Value v) throws IOException {
         v.writeTo(this);
         return this;
     }

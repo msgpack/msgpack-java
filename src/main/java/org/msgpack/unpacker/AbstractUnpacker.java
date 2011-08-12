@@ -78,30 +78,6 @@ public abstract class AbstractUnpacker implements Unpacker {
         return (T) tmpl.read(this, to);
     }
 
-    public <T> T readOptional(Class<T> klass) throws IOException {
-        return readOptional(klass, null);
-    }
-
-    public <T> T readOptional(Class<T> klass, T defaultValue) throws IOException {
-        if(trySkipNil()) {
-            return defaultValue;
-        }
-        Template<? super T> tmpl = (Template<? super T>) msgpack.lookup(klass);
-        return (T) tmpl.read(this, null);
-    }
-
-    public <T> T readOptional(T to, T defaultValue) throws IOException {
-        if(trySkipNil()) {
-            return defaultValue;
-        }
-        Template<? super T> tmpl = msgpack.lookup((Class<T>) to.getClass());
-        return (T) tmpl.read(this, to);
-    }
-
-    public <T> T readOptional(T to) throws IOException {
-        return readOptional(to, null);
-    }
-
 
     public void close() throws IOException {
     }

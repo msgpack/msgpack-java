@@ -84,13 +84,5 @@ public interface Unpacker extends Iterable<Value>, Closeable {
     public <T> T read(Class<T> klass) throws IOException;
 
     public <T> T read(T to) throws IOException;
-
-    public <T> T readOptional(Class<T> klass) throws IOException;
-
-    public <T> T readOptional(Class<T> klass, T defaultValue) throws IOException;
-
-    public <T> T readOptional(T to, T defaultValue) throws IOException;
-
-    public <T> T readOptional(T to) throws IOException;
 }
 

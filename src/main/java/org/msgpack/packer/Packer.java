@@ -67,8 +67,6 @@ public interface Packer extends Closeable {
 
     public Packer write(Object o) throws IOException;
 
-    public Packer writeOptional(Object o) throws IOException;
-
     public Packer write(Value v) throws IOException;
 }
 
