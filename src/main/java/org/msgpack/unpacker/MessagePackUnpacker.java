@@ -313,8 +313,8 @@ public class MessagePackUnpacker extends AbstractUnpacker {
 
     private void readRawBodyCont() throws IOException {
         int len = in.read(raw, rawFilled, raw.length - rawFilled);
-        rawFilled -= len;
-        if(rawFilled > 0) {
+        rawFilled += len;
+        if(rawFilled < raw.length) {
             throw new EOFException();
         }
     }
