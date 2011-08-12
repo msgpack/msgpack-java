@@ -153,27 +153,26 @@ public class TemplateRegistry {
     }
 
     public synchronized Template lookup(Type targetType) {
-        return lookupImpl(targetType, true, false, true);
+	return lookupImpl(targetType, true, false);
     }
 
     public synchronized Template lookup(Type targetType, final boolean forceBuild) {
-	return lookupImpl(targetType, true, forceBuild, true);
+	return lookupImpl(targetType, true, forceBuild);
     }
 
     public synchronized Template lookup(Type targetType, final boolean forceLoad, final boolean forceBuild) {
-	return lookupImpl(targetType, forceLoad, forceBuild, true);
+	return lookupImpl(targetType, forceLoad, forceBuild);
     }
 
     public synchronized Template tryLookup(Type targetType) {
-	return lookupImpl(targetType, true, false, false);
+	return lookupImpl(targetType, true, false);
     }
 
     public synchronized Template tryLookup(Type targetType, final boolean forceBuild) {
-	return lookupImpl(targetType, true, forceBuild, false);
+	return lookupImpl(targetType, true, forceBuild);
     }
 
-    private synchronized Template lookupImpl(Type targetType,
-	    final boolean forceLoad, final boolean forceBuild, final boolean fallbackDefault) {
+    private synchronized Template lookupImpl(Type targetType, final boolean forceLoad, final boolean forceBuild) {
 	Template tmpl;
 
 	if (targetType instanceof ParameterizedType) {
@@ -269,22 +268,20 @@ public class TemplateRegistry {
 		    }
 		}
 	    }
+	}
 
-	    if (forceBuild) {
-		tmpl = chain.select(targetClass, true).buildTemplate(targetClass);
+	// not annotation
+	if (forceBuild) {
+	    try {
+		tmpl = chain.select(targetClass, !forceBuild).buildTemplate(targetClass);
 		register(targetClass, tmpl);
 		return tmpl;
+	    } catch (NullPointerException e) { // ignore
 	    }
 	}
 
-	if (fallbackDefault) {
-	    tmpl = new DefaultTemplate(this, (Class<?>) targetClass);
-	    register(targetClass, tmpl);
-	    return tmpl;
-	} else {
-	    throw new MessageTypeException(
-		    "Cannot find template for " + targetClass + " class. Try to add @Message annotation to the class or call MessagePack.register(Type).");
-	}
+	throw new MessageTypeException(
+		"Cannot find template for " + targetClass + " class. Try to add @Message annotation to the class or call MessagePack.register(Type).");
     }
 
     public synchronized Template lookupGeneric(final Type targetType) {

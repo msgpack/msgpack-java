@@ -187,7 +187,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	for (int i = 0; i < entries.length; i++) {
 	    FieldEntry entry = entries[i];
 	    Class<?> t = entry.getType();
-	    Template template = registry.lookup(entry.getGenericType(), true);
+	    Template template = registry.lookup(entry.getGenericType(), false);
 	    templates[i] = new FieldTemplateImpl(entry, template);
 	}
 	return templates;
