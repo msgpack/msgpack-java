@@ -53,6 +53,18 @@ class SequentialMapValueImpl extends AbstractMapValue {
         }
     }
 
+    public Value get(Value key) {
+        if(key == null) {
+            return null;
+        }
+        for(int i=array.length-2; i >= 0; i-=2) {
+            if(array[i].equals(key)) {
+                return array[i+1];
+            }
+        }
+        return null;
+    }
+
     private static class EntrySet extends AbstractSet<Map.Entry<Value,Value>> {
         private Value[] array;
 
@@ -187,10 +199,6 @@ class SequentialMapValueImpl extends AbstractMapValue {
             return false;
         }
 
-        if(v.getClass() == SequentialMapValueImpl.class) {
-            return equals((SequentialMapValueImpl) v);
-        }
-
         Map<Value,Value> om = v.asMapValue();
         if (om.size() != array.length/2) {
             return false;
@@ -213,17 +221,17 @@ class SequentialMapValueImpl extends AbstractMapValue {
         return true;
     }
 
-    private boolean equals(SequentialMapValueImpl o) {
-        if(array.length != o.array.length) {
-            return false;
-        }
-        for(int i=0; i < array.length; i+=2) {
-            if(!equalsValue(o.array, array[i], array[i+1], i)) {
-                return false;
-            }
-        }
-        return true;
-    }
+    //private boolean equals(SequentialMapValueImpl o) {
+    //    if(array.length != o.array.length) {
+    //        return false;
+    //    }
+    //    for(int i=0; i < array.length; i+=2) {
+    //        if(!equalsValue(o.array, array[i], array[i+1], i)) {
+    //            return false;
+    //        }
+    //    }
+    //    return true;
+    //}
 
     private boolean equalsValue(Value[] oarray, Value key, Value val, int hint) {
         for(int j=hint; j < array.length; j+=2) {

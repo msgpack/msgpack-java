@@ -70,6 +70,55 @@ public class TestEquals extends TestSet {
         testEquals(v1, v2);
     }
 
+    @Test
+    public void testMapOrder() throws Exception {
+        Value v1 = ValueFactory.mapValue(new Value[] {
+            ValueFactory.rawValue("k0"), ValueFactory.nilValue(),
+            ValueFactory.rawValue("k1"), ValueFactory.rawValue("v1"),
+            ValueFactory.rawValue("k2"), ValueFactory.rawValue("v2"),
+            ValueFactory.rawValue("k3"), ValueFactory.rawValue("v3"),
+            ValueFactory.rawValue("k4"), ValueFactory.rawValue("v4"),
+            ValueFactory.rawValue("k5"), ValueFactory.rawValue("v5"),
+            ValueFactory.rawValue("k6"), ValueFactory.rawValue("v6"),
+            ValueFactory.rawValue("k7"), ValueFactory.rawValue("v7"),
+            ValueFactory.rawValue("k8"), ValueFactory.rawValue("v8"),
+            ValueFactory.rawValue("k9"), ValueFactory.rawValue("v9"),
+            ValueFactory.rawValue("k10"), ValueFactory.rawValue("v10"),
+            ValueFactory.rawValue("k11"), ValueFactory.rawValue("v11"),
+            ValueFactory.rawValue("k12"), ValueFactory.rawValue("v12"),
+            ValueFactory.rawValue("k13"), ValueFactory.rawValue("v13"),
+            ValueFactory.rawValue("k14"), ValueFactory.rawValue("v14"),
+            ValueFactory.rawValue("k15"), ValueFactory.rawValue("v15"),
+            ValueFactory.rawValue("k16"), ValueFactory.rawValue("v16"),
+            ValueFactory.rawValue("k17"), ValueFactory.rawValue("v17"),
+            ValueFactory.rawValue("k18"), ValueFactory.rawValue("v18"),
+            ValueFactory.rawValue("k19"), ValueFactory.rawValue("v19"),
+        });
+        Value v2 = ValueFactory.mapValue(new Value[] {
+            ValueFactory.rawValue("k3"), ValueFactory.rawValue("v3"),
+            ValueFactory.rawValue("k11"), ValueFactory.rawValue("v11"),
+            ValueFactory.rawValue("k4"), ValueFactory.rawValue("v4"),
+            ValueFactory.rawValue("k10"), ValueFactory.rawValue("v10"),
+            ValueFactory.rawValue("k5"), ValueFactory.rawValue("v5"),
+            ValueFactory.rawValue("k6"), ValueFactory.rawValue("v6"),
+            ValueFactory.rawValue("k15"), ValueFactory.rawValue("v15"),
+            ValueFactory.rawValue("k7"), ValueFactory.rawValue("v7"),
+            ValueFactory.rawValue("k14"), ValueFactory.rawValue("v14"),
+            ValueFactory.rawValue("k8"), ValueFactory.rawValue("v8"),
+            ValueFactory.rawValue("k13"), ValueFactory.rawValue("v13"),
+            ValueFactory.rawValue("k9"), ValueFactory.rawValue("v9"),
+            ValueFactory.rawValue("k12"), ValueFactory.rawValue("v12"),
+            ValueFactory.rawValue("k0"), ValueFactory.nilValue(),
+            ValueFactory.rawValue("k1"), ValueFactory.rawValue("v1"),
+            ValueFactory.rawValue("k2"), ValueFactory.rawValue("v2"),
+            ValueFactory.rawValue("k18"), ValueFactory.rawValue("v18"),
+            ValueFactory.rawValue("k19"), ValueFactory.rawValue("v19"),
+            ValueFactory.rawValue("k16"), ValueFactory.rawValue("v16"),
+            ValueFactory.rawValue("k17"), ValueFactory.rawValue("v17"),
+        });
+        testEquals(v1, v2);
+    }
+
     @Override
     public void testByte(byte v) throws Exception {
         testLong((long)v);
