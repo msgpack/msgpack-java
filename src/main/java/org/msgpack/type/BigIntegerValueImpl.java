@@ -109,11 +109,15 @@ class BigIntegerValueImpl extends IntegerValue {
         if(o == this) {
             return true;
         }
-        if(!(o instanceof IntegerValue)) {
+        if(!(o instanceof Value)) {
+            return false;
+        }
+        Value v = (Value) o;
+        if(!v.isInteger()) {
             return false;
         }
 
-        return value.equals(((IntegerValue) o).bigIntegerValue());
+        return value.equals(v.asIntegerValue().bigIntegerValue());
     }
 
     public int hashCode() {

@@ -41,11 +41,15 @@ class FalseValueImpl extends AbstractBooleanValue {
         if(o == this) {
             return true;
         }
-        if(!(o instanceof BooleanValue)) {
+        if(!(o instanceof Value)) {
+            return false;
+        }
+        Value v = (Value) o;
+        if(!v.isBoolean()) {
             return false;
         }
 
-        return ((BooleanValue) o).getBoolean() == false;
+        return v.asBooleanValue().getBoolean() == false;
     }
 
     public int hashCode() {

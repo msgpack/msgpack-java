@@ -179,15 +179,19 @@ class SequentialMapValueImpl extends AbstractMapValue {
         if(o == this) {
             return true;
         }
-        if(!(o instanceof MapValue)) {
+        if(!(o instanceof Value)) {
+            return false;
+        }
+        Value v = (Value) o;
+        if(!v.isMap()) {
             return false;
         }
 
-        if(o.getClass() == SequentialMapValueImpl.class) {
-            return equals((SequentialMapValueImpl) o);
+        if(v.getClass() == SequentialMapValueImpl.class) {
+            return equals((SequentialMapValueImpl) v);
         }
 
-        Map<Value,Value> om = (Map<Value,Value>) o;
+        Map<Value,Value> om = v.asMapValue();
         if (om.size() != array.length/2) {
             return false;
         }

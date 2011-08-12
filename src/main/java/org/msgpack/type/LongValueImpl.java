@@ -104,13 +104,17 @@ class LongValueImpl extends IntegerValue {
         if(o == this) {
             return true;
         }
-        if(!(o instanceof IntegerValue)) {
+        if(!(o instanceof Value)) {
+            return false;
+        }
+        Value v = (Value) o;
+        if(!v.isInteger()) {
             return false;
         }
 
         try {
             // TODO
-            return value == ((IntegerValue) o).getLong();
+            return value == v.asIntegerValue().getLong();
         } catch (MessageTypeException ex) {
             return false;
         }

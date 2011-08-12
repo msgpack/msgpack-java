@@ -37,7 +37,7 @@ public class AnyTemplate<T> extends AbstractTemplate<T> {
     private TemplateRegistry registry;
 
     private AnyTemplate(TemplateRegistry registry) {
-	
+        this.registry = registry;
     }
 
     public void write(Packer pk, T target, boolean required) throws IOException {

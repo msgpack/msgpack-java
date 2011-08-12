@@ -70,11 +70,15 @@ class FloatValueImpl extends FloatValue {
         if(o == this) {
             return true;
         }
-        if(!(o instanceof FloatValue)) {
+        if(!(o instanceof Value)) {
+            return false;
+        }
+        Value v = (Value) o;
+        if(!v.isFloat()) {
             return false;
         }
 
-        return (double)value == ((FloatValue) o).getDouble();
+        return (double)value == v.asFloatValue().getDouble();
     }
 
     public void writeTo(Packer pk) throws IOException {

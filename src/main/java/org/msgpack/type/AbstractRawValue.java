@@ -36,11 +36,15 @@ abstract class AbstractRawValue extends AbstractValue implements RawValue {
         if(this == o) {
             return true;
         }
-        if(!(o instanceof RawValue)) {
+        if(!(o instanceof Value)) {
+            return false;
+        }
+        Value v = (Value) o;
+        if(!v.isRaw()) {
             return false;
         }
 
-        return Arrays.equals(getByteArray(), ((RawValue) o).getByteArray());
+        return Arrays.equals(getByteArray(), v.asRawValue().getByteArray());
     }
 
     public int hashCode() {

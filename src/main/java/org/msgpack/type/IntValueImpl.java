@@ -99,13 +99,17 @@ class IntValueImpl extends IntegerValue {
         if(o == this) {
             return true;
         }
-        if(!(o instanceof IntegerValue)) {
+        if(!(o instanceof Value)) {
+            return false;
+        }
+        Value v = (Value) o;
+        if(!v.isInteger()) {
             return false;
         }
 
         try {
             // TODO
-            return value == ((IntegerValue) o).getInt();
+            return value == v.asIntegerValue().getInt();
         } catch (MessageTypeException ex) {
             return false;
         }

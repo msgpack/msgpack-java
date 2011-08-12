@@ -554,6 +554,11 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         }
     }
 
+    public void reset() {
+        raw = null;
+        stack.reset();
+    }
+
     public void close() throws IOException {
         in.close();
     }

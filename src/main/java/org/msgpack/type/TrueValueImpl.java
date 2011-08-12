@@ -41,11 +41,15 @@ class TrueValueImpl extends AbstractBooleanValue {
         if(o == this) {
             return true;
         }
-        if(!(o instanceof BooleanValue)) {
+        if(!(o instanceof Value)) {
+            return false;
+        }
+        Value v = (Value) o;
+        if(!v.isBoolean()) {
             return false;
         }
 
-        return ((BooleanValue) o).getBoolean() == true;
+        return v.asBooleanValue().getBoolean() == true;
     }
 
     public int hashCode() {

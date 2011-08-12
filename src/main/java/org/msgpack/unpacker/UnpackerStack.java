@@ -90,5 +90,9 @@ final class UnpackerStack {
     public boolean topIsMap() {
         return types[top] == TYPE_MAP;
     }
+
+    public void reset() {
+        top = 0;
+    }
 }
 

@@ -74,11 +74,15 @@ class DoubleValueImpl extends FloatValue {
         if(o == this) {
             return true;
         }
-        if(!(o instanceof FloatValue)) {
+        if(!(o instanceof Value)) {
+            return false;
+        }
+        Value v = (Value) o;
+        if(!v.isFloat()) {
             return false;
         }
 
-        return value == ((FloatValue) o).getDouble();
+        return value == v.asFloatValue().getDouble();
     }
 
     // TODO compareTo

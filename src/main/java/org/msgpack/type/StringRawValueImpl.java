@@ -51,15 +51,19 @@ class StringRawValueImpl extends AbstractRawValue {
         if(this == o) {
             return true;
         }
-        if(!(o instanceof RawValue)) {
+        if(!(o instanceof Value)) {
+            return false;
+        }
+        Value v = (Value) o;
+        if(!v.isRaw()) {
             return false;
         }
 
-        if(o.getClass() == StringRawValueImpl.class) {
-            return string.equals(((StringRawValueImpl) o).string);
+        if(v.getClass() == StringRawValueImpl.class) {
+            return string.equals(((StringRawValueImpl) v).string);
         }
 
-        return Arrays.equals(getByteArray(), ((RawValue) o).getByteArray());
+        return Arrays.equals(getByteArray(), v.asRawValue().getByteArray());
     }
 }
 

@@ -96,15 +96,19 @@ class ArrayValueImpl extends AbstractArrayValue {
         if(o == this) {
             return true;
         }
-        if(!(o instanceof ArrayValue)) {
+        if(!(o instanceof Value)) {
+            return false;
+        }
+        Value v = (Value) o;
+        if(!v.isArray()) {
             return false;
         }
 
-        if(o.getClass() == ArrayValueImpl.class) {
-            return equals((ArrayValueImpl) o);
+        if(v.getClass() == ArrayValueImpl.class) {
+            return equals((ArrayValueImpl) v);
         }
 
-        ListIterator oi = ((List) o).listIterator();
+        ListIterator oi = v.asArrayValue().listIterator();
         int i = 0;
         while(i < array.length) {
             if(!oi.hasNext() || !array[i].equals(oi.next())) {

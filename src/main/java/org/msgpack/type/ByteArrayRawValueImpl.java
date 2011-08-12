@@ -68,11 +68,15 @@ class ByteArrayRawValueImpl extends AbstractRawValue {
         if(this == o) {
             return true;
         }
-        if(!(o instanceof RawValue)) {
+        if(!(o instanceof Value)) {
+            return false;
+        }
+        Value v = (Value) o;
+        if(!v.isRaw()) {
             return false;
         }
 
-        return Arrays.equals(bytes, ((RawValue) o).getByteArray());
+        return Arrays.equals(bytes, v.asRawValue().getByteArray());
     }
 
     public int hashCode() {
