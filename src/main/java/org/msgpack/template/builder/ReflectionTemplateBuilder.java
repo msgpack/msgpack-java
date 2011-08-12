@@ -48,209 +48,26 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	}
     }
 
-    static class NullFieldTemplate extends ReflectionFieldTemplate {
-	NullFieldTemplate(final FieldEntry entry) {
-	    super(entry);
-	}
-
-	@Override
-	public void write(Packer packer, Object target, boolean required) throws IOException {
-	}
-
-	@Override
-	public Object read(Unpacker unpacker, Object target, boolean required) throws IOException {
-	    return null;
-	}
-    }
-
-    protected static class ObjectFieldTemplate extends ReflectionFieldTemplate {
+    static final class FieldTemplateImpl extends ReflectionFieldTemplate {
 	private Template template;
 
-	public ObjectFieldTemplate(final FieldEntry entry, Template template) {
+	public FieldTemplateImpl(final FieldEntry entry, final Template template) {
 	    super(entry);
 	    this.template = template;
 	}
 
 	@Override
-	public void write(Packer packer, Object target, boolean required) throws IOException {
-	    template.write(packer, target, required);
+	public void write(Packer packer, Object v, boolean required) throws IOException {
+	    template.write(packer, v, required);
 	}
 
 	@Override
-	public Object read(Unpacker unpacker, Object target, boolean required) throws IOException {
+	public Object read(Unpacker unpacker, Object to, boolean required) throws IOException {
 	    Class<Object> type = (Class<Object>) entry.getType();
-	    Object fieldReference = entry.get(target);
-	    Object valueReference = template.read(unpacker, fieldReference, required);
-	    if (valueReference != fieldReference) {
-		entry.set(target, valueReference);
-	    }
-	    return valueReference;
-	}
-    }
-
-    static class BooleanFieldTemplate extends ReflectionFieldTemplate {
-	BooleanFieldTemplate(final FieldEntry entry) {
-	    super(entry);
-	}
-
-	@Override
-	public void write(Packer packer, Object target, boolean required) throws IOException {
-	    packer.writeBoolean((Boolean) target);
-	}
-
-	@Override
-	public Object read(Unpacker unpacker, Object target, boolean required) throws IOException {
-	    boolean o = unpacker.readBoolean();
-	    try {
-		((DefaultFieldEntry) entry).getField().setBoolean(target, o);
-	    } catch (IllegalArgumentException e) {
-		throw new MessageTypeException(e);
-	    } catch (IllegalAccessException e) {
-		throw new MessageTypeException(e);
-	    }
-	    return o;
-	}
-    }
-
-    static class ByteFieldTemplate extends ReflectionFieldTemplate {
-	ByteFieldTemplate(final FieldEntry entry) {
-	    super(entry);
-	}
-
-	@Override
-	public void write(Packer packer, Object target, boolean required) throws IOException {
-	    packer.writeByte((Byte) target);
-	}
-
-	@Override
-	public Object read(Unpacker unpacker, Object target, boolean required) throws IOException {
-	    byte o = unpacker.readByte();
-	    try {
-		((DefaultFieldEntry) entry).getField().setByte(target, o);
-	    } catch (IllegalArgumentException e) {
-		throw new MessageTypeException(e);
-	    } catch (IllegalAccessException e) {
-		throw new MessageTypeException(e);
-	    }
-	    return o;
-	}
-    }
-
-    static class ShortFieldTemplate extends ReflectionFieldTemplate {
-	ShortFieldTemplate(final FieldEntry entry) {
-	    super(entry);
-	}
-
-	@Override
-	public void write(Packer packer, Object target, boolean required) throws IOException {
-	    packer.writeShort((Short) target);
-	}
-
-	@Override
-	public Object read(Unpacker unpacker, Object target, boolean required) throws IOException {
-	    short o = unpacker.readShort();
-	    try {
-		((DefaultFieldEntry) entry).getField().setShort(target, o);
-	    } catch (IllegalArgumentException e) {
-		throw new MessageTypeException(e);
-	    } catch (IllegalAccessException e) {
-		throw new MessageTypeException(e);
-	    }
-	    return o;
-	}
-    }
-
-    static class IntFieldTemplate extends ReflectionFieldTemplate {
-	IntFieldTemplate(final FieldEntry entry) {
-	    super(entry);
-	}
-
-	@Override
-	public void write(Packer packer, Object target, boolean required) throws IOException {
-	    packer.writeInt((Integer) target);
-	}
-
-	@Override
-	public Object read(Unpacker unpacker, Object target, boolean required) throws IOException {
-	    int o = unpacker.readInt();
-	    try {
-		((DefaultFieldEntry) entry).getField().setInt(target, o);
-	    } catch (IllegalArgumentException e) {
-		throw new MessageTypeException(e);
-	    } catch (IllegalAccessException e) {
-		throw new MessageTypeException(e);
-	    }
-	    return o;
-	}
-    }
-
-    static class LongFieldTemplate extends ReflectionFieldTemplate {
-	LongFieldTemplate(final FieldEntry entry) {
-	    super(entry);
-	}
-
-	@Override
-	public void write(Packer packer, Object target, boolean required) throws IOException {
-	    packer.writeLong((Long) target);
-	}
-
-	@Override
-	public Object read(Unpacker unpacker, Object target, boolean required) throws IOException {
-	    long o = unpacker.readLong();
-	    try {
-		((DefaultFieldEntry) entry).getField().setLong(target, o);
-	    } catch (IllegalArgumentException e) {
-		throw new MessageTypeException(e);
-	    } catch (IllegalAccessException e) {
-		throw new MessageTypeException(e);
-	    }
-	    return o;
-	}
-    }
-
-    static class FloatFieldTemplate extends ReflectionFieldTemplate {
-	FloatFieldTemplate(final FieldEntry entry) {
-	    super(entry);
-	}
-
-	@Override
-	public void write(Packer packer, Object target, boolean required) throws IOException {
-	    packer.writeFloat((Float) target);
-	}
-
-	@Override
-	public Object read(Unpacker unpacker, Object target, boolean required) throws IOException {
-	    float o = unpacker.readFloat();
-	    try {
-		((DefaultFieldEntry) entry).getField().setFloat(target, o);
-	    } catch (IllegalArgumentException e) {
-		throw new MessageTypeException(e);
-	    } catch (IllegalAccessException e) {
-		throw new MessageTypeException(e);
-	    }
-	    return o;
-	}
-    }
-
-    static class DoubleFieldTemplate extends ReflectionFieldTemplate {
-	DoubleFieldTemplate(final FieldEntry entry) {
-	    super(entry);
-	}
-
-	@Override
-	public void write(Packer packer, Object target, boolean required) throws IOException {
-	    packer.writeDouble((Double) target);
-	}
-
-	@Override
-	public Object read(Unpacker unpacker, Object target, boolean required) throws IOException {
-	    double o = unpacker.readDouble();
-	    try {
-		((DefaultFieldEntry) entry).getField().setDouble(target, o);
-	    } catch (IllegalArgumentException e) {
-		throw new MessageTypeException(e);
-	    } catch (IllegalAccessException e) {
-		throw new MessageTypeException(e);
+	    Object f = entry.get(to);
+	    Object o = template.read(unpacker, f, required);
+	    if (o != f) {
+		entry.set(to, o);
 	    }
 	    return o;
 	}
@@ -268,9 +85,9 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 
 	@Override
 	public void write(Packer packer, T target, boolean required) throws IOException {
-            if(target == null) {
-                if(required) {
-                    throw new MessageTypeException("Attempted to write null");
+            if (target == null) {
+                if (required) {
+                    throw new MessageTypeException("attempted to write null");
                 }
                 packer.writeNil();
                 return;
@@ -293,8 +110,6 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 		    }
 		}
 		packer.writeArrayEnd();
-	    } catch (MessageTypeException e) {
-		throw e;
 	    } catch (IOException e) {
 		throw e;
 	    } catch (Exception e) {
@@ -304,7 +119,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 
 	@Override
 	public T read(Unpacker unpacker, T to, boolean required) throws IOException {
-            if(!required && unpacker.trySkipNil()) {
+            if (!required && unpacker.trySkipNil()) {
                 return null;
             }
 	    try {
@@ -313,7 +128,6 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 		}
 
 		unpacker.readArrayBegin();
-
                 for (int i = 0; i < templates.length; i++) {
 		    ReflectionFieldTemplate tmpl = templates[i];
                     if (!tmpl.entry.isAvailable()) {
@@ -327,8 +141,6 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 
 		unpacker.readArrayEnd();
 		return to;
-	    } catch (MessageTypeException e) {
-		throw e;
 	    } catch (IOException e) {
 		throw e;
 	    } catch (Exception e) {
@@ -375,26 +187,8 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	for (int i = 0; i < entries.length; i++) {
 	    FieldEntry entry = entries[i];
 	    Class<?> t = entry.getType();
-	    if (!entry.isAvailable()) {
-		templates[i] = new NullFieldTemplate(entry);
-	    } else if (t.equals(boolean.class)) {
-		templates[i] = new BooleanFieldTemplate(entry);
-	    } else if (t.equals(byte.class)) {
-		templates[i] = new ByteFieldTemplate(entry);
-	    } else if (t.equals(short.class)) {
-		templates[i] = new ShortFieldTemplate(entry);
-	    } else if (t.equals(int.class)) {
-		templates[i] = new IntFieldTemplate(entry);
-	    } else if (t.equals(long.class)) {
-		templates[i] = new LongFieldTemplate(entry);
-	    } else if (t.equals(float.class)) {
-		templates[i] = new FloatFieldTemplate(entry);
-	    } else if (t.equals(double.class)) {
-		templates[i] = new DoubleFieldTemplate(entry);
-	    } else {
-		Template template = registry.lookup(entry.getGenericType(), true);
-		templates[i] = new ObjectFieldTemplate(entry, template);
-	    }
+	    Template template = registry.lookup(entry.getGenericType(), true);
+	    templates[i] = new FieldTemplateImpl(entry, template);
 	}
 	return templates;
     }

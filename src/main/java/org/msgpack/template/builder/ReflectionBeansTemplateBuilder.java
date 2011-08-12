@@ -22,7 +22,6 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -38,17 +37,6 @@ import org.msgpack.packer.Packer;
 import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
-import org.msgpack.template.builder.ReflectionTemplateBuilder.BooleanFieldTemplate;
-import org.msgpack.template.builder.ReflectionTemplateBuilder.ByteFieldTemplate;
-import org.msgpack.template.builder.ReflectionTemplateBuilder.DoubleFieldTemplate;
-import org.msgpack.template.builder.ReflectionTemplateBuilder.FloatFieldTemplate;
-import org.msgpack.template.builder.ReflectionTemplateBuilder.IntFieldTemplate;
-import org.msgpack.template.builder.ReflectionTemplateBuilder.LongFieldTemplate;
-import org.msgpack.template.builder.ReflectionTemplateBuilder.NullFieldTemplate;
-import org.msgpack.template.builder.ReflectionTemplateBuilder.ObjectFieldTemplate;
-import org.msgpack.template.builder.ReflectionTemplateBuilder.ReflectionClassTemplate;
-import org.msgpack.template.builder.ReflectionTemplateBuilder.ReflectionFieldTemplate;
-import org.msgpack.template.builder.ReflectionTemplateBuilder.ShortFieldTemplate;
 import org.msgpack.unpacker.Unpacker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,7 +100,7 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
 		tmpls[i] = new ReflectionBeansFieldTemplate(e);
 	    } else {
 		Template tmpl = registry.lookup(e.getGenericType(), true);
-		tmpls[i] = new ObjectFieldTemplate(e, tmpl);
+		tmpls[i] = new FieldTemplateImpl(e, tmpl);
 	    }
 	}
 	return tmpls;
@@ -131,7 +119,7 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
 	ArrayList<PropertyDescriptor> list = new ArrayList<PropertyDescriptor>();
 	for (int i = 0; i < props.length; i++) {
 	    PropertyDescriptor pd = props[i];
-	    if (!isIgnoreProp(pd)) {
+	    if (!isIgnoreProperty(pd)) {
 		list.add(pd);
 	    }
 	}
@@ -141,7 +129,7 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
 	BeansFieldEntry[] entries = new BeansFieldEntry[props.length];
 	for (int i = 0; i < props.length; i++) {
 	    PropertyDescriptor p = props[i];
-	    int index = readPropIndex(p);
+	    int index = getPropertyIndex(p);
 	    if (index >= 0) {
 		if (entries[index] != null) {
 		    throw new TemplateBuildException("duplicated index: "
@@ -167,18 +155,18 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
 	}
 	for (int i = 0; i < entries.length; i++) {
 	    BeansFieldEntry e = entries[i];
-	    FieldOption op = readPropOption(e, implicitOption);
+	    FieldOption op = getPropertyOption(e, implicitOption);
 	    e.setOption(op);
 	}
 	return entries;
     }
 
-    private FieldOption readPropOption(BeansFieldEntry e, FieldOption implicitOption) {
-	FieldOption forGetter = readMethodOption(e.getPropertyDescriptor().getReadMethod());
+    private FieldOption getPropertyOption(BeansFieldEntry e, FieldOption implicitOption) {
+	FieldOption forGetter = getMethodOption(e.getPropertyDescriptor().getReadMethod());
 	if (forGetter != FieldOption.DEFAULT) {
 	    return forGetter;
 	}
-	FieldOption forSetter = readMethodOption(e.getPropertyDescriptor().getWriteMethod());
+	FieldOption forSetter = getMethodOption(e.getPropertyDescriptor().getWriteMethod());
 	if (forSetter != FieldOption.DEFAULT) {
 	    return forSetter;
 	} else {
@@ -186,7 +174,7 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
 	}
     }
 
-    private FieldOption readMethodOption(Method method) {
+    private FieldOption getMethodOption(Method method) {
 	if (isAnnotated(method, Ignore.class)) {
 	    return FieldOption.IGNORE;
 	} else if (isAnnotated(method, Optional.class)) {
@@ -197,16 +185,16 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
 	return FieldOption.DEFAULT;
     }
 
-    private int readPropIndex(PropertyDescriptor desc) {
-	int forGetter = readMethodIndex(desc.getReadMethod());
-	if (forGetter >= 0) {
-	    return forGetter;
+    private int getPropertyIndex(PropertyDescriptor desc) {
+	int getterIndex = getMethodIndex(desc.getReadMethod());
+	if (getterIndex >= 0) {
+	    return getterIndex;
 	}
-	int forSetter = readMethodIndex(desc.getWriteMethod());
-	return forSetter;
+	int setterIndex = getMethodIndex(desc.getWriteMethod());
+	return setterIndex;
     }
 
-    private int readMethodIndex(Method method) {
+    private int getMethodIndex(Method method) {
 	Index a = method.getAnnotation(Index.class);
 	if (a == null) {
 	    return -1;
@@ -215,9 +203,10 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
 	}
     }
 
-    boolean isIgnoreProp(PropertyDescriptor desc) {
-	if (desc == null)
+    private boolean isIgnoreProperty(PropertyDescriptor desc) {
+	if (desc == null) {
 	    return true;
+	}
 	Method getter = desc.getReadMethod();
 	Method setter = desc.getWriteMethod();
 	return getter == null || setter == null
