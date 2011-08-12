@@ -54,7 +54,13 @@ public class NilValue extends AbstractValue {
     }
 
     public boolean equals(Object o) {
-        return o == this;
+        if(o == this) {
+            return true;
+        }
+        if(!(o instanceof Value)) {
+            return false;
+        }
+        return ((Value) o).isNil();
     }
 
     public int hashCode() {

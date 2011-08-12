@@ -190,6 +190,12 @@ public class TestEquals extends TestSet {
         }
     }
 
+    @Test
+    public void testNull() {
+        Value v1 = ValueFactory.nilValue();
+        Value v2 = ValueFactory.nilValue();
+        testEquals(v1, v2);
+    }
 
     private boolean compatibleWithByte(long v) {
        return (long)Byte.MIN_VALUE <= v && v <= (long)Byte.MAX_VALUE;
