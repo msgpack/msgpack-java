@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.Closeable;
 import java.nio.ByteBuffer;
 
+
 public interface Output extends Closeable {
     public void write(byte[] b, int off, int len) throws IOException;
 

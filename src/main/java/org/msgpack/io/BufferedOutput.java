@@ -20,6 +20,7 @@ package org.msgpack.io;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+
 abstract class BufferedOutput implements Output {
     protected byte[] buffer;
     protected int filled;

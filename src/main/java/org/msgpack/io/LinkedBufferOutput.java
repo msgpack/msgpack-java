@@ -17,11 +17,11 @@
 //
 package org.msgpack.io;
 
-import java.util.List;
 import java.util.LinkedList;
 
-public class LinkedBufferOutput extends BufferedOutput {
-    private static class Link {
+
+public final class LinkedBufferOutput extends BufferedOutput {
+    private static final class Link {
         final byte[] buffer;
         final int offset;
         final int size;
@@ -38,17 +38,17 @@ public class LinkedBufferOutput extends BufferedOutput {
 
     public LinkedBufferOutput(int bufferSize) {
         super(bufferSize);
-        this.link = new LinkedList<Link>();
+        link = new LinkedList<Link>();
     }
 
     public byte[] toByteArray() {
-        byte[] bytes = new byte[size+filled];
+        byte[] bytes = new byte[size + filled];
         int off = 0;
-        for(Link l : link) {
+        for (Link l : link) {
             System.arraycopy(l.buffer, l.offset, bytes, off, l.size);
             off += l.size;
         }
-        if(filled > 0) {
+        if (filled > 0) {
             System.arraycopy(buffer, 0, bytes, off, filled);
         }
         return bytes;
