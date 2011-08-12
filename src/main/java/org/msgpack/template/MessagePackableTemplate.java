@@ -55,7 +55,7 @@ public class MessagePackableTemplate extends AbstractTemplate<MessagePackable> {
 		throw new MessageTypeException(e);
 	    }
 	}
-	((MessagePackable) to).readFrom(u);
+	to.readFrom(u);
 	return to;
     }
 }
