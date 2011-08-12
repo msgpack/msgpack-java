@@ -32,7 +32,6 @@ import org.msgpack.template.BigIntegerTemplate;
 import org.msgpack.template.BooleanTemplate;
 import org.msgpack.template.ByteArrayTemplate;
 import org.msgpack.template.ByteTemplate;
-import org.msgpack.template.DefaultTemplate;
 import org.msgpack.template.DoubleArrayTemplate;
 import org.msgpack.template.DoubleTemplate;
 import org.msgpack.template.FieldList;
@@ -282,19 +281,6 @@ public class TemplateRegistry {
 
 	throw new MessageTypeException(
 		"Cannot find template for " + targetClass + " class. Try to add @Message annotation to the class or call MessagePack.register(Type).");
-    }
-
-    public synchronized Template lookupGeneric(final Type targetType) {
-	if (targetType instanceof ParameterizedType) {
-	    ParameterizedType parameterizedType = (ParameterizedType)targetType;
-	    Template tmpl = lookupGenericImpl(parameterizedType);
-	    if (tmpl != null) {
-		return tmpl;
-	    }
-	    return new DefaultTemplate(this, (Class<?>) parameterizedType.getRawType(), parameterizedType);
-	} else {
-	    throw new IllegalArgumentException("Actual types of the generic type are erased: "+targetType);
-	}
     }
 
     private synchronized Template lookupGenericImpl(final ParameterizedType targetType) {
