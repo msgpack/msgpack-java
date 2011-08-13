@@ -44,6 +44,8 @@ public class JSONPacker extends AbstractPacker {
     private static final byte RIGHT_BR = 0x5d;
     private static final byte LEFT_WN = 0x7b;
     private static final byte RIGHT_WN = 0x7d;
+    private static final byte BACKSLASH = 0x5c;
+    private static final byte ZERO = 0x30;
 
     private static final int FLAG_FIRST_ELEMENT = 0x01;
     private static final int FLAG_MAP_KEY       = 0x02;
@@ -275,11 +277,72 @@ public class JSONPacker extends AbstractPacker {
         escape(out, str);
     }
 
-    private void escape(Output out, String s) throws IOException {
-        // TODO optimize
-        String e = JSONValue.escape(s);
-        byte[] raw = e.getBytes();
-        out.write(raw, 0, raw.length);
+    private final static int[] ESCAPE_TABLE;
+    private final static byte[] HEX_TABLE;
+
+    static {
+        ESCAPE_TABLE = new int[128];
+        for (int i = 0; i < 0x20; ++i) {
+            // control char
+            ESCAPE_TABLE[i] = -1;
+        }
+        ESCAPE_TABLE['"'] = '"';
+        ESCAPE_TABLE['\\'] = '\\';
+        ESCAPE_TABLE[0x08] = 'b';
+        ESCAPE_TABLE[0x09] = 't';
+        ESCAPE_TABLE[0x0C] = 'f';
+        ESCAPE_TABLE[0x0A] = 'n';
+        ESCAPE_TABLE[0x0D] = 'r';
+
+        char[] hex = "0123456789ABCDEF".toCharArray();
+        HEX_TABLE = new byte[hex.length];
+        for (int i = 0; i < hex.length; ++i) {
+            HEX_TABLE[i] = (byte) hex[i];
+        }
+    }
+
+    private static void escape(Output out, String s) throws IOException {
+        byte[] tmp = new byte[] { (byte) '\\', (byte) 'u', 0, 0, 0, 0 };
+        char[] chars = s.toCharArray();
+        for(int i=0; i < chars.length; i++) {
+            int ch = chars[i];
+            if (ch <= 0x7f) {
+                 int e = ESCAPE_TABLE[ch];
+                 if (e == 0) {
+                     tmp[2] = (byte) ch;
+                     out.write(tmp, 2, 1);
+                 } else if (e > 0) {
+                     tmp[2] = BACKSLASH;
+                     tmp[3] = (byte) e;
+                     out.write(tmp, 2, 2);
+                 } else {
+                     // control char
+                     tmp[2] = ZERO;
+                     tmp[3] = ZERO;
+                     tmp[4] = HEX_TABLE[ch >> 4];
+                     tmp[5] = HEX_TABLE[ch & 0x0f];
+                     out.write(tmp, 0, 6);
+                }
+            } else if (ch <= 0x7ff) {
+                // 2-bytes char
+                tmp[2] = (byte) (0xc0 | (ch >> 6));
+                tmp[3] = (byte) (0x80 | (ch & 0x3f));
+                out.write(tmp, 2, 2);
+            } else if (ch >= 0xd800 && ch <= 0xdfff) {
+                // outside of BMP
+                tmp[2] = HEX_TABLE[(ch >> 12) & 0x0f];
+                tmp[3] = HEX_TABLE[(ch >> 8) & 0x0f];
+                tmp[4] = HEX_TABLE[(ch >> 4) & 0x0f];
+                tmp[5] = HEX_TABLE[ch & 0x0f];
+                out.write(tmp, 0, 6);
+            } else {
+                // 3-bytes char
+                tmp[2] = (byte) (0xe0 | (ch >> 12));
+                tmp[3] = (byte) (0x80 | ((ch >> 6) & 0x3f));
+                tmp[4] = (byte) (0x80 | (ch & 0x3f));
+                out.write(tmp, 2, 3);
+            }
+        }
     }
 }
 
