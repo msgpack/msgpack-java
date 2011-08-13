@@ -18,36 +18,56 @@
 package org.msgpack.template;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 
 
 public class TemplateReference<T> extends AbstractTemplate<T> {
 
-    private Template<T> actualTemplate;
+    private TemplateRegistry registry;
 
-    public void setTemplate(Template<T> actualTemplate) {
-	this.actualTemplate = actualTemplate;
+    private Type targetType;
+
+    private Template actualTemplate;
+
+    public TemplateReference(TemplateRegistry registry, Type targetType) {
+	this.registry = registry;
+	this.targetType = targetType;
+    }
+
+    private void validateActualTemplate() {
+	if (actualTemplate == null) {
+	    actualTemplate = registry.cache.get(targetType);
+	    if (actualTemplate == null) {
+		throw new MessageTypeException("Actual template have not been created");
+	    }
+	}
     }
 
     @Override
     public void write(Packer pk, T v, boolean required) throws IOException {
+	validateActualTemplate();
 	actualTemplate.write(pk, v, required);
     }
 
     @Override
     public void write(Packer pk, T v) throws IOException {
+	validateActualTemplate();
 	actualTemplate.write(pk, v, false);
     }
 
     @Override
     public T read(Unpacker u, T to, boolean required) throws IOException {
-	return actualTemplate.read(u, to, required);
+	validateActualTemplate();
+	return (T) actualTemplate.read(u, to, required);
     }
 
     @Override
     public T read(Unpacker u, T to) throws IOException {
-        return actualTemplate.read(u, to, false);
+	validateActualTemplate();
+	return (T) actualTemplate.read(u, to, false);
     }
 }

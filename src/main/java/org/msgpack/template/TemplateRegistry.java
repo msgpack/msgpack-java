@@ -17,7 +17,6 @@
 //
 package org.msgpack.template;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -59,11 +58,9 @@ public class TemplateRegistry {
 
     private TemplateBuilderChain chain;
 
-    private Map<Type, Template<Type>> cache;
+    Map<Type, Template<Type>> cache;
 
     private Map<Type, GenericTemplate> genericCache;
-
-    private Map<Type, List<TemplateReference>> templateReferences;
 
     public TemplateRegistry() {
 	this(null);
@@ -73,36 +70,12 @@ public class TemplateRegistry {
 	parent = registry;
 	cache = new HashMap<Type, Template<Type>>();
 	genericCache = new HashMap<Type, GenericTemplate>();
-	templateReferences = new HashMap<Type, List<TemplateReference>>();
 	if (parent == null) {
 	    registerTemplates();
 	    chain = new TemplateBuilderChain();
 	    chain.init(this);
 	} else {
 	    chain = registry.chain;
-	}
-    }
-
-    private boolean notBuilding(Type targetType) {
-	return !templateReferences.containsKey(targetType);
-    }
-
-    private void startBuilding(Type targetType) {
-	List<TemplateReference> list = new ArrayList<TemplateReference>();
-	templateReferences.put(targetType, list);
-    }
-
-    private Template getTemplateReference(Type targetType) {
-	List<TemplateReference> list = templateReferences.get(targetType);
-	TemplateReference tmpl = new TemplateReference();
-	list.add(tmpl);
-	return tmpl;
-    }
-
-    private void finishBuilding(Type targetType, Template actualTemplate) {
-	List<TemplateReference> list = templateReferences.remove(targetType);
-	for (TemplateReference tmpl : list) {
-	    tmpl.setTemplate(actualTemplate);
 	}
     }
 
@@ -143,26 +116,21 @@ public class TemplateRegistry {
     }
 
     public void register(final Class<?> targetClass) {
-	register(targetClass, chain.select(targetClass, false).buildTemplate(targetClass));
+	buildAndRegister(null, targetClass, false, null, false);
     }
 
     public void register(final Class<?> targetClass, final FieldList flist) {
 	if (flist == null) {
 	    throw new NullPointerException("FieldList object is null");
 	}
-	Template<?> tmpl;
-	if (notBuilding(targetClass)) {
-	    startBuilding(targetClass);
-	    tmpl = chain.select(targetClass, false).buildTemplate(targetClass, flist);
-	    finishBuilding(targetClass, tmpl);
-	} else {
-	    tmpl = getTemplateReference(targetClass);
-	}
-	register(targetClass, tmpl);
+	buildAndRegister(null, targetClass, false, flist, false);
     }
 
     public synchronized void register(final Type targetType, final Template tmpl) {
-        if (targetType instanceof ParameterizedType) {
+	if (tmpl == null) {
+	    throw new NullPointerException("Template object is null");
+	}
+	if (targetType instanceof ParameterizedType) {
             cache.put(((ParameterizedType) targetType).getRawType(), tmpl);
         } else {
             cache.put(targetType, tmpl);
@@ -186,39 +154,27 @@ public class TemplateRegistry {
 	cache.clear();
     }
 
-    public synchronized Template lookup(Type targetType) {
+    public Template lookup(Type targetType) {
 	return lookupImpl(targetType, true, false);
     }
 
-    public synchronized Template lookup(Type targetType, final boolean forceBuild) {
+    public Template lookup(Type targetType, final boolean forceBuild) {
 	return lookupImpl(targetType, true, forceBuild);
     }
 
-    public synchronized Template lookup(Type targetType, final boolean forceLoad, final boolean forceBuild) {
+    public Template lookup(Type targetType, final boolean forceLoad, final boolean forceBuild) {
 	return lookupImpl(targetType, forceLoad, forceBuild);
     }
 
-    public synchronized Template tryLookup(Type targetType) {
+    public Template tryLookup(Type targetType) {
 	return lookupImpl(targetType, true, false);
     }
 
-    public synchronized Template tryLookup(Type targetType, final boolean forceBuild) {
+    public Template tryLookup(Type targetType, final boolean forceBuild) {
 	return lookupImpl(targetType, true, forceBuild);
     }
 
     private synchronized Template lookupImpl(Type targetType, final boolean forceLoad, final boolean forceBuild) {
-	Template tmpl;
-	if (notBuilding(targetType)) {
-	    startBuilding(targetType);
-	    tmpl = lookupImpl0(targetType, forceLoad, forceBuild);
-	    finishBuilding(targetType, tmpl);
-	} else {
-	    tmpl = getTemplateReference(targetType);
-	}
-	return tmpl;
-    }
-
-    private synchronized Template lookupImpl0(Type targetType, final boolean forceLoad, final boolean forceBuild) {
 	Template tmpl;
 
 	if (targetType instanceof ParameterizedType) {
@@ -258,20 +214,19 @@ public class TemplateRegistry {
 	    return tmpl;
 	}
 
-	// find match TemplateBuilder
+	// find matched template builder
 	TemplateBuilder builder = chain.select(targetClass, true);
 	if (builder != null) {
 	    if (forceLoad) {
-		tmpl = builder.loadTemplate(targetClass);
+		tmpl = buildAndRegister(builder, targetClass, true, null, true);
 		if (tmpl != null) {
 		    register(targetClass, tmpl);
 		    return tmpl;
 		}
 	    }
 
-	    tmpl = builder.buildTemplate(targetClass);
+	    tmpl = buildAndRegister(builder, targetClass, true, null, false);
 	    if (tmpl != null) {
-		register(targetClass, tmpl);
 		return tmpl;
 	    }
 	}
@@ -316,21 +271,16 @@ public class TemplateRegistry {
 	    }
 	}
 
-	// not annotation
+	// if targetClass does not have annotations
 	if (forceBuild) {
-	    try {
-		tmpl = chain.select(targetClass, !forceBuild).buildTemplate(targetClass);
-		register(targetClass, tmpl);
-		return tmpl;
-	    } catch (NullPointerException e) { // ignore
-	    }
+	    buildAndRegister(null, targetClass, !forceBuild, null, false);
 	}
 
 	throw new MessageTypeException(
 		"Cannot find template for " + targetClass + " class. Try to add @Message annotation to the class or call MessagePack.register(Type).");
     }
 
-    private synchronized Template lookupGenericImpl(final ParameterizedType targetType) {
+    private Template lookupGenericImpl(final ParameterizedType targetType) {
 	Type rawType = targetType.getRawType();
 	GenericTemplate tmpl = genericCache.get(rawType);
 	if (tmpl == null) {
@@ -344,5 +294,43 @@ public class TemplateRegistry {
 	}
 
 	return tmpl.build(tmpls);
+    }
+
+    private synchronized Template buildAndRegister(TemplateBuilder builder, final Class<?> targetClass,
+	    final boolean hasAnnotation, final FieldList flist, final boolean isLoad) {
+	Template newTmpl = null;
+	Template oldTmpl = null;
+	try {
+	    if (cache.containsKey(targetClass)) {
+		oldTmpl = cache.get(targetClass);
+	    }
+	    newTmpl = new TemplateReference(this, targetClass);
+	    cache.put(targetClass, newTmpl);
+	    if (builder == null) {
+		builder = chain.select(targetClass, hasAnnotation);
+	    }
+	    if (isLoad) {
+		newTmpl = builder.loadTemplate(targetClass);
+	    } else {
+		if (flist != null) {
+		    newTmpl = builder.buildTemplate(targetClass, flist);
+		} else {
+		    newTmpl = builder.buildTemplate(targetClass);
+		}
+	    }
+	    return newTmpl;
+	} catch (Exception e) {
+	    if (oldTmpl != null) {
+		cache.put(targetClass, oldTmpl);
+	    } else {
+		cache.remove(targetClass);
+	    }
+	    newTmpl = null;
+	    return oldTmpl;
+	} finally {
+	    if (newTmpl != null) {
+		cache.put(targetClass, newTmpl);
+	    }
+	}
     }
 }
