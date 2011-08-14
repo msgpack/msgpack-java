@@ -149,14 +149,7 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
     public <T> Template<T> loadTemplate(Type targetType) {
 	Class<T> targetClass = (Class) targetType;
 	checkClassValidation(targetClass);
-	FieldOption implicitOption = getFieldOption(targetClass);
-	FieldEntry[] entries = toFieldEntries(targetClass, implicitOption);
-	return loadTemplate(targetClass, entries);
-    }
-
-    private <T> Template<T> loadTemplate(Class<T> targetClass, FieldEntry[] entries) {
-	Template[] tmpls = toTemplate(entries);
 	BuildContext bc = createBuildContext();
-	return bc.loadTemplate(targetClass, entries, tmpls);
+	return bc.loadTemplate(targetClass);
     }
 }

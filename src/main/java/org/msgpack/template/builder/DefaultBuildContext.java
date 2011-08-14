@@ -17,7 +17,6 @@
 //
 package org.msgpack.template.builder;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -234,9 +233,7 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
     }
 
     @Override
-    public Template loadTemplate(Class<?> targetClass, FieldEntry[] entries, Template[] templates) {
-	this.entries = entries;
-	this.templates = templates;
+    public Template loadTemplate(Class<?> targetClass) {
 	this.origClass = targetClass;
 	this.origName = origClass.getName();
 	return load(origName);

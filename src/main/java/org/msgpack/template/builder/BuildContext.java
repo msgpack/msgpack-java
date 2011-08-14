@@ -240,13 +240,12 @@ public abstract class BuildContext<T extends FieldEntry> {
 	}
     }
 
-    protected abstract Template loadTemplate(Class<?> targetClass, T[] entries, Template[] templates);
+    protected abstract Template loadTemplate(Class<?> targetClass);
 
     protected Template load(final String className) {
 	String tmplName = className + "_$$_Template";
 	try {
-	    Class<?> tmplClass = getClass().getClassLoader()
-		    .loadClass(tmplName);
+	    Class<?> tmplClass = getClass().getClassLoader().loadClass(tmplName);
 	    return buildInstance(tmplClass);
 	} catch (ClassNotFoundException e) {
 	    return null;

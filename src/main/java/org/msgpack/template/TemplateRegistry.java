@@ -116,14 +116,14 @@ public class TemplateRegistry {
     }
 
     public void register(final Class<?> targetClass) {
-	buildAndRegister(null, targetClass, false, null, false);
+	buildAndRegister(null, targetClass, false, null);
     }
 
     public void register(final Class<?> targetClass, final FieldList flist) {
 	if (flist == null) {
 	    throw new NullPointerException("FieldList object is null");
 	}
-	buildAndRegister(null, targetClass, false, flist, false);
+	buildAndRegister(null, targetClass, false, flist);
     }
 
     public synchronized void register(final Type targetType, final Template tmpl) {
@@ -218,14 +218,14 @@ public class TemplateRegistry {
 	TemplateBuilder builder = chain.select(targetClass, true);
 	if (builder != null) {
 	    if (forceLoad) {
-		tmpl = buildAndRegister(builder, targetClass, true, null, true);
+		tmpl = builder.loadTemplate(targetClass);
 		if (tmpl != null) {
 		    register(targetClass, tmpl);
 		    return tmpl;
 		}
 	    }
 
-	    tmpl = buildAndRegister(builder, targetClass, true, null, false);
+	    tmpl = buildAndRegister(builder, targetClass, true, null);
 	    if (tmpl != null) {
 		return tmpl;
 	    }
@@ -273,7 +273,7 @@ public class TemplateRegistry {
 
 	// if targetClass does not have annotations
 	if (forceBuild) {
-	    buildAndRegister(null, targetClass, !forceBuild, null, false);
+	    buildAndRegister(null, targetClass, !forceBuild, null);
 	}
 
 	throw new MessageTypeException(
@@ -282,6 +282,7 @@ public class TemplateRegistry {
 
     private Template lookupGenericImpl(final ParameterizedType targetType) {
 	Type rawType = targetType.getRawType();
+
 	GenericTemplate tmpl = genericCache.get(rawType);
 	if (tmpl == null) {
 	    return null;
@@ -289,7 +290,7 @@ public class TemplateRegistry {
 
 	Type[] types = targetType.getActualTypeArguments();
 	Template[] tmpls = new Template[types.length];
-	for (int i=0; i < types.length; ++i) {
+	for (int i = 0; i < types.length; ++i) {
 	    tmpls[i] = lookup(types[i]);
 	}
 
@@ -297,7 +298,7 @@ public class TemplateRegistry {
     }
 
     private synchronized Template buildAndRegister(TemplateBuilder builder, final Class<?> targetClass,
-	    final boolean hasAnnotation, final FieldList flist, final boolean isLoad) {
+	    final boolean hasAnnotation, final FieldList flist) {
 	Template newTmpl = null;
 	Template oldTmpl = null;
 	try {
@@ -309,15 +310,7 @@ public class TemplateRegistry {
 	    if (builder == null) {
 		builder = chain.select(targetClass, hasAnnotation);
 	    }
-	    if (isLoad) {
-		newTmpl = builder.loadTemplate(targetClass);
-	    } else {
-		if (flist != null) {
-		    newTmpl = builder.buildTemplate(targetClass, flist);
-		} else {
-		    newTmpl = builder.buildTemplate(targetClass);
-		}
-	    }
+	    newTmpl = flist != null ? builder.buildTemplate(targetClass, flist) : builder.buildTemplate(targetClass);
 	    return newTmpl;
 	} catch (Exception e) {
 	    if (oldTmpl != null) {
