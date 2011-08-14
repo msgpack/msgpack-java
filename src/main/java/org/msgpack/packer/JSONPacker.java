@@ -307,21 +307,23 @@ public class JSONPacker extends AbstractPacker {
         for(int i=0; i < chars.length; i++) {
             int ch = chars[i];
             if (ch <= 0x7f) {
-                 int e = ESCAPE_TABLE[ch];
-                 if (e == 0) {
-                     tmp[2] = (byte) ch;
-                     out.write(tmp, 2, 1);
-                 } else if (e > 0) {
-                     tmp[2] = BACKSLASH;
-                     tmp[3] = (byte) e;
-                     out.write(tmp, 2, 2);
-                 } else {
-                     // control char
-                     tmp[2] = ZERO;
-                     tmp[3] = ZERO;
-                     tmp[4] = HEX_TABLE[ch >> 4];
-                     tmp[5] = HEX_TABLE[ch & 0x0f];
-                     out.write(tmp, 0, 6);
+                int e = ESCAPE_TABLE[ch];
+                if (e == 0) {
+                    // ascii char
+                    tmp[2] = (byte) ch;
+                    out.write(tmp, 2, 1);
+                } else if (e > 0) {
+                    // popular control char
+                    tmp[2] = BACKSLASH;
+                    tmp[3] = (byte) e;
+                    out.write(tmp, 2, 2);
+                } else {
+                    // control char uXXXXXX
+                    tmp[2] = ZERO;
+                    tmp[3] = ZERO;
+                    tmp[4] = HEX_TABLE[ch >> 4];
+                    tmp[5] = HEX_TABLE[ch & 0x0f];
+                    out.write(tmp, 0, 6);
                 }
             } else if (ch <= 0x7ff) {
                 // 2-bytes char
@@ -329,7 +331,7 @@ public class JSONPacker extends AbstractPacker {
                 tmp[3] = (byte) (0x80 | (ch & 0x3f));
                 out.write(tmp, 2, 2);
             } else if (ch >= 0xd800 && ch <= 0xdfff) {
-                // outside of BMP
+                // surrogates
                 tmp[2] = HEX_TABLE[(ch >> 12) & 0x0f];
                 tmp[3] = HEX_TABLE[(ch >> 8) & 0x0f];
                 tmp[4] = HEX_TABLE[(ch >> 4) & 0x0f];

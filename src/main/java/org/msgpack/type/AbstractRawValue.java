@@ -78,10 +78,11 @@ abstract class AbstractRawValue extends AbstractValue implements RawValue {
                     sb.append("\\b");
                     break;
                 default:
+                    // control chars
                     escapeChar(sb, ch);
                     break;
                 }
-            } else {
+            } else if(ch <= 0x7f) {
                 switch(ch) {
                 case '\\':
                     sb.append("\\\\");
@@ -93,18 +94,25 @@ abstract class AbstractRawValue extends AbstractValue implements RawValue {
                     sb.append(ch);
                     break;
                 }
+            } else if(ch >= 0xd800 && ch <= 0xdfff) {
+                // surrogates
+                escapeChar(sb, ch);
+            } else {
+                sb.append(ch);
             }
         }
         sb.append("\"");
         return sb;
     }
 
-    private void escapeChar(StringBuilder sb, char ch) {
+    private final static char[] HEX_TABLE = "0123456789ABCDEF".toCharArray();
+
+    private void escapeChar(StringBuilder sb, int ch) {
         sb.append("\\u");
-        sb.append(((int)ch >> 12) & 0xF);
-        sb.append(((int)ch >> 8) & 0xF);
-        sb.append(((int)ch >> 4) & 0xF);
-        sb.append((int)ch & 0xF);
+        sb.append(HEX_TABLE[(ch >> 12) & 0x0f]);
+        sb.append(HEX_TABLE[(ch >> 8) & 0x0f]);
+        sb.append(HEX_TABLE[(ch >> 4) & 0x0f]);
+        sb.append(HEX_TABLE[ch & 0x0f]);
     }
 }
 
