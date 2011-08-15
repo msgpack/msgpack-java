@@ -26,6 +26,8 @@ import org.msgpack.testclasses.ModifiersFieldsClass;
 import org.msgpack.testclasses.ModifiersFieldsClassNotNullable;
 import org.msgpack.testclasses.PrimitiveTypeFieldsClass;
 import org.msgpack.testclasses.PrimitiveTypeFieldsClassNotNullable;
+import org.msgpack.testclasses.ReferenceCycleTypeFieldsClass;
+import org.msgpack.testclasses.ReferenceCycleTypeFieldsClassNotNullable;
 import org.msgpack.testclasses.ReferenceTypeFieldsClass;
 import org.msgpack.testclasses.ReferenceTypeFieldsClassNotNullable;
 import org.msgpack.testclasses.UserDefinedTypeFieldsClass;
@@ -356,6 +358,52 @@ public class TestReflectionPackConvert extends TestSet {
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
 	UserDefinedTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
+	assertEquals(v, ret);
+    }
+
+    @Test @Override
+    public void testReferenceCycleTypeFieldsClass() throws Exception {
+	super.testReferenceCycleTypeFieldsClass();
+    }
+
+    @Override
+    public void testReferenceCycleTypeFieldsClass(ReferenceCycleTypeFieldsClass v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	TemplateRegistry registry = new TemplateRegistry();
+	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
+	Template<ReferenceCycleTypeFieldsClass> tmpl = builder.buildTemplate(ReferenceCycleTypeFieldsClass.class);
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	tmpl.write(packer, v);
+	byte[] bytes = out.toByteArray();
+	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.wrap(bytes);
+	Value value = u.readValue();
+	Converter unpacker = new Converter(value);
+	ReferenceCycleTypeFieldsClass ret = tmpl.read(unpacker, null);
+	assertEquals(v, ret);
+    }
+
+    @Test @Override
+    public void testReferenceCycleTypeFieldsClassNotNullable() throws Exception {
+	super.testReferenceCycleTypeFieldsClassNotNullable();
+    }
+
+    @Override
+    public void testReferenceCycleTypeFieldsClassNotNullable(ReferenceCycleTypeFieldsClassNotNullable v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	TemplateRegistry registry = new TemplateRegistry();
+	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
+	Template<ReferenceCycleTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(ReferenceCycleTypeFieldsClassNotNullable.class);
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	tmpl.write(packer, v);
+	byte[] bytes = out.toByteArray();
+	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.wrap(bytes);
+	Value value = u.readValue();
+	Converter unpacker = new Converter(value);
+	ReferenceCycleTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
 

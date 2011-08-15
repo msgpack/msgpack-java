@@ -26,6 +26,8 @@ import org.msgpack.testclasses.ModifiersFieldsClass;
 import org.msgpack.testclasses.ModifiersFieldsClassNotNullable;
 import org.msgpack.testclasses.PrimitiveTypeFieldsClass;
 import org.msgpack.testclasses.PrimitiveTypeFieldsClassNotNullable;
+import org.msgpack.testclasses.ReferenceCycleTypeFieldsClass;
+import org.msgpack.testclasses.ReferenceCycleTypeFieldsClassNotNullable;
 import org.msgpack.testclasses.ReferenceTypeFieldsClass;
 import org.msgpack.testclasses.ReferenceTypeFieldsClassNotNullable;
 import org.msgpack.testclasses.UserDefinedTypeFieldsClass;
@@ -302,6 +304,44 @@ public class TestJavassistBufferPackUnpack extends TestSet {
 	byte[] bytes = packer.toByteArray();
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	UserDefinedTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
+	assertEquals(v, ret);
+    }
+
+    @Test @Override
+    public void testReferenceCycleTypeFieldsClass() throws Exception {
+	super.testReferenceCycleTypeFieldsClass();
+    }
+
+    @Override
+    public void testReferenceCycleTypeFieldsClass(ReferenceCycleTypeFieldsClass v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	TemplateRegistry registry = new TemplateRegistry();
+	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
+	Template<ReferenceCycleTypeFieldsClass> tmpl = builder.buildTemplate(ReferenceCycleTypeFieldsClass.class);
+	BufferPacker packer = msgpack.createBufferPacker();
+	tmpl.write(packer, v);
+	byte[] bytes = packer.toByteArray();
+	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+	ReferenceCycleTypeFieldsClass ret = tmpl.read(unpacker, null);
+	assertEquals(v, ret);
+    }
+
+    @Test @Override
+    public void testReferenceCycleTypeFieldsClassNotNullable() throws Exception {
+	super.testReferenceCycleTypeFieldsClassNotNullable();
+    }
+
+    @Override
+    public void testReferenceCycleTypeFieldsClassNotNullable(ReferenceCycleTypeFieldsClassNotNullable v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	TemplateRegistry registry = new TemplateRegistry();
+	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
+	Template<ReferenceCycleTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(ReferenceCycleTypeFieldsClassNotNullable.class);
+	BufferPacker packer = msgpack.createBufferPacker();
+	tmpl.write(packer, v);
+	byte[] bytes = packer.toByteArray();
+	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+	ReferenceCycleTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
     }
 

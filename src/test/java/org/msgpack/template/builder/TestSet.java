@@ -24,6 +24,8 @@ import org.msgpack.testclasses.ModifiersFieldsClass;
 import org.msgpack.testclasses.ModifiersFieldsClassNotNullable;
 import org.msgpack.testclasses.PrimitiveTypeFieldsClass;
 import org.msgpack.testclasses.PrimitiveTypeFieldsClassNotNullable;
+import org.msgpack.testclasses.ReferenceCycleTypeFieldsClass;
+import org.msgpack.testclasses.ReferenceCycleTypeFieldsClassNotNullable;
 import org.msgpack.testclasses.ReferenceTypeFieldsClass;
 import org.msgpack.testclasses.ReferenceTypeFieldsClassNotNullable;
 import org.msgpack.testclasses.UserDefinedTypeFieldsClass;
@@ -339,6 +341,44 @@ public class TestSet {
     }
 
     public void testUserDefinedTypeFieldsClassNotNullable(UserDefinedTypeFieldsClassNotNullable v) throws Exception {
+    }
+
+    public void testReferenceCycleTypeFieldsClass() throws Exception {
+	testReferenceCycleTypeFieldsClass(null);
+	testReferenceCycleTypeFieldsClass(new ReferenceCycleTypeFieldsClass());
+	ReferenceCycleTypeFieldsClass v = new ReferenceCycleTypeFieldsClass();
+	v.f0 = new ReferenceCycleTypeFieldsClass();
+	v.f1 = new ReferenceCycleTypeFieldsClass.NestedClass();
+	v.f1.f0 = new ReferenceCycleTypeFieldsClass();
+	v.f2 = "muga";
+	testReferenceCycleTypeFieldsClass(v);
+    }
+
+    public void testReferenceCycleTypeFieldsClass(ReferenceCycleTypeFieldsClass v) throws Exception {
+    }
+
+    public void testReferenceCycleTypeFieldsClassNotNullable() throws Exception {
+	testReferenceCycleTypeFieldsClassNotNullable(null);
+	try {
+	    testReferenceCycleTypeFieldsClassNotNullable(new ReferenceCycleTypeFieldsClassNotNullable());
+	    Assert.fail();
+	} catch (Throwable t) {
+	    Assert.assertTrue(t instanceof MessageTypeException);
+	}
+	try {
+	    ReferenceCycleTypeFieldsClassNotNullable v = new ReferenceCycleTypeFieldsClassNotNullable();
+	    v.f0 = new ReferenceCycleTypeFieldsClassNotNullable();
+	    v.f1 = new ReferenceCycleTypeFieldsClassNotNullable.NestedClass();
+	    v.f1.f0 = new ReferenceCycleTypeFieldsClassNotNullable();
+	    v.f2 = "muga";
+	    testReferenceCycleTypeFieldsClassNotNullable(v);
+	    Assert.fail();
+	} catch (Throwable t) {
+	    Assert.assertTrue(t instanceof MessageTypeException);
+	}
+    }
+
+    public void testReferenceCycleTypeFieldsClassNotNullable(ReferenceCycleTypeFieldsClassNotNullable v) throws Exception {
     }
 
     public void testInheritanceClass() throws Exception {
