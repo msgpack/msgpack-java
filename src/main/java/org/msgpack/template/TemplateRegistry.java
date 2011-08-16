@@ -18,11 +18,13 @@
 package org.msgpack.template;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
@@ -95,6 +97,8 @@ public class TemplateRegistry {
         register(double.class, DoubleTemplate.getInstance());
         register(Double.class, DoubleTemplate.getInstance());
         register(BigInteger.class, BigIntegerTemplate.getInstance());
+        register(BigDecimal.class, BigDecimalTemplate.getInstance());
+        register(Date.class, DateTemplate.getInstance());
         register(boolean[].class, BooleanArrayTemplate.getInstance());
         register(short[].class, ShortArrayTemplate.getInstance());
         register(int[].class, IntegerArrayTemplate.getInstance());
