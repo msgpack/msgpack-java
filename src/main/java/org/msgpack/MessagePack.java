@@ -81,7 +81,14 @@ public class MessagePack {
 
 
     public byte[] write(Object v) throws IOException {
-        return write(v, registry.lookup(v.getClass()));
+        BufferPacker pk = createBufferPacker();
+        if(v == null) {
+            pk.writeNil();
+        } else {
+            Template tmpl = registry.lookup(v.getClass());
+            tmpl.write(pk, v);
+        }
+        return pk.toByteArray();
     }
 
     public <T> byte[] write(T v, Template<T> tmpl) throws IOException { // TODO IOException
@@ -91,7 +98,13 @@ public class MessagePack {
     }
 
     public void write(OutputStream out, Object v) throws IOException {
-        write(out, v, registry.lookup(v.getClass()));
+        Packer pk = createPacker(out);
+        if(v == null) {
+            pk.writeNil();
+        } else {
+            Template tmpl = registry.lookup(v.getClass());
+            tmpl.write(pk, v);
+        }
     }
 
     public <T> void write(OutputStream out, T v, Template<T> tmpl) throws IOException {
@@ -168,9 +181,13 @@ public class MessagePack {
     }
 
     public <T> Value unconvert(T v) throws IOException {
-        Template<T> tmpl = registry.lookup(v.getClass());
         Unconverter pk = new Unconverter(this);
-        tmpl.write(pk, v);
+        if(v == null) {
+            pk.writeNil();
+        } else {
+            Template<T> tmpl = registry.lookup(v.getClass());
+            tmpl.write(pk, v);
+        }
         return pk.getResult();
     }
 
