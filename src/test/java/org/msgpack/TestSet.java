@@ -25,7 +25,7 @@ public class TestSet {
     }
 
     public void testBooleanArray() throws Exception {
-	testBooleanArray(null); 
+	testBooleanArray(null);
 	testBooleanArray(new boolean[0]);
 	testBooleanArray(new boolean[] { true });
 	testBooleanArray(new boolean[] { false });
@@ -278,7 +278,7 @@ public class TestSet {
     }
 
     public void testString() throws Exception {
-	// TODO testString(null); // #MN considering next version 
+	// TODO testString(null); // #MN considering next version
 	testString("");
 	testString("a");
 	testString("ab");
@@ -434,6 +434,18 @@ public class TestSet {
     }
 
     public void testDate(Date v) throws Exception {
+    }
+
+    public void testCharacter() throws Exception {
+        testCharacter(null);
+        testCharacter('a');
+        testCharacter('あ');
+        testCharacter((char) 1);
+        testCharacter(Character.MIN_VALUE);
+        testCharacter(Character.MAX_VALUE);
+    }
+
+    public void testCharacter(Character v) throws Exception {
     }
 
 }
