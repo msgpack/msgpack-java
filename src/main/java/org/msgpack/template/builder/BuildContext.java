@@ -57,14 +57,14 @@ public abstract class BuildContext<T extends FieldEntry> {
     protected Template build(final String className) {
 	try {
 	    reset(className, false);
-	    LOG.debug("started generating template class %s for original class %s", 
+	    LOG.debug("started generating template class %s for original class %s",
 		    new Object[] { tmplCtClass.getName(), className });
 	    buildClass();
 	    buildConstructor();
 	    buildMethodInit();
 	    buildWriteMethod();
 	    buildReadMethod();
-	    LOG.debug("finished generating template class %s for original class %s", 
+	    LOG.debug("finished generating template class %s for original class %s",
 		    new Object[] { tmplCtClass.getName(), className });
 	    return buildInstance(createClass());
 	} catch (Exception e) {
@@ -113,7 +113,7 @@ public abstract class BuildContext<T extends FieldEntry> {
 		director.getCtClass(Object.class.getName()),
                 CtClass.booleanType
 	};
-	CtClass[] exceptTypes = new CtClass[] { 
+	CtClass[] exceptTypes = new CtClass[] {
 		director.getCtClass(IOException.class.getName())
 	};
 	LOG.debug("compiling write method body: %s", new Object[] { mbody });
@@ -195,6 +195,8 @@ public abstract class BuildContext<T extends FieldEntry> {
 	    return "writeFloat";
 	} else if (type == double.class) {
 	    return "writeDouble";
+	} else if (type == char.class) {
+	    return "writeInt";
 	}
 	return null;
     }
@@ -214,6 +216,8 @@ public abstract class BuildContext<T extends FieldEntry> {
 	    return "readFloat";
 	} else if (type == double.class) {
 	    return "readDouble";
+	} else if (type == char.class) {
+	    return "readInt";
 	}
 	return null;
     }
