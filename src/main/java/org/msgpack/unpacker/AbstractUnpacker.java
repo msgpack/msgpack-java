@@ -50,11 +50,6 @@ public abstract class AbstractUnpacker implements Unpacker {
     }
 
 
-    public String readString() throws IOException {
-        // TODO encoding exception
-        return new String(readByteArray(), "UTF-8");
-    }
-
     public UnpackerIterator iterator() {
         return new UnpackerIterator(this);
     }

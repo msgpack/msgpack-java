@@ -22,6 +22,11 @@ import java.io.UnsupportedEncodingException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.MalformedInputException;
 import org.msgpack.io.Output;
 import org.msgpack.io.StreamOutput;
 import org.msgpack.MessagePack;
@@ -30,6 +35,7 @@ import org.msgpack.MessageTypeException;
 
 public class MessagePackPacker extends AbstractPacker {
     protected final Output out;
+    protected CharsetEncoder encoder;
 
     private PackerStack stack = new PackerStack();
 
@@ -43,6 +49,9 @@ public class MessagePackPacker extends AbstractPacker {
 
     protected MessagePackPacker(MessagePack msgpack, Output out) {
         super(msgpack);
+        this.encoder = Charset.forName("UTF-8").newEncoder().
+            onMalformedInput(CodingErrorAction.REPORT).
+            onUnmappableCharacter(CodingErrorAction.REPORT);
         this.out = out;
     }
 
@@ -235,12 +244,12 @@ public class MessagePackPacker extends AbstractPacker {
 
     @Override
     public void writeString(String s) throws IOException {
-        // TODO encoding error
         byte[] b;
         try {
+            // TODO encoding error?
             b = s.getBytes("UTF-8");
         } catch (UnsupportedEncodingException ex) {
-            throw new MessageTypeException();
+            throw new MessageTypeException(ex);
         }
         writeByteArray(b, 0, b.length);
         stack.reduceCount();

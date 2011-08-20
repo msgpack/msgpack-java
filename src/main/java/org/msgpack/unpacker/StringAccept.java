@@ -24,6 +24,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.MalformedInputException;
+import org.msgpack.MessageTypeException;
 
 
 final class StringAccept extends Accept {
@@ -38,8 +39,11 @@ final class StringAccept extends Accept {
 
     @Override
     void acceptRaw(byte[] raw) {
-        // TODO encoding error
-        this.value = new String(raw);
+        try {
+            this.value = decoder.decode(ByteBuffer.wrap(raw)).toString();
+        } catch (CharacterCodingException ex) {
+            throw new MessageTypeException(ex);
+        }
     }
 
     @Override
@@ -49,8 +53,11 @@ final class StringAccept extends Accept {
 
     @Override
     public void refer(ByteBuffer bb, boolean gift) throws IOException {
-        // TODO encoding error
-        this.value = decoder.decode(bb).toString();
+        try {
+            this.value = decoder.decode(bb).toString();
+        } catch (CharacterCodingException ex) {
+            throw new MessageTypeException(ex);
+        }
     }
 }
 

@@ -20,6 +20,12 @@ package org.msgpack.type;
 import java.util.Arrays;
 import java.io.UnsupportedEncodingException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.MalformedInputException;
 import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
 
@@ -52,11 +58,13 @@ class ByteArrayRawValueImpl extends AbstractRawValue {
     }
 
     public String getString() {
-        // TODO encoding error
+        CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder().
+            onMalformedInput(CodingErrorAction.REPORT).
+            onUnmappableCharacter(CodingErrorAction.REPORT);
         try {
-            return new String(bytes, "UTF-8");
-        } catch (UnsupportedEncodingException ex) {
-            throw new MessageTypeException();
+            return decoder.decode(ByteBuffer.wrap(bytes)).toString();
+        } catch (CharacterCodingException ex) {
+            throw new MessageTypeException(ex);
         }
     }
 
