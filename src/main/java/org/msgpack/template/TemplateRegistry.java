@@ -244,7 +244,7 @@ public class TemplateRegistry {
 		try {
 		    tmpl = parent.cache.get(infType);
 		    if (tmpl != null) {
-			parent.register(targetClass, tmpl);
+			register(targetClass, tmpl);
 			return tmpl;
 		    }
 		} catch (NullPointerException e) { // ignore
