@@ -25,7 +25,7 @@ public class TestOrdinalEnumPackUnpack extends TestSet {
     @Override
     public void testEnumTypeFieldsClass(EnumTypeFieldsClass v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	registry.register(EnumTypeFieldsClass.SampleEnum.class,
 		new OrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClass.SampleEnum.class));
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
@@ -47,7 +47,7 @@ public class TestOrdinalEnumPackUnpack extends TestSet {
     @Override
     public void testEnumTypeFieldsClassNotNullable(EnumTypeFieldsClassNotNullable v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	registry.register(EnumTypeFieldsClassNotNullable.SampleEnum.class,
 		new OrdinalEnumTemplateBuilder(registry).buildTemplate(EnumTypeFieldsClassNotNullable.SampleEnum.class));
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);

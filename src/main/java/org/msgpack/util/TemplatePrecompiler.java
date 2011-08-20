@@ -55,7 +55,7 @@ public class TemplatePrecompiler {
 
     public static void saveTemplates(final String[] classNames) throws IOException, ClassNotFoundException {
 	// TODO #MN
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	List<String> ret = new ArrayList<String>();
 	for (String className : classNames) {
 	    matchClassNames(ret, className);

@@ -45,7 +45,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testPrimitiveTypeFieldsClass(PrimitiveTypeFieldsClass v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<PrimitiveTypeFieldsClass> tmpl = builder.buildTemplate(PrimitiveTypeFieldsClass.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -64,7 +64,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testPrimitiveTypeFieldsClassNotNullable(PrimitiveTypeFieldsClassNotNullable v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<PrimitiveTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(PrimitiveTypeFieldsClassNotNullable.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -83,7 +83,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testReferenceTypeFieldsClass(ReferenceTypeFieldsClass v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<ReferenceTypeFieldsClass> tmpl = builder.buildTemplate(ReferenceTypeFieldsClass.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -102,7 +102,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testReferenceTypeFieldsClassNotNullable(ReferenceTypeFieldsClassNotNullable v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<ReferenceTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(ReferenceTypeFieldsClassNotNullable.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -121,7 +121,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testListTypeFieldsClass(ListTypeFieldsClass v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<ListTypeFieldsClass> tmpl = builder.buildTemplate(ListTypeFieldsClass.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -140,7 +140,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testListTypeFieldsClassNotNullable(ListTypeFieldsClassNotNullable v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<ListTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(ListTypeFieldsClassNotNullable.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -159,7 +159,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testMapTypeFieldsClass(MapTypeFieldsClass v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<MapTypeFieldsClass> tmpl = builder.buildTemplate(MapTypeFieldsClass.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -178,7 +178,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testMapTypeFieldsClassNotNullable(MapTypeFieldsClassNotNullable v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<MapTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(MapTypeFieldsClassNotNullable.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -197,7 +197,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testFinalClass(FinalClass v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<FinalClass> tmpl = builder.buildTemplate(FinalClass.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -210,7 +210,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
 
     @Test @Override
     public void testAbstractClass() throws Exception {
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	try {
 	    builder.buildTemplate(AbstractClass.class);
@@ -221,7 +221,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
 
     @Test @Override
     public void testInterface() throws Exception {
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	try {
 	    builder.buildTemplate(Interface.class);
@@ -239,7 +239,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testModifiersFieldsClass(ModifiersFieldsClass v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<ModifiersFieldsClass> tmpl = builder.buildTemplate(ModifiersFieldsClass.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -258,7 +258,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testModifiersFieldsClassNotNullable(ModifiersFieldsClassNotNullable v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<ModifiersFieldsClassNotNullable> tmpl = builder.buildTemplate(ModifiersFieldsClassNotNullable.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -277,7 +277,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testUserDefinedTypeFieldsClass(UserDefinedTypeFieldsClass v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<UserDefinedTypeFieldsClass> tmpl = builder.buildTemplate(UserDefinedTypeFieldsClass.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -296,7 +296,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testUserDefinedTypeFieldsClassNotNullable(UserDefinedTypeFieldsClassNotNullable v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<UserDefinedTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(UserDefinedTypeFieldsClassNotNullable.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -315,7 +315,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testReferenceCycleTypeFieldsClass(ReferenceCycleTypeFieldsClass v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<ReferenceCycleTypeFieldsClass> tmpl = builder.buildTemplate(ReferenceCycleTypeFieldsClass.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -334,7 +334,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testReferenceCycleTypeFieldsClassNotNullable(ReferenceCycleTypeFieldsClassNotNullable v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<ReferenceCycleTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(ReferenceCycleTypeFieldsClassNotNullable.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -353,7 +353,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testInheritanceClass(InheritanceClass v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<InheritanceClass> tmpl = builder.buildTemplate(InheritanceClass.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -372,7 +372,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testInheritanceClassNotNullable(InheritanceClassNotNullable v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<InheritanceClassNotNullable> tmpl = builder.buildTemplate(InheritanceClassNotNullable.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -391,7 +391,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testMessagePackableTypeFieldsClass(MessagePackableTypeFieldsClass v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<MessagePackableTypeFieldsClass> tmpl = builder.buildTemplate(MessagePackableTypeFieldsClass.class);
 	BufferPacker packer = msgpack.createBufferPacker();
@@ -410,7 +410,7 @@ public class TestReflectionBufferPackUnpack extends TestSet {
     @Override
     public void testMessagePackableTypeFieldsClassNotNullable(MessagePackableTypeFieldsClassNotNullable v) throws Exception {
 	MessagePack msgpack = new MessagePack();
-	TemplateRegistry registry = new TemplateRegistry();
+	TemplateRegistry registry = new TemplateRegistry(null);
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	Template<MessagePackableTypeFieldsClassNotNullable> tmpl = builder.buildTemplate(MessagePackableTypeFieldsClassNotNullable.class);
 	BufferPacker packer = msgpack.createBufferPacker();

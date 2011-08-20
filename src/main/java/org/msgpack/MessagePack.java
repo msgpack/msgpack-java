@@ -40,7 +40,7 @@ public class MessagePack {
     private TemplateRegistry registry;
 
     public MessagePack() {
-        registry = new TemplateRegistry();
+        registry = new TemplateRegistry(null);
     }
 
     public MessagePack(MessagePack msgpack) {
