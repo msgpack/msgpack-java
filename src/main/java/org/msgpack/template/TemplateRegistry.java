@@ -160,10 +160,6 @@ public class TemplateRegistry {
 	return lookupImpl(targetType);
     }
 
-    public Template tryLookup(Type targetType) {
-	return lookupImpl(targetType);
-    }
-
     private synchronized Template lookupImpl(Type targetType) {
 	Template tmpl;
 
