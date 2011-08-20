@@ -191,7 +191,7 @@ public class TemplateRegistry {
 	    return tmpl;
 	}
 
-	// find matched template builder
+	// find matched template builder and build template
 	tmpl = lookupWithTemplateBuilderImpl(targetClass);
 	if (tmpl != null) {
 	    return tmpl;
@@ -214,7 +214,7 @@ public class TemplateRegistry {
     }
 
     private Template lookupGenericImpl(Type targetType) {
-	Template tmpl = null;
+	Template tmpl;
 	if (targetType instanceof ParameterizedType) {
 	    ParameterizedType pType = (ParameterizedType) targetType;
 	    // ParameterizedType is not a Class<?>?
@@ -231,7 +231,7 @@ public class TemplateRegistry {
 	    }
 	    targetType = pType.getRawType();
 	}
-	return tmpl;
+	return null;
     }
 
     private Template lookupGenericImpl0(final ParameterizedType targetType) {
@@ -256,6 +256,7 @@ public class TemplateRegistry {
 	if (tmpl != null) {
 	    return tmpl;
 	}
+
 	try {
 	    tmpl = parent.lookupCacheImpl(targetType);
 	    if (tmpl != null) {
@@ -263,12 +264,13 @@ public class TemplateRegistry {
 	    }
 	} catch (NullPointerException e) { // ignore
 	}
-	return tmpl;
+	return null;
     }
 
     private Template lookupWithTemplateBuilderImpl(Class<?> targetClass) {
 	TemplateBuilder builder = chain.select(targetClass, true);
-	Template tmpl = null;
+
+	Template tmpl;
 	if (builder != null) {
 	    tmpl = builder.loadTemplate(targetClass);
 	    if (tmpl != null) {
@@ -281,12 +283,12 @@ public class TemplateRegistry {
 		return tmpl;
 	    }
 	}
-	return tmpl;
+	return null;
     }
 
     private Template lookupInterfacesImpl(Class<?> targetClass) {
 	Class<?>[] infTypes = targetClass.getInterfaces();
-	Template tmpl = null;
+	Template tmpl;
 	for (Class<?> infType : infTypes) {
 	    tmpl = cache.get(infType);
 	    if (tmpl != null) {
@@ -303,7 +305,7 @@ public class TemplateRegistry {
 		}
 	    }
 	}
-	return tmpl;
+	return null;
     }
 
     private Template lookupSuperclassesImpl(Class<?> targetClass) {
