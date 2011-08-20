@@ -35,27 +35,32 @@ public abstract class AbstractUnpacker implements Unpacker {
 	this.msgpack = msgpack;
     }
 
+    @Override
     public ByteBuffer readByteBuffer() throws IOException {
         return ByteBuffer.wrap(readByteArray());
     }
 
 
+    @Override
     public void readArrayEnd() throws IOException {
         readArrayEnd(false);
     }
 
 
+    @Override
     public void readMapEnd() throws IOException {
         readMapEnd(false);
     }
 
 
+    @Override
     public UnpackerIterator iterator() {
         return new UnpackerIterator(this);
     }
 
     protected abstract void readValue(Unconverter uc) throws IOException;
 
+    @Override
     public Value readValue() throws IOException {
         Unconverter uc = new Unconverter(msgpack);
         readValue(uc);
@@ -63,17 +68,20 @@ public abstract class AbstractUnpacker implements Unpacker {
     }
 
 
+    @Override
     public <T> T read(Class<T> klass) throws IOException {
         Template<? super T> tmpl = msgpack.lookup(klass);
         return (T) tmpl.read(this, null);
     }
 
+    @Override
     public <T> T read(T to) throws IOException {
         Template<? super T> tmpl = msgpack.lookup((Class<T>) to.getClass());
         return (T) tmpl.read(this, to);
     }
 
 
+    @Override
     public void close() throws IOException {
     }
 }

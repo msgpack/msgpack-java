@@ -30,19 +30,23 @@ public abstract class AbstractPacker implements Packer {
 	this.msgpack = msgpack;
     }
 
+    @Override
     public void writeByteArray(byte[] b) throws IOException {
         writeByteArray(b, 0, b.length);
     }
 
 
+    @Override
     public void writeArrayEnd() throws IOException {
         writeArrayEnd(true);
     }
 
+    @Override
     public void writeMapEnd() throws IOException {
         writeMapEnd(true);
     }
 
+    @Override
     public Packer write(Object o) throws IOException {
         if(o == null) {
             writeNil();
@@ -53,6 +57,7 @@ public abstract class AbstractPacker implements Packer {
         return this;
     }
 
+    @Override
     public Packer write(Value v) throws IOException {
         if(v == null) {
             writeNil();
@@ -63,6 +68,7 @@ public abstract class AbstractPacker implements Packer {
     }
 
 
+    @Override
     public void close() throws IOException {
     }
 

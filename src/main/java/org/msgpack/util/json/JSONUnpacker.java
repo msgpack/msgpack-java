@@ -35,13 +35,14 @@ import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.unpacker.Converter;
+import org.msgpack.unpacker.AbstractIndirectUnpacker;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
 
 
-public class JSONUnpacker extends Converter {
+public class JSONUnpacker extends AbstractIndirectUnpacker {
     protected Reader in;
-    protected JSONParser parser;
+    private JSONParser parser;
 
     public JSONUnpacker(InputStream in) {
         this(new MessagePack(), in);
@@ -52,14 +53,13 @@ public class JSONUnpacker extends Converter {
     }
 
     JSONUnpacker(MessagePack msgpack, Reader in) {
-        super(msgpack, null);
+        super(msgpack);
         this.in = in;
         this.parser = new JSONParser();
     }
 
     @Override
-    // FIXME throws IOException?
-    protected Value nextValue() {
+    protected Value nextValue() throws IOException {
         try {
             Object obj = parser.parse(in);
             return objectToValue(obj);
@@ -111,6 +111,7 @@ public class JSONUnpacker extends Converter {
 
     public void close() throws IOException {
         in.close();
+        super.close();
     }
 }
 

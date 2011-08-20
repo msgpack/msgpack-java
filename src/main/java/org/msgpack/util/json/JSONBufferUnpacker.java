@@ -46,54 +46,59 @@ public class JSONBufferUnpacker extends JSONUnpacker implements BufferUnpacker {
     }
 
     public JSONBufferUnpacker(MessagePack msgpack, int bufferSize) {
-        super(msgpack, (Reader)null);
+        super(msgpack, new InputStreamReader(new ByteArrayInputStream(new byte[0])));
     }
 
     @Override
-    protected Value nextValue() {
-        if(in == null) {
-            // FIXME exception
-            throw new MessageTypeException(new EOFException());
-        }
-        return super.nextValue();
-    }
-
     public JSONBufferUnpacker wrap(byte[] b) {
         return wrap(b, 0, b.length);
     }
 
+    @Override
     public JSONBufferUnpacker wrap(byte[] b, int off, int len) {
         ByteArrayInputStream in = new ByteArrayInputStream(b, off, len);
         this.in = new InputStreamReader(in);
         return this;
     }
 
+    @Override
     public JSONBufferUnpacker wrap(ByteBuffer buf) {
         throw new UnsupportedOperationException("JSONBufferUnpacker doesn't support wrap(ByteBuffer buf)");
     }
 
+    @Override
     public JSONBufferUnpacker feed(byte[] b) {
         throw new UnsupportedOperationException("JSONBufferUnpacker doesn't support feed()");
     }
 
+    @Override
     public JSONBufferUnpacker feed(byte[] b, boolean nocopy) {
         throw new UnsupportedOperationException("JSONBufferUnpacker doesn't support feed()");
     }
 
+    @Override
     public JSONBufferUnpacker feed(byte[] b, int off, int len) {
         throw new UnsupportedOperationException("JSONBufferUnpacker doesn't support feed()");
     }
 
+    @Override
     public JSONBufferUnpacker feed(byte[] b, int off, int len, boolean nocopy) {
         throw new UnsupportedOperationException("JSONBufferUnpacker doesn't support feed()");
     }
 
+    @Override
     public JSONBufferUnpacker feed(ByteBuffer buf) {
         throw new UnsupportedOperationException("JSONBufferUnpacker doesn't support feed()");
     }
 
+    @Override
     public JSONBufferUnpacker feed(ByteBuffer buf, boolean nocopy) {
         throw new UnsupportedOperationException("JSONBufferUnpacker doesn't support feed()");
+    }
+
+    @Override
+    public void reset() {
+        converter.reset();
     }
 }
 

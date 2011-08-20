@@ -96,6 +96,11 @@ public class Unconverter extends AbstractPacker {
     }
 
     @Override
+    public void writeByteArray(byte[] b) {
+        writeByteArray(b, 0, b.length);
+    }
+
+    @Override
     public void writeByteArray(byte[] b, int off, int len) {
         put(ValueFactory.rawValue(b, off, len));
     }
@@ -123,6 +128,11 @@ public class Unconverter extends AbstractPacker {
             stack.pushArray(size);
             values[stack.getDepth()] = array;
         }
+    }
+
+    @Override
+    public void writeArrayEnd() {
+        writeArrayEnd(true);
     }
 
     @Override
@@ -159,6 +169,11 @@ public class Unconverter extends AbstractPacker {
             stack.pushMap(size);
             values[stack.getDepth()] = array;
         }
+    }
+
+    @Override
+    public void writeMapEnd() {
+        writeMapEnd(true);
     }
 
     @Override
@@ -208,6 +223,10 @@ public class Unconverter extends AbstractPacker {
             array[array.length - stack.getTopCount()] = v;
             stack.reduceCount();
         }
+    }
+
+    @Override
+    public void close() {
     }
 }
 

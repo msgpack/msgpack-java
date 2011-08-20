@@ -19,6 +19,7 @@ package org.msgpack.unpacker;
 
 import java.io.EOFException;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
@@ -41,6 +42,14 @@ public class Converter extends AbstractUnpacker {
         super(msgpack);
         this.stack = new UnpackerStack();
         this.values = new Object[UnpackerStack.MAX_STACK_SIZE];
+        this.value = value;
+    }
+
+    Value getSourceValue() {
+        return value;
+    }
+
+    void getSourceValue(Value value) {
         this.value = value;
     }
 
@@ -177,6 +186,11 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
+    public ByteBuffer readByteBuffer() {
+        return ByteBuffer.wrap(readByteArray());
+    }
+
+    @Override
     public byte[] readByteArray() {
         byte[] raw = getTop().asRawValue().getByteArray();
         stack.reduceCount();
@@ -207,6 +221,11 @@ public class Converter extends AbstractUnpacker {
         stack.pushArray(a.size());
         values[stack.getDepth()] = a.getElementArray();
         return a.size();
+    }
+
+    @Override
+    public void readArrayEnd() {
+        readArrayEnd(false);
     }
 
     @Override
@@ -245,6 +264,11 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
+    public void readMapEnd() {
+        readMapEnd(false);
+    }
+
+    @Override
     public void readMapEnd(boolean check) {
         if(!stack.topIsMap()) {
             throw new MessageTypeException("readMapEnd() is called but readMapBegin() is not called");
@@ -279,6 +303,22 @@ public class Converter extends AbstractUnpacker {
         }
         Value[] array = (Value[]) values[stack.getDepth()];
         return array[array.length - stack.getTopCount()];
+    }
+
+    @Override
+    public Value readValue() {
+        if(stack.getDepth() == 0) {
+            if(value == null) {
+                return nextValue();
+            } else {
+                Value v = value;
+                value = null;
+                return v;
+            }
+        }
+        Unconverter uc = new Unconverter(msgpack);
+        readValue(uc);
+        return uc.getResult();
     }
 
     @Override
@@ -383,6 +423,10 @@ public class Converter extends AbstractUnpacker {
                 stack.reduceCount();
             }
         }
+    }
+
+    @Override
+    public void close() {
     }
 
     public void reset() {
