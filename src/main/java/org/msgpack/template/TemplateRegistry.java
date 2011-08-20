@@ -157,26 +157,22 @@ public class TemplateRegistry {
     }
 
     public Template lookup(Type targetType) {
-	return lookupImpl(targetType, true, false);
+	return lookupImpl(targetType, false);
     }
 
     public Template lookup(Type targetType, final boolean forceBuild) {
-	return lookupImpl(targetType, true, forceBuild);
-    }
-
-    public Template lookup(Type targetType, final boolean forceLoad, final boolean forceBuild) {
-	return lookupImpl(targetType, forceLoad, forceBuild);
+	return lookupImpl(targetType, forceBuild);
     }
 
     public Template tryLookup(Type targetType) {
-	return lookupImpl(targetType, true, false);
+	return lookupImpl(targetType, false);
     }
 
     public Template tryLookup(Type targetType, final boolean forceBuild) {
-	return lookupImpl(targetType, true, forceBuild);
+	return lookupImpl(targetType, forceBuild);
     }
 
-    private synchronized Template lookupImpl(Type targetType, final boolean forceLoad, final boolean forceBuild) {
+    private synchronized Template lookupImpl(Type targetType, final boolean forceBuild) {
 	Template tmpl;
 
 	if (targetType instanceof ParameterizedType) {
@@ -219,12 +215,10 @@ public class TemplateRegistry {
 	// find matched template builder
 	TemplateBuilder builder = chain.select(targetClass, true);
 	if (builder != null) {
-	    if (forceLoad) {
-		tmpl = builder.loadTemplate(targetClass);
-		if (tmpl != null) {
-		    register(targetClass, tmpl);
-		    return tmpl;
-		}
+	    tmpl = builder.loadTemplate(targetClass);
+	    if (tmpl != null) {
+		register(targetClass, tmpl);
+		return tmpl;
 	    }
 
 	    tmpl = buildAndRegister(builder, targetClass, true, null);
