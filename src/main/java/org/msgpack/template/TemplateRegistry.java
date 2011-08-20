@@ -157,22 +157,14 @@ public class TemplateRegistry {
     }
 
     public Template lookup(Type targetType) {
-	return lookupImpl(targetType, false);
-    }
-
-    public Template lookup(Type targetType, final boolean forceBuild) {
-	return lookupImpl(targetType, forceBuild);
+	return lookupImpl(targetType);
     }
 
     public Template tryLookup(Type targetType) {
-	return lookupImpl(targetType, false);
+	return lookupImpl(targetType);
     }
 
-    public Template tryLookup(Type targetType, final boolean forceBuild) {
-	return lookupImpl(targetType, forceBuild);
-    }
-
-    private synchronized Template lookupImpl(Type targetType, final boolean forceBuild) {
+    private synchronized Template lookupImpl(Type targetType) {
 	Template tmpl;
 
 	if (targetType instanceof ParameterizedType) {
@@ -265,11 +257,6 @@ public class TemplateRegistry {
 		    }
 		}
 	    }
-	}
-
-	// if targetClass does not have annotations
-	if (forceBuild) {
-	    buildAndRegister(null, targetClass, !forceBuild, null);
 	}
 
 	throw new MessageTypeException(

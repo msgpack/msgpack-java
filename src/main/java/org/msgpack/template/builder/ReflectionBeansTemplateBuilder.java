@@ -99,7 +99,7 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
 	    if (type.isPrimitive()) {
 		tmpls[i] = new ReflectionBeansFieldTemplate(e);
 	    } else {
-		Template tmpl = registry.lookup(e.getGenericType(), false);
+		Template tmpl = registry.lookup(e.getGenericType());
 		tmpls[i] = new FieldTemplateImpl(e, tmpl);
 	    }
 	}

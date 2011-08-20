@@ -123,7 +123,7 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
 	    if(!e.isAvailable()) {
 		tmpls[i] = null;
 	    } else {
-		Template<?> tmpl = registry.lookup(e.getGenericType(), false);
+		Template<?> tmpl = registry.lookup(e.getGenericType());
 		tmpls[i] = tmpl;
 	    }
 	}
