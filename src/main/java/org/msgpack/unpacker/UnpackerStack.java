@@ -21,12 +21,13 @@ import org.msgpack.MessageTypeException;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
 
-final class UnpackerStack {
+public final class UnpackerStack {
     private int top;
     private byte[] types;
     private int[] counts;
 
-    static final int MAX_STACK_SIZE = 128;
+    public static final int MAX_STACK_SIZE = 128;
+
     private static final byte TYPE_INVALID = 0;
     private static final byte TYPE_ARRAY = 1;
     private static final byte TYPE_MAP = 2;

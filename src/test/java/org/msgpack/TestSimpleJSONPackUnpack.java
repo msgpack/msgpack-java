@@ -15,10 +15,11 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.msgpack.MessagePack;
-import org.msgpack.packer.JSONBufferPacker;
-import org.msgpack.unpacker.JSONBufferUnpacker;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
+import org.msgpack.util.json.JSON;
+import org.msgpack.util.json.JSONBufferPacker;
+import org.msgpack.util.json.JSONBufferUnpacker;
 
 import org.junit.Test;
 

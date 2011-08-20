@@ -15,7 +15,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.unpacker;
+package org.msgpack.util.json;
 
 import java.io.IOException;
 import java.io.EOFException;
@@ -33,6 +33,8 @@ import org.json.simple.parser.ParseException;
 //import org.msgpack.io.StreamInput;
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
+import org.msgpack.unpacker.Unpacker;
+import org.msgpack.unpacker.Converter;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
 

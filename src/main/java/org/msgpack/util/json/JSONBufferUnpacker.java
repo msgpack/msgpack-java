@@ -15,7 +15,7 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.unpacker;
+package org.msgpack.util.json;
 
 import java.io.IOException;
 import java.io.EOFException;
@@ -26,6 +26,8 @@ import java.nio.ByteBuffer;
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 import org.msgpack.type.Value;
+import org.msgpack.unpacker.Unpacker;
+import org.msgpack.unpacker.BufferUnpacker;
 
 
 public class JSONBufferUnpacker extends JSONUnpacker implements BufferUnpacker {

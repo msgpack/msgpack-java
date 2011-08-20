@@ -22,6 +22,7 @@ import org.msgpack.packer.Unconverter;
 import org.msgpack.unpacker.Converter;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
+import org.msgpack.util.json.JSON;
 
 
 public class TestValueToStringJSONUnpack extends TestSet {

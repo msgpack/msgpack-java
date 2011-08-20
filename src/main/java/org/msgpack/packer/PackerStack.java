@@ -19,12 +19,13 @@ package org.msgpack.packer;
 
 import org.msgpack.MessageTypeException;
 
-final class PackerStack {
+public final class PackerStack {
     private int top;
     private byte[] types;
     private int[] counts;
 
-    static final int MAX_STACK_SIZE = 128;
+    public static final int MAX_STACK_SIZE = 128;
+
     private static final byte TYPE_INVALID = 0;
     private static final byte TYPE_ARRAY = 1;
     private static final byte TYPE_MAP = 2;

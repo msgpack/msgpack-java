@@ -15,19 +15,17 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack;
+package org.msgpack.util.json;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import org.msgpack.MessagePack;
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.packer.BufferPacker;
-import org.msgpack.packer.JSONPacker;
-import org.msgpack.packer.JSONBufferPacker;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.unpacker.BufferUnpacker;
-import org.msgpack.unpacker.JSONUnpacker;
-import org.msgpack.unpacker.JSONBufferUnpacker;
 
 
 public class JSON extends MessagePack {

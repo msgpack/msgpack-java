@@ -17,17 +17,17 @@ import java.nio.charset.CharacterCodingException;
 
 import org.junit.Test;
 import org.msgpack.MessagePack;
-import org.msgpack.JSON;
 import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.packer.BufferPacker;
-import org.msgpack.packer.JSONPacker;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.unpacker.BufferUnpacker;
 import org.msgpack.unpacker.Converter;
 import org.msgpack.type.Value;
 import org.msgpack.type.RawValue;
 import org.msgpack.type.ValueFactory;
+import org.msgpack.util.json.JSON;
+import org.msgpack.util.json.JSONPacker;
 
 public class TestMalformedEncoding {
     private byte[][] malforms = new byte[][] {

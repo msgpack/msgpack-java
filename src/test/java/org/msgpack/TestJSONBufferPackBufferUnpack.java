@@ -17,6 +17,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.unpacker.Unpacker;
+import org.msgpack.util.json.JSON;
 
 
 public class TestJSONBufferPackBufferUnpack extends TestSet {
