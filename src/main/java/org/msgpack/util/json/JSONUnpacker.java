@@ -62,10 +62,10 @@ public class JSONUnpacker extends Converter {
         try {
             Object obj = parser.parse(in);
             return objectToValue(obj);
-        } catch (ParseException e) { // FIXME exception
-            throw new MessageTypeException(e);
-        } catch (IOException e) { // FIXME exception
-            throw new MessageTypeException(e);
+        } catch (ParseException e) {
+            throw new IOException(e);  // TODO error FormatException
+        } catch (IOException e) {
+            throw new IOException(e);  // TODO error FormatException
         }
     }
 
