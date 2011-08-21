@@ -126,5 +126,15 @@ public class TestMalformedEncoding {
             }
         }
     }
+
+    @Test
+    public void testValueToString() throws Exception {
+        for(byte[] malform : malforms) {
+            RawValue r = ValueFactory.rawValue(malform);
+            String str = r.toString();
+            // malformed bytes will be ignored
+            assertEquals("\"\"", str);
+        }
+    }
 }
 

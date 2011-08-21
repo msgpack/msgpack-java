@@ -18,6 +18,12 @@
 package org.msgpack.type;
 
 import java.util.Arrays;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.MalformedInputException;
 
 abstract class AbstractRawValue extends AbstractValue implements RawValue {
     public ValueType getType() {
@@ -56,7 +62,24 @@ abstract class AbstractRawValue extends AbstractValue implements RawValue {
     }
 
     public StringBuilder toString(StringBuilder sb) {
-        String s = getString();
+        String s;
+        if(getClass() == StringRawValueImpl.class) {
+            // StringRawValueImpl.getString never throws exception
+            s = getString();
+        } else {
+            // don't throw encoding error exception
+            // ignore malformed bytes
+            CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder().
+                onMalformedInput(CodingErrorAction.IGNORE).
+                onUnmappableCharacter(CodingErrorAction.IGNORE);
+            try {
+                s = decoder.decode(ByteBuffer.wrap(getByteArray())).toString();
+            } catch (CharacterCodingException ex) {
+                // never comes here
+                s = new String(getByteArray());
+            }
+        }
+
         sb.append("\"");
         for(int i=0; i < s.length(); i++) {
             char ch = s.charAt(i);
@@ -102,6 +125,7 @@ abstract class AbstractRawValue extends AbstractValue implements RawValue {
             }
         }
         sb.append("\"");
+
         return sb;
     }
 
