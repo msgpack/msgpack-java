@@ -89,5 +89,9 @@ public final class PackerStack {
     public boolean topIsMap() {
         return types[top] == TYPE_MAP;
     }
+
+    public void clear() {
+        top = 0;
+    }
 }
 

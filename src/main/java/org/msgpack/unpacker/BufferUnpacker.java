@@ -42,6 +42,6 @@ public interface BufferUnpacker extends Unpacker {
 
     public BufferUnpacker feed(ByteBuffer buf, boolean nocopy);
 
-    public void reset();
+    public void clear();
 }
 

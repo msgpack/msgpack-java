@@ -321,6 +321,10 @@ public class MessagePackPacker extends AbstractPacker {
         stack.pop();
     }
 
+    public void reset() {
+        stack.clear();
+    }
+
     public void close() throws IOException {
         out.close();
     }

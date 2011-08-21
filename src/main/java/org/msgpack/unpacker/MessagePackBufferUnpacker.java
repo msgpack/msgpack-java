@@ -42,50 +42,65 @@ public class MessagePackBufferUnpacker extends MessagePackUnpacker implements Bu
 	super(msgpack, new LinkedBufferInput(bufferSize));
     }
 
+    @Override
     public MessagePackBufferUnpacker wrap(byte[] b) {
         return wrap(b, 0, b.length);
     }
 
+    @Override
     public MessagePackBufferUnpacker wrap(byte[] b, int off, int len) {
         ((LinkedBufferInput) in).clear();
         ((LinkedBufferInput) in).feed(b, off, len, true);
         return this;
     }
 
+    @Override
     public MessagePackBufferUnpacker wrap(ByteBuffer buf) {
         ((LinkedBufferInput) in).clear();
         ((LinkedBufferInput) in).feed(buf, true);
         return this;
     }
 
+    @Override
     public MessagePackBufferUnpacker feed(byte[] b) {
         ((LinkedBufferInput) in).feed(b);
         return this;
     }
 
+    @Override
     public MessagePackBufferUnpacker feed(byte[] b, boolean nocopy) {
         ((LinkedBufferInput) in).feed(b, nocopy);
         return this;
     }
 
+    @Override
     public MessagePackBufferUnpacker feed(byte[] b, int off, int len) {
         ((LinkedBufferInput) in).feed(b, off, len);
         return this;
     }
 
+    @Override
     public MessagePackBufferUnpacker feed(byte[] b, int off, int len, boolean nocopy) {
         ((LinkedBufferInput) in).feed(b, off, len, nocopy);
         return this;
     }
 
+    @Override
     public MessagePackBufferUnpacker feed(ByteBuffer b) {
         ((LinkedBufferInput) in).feed(b);
         return this;
     }
 
+    @Override
     public MessagePackBufferUnpacker feed(ByteBuffer buf, boolean nocopy) {
         ((LinkedBufferInput) in).feed(buf, nocopy);
         return this;
+    }
+
+    @Override
+    public void clear() {
+        ((LinkedBufferInput) in).clear();
+        reset();
     }
 }
 

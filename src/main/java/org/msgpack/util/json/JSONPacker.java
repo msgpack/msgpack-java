@@ -79,12 +79,14 @@ public class JSONPacker extends AbstractPacker {
             onUnmappableCharacter(CodingErrorAction.REPORT);
     }
 
+    @Override
     public void writeNil() throws IOException {
         beginElement();
         out.write(NULL, 0, NULL.length);
         endElement();
     }
 
+    @Override
     public void writeBoolean(boolean v) throws IOException {
         beginElement();
         if(v) {
@@ -95,6 +97,7 @@ public class JSONPacker extends AbstractPacker {
         endElement();
     }
 
+    @Override
     public void writeByte(byte v) throws IOException {
         beginElement();
         byte[] b = Byte.toString(v).getBytes();  // TODO optimize
@@ -102,6 +105,7 @@ public class JSONPacker extends AbstractPacker {
         endElement();
     }
 
+    @Override
     public void writeShort(short v) throws IOException {
         beginElement();
         byte[] b = Short.toString(v).getBytes();  // TODO optimize
@@ -109,6 +113,7 @@ public class JSONPacker extends AbstractPacker {
         endElement();
     }
 
+    @Override
     public void writeInt(int v) throws IOException {
         beginElement();
         byte[] b = Integer.toString(v).getBytes();  // TODO optimize
@@ -116,6 +121,7 @@ public class JSONPacker extends AbstractPacker {
         endElement();
     }
 
+    @Override
     public void writeLong(long v) throws IOException {
         beginElement();
         byte[] b = Long.toString(v).getBytes();  // TODO optimize
@@ -123,6 +129,7 @@ public class JSONPacker extends AbstractPacker {
         endElement();
     }
 
+    @Override
     public void writeBigInteger(BigInteger v) throws IOException {
         beginElement();
         byte[] b = v.toString().getBytes();  // TODO optimize
@@ -130,6 +137,7 @@ public class JSONPacker extends AbstractPacker {
         endElement();
     }
 
+    @Override
     public void writeFloat(float v) throws IOException {
         beginElement();
         Float r = v;
@@ -141,6 +149,7 @@ public class JSONPacker extends AbstractPacker {
         endElement();
     }
 
+    @Override
     public void writeDouble(double v) throws IOException {
         beginElement();
         Double r = v;
@@ -152,6 +161,7 @@ public class JSONPacker extends AbstractPacker {
         endElement();
     }
 
+    @Override
     public void writeByteArray(byte[] b, int off, int len) throws IOException {
         beginStringElement();
         out.writeByte(QUOTE);
@@ -160,6 +170,7 @@ public class JSONPacker extends AbstractPacker {
         endElement();
     }
 
+    @Override
     public void writeByteBuffer(ByteBuffer bb) throws IOException {
         beginStringElement();
         out.writeByte(QUOTE);
@@ -173,6 +184,7 @@ public class JSONPacker extends AbstractPacker {
         endElement();
     }
 
+    @Override
     public void writeString(String s) throws IOException {
         beginStringElement();
         out.writeByte(QUOTE);
@@ -181,6 +193,7 @@ public class JSONPacker extends AbstractPacker {
         endElement();
     }
 
+    @Override
     public void writeArrayBegin(int size) throws IOException {
         beginElement();
         out.writeByte(LEFT_BR);
@@ -189,6 +202,7 @@ public class JSONPacker extends AbstractPacker {
         flags[stack.getDepth()] = FLAG_FIRST_ELEMENT;
     }
 
+    @Override
     public void writeArrayEnd(boolean check) throws IOException {
         if(!stack.topIsArray()) {
             throw new MessageTypeException("writeArrayEnd() is called but writeArrayBegin() is not called");
@@ -208,6 +222,7 @@ public class JSONPacker extends AbstractPacker {
         out.writeByte(RIGHT_BR);
     }
 
+    @Override
     public void writeMapBegin(int size) throws IOException {
         beginElement();
         out.writeByte(LEFT_WN);
@@ -216,6 +231,7 @@ public class JSONPacker extends AbstractPacker {
         flags[stack.getDepth()] = FLAG_FIRST_ELEMENT | FLAG_MAP_KEY;
     }
 
+    @Override
     public void writeMapEnd(boolean check) throws IOException {
         if(!stack.topIsMap()) {
             throw new MessageTypeException("writeMapEnd() is called but writeMapBegin() is not called");
@@ -233,6 +249,15 @@ public class JSONPacker extends AbstractPacker {
         stack.pop();
 
         out.writeByte(RIGHT_WN);
+    }
+
+    @Override
+    public void close() throws IOException {
+        out.close();
+    }
+
+    public void reset() {
+        stack.clear();
     }
 
     private void beginElement() throws IOException {
@@ -264,10 +289,6 @@ public class JSONPacker extends AbstractPacker {
         flag &= ~FLAG_FIRST_ELEMENT;
         flags[stack.getDepth()] = flag;
         stack.reduceCount();
-    }
-
-    public void close() throws IOException {
-        out.close();
     }
 
     private void escape(Output out, byte[] b, int off, int len) throws IOException {

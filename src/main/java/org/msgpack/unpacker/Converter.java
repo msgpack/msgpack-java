@@ -400,7 +400,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     public void reset() {
-        stack.reset();
+        stack.clear();
         value = null;
     }
 }

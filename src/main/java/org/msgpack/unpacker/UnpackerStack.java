@@ -92,7 +92,7 @@ public final class UnpackerStack {
         return types[top] == TYPE_MAP;
     }
 
-    public void reset() {
+    public void clear() {
         top = 0;
     }
 }

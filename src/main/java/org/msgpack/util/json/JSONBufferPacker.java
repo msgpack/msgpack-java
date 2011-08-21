@@ -43,11 +43,14 @@ public class JSONBufferPacker extends JSONPacker implements BufferPacker {
 	super(msgpack, new LinkedBufferOutput(bufferSize));
     }
 
+    @Override
     public byte[] toByteArray() {
         return ((LinkedBufferOutput) out).toByteArray();
     }
 
+    @Override
     public void clear() {
+        reset();
         ((LinkedBufferOutput) out).clear();
     }
 }

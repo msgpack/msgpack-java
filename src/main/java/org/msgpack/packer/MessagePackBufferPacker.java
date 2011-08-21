@@ -40,11 +40,14 @@ public class MessagePackBufferPacker extends MessagePackPacker implements Buffer
 	super(msgpack, new LinkedBufferOutput(bufferSize));
     }
 
+    @Override
     public byte[] toByteArray() {
         return ((LinkedBufferOutput) out).toByteArray();
     }
 
+    @Override
     public void clear() {
+        reset();
         ((LinkedBufferOutput) out).clear();
     }
 }

@@ -46,7 +46,7 @@ public class JSONBufferUnpacker extends JSONUnpacker implements BufferUnpacker {
     }
 
     public JSONBufferUnpacker(MessagePack msgpack, int bufferSize) {
-        super(msgpack, new InputStreamReader(new ByteArrayInputStream(new byte[0])));
+        super(msgpack, newEmptyReader());
     }
 
     @Override
@@ -94,6 +94,16 @@ public class JSONBufferUnpacker extends JSONUnpacker implements BufferUnpacker {
     @Override
     public JSONBufferUnpacker feed(ByteBuffer buf, boolean nocopy) {
         throw new UnsupportedOperationException("JSONBufferUnpacker doesn't support feed()");
+    }
+
+    @Override
+    public void clear() {
+        reset();
+        in = newEmptyReader();
+    }
+
+    private static Reader newEmptyReader() {
+        return new InputStreamReader(new ByteArrayInputStream(new byte[0]));
     }
 }
 
