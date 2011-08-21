@@ -35,12 +35,11 @@ import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.unpacker.Converter;
-import org.msgpack.unpacker.AbstractIndirectUnpacker;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
 
 
-public class JSONUnpacker extends AbstractIndirectUnpacker {
+public class JSONUnpacker extends Converter {
     protected Reader in;
     private JSONParser parser;
 
@@ -53,7 +52,7 @@ public class JSONUnpacker extends AbstractIndirectUnpacker {
     }
 
     JSONUnpacker(MessagePack msgpack, Reader in) {
-        super(msgpack);
+        super(msgpack, null);
         this.in = in;
         this.parser = new JSONParser();
     }

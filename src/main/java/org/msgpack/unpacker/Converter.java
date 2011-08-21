@@ -17,6 +17,7 @@
 //
 package org.msgpack.unpacker;
 
+import java.io.IOException;
 import java.io.EOFException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -45,28 +46,18 @@ public class Converter extends AbstractUnpacker {
         this.value = value;
     }
 
-    Value getSourceValue() {
-        return value;
+    protected Value nextValue() throws IOException {
+        throw new EOFException();
     }
 
-    void getSourceValue(Value value) {
-        this.value = value;
-    }
-
-    // FIXME throws IOException?
-    protected Value nextValue() {
-        // FIXME EOFError?
-        throw new NullPointerException("Value is not set");
-    }
-
-    private void ensureValue() {
+    private void ensureValue() throws IOException {
         if(value == null) {
             value = nextValue();
         }
     }
 
     @Override
-    public boolean tryReadNil() {
+    public boolean tryReadNil() throws IOException {
         stack.checkCount();
         if(getTop().isNil()) {
             stack.reduceCount();
@@ -79,7 +70,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public boolean trySkipNil() {
+    public boolean trySkipNil() throws IOException {
         ensureValue();
 
         if(stack.getDepth() > 0 && stack.getTopCount() <= 0) {
@@ -98,7 +89,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public void readNil() {
+    public void readNil() throws IOException {
         if(!getTop().isNil()) {
             throw new MessageTypeException("Expected nil but got not nil value");
         }
@@ -109,14 +100,14 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public boolean readBoolean() {
+    public boolean readBoolean() throws IOException {
         boolean v = getTop().asBooleanValue().getBoolean();
         stack.reduceCount();
         return v;
     }
 
     @Override
-    public byte readByte() {
+    public byte readByte() throws IOException {
         byte v = getTop().asIntegerValue().getByte();
         stack.reduceCount();
         if(stack.getDepth() == 0) {
@@ -126,7 +117,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public short readShort() {
+    public short readShort() throws IOException {
         short v = getTop().asIntegerValue().getShort();
         stack.reduceCount();
         if(stack.getDepth() == 0) {
@@ -136,7 +127,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public int readInt() {
+    public int readInt() throws IOException {
         int v = getTop().asIntegerValue().getInt();
         stack.reduceCount();
         if(stack.getDepth() == 0) {
@@ -146,7 +137,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public long readLong() {
+    public long readLong() throws IOException {
         long v = getTop().asIntegerValue().getLong();
         stack.reduceCount();
         if(stack.getDepth() == 0) {
@@ -156,7 +147,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public BigInteger readBigInteger() {
+    public BigInteger readBigInteger() throws IOException {
         BigInteger v = getTop().asIntegerValue().getBigInteger();
         stack.reduceCount();
         if(stack.getDepth() == 0) {
@@ -166,7 +157,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public float readFloat() {
+    public float readFloat() throws IOException {
         float v = getTop().asFloatValue().getFloat();
         stack.reduceCount();
         if(stack.getDepth() == 0) {
@@ -176,7 +167,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public double readDouble() {
+    public double readDouble() throws IOException {
         double v = getTop().asFloatValue().getDouble();
         stack.reduceCount();
         if(stack.getDepth() == 0) {
@@ -186,12 +177,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public ByteBuffer readByteBuffer() {
-        return ByteBuffer.wrap(readByteArray());
-    }
-
-    @Override
-    public byte[] readByteArray() {
+    public byte[] readByteArray() throws IOException {
         byte[] raw = getTop().asRawValue().getByteArray();
         stack.reduceCount();
         if(stack.getDepth() == 0) {
@@ -201,7 +187,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public String readString() {
+    public String readString() throws IOException {
         String str = getTop().asRawValue().getString();
         stack.reduceCount();
         if(stack.getDepth() == 0) {
@@ -211,7 +197,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public int readArrayBegin() {
+    public int readArrayBegin() throws IOException {
         Value v = getTop();
         if(!v.isArray()) {
             throw new MessageTypeException("Expected array but got not array value");
@@ -224,12 +210,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public void readArrayEnd() {
-        readArrayEnd(false);
-    }
-
-    @Override
-    public void readArrayEnd(boolean check) {
+    public void readArrayEnd(boolean check) throws IOException {
         if(!stack.topIsArray()) {
             throw new MessageTypeException("readArrayEnd() is called but readArrayBegin() is not called");
         }
@@ -251,7 +232,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public int readMapBegin() {
+    public int readMapBegin() throws IOException {
         Value v = getTop();
         if(!v.isMap()) {
             throw new MessageTypeException("Expected map but got not map value");
@@ -264,12 +245,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public void readMapEnd() {
-        readMapEnd(false);
-    }
-
-    @Override
-    public void readMapEnd(boolean check) {
+    public void readMapEnd(boolean check) throws IOException {
         if(!stack.topIsMap()) {
             throw new MessageTypeException("readMapEnd() is called but readMapBegin() is not called");
         }
@@ -290,7 +266,7 @@ public class Converter extends AbstractUnpacker {
         }
     }
 
-    private Value getTop() {
+    private Value getTop() throws IOException {
         ensureValue();
 
         stack.checkCount();
@@ -306,7 +282,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public Value readValue() {
+    public Value readValue() throws IOException {
         if(stack.getDepth() == 0) {
             if(value == null) {
                 return nextValue();
@@ -316,13 +292,11 @@ public class Converter extends AbstractUnpacker {
                 return v;
             }
         }
-        Unconverter uc = new Unconverter(msgpack);
-        readValue(uc);
-        return uc.getResult();
+        return super.readValue();
     }
 
     @Override
-    protected void readValue(Unconverter uc) {
+    protected void readValue(Unconverter uc) throws IOException {
         if(uc.getResult() != null) {
             uc.resetResult();
         }
@@ -383,7 +357,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public void skip() {
+    public void skip() throws IOException {
         stack.checkCount();
         Value v = getTop();
         if(!v.isArray() && !v.isMap()) {
@@ -423,10 +397,6 @@ public class Converter extends AbstractUnpacker {
                 stack.reduceCount();
             }
         }
-    }
-
-    @Override
-    public void close() {
     }
 
     public void reset() {

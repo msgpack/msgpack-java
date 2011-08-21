@@ -95,10 +95,5 @@ public class JSONBufferUnpacker extends JSONUnpacker implements BufferUnpacker {
     public JSONBufferUnpacker feed(ByteBuffer buf, boolean nocopy) {
         throw new UnsupportedOperationException("JSONBufferUnpacker doesn't support feed()");
     }
-
-    @Override
-    public void reset() {
-        converter.reset();
-    }
 }
 

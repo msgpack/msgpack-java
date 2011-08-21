@@ -17,6 +17,7 @@
 //
 package org.msgpack.packer;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
@@ -51,72 +52,67 @@ public class Unconverter extends AbstractPacker {
     }
 
     @Override
-    public void writeNil() {
+    public void writeNil() throws IOException {
         put(ValueFactory.nilValue());
     }
 
     @Override
-    public void writeBoolean(boolean v) {
+    public void writeBoolean(boolean v) throws IOException {
         put(ValueFactory.booleanValue(v));
     }
 
     @Override
-    public void writeByte(byte v) {
+    public void writeByte(byte v) throws IOException {
         put(ValueFactory.integerValue(v));
     }
 
     @Override
-    public void writeShort(short v) {
+    public void writeShort(short v) throws IOException {
         put(ValueFactory.integerValue(v));
     }
 
     @Override
-    public void writeInt(int v) {
+    public void writeInt(int v) throws IOException {
         put(ValueFactory.integerValue(v));
     }
 
     @Override
-    public void writeBigInteger(BigInteger v) {
+    public void writeBigInteger(BigInteger v) throws IOException {
         put(ValueFactory.integerValue(v));
     }
 
     @Override
-    public void writeLong(long v) {
+    public void writeLong(long v) throws IOException {
         put(ValueFactory.integerValue(v));
     }
 
     @Override
-    public void writeFloat(float v) {
+    public void writeFloat(float v) throws IOException {
         put(ValueFactory.floatValue(v));
     }
 
     @Override
-    public void writeDouble(double v) {
+    public void writeDouble(double v) throws IOException {
         put(ValueFactory.floatValue(v));
     }
 
     @Override
-    public void writeByteArray(byte[] b) {
-        writeByteArray(b, 0, b.length);
-    }
-
-    @Override
-    public void writeByteArray(byte[] b, int off, int len) {
+    public void writeByteArray(byte[] b, int off, int len) throws IOException {
         put(ValueFactory.rawValue(b, off, len));
     }
 
     @Override
-    public void writeByteBuffer(ByteBuffer bb) {
+    public void writeByteBuffer(ByteBuffer bb) throws IOException {
         put(ValueFactory.rawValue(bb));
     }
 
     @Override
-    public void writeString(String s) {
+    public void writeString(String s) throws IOException {
         put(ValueFactory.rawValue(s));
     }
 
     @Override
-    public void writeArrayBegin(int size) {
+    public void writeArrayBegin(int size) throws IOException {
         if(size == 0) {
             Value[] array = new Value[size];
             putContainer(ValueFactory.arrayValue());
@@ -131,12 +127,7 @@ public class Unconverter extends AbstractPacker {
     }
 
     @Override
-    public void writeArrayEnd() {
-        writeArrayEnd(true);
-    }
-
-    @Override
-    public void writeArrayEnd(boolean check) {
+    public void writeArrayEnd(boolean check) throws IOException {
         if(!stack.topIsArray()) {
             throw new MessageTypeException("writeArrayEnd() is called but writeArrayBegin() is not called");
         }
@@ -157,7 +148,7 @@ public class Unconverter extends AbstractPacker {
     }
 
     @Override
-    public void writeMapBegin(int size) {
+    public void writeMapBegin(int size) throws IOException {
         stack.checkCount();
         if(size == 0) {
             putContainer(ValueFactory.mapValue());
@@ -172,12 +163,7 @@ public class Unconverter extends AbstractPacker {
     }
 
     @Override
-    public void writeMapEnd() {
-        writeMapEnd(true);
-    }
-
-    @Override
-    public void writeMapEnd(boolean check) {
+    public void writeMapEnd(boolean check) throws IOException {
         if(!stack.topIsMap()) {
             throw new MessageTypeException("writeMapEnd() is called but writeMapBegin() is not called");
         }
@@ -198,7 +184,7 @@ public class Unconverter extends AbstractPacker {
     }
 
     @Override
-    public Packer write(Value v) {
+    public Packer write(Value v) throws IOException {
         put(v);
         return this;
     }
@@ -223,10 +209,6 @@ public class Unconverter extends AbstractPacker {
             array[array.length - stack.getTopCount()] = v;
             stack.reduceCount();
         }
-    }
-
-    @Override
-    public void close() {
     }
 }
 

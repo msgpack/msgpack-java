@@ -91,7 +91,7 @@ public class MessagePack {
         return pk.toByteArray();
     }
 
-    public <T> byte[] write(T v, Template<T> tmpl) throws IOException { // TODO IOException
+    public <T> byte[] write(T v, Template<T> tmpl) throws IOException {
         BufferPacker pk = createBufferPacker();
         tmpl.write(pk, v);
         return pk.toByteArray();
@@ -112,22 +112,22 @@ public class MessagePack {
         tmpl.write(pk, v);
     }
 
-    public byte[] write(Value v) throws IOException {  // TODO IOException
+    public byte[] write(Value v) throws IOException {
         // FIXME ValueTemplate should do this
         BufferPacker pk = createBufferPacker();
         pk.write(v);
         return pk.toByteArray();
     }
 
-    public Value read(byte[] b) throws IOException {  // TODO IOException
+    public Value read(byte[] b) throws IOException {
         return read(b, 0, b.length);
     }
 
-    public Value read(byte[] b, int off, int len) throws IOException {  // TODO IOException
+    public Value read(byte[] b, int off, int len) throws IOException {
         return createBufferUnpacker(b, off, len).readValue();
     }
 
-    public Value read(ByteBuffer buf) throws IOException {  // TODO IOException
+    public Value read(ByteBuffer buf) throws IOException {
         return createBufferUnpacker(buf).readValue();
     }
 
@@ -135,26 +135,26 @@ public class MessagePack {
         return createUnpacker(in).readValue();
     }
 
-    public <T> T read(byte[] b, T v) throws IOException {  // TODO IOException
+    public <T> T read(byte[] b, T v) throws IOException {
         // TODO
         Template tmpl = registry.lookup(v.getClass());
         BufferUnpacker u = createBufferUnpacker(b);
         return (T) tmpl.read(u, v);
     }
 
-    public <T> T read(byte[] b, Class<T> c) throws IOException {  // TODO IOException
+    public <T> T read(byte[] b, Class<T> c) throws IOException {
         Template<T> tmpl = registry.lookup(c);
         BufferUnpacker u = createBufferUnpacker(b);
         return tmpl.read(u, null);
     }
 
-    public <T> T read(ByteBuffer b, T v) throws IOException {  // TODO IOException
+    public <T> T read(ByteBuffer b, T v) throws IOException {
         Template<T> tmpl = registry.lookup(v.getClass());
         BufferUnpacker u = createBufferUnpacker(b);
         return tmpl.read(u, v);
     }
 
-    public <T> T read(ByteBuffer b, Class<T> c) {  // TODO IOException
+    public <T> T read(ByteBuffer b, Class<T> c) {
         Template<T> tmpl = registry.lookup(c);
         BufferUnpacker u = createBufferUnpacker(b);
         return null;
@@ -170,7 +170,7 @@ public class MessagePack {
         return tmpl.read(createUnpacker(in), null);
     }
 
-    public <T> T convert(Value v, T to) throws IOException {  // TODO IOException
+    public <T> T convert(Value v, T to) throws IOException {
         Template<T> tmpl = registry.lookup(to.getClass());
         return tmpl.read(new Converter(this, v), to);
     }

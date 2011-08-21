@@ -24,79 +24,79 @@ import org.msgpack.MessageTypeException;
 
 
 abstract class Accept implements BufferReferer {
-    void acceptBoolean(boolean v) {
+    void acceptBoolean(boolean v) throws IOException {
         throw new MessageTypeException("Unexpected boolean value");
     }
 
-    void acceptInteger(byte v) {
+    void acceptInteger(byte v) throws IOException {
         throw new MessageTypeException("Unexpected integer value");
     }
 
-    void acceptInteger(short v) {
+    void acceptInteger(short v) throws IOException {
         throw new MessageTypeException("Unexpected integer value");
     }
 
-    void acceptInteger(int v) {
+    void acceptInteger(int v) throws IOException {
         throw new MessageTypeException("Unexpected integer value");
     }
 
-    void acceptInteger(long v) {
+    void acceptInteger(long v) throws IOException {
         throw new MessageTypeException("Unexpected integer value");
     }
 
-    void acceptUnsignedInteger(byte v) {
+    void acceptUnsignedInteger(byte v) throws IOException {
         throw new MessageTypeException("Unexpected integer value");
     }
 
-    void acceptUnsignedInteger(short v) {
+    void acceptUnsignedInteger(short v) throws IOException {
         throw new MessageTypeException("Unexpected integer value");
     }
 
-    void acceptUnsignedInteger(int v) {
+    void acceptUnsignedInteger(int v) throws IOException {
         throw new MessageTypeException("Unexpected integer value");
     }
 
-    void acceptUnsignedInteger(long v) {
+    void acceptUnsignedInteger(long v) throws IOException {
         throw new MessageTypeException("Unexpected integer value");
     }
 
-    //void checkRawAcceptable() {
+    //void checkRawAcceptable() throws IOException {
     //    throw new MessageTypeException("Unexpected raw value");
     //}
 
-    void acceptRaw(byte[] raw) {
+    void acceptRaw(byte[] raw) throws IOException {
         throw new MessageTypeException("Unexpected raw value");
     }
 
-    void acceptEmptyRaw() {
+    void acceptEmptyRaw() throws IOException {
         throw new MessageTypeException("Unexpected raw value");
     }
 
-    //void checkArrayAcceptable(int size) {
+    //void checkArrayAcceptable(int size) throws IOException {
     //    throw new MessageTypeException("Unexpected array value");
     //}
 
-    void acceptArray(int size) {
+    void acceptArray(int size) throws IOException {
         throw new MessageTypeException("Unexpected array value");
     }
 
-    //void checkMapAcceptable(int size) {
+    //void checkMapAcceptable(int size) throws IOException {
     //    throw new MessageTypeException("Unexpected map value");
     //}
 
-    void acceptMap(int size) {
+    void acceptMap(int size) throws IOException {
         throw new MessageTypeException("Unexpected map value");
     }
 
-    void acceptNil() {
+    void acceptNil() throws IOException {
         throw new MessageTypeException("Unexpected nil value");
     }
 
-    void acceptFloat(float v) {
+    void acceptFloat(float v) throws IOException {
         throw new MessageTypeException("Unexpected float value");
     }
 
-    void acceptDouble(double v) {
+    void acceptDouble(double v) throws IOException {
         throw new MessageTypeException("Unexpected float value");
     }
 
