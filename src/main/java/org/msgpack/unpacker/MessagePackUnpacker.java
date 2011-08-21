@@ -230,7 +230,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             {
                 int count = in.getInt();
                 if(count < 0) {
-                    throw new IOException("Raw size too large");
+                    throw new IOException("Raw size too large");  // TODO error
                 }
                 if(count == 0) {
                     a.acceptEmptyRaw();
@@ -261,7 +261,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             {
                 int count = in.getInt();
                 if(count < 0) {
-                    throw new IOException("Array size too large");
+                    throw new IOException("Array size too large");  // TODO error
                 }
                 a.acceptArray(count);
                 stack.reduceCount();
@@ -284,7 +284,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             {
                 int count = in.getInt();
                 if(count < 0) {
-                    throw new IOException("Map size too large");
+                    throw new IOException("Map size too large");  // TODO error
                 }
                 a.acceptMap(count);
                 stack.reduceCount();
@@ -297,7 +297,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             //System.out.println("unknown b "+(b&0xff));
             // headByte = CS_INVALID
             headByte = REQUIRE_TO_READ_HEAD;
-            throw new MessageTypeException("Invalid byte: "+b);  // TODO error
+            throw new IOException("Invalid byte: "+b);  // TODO error
         }
     }
 
