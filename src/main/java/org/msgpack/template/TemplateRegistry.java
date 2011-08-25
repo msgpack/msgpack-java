@@ -18,6 +18,7 @@
 package org.msgpack.template;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -69,6 +70,13 @@ public class TemplateRegistry {
 	parent = null;
 	chain = new TemplateBuilderChain();
 	chain.init(this);
+	cache = new HashMap<Type, Template<Type>>();
+	genericCache = new HashMap<Type, GenericTemplate>();
+	registerTemplates();
+	cache = Collections.unmodifiableMap(cache);
+	genericCache = Collections.unmodifiableMap(genericCache);// FIXME
+
+	// TODO
 	cache = new HashMap<Type, Template<Type>>(); // FIXME #MN cache must be immutable map
 	genericCache = new HashMap<Type, GenericTemplate>();
 	registerTemplates();
@@ -86,7 +94,8 @@ public class TemplateRegistry {
 	}
 	chain = parent.chain;
 	cache = new HashMap<Type, Template<Type>>();
-	genericCache = new HashMap<Type, GenericTemplate>();
+	//genericCache = new HashMap<Type, GenericTemplate>();
+	genericCache = parent.genericCache; // FIXME
     }
 
     private void registerTemplates() {
@@ -150,7 +159,7 @@ public class TemplateRegistry {
     }
 
     public synchronized void registerGeneric(final Type targetType, final GenericTemplate tmpl) {
-	if(targetType instanceof ParameterizedType) {
+	if (targetType instanceof ParameterizedType) {
 	    genericCache.put(((ParameterizedType) targetType).getRawType(), tmpl);
 	} else {
 	    genericCache.put(targetType, tmpl);
@@ -169,6 +178,10 @@ public class TemplateRegistry {
     public Template lookup(Type targetType) {
 	return lookupImpl(targetType);
     }
+
+//    public Template lookup(Type targetType, boolean isRecursived) {
+//	return lookupImpl(targetType, isRecursived);
+//    }
 
     private synchronized Template lookupImpl(Type targetType) {
 	Template tmpl;
@@ -354,7 +367,11 @@ public class TemplateRegistry {
 		cache.remove(targetClass);
 	    }
 	    newTmpl = null;
-	    return oldTmpl;
+	    if (e instanceof MessageTypeException) {
+		throw (MessageTypeException) e;
+	    } else {
+		throw new MessageTypeException(e);
+	    }
 	} finally {
 	    if (newTmpl != null) {
 		cache.put(targetClass, newTmpl);
