@@ -68,18 +68,11 @@ public class TemplateRegistry {
      */
     private TemplateRegistry() {
 	parent = null;
-	chain = new TemplateBuilderChain();
-	chain.init(this);
-	cache = new HashMap<Type, Template<Type>>();
+	chain = new TemplateBuilderChain(this);
 	genericCache = new HashMap<Type, GenericTemplate>();
+	cache = new HashMap<Type, Template<Type>>();
 	registerTemplates();
 	cache = Collections.unmodifiableMap(cache);
-	genericCache = Collections.unmodifiableMap(genericCache);// FIXME
-
-	// TODO
-	cache = new HashMap<Type, Template<Type>>(); // FIXME #MN cache must be immutable map
-	genericCache = new HashMap<Type, GenericTemplate>();
-	registerTemplates();
     }
 
     /**
@@ -92,10 +85,9 @@ public class TemplateRegistry {
 	} else {
 	    parent = new TemplateRegistry();
 	}
-	chain = parent.chain;
+	chain = new TemplateBuilderChain(this);
 	cache = new HashMap<Type, Template<Type>>();
-	//genericCache = new HashMap<Type, GenericTemplate>();
-	genericCache = parent.genericCache; // FIXME
+	genericCache = parent.genericCache;
     }
 
     private void registerTemplates() {

@@ -36,11 +36,12 @@ public class TemplateBuilderChain {
 
     protected List<TemplateBuilder> templateBuilders;
 
-    public TemplateBuilderChain() {
+    public TemplateBuilderChain(TemplateRegistry registry) {
 	templateBuilders = new ArrayList<TemplateBuilder>();
+	init(registry);
     }
 
-    public void init(TemplateRegistry registry) {
+    private void init(TemplateRegistry registry) {
 	if (registry == null) {
 	    throw new NullPointerException("registry is null");
 	}
