@@ -136,6 +136,7 @@ public class TemplateRegistry {
 	if (flist == null) {
 	    throw new NullPointerException("FieldList object is null");
 	}
+
 	buildAndRegister(null, targetClass, false, flist);
     }
 
@@ -143,6 +144,7 @@ public class TemplateRegistry {
 	if (tmpl == null) {
 	    throw new NullPointerException("Template object is null");
 	}
+
 	if (targetType instanceof ParameterizedType) {
             cache.put(((ParameterizedType) targetType).getRawType(), tmpl);
         } else {
@@ -170,10 +172,6 @@ public class TemplateRegistry {
     public Template lookup(Type targetType) {
 	return lookupImpl(targetType);
     }
-
-//    public Template lookup(Type targetType, boolean isRecursived) {
-//	return lookupImpl(targetType, isRecursived);
-//    }
 
     private synchronized Template lookupImpl(Type targetType) {
 	Template tmpl;
@@ -218,25 +216,28 @@ public class TemplateRegistry {
 		"Cannot find template for " + targetClass + " class. Try to add @Message annotation to the class or call MessagePack.register(Type).");
     }
 
-    private Template lookupGenericImpl(Type targetType) {
-	Template tmpl;
+    @SuppressWarnings("unchecked")
+    private Template<Type> lookupGenericImpl(Type targetType) {
+	Template<Type> tmpl = null;
 	if (targetType instanceof ParameterizedType) {
-	    ParameterizedType pType = (ParameterizedType) targetType;
+	    ParameterizedType paramedType = (ParameterizedType) targetType;
+
 	    // ParameterizedType is not a Class<?>?
-	    tmpl = lookupGenericImpl0(pType);
+	    tmpl = lookupGenericImpl0(paramedType);
 	    if (tmpl != null) {
 		return tmpl;
 	    }
+
 	    try {
-		tmpl = parent.lookupGenericImpl0(pType);
+		tmpl = parent.lookupGenericImpl0(paramedType);
 		if (tmpl != null) {
 		    return tmpl;
 		}
 	    } catch (NullPointerException e) { // ignore
 	    }
-	    targetType = pType.getRawType();
+	    targetType = paramedType.getRawType();
 	}
-	return null;
+	return tmpl;
     }
 
     private Template lookupGenericImpl0(final ParameterizedType targetType) {
@@ -256,52 +257,44 @@ public class TemplateRegistry {
 	return tmpl.build(tmpls);
     }
 
-    private Template lookupCacheImpl(Type targetType) {
-	Template tmpl = cache.get(targetType);
+    private Template<Type> lookupCacheImpl(Type targetType) {
+	Template<Type> tmpl = cache.get(targetType);
 	if (tmpl != null) {
 	    return tmpl;
 	}
 
 	try {
 	    tmpl = parent.lookupCacheImpl(targetType);
-	    if (tmpl != null) {
-		return tmpl;
-	    }
 	} catch (NullPointerException e) { // ignore
 	}
-	return null;
+	return tmpl;
     }
 
-    private Template lookupWithTemplateBuilderImpl(Class<?> targetClass) {
+    private <T> Template<T> lookupWithTemplateBuilderImpl(Class<T> targetClass) {
 	TemplateBuilder builder = chain.select(targetClass, true);
-
-	Template tmpl;
+	Template<T> tmpl = null;
 	if (builder != null) {
 	    tmpl = builder.loadTemplate(targetClass);
 	    if (tmpl != null) {
 		register(targetClass, tmpl);
 		return tmpl;
 	    }
-
 	    tmpl = buildAndRegister(builder, targetClass, true, null);
-	    if (tmpl != null) {
-		return tmpl;
-	    }
 	}
-	return null;
+	return tmpl;
     }
 
-    private Template lookupInterfacesImpl(Class<?> targetClass) {
+    private <T> Template<T> lookupInterfacesImpl(Class<T> targetClass) {
 	Class<?>[] infTypes = targetClass.getInterfaces();
-	Template tmpl;
+	Template<T> tmpl = null;
 	for (Class<?> infType : infTypes) {
-	    tmpl = cache.get(infType);
+	    tmpl = (Template<T>) cache.get(infType);
 	    if (tmpl != null) {
 		register(targetClass, tmpl);
 		return tmpl;
 	    } else {
 		try {
-		    tmpl = parent.lookupCacheImpl(infType);
+		    tmpl = (Template<T>) parent.lookupCacheImpl(infType);
 		    if (tmpl != null) {
 			register(targetClass, tmpl);
 			return tmpl;
@@ -310,21 +303,21 @@ public class TemplateRegistry {
 		}
 	    }
 	}
-	return null;
+	return tmpl;
     }
 
-    private Template lookupSuperclassesImpl(Class<?> targetClass) {
+    private <T> Template<T> lookupSuperclassesImpl(Class<T> targetClass) {
 	Class<?> superClass = targetClass.getSuperclass();
-	Template tmpl = null;
+	Template<T> tmpl = null;
 	if (superClass != null) {
 	    for (; superClass != Object.class; superClass = superClass.getSuperclass()) {
-		tmpl = cache.get(superClass);
+		tmpl = (Template<T>) cache.get(superClass);
 		if (tmpl != null) {
 		    register(targetClass, tmpl);
 		    return tmpl;
 		} else {
 		    try {
-			tmpl = parent.lookupCacheImpl(superClass);
+			tmpl = (Template<T>) parent.lookupCacheImpl(superClass);
 			if (tmpl != null) {
 			    register(targetClass, tmpl);
 			    return tmpl;
@@ -334,10 +327,10 @@ public class TemplateRegistry {
 		}
 	    }
 	}
-	return null;
+	return tmpl;
     }
 
-    private synchronized Template buildAndRegister(TemplateBuilder builder, final Class<?> targetClass,
+    private synchronized Template buildAndRegister(TemplateBuilder builder, final Class targetClass,
 	    final boolean hasAnnotation, final FieldList flist) {
 	Template newTmpl = null;
 	Template oldTmpl = null;
