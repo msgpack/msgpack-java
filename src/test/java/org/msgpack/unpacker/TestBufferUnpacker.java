@@ -2,22 +2,9 @@ package org.msgpack.unpacker;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.io.IOException;
-import java.io.EOFException;
-import java.io.DataInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.DataOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Arrays;
 import java.util.Random;
 
 import org.msgpack.MessagePack;
@@ -28,6 +15,7 @@ import org.msgpack.unpacker.BufferUnpacker;
 import org.msgpack.unpacker.UnpackerIterator;
 
 import org.junit.Test;
+
 
 public class TestBufferUnpacker {
     @Test

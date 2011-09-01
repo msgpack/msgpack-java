@@ -1,22 +1,11 @@
 package org.msgpack.type;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
-import org.msgpack.MessagePack;
 import org.msgpack.TestSet;
-import org.msgpack.packer.BufferPacker;
-import org.msgpack.unpacker.BufferUnpacker;
-import org.msgpack.unpacker.Converter;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
 
@@ -197,14 +186,17 @@ public class TestEquals extends TestSet {
         testEquals(v1, v2);
     }
 
+    @SuppressWarnings("unused")
     private boolean compatibleWithByte(long v) {
        return (long)Byte.MIN_VALUE <= v && v <= (long)Byte.MAX_VALUE;
     }
 
+    @SuppressWarnings("unused")
     private boolean compatibleWithShort(long v) {
        return (long)Short.MIN_VALUE <= v && v <= (long)Short.MAX_VALUE;
     }
 
+    @SuppressWarnings("unused")
     private boolean compatibleWithInt(long v) {
        return (long)Integer.MIN_VALUE <= v && v <= (long)Integer.MAX_VALUE;
     }

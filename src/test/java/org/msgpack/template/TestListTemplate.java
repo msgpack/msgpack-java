@@ -6,7 +6,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.msgpack.MessagePack;
 import org.msgpack.TestSet;
@@ -48,7 +47,7 @@ public class TestListTemplate {
 	public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
 	    Template<E> elementTemplate = msgpack.lookup(elementClass);
-	    Template<List<E>> tmpl = new ListTemplate(elementTemplate);
+	    Template<List<E>> tmpl = new ListTemplate<E>(elementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    Packer packer = msgpack.createPacker(out);
 	    tmpl.write(packer, v);
@@ -69,7 +68,7 @@ public class TestListTemplate {
 	public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
 	    Template<E> elementTemplate = msgpack.lookup(elementClass);
-	    Template<List<E>> tmpl = new ListTemplate(elementTemplate);
+	    Template<List<E>> tmpl = new ListTemplate<E>(elementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    Packer packer = msgpack.createPacker(out);
 	    tmpl.write(packer, v);
@@ -90,7 +89,7 @@ public class TestListTemplate {
 	public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
 	    Template<E> elementTemplate = msgpack.lookup(elementClass);
-	    Template<List<E>> tmpl = new ListTemplate(elementTemplate);
+	    Template<List<E>> tmpl = new ListTemplate<E>(elementTemplate);
 	    BufferPacker packer = msgpack.createBufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
@@ -110,7 +109,7 @@ public class TestListTemplate {
 	public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
 	    Template<E> elementTemplate = msgpack.lookup(elementClass);
-	    Template<List<E>> tmpl = new ListTemplate(elementTemplate);
+	    Template<List<E>> tmpl = new ListTemplate<E>(elementTemplate);
 	    BufferPacker packer = msgpack.createBufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();

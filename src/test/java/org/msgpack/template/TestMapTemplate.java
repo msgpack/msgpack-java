@@ -4,10 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.List;
 import java.util.Map;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.msgpack.MessagePack;
 import org.msgpack.TestSet;
@@ -50,7 +48,7 @@ public class TestMapTemplate {
 	    MessagePack msgpack = new MessagePack();
 	    Template<K> keyElementTemplate = msgpack.lookup(keyElementClass);
 	    Template<V> valueElementTemplate = msgpack.lookup(valueElementClass);
-	    Template<Map<K, V>> tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
+	    Template<Map<K, V>> tmpl = new MapTemplate<K, V>(keyElementTemplate, valueElementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    Packer packer = msgpack.createPacker(out);
 	    tmpl.write(packer, v);
@@ -72,7 +70,7 @@ public class TestMapTemplate {
 	    MessagePack msgpack = new MessagePack();
 	    Template<K> keyElementTemplate = msgpack.lookup(keyElementClass);
 	    Template<V> valueElementTemplate = msgpack.lookup(valueElementClass);
-	    Template<Map<K, V>> tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
+	    Template<Map<K, V>> tmpl = new MapTemplate<K, V>(keyElementTemplate, valueElementTemplate);
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    Packer packer = msgpack.createPacker(out);
 	    tmpl.write(packer, v);
@@ -94,7 +92,7 @@ public class TestMapTemplate {
 	    MessagePack msgpack = new MessagePack();
 	    Template<K> keyElementTemplate = msgpack.lookup(keyElementClass);
 	    Template<V> valueElementTemplate = msgpack.lookup(valueElementClass);
-	    Template<Map<K, V>> tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
+	    Template<Map<K, V>> tmpl = new MapTemplate<K, V>(keyElementTemplate, valueElementTemplate);
 	    BufferPacker packer = msgpack.createBufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
@@ -115,7 +113,7 @@ public class TestMapTemplate {
 	    MessagePack msgpack = new MessagePack();
 	    Template<K> keyElementTemplate = msgpack.lookup(keyElementClass);
 	    Template<V> valueElementTemplate = msgpack.lookup(valueElementClass);
-	    Template<Map<K, V>> tmpl = new MapTemplate(keyElementTemplate, valueElementTemplate);
+	    Template<Map<K, V>> tmpl = new MapTemplate<K, V>(keyElementTemplate, valueElementTemplate);
 	    BufferPacker packer = msgpack.createBufferPacker();
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();

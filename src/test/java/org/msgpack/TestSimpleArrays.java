@@ -203,6 +203,7 @@ public class TestSimpleArrays {
 	}
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Test
     public void testGenerics() throws Exception {
 	MessagePack msgpack = new MessagePack();
@@ -270,6 +271,7 @@ public class TestSimpleArrays {
 	}
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Test
     public void testDim2() throws Exception {
 	MessagePack msgpack = new MessagePack();
@@ -334,6 +336,7 @@ public class TestSimpleArrays {
 	}
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Test
     public void testDim3() throws Exception {
 	MessagePack msgpack = new MessagePack();

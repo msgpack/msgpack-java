@@ -1,26 +1,20 @@
 package org.msgpack;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertArrayEquals;
 
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.msgpack.MessagePack;
-import org.msgpack.type.Value;
 import org.msgpack.packer.Packer;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.unpacker.BufferUnpacker;
 
 import org.junit.Test;
+
 
 public class TestSimplePackable {
     // all files are REQUIRED

@@ -3,22 +3,12 @@ package org.msgpack.io;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
 
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.io.IOException;
 import java.io.DataOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Arrays;
-
-import org.msgpack.MessagePack;
-import org.msgpack.type.Value;
 
 import org.junit.Test;
+
 
 public class TestLinkedBufferOutput {
     @Test

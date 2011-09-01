@@ -2,15 +2,8 @@ package org.msgpack.unpacker;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.CharacterCodingException;
@@ -21,13 +14,11 @@ import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.unpacker.BufferUnpacker;
 import org.msgpack.unpacker.Converter;
-import org.msgpack.type.Value;
 import org.msgpack.type.RawValue;
 import org.msgpack.type.ValueFactory;
 import org.msgpack.util.json.JSON;
-import org.msgpack.util.json.JSONPacker;
+
 
 public class TestMalformedEncoding {
     private byte[][] malforms = new byte[][] {
