@@ -1,13 +1,7 @@
 package org.msgpack.util.json;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,12 +12,8 @@ import java.util.Map;
 import org.junit.Test;
 import org.msgpack.MessagePack;
 import org.msgpack.TestSet;
-import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.packer.Unconverter;
-import org.msgpack.unpacker.Converter;
-import org.msgpack.type.Value;
-import org.msgpack.type.ValueFactory;
 import org.msgpack.util.json.JSON;
 
 
@@ -238,6 +228,7 @@ public class TestValueToStringJSONUnpack extends TestSet {
 	super.testList();
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	MessagePack msgpack = new JSON();
@@ -276,6 +267,7 @@ public class TestValueToStringJSONUnpack extends TestSet {
 	super.testMap();
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	MessagePack msgpack = new JSON();

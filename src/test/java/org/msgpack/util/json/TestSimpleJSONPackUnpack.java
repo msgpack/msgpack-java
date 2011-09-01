@@ -1,27 +1,16 @@
 package org.msgpack.util.json;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 import org.msgpack.MessagePack;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
-import org.msgpack.util.json.JSON;
 import org.msgpack.util.json.JSONBufferPacker;
 import org.msgpack.util.json.JSONBufferUnpacker;
 
-import org.junit.Test;
 
 public class TestSimpleJSONPackUnpack {
     @Test

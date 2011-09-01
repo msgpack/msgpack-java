@@ -1,7 +1,6 @@
 package org.msgpack.util.json;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -234,6 +233,7 @@ public class TestJSONPackUnpack extends TestSet {
 	super.testList();
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	MessagePack msgpack = new JSON();
@@ -273,6 +273,7 @@ public class TestJSONPackUnpack extends TestSet {
 	super.testMap();
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	MessagePack msgpack = new JSON();
