@@ -36,12 +36,16 @@ public class TemplateBuilderChain {
 
     protected List<TemplateBuilder> templateBuilders;
 
-    public TemplateBuilderChain(TemplateRegistry registry) {
-	templateBuilders = new ArrayList<TemplateBuilder>();
-	init(registry);
+    public TemplateBuilderChain(final TemplateRegistry registry) {
+	this(registry, null);
     }
 
-    private void init(TemplateRegistry registry) {
+    public TemplateBuilderChain(final TemplateRegistry registry, final ClassLoader cl) {
+	templateBuilders = new ArrayList<TemplateBuilder>();
+	reset(registry, cl);
+    }
+
+    private void reset(final TemplateRegistry registry, final ClassLoader cl) {
 	if (registry == null) {
 	    throw new NullPointerException("registry is null");
 	}
@@ -51,6 +55,9 @@ public class TemplateBuilderChain {
 	templateBuilders.add(new OrdinalEnumTemplateBuilder(registry));
 	if (enableDynamicCodeGeneration()) { // use dynamic code generation
 	    builder = new JavassistTemplateBuilder(registry);
+	    if (cl != null) {
+		((JavassistTemplateBuilder) builder).addClassLoader(cl);
+	    }
 	    templateBuilders.add(builder);
 	    templateBuilders.add(new JavassistBeansTemplateBuilder(registry));
 	} else { // use reflection
@@ -61,7 +68,7 @@ public class TemplateBuilderChain {
 	}
     }
 
-    public TemplateBuilder select(Type targetType, boolean hasAnnotation) {
+    public TemplateBuilder select(final Type targetType, final boolean hasAnnotation) {
 	for (TemplateBuilder tb : templateBuilders) {
 	    if (tb.matchType(targetType, hasAnnotation)) {
 		return tb;

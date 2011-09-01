@@ -90,6 +90,10 @@ public class TemplateRegistry {
 	genericCache = parent.genericCache;
     }
 
+    public void setClassLoader(final ClassLoader cl) {
+	chain = new TemplateBuilderChain(this, cl);
+    }
+
     private void registerTemplates() {
         register(boolean.class, BooleanTemplate.getInstance());
         register(Boolean.class, BooleanTemplate.getInstance());

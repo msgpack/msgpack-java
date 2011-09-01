@@ -47,6 +47,10 @@ public class MessagePack {
         registry = new TemplateRegistry(msgpack.registry);
     }
 
+    public void setClassLoader(final ClassLoader cl) {
+	registry.setClassLoader(cl);
+    }
+
     public Packer createPacker(OutputStream stream) {
         return new MessagePackPacker(this, stream);
     }
