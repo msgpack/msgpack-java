@@ -188,7 +188,11 @@ public class TemplateRegistry {
 
 	Class<?> targetClass = (Class<?>) targetType;
 
+	// MessagePackable interface is implemented
 	if (MessagePackable.class.isAssignableFrom(targetClass)) {
+	    // FIXME #MN
+	    // following processing should be merged into lookAfterBuilding
+	    // or lookupInterfaceTypes method in next version
 	    tmpl = new MessagePackableTemplate(targetClass);
 	    register(targetClass, tmpl);
 	    return tmpl;

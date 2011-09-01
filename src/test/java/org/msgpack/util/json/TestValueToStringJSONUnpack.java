@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.msgpack.MessagePack;
 import org.msgpack.TestSet;
@@ -171,7 +172,7 @@ public class TestValueToStringJSONUnpack extends TestSet {
 	unpacker.readNil();
     }
 
-    //@Test @Override  // FIXME JSON Unpacker doesn't support BigInteger
+    @Ignore @Test @Override  // FIXME #SF JSON Unpacker doesn't support BigInteger
     public void testBigInteger() throws Exception {
 	super.testBigInteger();
     }
@@ -203,14 +204,13 @@ public class TestValueToStringJSONUnpack extends TestSet {
 	assertEquals(v, ret);
     }
 
-    @Test @Override
+    @Ignore @Test @Override // FIXME JSONPacker doesn't support bytes
     public void testByteArray() throws Exception {
 	super.testByteArray();
     }
 
     @Override
     public void testByteArray(byte[] v) throws Exception {
-        // FIXME JSONPacker doesn't support bytes
 	MessagePack msgpack = new JSON();
         Unconverter packer = new Unconverter(msgpack);
 	//packer.writeByteArray(v);
