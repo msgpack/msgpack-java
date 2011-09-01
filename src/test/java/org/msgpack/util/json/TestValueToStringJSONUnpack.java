@@ -1,4 +1,4 @@
-package org.msgpack;
+package org.msgpack.util.json;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -15,12 +16,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-import org.msgpack.packer.BufferPacker;
+import org.msgpack.MessagePack;
+import org.msgpack.TestSet;
+import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
+import org.msgpack.packer.Unconverter;
+import org.msgpack.unpacker.Converter;
+import org.msgpack.type.Value;
+import org.msgpack.type.ValueFactory;
 import org.msgpack.util.json.JSON;
 
 
-public class TestJSONBufferPackUnpack extends TestSet {
+public class TestValueToStringJSONUnpack extends TestSet {
 
     @Test @Override
     public void testBoolean() throws Exception {
@@ -30,10 +37,10 @@ public class TestJSONBufferPackUnpack extends TestSet {
     @Override
     public void testBoolean(boolean v) throws Exception {
 	MessagePack msgpack = new JSON();
-	BufferPacker packer = msgpack.createBufferPacker();
+        Unconverter packer = new Unconverter(msgpack);
 	packer.writeBoolean(v);
-	byte[] bytes = packer.toByteArray();
-	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+        byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	boolean ret = unpacker.readBoolean();
 	assertEquals(v, ret);
     }
@@ -46,10 +53,10 @@ public class TestJSONBufferPackUnpack extends TestSet {
     @Override
     public void testByte(byte v) throws Exception {
 	MessagePack msgpack = new JSON();
-	BufferPacker packer = msgpack.createBufferPacker();
+        Unconverter packer = new Unconverter(msgpack);
 	packer.writeByte(v);
-	byte[] bytes = packer.toByteArray();
-	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+        byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	byte ret = unpacker.readByte();
 	assertEquals(v, ret);
     }
@@ -62,10 +69,10 @@ public class TestJSONBufferPackUnpack extends TestSet {
     @Override
     public void testShort(short v) throws Exception {
 	MessagePack msgpack = new JSON();
-	BufferPacker packer = msgpack.createBufferPacker();
+        Unconverter packer = new Unconverter(msgpack);
 	packer.writeShort(v);
-	byte[] bytes = packer.toByteArray();
-	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+        byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	short ret = unpacker.readShort();
 	assertEquals(v, ret);
     }
@@ -78,10 +85,10 @@ public class TestJSONBufferPackUnpack extends TestSet {
     @Override
     public void testInteger(int v) throws Exception {
 	MessagePack msgpack = new JSON();
-	BufferPacker packer = msgpack.createBufferPacker();
+        Unconverter packer = new Unconverter(msgpack);
 	packer.writeInt(v);
-	byte[] bytes = packer.toByteArray();
-	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+        byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	int ret = unpacker.readInt();
 	assertEquals(v, ret);
     }
@@ -94,10 +101,10 @@ public class TestJSONBufferPackUnpack extends TestSet {
     @Override
     public void testLong(long v) throws Exception {
 	MessagePack msgpack = new JSON();
-	BufferPacker packer = msgpack.createBufferPacker();
+        Unconverter packer = new Unconverter(msgpack);
 	packer.writeLong(v);
-	byte[] bytes = packer.toByteArray();
-	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+        byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	long ret = unpacker.readLong();
 	assertEquals(v, ret);
     }
@@ -110,19 +117,25 @@ public class TestJSONBufferPackUnpack extends TestSet {
     @Override
     public void testFloat(float v) throws Exception {
 	MessagePack msgpack = new JSON();
-	BufferPacker packer = msgpack.createBufferPacker();
-        if(((Float)v).isInfinite() || ((Float)v).isNaN()) {
-            try {
-                packer.writeFloat(v);
-                fail("JSONPacker should reject infinite and NaN value");
-            } catch (IOException ex) {
-                assertTrue(ex instanceof IOException);
+        Unconverter packer = new Unconverter(msgpack);
+        if(((Float)v).isInfinite()) {
+            packer.writeDouble(v);
+            String str = packer.getResult().toString();
+            if(v < 0) {
+                assertEquals("-Infinity", str);
+            } else {
+                assertEquals("Infinity", str);
             }
+            return;
+        } else if(((Float)v).isNaN()) {
+            packer.writeDouble(v);
+            String str = packer.getResult().toString();
+            assertEquals("NaN", str);
             return;
         }
 	packer.writeFloat(v);
-	byte[] bytes = packer.toByteArray();
-	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+        byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	float ret = unpacker.readFloat();
 	assertEquals(v, ret, 10e-10);
     }
@@ -135,19 +148,25 @@ public class TestJSONBufferPackUnpack extends TestSet {
     @Override
     public void testDouble(double v) throws Exception {
 	MessagePack msgpack = new JSON();
-	BufferPacker packer = msgpack.createBufferPacker();
-        if(((Double)v).isInfinite() || ((Double)v).isNaN()) {
-            try {
-                packer.writeDouble(v);
-                fail("JSONPacker should reject infinite and NaN value");
-            } catch (IOException ex) {
-                assertTrue(ex instanceof IOException);
+        Unconverter packer = new Unconverter(msgpack);
+        if(((Double)v).isInfinite()) {
+            packer.writeDouble(v);
+            String str = packer.getResult().toString();
+            if(v < 0) {
+                assertEquals("-Infinity", str);
+            } else {
+                assertEquals("Infinity", str);
             }
+            return;
+        } else if(((Double)v).isNaN()) {
+            packer.writeDouble(v);
+            String str = packer.getResult().toString();
+            assertEquals("NaN", str);
             return;
         }
 	packer.writeDouble(v);
-	byte[] bytes = packer.toByteArray();
-	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+        byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	double ret = unpacker.readDouble();
 	assertEquals(v, ret, 10e-10);
     }
@@ -155,14 +174,14 @@ public class TestJSONBufferPackUnpack extends TestSet {
     @Test @Override
     public void testNil() throws Exception {
 	MessagePack msgpack = new JSON();
-	BufferPacker packer = msgpack.createBufferPacker();
+        Unconverter packer = new Unconverter(msgpack);
 	packer.writeNil();
-	byte[] bytes = packer.toByteArray();
-	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+        byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	unpacker.readNil();
     }
 
-    //@Test @Override  // FIXME JSON Unpacker doesn't support BigInteger (bug)
+    //@Test @Override  // FIXME JSON Unpacker doesn't support BigInteger
     public void testBigInteger() throws Exception {
 	super.testBigInteger();
     }
@@ -170,10 +189,10 @@ public class TestJSONBufferPackUnpack extends TestSet {
     @Override
     public void testBigInteger(BigInteger v) throws Exception {
 	MessagePack msgpack = new JSON();
-	BufferPacker packer = msgpack.createBufferPacker();
+        Unconverter packer = new Unconverter(msgpack);
 	packer.writeBigInteger(v);
-	byte[] bytes = packer.toByteArray();
-	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+        byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	BigInteger ret = unpacker.readBigInteger();
 	assertEquals(v, ret);
     }
@@ -186,10 +205,10 @@ public class TestJSONBufferPackUnpack extends TestSet {
     @Override
     public void testString(String v) throws Exception {
 	MessagePack msgpack = new JSON();
-	BufferPacker packer = msgpack.createBufferPacker();
+        Unconverter packer = new Unconverter(msgpack);
 	packer.writeString(v);
-	byte[] bytes = packer.toByteArray();
-	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+        byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	String ret = unpacker.readString();
 	assertEquals(v, ret);
     }
@@ -203,12 +222,12 @@ public class TestJSONBufferPackUnpack extends TestSet {
     public void testByteArray(byte[] v) throws Exception {
         // FIXME JSONPacker doesn't support bytes
 	MessagePack msgpack = new JSON();
-	BufferPacker packer = msgpack.createBufferPacker();
+        Unconverter packer = new Unconverter(msgpack);
 	//packer.writeByteArray(v);
         String str = new String(v);
 	packer.writeString(str);
-	byte[] bytes = packer.toByteArray();
-	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+        byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	//byte[] ret = unpacker.readByteArray();
 	String ret = unpacker.readString();
 	assertEquals(str, ret);
@@ -222,7 +241,7 @@ public class TestJSONBufferPackUnpack extends TestSet {
     @Override
     public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	MessagePack msgpack = new JSON();
-	BufferPacker packer = msgpack.createBufferPacker();
+        Unconverter packer = new Unconverter(msgpack);
 	if (v == null) {
 	    packer.writeNil();
 	} else {
@@ -232,8 +251,8 @@ public class TestJSONBufferPackUnpack extends TestSet {
 	    }
 	    packer.writeArrayEnd();
 	}
-	byte[] bytes = packer.toByteArray();
-	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+        byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
         if (unpacker.trySkipNil()) {
             assertEquals(null, v);
             return;
@@ -260,28 +279,23 @@ public class TestJSONBufferPackUnpack extends TestSet {
     @Override
     public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	MessagePack msgpack = new JSON();
-	BufferPacker packer = msgpack.createBufferPacker();
+        Unconverter packer = new Unconverter(msgpack);
 	if (v == null) {
 	    packer.writeNil();
 	} else {
 	    packer.writeMapBegin(v.size());
 	    for (Map.Entry<Object, Object> e : ((Map<Object, Object>) v).entrySet()) {
-		if (!(e.getKey() instanceof String)) {
-		    try {
-			packer.write(e.getKey());
-			fail("JSONPacker should reject non-String value for the map key");
-		    } catch (Exception ex) {
-			assertTrue(ex instanceof IOException);
-		    }
-		    return;
-		}
 		packer.write(e.getKey());
 		packer.write(e.getValue());
 	    }
 	    packer.writeMapEnd();
 	}
-	byte[] bytes = packer.toByteArray();
-	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+        byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
+        if(!keyElementClass.equals(String.class)) {
+            // TODO JSONUnpacker rejects maps whose keys are not string
+            return;
+        }
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	if (unpacker.trySkipNil()) {
 	    assertEquals(null, v);
 	    return;

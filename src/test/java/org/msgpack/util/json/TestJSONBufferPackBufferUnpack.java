@@ -1,4 +1,4 @@
-package org.msgpack;
+package org.msgpack.util.json;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -16,12 +15,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-import org.msgpack.packer.Packer;
+import org.msgpack.MessagePack;
+import org.msgpack.TestSet;
+import org.msgpack.packer.BufferPacker;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.util.json.JSON;
 
 
-public class TestJSONPackBufferUnpack extends TestSet {
+public class TestJSONBufferPackBufferUnpack extends TestSet {
 
     @Test @Override
     public void testBoolean() throws Exception {
@@ -31,11 +32,10 @@ public class TestJSONPackBufferUnpack extends TestSet {
     @Override
     public void testBoolean(boolean v) throws Exception {
 	MessagePack msgpack = new JSON();
-	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	Packer packer = msgpack.createPacker(out);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeBoolean(v);
-	byte[] bytes = out.toByteArray();
-	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	byte[] bytes = packer.toByteArray();
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	boolean ret = unpacker.readBoolean();
 	assertEquals(v, ret);
     }
@@ -48,11 +48,10 @@ public class TestJSONPackBufferUnpack extends TestSet {
     @Override
     public void testByte(byte v) throws Exception {
 	MessagePack msgpack = new JSON();
-	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	Packer packer = msgpack.createPacker(out);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeByte(v);
-	byte[] bytes = out.toByteArray();
-	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	byte[] bytes = packer.toByteArray();
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	byte ret = unpacker.readByte();
 	assertEquals(v, ret);
     }
@@ -65,11 +64,10 @@ public class TestJSONPackBufferUnpack extends TestSet {
     @Override
     public void testShort(short v) throws Exception {
 	MessagePack msgpack = new JSON();
-	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	Packer packer = msgpack.createPacker(out);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeShort(v);
-	byte[] bytes = out.toByteArray();
-	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	byte[] bytes = packer.toByteArray();
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	short ret = unpacker.readShort();
 	assertEquals(v, ret);
     }
@@ -82,11 +80,10 @@ public class TestJSONPackBufferUnpack extends TestSet {
     @Override
     public void testInteger(int v) throws Exception {
 	MessagePack msgpack = new JSON();
-	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	Packer packer = msgpack.createPacker(out);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeInt(v);
-	byte[] bytes = out.toByteArray();
-	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	byte[] bytes = packer.toByteArray();
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	int ret = unpacker.readInt();
 	assertEquals(v, ret);
     }
@@ -99,11 +96,10 @@ public class TestJSONPackBufferUnpack extends TestSet {
     @Override
     public void testLong(long v) throws Exception {
 	MessagePack msgpack = new JSON();
-	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	Packer packer = msgpack.createPacker(out);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeLong(v);
-	byte[] bytes = out.toByteArray();
-	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	byte[] bytes = packer.toByteArray();
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	long ret = unpacker.readLong();
 	assertEquals(v, ret);
     }
@@ -116,8 +112,7 @@ public class TestJSONPackBufferUnpack extends TestSet {
     @Override
     public void testFloat(float v) throws Exception {
 	MessagePack msgpack = new JSON();
-	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	Packer packer = msgpack.createPacker(out);
+	BufferPacker packer = msgpack.createBufferPacker();
         if(((Float)v).isInfinite() || ((Float)v).isNaN()) {
             try {
                 packer.writeFloat(v);
@@ -128,8 +123,8 @@ public class TestJSONPackBufferUnpack extends TestSet {
             return;
         }
 	packer.writeFloat(v);
-	byte[] bytes = out.toByteArray();
-	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	byte[] bytes = packer.toByteArray();
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	float ret = unpacker.readFloat();
 	assertEquals(v, ret, 10e-10);
     }
@@ -142,8 +137,7 @@ public class TestJSONPackBufferUnpack extends TestSet {
     @Override
     public void testDouble(double v) throws Exception {
 	MessagePack msgpack = new JSON();
-	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	Packer packer = msgpack.createPacker(out);
+	BufferPacker packer = msgpack.createBufferPacker();
         if(((Double)v).isInfinite() || ((Double)v).isNaN()) {
             try {
                 packer.writeDouble(v);
@@ -154,8 +148,8 @@ public class TestJSONPackBufferUnpack extends TestSet {
             return;
         }
 	packer.writeDouble(v);
-	byte[] bytes = out.toByteArray();
-	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	byte[] bytes = packer.toByteArray();
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	double ret = unpacker.readDouble();
 	assertEquals(v, ret, 10e-10);
     }
@@ -163,16 +157,14 @@ public class TestJSONPackBufferUnpack extends TestSet {
     @Test @Override
     public void testNil() throws Exception {
 	MessagePack msgpack = new JSON();
-	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	Packer packer = msgpack.createPacker(out);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeNil();
-	byte[] bytes = out.toByteArray();
-	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	byte[] bytes = packer.toByteArray();
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	unpacker.readNil();
     }
 
-    //@Test @Override  // FIXME JSON Unpacker doesn't support BigInteger
-	ByteArrayOutputStream out = new ByteArrayOutputStream();
+    //@Test @Override  // FIXME JSON Unpacker doesn't support BigInteger (bug)
     public void testBigInteger() throws Exception {
 	super.testBigInteger();
     }
@@ -180,11 +172,10 @@ public class TestJSONPackBufferUnpack extends TestSet {
     @Override
     public void testBigInteger(BigInteger v) throws Exception {
 	MessagePack msgpack = new JSON();
-	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	Packer packer = msgpack.createPacker(out);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeBigInteger(v);
-	byte[] bytes = out.toByteArray();
-	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	byte[] bytes = packer.toByteArray();
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	BigInteger ret = unpacker.readBigInteger();
 	assertEquals(v, ret);
     }
@@ -197,11 +188,10 @@ public class TestJSONPackBufferUnpack extends TestSet {
     @Override
     public void testString(String v) throws Exception {
 	MessagePack msgpack = new JSON();
-	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	Packer packer = msgpack.createPacker(out);
+	BufferPacker packer = msgpack.createBufferPacker();
 	packer.writeString(v);
-	byte[] bytes = out.toByteArray();
-	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	byte[] bytes = packer.toByteArray();
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	String ret = unpacker.readString();
 	assertEquals(v, ret);
     }
@@ -215,13 +205,12 @@ public class TestJSONPackBufferUnpack extends TestSet {
     public void testByteArray(byte[] v) throws Exception {
         // FIXME JSONPacker doesn't support bytes
 	MessagePack msgpack = new JSON();
-	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	Packer packer = msgpack.createPacker(out);
+	BufferPacker packer = msgpack.createBufferPacker();
 	//packer.writeByteArray(v);
         String str = new String(v);
 	packer.writeString(str);
-	byte[] bytes = out.toByteArray();
-	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	byte[] bytes = packer.toByteArray();
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	//byte[] ret = unpacker.readByteArray();
 	String ret = unpacker.readString();
 	assertEquals(str, ret);
@@ -235,19 +224,18 @@ public class TestJSONPackBufferUnpack extends TestSet {
     @Override
     public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	MessagePack msgpack = new JSON();
-	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	Packer packer = msgpack.createPacker(out);
-	if (v == null) {
-	    packer.writeNil();
-	} else {
-	    packer.writeArrayBegin(v.size());
-	    for (Object o : v) {
-		packer.write(o);
-	    }
-	    packer.writeArrayEnd();
-	}
-	byte[] bytes = out.toByteArray();
-	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	BufferPacker packer = msgpack.createBufferPacker();
+        if (v == null) {
+            packer.writeNil();
+        } else {
+            packer.writeArrayBegin(v.size());
+            for (Object o : v) {
+        	packer.write(o);
+            }
+            packer.writeArrayEnd();
+        }
+	byte[] bytes = packer.toByteArray();
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
         if (unpacker.trySkipNil()) {
             assertEquals(null, v);
             return;
@@ -274,8 +262,7 @@ public class TestJSONPackBufferUnpack extends TestSet {
     @Override
     public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	MessagePack msgpack = new JSON();
-	ByteArrayOutputStream out = new ByteArrayOutputStream();
-	Packer packer = msgpack.createPacker(out);
+	BufferPacker packer = msgpack.createBufferPacker();
 	if (v == null) {
 	    packer.writeNil();
 	} else {
@@ -295,12 +282,12 @@ public class TestJSONPackBufferUnpack extends TestSet {
 	    }
 	    packer.writeMapEnd();
 	}
-	byte[] bytes = out.toByteArray();
-	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
-	if (unpacker.trySkipNil()) {
-	    assertEquals(null, v);
-	    return;
-	}
+	byte[] bytes = packer.toByteArray();
+        Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
+        if (unpacker.trySkipNil()) {
+            assertEquals(null, v);
+            return;
+        }
 	int size = unpacker.readMapBegin();
 	Map ret = new HashMap(size);
 	for (int i = 0; i < size; ++i) {

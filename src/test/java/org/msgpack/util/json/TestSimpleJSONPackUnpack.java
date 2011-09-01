@@ -1,4 +1,4 @@
-package org.msgpack;
+package org.msgpack.util.json;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

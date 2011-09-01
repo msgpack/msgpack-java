@@ -79,7 +79,6 @@ public class MessagePack {
         return createBufferUnpacker().wrap(bb);
     }
 
-
     public byte[] write(Object v) throws IOException {
         BufferPacker pk = createBufferPacker();
         if(v == null) {

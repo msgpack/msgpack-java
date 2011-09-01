@@ -1,4 +1,4 @@
-package org.msgpack;
+package org.msgpack.util.json;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+import org.msgpack.MessagePack;
+import org.msgpack.TestSet;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.util.json.JSON;
