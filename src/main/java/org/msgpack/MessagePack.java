@@ -93,6 +93,48 @@ import org.msgpack.type.Value;
  * }
  * </pre>
  * 
+ * <p>
+ * If you want to serialize multiple objects sequentially, MessagePack
+ * recommends use of {@link org.msgpack.packer.Packer} and
+ * {@link org.msgpack.unpacker.Unpacker} objects. Because {@link #write(Object)}
+ * and {@link #read(byte[])} method invocations create
+ * {@link org.msgpack.packer.Packer} and {@link org.msgpack.unpacker.Unpacker}
+ * objects every times. To use <code>Packer</code> and <code>Unpacker</code>
+ * objects, you call {@link #createPacker(OutputStream)} and
+ * {@link #createUnpacker(byte[])}.
+ * </p>
+ * 
+ * <pre>
+ * public class Main2 {
+ *     public static void main(String[] args) {
+ * 	MyMessage src1 = new MyMessage();
+ * 	src1.name = &quot;msgpack&quot;;
+ * 	src1.version = 0.6;
+ * 	MyMessage src2 = new MyMessage();
+ * 	src2.name = &quot;muga&quot;;
+ * 	src2.version = 10.0;
+ * 	MyMessage src3 = new MyMessage();
+ * 	src3.name = &quot;frsyukik&quot;;
+ * 	src3.version = 1.0;
+ * 
+ * 	MessagePack msgpack = new MessagePack();
+ * 	// serialize src data to byte array
+ * 	ByteArrayOutputStream out = new ByteArrayOutputStream();
+ * 	Packer packer = msgpack.createPacker(out);
+ * 	packer.write(src1);
+ * 	packer.write(src2);
+ * 	packer.write(src3);
+ * 	byte[] bytes = out.toByteArray();
+ * 	// deserialize byte array to MyMessage object
+ * 	ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+ * 	Unpacker unpacker = msgpack.createUnpacker(in);
+ * 	MyMessage dst1 = unpacker.read(bytes, MyMessage.class);
+ * 	MyMessage dst2 = unpacker.read(bytes, MyMessage.class);
+ * 	MyMessage dst3 = unpacker.read(bytes, MyMessage.class);
+ *     }
+ * }
+ * </pre>
+ * 
  * <h3>Without Annotations</h3>
  * 
  * <p>
