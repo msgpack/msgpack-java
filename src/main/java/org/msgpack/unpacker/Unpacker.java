@@ -23,11 +23,12 @@ import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import java.lang.Iterable;
 import org.msgpack.type.Value;
-import org.msgpack.MessagePack;
-import org.msgpack.template.Template;
-import org.msgpack.packer.Unconverter;
 
-
+/**
+ * Standard deserializer.
+ *
+ * @version 0.6.0
+ */
 public interface Unpacker extends Iterable<Value>, Closeable {
     public boolean tryReadNil() throws IOException;
 

@@ -23,7 +23,13 @@ import java.io.Closeable;
 import java.nio.ByteBuffer;
 import org.msgpack.type.Value;
 
-
+/**
+ * Standard serializer in MessagePack for Java. It allows users to serialize
+ * objects like <tt>String</tt>, <tt>List</tt>, <tt>Map</tt>, <tt>byte[]</tt>,
+ * primitive types and so on.
+ *
+ * @version 0.6.0
+ */
 public interface Packer extends Closeable {
     public void writeNil() throws IOException;
 

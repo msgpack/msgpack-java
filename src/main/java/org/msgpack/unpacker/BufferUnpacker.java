@@ -19,10 +19,12 @@ package org.msgpack.unpacker;
 
 import java.nio.ByteBuffer;
 
-import org.msgpack.MessagePack;
-import org.msgpack.io.LinkedBufferInput;
-
-
+/**
+ * This class is buffer-specific deserializer.
+ *
+ * @version 0.6.0
+ * @see {@link org.msgpack.packer.Unpacker}
+ */
 public interface BufferUnpacker extends Unpacker {
     public BufferUnpacker wrap(byte[] b);
 

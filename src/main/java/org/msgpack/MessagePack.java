@@ -36,16 +36,93 @@ import org.msgpack.unpacker.Converter;
 import org.msgpack.type.Value;
 
 /**
- * Basic class to use MessagePack for Java. It creates serializers and
+ * <p>
+ * This is basic class to use MessagePack for Java. It creates serializers and
  * deserializers for objects of classes.
- *
+ * </p>
+ * 
+ * <h3>Overview</h3>
+ * 
+ * <p>
+ * MessagePack is a binary-based efficient object serialization library. It
+ * enables to exchange structured objects between many languages like JSON. But
+ * unlike JSON, it is very fast and small.
+ * </p>
+ * 
+ * <p>
+ * MessagePack for Java is one of MessagePack libraries in pure Java. See <a
+ * href="https://github.com/eishay/jvm-serializers/wiki">jvm-serializers</a>,
+ * which is one of well-known benchmarks for comparing Java libraries of data
+ * serialization.
+ * </p>
+ * 
+ * <h3>Quick Start MessagePack for Java</h3>
+ * 
+ * <p>
+ * <code>@Message</code> enables you to serialize objects of your own classes
+ * like this.
+ * </p>
+ * 
+ * <pre>
+ * <code>@Message</code>
+ * public class MyMessage {
+ *     public String name;
+ *     public double version;
+ * }
+ * </pre>
+ * 
+ * <p>
+ * MessagePack recommends that serialized class and field declarations include
+ * <code>public</code> modifier. The following is code to serialize objects of
+ * class annotated by <code>@Message</code>.
+ * </p>
+ * 
+ * <pre>
+ * public class Main {
+ *     public static void main(String[] args) {
+ * 	MyMessage src = new MyMessage();
+ * 	src.name = &quot;msgpack&quot;;
+ * 	src.version = 0.6;
+ * 
+ * 	MessagePack msgpack = new MessagePack();
+ * 	// serialize src data to byte array
+ * 	byte[] bytes = msgpack.write(src);
+ * 	// deserialize byte array to MyMessage object
+ * 	MyMessage dst = msgpack.read(bytes, MyMessage.class);
+ *     }
+ * }
+ * </pre>
+ * 
+ * <h3>Without Annotations</h3>
+ * 
+ * <p>
+ * If you cannot append <code>@Message</code> to classes representing objects
+ * that you want to serialize, {@link #register} method enables you to serialize
+ * the objects.
+ * </p>
+ * </p>
+ * 
+ * <pre>
+ * MessagePack msgpack = new MessagePack();
+ * msgpack.register(MyMessage.class);
+ * </pre>
+ * 
+ * <p>
+ * For example, if <code>MyMessage</code> class is included in external library,
+ * you cannot easily modify the class declaration and append
+ * <code>@Message</code> to it. {@link #register} method allows to generate
+ * serializer/deserializer of <code>MyMessage</code> class automatically. You
+ * can serialize objects of <code>MyMessage</code> class after executing the
+ * method.
+ * </p>
+ * 
  */
 public class MessagePack {
     private TemplateRegistry registry;
 
     /**
      *
-     * @version 0.6.0
+     * @since 0.6.0
      */
     public MessagePack() {
         registry = new TemplateRegistry(null);
@@ -53,7 +130,7 @@ public class MessagePack {
 
     /**
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param msgpack	nested {@link org.msgpack.MessagePack} object
      */
     public MessagePack(MessagePack msgpack) {
@@ -62,7 +139,7 @@ public class MessagePack {
 
     /**
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param cl
      */
     public void setClassLoader(final ClassLoader cl) {
@@ -73,7 +150,7 @@ public class MessagePack {
      * Returns serializer that enables serializing objects into
      * {@link java.io.OutputStream} object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param out	output stream
      * @return		stream-based serializer
      */
@@ -85,7 +162,7 @@ public class MessagePack {
      * Returns serializer that enables serializing objects into 
      * {@link java.nio.ByteBuffer} object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @return		buffer-based serializer
      */
     public BufferPacker createBufferPacker() {
@@ -96,7 +173,7 @@ public class MessagePack {
      * Returns serializer that enables serializing objects into
      * {@link java.nio.ByteBuffer} object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param bufferSize	initial size of buffer
      * @return			buffer-based serializer
      */
@@ -108,7 +185,7 @@ public class MessagePack {
      * Returns deserializer that enables deserializing
      * {@link java.io.InputStream} object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param in		input stream
      * @return			stream-based deserializer
      */
@@ -120,7 +197,7 @@ public class MessagePack {
      * Returns empty deserializer that enables deserializing
      * {@link java.nio.ByteBuffer} object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @return			buffer-based deserializer
      */
     public BufferUnpacker createBufferUnpacker() {
@@ -131,7 +208,7 @@ public class MessagePack {
      * Returns deserializer that enables deserializing
      * {@link java.nio.ByteBuffer} object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param bytes			input byte array
      * @return			buffer-based deserializer
      */
@@ -143,7 +220,7 @@ public class MessagePack {
      * Returns deserializer that enables deserializing
      * {@link java.nio.ByteBuffer} object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param bytes
      * @param off
      * @param len
@@ -157,7 +234,7 @@ public class MessagePack {
      * Returns deserializer that enables deserializing
      * {@link java.nio.ByteBuffer} object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param buffer	input {@link java.nio.ByteBuffer} object
      * @return		buffer-based deserializer
      */
@@ -168,7 +245,7 @@ public class MessagePack {
     /**
      * Serializes specified object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param v		serialized object
      * @return		output byte array
      * @throws IOException
@@ -188,7 +265,7 @@ public class MessagePack {
      * Serializes specified object. It allows serializing object by specified
      * template.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param v
      * @param template
      * @return
@@ -203,7 +280,7 @@ public class MessagePack {
     /**
      * Serializes specified object to output stream.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param out		output stream
      * @param v			serialized object
      * @throws IOException
@@ -221,7 +298,7 @@ public class MessagePack {
     /**
      * Serializes object to output stream by specified template.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param out		output stream
      * @param v			serialized object
      * @param template		serializer/deserializer for the object
@@ -235,7 +312,7 @@ public class MessagePack {
     /**
      * Serializes {@link org.msgpack.type.Value} object to byte array.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param v			serialized {@link org.msgpack.type.Value} object
      * @return			output byte array
      * @throws IOException
@@ -251,7 +328,7 @@ public class MessagePack {
      * Deserializes specified byte array to {@link org.msgpack.type.Value}
      * object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param bytes		input byte array
      * @return
      * @throws IOException
@@ -263,7 +340,7 @@ public class MessagePack {
     /**
      * Deserializes byte array to {@link org.msgpack.type.Value} object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param bytes
      * @param off
      * @param len
@@ -278,7 +355,7 @@ public class MessagePack {
      * Deserializes {@link java.nio.ByteBuffer} object to
      * {@link org.msgpack.type.Value} object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param buffer		input buffer
      * @return
      * @throws IOException
@@ -290,7 +367,7 @@ public class MessagePack {
     /**
      * Deserializes input stream to {@link org.msgpack.type.Value} object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param in		input stream
      * @return			deserialized {@link org.msgpack.type.Value} object
      * @throws IOException
@@ -302,7 +379,7 @@ public class MessagePack {
     /**
      * Deserializes byte array to object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param bytes		input byte array
      * @param v			deserialized object
      * @return
@@ -318,7 +395,7 @@ public class MessagePack {
     /**
      * Deserializes byte array to object of specified class.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param b			input {@link java.nio.ByteBuffer} object
      * @param c
      * @return
@@ -333,7 +410,7 @@ public class MessagePack {
     /**
      * Deserializes buffer to object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param b			input {@link java.nio.ByteBuffer} object
      * @param v
      * @return
@@ -349,7 +426,7 @@ public class MessagePack {
     /**
      * Deserializes buffer to object of specified class.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param b
      * @param c
      * @return
@@ -363,7 +440,7 @@ public class MessagePack {
     /**
      * Deserializes input stream to object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param in		input stream
      * @param v
      * @return
@@ -377,7 +454,7 @@ public class MessagePack {
     /**
      * Deserializes input stream to object of specified class.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param in
      * @param c
      * @return
@@ -391,7 +468,7 @@ public class MessagePack {
     /**
      * Converts specified {@link org.msgpack.type.Value} object to object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param v
      * @param to
      * @return
@@ -406,7 +483,7 @@ public class MessagePack {
     /**
      * Converts {@link org.msgpack.type.Value} object to object specified class.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param v
      * @param c
      * @return
@@ -420,7 +497,7 @@ public class MessagePack {
     /**
      * Unconverts specified object to {@link org.msgpack.type.Value} object.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param v
      * @return
      * @throws IOException
@@ -441,7 +518,7 @@ public class MessagePack {
      * specified class. <tt>Template</tt> object is a pair of serializer and
      * deserializer for object serialization. It is generated automatically.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param type
      */
     public void register(Class<?> type) {
@@ -453,7 +530,7 @@ public class MessagePack {
      * associated by class.
      *
      * @see #register(Class)
-     * @version 0.6.0
+     * @since 0.6.0
      * @param type
      * @param template
      */
@@ -465,7 +542,7 @@ public class MessagePack {
      * Unregisters {@link org.msgpack.template.Template} object for objects of
      * specified class.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param type
      * @return
      */
@@ -477,7 +554,7 @@ public class MessagePack {
      * Unregisters all {@link org.msgpack.template.Template} objects that have
      * been registered in advance.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      */
     public void unregister() {
 	registry.unregister();
@@ -487,7 +564,7 @@ public class MessagePack {
      * Looks up a {@link org.msgpack.template.Template} object, which is
      * serializer/deserializer associated by specified class.
      *
-     * @version 0.6.0
+     * @since 0.6.0
      * @param type
      * @return
      */
@@ -497,73 +574,176 @@ public class MessagePack {
 
     private static final MessagePack globalMessagePack = new MessagePack();
 
+    /**
+     * Serializes specified object and returns the byte array.
+     *
+     * @deprecated {@link MessagePack#write(Object)}
+     * @param v
+     * @return
+     * @throws IOException
+     */
     @Deprecated
-    public static byte[] pack(Object obj) throws IOException {  // TODO IOException
-        return globalMessagePack.write(obj);
+    public static byte[] pack(Object v) throws IOException {  // TODO IOException
+        return globalMessagePack.write(v);
+    }
+
+    /**
+     * Serializes specified object to output stream.
+     *
+     * @deprecated {@link MessagePack#write(OutputStream, Object)}
+     * @param out
+     * @param v
+     * @throws IOException
+     */
+    @Deprecated
+    public static void pack(OutputStream out, Object v) throws IOException {
+        globalMessagePack.write(out, v);
+    }
+
+    /**
+     * Serializes object by specified template and return the byte array.
+     *
+     * @deprecated {@link MessagePack#write(Object, Template)}
+     * @param v
+     * @param template
+     * @return
+     * @throws IOException
+     */
+    @Deprecated
+    public static <T> byte[] pack(T v, Template<T> template) throws IOException {  // TODO IOException
+        return globalMessagePack.write(v, template);
+    }
+
+    /**
+     * Serializes object to output stream. The object is serialized by specified
+     * template.
+     * 
+     * @deprecated {@link MessagePack#write(OutputStream, Object, Template)}
+     * @param out
+     * @param v
+     * @param template
+     * @throws IOException
+     */
+    @Deprecated
+    public static <T> void pack(OutputStream out, T v, Template<T> template) throws IOException {
+        globalMessagePack.write(out, v, template);
+    }
+
+    /**
+     * Converts byte array to {@linke org.msgpack.type.Value} object.
+     *
+     * @deprecated {@linke MessagePack#read(byte[])}
+     * @param bytes
+     * @return
+     * @throws IOException
+     */
+    @Deprecated
+    public static Value unpack(byte[] bytes) throws IOException {
+        return globalMessagePack.read(bytes);
     }
 
     @Deprecated
-    public static void pack(OutputStream out, Object obj) throws IOException {
-        globalMessagePack.write(out, obj);
+    public static <T> T unpack(byte[] bytes, Template<T> template) throws IOException {
+        BufferUnpacker u = new MessagePackBufferUnpacker(globalMessagePack).wrap(bytes);
+        return template.read(u, null);
     }
 
     @Deprecated
-    public static <T> byte[] pack(T obj, Template<T> tmpl) throws IOException {  // TODO IOException
-        return globalMessagePack.write(obj, tmpl);
+    public static <T> T unpack(byte[] bytes, Template<T> template, T to) throws IOException {
+        BufferUnpacker u = new MessagePackBufferUnpacker(globalMessagePack).wrap(bytes);
+        return template.read(u, to);
     }
 
+    /**
+     * Deserializes byte array to object of specified class.
+     *
+     * @deprecated {@link MessagePack#read(byte[], Class)}
+     * @param bytes
+     * @param klass
+     * @return
+     * @throws IOException
+     */
     @Deprecated
-    public static <T> void pack(OutputStream out, T obj, Template<T> tmpl) throws IOException {
-        globalMessagePack.write(out, obj, tmpl);
+    public static <T> T unpack(byte[] bytes, Class<T> klass) throws IOException {
+        return globalMessagePack.read(bytes, klass);
     }
 
+    /**
+     * Deserializes byte array to object.
+     * 
+     * @param bytes
+     * @param to
+     * @return
+     * @throws IOException
+     */
     @Deprecated
-    public static Value unpack(byte[] buffer) throws IOException {
-        return globalMessagePack.read(buffer);
+    public static <T> T unpack(byte[] bytes, T to) throws IOException {
+        return globalMessagePack.read(bytes, to);
     }
 
-    @Deprecated
-    public static <T> T unpack(byte[] buffer, Template<T> tmpl) throws IOException {
-        BufferUnpacker u = new MessagePackBufferUnpacker(globalMessagePack).wrap(buffer);
-        return tmpl.read(u, null);
-    }
-
-    @Deprecated
-    public static <T> T unpack(byte[] buffer, Template<T> tmpl, T to) throws IOException {
-        BufferUnpacker u = new MessagePackBufferUnpacker(globalMessagePack).wrap(buffer);
-        return tmpl.read(u, to);
-    }
-
-    @Deprecated
-    public static <T> T unpack(byte[] buffer, Class<T> klass) throws IOException {
-        return globalMessagePack.read(buffer, klass);
-    }
-
-    @Deprecated
-    public static <T> T unpack(byte[] buffer, T to) throws IOException {
-        return globalMessagePack.read(buffer, to);
-    }
-
+    /**
+     * Converts input stream to {@link org.msgpack.type.Value} object.
+     *
+     * @deprecated {@link MessagePack#read(InputStream)}
+     * @param in
+     * @return
+     * @throws IOException
+     */
     @Deprecated
     public static Value unpack(InputStream in) throws IOException {
         return globalMessagePack.read(in);
     }
 
+    /**
+     * @deprecated
+     * @param in
+     * @param tmpl
+     * @return
+     * @throws IOException
+     * @throws MessageTypeException
+     */
     @Deprecated
     public static <T> T unpack(InputStream in, Template<T> tmpl) throws IOException, MessageTypeException {
         return tmpl.read(new MessagePackUnpacker(globalMessagePack, in), null);
     }
 
+    /**
+     * @deprecated 
+     * @param in
+     * @param tmpl
+     * @param to
+     * @return
+     * @throws IOException
+     * @throws MessageTypeException
+     */
     @Deprecated
     public static <T> T unpack(InputStream in, Template<T> tmpl, T to) throws IOException, MessageTypeException {
         return (T) tmpl.read(new MessagePackUnpacker(globalMessagePack, in), to);
     }
 
+    /**
+     * Deserializes input stream to object of specified class.
+     *
+     * @deprecated {@link MessagePack#read(InputStream, Class)}
+     * @param in
+     * @param klass
+     * @return
+     * @throws IOException
+     */
     @Deprecated
     public static <T> T unpack(InputStream in, Class<T> klass) throws IOException {
         return globalMessagePack.read(in, klass);
     }
 
+    /**
+     * Deserializes input stream to object.
+     *
+     * @deprecated {@link MessagePack#read(InputStream, Object)}
+     * @param in
+     * @param to
+     * @return
+     * @throws IOException
+     */
     @Deprecated
     public static <T> T unpack(InputStream in, T to) throws IOException {
         return globalMessagePack.read(in, to);

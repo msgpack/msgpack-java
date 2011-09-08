@@ -17,7 +17,12 @@
 //
 package org.msgpack.packer;
 
-
+/**
+ * This class is buffer-specific serializer.
+ *
+ * @version 0.6.0
+ * @see {@link org.msgpack.packer.Packer}
+ */
 public interface BufferPacker extends Packer {
     public byte[] toByteArray();
 
