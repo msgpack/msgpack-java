@@ -204,7 +204,7 @@ public class MessagePack {
 
     /**
      * Returns serializer that enables serializing objects into
-     * {@link java.nio.ByteBuffer} object.
+     * buffer.
      * 
      * @since 0.6.0
      * @return buffer-based serializer
@@ -215,7 +215,7 @@ public class MessagePack {
 
     /**
      * Returns serializer that enables serializing objects into
-     * {@link java.nio.ByteBuffer} object.
+     * buffer.
      * 
      * @since 0.6.0
      * @param bufferSize
@@ -241,7 +241,7 @@ public class MessagePack {
 
     /**
      * Returns empty deserializer that enables deserializing
-     * {@link java.nio.ByteBuffer} object.
+     * buffer.
      * 
      * @since 0.6.0
      * @return buffer-based deserializer
@@ -252,7 +252,7 @@ public class MessagePack {
 
     /**
      * Returns deserializer that enables deserializing
-     * {@link java.nio.ByteBuffer} object.
+     * buffer.
      * 
      * @since 0.6.0
      * @param bytes
@@ -265,7 +265,7 @@ public class MessagePack {
 
     /**
      * Returns deserializer that enables deserializing
-     * {@link java.nio.ByteBuffer} object.
+     * buffer.
      * 
      * @since 0.6.0
      * @param bytes
@@ -279,7 +279,7 @@ public class MessagePack {
 
     /**
      * Returns deserializer that enables deserializing
-     * {@link java.nio.ByteBuffer} object.
+     * buffer.
      * 
      * @since 0.6.0
      * @param buffer
