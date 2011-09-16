@@ -53,10 +53,12 @@ class ByteArrayRawValueImpl extends AbstractRawValue {
         System.arraycopy(b, off, this.bytes, 0, len);
     }
 
+    @Override
     public byte[] getByteArray() {
         return bytes;
     }
 
+    @Override
     public String getString() {
         CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder().
             onMalformedInput(CodingErrorAction.REPORT).
@@ -68,10 +70,12 @@ class ByteArrayRawValueImpl extends AbstractRawValue {
         }
     }
 
+    @Override
     public void writeTo(Packer pk) throws IOException {
         pk.write(bytes);
     }
 
+    @Override
     public boolean equals(Object o) {
         if(this == o) {
             return true;
@@ -80,13 +84,14 @@ class ByteArrayRawValueImpl extends AbstractRawValue {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isRaw()) {
+        if(!v.isRawValue()) {
             return false;
         }
 
         return Arrays.equals(bytes, v.asRawValue().getByteArray());
     }
 
+    @Override
     public int hashCode() {
         return Arrays.hashCode(bytes);
     }

@@ -30,46 +30,57 @@ class DoubleValueImpl extends FloatValue {
         this.value = value;
     }
 
+    @Override
     public float getFloat() {
         return (float)value;
     }
 
+    @Override
     public double getDouble() {
         return value;
     }
 
+    @Override
     public byte byteValue() {
         return (byte)value;
     }
 
+    @Override
     public short shortValue() {
         return (short)value;
     }
 
+    @Override
     public int intValue() {
         return (int)value;
     }
 
+    @Override
     public long longValue() {
         return (long)value;
     }
 
+    @Override
     public BigInteger bigIntegerValue() {
         return new BigDecimal(value).toBigInteger();
     }
 
+    @Override
     public float floatValue() {
         return (float)value;
     }
 
+    @Override
     public double doubleValue() {
         return value;
     }
 
+    @Override
     public void writeTo(Packer pk) throws IOException {
         pk.write(value);
     }
 
+    @Override
     public boolean equals(Object o) {
         if(o == this) {
             return true;
@@ -78,7 +89,7 @@ class DoubleValueImpl extends FloatValue {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isFloat()) {
+        if(!v.isFloatValue()) {
             return false;
         }
 
@@ -87,15 +98,18 @@ class DoubleValueImpl extends FloatValue {
 
     // TODO compareTo
 
+    @Override
     public int hashCode() {
         long v = Double.doubleToLongBits(value);
         return (int)(v^(v>>>32));
     }
 
+    @Override
     public String toString() {
         return Double.toString(value);
     }
 
+    @Override
     public StringBuilder toString(StringBuilder sb) {
         return sb.append(Double.toString(value));
     }

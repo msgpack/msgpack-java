@@ -21,60 +21,76 @@ import java.math.BigInteger;
 import org.msgpack.MessageTypeException;
 
 public abstract class NumberValue extends Number implements Value {
-    public boolean isNil() {
+    @Override
+    public boolean isNilValue() {
         return false;
     }
 
-    public boolean isBoolean() {
+    @Override
+    public boolean isBooleanValue() {
         return false;
     }
 
-    public boolean isInteger() {
+    @Override
+    public boolean isIntegerValue() {
         return false;
     }
 
-    public boolean isFloat() {
+    @Override
+    public boolean isFloatValue() {
         return false;
     }
 
-    public boolean isArray() {
+    @Override
+    public boolean isArrayValue() {
         return false;
     }
 
-    public boolean isMap() {
+    @Override
+    public boolean isMapValue() {
         return false;
     }
 
-    public boolean isRaw() {
+    @Override
+    public boolean isRawValue() {
         return false;
     }
 
+    @Override
     public NilValue asNilValue() {
         throw new MessageTypeException();
     }
 
+    @Override
     public BooleanValue asBooleanValue() {
         throw new MessageTypeException();
     }
 
+    @Override
     public IntegerValue asIntegerValue() {
         throw new MessageTypeException();
     }
 
+    @Override
     public FloatValue asFloatValue() {
         throw new MessageTypeException();
     }
 
+    @Override
     public ArrayValue asArrayValue() {
         throw new MessageTypeException();
     }
 
+    @Override
     public MapValue asMapValue() {
         throw new MessageTypeException();
     }
 
+    @Override
     public RawValue asRawValue() {
         throw new MessageTypeException();
     }
+
+    public abstract BigInteger bigIntegerValue();
 }
 

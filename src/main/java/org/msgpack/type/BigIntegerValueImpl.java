@@ -39,6 +39,7 @@ class BigIntegerValueImpl extends IntegerValue {
     private static BigInteger INT_MIN = BigInteger.valueOf((long)Integer.MIN_VALUE);
     private static BigInteger LONG_MIN = BigInteger.valueOf((long)Long.MIN_VALUE);
 
+    @Override
     public byte getByte() {
         if(value.compareTo(BYTE_MAX) > 0 || value.compareTo(BYTE_MIN) < 0) {
             throw new MessageTypeException();  // TODO message
@@ -46,6 +47,7 @@ class BigIntegerValueImpl extends IntegerValue {
         return value.byteValue();
     }
 
+    @Override
     public short getShort() {
         if(value.compareTo(SHORT_MAX) > 0 || value.compareTo(SHORT_MIN) < 0) {
             throw new MessageTypeException();  // TODO message
@@ -53,6 +55,7 @@ class BigIntegerValueImpl extends IntegerValue {
         return value.shortValue();
     }
 
+    @Override
     public int getInt() {
         if(value.compareTo(INT_MAX) > 0 || value.compareTo(INT_MIN) < 0) {
             throw new MessageTypeException();  // TODO message
@@ -60,6 +63,7 @@ class BigIntegerValueImpl extends IntegerValue {
         return value.intValue();
     }
 
+    @Override
     public long getLong() {
         if(value.compareTo(LONG_MAX) > 0 || value.compareTo(LONG_MIN) < 0) {
             throw new MessageTypeException();  // TODO message
@@ -67,44 +71,54 @@ class BigIntegerValueImpl extends IntegerValue {
         return value.longValue();
     }
 
+    @Override
     public BigInteger getBigInteger() {
         return value;
     }
 
+    @Override
     public byte byteValue() {
         return value.byteValue();
     }
 
+    @Override
     public short shortValue() {
         return value.shortValue();
     }
 
+    @Override
     public int intValue() {
         return value.intValue();
     }
 
+    @Override
     public long longValue() {
         return value.longValue();
     }
 
+    @Override
     public BigInteger bigIntegerValue() {
         return value;
     }
 
+    @Override
     public float floatValue() {
         return value.floatValue();
     }
 
+    @Override
     public double doubleValue() {
         return value.doubleValue();
     }
 
+    @Override
     public void writeTo(Packer pk) throws IOException {
         pk.write(value);
     }
 
     // TODO compareTo
 
+    @Override
     public boolean equals(Object o) {
         if(o == this) {
             return true;
@@ -113,13 +127,14 @@ class BigIntegerValueImpl extends IntegerValue {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isInteger()) {
+        if(!v.isIntegerValue()) {
             return false;
         }
 
         return value.equals(v.asIntegerValue().bigIntegerValue());
     }
 
+    @Override
     public int hashCode() {
         if(INT_MIN.compareTo(value) <= 0 && value.compareTo(INT_MAX) <= 0) {
             return (int)value.longValue();
@@ -130,10 +145,12 @@ class BigIntegerValueImpl extends IntegerValue {
         return value.hashCode();
     }
 
+    @Override
     public String toString() {
         return value.toString();
     }
 
+    @Override
     public StringBuilder toString(StringBuilder sb) {
         return sb.append(value.toString());
     }

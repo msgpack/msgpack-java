@@ -30,6 +30,7 @@ class StringRawValueImpl extends AbstractRawValue {
         this.string = string;
     }
 
+    @Override
     public byte[] getByteArray() {
         try {
             // TODO encoding error?
@@ -39,14 +40,17 @@ class StringRawValueImpl extends AbstractRawValue {
         }
     }
 
+    @Override
     public String getString() {
         return string;
     }
 
+    @Override
     public void writeTo(Packer pk) throws IOException {
         pk.write(string);
     }
 
+    @Override
     public boolean equals(Object o) {
         if(this == o) {
             return true;
@@ -55,7 +59,7 @@ class StringRawValueImpl extends AbstractRawValue {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isRaw()) {
+        if(!v.isRawValue()) {
             return false;
         }
 

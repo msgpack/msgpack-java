@@ -13,78 +13,97 @@ public abstract class ProxyValue implements Value {
         return getValue().getType();
     }
 
-    public boolean isNil() {
-        return getValue().isNil();
+    @Override
+    public boolean isNilValue() {
+        return getValue().isNilValue();
     }
 
-    public boolean isBoolean() {
-        return getValue().isBoolean();
+    @Override
+    public boolean isBooleanValue() {
+        return getValue().isBooleanValue();
     }
 
-    public boolean isInteger() {
-        return getValue().isInteger();
+    @Override
+    public boolean isIntegerValue() {
+        return getValue().isIntegerValue();
     }
 
-    public boolean isFloat() {
-        return getValue().isFloat();
+    @Override
+    public boolean isFloatValue() {
+        return getValue().isFloatValue();
     }
 
-    public boolean isArray() {
-        return getValue().isArray();
+    @Override
+    public boolean isArrayValue() {
+        return getValue().isArrayValue();
     }
 
-    public boolean isMap() {
-        return getValue().isMap();
+    @Override
+    public boolean isMapValue() {
+        return getValue().isMapValue();
     }
 
-    public boolean isRaw() {
-        return getValue().isRaw();
+    @Override
+    public boolean isRawValue() {
+        return getValue().isRawValue();
     }
 
+    @Override
     public NilValue asNilValue() {
         return getValue().asNilValue();
     }
 
+    @Override
     public BooleanValue asBooleanValue() {
         return getValue().asBooleanValue();
     }
 
+    @Override
     public IntegerValue asIntegerValue() {
         return getValue().asIntegerValue();
     }
 
+    @Override
     public FloatValue asFloatValue() {
         return getValue().asFloatValue();
     }
 
+    @Override
     public ArrayValue asArrayValue() {
         return getValue().asArrayValue();
     }
 
+    @Override
     public MapValue asMapValue() {
         return getValue().asMapValue();
     }
 
+    @Override
     public RawValue asRawValue() {
         return getValue().asRawValue();
     }
 
+    @Override
     public void writeTo(Packer pk) throws IOException {
         getValue().writeTo(pk);
     }
 
+    @Override
     public StringBuilder toString(StringBuilder sb) {
         return getValue().toString(sb);
     }
 
+    @Override
     public String toString() {
         return getValue().toString();
     }
 
+    @Override
     public int hashCode() {
         return getValue().hashCode();
     }
 
+    @Override
     public boolean equals(Object o) {
         return getValue().equals(o);
     }

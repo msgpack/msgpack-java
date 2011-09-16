@@ -24,31 +24,31 @@ import java.math.BigInteger;
 import org.msgpack.MessageTypeException;
 
 abstract class AbstractValue implements Value {
-    public boolean isNil() {
+    public boolean isNilValue() {
         return false;
     }
 
-    public boolean isBoolean() {
+    public boolean isBooleanValue() {
         return false;
     }
 
-    public boolean isInteger() {
+    public boolean isIntegerValue() {
         return false;
     }
 
-    public boolean isFloat() {
+    public boolean isFloatValue() {
         return false;
     }
 
-    public boolean isArray() {
+    public boolean isArrayValue() {
         return false;
     }
 
-    public boolean isMap() {
+    public boolean isMapValue() {
         return false;
     }
 
-    public boolean isRaw() {
+    public boolean isRawValue() {
         return false;
     }
 

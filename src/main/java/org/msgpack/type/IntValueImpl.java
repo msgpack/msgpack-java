@@ -35,6 +35,7 @@ class IntValueImpl extends IntegerValue {
     private static int BYTE_MIN = (int)Byte.MIN_VALUE;
     private static int SHORT_MIN = (int)Short.MIN_VALUE;
 
+    @Override
     public byte getByte() {
         if(value > BYTE_MAX || value < BYTE_MIN) {
             throw new MessageTypeException();  // TODO message
@@ -42,6 +43,7 @@ class IntValueImpl extends IntegerValue {
         return (byte)value;
     }
 
+    @Override
     public short getShort() {
         if(value > SHORT_MAX || value < SHORT_MIN) {
             throw new MessageTypeException();  // TODO message
@@ -49,52 +51,64 @@ class IntValueImpl extends IntegerValue {
         return (short)value;
     }
 
+    @Override
     public int getInt() {
         return value;
     }
 
+    @Override
     public long getLong() {
         return value;
     }
 
+    @Override
     public BigInteger getBigInteger() {
         return BigInteger.valueOf((long)value);
     }
 
+    @Override
     public byte byteValue() {
         return (byte)value;
     }
 
+    @Override
     public short shortValue() {
         return (short)value;
     }
 
+    @Override
     public int intValue() {
         return value;
     }
 
+    @Override
     public long longValue() {
         return (long)value;
     }
 
+    @Override
     public BigInteger bigIntegerValue() {
         return BigInteger.valueOf((long)value);
     }
 
+    @Override
     public float floatValue() {
         return (float)value;
     }
 
+    @Override
     public double doubleValue() {
         return (double)value;
     }
 
+    @Override
     public void writeTo(Packer pk) throws IOException {
         pk.write(value);
     }
 
     // TODO compareTo
 
+    @Override
     public boolean equals(Object o) {
         if(o == this) {
             return true;
@@ -103,7 +117,7 @@ class IntValueImpl extends IntegerValue {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isInteger()) {
+        if(!v.isIntegerValue()) {
             return false;
         }
 
@@ -115,14 +129,17 @@ class IntValueImpl extends IntegerValue {
         }
     }
 
+    @Override
     public int hashCode() {
         return value;
     }
 
+    @Override
     public String toString() {
         return Integer.toString(value);
     }
 
+    @Override
     public StringBuilder toString(StringBuilder sb) {
         return sb.append(Integer.toString(value));
     }

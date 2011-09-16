@@ -59,7 +59,7 @@ public class Converter extends AbstractUnpacker {
     @Override
     public boolean tryReadNil() throws IOException {
         stack.checkCount();
-        if(getTop().isNil()) {
+        if(getTop().isNilValue()) {
             stack.reduceCount();
             if(stack.getDepth() == 0) {
                 value = null;
@@ -78,7 +78,7 @@ public class Converter extends AbstractUnpacker {
             return true;
         }
 
-        if(getTop().isNil()) {
+        if(getTop().isNilValue()) {
             stack.reduceCount();
             if(stack.getDepth() == 0) {
                 value = null;
@@ -90,7 +90,7 @@ public class Converter extends AbstractUnpacker {
 
     @Override
     public void readNil() throws IOException {
-        if(!getTop().isNil()) {
+        if(!getTop().isNilValue()) {
             throw new MessageTypeException("Expected nil but got not nil value");
         }
         stack.reduceCount();
@@ -199,7 +199,7 @@ public class Converter extends AbstractUnpacker {
     @Override
     public int readArrayBegin() throws IOException {
         Value v = getTop();
-        if(!v.isArray()) {
+        if(!v.isArrayValue()) {
             throw new MessageTypeException("Expected array but got not array value");
         }
         ArrayValue a = v.asArrayValue();
@@ -234,7 +234,7 @@ public class Converter extends AbstractUnpacker {
     @Override
     public int readMapBegin() throws IOException {
         Value v = getTop();
-        if(!v.isMap()) {
+        if(!v.isMapValue()) {
             throw new MessageTypeException("Expected map but got not map value");
         }
         MapValue m = v.asMapValue();
@@ -303,7 +303,7 @@ public class Converter extends AbstractUnpacker {
 
         stack.checkCount();
         Value v = getTop();
-        if(!v.isArray() && !v.isMap()) {
+        if(!v.isArrayValue() && !v.isMapValue()) {
             uc.write(v);
             stack.reduceCount();
             if(stack.getDepth() == 0) {
@@ -335,14 +335,14 @@ public class Converter extends AbstractUnpacker {
 
             stack.checkCount();
             v = getTop();
-            if(v.isArray()) {
+            if(v.isArrayValue()) {
                 ArrayValue a = v.asArrayValue();
                 uc.writeArrayBegin(a.size());
                 stack.reduceCount();
                 stack.pushArray(a.size());
                 values[stack.getDepth()] = a.getElementArray();
 
-            } else if(v.isMap()) {
+            } else if(v.isMapValue()) {
                 MapValue m = v.asMapValue();
                 uc.writeMapBegin(m.size());
                 stack.reduceCount();
@@ -360,7 +360,7 @@ public class Converter extends AbstractUnpacker {
     public void skip() throws IOException {
         stack.checkCount();
         Value v = getTop();
-        if(!v.isArray() && !v.isMap()) {
+        if(!v.isArrayValue() && !v.isMapValue()) {
             stack.reduceCount();
             if(stack.getDepth() == 0) {
                 value = null;
@@ -381,13 +381,13 @@ public class Converter extends AbstractUnpacker {
 
             stack.checkCount();
             v = getTop();
-            if(v.isArray()) {
+            if(v.isArrayValue()) {
                 ArrayValue a = v.asArrayValue();
                 stack.reduceCount();
                 stack.pushArray(a.size());
                 values[stack.getDepth()] = a.getElementArray();
 
-            } else if(v.isMap()) {
+            } else if(v.isMapValue()) {
                 MapValue m = v.asMapValue();
                 stack.reduceCount();
                 stack.pushMap(m.size());

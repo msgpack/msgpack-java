@@ -26,18 +26,22 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.MalformedInputException;
 
 abstract class AbstractRawValue extends AbstractValue implements RawValue {
+    @Override
     public ValueType getType() {
         return ValueType.RAW;
     }
 
-    public boolean isRaw() {
+    @Override
+    public boolean isRawValue() {
         return true;
     }
 
+    @Override
     public RawValue asRawValue() {
         return this;
     }
 
+    @Override
     public boolean equals(Object o) {
         if(this == o) {
             return true;
@@ -46,21 +50,24 @@ abstract class AbstractRawValue extends AbstractValue implements RawValue {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isRaw()) {
+        if(!v.isRawValue()) {
             return false;
         }
 
         return Arrays.equals(getByteArray(), v.asRawValue().getByteArray());
     }
 
+    @Override
     public int hashCode() {
         return Arrays.hashCode(getByteArray());
     }
 
+    @Override
     public String toString() {
         return toString(new StringBuilder()).toString();
     }
 
+    @Override
     public StringBuilder toString(StringBuilder sb) {
         String s;
         if(getClass() == StringRawValueImpl.class) {

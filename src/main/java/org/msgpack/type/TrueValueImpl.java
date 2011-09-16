@@ -29,14 +29,17 @@ class TrueValueImpl extends AbstractBooleanValue {
         return instance;
     }
 
+    @Override
     public boolean getBoolean() {
         return true;
     }
 
+    @Override
     public void writeTo(Packer pk) throws IOException {
         pk.write(true);
     }
 
+    @Override
     public boolean equals(Object o) {
         if(o == this) {
             return true;
@@ -45,21 +48,24 @@ class TrueValueImpl extends AbstractBooleanValue {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isBoolean()) {
+        if(!v.isBooleanValue()) {
             return false;
         }
 
         return v.asBooleanValue().getBoolean() == true;
     }
 
+    @Override
     public int hashCode() {
         return 1231;
     }
 
+    @Override
     public String toString() {
         return "true";
     }
 
+    @Override
     public StringBuilder toString(StringBuilder sb) {
         return sb.append("true");
     }

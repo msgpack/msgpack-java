@@ -18,11 +18,13 @@
 package org.msgpack.type;
 
 public abstract class FloatValue extends NumberValue {
+    @Override
     public ValueType getType() {
         return ValueType.FLOAT;
     }
 
-    public boolean isFloat() {
+    @Override
+    public boolean isFloatValue() {
         return true;
     }
 

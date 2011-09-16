@@ -37,6 +37,7 @@ class LongValueImpl extends IntegerValue {
     private static long SHORT_MIN = (long)Short.MIN_VALUE;
     private static long INT_MIN = (long)Integer.MIN_VALUE;
 
+    @Override
     public byte getByte() {
         if(value > BYTE_MAX || value < BYTE_MIN) {
             throw new MessageTypeException();  // TODO message
@@ -44,6 +45,7 @@ class LongValueImpl extends IntegerValue {
         return (byte)value;
     }
 
+    @Override
     public short getShort() {
         if(value > SHORT_MAX || value < SHORT_MIN) {
             throw new MessageTypeException();  // TODO message
@@ -51,6 +53,7 @@ class LongValueImpl extends IntegerValue {
         return (short)value;
     }
 
+    @Override
     public int getInt() {
         if(value > INT_MAX || value < INT_MIN) {
             throw new MessageTypeException();  // TODO message
@@ -58,48 +61,59 @@ class LongValueImpl extends IntegerValue {
         return (int)value;
     }
 
+    @Override
     public long getLong() {
         return value;
     }
 
+    @Override
     public BigInteger getBigInteger() {
         return BigInteger.valueOf(value);
     }
 
+    @Override
     public byte byteValue() {
         return (byte)value;
     }
 
+    @Override
     public short shortValue() {
         return (short)value;
     }
 
+    @Override
     public int intValue() {
         return (int)value;
     }
 
+    @Override
     public long longValue() {
         return value;
     }
 
+    @Override
     public BigInteger bigIntegerValue() {
         return BigInteger.valueOf(value);
     }
 
+    @Override
     public float floatValue() {
         return (float)value;
     }
 
+    @Override
     public double doubleValue() {
         return (double)value;
     }
 
+    @Override
     public void writeTo(Packer pk) throws IOException {
         pk.write(value);
     }
 
     // TODO compareTo
 
+    @Override
     public boolean equals(Object o) {
         if(o == this) {
             return true;
@@ -108,7 +122,7 @@ class LongValueImpl extends IntegerValue {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isInteger()) {
+        if(!v.isIntegerValue()) {
             return false;
         }
 
@@ -120,6 +134,7 @@ class LongValueImpl extends IntegerValue {
         }
     }
 
+    @Override
     public int hashCode() {
         if(INT_MIN <= value && value <= INT_MAX) {
             return (int)value;
@@ -128,10 +143,12 @@ class LongValueImpl extends IntegerValue {
         }
     }
 
+    @Override
     public String toString() {
         return Long.toString(value);
     }
 
+    @Override
     public StringBuilder toString(StringBuilder sb) {
         return sb.append(Long.toString(value));
     }

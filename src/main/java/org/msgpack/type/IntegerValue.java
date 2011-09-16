@@ -21,19 +21,20 @@ import java.math.BigInteger;
 import org.msgpack.MessageTypeException;
 
 public abstract class IntegerValue extends NumberValue {
+    @Override
     public ValueType getType() {
         return ValueType.INTEGER;
     }
 
-    public boolean isInteger() {
+    @Override
+    public boolean isIntegerValue() {
         return true;
     }
 
+    @Override
     public IntegerValue asIntegerValue() {
         return this;
     }
-
-    public abstract BigInteger bigIntegerValue();
 
     public abstract byte getByte();
 

@@ -21,62 +21,77 @@ import java.util.AbstractList;
 import org.msgpack.MessageTypeException;
 
 abstract class AbstractArrayValue extends AbstractList<Value> implements ArrayValue {
+    @Override
     public ValueType getType() {
         return ValueType.ARRAY;
     }
 
-    public boolean isArray() {
+    @Override
+    public boolean isArrayValue() {
         return true;
     }
 
+    @Override
     public ArrayValue asArrayValue() {
         return this;
     }
 
-    public boolean isNil() {
+    @Override
+    public boolean isNilValue() {
         return false;
     }
 
-    public boolean isBoolean() {
+    @Override
+    public boolean isBooleanValue() {
         return false;
     }
 
-    public boolean isInteger() {
+    @Override
+    public boolean isIntegerValue() {
         return false;
     }
 
-    public boolean isFloat() {
+    @Override
+    public boolean isFloatValue() {
         return false;
     }
 
-    public boolean isMap() {
+    @Override
+    public boolean isMapValue() {
         return false;
     }
 
-    public boolean isRaw() {
+    @Override
+    public boolean isRawValue() {
         return false;
     }
 
+    @Override
     public NilValue asNilValue() {
         throw new MessageTypeException();
     }
 
+    @Override
     public BooleanValue asBooleanValue() {
         throw new MessageTypeException();
     }
 
+    @Override
     public IntegerValue asIntegerValue() {
         throw new MessageTypeException();
     }
 
+    @Override
     public FloatValue asFloatValue() {
         throw new MessageTypeException();
     }
 
+    @Override
     public MapValue asMapValue() {
         throw new MessageTypeException();
     }
 
+    @Override
     public RawValue asRawValue() {
         throw new MessageTypeException();
     }

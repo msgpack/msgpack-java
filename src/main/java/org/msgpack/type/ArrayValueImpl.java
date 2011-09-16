@@ -32,6 +32,7 @@ class ArrayValueImpl extends AbstractArrayValue {
 
     private Value[] array;
 
+    @Override
     public Value[] getElementArray() {
         return array;
     }
@@ -45,14 +46,17 @@ class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
+    @Override
     public int size() {
         return array.length;
     }
 
+    @Override
     public boolean isEmpty() {
         return array.length == 0;
     }
 
+    @Override
     public Value get(int index) {
         if(index < 0 || array.length <= index) {
             throw new IndexOutOfBoundsException();
@@ -60,6 +64,7 @@ class ArrayValueImpl extends AbstractArrayValue {
         return array[index];
     }
 
+    @Override
     public int indexOf(Object o) {
         if(o == null) {
             return -1;  // FIXME NullPointerException?
@@ -72,6 +77,7 @@ class ArrayValueImpl extends AbstractArrayValue {
         return -1;
     }
 
+    @Override
     public int lastIndexOf(Object o) {
         if(o == null) {
             return -1;  // FIXME NullPointerException?
@@ -84,6 +90,7 @@ class ArrayValueImpl extends AbstractArrayValue {
         return -1;
     }
 
+    @Override
     public void writeTo(Packer pk) throws IOException {
         pk.writeArrayBegin(array.length);
         for(int i=0; i < array.length; i++) {
@@ -92,6 +99,7 @@ class ArrayValueImpl extends AbstractArrayValue {
         pk.writeArrayEnd();
     }
 
+    @Override
     public boolean equals(Object o) {
         if(o == this) {
             return true;
@@ -100,7 +108,7 @@ class ArrayValueImpl extends AbstractArrayValue {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isArray()) {
+        if(!v.isArrayValue()) {
             return false;
         }
 
@@ -132,6 +140,7 @@ class ArrayValueImpl extends AbstractArrayValue {
 
     // TODO compareTo?
 
+    @Override
     public int hashCode() {
         int h = 1;
         for(int i=0; i < array.length; i++) {
@@ -141,10 +150,12 @@ class ArrayValueImpl extends AbstractArrayValue {
         return h;
     }
 
+    @Override
     public String toString() {
         return toString(new StringBuilder()).toString();
     }
 
+    @Override
     public StringBuilder toString(StringBuilder sb) {
         if(array.length == 0) {
             return sb.append("[]");

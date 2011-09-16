@@ -23,19 +23,19 @@ import org.msgpack.packer.Packer;
 public interface Value {
     public ValueType getType();
 
-    public boolean isNil();
+    public boolean isNilValue();
 
-    public boolean isBoolean();
+    public boolean isBooleanValue();
 
-    public boolean isInteger();
+    public boolean isIntegerValue();
 
-    public boolean isFloat();
+    public boolean isFloatValue();
 
-    public boolean isArray();
+    public boolean isArrayValue();
 
-    public boolean isMap();
+    public boolean isMapValue();
 
-    public boolean isRaw();
+    public boolean isRawValue();
 
     public NilValue asNilValue();
 

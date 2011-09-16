@@ -29,30 +29,37 @@ public class NilValue extends AbstractValue {
         return instance;
     }
 
+    @Override
     public ValueType getType() {
         return ValueType.NIL;
     }
 
-    public boolean isNil() {
+    @Override
+    public boolean isNilValue() {
         return true;
     }
 
+    @Override
     public NilValue asNilValue() {
         return this;
     }
 
+    @Override
     public String toString() {
         return "null";
     }
 
+    @Override
     public StringBuilder toString(StringBuilder sb) {
         return sb.append("null");
     }
 
+    @Override
     public void writeTo(Packer pk) throws IOException {
         pk.writeNil();
     }
 
+    @Override
     public boolean equals(Object o) {
         if(o == this) {
             return true;
@@ -60,9 +67,10 @@ public class NilValue extends AbstractValue {
         if(!(o instanceof Value)) {
             return false;
         }
-        return ((Value) o).isNil();
+        return ((Value) o).isNilValue();
     }
 
+    @Override
     public int hashCode() {
         return 0;
     }

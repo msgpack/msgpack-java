@@ -37,6 +37,7 @@ class SequentialMapValueImpl extends AbstractMapValue {
 
     private Value[] array;
 
+    @Override
     public Value[] getKeyValueArray() {
         return array;
     }
@@ -53,7 +54,8 @@ class SequentialMapValueImpl extends AbstractMapValue {
         }
     }
 
-    public Value get(Value key) {
+    @Override
+    public Value get(Object key) {
         if(key == null) {
             return null;
         }
@@ -72,10 +74,12 @@ class SequentialMapValueImpl extends AbstractMapValue {
             this.array = array;
         }
 
+        @Override
         public int size() {
             return array.length / 2;
         }
 
+        @Override
         public Iterator<Map.Entry<Value,Value>> iterator() {
             return new EntrySetIterator(array);
         }
@@ -90,10 +94,12 @@ class SequentialMapValueImpl extends AbstractMapValue {
             this.pos = 0;
         }
 
+        @Override
         public boolean hasNext() {
             return pos < array.length;
         }
 
+        @Override
         public Map.Entry<Value,Value> next() {
             if(pos >= array.length) {
                 throw new NoSuchElementException();  // TODO message
@@ -103,6 +109,7 @@ class SequentialMapValueImpl extends AbstractMapValue {
             return pair;
         }
 
+        @Override
         public void remove() {
             throw new UnsupportedOperationException();  // TODO message
         }
@@ -115,10 +122,12 @@ class SequentialMapValueImpl extends AbstractMapValue {
             this.array = array;
         }
 
+        @Override
         public int size() {
             return array.length / 2;
         }
 
+        @Override
         public Iterator<Value> iterator() {
             return new ValueIterator(array, 0);
         }
@@ -131,10 +140,12 @@ class SequentialMapValueImpl extends AbstractMapValue {
             this.array = array;
         }
 
+        @Override
         public int size() {
             return array.length / 2;
         }
 
+        @Override
         public Iterator<Value> iterator() {
             return new ValueIterator(array, 1);
         }
@@ -149,10 +160,12 @@ class SequentialMapValueImpl extends AbstractMapValue {
             this.pos = offset;
         }
 
+        @Override
         public boolean hasNext() {
             return pos < array.length;
         }
 
+        @Override
         public Value next() {
             if(pos >= array.length) {
                 throw new NoSuchElementException();  // TODO message
@@ -162,23 +175,28 @@ class SequentialMapValueImpl extends AbstractMapValue {
             return v;
         }
 
+        @Override
         public void remove() {
             throw new UnsupportedOperationException();  // TODO message
         }
     }
 
+    @Override
     public Set<Map.Entry<Value,Value>> entrySet() {
         return new EntrySet(array);
     }
 
+    @Override
     public Set<Value> keySet() {
         return new KeySet(array);
     }
 
+    @Override
     public Collection<Value> values() {
         return new ValueCollection(array);
     }
 
+    @Override
     public void writeTo(Packer pk) throws IOException {
         pk.writeMapBegin(array.length/2);
         for(int i=0; i < array.length; i++) {
@@ -187,6 +205,7 @@ class SequentialMapValueImpl extends AbstractMapValue {
         pk.writeMapEnd();
     }
 
+    @Override
     public boolean equals(Object o) {
         if(o == this) {
             return true;
@@ -195,7 +214,7 @@ class SequentialMapValueImpl extends AbstractMapValue {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isMap()) {
+        if(!v.isMapValue()) {
             return false;
         }
 
@@ -257,6 +276,7 @@ class SequentialMapValueImpl extends AbstractMapValue {
 
     // TODO compareTo?
 
+    @Override
     public int hashCode() {
         int h = 0;
         for(int i=0; i < array.length; i+=2) {
@@ -265,10 +285,12 @@ class SequentialMapValueImpl extends AbstractMapValue {
         return h;
     }
 
+    @Override
     public String toString() {
         return toString(new StringBuilder()).toString();
     }
 
+    @Override
     public StringBuilder toString(StringBuilder sb) {
         if(array.length == 0) {
             return sb.append("{}");
