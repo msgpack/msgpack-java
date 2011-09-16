@@ -68,14 +68,22 @@ public abstract class AbstractUnpacker implements Unpacker {
     }
 
 
+    protected abstract boolean tryReadNil() throws IOException;
+
     @Override
     public <T> T read(Class<T> klass) throws IOException {
+        if(tryReadNil()) {
+            return null;
+        }
         Template<? super T> tmpl = msgpack.lookup(klass);
         return (T) tmpl.read(this, null);
     }
 
     @Override
     public <T> T read(T to) throws IOException {
+        if(tryReadNil()) {
+            return null;
+        }
         Template<? super T> tmpl = msgpack.lookup((Class<T>) to.getClass());
         return (T) tmpl.read(this, to);
     }

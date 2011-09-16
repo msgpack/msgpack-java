@@ -56,18 +56,18 @@ public class Converter extends AbstractUnpacker {
         }
     }
 
-    //@Override
-    //public boolean tryReadNil() throws IOException {
-    //    stack.checkCount();
-    //    if(getTop().isNil()) {
-    //        stack.reduceCount();
-    //        if(stack.getDepth() == 0) {
-    //            value = null;
-    //        }
-    //        return true;
-    //    }
-    //    return false;
-    //}
+    @Override
+    public boolean tryReadNil() throws IOException {
+        stack.checkCount();
+        if(getTop().isNil()) {
+            stack.reduceCount();
+            if(stack.getDepth() == 0) {
+                value = null;
+            }
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public boolean trySkipNil() throws IOException {
@@ -402,6 +402,10 @@ public class Converter extends AbstractUnpacker {
     public void reset() {
         stack.clear();
         value = null;
+    }
+
+    @Override
+    public void close() throws IOException {
     }
 }
 

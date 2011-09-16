@@ -319,19 +319,19 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         }
     }
 
-    //@Override
-    //public boolean tryReadNil() throws IOException {
-    //    stack.checkCount();
-    //    int b = getHeadByte() & 0xff;
-    //    if(b == 0xc0) {
-    //        // nil is read
-    //        stack.reduceCount();
-    //        headByte = REQUIRE_TO_READ_HEAD;
-    //        return true;
-    //    }
-    //    // not nil
-    //    return false;
-    //}
+    @Override
+    protected boolean tryReadNil() throws IOException {
+        stack.checkCount();
+        int b = getHeadByte() & 0xff;
+        if(b == 0xc0) {
+            // nil is read
+            stack.reduceCount();
+            headByte = REQUIRE_TO_READ_HEAD;
+            return true;
+        }
+        // not nil
+        return false;
+    }
 
     @Override
     public boolean trySkipNil() throws IOException {
