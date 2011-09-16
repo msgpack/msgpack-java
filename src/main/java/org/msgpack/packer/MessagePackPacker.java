@@ -244,13 +244,14 @@ public class MessagePackPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeNil() throws IOException {
+    public Packer writeNil() throws IOException {
         out.writeByte((byte)0xc0);
         stack.reduceCount();
+        return this;
     }
 
     @Override
-    public void writeArrayBegin(int size) throws IOException {
+    public Packer writeArrayBegin(int size) throws IOException {
         // TODO check size < 0?
         if(size < 16) {
             // FixArray
@@ -262,10 +263,11 @@ public class MessagePackPacker extends AbstractPacker {
         }
         stack.reduceCount();
         stack.pushArray(size);
+        return this;
     }
 
     @Override
-    public void writeArrayEnd(boolean check) throws IOException {
+    public Packer writeArrayEnd(boolean check) throws IOException {
         if(!stack.topIsArray()) {
             throw new MessageTypeException("writeArrayEnd() is called but writeArrayBegin() is not called");
         }
@@ -280,10 +282,11 @@ public class MessagePackPacker extends AbstractPacker {
             }
         }
         stack.pop();
+        return this;
     }
 
     @Override
-    public void writeMapBegin(int size) throws IOException {
+    public Packer writeMapBegin(int size) throws IOException {
         // TODO check size < 0?
         if(size < 16) {
             // FixMap
@@ -295,10 +298,11 @@ public class MessagePackPacker extends AbstractPacker {
         }
         stack.reduceCount();
         stack.pushMap(size);
+        return this;
     }
 
     @Override
-    public void writeMapEnd(boolean check) throws IOException {
+    public Packer writeMapEnd(boolean check) throws IOException {
         if(!stack.topIsMap()) {
             throw new MessageTypeException("writeMapEnd() is called but writeMapBegin() is not called");
         }
@@ -313,6 +317,7 @@ public class MessagePackPacker extends AbstractPacker {
             }
         }
         stack.pop();
+        return this;
     }
 
     public void reset() {

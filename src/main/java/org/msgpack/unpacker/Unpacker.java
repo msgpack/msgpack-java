@@ -30,13 +30,6 @@ import org.msgpack.type.Value;
  * @version 0.6.0
  */
 public interface Unpacker extends Iterable<Value>, Closeable {
-    public boolean tryReadNil() throws IOException;
-
-    public boolean trySkipNil() throws IOException;
-
-    public void readNil() throws IOException;
-
-
     public boolean readBoolean() throws IOException;
 
     public byte readByte() throws IOException;
@@ -57,13 +50,18 @@ public interface Unpacker extends Iterable<Value>, Closeable {
 
     public ByteBuffer readByteBuffer() throws IOException;
 
+    public String readString() throws IOException;
+
+    public Value readValue() throws IOException;
+
+
+    public void readNil() throws IOException;
 
     public int readArrayBegin() throws IOException;
 
     public void readArrayEnd(boolean check) throws IOException;
 
     public void readArrayEnd() throws IOException;
-
 
     public int readMapBegin() throws IOException;
 
@@ -72,18 +70,15 @@ public interface Unpacker extends Iterable<Value>, Closeable {
     public void readMapEnd() throws IOException;
 
 
-    public String readString() throws IOException;
-
-    public UnpackerIterator iterator();
+    public boolean trySkipNil() throws IOException;
 
     public void skip() throws IOException;
-
-
-    public Value readValue() throws IOException;
-
 
     public <T> T read(Class<T> klass) throws IOException;
 
     public <T> T read(T to) throws IOException;
+
+
+    public UnpackerIterator iterator();
 }
 

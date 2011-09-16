@@ -52,11 +52,6 @@ public class Unconverter extends AbstractPacker {
     }
 
     @Override
-    public void writeNil() throws IOException {
-        put(ValueFactory.nilValue());
-    }
-
-    @Override
     public void writeBoolean(boolean v) throws IOException {
         put(ValueFactory.booleanValue(v));
     }
@@ -112,7 +107,13 @@ public class Unconverter extends AbstractPacker {
     }
 
     @Override
-    public void writeArrayBegin(int size) throws IOException {
+    public Packer writeNil() throws IOException {
+        put(ValueFactory.nilValue());
+        return this;
+    }
+
+    @Override
+    public Packer writeArrayBegin(int size) throws IOException {
         if(size == 0) {
             Value[] array = new Value[size];
             putContainer(ValueFactory.arrayValue());
@@ -124,10 +125,11 @@ public class Unconverter extends AbstractPacker {
             stack.pushArray(size);
             values[stack.getDepth()] = array;
         }
+        return this;
     }
 
     @Override
-    public void writeArrayEnd(boolean check) throws IOException {
+    public Packer writeArrayEnd(boolean check) throws IOException {
         if(!stack.topIsArray()) {
             throw new MessageTypeException("writeArrayEnd() is called but writeArrayBegin() is not called");
         }
@@ -145,10 +147,11 @@ public class Unconverter extends AbstractPacker {
         if(stack.getDepth() <= 0) {
             this.result = (Value) values[0];
         }
+        return this;
     }
 
     @Override
-    public void writeMapBegin(int size) throws IOException {
+    public Packer writeMapBegin(int size) throws IOException {
         stack.checkCount();
         if(size == 0) {
             putContainer(ValueFactory.mapValue());
@@ -160,10 +163,11 @@ public class Unconverter extends AbstractPacker {
             stack.pushMap(size);
             values[stack.getDepth()] = array;
         }
+        return this;
     }
 
     @Override
-    public void writeMapEnd(boolean check) throws IOException {
+    public Packer writeMapEnd(boolean check) throws IOException {
         if(!stack.topIsMap()) {
             throw new MessageTypeException("writeMapEnd() is called but writeMapBegin() is not called");
         }
@@ -181,6 +185,7 @@ public class Unconverter extends AbstractPacker {
         if(stack.getDepth() <= 0) {
             this.result = (Value) values[0];
         }
+        return this;
     }
 
     @Override

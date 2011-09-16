@@ -74,18 +74,18 @@ public interface Packer extends Closeable {
     public Packer write(Object o) throws IOException;
 
 
-    public void writeNil() throws IOException;
+    public Packer writeNil() throws IOException;
 
-    public void writeArrayBegin(int size) throws IOException;
+    public Packer writeArrayBegin(int size) throws IOException;
 
-    public void writeArrayEnd(boolean check) throws IOException;
+    public Packer writeArrayEnd(boolean check) throws IOException;
 
-    public void writeArrayEnd() throws IOException;
+    public Packer writeArrayEnd() throws IOException;
 
-    public void writeMapBegin(int size) throws IOException;
+    public Packer writeMapBegin(int size) throws IOException;
 
-    public void writeMapEnd(boolean check) throws IOException;
+    public Packer writeMapEnd(boolean check) throws IOException;
 
-    public void writeMapEnd() throws IOException;
+    public Packer writeMapEnd() throws IOException;
 }
 

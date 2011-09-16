@@ -187,23 +187,25 @@ public class JSONPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeNil() throws IOException {
+    public Packer writeNil() throws IOException {
         beginElement();
         out.write(NULL, 0, NULL.length);
         endElement();
+        return this;
     }
 
     @Override
-    public void writeArrayBegin(int size) throws IOException {
+    public Packer writeArrayBegin(int size) throws IOException {
         beginElement();
         out.writeByte(LEFT_BR);
         endElement();
         stack.pushArray(size);
         flags[stack.getDepth()] = FLAG_FIRST_ELEMENT;
+        return this;
     }
 
     @Override
-    public void writeArrayEnd(boolean check) throws IOException {
+    public Packer writeArrayEnd(boolean check) throws IOException {
         if(!stack.topIsArray()) {
             throw new MessageTypeException("writeArrayEnd() is called but writeArrayBegin() is not called");
         }
@@ -220,19 +222,21 @@ public class JSONPacker extends AbstractPacker {
         stack.pop();
 
         out.writeByte(RIGHT_BR);
+        return this;
     }
 
     @Override
-    public void writeMapBegin(int size) throws IOException {
+    public Packer writeMapBegin(int size) throws IOException {
         beginElement();
         out.writeByte(LEFT_WN);
         endElement();
         stack.pushMap(size);
         flags[stack.getDepth()] = FLAG_FIRST_ELEMENT | FLAG_MAP_KEY;
+        return this;
     }
 
     @Override
-    public void writeMapEnd(boolean check) throws IOException {
+    public Packer writeMapEnd(boolean check) throws IOException {
         if(!stack.topIsMap()) {
             throw new MessageTypeException("writeMapEnd() is called but writeMapBegin() is not called");
         }
@@ -249,6 +253,7 @@ public class JSONPacker extends AbstractPacker {
         stack.pop();
 
         out.writeByte(RIGHT_WN);
+        return this;
     }
 
     @Override

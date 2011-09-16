@@ -218,13 +218,15 @@ public abstract class AbstractPacker implements Packer {
 
 
     @Override
-    public void writeArrayEnd() throws IOException {
+    public Packer writeArrayEnd() throws IOException {
         writeArrayEnd(true);
+        return this;
     }
 
     @Override
-    public void writeMapEnd() throws IOException {
+    public Packer writeMapEnd() throws IOException {
         writeMapEnd(true);
+        return this;
     }
 
     @Override
