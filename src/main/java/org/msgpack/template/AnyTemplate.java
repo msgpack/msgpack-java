@@ -57,6 +57,10 @@ public class AnyTemplate<T> extends AbstractTemplate<T> {
         if(!required && u.trySkipNil()) {
             return null;
         }
-	return u.read(to);
+	T o = u.read(to);
+        if(required && o == null) {
+            throw new MessageTypeException("Unexpected nil value");
+        }
+        return o;
     }
 }
