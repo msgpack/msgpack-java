@@ -29,7 +29,7 @@ public class TestValueToStringJSONUnpack extends TestSet {
     public void testBoolean(boolean v) throws Exception {
 	MessagePack msgpack = new JSON();
         Unconverter packer = new Unconverter(msgpack);
-	packer.writeBoolean(v);
+	packer.write(v);
         byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
         Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	boolean ret = unpacker.readBoolean();
@@ -45,7 +45,7 @@ public class TestValueToStringJSONUnpack extends TestSet {
     public void testByte(byte v) throws Exception {
 	MessagePack msgpack = new JSON();
         Unconverter packer = new Unconverter(msgpack);
-	packer.writeByte(v);
+	packer.write(v);
         byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
         Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	byte ret = unpacker.readByte();
@@ -61,7 +61,7 @@ public class TestValueToStringJSONUnpack extends TestSet {
     public void testShort(short v) throws Exception {
 	MessagePack msgpack = new JSON();
         Unconverter packer = new Unconverter(msgpack);
-	packer.writeShort(v);
+	packer.write(v);
         byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
         Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	short ret = unpacker.readShort();
@@ -77,7 +77,7 @@ public class TestValueToStringJSONUnpack extends TestSet {
     public void testInteger(int v) throws Exception {
 	MessagePack msgpack = new JSON();
         Unconverter packer = new Unconverter(msgpack);
-	packer.writeInt(v);
+	packer.write(v);
         byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
         Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	int ret = unpacker.readInt();
@@ -93,7 +93,7 @@ public class TestValueToStringJSONUnpack extends TestSet {
     public void testLong(long v) throws Exception {
 	MessagePack msgpack = new JSON();
         Unconverter packer = new Unconverter(msgpack);
-	packer.writeLong(v);
+	packer.write(v);
         byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
         Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	long ret = unpacker.readLong();
@@ -110,7 +110,7 @@ public class TestValueToStringJSONUnpack extends TestSet {
 	MessagePack msgpack = new JSON();
         Unconverter packer = new Unconverter(msgpack);
         if(((Float)v).isInfinite()) {
-            packer.writeDouble(v);
+            packer.write(v);
             String str = packer.getResult().toString();
             if(v < 0) {
                 assertEquals("-Infinity", str);
@@ -119,12 +119,12 @@ public class TestValueToStringJSONUnpack extends TestSet {
             }
             return;
         } else if(((Float)v).isNaN()) {
-            packer.writeDouble(v);
+            packer.write(v);
             String str = packer.getResult().toString();
             assertEquals("NaN", str);
             return;
         }
-	packer.writeFloat(v);
+	packer.write(v);
         byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
         Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	float ret = unpacker.readFloat();
@@ -141,7 +141,7 @@ public class TestValueToStringJSONUnpack extends TestSet {
 	MessagePack msgpack = new JSON();
         Unconverter packer = new Unconverter(msgpack);
         if(((Double)v).isInfinite()) {
-            packer.writeDouble(v);
+            packer.write(v);
             String str = packer.getResult().toString();
             if(v < 0) {
                 assertEquals("-Infinity", str);
@@ -150,12 +150,12 @@ public class TestValueToStringJSONUnpack extends TestSet {
             }
             return;
         } else if(((Double)v).isNaN()) {
-            packer.writeDouble(v);
+            packer.write(v);
             String str = packer.getResult().toString();
             assertEquals("NaN", str);
             return;
         }
-	packer.writeDouble(v);
+	packer.write(v);
         byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
         Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	double ret = unpacker.readDouble();
@@ -181,7 +181,7 @@ public class TestValueToStringJSONUnpack extends TestSet {
     public void testBigInteger(BigInteger v) throws Exception {
 	MessagePack msgpack = new JSON();
         Unconverter packer = new Unconverter(msgpack);
-	packer.writeBigInteger(v);
+	packer.write(v);
         byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
         Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	BigInteger ret = unpacker.readBigInteger();
@@ -197,7 +197,7 @@ public class TestValueToStringJSONUnpack extends TestSet {
     public void testString(String v) throws Exception {
 	MessagePack msgpack = new JSON();
         Unconverter packer = new Unconverter(msgpack);
-	packer.writeString(v);
+	packer.write(v);
         byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
         Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	String ret = unpacker.readString();
@@ -213,9 +213,9 @@ public class TestValueToStringJSONUnpack extends TestSet {
     public void testByteArray(byte[] v) throws Exception {
 	MessagePack msgpack = new JSON();
         Unconverter packer = new Unconverter(msgpack);
-	//packer.writeByteArray(v);
+	//packer.write(v);
         String str = new String(v);
-	packer.writeString(str);
+	packer.write(str);
         byte[] bytes = packer.getResult().toString().getBytes("UTF-8");
         Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	//byte[] ret = unpacker.readByteArray();

@@ -67,7 +67,7 @@ class DoubleValueImpl extends FloatValue {
     }
 
     public void writeTo(Packer pk) throws IOException {
-        pk.writeDouble(value);
+        pk.write(value);
     }
 
     public boolean equals(Object o) {

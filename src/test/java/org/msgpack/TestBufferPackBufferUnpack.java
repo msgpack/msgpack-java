@@ -26,7 +26,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
     public void testBoolean(boolean v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	BufferPacker packer = msgpack.createBufferPacker();
-	packer.writeBoolean(v);
+	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	boolean ret = unpacker.readBoolean();
@@ -42,7 +42,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
     public void testByte(byte v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	BufferPacker packer = msgpack.createBufferPacker();
-	packer.writeByte(v);
+	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	byte ret = unpacker.readByte();
@@ -58,7 +58,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
     public void testShort(short v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	BufferPacker packer = msgpack.createBufferPacker();
-	packer.writeShort(v);
+	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	short ret = unpacker.readShort();
@@ -74,7 +74,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
     public void testInteger(int v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	BufferPacker packer = msgpack.createBufferPacker();
-	packer.writeInt(v);
+	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	int ret = unpacker.readInt();
@@ -90,7 +90,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
     public void testLong(long v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	BufferPacker packer = msgpack.createBufferPacker();
-	packer.writeLong(v);
+	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	long ret = unpacker.readLong();
@@ -106,7 +106,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
     public void testFloat(float v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	BufferPacker packer = msgpack.createBufferPacker();
-	packer.writeFloat(v);
+	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	float ret = unpacker.readFloat();
@@ -122,7 +122,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
     public void testDouble(double v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	BufferPacker packer = msgpack.createBufferPacker();
-	packer.writeDouble(v);
+	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	double ret = unpacker.readDouble();
@@ -148,7 +148,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
     public void testBigInteger(BigInteger v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	BufferPacker packer = msgpack.createBufferPacker();
-	packer.writeBigInteger(v);
+	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	BigInteger ret = unpacker.readBigInteger();
@@ -164,7 +164,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
     public void testString(String v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	BufferPacker packer = msgpack.createBufferPacker();
-	packer.writeString(v);
+	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	String ret = unpacker.readString();
@@ -180,7 +180,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
     public void testByteArray(byte[] v) throws Exception {
 	MessagePack msgpack = new MessagePack();
 	BufferPacker packer = msgpack.createBufferPacker();
-	packer.writeByteArray(v);
+	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	byte[] ret = unpacker.readByteArray();

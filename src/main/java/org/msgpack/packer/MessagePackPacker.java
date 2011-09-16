@@ -33,7 +33,6 @@ import org.msgpack.MessageTypeException;
 
 public class MessagePackPacker extends AbstractPacker {
     protected final Output out;
-    protected CharsetEncoder encoder;
 
     private PackerStack stack = new PackerStack();
 
@@ -47,14 +46,11 @@ public class MessagePackPacker extends AbstractPacker {
 
     protected MessagePackPacker(MessagePack msgpack, Output out) {
         super(msgpack);
-        this.encoder = Charset.forName("UTF-8").newEncoder().
-            onMalformedInput(CodingErrorAction.REPORT).
-            onUnmappableCharacter(CodingErrorAction.REPORT);
         this.out = out;
     }
 
     @Override
-    public void writeByte(byte d) throws IOException {
+    protected void writeByte(byte d) throws IOException {
         if(d < -(1<<5)) {
             out.writeByteAndByte((byte)0xd0, d);
         } else {
@@ -64,7 +60,7 @@ public class MessagePackPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeShort(short d) throws IOException {
+    protected void writeShort(short d) throws IOException {
         if(d < -(1<<5)) {
             if(d < -(1<<7)) {
                 // signed 16
@@ -89,7 +85,7 @@ public class MessagePackPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeInt(int d) throws IOException {
+    protected void writeInt(int d) throws IOException {
         if(d < -(1<<5)) {
             if(d < -(1<<15)) {
                 // signed 32
@@ -120,7 +116,7 @@ public class MessagePackPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeLong(long d) throws IOException {
+    protected void writeLong(long d) throws IOException {
         if(d < -(1L<<5)) {
             if(d < -(1L<<15)) {
                 if(d < -(1L<<31)) {
@@ -165,7 +161,7 @@ public class MessagePackPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeBigInteger(BigInteger d) throws IOException {
+    protected void writeBigInteger(BigInteger d) throws IOException {
         if(d.bitLength() <= 63) {
             writeLong(d.longValue());
             stack.reduceCount();
@@ -179,25 +175,19 @@ public class MessagePackPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeFloat(float d) throws IOException {
+    protected void writeFloat(float d) throws IOException {
         out.writeByteAndFloat((byte)0xca, d);
         stack.reduceCount();
     }
 
     @Override
-    public void writeDouble(double d) throws IOException {
+    protected void writeDouble(double d) throws IOException {
         out.writeByteAndDouble((byte)0xcb, d);
         stack.reduceCount();
     }
 
     @Override
-    public void writeNil() throws IOException {
-        out.writeByte((byte)0xc0);
-        stack.reduceCount();
-    }
-
-    @Override
-    public void writeBoolean(boolean d) throws IOException {
+    protected void writeBoolean(boolean d) throws IOException {
         if(d) {
             // true
             out.writeByte((byte)0xc3);
@@ -209,7 +199,7 @@ public class MessagePackPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeByteArray(byte[] b, int off, int len) throws IOException {
+    protected void writeByteArray(byte[] b, int off, int len) throws IOException {
         if(len < 32) {
             out.writeByte((byte)(0xa0 | len));
         } else if(len < 65536) {
@@ -222,7 +212,7 @@ public class MessagePackPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeByteBuffer(ByteBuffer bb) throws IOException {
+    protected void writeByteBuffer(ByteBuffer bb) throws IOException {
         int len = bb.remaining();
         if(len < 32) {
             out.writeByte((byte)(0xa0 | len));
@@ -241,7 +231,7 @@ public class MessagePackPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeString(String s) throws IOException {
+    protected void writeString(String s) throws IOException {
         byte[] b;
         try {
             // TODO encoding error?
@@ -250,6 +240,12 @@ public class MessagePackPacker extends AbstractPacker {
             throw new MessageTypeException(ex);
         }
         writeByteArray(b, 0, b.length);
+        stack.reduceCount();
+    }
+
+    @Override
+    public void writeNil() throws IOException {
+        out.writeByte((byte)0xc0);
         stack.reduceCount();
     }
 

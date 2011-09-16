@@ -34,7 +34,7 @@ public class BooleanTemplate extends AbstractTemplate<Boolean> {
             pk.writeNil();
             return;
         }
-        pk.writeBoolean(target);
+        pk.write((boolean)target);
     }
 
     public Boolean read(Unpacker u, Boolean to, boolean required) throws IOException {

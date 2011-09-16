@@ -34,7 +34,7 @@ public class FloatTemplate extends AbstractTemplate<Float> {
             pk.writeNil();
             return;
         }
-        pk.writeFloat(target);
+        pk.write((float)target);
     }
 
     public Float read(Unpacker u, Float to, boolean required) throws IOException {

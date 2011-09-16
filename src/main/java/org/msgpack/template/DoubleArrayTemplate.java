@@ -36,7 +36,7 @@ public class DoubleArrayTemplate extends AbstractTemplate<double[]> {
         }
         pk.writeArrayBegin(target.length);
         for (double a : target) {
-            pk.writeDouble(a);
+            pk.write(a);
         }
         pk.writeArrayEnd();
     }

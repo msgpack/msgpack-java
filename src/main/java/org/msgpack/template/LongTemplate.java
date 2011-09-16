@@ -34,7 +34,7 @@ public class LongTemplate extends AbstractTemplate<Long> {
             pk.writeNil();
             return;
         }
-        pk.writeLong(target);
+        pk.write((long)target);
     }
 
     public Long read(Unpacker u, Long to, boolean required) throws IOException {

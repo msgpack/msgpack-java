@@ -35,7 +35,7 @@ public class BigDecimalTemplate extends AbstractTemplate<BigDecimal> {
             pk.writeNil();
             return;
         }
-        pk.writeString(target.toString());
+        pk.write(target.toString());
     }
 
     public BigDecimal read(Unpacker u, BigDecimal to, boolean required) throws IOException {

@@ -35,7 +35,7 @@ public class ValueTemplate extends AbstractTemplate<Value> {
             pk.writeNil();
             return;
         }
-        pk.write(target);
+        target.writeTo(pk);
     }
 
     public Value read(Unpacker u, Value to, boolean required) throws IOException {

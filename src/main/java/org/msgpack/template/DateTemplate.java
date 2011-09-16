@@ -36,7 +36,7 @@ public class DateTemplate extends AbstractTemplate<Date> {
             pk.writeNil();
             return;
         }
-        pk.writeLong(target.getTime());
+        pk.write((long)target.getTime());
     }
 
     public Date read(Unpacker u, Date to, boolean required) throws IOException {

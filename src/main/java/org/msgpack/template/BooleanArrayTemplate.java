@@ -36,7 +36,7 @@ public class BooleanArrayTemplate extends AbstractTemplate<boolean[]> {
         }
         pk.writeArrayBegin(target.length);
         for (boolean a : target) {
-            pk.writeBoolean(a);
+            pk.write(a);
         }
         pk.writeArrayEnd();
     }

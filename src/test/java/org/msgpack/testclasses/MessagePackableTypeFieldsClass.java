@@ -105,18 +105,18 @@ public class MessagePackableTypeFieldsClass {
 	public void writeTo(Packer packer) throws IOException {
             packer.writeArrayBegin(3);
             {
-                packer.writeString(f0);
+                packer.write(f0);
                 packer.writeArrayBegin(f1.length);
                 {
                     for(int e : f1) {
-                        packer.writeInt(e);
+                        packer.write(e);
                     }
                 }
                 packer.writeArrayEnd();
                 packer.writeArrayBegin(f2.size());
                 {
                     for(String e : f2) {
-                        packer.writeString(e);
+                        packer.write(e);
                     }
                 }
                 packer.writeArrayEnd();

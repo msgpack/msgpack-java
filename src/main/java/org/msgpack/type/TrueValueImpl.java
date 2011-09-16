@@ -34,7 +34,7 @@ class TrueValueImpl extends AbstractBooleanValue {
     }
 
     public void writeTo(Packer pk) throws IOException {
-        pk.writeBoolean(true);
+        pk.write(true);
     }
 
     public boolean equals(Object o) {

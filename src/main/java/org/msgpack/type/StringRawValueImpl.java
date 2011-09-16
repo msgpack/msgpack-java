@@ -44,7 +44,7 @@ class StringRawValueImpl extends AbstractRawValue {
     }
 
     public void writeTo(Packer pk) throws IOException {
-        pk.writeString(string);
+        pk.write(string);
     }
 
     public boolean equals(Object o) {

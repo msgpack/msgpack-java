@@ -23,7 +23,7 @@ public class TestUnconvertReconvert extends TestSet {
     public void testBoolean(boolean v) throws Exception {
 	MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
-        packer.writeBoolean(v);
+        packer.write(v);
         Value r = packer.getResult();
         Converter unpacker = new Converter(msgpack, r);
         Value ret = unpacker.readValue();
@@ -39,7 +39,7 @@ public class TestUnconvertReconvert extends TestSet {
     public void testByte(byte v) throws Exception {
 	MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
-        packer.writeByte(v);
+        packer.write(v);
         Value r = packer.getResult();
         Converter unpacker = new Converter(msgpack, r);
         Value ret = unpacker.readValue();
@@ -55,7 +55,7 @@ public class TestUnconvertReconvert extends TestSet {
     public void testShort(short v) throws Exception {
 	MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
-        packer.writeShort(v);
+        packer.write(v);
         Value r = packer.getResult();
         Converter unpacker = new Converter(msgpack, r);
         Value ret = unpacker.readValue();
@@ -71,7 +71,7 @@ public class TestUnconvertReconvert extends TestSet {
     public void testInteger(int v) throws Exception {
 	MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
-        packer.writeInt(v);
+        packer.write(v);
         Value r = packer.getResult();
         Converter unpacker = new Converter(msgpack, r);
         Value ret = unpacker.readValue();
@@ -87,7 +87,7 @@ public class TestUnconvertReconvert extends TestSet {
     public void testLong(long v) throws Exception {
 	MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
-        packer.writeLong(v);
+        packer.write(v);
         Value r = packer.getResult();
         Converter unpacker = new Converter(msgpack, r);
         Value ret = unpacker.readValue();
@@ -103,7 +103,7 @@ public class TestUnconvertReconvert extends TestSet {
     public void testFloat(float v) throws Exception {
 	MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
-        packer.writeFloat(v);
+        packer.write(v);
         Value r = packer.getResult();
         Converter unpacker = new Converter(msgpack, r);
         Value ret = unpacker.readValue();
@@ -119,7 +119,7 @@ public class TestUnconvertReconvert extends TestSet {
     public void testDouble(double v) throws Exception {
 	MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
-        packer.writeDouble(v);
+        packer.write(v);
         Value r = packer.getResult();
         Converter unpacker = new Converter(msgpack, r);
         Value ret = unpacker.readValue();
@@ -145,7 +145,7 @@ public class TestUnconvertReconvert extends TestSet {
     public void testBigInteger(BigInteger v) throws Exception {
 	MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
-        packer.writeBigInteger(v);
+        packer.write(v);
         Value r = packer.getResult();
         Converter unpacker = new Converter(msgpack, r);
         Value ret = unpacker.readValue();
@@ -161,7 +161,7 @@ public class TestUnconvertReconvert extends TestSet {
     public void testString(String v) throws Exception {
 	MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
-        packer.writeString(v);
+        packer.write(v);
         Value r = packer.getResult();
         Converter unpacker = new Converter(msgpack, r);
         Value ret = unpacker.readValue();
@@ -177,7 +177,7 @@ public class TestUnconvertReconvert extends TestSet {
     public void testByteArray(byte[] v) throws Exception {
 	MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
-        packer.writeByteArray(v);
+        packer.write(v);
         Value r = packer.getResult();
         Converter unpacker = new Converter(msgpack, r);
         Value ret = unpacker.readValue();

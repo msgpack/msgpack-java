@@ -36,7 +36,7 @@ public class LongArrayTemplate extends AbstractTemplate<long[]> {
         }
         pk.writeArrayBegin(target.length);
         for (long a : target) {
-            pk.writeLong(a);
+            pk.write(a);
         }
         pk.writeArrayEnd();
     }

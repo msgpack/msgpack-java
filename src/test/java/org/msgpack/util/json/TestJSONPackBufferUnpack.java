@@ -34,7 +34,7 @@ public class TestJSONPackBufferUnpack extends TestSet {
 	MessagePack msgpack = new JSON();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeBoolean(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	boolean ret = unpacker.readBoolean();
@@ -51,7 +51,7 @@ public class TestJSONPackBufferUnpack extends TestSet {
 	MessagePack msgpack = new JSON();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeByte(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	byte ret = unpacker.readByte();
@@ -68,7 +68,7 @@ public class TestJSONPackBufferUnpack extends TestSet {
 	MessagePack msgpack = new JSON();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeShort(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	short ret = unpacker.readShort();
@@ -85,7 +85,7 @@ public class TestJSONPackBufferUnpack extends TestSet {
 	MessagePack msgpack = new JSON();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeInt(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	int ret = unpacker.readInt();
@@ -102,7 +102,7 @@ public class TestJSONPackBufferUnpack extends TestSet {
 	MessagePack msgpack = new JSON();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeLong(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	long ret = unpacker.readLong();
@@ -121,14 +121,14 @@ public class TestJSONPackBufferUnpack extends TestSet {
 	Packer packer = msgpack.createPacker(out);
         if(((Float)v).isInfinite() || ((Float)v).isNaN()) {
             try {
-                packer.writeFloat(v);
+                packer.write(v);
                 fail("JSONPacker should reject infinite and NaN value");
             } catch (IOException ex) {
                 assertTrue(ex instanceof IOException);
             }
             return;
         }
-	packer.writeFloat(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	float ret = unpacker.readFloat();
@@ -147,14 +147,14 @@ public class TestJSONPackBufferUnpack extends TestSet {
 	Packer packer = msgpack.createPacker(out);
         if(((Double)v).isInfinite() || ((Double)v).isNaN()) {
             try {
-                packer.writeDouble(v);
+                packer.write(v);
                 fail("JSONPacker should reject infinite and NaN value");
             } catch (IOException ex) {
                 assertTrue(ex instanceof IOException);
             }
             return;
         }
-	packer.writeDouble(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	double ret = unpacker.readDouble();
@@ -182,7 +182,7 @@ public class TestJSONPackBufferUnpack extends TestSet {
 	MessagePack msgpack = new JSON();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeBigInteger(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	BigInteger ret = unpacker.readBigInteger();
@@ -199,7 +199,7 @@ public class TestJSONPackBufferUnpack extends TestSet {
 	MessagePack msgpack = new JSON();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeString(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	String ret = unpacker.readString();
@@ -216,9 +216,9 @@ public class TestJSONPackBufferUnpack extends TestSet {
 	MessagePack msgpack = new JSON();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	//packer.writeByteArray(v);
+	//packer.write(v);
         String str = new String(v);
-	packer.writeString(str);
+	packer.write(str);
 	byte[] bytes = out.toByteArray();
 	Unpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	//byte[] ret = unpacker.readByteArray();

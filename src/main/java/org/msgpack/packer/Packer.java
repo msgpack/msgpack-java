@@ -31,32 +31,50 @@ import org.msgpack.type.Value;
  * @version 0.6.0
  */
 public interface Packer extends Closeable {
+    public Packer write(boolean o) throws IOException;
+
+    public Packer write(byte o) throws IOException;
+
+    public Packer write(short o) throws IOException;
+
+    public Packer write(int o) throws IOException;
+
+    public Packer write(long o) throws IOException;
+
+    public Packer write(float o) throws IOException;
+
+    public Packer write(double o) throws IOException;
+
+    public Packer write(Boolean o) throws IOException;
+
+    public Packer write(Byte o) throws IOException;
+
+    public Packer write(Short o) throws IOException;
+
+    public Packer write(Integer o) throws IOException;
+
+    public Packer write(Long o) throws IOException;
+
+    public Packer write(Float o) throws IOException;
+
+    public Packer write(Double o) throws IOException;
+
+    public Packer write(BigInteger o) throws IOException;
+
+    public Packer write(byte[] o) throws IOException;
+
+    public Packer write(byte[] o, int off, int len) throws IOException;
+
+    public Packer write(ByteBuffer o) throws IOException;
+
+    public Packer write(String o) throws IOException;
+
+    public Packer write(Value v) throws IOException;
+
+    public Packer write(Object o) throws IOException;
+
+
     public void writeNil() throws IOException;
-
-    public void writeBoolean(boolean v) throws IOException;
-
-    public void writeByte(byte v) throws IOException;
-
-    public void writeShort(short v) throws IOException;
-
-    public void writeInt(int v) throws IOException;
-
-    public void writeLong(long v) throws IOException;
-
-    public void writeBigInteger(BigInteger v) throws IOException;
-
-    public void writeFloat(float v) throws IOException;
-
-    public void writeDouble(double v) throws IOException;
-
-    public void writeByteArray(byte[] b) throws IOException;
-
-    public void writeByteArray(byte[] b, int off, int len) throws IOException;
-
-    public void writeByteBuffer(ByteBuffer bb) throws IOException;
-
-    public void writeString(String s) throws IOException;
-
 
     public void writeArrayBegin(int size) throws IOException;
 
@@ -69,10 +87,5 @@ public interface Packer extends Closeable {
     public void writeMapEnd(boolean check) throws IOException;
 
     public void writeMapEnd() throws IOException;
-
-
-    public Packer write(Object o) throws IOException;
-
-    public Packer write(Value v) throws IOException;
 }
 

@@ -80,14 +80,7 @@ public class JSONPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeNil() throws IOException {
-        beginElement();
-        out.write(NULL, 0, NULL.length);
-        endElement();
-    }
-
-    @Override
-    public void writeBoolean(boolean v) throws IOException {
+    protected void writeBoolean(boolean v) throws IOException {
         beginElement();
         if(v) {
             out.write(TRUE, 0, TRUE.length);
@@ -98,7 +91,7 @@ public class JSONPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeByte(byte v) throws IOException {
+    protected void writeByte(byte v) throws IOException {
         beginElement();
         byte[] b = Byte.toString(v).getBytes();  // TODO optimize
         out.write(b, 0, b.length);
@@ -106,7 +99,7 @@ public class JSONPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeShort(short v) throws IOException {
+    protected void writeShort(short v) throws IOException {
         beginElement();
         byte[] b = Short.toString(v).getBytes();  // TODO optimize
         out.write(b, 0, b.length);
@@ -114,7 +107,7 @@ public class JSONPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeInt(int v) throws IOException {
+    protected void writeInt(int v) throws IOException {
         beginElement();
         byte[] b = Integer.toString(v).getBytes();  // TODO optimize
         out.write(b, 0, b.length);
@@ -122,7 +115,7 @@ public class JSONPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeLong(long v) throws IOException {
+    protected void writeLong(long v) throws IOException {
         beginElement();
         byte[] b = Long.toString(v).getBytes();  // TODO optimize
         out.write(b, 0, b.length);
@@ -130,7 +123,7 @@ public class JSONPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeBigInteger(BigInteger v) throws IOException {
+    protected void writeBigInteger(BigInteger v) throws IOException {
         beginElement();
         byte[] b = v.toString().getBytes();  // TODO optimize
         out.write(b, 0, b.length);
@@ -138,7 +131,7 @@ public class JSONPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeFloat(float v) throws IOException {
+    protected void writeFloat(float v) throws IOException {
         beginElement();
         Float r = v;
         if(r.isInfinite() || r.isNaN()) {
@@ -150,7 +143,7 @@ public class JSONPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeDouble(double v) throws IOException {
+    protected void writeDouble(double v) throws IOException {
         beginElement();
         Double r = v;
         if(r.isInfinite() || r.isNaN()) {
@@ -162,7 +155,7 @@ public class JSONPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeByteArray(byte[] b, int off, int len) throws IOException {
+    protected void writeByteArray(byte[] b, int off, int len) throws IOException {
         beginStringElement();
         out.writeByte(QUOTE);
         escape(out, b, off, len);
@@ -171,7 +164,7 @@ public class JSONPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeByteBuffer(ByteBuffer bb) throws IOException {
+    protected void writeByteBuffer(ByteBuffer bb) throws IOException {
         beginStringElement();
         out.writeByte(QUOTE);
         int pos = bb.position();
@@ -185,11 +178,18 @@ public class JSONPacker extends AbstractPacker {
     }
 
     @Override
-    public void writeString(String s) throws IOException {
+    protected void writeString(String s) throws IOException {
         beginStringElement();
         out.writeByte(QUOTE);
         escape(out, s);
         out.writeByte(QUOTE);
+        endElement();
+    }
+
+    @Override
+    public void writeNil() throws IOException {
+        beginElement();
+        out.write(NULL, 0, NULL.length);
         endElement();
     }
 

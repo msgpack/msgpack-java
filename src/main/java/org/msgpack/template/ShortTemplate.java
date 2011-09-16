@@ -34,7 +34,7 @@ public class ShortTemplate extends AbstractTemplate<Short> {
             pk.writeNil();
             return;
         }
-        pk.writeShort(target);
+        pk.write(target);
     }
 
     public Short read(Unpacker u, Short to, boolean required) throws IOException {

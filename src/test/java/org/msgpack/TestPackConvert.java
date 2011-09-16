@@ -31,7 +31,7 @@ public class TestPackConvert extends TestSet {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeBoolean(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
@@ -50,7 +50,7 @@ public class TestPackConvert extends TestSet {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeByte(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
@@ -69,7 +69,7 @@ public class TestPackConvert extends TestSet {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeShort(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
@@ -88,7 +88,7 @@ public class TestPackConvert extends TestSet {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeInt(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
@@ -107,7 +107,7 @@ public class TestPackConvert extends TestSet {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeLong(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
@@ -126,7 +126,7 @@ public class TestPackConvert extends TestSet {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeFloat(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
@@ -145,7 +145,7 @@ public class TestPackConvert extends TestSet {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeDouble(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
@@ -177,7 +177,7 @@ public class TestPackConvert extends TestSet {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeBigInteger(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
@@ -196,7 +196,7 @@ public class TestPackConvert extends TestSet {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeString(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
@@ -215,7 +215,7 @@ public class TestPackConvert extends TestSet {
 	MessagePack msgpack = new MessagePack();
 	ByteArrayOutputStream out = new ByteArrayOutputStream();
 	Packer packer = msgpack.createPacker(out);
-	packer.writeByteArray(v);
+	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();

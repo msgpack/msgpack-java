@@ -45,7 +45,7 @@ public class TestMalformedEncoding {
         for(byte[] malform : malforms) {
             MessagePack msgpack = new MessagePack();
             BufferPacker pk = msgpack.createBufferPacker();
-            pk.writeByteArray(malform);
+            pk.write(malform);
             byte[] b = pk.toByteArray();
             Unpacker u = msgpack.createBufferUnpacker(b);
             try {
@@ -63,7 +63,7 @@ public class TestMalformedEncoding {
         for(byte[] malform : malforms) {
             MessagePack msgpack = new MessagePack();
             BufferPacker pk = msgpack.createBufferPacker();
-            pk.writeByteArray(malform);
+            pk.write(malform);
             byte[] b = pk.toByteArray();
             Unpacker u = msgpack.createUnpacker(new ByteArrayInputStream(b));
             try {
@@ -98,7 +98,7 @@ public class TestMalformedEncoding {
             JSON json = new JSON();
             Packer pk = json.createPacker(new ByteArrayOutputStream());
             try {
-                pk.writeByteArray(malform);
+                pk.write(malform);
                 fail("no exception");
             } catch (CharacterCodingException expected) {
             }
@@ -111,7 +111,7 @@ public class TestMalformedEncoding {
             JSON json = new JSON();
             Packer pk = json.createBufferPacker();
             try {
-                pk.writeByteArray(malform);
+                pk.write(malform);
                 fail("no exception");
             } catch (CharacterCodingException expected) {
             }

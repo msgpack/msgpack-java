@@ -90,7 +90,7 @@ class IntValueImpl extends IntegerValue {
     }
 
     public void writeTo(Packer pk) throws IOException {
-        pk.writeInt(value);
+        pk.write(value);
     }
 
     // TODO compareTo

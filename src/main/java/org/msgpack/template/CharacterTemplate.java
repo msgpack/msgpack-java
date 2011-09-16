@@ -41,7 +41,7 @@ public class CharacterTemplate extends AbstractTemplate<Character> {
             pk.writeNil();
             return;
         }
-        pk.writeInt((char) target);
+        pk.write((int)(char)target);
     }
 
     @Override

@@ -181,24 +181,7 @@ public abstract class BuildContext<T extends FieldEntry> {
     }
 
     protected String primitiveWriteName(Class<?> type) {
-	if (type == boolean.class) {
-	    return "writeBoolean";
-	} else if (type == byte.class) {
-	    return "writeByte";
-	} else if (type == short.class) {
-	    return "writeShort";
-	} else if (type == int.class) {
-	    return "writeInt";
-	} else if (type == long.class) {
-	    return "writeLong";
-	} else if (type == float.class) {
-	    return "writeFloat";
-	} else if (type == double.class) {
-	    return "writeDouble";
-	} else if (type == char.class) {
-	    return "writeInt";
-	}
-	return null;
+        return "write";
     }
 
     protected String primitiveReadName(Class<?> type) {

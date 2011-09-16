@@ -34,7 +34,7 @@ public class ByteArrayTemplate extends AbstractTemplate<byte[]> {
             pk.writeNil();
             return;
         }
-        pk.writeByteArray(target);
+        pk.write(target);
     }
 
     public byte[] read(Unpacker u, byte[] to, boolean required) throws IOException {

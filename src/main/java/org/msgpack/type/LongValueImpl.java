@@ -95,7 +95,7 @@ class LongValueImpl extends IntegerValue {
     }
 
     public void writeTo(Packer pk) throws IOException {
-        pk.writeLong(value);
+        pk.write(value);
     }
 
     // TODO compareTo

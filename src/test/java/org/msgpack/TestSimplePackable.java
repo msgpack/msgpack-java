@@ -27,15 +27,15 @@ public class TestSimplePackable {
 
         public void writeTo(Packer pk) throws IOException {
             pk.writeArrayBegin(3);
-                pk.writeString(f0);
+                pk.write(f0);
                 pk.writeArrayBegin(f1.length);
                     for(int e : f1) {
-                        pk.writeInt(e);
+                        pk.write(e);
                     }
                 pk.writeArrayEnd();
                 pk.writeArrayBegin(f2.size());
                     for(String e : f2) {
-                        pk.writeString(e);
+                        pk.write(e);
                     }
                 pk.writeArrayEnd();
             pk.writeArrayEnd();
@@ -100,7 +100,7 @@ public class TestSimplePackable {
         public void writeTo(Packer pk) throws IOException {
             pk.writeArrayBegin(4);
                 pk.write(f0);
-                pk.writeLong(f1);
+                pk.write(f1);
                 if(f2 == null) {
                     throw new MessageTypeException("f2 is required but null");
                 }

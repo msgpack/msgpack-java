@@ -36,7 +36,7 @@ public class ShortArrayTemplate extends AbstractTemplate<short[]> {
         }
         pk.writeArrayBegin(target.length);
         for (short a : target) {
-            pk.writeShort(a);
+            pk.write(a);
         }
         pk.writeArrayEnd();
     }

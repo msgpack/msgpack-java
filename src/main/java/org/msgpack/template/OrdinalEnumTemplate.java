@@ -43,7 +43,7 @@ public class OrdinalEnumTemplate<T> extends AbstractTemplate<T> {
         if(ordinal == null) {
             throw new MessageTypeException(new IllegalArgumentException("ordinal: " + ordinal));
         }
-        pk.writeInt((int) ordinal);
+        pk.write((int)ordinal);
     }
 
     @Override

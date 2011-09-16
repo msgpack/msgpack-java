@@ -100,7 +100,7 @@ class BigIntegerValueImpl extends IntegerValue {
     }
 
     public void writeTo(Packer pk) throws IOException {
-        pk.writeBigInteger(value);
+        pk.write(value);
     }
 
     // TODO compareTo

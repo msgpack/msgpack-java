@@ -36,7 +36,7 @@ public class ByteBufferTemplate extends AbstractTemplate<ByteBuffer> {
             pk.writeNil();
             return;
         }
-        pk.writeByteBuffer(target);
+        pk.write(target);
     }
 
     public ByteBuffer read(Unpacker u, ByteBuffer to, boolean required) throws IOException {

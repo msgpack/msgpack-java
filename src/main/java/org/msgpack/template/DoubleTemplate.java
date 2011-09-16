@@ -34,7 +34,7 @@ public class DoubleTemplate extends AbstractTemplate<Double> {
             pk.writeNil();
             return;
         }
-        pk.writeDouble(target);
+        pk.write((double)target);
     }
 
     public Double read(Unpacker u, Double to, boolean required) throws IOException {

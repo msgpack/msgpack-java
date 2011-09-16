@@ -34,7 +34,7 @@ public class IntegerTemplate extends AbstractTemplate<Integer> {
             pk.writeNil();
             return;
         }
-        pk.writeInt(target);
+        pk.write((int)target);
     }
 
     public Integer read(Unpacker u, Integer to, boolean required) throws IOException {

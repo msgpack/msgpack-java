@@ -36,7 +36,7 @@ public class IntegerArrayTemplate extends AbstractTemplate<int[]> {
         }
         pk.writeArrayBegin(target.length);
         for (int a : target) {
-            pk.writeInt(a);
+            pk.write(a);
         }
         pk.writeArrayEnd();
     }

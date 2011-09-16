@@ -35,7 +35,7 @@ public class BigIntegerTemplate extends AbstractTemplate<BigInteger> {
             pk.writeNil();
             return;
         }
-        pk.writeBigInteger((BigInteger)target);
+        pk.write((BigInteger)target);
     }
 
     public BigInteger read(Unpacker u, BigInteger to, boolean required) throws IOException {

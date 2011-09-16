@@ -82,7 +82,7 @@ class FloatValueImpl extends FloatValue {
     }
 
     public void writeTo(Packer pk) throws IOException {
-        pk.writeFloat(value);
+        pk.write(value);
     }
 
     // TODO compareTo

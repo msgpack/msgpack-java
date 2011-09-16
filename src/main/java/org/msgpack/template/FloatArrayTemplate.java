@@ -36,7 +36,7 @@ public class FloatArrayTemplate extends AbstractTemplate<float[]> {
         }
         pk.writeArrayBegin(target.length);
         for (float a : target) {
-            pk.writeFloat(a);
+            pk.write(a);
         }
         pk.writeArrayEnd();
     }

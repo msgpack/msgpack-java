@@ -34,7 +34,7 @@ public class StringTemplate extends AbstractTemplate<String> {
             pk.writeNil();
             return;
         }
-        pk.writeString(target);
+        pk.write(target);
     }
 
     public String read(Unpacker u, String to, boolean required) throws IOException {
