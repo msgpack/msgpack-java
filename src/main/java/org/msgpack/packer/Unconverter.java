@@ -215,5 +215,13 @@ public class Unconverter extends AbstractPacker {
             stack.reduceCount();
         }
     }
+
+    @Override
+    public void flush() throws IOException {
+    }
+
+    @Override
+    public void close() throws IOException {
+    }
 }
 

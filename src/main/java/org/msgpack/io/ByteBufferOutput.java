@@ -48,85 +48,101 @@ public class ByteBufferOutput implements Output {
         buffer = callback.call(buffer, len);
     }
 
+    @Override
     public void write(byte[] b, int off, int len) throws IOException {
         reserve(len);
         buffer.put(b, off, len);
     }
 
+    @Override
     public void write(ByteBuffer bb) throws IOException {
         reserve(bb.remaining());
         buffer.put(bb);
     }
 
+    @Override
     public void writeByte(byte v) throws IOException {
         reserve(1);
         buffer.put(v);
     }
 
+    @Override
     public void writeShort(short v) throws IOException {
         reserve(2);
         buffer.putShort(v);
     }
 
+    @Override
     public void writeInt(int v) throws IOException {
         reserve(4);
         buffer.putInt(v);
     }
 
+    @Override
     public void writeLong(long v) throws IOException {
         reserve(8);
         buffer.putLong(v);
     }
 
+    @Override
     public void writeFloat(float v) throws IOException {
         reserve(4);
         buffer.putFloat(v);
     }
 
+    @Override
     public void writeDouble(double v) throws IOException {
         reserve(8);
         buffer.putDouble(v);
     }
 
+    @Override
     public void writeByteAndByte(byte b, byte v) throws IOException {
         reserve(2);
         buffer.put(b);
         buffer.put(v);
     }
 
+    @Override
     public void writeByteAndShort(byte b, short v) throws IOException {
         reserve(3);
         buffer.put(b);
         buffer.putShort(v);
     }
 
+    @Override
     public void writeByteAndInt(byte b, int v) throws IOException {
         reserve(5);
         buffer.put(b);
         buffer.putInt(v);
     }
 
+    @Override
     public void writeByteAndLong(byte b, long v) throws IOException {
         reserve(9);
         buffer.put(b);
         buffer.putLong(v);
     }
 
+    @Override
     public void writeByteAndFloat(byte b, float v) throws IOException {
         reserve(5);
         buffer.put(b);
         buffer.putFloat(v);
     }
 
+    @Override
     public void writeByteAndDouble(byte b, double v) throws IOException {
         reserve(9);
         buffer.put(b);
         buffer.putDouble(v);
     }
 
+    @Override
     public void flush() throws IOException {
     }
 
+    @Override
     public void close() {
     }
 }

@@ -29,10 +29,12 @@ public class StreamOutput implements Output {
         this.out = new DataOutputStream(out);
     }
 
+    @Override
     public void write(byte[] b, int off, int len) throws IOException {
         out.write(b, off, len);
     }
 
+    @Override
     public void write(ByteBuffer bb) throws IOException {
         if(bb.hasArray()) {
             byte[] array = bb.array();
@@ -47,63 +49,77 @@ public class StreamOutput implements Output {
         }
     }
 
+    @Override
     public void writeByte(byte v) throws IOException {
         out.write(v);
     }
 
+    @Override
     public void writeShort(short v) throws IOException {
         out.writeShort(v);
     }
 
+    @Override
     public void writeInt(int v) throws IOException {
         out.writeInt(v);
     }
 
+    @Override
     public void writeLong(long v) throws IOException {
         out.writeLong(v);
     }
 
+    @Override
     public void writeFloat(float v) throws IOException {
         out.writeFloat(v);
     }
 
+    @Override
     public void writeDouble(double v) throws IOException {
         out.writeDouble(v);
     }
 
+    @Override
     public void writeByteAndByte(byte b, byte v) throws IOException {
         out.write(b);
         out.write(v);
     }
 
+    @Override
     public void writeByteAndShort(byte b, short v) throws IOException {
         out.write(b);
         out.writeShort(v);
     }
 
+    @Override
     public void writeByteAndInt(byte b, int v) throws IOException {
         out.write(b);
         out.writeInt(v);
     }
 
+    @Override
     public void writeByteAndLong(byte b, long v) throws IOException {
         out.write(b);
         out.writeLong(v);
     }
 
+    @Override
     public void writeByteAndFloat(byte b, float v) throws IOException {
         out.write(b);
         out.writeFloat(v);
     }
 
+    @Override
     public void writeByteAndDouble(byte b, double v) throws IOException {
         out.write(b);
         out.writeDouble(v);
     }
 
+    @Override
     public void flush() throws IOException {
     }
 
+    @Override
     public void close() throws IOException {
         out.close();
     }

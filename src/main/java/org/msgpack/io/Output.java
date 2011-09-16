@@ -19,10 +19,11 @@ package org.msgpack.io;
 
 import java.io.IOException;
 import java.io.Closeable;
+import java.io.Flushable;
 import java.nio.ByteBuffer;
 
 
-public interface Output extends Closeable {
+public interface Output extends Closeable, Flushable {
     public void write(byte[] b, int off, int len) throws IOException;
 
     public void write(ByteBuffer bb) throws IOException;

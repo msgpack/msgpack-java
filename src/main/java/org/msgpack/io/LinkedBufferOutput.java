@@ -58,6 +58,7 @@ public final class LinkedBufferOutput extends BufferedOutput {
         return size + filled;
     }
 
+    @Override
     protected boolean flushBuffer(byte[] b, int off, int len) {
         link.add(new Link(b, off, len));
         size += len;
@@ -70,6 +71,7 @@ public final class LinkedBufferOutput extends BufferedOutput {
         filled = 0;
     }
 
+    @Override
     public void close() {
     }
 }

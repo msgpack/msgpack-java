@@ -20,6 +20,7 @@ package org.msgpack.packer;
 import java.math.BigInteger;
 import java.io.IOException;
 import java.io.Closeable;
+import java.io.Flushable;
 import java.nio.ByteBuffer;
 import org.msgpack.type.Value;
 
@@ -30,7 +31,7 @@ import org.msgpack.type.Value;
  *
  * @version 0.6.0
  */
-public interface Packer extends Closeable {
+public interface Packer extends Closeable, Flushable {
     public Packer write(boolean o) throws IOException;
 
     public Packer write(byte o) throws IOException;

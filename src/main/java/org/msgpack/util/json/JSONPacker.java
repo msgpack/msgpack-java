@@ -257,6 +257,11 @@ public class JSONPacker extends AbstractPacker {
     }
 
     @Override
+    public void flush() throws IOException {
+        out.flush();
+    }
+
+    @Override
     public void close() throws IOException {
         out.close();
     }

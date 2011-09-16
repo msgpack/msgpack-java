@@ -53,6 +53,7 @@ abstract class BufferedOutput implements Output {
         }
     }
 
+    @Override
     public void write(byte[] b, int off, int len) throws IOException {
         if(buffer == null) {
             if(bufferSize < len) {
@@ -77,6 +78,7 @@ abstract class BufferedOutput implements Output {
         }
     }
 
+    @Override
     public void write(ByteBuffer bb) throws IOException {
         int len = bb.remaining();
         if(buffer == null) {
@@ -102,47 +104,55 @@ abstract class BufferedOutput implements Output {
         }
     }
 
+    @Override
     public void writeByte(byte v) throws IOException {
         reserve(1);
         buffer[filled++] = v;
     }
 
+    @Override
     public void writeShort(short v) throws IOException {
         reserve(2);
         castByteBuffer.putShort(filled, v);
         filled += 2;
     }
 
+    @Override
     public void writeInt(int v) throws IOException {
         reserve(4);
         castByteBuffer.putInt(filled, v);
         filled += 4;
     }
 
+    @Override
     public void writeLong(long v) throws IOException {
         reserve(8);
         castByteBuffer.putLong(filled, v);
         filled += 8;
     }
 
+    @Override
     public void writeFloat(float v) throws IOException {
         reserve(4);
         castByteBuffer.putFloat(filled, v);
         filled += 4;
     }
 
+    @Override
     public void writeDouble(double v) throws IOException {
         reserve(8);
         castByteBuffer.putDouble(filled, v);
         filled += 8;
     }
 
+    @Override
     public void writeByteAndByte(byte b, byte v) throws IOException {
         reserve(2);
         buffer[filled++] = b;
         buffer[filled++] = v;
     }
 
+    @Override
     public void writeByteAndShort(byte b, short v) throws IOException {
         reserve(3);
         buffer[filled++] = b;
@@ -150,6 +160,7 @@ abstract class BufferedOutput implements Output {
         filled += 2;
     }
 
+    @Override
     public void writeByteAndInt(byte b, int v) throws IOException {
         reserve(5);
         buffer[filled++] = b;
@@ -157,6 +168,7 @@ abstract class BufferedOutput implements Output {
         filled += 4;
     }
 
+    @Override
     public void writeByteAndLong(byte b, long v) throws IOException {
         reserve(9);
         buffer[filled++] = b;
@@ -164,6 +176,7 @@ abstract class BufferedOutput implements Output {
         filled += 8;
     }
 
+    @Override
     public void writeByteAndFloat(byte b, float v) throws IOException {
         reserve(5);
         buffer[filled++] = b;
@@ -171,6 +184,7 @@ abstract class BufferedOutput implements Output {
         filled += 4;
     }
 
+    @Override
     public void writeByteAndDouble(byte b, double v) throws IOException {
         reserve(9);
         buffer[filled++] = b;
@@ -178,6 +192,7 @@ abstract class BufferedOutput implements Output {
         filled += 8;
     }
 
+    @Override
     public void flush() throws IOException {
         if(filled > 0) {
             if(!flushBuffer(buffer, 0, filled)) {
