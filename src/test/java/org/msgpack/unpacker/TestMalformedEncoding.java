@@ -29,7 +29,7 @@ public class TestMalformedEncoding {
     @Test
     public void testRawValueGetString() throws Exception {
         for(byte[] malform : malforms) {
-            RawValue r = ValueFactory.rawValue(malform);
+            RawValue r = ValueFactory.createRawValue(malform);
             try {
                 r.getString();
                 fail("no exception");
@@ -80,7 +80,7 @@ public class TestMalformedEncoding {
     public void testConverterUnpackString() throws Exception {
         for(byte[] malform : malforms) {
             MessagePack msgpack = new MessagePack();
-            RawValue r = ValueFactory.rawValue(malform);
+            RawValue r = ValueFactory.createRawValue(malform);
             Converter u = new Converter(msgpack, r);
             try {
                 u.readString();
@@ -121,7 +121,7 @@ public class TestMalformedEncoding {
     @Test
     public void testValueToString() throws Exception {
         for(byte[] malform : malforms) {
-            RawValue r = ValueFactory.rawValue(malform);
+            RawValue r = ValueFactory.createRawValue(malform);
             String str = r.toString();
             // malformed bytes will be ignored
             assertEquals("\"\"", str);

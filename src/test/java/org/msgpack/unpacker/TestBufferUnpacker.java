@@ -101,17 +101,17 @@ public class TestBufferUnpacker {
         byte[] b2 = new byte[1024];
         rand.nextBytes(b2);
 
-        Value list = ValueFactory.arrayValue(new Value[] {
-                ValueFactory.rawValue(b0),
-                ValueFactory.rawValue(b1),
-                ValueFactory.rawValue(b2),
+        Value list = ValueFactory.createArrayValue(new Value[] {
+                ValueFactory.createRawValue(b0),
+                ValueFactory.createRawValue(b1),
+                ValueFactory.createRawValue(b2),
             });
 
-        Value map = ValueFactory.mapValue(new Value[] {
-                ValueFactory.integerValue(0), ValueFactory.integerValue(Integer.MIN_VALUE),
-                ValueFactory.integerValue(rand.nextInt()), ValueFactory.integerValue(Integer.MAX_VALUE),
-                ValueFactory.floatValue(rand.nextFloat()), ValueFactory.booleanValue(true),
-                ValueFactory.floatValue(rand.nextDouble()), ValueFactory.nilValue(),
+        Value map = ValueFactory.createMapValue(new Value[] {
+                ValueFactory.createIntegerValue(0), ValueFactory.createIntegerValue(Integer.MIN_VALUE),
+                ValueFactory.createIntegerValue(rand.nextInt()), ValueFactory.createIntegerValue(Integer.MAX_VALUE),
+                ValueFactory.createFloatValue(rand.nextFloat()), ValueFactory.createBooleanValue(true),
+                ValueFactory.createFloatValue(rand.nextDouble()), ValueFactory.createNilValue(),
             });
 
         List<Value> values = new ArrayList<Value>();
@@ -123,7 +123,7 @@ public class TestBufferUnpacker {
             }
         }
 
-        Value complex = ValueFactory.arrayValue(values.toArray(new Value[values.size()]));
+        Value complex = ValueFactory.createArrayValue(values.toArray(new Value[values.size()]));
         return complex;
     }
 }

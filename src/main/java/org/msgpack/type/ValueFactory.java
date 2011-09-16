@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.Map;
 
 public final class ValueFactory {
-    public static NilValue nilValue() {
+    public static NilValue createNilValue() {
         return NilValue.getInstance();
     }
 
-    public static BooleanValue booleanValue(boolean v) {
+    public static BooleanValue createBooleanValue(boolean v) {
         if(v) {
             return TrueValueImpl.getInstance();
         } else {
@@ -35,55 +35,55 @@ public final class ValueFactory {
         }
     }
 
-    public static IntegerValue integerValue(byte v) {
+    public static IntegerValue createIntegerValue(byte v) {
         return new IntValueImpl((int)v);
     }
 
-    public static IntegerValue integerValue(short v) {
+    public static IntegerValue createIntegerValue(short v) {
         return new IntValueImpl((int)v);
     }
 
-    public static IntegerValue integerValue(int v) {
+    public static IntegerValue createIntegerValue(int v) {
         return new IntValueImpl(v);
     }
 
-    public static IntegerValue integerValue(long v) {
+    public static IntegerValue createIntegerValue(long v) {
         return new LongValueImpl(v);
     }
 
-    public static IntegerValue integerValue(BigInteger v) {
+    public static IntegerValue createIntegerValue(BigInteger v) {
         return new BigIntegerValueImpl(v);
     }
 
-    public static FloatValue floatValue(float v) {
+    public static FloatValue createFloatValue(float v) {
         return new FloatValueImpl(v);
     }
 
-    public static FloatValue floatValue(double v) {
+    public static FloatValue createFloatValue(double v) {
         return new DoubleValueImpl(v);
     }
 
-    public static RawValue rawValue() {
+    public static RawValue createRawValue() {
         return ByteArrayRawValueImpl.getEmptyInstance();
     }
 
-    public static RawValue rawValue(byte[] b) {
-        return rawValue(b, false);
+    public static RawValue createRawValue(byte[] b) {
+        return createRawValue(b, false);
     }
 
-    public static RawValue rawValue(byte[] b, boolean gift) {
+    public static RawValue createRawValue(byte[] b, boolean gift) {
         return new ByteArrayRawValueImpl(b, gift);
     }
 
-    public static RawValue rawValue(byte[] b, int off, int len) {
+    public static RawValue createRawValue(byte[] b, int off, int len) {
         return new ByteArrayRawValueImpl(b, off, len);
     }
 
-    public static RawValue rawValue(String s) {
+    public static RawValue createRawValue(String s) {
         return new StringRawValueImpl(s);
     }
 
-    public static RawValue rawValue(ByteBuffer bb) {
+    public static RawValue createRawValue(ByteBuffer bb) {
         int pos = bb.position();
         try {
             byte[] buf = new byte[bb.remaining()];
@@ -94,19 +94,19 @@ public final class ValueFactory {
         }
     }
 
-    public static ArrayValue arrayValue() {
+    public static ArrayValue createArrayValue() {
         return ArrayValueImpl.getEmptyInstance();
     }
 
-    public static ArrayValue arrayValue(Value[] array) {
+    public static ArrayValue createArrayValue(Value[] array) {
         if(array.length == 0) {
             // TODO EmptyArrayValueImpl?
             return ArrayValueImpl.getEmptyInstance();
         }
-        return arrayValue(array, false);
+        return createArrayValue(array, false);
     }
 
-    public static ArrayValue arrayValue(Value[] array, boolean gift) {
+    public static ArrayValue createArrayValue(Value[] array, boolean gift) {
         if(array.length == 0) {
             // TODO EmptyArrayValueImpl?
             return ArrayValueImpl.getEmptyInstance();
@@ -114,19 +114,19 @@ public final class ValueFactory {
         return new ArrayValueImpl(array, gift);
     }
 
-    public static MapValue mapValue() {
+    public static MapValue createMapValue() {
         return SequentialMapValueImpl.getEmptyInstance();
     }
 
-    public static MapValue mapValue(Value[] kvs) {
+    public static MapValue createMapValue(Value[] kvs) {
         if(kvs.length == 0) {
             // TODO EmptyMapValueImpl?
             return SequentialMapValueImpl.getEmptyInstance();
         }
-        return mapValue(kvs, false);
+        return createMapValue(kvs, false);
     }
 
-    public static MapValue mapValue(Value[] kvs, boolean gift) {
+    public static MapValue createMapValue(Value[] kvs, boolean gift) {
         if(kvs.length == 0) {
             // TODO EmptyMapValueImpl?
             return SequentialMapValueImpl.getEmptyInstance();

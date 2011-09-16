@@ -17,17 +17,17 @@ public class TestSimpleJSONPackUnpack {
     public void testSimplePackUnpack() throws IOException {
         MessagePack msgpack = new MessagePack();
 
-        Value v = ValueFactory.mapValue(new Value[] {
-                        ValueFactory.rawValue("k1"),
-                        ValueFactory.integerValue(1),
-                        ValueFactory.rawValue("k2"),
-                        ValueFactory.arrayValue(new Value[] {
-                            ValueFactory.nilValue(),
-                            ValueFactory.booleanValue(true),
-                            ValueFactory.booleanValue(false)
+        Value v = ValueFactory.createMapValue(new Value[] {
+                        ValueFactory.createRawValue("k1"),
+                        ValueFactory.createIntegerValue(1),
+                        ValueFactory.createRawValue("k2"),
+                        ValueFactory.createArrayValue(new Value[] {
+                            ValueFactory.createNilValue(),
+                            ValueFactory.createBooleanValue(true),
+                            ValueFactory.createBooleanValue(false)
                         }),
-                        ValueFactory.rawValue("k3"),
-                        ValueFactory.floatValue(0.1)
+                        ValueFactory.createRawValue("k3"),
+                        ValueFactory.createFloatValue(0.1)
                     });
 
         JSONBufferPacker pk = new JSONBufferPacker(msgpack);

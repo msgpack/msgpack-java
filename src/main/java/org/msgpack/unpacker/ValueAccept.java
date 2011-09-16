@@ -33,46 +33,46 @@ final class ValueAccept extends Accept {
 
     @Override
     void acceptBoolean(boolean v) throws IOException {
-        uc.write(ValueFactory.booleanValue(v));
+        uc.write(ValueFactory.createBooleanValue(v));
     }
 
     @Override
     void acceptInteger(byte v) throws IOException {
-        uc.write(ValueFactory.integerValue(v));
+        uc.write(ValueFactory.createIntegerValue(v));
     }
 
     @Override
     void acceptInteger(short v) throws IOException {
-        uc.write(ValueFactory.integerValue(v));
+        uc.write(ValueFactory.createIntegerValue(v));
     }
 
     @Override
     void acceptInteger(int v) throws IOException {
-        uc.write(ValueFactory.integerValue(v));
+        uc.write(ValueFactory.createIntegerValue(v));
     }
 
     @Override
     void acceptInteger(long v) throws IOException {
-        uc.write(ValueFactory.integerValue(v));
+        uc.write(ValueFactory.createIntegerValue(v));
     }
 
     @Override
     void acceptUnsignedInteger(byte v) throws IOException {
-        uc.write(ValueFactory.integerValue(v & 0xff));
+        uc.write(ValueFactory.createIntegerValue(v & 0xff));
     }
 
     @Override
     void acceptUnsignedInteger(short v) throws IOException {
-        uc.write(ValueFactory.integerValue(v & 0xffff));
+        uc.write(ValueFactory.createIntegerValue(v & 0xffff));
     }
 
     @Override
     void acceptUnsignedInteger(int v) throws IOException {
         if(v < 0) {
             long value = (long)(v & 0x7fffffff) + 0x80000000L;
-            uc.write(ValueFactory.integerValue(value));
+            uc.write(ValueFactory.createIntegerValue(value));
         } else {
-            uc.write(ValueFactory.integerValue(v));
+            uc.write(ValueFactory.createIntegerValue(v));
         }
     }
 
@@ -80,20 +80,20 @@ final class ValueAccept extends Accept {
     void acceptUnsignedInteger(long v) throws IOException {
         if(v < 0L) {
             BigInteger value = BigInteger.valueOf(v+Long.MAX_VALUE+1L).setBit(63);
-            uc.write(ValueFactory.integerValue(value));
+            uc.write(ValueFactory.createIntegerValue(value));
         } else {
-            uc.write(ValueFactory.integerValue(v));
+            uc.write(ValueFactory.createIntegerValue(v));
         }
     }
 
     @Override
     void acceptRaw(byte[] raw) throws IOException {
-        uc.write(ValueFactory.rawValue(raw));
+        uc.write(ValueFactory.createRawValue(raw));
     }
 
     @Override
     void acceptEmptyRaw() throws IOException {
-        uc.write(ValueFactory.rawValue());
+        uc.write(ValueFactory.createRawValue());
     }
 
     @Override
@@ -101,7 +101,7 @@ final class ValueAccept extends Accept {
         // TODO gift
         byte[] raw = new byte[bb.remaining()];
         bb.get(raw);
-        uc.write(ValueFactory.rawValue(raw, true));
+        uc.write(ValueFactory.createRawValue(raw, true));
     }
 
     @Override
@@ -116,17 +116,17 @@ final class ValueAccept extends Accept {
 
     @Override
     void acceptNil() throws IOException {
-        uc.write(ValueFactory.nilValue());
+        uc.write(ValueFactory.createNilValue());
     }
 
     @Override
     void acceptFloat(float v) throws IOException {
-        uc.write(ValueFactory.floatValue(v));
+        uc.write(ValueFactory.createFloatValue(v));
     }
 
     @Override
     void acceptDouble(double v) throws IOException {
-        uc.write(ValueFactory.floatValue(v));
+        uc.write(ValueFactory.createFloatValue(v));
     }
 }
 

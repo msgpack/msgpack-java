@@ -13,8 +13,8 @@ import org.msgpack.type.ValueFactory;
 public class TestEquals extends TestSet {
     @Override
     public void testBoolean(boolean v) throws Exception {
-        Value a = ValueFactory.booleanValue(v);
-        Value b = ValueFactory.booleanValue(v);
+        Value a = ValueFactory.createBooleanValue(v);
+        Value b = ValueFactory.createBooleanValue(v);
         testEquals(a, b);
     }
 
@@ -23,87 +23,87 @@ public class TestEquals extends TestSet {
         Value[] vs1 = new Value[v.length];
         Value[] vs2 = new Value[v.length];
         for(int i=0; i < v.length; i++) {
-            vs1[i] = ValueFactory.booleanValue(v[i]);
-            vs2[i] = ValueFactory.booleanValue(v[i]);
+            vs1[i] = ValueFactory.createBooleanValue(v[i]);
+            vs2[i] = ValueFactory.createBooleanValue(v[i]);
         }
-        Value v1 = ValueFactory.arrayValue(vs1);
-        Value v2 = ValueFactory.arrayValue(vs2);
+        Value v1 = ValueFactory.createArrayValue(vs1);
+        Value v2 = ValueFactory.createArrayValue(vs2);
         testEquals(v1, v2);
     }
 
     @Override
     public void testByteArray(byte[] v) throws Exception {
-        Value v1 = ValueFactory.rawValue(v);
-        Value v2 = ValueFactory.rawValue(v);
+        Value v1 = ValueFactory.createRawValue(v);
+        Value v2 = ValueFactory.createRawValue(v);
         testEquals(v1, v2);
     }
 
     @Override
     public void testString(String v) throws Exception {
-        Value v1 = ValueFactory.rawValue(v);
-        Value v2 = ValueFactory.rawValue(v);
+        Value v1 = ValueFactory.createRawValue(v);
+        Value v2 = ValueFactory.createRawValue(v);
         testEquals(v1, v2);
     }
 
     @Override
     public void testFloat(float v) throws Exception {
-        Value v1 = ValueFactory.floatValue(v);
-        Value v2 = ValueFactory.floatValue(v);
+        Value v1 = ValueFactory.createFloatValue(v);
+        Value v2 = ValueFactory.createFloatValue(v);
         testEquals(v1, v2);
     }
 
     @Override
     public void testDouble(double v) throws Exception {
-        Value v1 = ValueFactory.floatValue(v);
-        Value v2 = ValueFactory.floatValue(v);
+        Value v1 = ValueFactory.createFloatValue(v);
+        Value v2 = ValueFactory.createFloatValue(v);
         testEquals(v1, v2);
     }
 
     @Test
     public void testMapOrder() throws Exception {
-        Value v1 = ValueFactory.mapValue(new Value[] {
-            ValueFactory.rawValue("k0"), ValueFactory.nilValue(),
-            ValueFactory.rawValue("k1"), ValueFactory.rawValue("v1"),
-            ValueFactory.rawValue("k2"), ValueFactory.rawValue("v2"),
-            ValueFactory.rawValue("k3"), ValueFactory.rawValue("v3"),
-            ValueFactory.rawValue("k4"), ValueFactory.rawValue("v4"),
-            ValueFactory.rawValue("k5"), ValueFactory.rawValue("v5"),
-            ValueFactory.rawValue("k6"), ValueFactory.rawValue("v6"),
-            ValueFactory.rawValue("k7"), ValueFactory.rawValue("v7"),
-            ValueFactory.rawValue("k8"), ValueFactory.rawValue("v8"),
-            ValueFactory.rawValue("k9"), ValueFactory.rawValue("v9"),
-            ValueFactory.rawValue("k10"), ValueFactory.rawValue("v10"),
-            ValueFactory.rawValue("k11"), ValueFactory.rawValue("v11"),
-            ValueFactory.rawValue("k12"), ValueFactory.rawValue("v12"),
-            ValueFactory.rawValue("k13"), ValueFactory.rawValue("v13"),
-            ValueFactory.rawValue("k14"), ValueFactory.rawValue("v14"),
-            ValueFactory.rawValue("k15"), ValueFactory.rawValue("v15"),
-            ValueFactory.rawValue("k16"), ValueFactory.rawValue("v16"),
-            ValueFactory.rawValue("k17"), ValueFactory.rawValue("v17"),
-            ValueFactory.rawValue("k18"), ValueFactory.rawValue("v18"),
-            ValueFactory.rawValue("k19"), ValueFactory.rawValue("v19"),
+        Value v1 = ValueFactory.createMapValue(new Value[] {
+            ValueFactory.createRawValue("k0"), ValueFactory.createNilValue(),
+            ValueFactory.createRawValue("k1"), ValueFactory.createRawValue("v1"),
+            ValueFactory.createRawValue("k2"), ValueFactory.createRawValue("v2"),
+            ValueFactory.createRawValue("k3"), ValueFactory.createRawValue("v3"),
+            ValueFactory.createRawValue("k4"), ValueFactory.createRawValue("v4"),
+            ValueFactory.createRawValue("k5"), ValueFactory.createRawValue("v5"),
+            ValueFactory.createRawValue("k6"), ValueFactory.createRawValue("v6"),
+            ValueFactory.createRawValue("k7"), ValueFactory.createRawValue("v7"),
+            ValueFactory.createRawValue("k8"), ValueFactory.createRawValue("v8"),
+            ValueFactory.createRawValue("k9"), ValueFactory.createRawValue("v9"),
+            ValueFactory.createRawValue("k10"), ValueFactory.createRawValue("v10"),
+            ValueFactory.createRawValue("k11"), ValueFactory.createRawValue("v11"),
+            ValueFactory.createRawValue("k12"), ValueFactory.createRawValue("v12"),
+            ValueFactory.createRawValue("k13"), ValueFactory.createRawValue("v13"),
+            ValueFactory.createRawValue("k14"), ValueFactory.createRawValue("v14"),
+            ValueFactory.createRawValue("k15"), ValueFactory.createRawValue("v15"),
+            ValueFactory.createRawValue("k16"), ValueFactory.createRawValue("v16"),
+            ValueFactory.createRawValue("k17"), ValueFactory.createRawValue("v17"),
+            ValueFactory.createRawValue("k18"), ValueFactory.createRawValue("v18"),
+            ValueFactory.createRawValue("k19"), ValueFactory.createRawValue("v19"),
         });
-        Value v2 = ValueFactory.mapValue(new Value[] {
-            ValueFactory.rawValue("k3"), ValueFactory.rawValue("v3"),
-            ValueFactory.rawValue("k11"), ValueFactory.rawValue("v11"),
-            ValueFactory.rawValue("k4"), ValueFactory.rawValue("v4"),
-            ValueFactory.rawValue("k10"), ValueFactory.rawValue("v10"),
-            ValueFactory.rawValue("k5"), ValueFactory.rawValue("v5"),
-            ValueFactory.rawValue("k6"), ValueFactory.rawValue("v6"),
-            ValueFactory.rawValue("k15"), ValueFactory.rawValue("v15"),
-            ValueFactory.rawValue("k7"), ValueFactory.rawValue("v7"),
-            ValueFactory.rawValue("k14"), ValueFactory.rawValue("v14"),
-            ValueFactory.rawValue("k8"), ValueFactory.rawValue("v8"),
-            ValueFactory.rawValue("k13"), ValueFactory.rawValue("v13"),
-            ValueFactory.rawValue("k9"), ValueFactory.rawValue("v9"),
-            ValueFactory.rawValue("k12"), ValueFactory.rawValue("v12"),
-            ValueFactory.rawValue("k0"), ValueFactory.nilValue(),
-            ValueFactory.rawValue("k1"), ValueFactory.rawValue("v1"),
-            ValueFactory.rawValue("k2"), ValueFactory.rawValue("v2"),
-            ValueFactory.rawValue("k18"), ValueFactory.rawValue("v18"),
-            ValueFactory.rawValue("k19"), ValueFactory.rawValue("v19"),
-            ValueFactory.rawValue("k16"), ValueFactory.rawValue("v16"),
-            ValueFactory.rawValue("k17"), ValueFactory.rawValue("v17"),
+        Value v2 = ValueFactory.createMapValue(new Value[] {
+            ValueFactory.createRawValue("k3"), ValueFactory.createRawValue("v3"),
+            ValueFactory.createRawValue("k11"), ValueFactory.createRawValue("v11"),
+            ValueFactory.createRawValue("k4"), ValueFactory.createRawValue("v4"),
+            ValueFactory.createRawValue("k10"), ValueFactory.createRawValue("v10"),
+            ValueFactory.createRawValue("k5"), ValueFactory.createRawValue("v5"),
+            ValueFactory.createRawValue("k6"), ValueFactory.createRawValue("v6"),
+            ValueFactory.createRawValue("k15"), ValueFactory.createRawValue("v15"),
+            ValueFactory.createRawValue("k7"), ValueFactory.createRawValue("v7"),
+            ValueFactory.createRawValue("k14"), ValueFactory.createRawValue("v14"),
+            ValueFactory.createRawValue("k8"), ValueFactory.createRawValue("v8"),
+            ValueFactory.createRawValue("k13"), ValueFactory.createRawValue("v13"),
+            ValueFactory.createRawValue("k9"), ValueFactory.createRawValue("v9"),
+            ValueFactory.createRawValue("k12"), ValueFactory.createRawValue("v12"),
+            ValueFactory.createRawValue("k0"), ValueFactory.createNilValue(),
+            ValueFactory.createRawValue("k1"), ValueFactory.createRawValue("v1"),
+            ValueFactory.createRawValue("k2"), ValueFactory.createRawValue("v2"),
+            ValueFactory.createRawValue("k18"), ValueFactory.createRawValue("v18"),
+            ValueFactory.createRawValue("k19"), ValueFactory.createRawValue("v19"),
+            ValueFactory.createRawValue("k16"), ValueFactory.createRawValue("v16"),
+            ValueFactory.createRawValue("k17"), ValueFactory.createRawValue("v17"),
         });
         testEquals(v1, v2);
     }
@@ -131,12 +131,12 @@ public class TestEquals extends TestSet {
     @Override
     public void testBigInteger(BigInteger v) throws Exception {
         if(compatibleWithByte(v)) {
-            Value vt = ValueFactory.integerValue(v);
-            Value vByte = ValueFactory.integerValue(v.byteValue());
-            Value vShort = ValueFactory.integerValue(v.shortValue());
-            Value vInt = ValueFactory.integerValue(v.intValue());
-            Value vLong = ValueFactory.integerValue(v.longValue());
-            Value vBigInteger = ValueFactory.integerValue(v);
+            Value vt = ValueFactory.createIntegerValue(v);
+            Value vByte = ValueFactory.createIntegerValue(v.byteValue());
+            Value vShort = ValueFactory.createIntegerValue(v.shortValue());
+            Value vInt = ValueFactory.createIntegerValue(v.intValue());
+            Value vLong = ValueFactory.createIntegerValue(v.longValue());
+            Value vBigInteger = ValueFactory.createIntegerValue(v);
             testEquals(vt, vByte);
             testEquals(vt, vShort);
             testEquals(vt, vInt);
@@ -144,36 +144,36 @@ public class TestEquals extends TestSet {
             testEquals(vt, vBigInteger);
         }
         if(compatibleWithShort(v)) {
-            Value vt = ValueFactory.integerValue(v);
-            Value vShort = ValueFactory.integerValue(v.shortValue());
-            Value vInt = ValueFactory.integerValue(v.intValue());
-            Value vLong = ValueFactory.integerValue(v.longValue());
-            Value vBigInteger = ValueFactory.integerValue(v);
+            Value vt = ValueFactory.createIntegerValue(v);
+            Value vShort = ValueFactory.createIntegerValue(v.shortValue());
+            Value vInt = ValueFactory.createIntegerValue(v.intValue());
+            Value vLong = ValueFactory.createIntegerValue(v.longValue());
+            Value vBigInteger = ValueFactory.createIntegerValue(v);
             testEquals(vt, vShort);
             testEquals(vt, vInt);
             testEquals(vt, vLong);
             testEquals(vt, vBigInteger);
         }
         if(compatibleWithInt(v)) {
-            Value vt = ValueFactory.integerValue(v);
-            Value vInt = ValueFactory.integerValue(v.intValue());
-            Value vLong = ValueFactory.integerValue(v.longValue());
-            Value vBigInteger = ValueFactory.integerValue(v);
+            Value vt = ValueFactory.createIntegerValue(v);
+            Value vInt = ValueFactory.createIntegerValue(v.intValue());
+            Value vLong = ValueFactory.createIntegerValue(v.longValue());
+            Value vBigInteger = ValueFactory.createIntegerValue(v);
             testEquals(vt, vInt);
             testEquals(vt, vLong);
             testEquals(vt, vBigInteger);
         }
         if(compatibleWithLong(v)) {
-            Value vt = ValueFactory.integerValue(v);
-            Value vLong = ValueFactory.integerValue(v.longValue());
-            Value vBigInteger = ValueFactory.integerValue(v);
+            Value vt = ValueFactory.createIntegerValue(v);
+            Value vLong = ValueFactory.createIntegerValue(v.longValue());
+            Value vBigInteger = ValueFactory.createIntegerValue(v);
             testEquals(vt, vLong);
             testEquals(vt, vBigInteger);
         }
         {
-            Value vt = ValueFactory.integerValue(v);
-            Value vInt = ValueFactory.integerValue(v.intValue());
-            Value vBigInteger = ValueFactory.integerValue(v);
+            Value vt = ValueFactory.createIntegerValue(v);
+            Value vInt = ValueFactory.createIntegerValue(v.intValue());
+            Value vBigInteger = ValueFactory.createIntegerValue(v);
             testEquals(vt, vInt);
             testEquals(vt, vBigInteger);
         }
@@ -181,8 +181,8 @@ public class TestEquals extends TestSet {
 
     @Test
     public void testNull() {
-        Value v1 = ValueFactory.nilValue();
-        Value v2 = ValueFactory.nilValue();
+        Value v1 = ValueFactory.createNilValue();
+        Value v2 = ValueFactory.createNilValue();
         testEquals(v1, v2);
     }
 

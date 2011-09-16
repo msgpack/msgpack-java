@@ -71,21 +71,21 @@ public class JSONUnpacker extends Converter {
 
     private Value objectToValue(Object obj) {
         if(obj instanceof String) {
-            return ValueFactory.rawValue((String)obj);
+            return ValueFactory.createRawValue((String)obj);
         } else if(obj instanceof Integer) {
-            return ValueFactory.integerValue((Integer)obj);
+            return ValueFactory.createIntegerValue((Integer)obj);
         } else if(obj instanceof Long) {
-            return ValueFactory.integerValue((Long)obj);
+            return ValueFactory.createIntegerValue((Long)obj);
         } else if(obj instanceof Map) {
             return mapToValue((Map)obj);
         } else if(obj instanceof List) {
             return listToValue((List)obj);
         } else if(obj instanceof Boolean) {
-            return ValueFactory.booleanValue((Boolean)obj);
+            return ValueFactory.createBooleanValue((Boolean)obj);
         } else if(obj instanceof Double) {
-            return ValueFactory.floatValue((Double)obj);
+            return ValueFactory.createFloatValue((Double)obj);
         } else {
-            return ValueFactory.nilValue();
+            return ValueFactory.createNilValue();
         }
     }
 
@@ -94,7 +94,7 @@ public class JSONUnpacker extends Converter {
         for(int i=0; i < array.length; i++) {
             array[i] = objectToValue(list.get(i));
         }
-        return ValueFactory.arrayValue(array, true);
+        return ValueFactory.createArrayValue(array, true);
     }
 
     private Value mapToValue(Map map) {
@@ -105,7 +105,7 @@ public class JSONUnpacker extends Converter {
             kvs[i] = objectToValue(pair.getKey());
             kvs[i+1] = objectToValue(pair.getValue());
         }
-        return ValueFactory.mapValue(kvs, true);
+        return ValueFactory.createMapValue(kvs, true);
     }
 
     public void close() throws IOException {

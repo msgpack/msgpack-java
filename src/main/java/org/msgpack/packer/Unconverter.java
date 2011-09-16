@@ -53,62 +53,62 @@ public class Unconverter extends AbstractPacker {
 
     @Override
     public void writeBoolean(boolean v) throws IOException {
-        put(ValueFactory.booleanValue(v));
+        put(ValueFactory.createBooleanValue(v));
     }
 
     @Override
     public void writeByte(byte v) throws IOException {
-        put(ValueFactory.integerValue(v));
+        put(ValueFactory.createIntegerValue(v));
     }
 
     @Override
     public void writeShort(short v) throws IOException {
-        put(ValueFactory.integerValue(v));
+        put(ValueFactory.createIntegerValue(v));
     }
 
     @Override
     public void writeInt(int v) throws IOException {
-        put(ValueFactory.integerValue(v));
+        put(ValueFactory.createIntegerValue(v));
     }
 
     @Override
     public void writeBigInteger(BigInteger v) throws IOException {
-        put(ValueFactory.integerValue(v));
+        put(ValueFactory.createIntegerValue(v));
     }
 
     @Override
     public void writeLong(long v) throws IOException {
-        put(ValueFactory.integerValue(v));
+        put(ValueFactory.createIntegerValue(v));
     }
 
     @Override
     public void writeFloat(float v) throws IOException {
-        put(ValueFactory.floatValue(v));
+        put(ValueFactory.createFloatValue(v));
     }
 
     @Override
     public void writeDouble(double v) throws IOException {
-        put(ValueFactory.floatValue(v));
+        put(ValueFactory.createFloatValue(v));
     }
 
     @Override
     public void writeByteArray(byte[] b, int off, int len) throws IOException {
-        put(ValueFactory.rawValue(b, off, len));
+        put(ValueFactory.createRawValue(b, off, len));
     }
 
     @Override
     public void writeByteBuffer(ByteBuffer bb) throws IOException {
-        put(ValueFactory.rawValue(bb));
+        put(ValueFactory.createRawValue(bb));
     }
 
     @Override
     public void writeString(String s) throws IOException {
-        put(ValueFactory.rawValue(s));
+        put(ValueFactory.createRawValue(s));
     }
 
     @Override
     public Packer writeNil() throws IOException {
-        put(ValueFactory.nilValue());
+        put(ValueFactory.createNilValue());
         return this;
     }
 
@@ -116,12 +116,12 @@ public class Unconverter extends AbstractPacker {
     public Packer writeArrayBegin(int size) throws IOException {
         if(size == 0) {
             Value[] array = new Value[size];
-            putContainer(ValueFactory.arrayValue());
+            putContainer(ValueFactory.createArrayValue());
             stack.pushArray(0);
             values[stack.getDepth()] = null;
         } else {
             Value[] array = new Value[size];
-            putContainer(ValueFactory.arrayValue(array, true));
+            putContainer(ValueFactory.createArrayValue(array, true));
             stack.pushArray(size);
             values[stack.getDepth()] = array;
         }
@@ -154,12 +154,12 @@ public class Unconverter extends AbstractPacker {
     public Packer writeMapBegin(int size) throws IOException {
         stack.checkCount();
         if(size == 0) {
-            putContainer(ValueFactory.mapValue());
+            putContainer(ValueFactory.createMapValue());
             stack.pushMap(0);
             values[stack.getDepth()] = null;
         } else {
             Value[] array = new Value[size*2];
-            putContainer(ValueFactory.mapValue(array, true));
+            putContainer(ValueFactory.createMapValue(array, true));
             stack.pushMap(size);
             values[stack.getDepth()] = array;
         }
