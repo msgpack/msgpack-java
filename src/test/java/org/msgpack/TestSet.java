@@ -59,7 +59,7 @@ public class TestSet {
     }
 
     public void testByteArray() throws Exception {
-	// TODO testByteArray(null); // #MN considering next version
+	testByteArray(null);
 	Random rand = new Random(System.currentTimeMillis());
 	byte[] b0 = new byte[0];
 	testByteArray(b0);
@@ -278,7 +278,7 @@ public class TestSet {
     }
 
     public void testString() throws Exception {
-	// TODO testString(null); // #MN considering next version
+	testString(null);
 	testString("");
 	testString("a");
 	testString("ab");
@@ -324,7 +324,7 @@ public class TestSet {
     }
 
     public void testByteBuffer() throws Exception {
-	// FIXME testByteBuffer(null); // #MN considering next version
+	testByteBuffer(null);
 	Random rand = new Random(System.currentTimeMillis());
 	byte[] b0 = new byte[0];
 	testByteBuffer(ByteBuffer.wrap(b0));
@@ -394,7 +394,7 @@ public class TestSet {
     }
 
     public void testBigInteger() throws Exception {
-	// TODO testBigInteger(null); // #MN considering next version
+	testBigInteger(null);
 	testBigInteger(BigInteger.valueOf(0));
 	testBigInteger(BigInteger.valueOf(-1));
 	testBigInteger(BigInteger.valueOf(1));

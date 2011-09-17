@@ -171,8 +171,7 @@ public class TestBufferPackConvert extends TestSet {
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
-	assertTrue(value.isIntegerValue());
-	BigInteger ret = new Converter(value).readBigInteger();
+	BigInteger ret = new Converter(value).read(BigInteger.class);
 	assertEquals(v, ret);
     }
 
@@ -189,8 +188,7 @@ public class TestBufferPackConvert extends TestSet {
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
-	assertTrue(value.isRawValue());
-	String ret = new Converter(value).readString();
+	String ret = new Converter(value).read(String.class);
 	assertEquals(v, ret);
     }
 
@@ -207,8 +205,7 @@ public class TestBufferPackConvert extends TestSet {
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
-	assertTrue(value.isRawValue());
-	byte[] ret = new Converter(value).readByteArray();
+	byte[] ret = new Converter(value).read(byte[].class);
 	assertArrayEquals(v, ret);
     }
 

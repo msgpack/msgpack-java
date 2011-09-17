@@ -1,6 +1,6 @@
 package org.msgpack.template;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -52,10 +52,7 @@ public class TestByteArrayTemplate {
 	    byte[] bytes = out.toByteArray();
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	    byte[] ret = tmpl.read(unpacker, null);
-	    assertEquals(v.length, ret.length);
-	    for (int i = 0; i < v.length; ++i) {
-		assertEquals(v[i], ret[i]);
-	    }
+	    assertArrayEquals(v, ret);
 	}
     }
 
@@ -75,10 +72,7 @@ public class TestByteArrayTemplate {
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    byte[] ret = tmpl.read(unpacker, null);
-	    assertEquals(v.length, ret.length);
-	    for (int i = 0; i < v.length; ++i) {
-		assertEquals(v[i], ret[i]);
-	    }
+	    assertArrayEquals(v, ret);
 	}
     }
 
@@ -97,10 +91,7 @@ public class TestByteArrayTemplate {
 	    byte[] bytes = packer.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    byte[] ret = tmpl.read(unpacker, null);
-	    assertEquals(v.length, ret.length);
-	    for (int i = 0; i < v.length; ++i) {
-		assertEquals(v[i], ret[i]);
-	    }
+	    assertArrayEquals(v, ret);
 	}
     }
 
@@ -119,10 +110,7 @@ public class TestByteArrayTemplate {
 	    byte[] bytes = packer.toByteArray();
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	    byte[] ret = tmpl.read(unpacker, null);
-	    assertEquals(v.length, ret.length);
-	    for (int i = 0; i < v.length; ++i) {
-		assertEquals(v[i], ret[i]);
-	    }
+	    assertArrayEquals(v, ret);
 	}
     }
 }

@@ -152,7 +152,7 @@ public class TestUnconvertConvert extends TestSet {
         packer.write(v);
         Value r = packer.getResult();
         Converter unpacker = new Converter(msgpack, r);
-        BigInteger ret = unpacker.readBigInteger();
+        BigInteger ret = unpacker.read(BigInteger.class);
         assertEquals(v, ret);
     }
 
@@ -168,7 +168,7 @@ public class TestUnconvertConvert extends TestSet {
         packer.write(v);
         Value r = packer.getResult();
         Converter unpacker = new Converter(msgpack, r);
-        String ret = unpacker.readString();
+        String ret = unpacker.read(String.class);
         assertEquals(v, ret);
     }
 
@@ -184,7 +184,7 @@ public class TestUnconvertConvert extends TestSet {
         packer.write(v);
         Value r = packer.getResult();
         Converter unpacker = new Converter(msgpack, r);
-        byte[] ret = unpacker.readByteArray();
+        byte[] ret = unpacker.read(byte[].class);
 	assertArrayEquals(v, ret);
     }
 

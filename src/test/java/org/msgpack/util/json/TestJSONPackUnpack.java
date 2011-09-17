@@ -186,7 +186,7 @@ public class TestJSONPackUnpack extends TestSet {
 	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
-	BigInteger ret = unpacker.readBigInteger();
+	BigInteger ret = unpacker.read(BigInteger.class);
 	assertEquals(v, ret);
     }
 
@@ -203,7 +203,7 @@ public class TestJSONPackUnpack extends TestSet {
 	packer.write(v);
 	byte[] bytes = out.toByteArray();
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
-	String ret = unpacker.readString();
+	String ret = unpacker.read(String.class);
 	assertEquals(v, ret);
     }
 
@@ -222,8 +222,7 @@ public class TestJSONPackUnpack extends TestSet {
 	packer.write(str);
 	byte[] bytes = out.toByteArray();
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
-	//byte[] ret = unpacker.readByteArray();
-	String ret = unpacker.readString();
+	String ret = unpacker.read(String.class);
 	assertEquals(str, ret);
     }
 

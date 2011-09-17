@@ -18,6 +18,9 @@ import org.msgpack.unpacker.Unpacker;
 public class TestByteBufferTemplate {
 
     private static byte[] toByteArray(ByteBuffer from) {
+	if (from == null) {
+	    return null;
+	}
 	byte[] bytes = new byte[from.remaining()];
 	from.get(bytes, from.arrayOffset() + from.position(), from.remaining());
 	return bytes;

@@ -43,7 +43,7 @@ public class ByteBufferTemplate extends AbstractTemplate<ByteBuffer> {
         if (!required && u.trySkipNil()) {
             return null;
         }
-	return u.readByteBuffer();  // TODO read to 'to' obj?
+        return u.readByteBuffer();  // TODO read to 'to' obj?
     }
 
     static public ByteBufferTemplate getInstance() {
