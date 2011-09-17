@@ -41,7 +41,7 @@ import org.msgpack.type.Value;
  * deserializers for objects of classes.
  * </p>
  * 
- * <h3>Overview</h3>
+ * <h3>Overview of MessagePack</h3>
  * 
  * <p>
  * MessagePack is a binary-based efficient object serialization library for
@@ -97,12 +97,12 @@ import org.msgpack.type.Value;
  * <p>
  * If you want to serialize multiple objects sequentially, MessagePack
  * recommends use of {@link org.msgpack.packer.Packer} and
- * {@link org.msgpack.unpacker.Unpacker} objects. Because {@link #write(Object)}
- * and {@link #read(byte[])} method invocations create
- * {@link org.msgpack.packer.Packer} and {@link org.msgpack.unpacker.Unpacker}
- * objects every times. To use <code>Packer</code> and <code>Unpacker</code>
- * objects, you call {@link #createPacker(OutputStream)} and
- * {@link #createUnpacker(byte[])}.
+ * {@link org.msgpack.unpacker.Unpacker} objects. Because
+ * {@link MessagePack#write(Object)} and {@link #read(byte[])} method
+ * invocations create {@link org.msgpack.packer.Packer} and
+ * {@link org.msgpack.unpacker.Unpacker} objects every times. To use
+ * <code>Packer</code> and <code>Unpacker</code> objects, you call
+ * {@link #createPacker(OutputStream)} and {@link #createUnpacker(byte[])}.
  * </p>
  * 
  * <pre>
@@ -136,6 +136,97 @@ import org.msgpack.type.Value;
  * }
  * </pre>
  * 
+ * <h3>Various Types of Values Serialization/Deserialization</h3>
+ * 
+ * <p>
+ * <code>Packer</code>/<code>Unpacker</code> allows serializing/deserializing
+ * values of various types as follows. They enable serializing/deserializing
+ * values of various types like values of primitive types, values of primitive
+ * wrapper classes, <code>String</code> objects, <code>byte[]</code> objects,
+ * <code>ByteBuffer</code> objects, <code>List</code> objects, </code>Map</code>
+ * objects and so on. As mentioned above, they also enable
+ * serializing/deserizing objects of your own classes annotated by
+ * <code>@Message</code>.
+ * </p>
+ * 
+ * <pre>
+ * public class Main3 {
+ *     public static void main(String[] args) {
+ * 	MessagePack msgpack = new MessagePack();
+ * 
+ * 	//
+ * 	// serialization
+ * 	//
+ * 
+ * 	ByteArrayOutputStream out = new ByteArrayOutputStream();
+ * 	Packer packer = msgpack.createPacker(out);
+ * 
+ * 	// serialize values of primitive types
+ * 	packer.write(true); // boolean value
+ * 	packer.write(10) // int value
+ * 	packer.write(10.5); // double value
+ * 
+ * 	// serialize objects of primitive wrapper types
+ * 	packer.write(Boolean.TRUE);
+ * 	packer.write(new Integer(10));
+ * 	packer.write(new Double(10.5));
+ * 	packer.write(&quot;MesagePack&quot;); // String object
+ * 
+ * 	// serialize various types of arrays
+ * 	packer.write(new int[] { 1, 2, 3, 4 });
+ * 	packer.write(new Double[] { 10.5, 20.5 });
+ * 	packer.write(new String[] { &quot;msg&quot;, &quot;pack&quot;, &quot;for&quot;, &quot;java&quot; });
+ * 	packer.write(new byte[] { 0x30, 0x31, 0x32 }); // byte array
+ * 
+ * 	// serialize various types of other reference values
+ * 	packer.write(java.nio.ByteBufer.wrap(new byte[] { 0x30, 0x31, 0x32 })); // ByteBuffer object
+ * 	packer.write(java.math.BigInteger.ONE); // BigInteger object
+ * 	java.util.List&lt;String&gt; list = new java.util.ArrayList&lt;String&gt;();
+ * 	list.add(&quot;msgpack&quot;);
+ * 	list.add(&quot;for&quot;);
+ * 	list.add(&quot;java&quot;);
+ * 	packer.write(list); // List object
+ * 	java.util.Map&lt;String, String&gt; map = new java.util.HashMap&lt;String, String&gt;();
+ * 	map.put(&quot;sadayuki&quot;, &quot;furuhashi&quot;);
+ * 	map.put(&quot;muga&quot;, &quot;nishizawa&quot;);
+ * 	packer.write(map); // Map object
+ * 
+ * 	//
+ * 	// deserialization
+ * 	//
+ * 
+ * 	byte[] bytes = out.toByteArray();
+ * 	ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+ * 	Unpacker unpacker = msgpack.createUnpacker(in);
+ * 
+ * 	// to primitive values
+ * 	boolean b = unpacker.readBoolean(); // boolean value
+ * 	int i = unpacker.readInt(); // int value
+ * 	double d = unpacker.readDouble(); // double value
+ * 
+ * 	// to primitive wrapper value
+ * 	Boolean wb = unpacker.readBoolean();
+ * 	Integer wi = unpacker.readInt();
+ * 	Double wd = unpacker.readDouble();
+ * 	String ws = unpacker.readString();
+ * 
+ * 	// to arrays
+ * 	int[] ia = unpacker.read(int[].class);
+ * 	Double[] da = unpacker.read(Double[].class);
+ * 	String[] sa = unpacker.read(String[].class);
+ * 	byte[] ba = unpacker.readByteArray();
+ * 
+ * 	// to ByteBuffer object, BigInteger object, List object and Map object
+ * 	java.nio.ByteBuffer buf = unpacker.readByteBuffer();
+ * 	java.math.BigInteger bi = unpacker.readBigInteger();
+ * 	java.util.List&lt;String&gt; dstList = new java.util.ArrayList&lt;String&gt;();
+ * 	dstList = unpacker.read(dstList);
+ * 	java.util.Map&lt;String, String&gt; dstMap = new java.util.HashMap&lt;String, String&gt;();
+ * 	dstMap = unpacker.read(dstMap);
+ *     }
+ * }
+ * </pre>
+ * 
  * <h3>Without Annotations</h3>
  * 
  * <p>
@@ -157,6 +248,29 @@ import org.msgpack.type.Value;
  * serializer/deserializer of <code>MyMessage2</code> class automatically. You
  * can serialize objects of <code>MyMessage2</code> class after executing the
  * method.
+ * </p>
+ * 
+ * <h3>Optional Fields</h3>
+ * 
+ * <p>
+ * You can add new fields maintaining the compatibility. Use the @Optional in
+ * the new fields.
+ * </p>
+ * 
+ * <pre>
+ * <code>@Message</code>
+ * public class MyMessage {
+ *     public String name;
+ *     public double version;
+ *     // new field
+ *     <code>@Optional</code>
+ *     public int flag = 0;
+ * }
+ * </pre>
+ * 
+ * <p>
+ * If you try to deserialize the old version data, optional fields will be
+ * ignored.
  * </p>
  * 
  */
@@ -203,8 +317,7 @@ public class MessagePack {
     }
 
     /**
-     * Returns serializer that enables serializing objects into
-     * buffer.
+     * Returns serializer that enables serializing objects into buffer.
      * 
      * @since 0.6.0
      * @return buffer-based serializer
@@ -214,8 +327,7 @@ public class MessagePack {
     }
 
     /**
-     * Returns serializer that enables serializing objects into
-     * buffer.
+     * Returns serializer that enables serializing objects into buffer.
      * 
      * @since 0.6.0
      * @param bufferSize
@@ -240,8 +352,7 @@ public class MessagePack {
     }
 
     /**
-     * Returns empty deserializer that enables deserializing
-     * buffer.
+     * Returns empty deserializer that enables deserializing buffer.
      * 
      * @since 0.6.0
      * @return buffer-based deserializer
@@ -251,8 +362,7 @@ public class MessagePack {
     }
 
     /**
-     * Returns deserializer that enables deserializing
-     * buffer.
+     * Returns deserializer that enables deserializing buffer.
      * 
      * @since 0.6.0
      * @param bytes
@@ -264,8 +374,7 @@ public class MessagePack {
     }
 
     /**
-     * Returns deserializer that enables deserializing
-     * buffer.
+     * Returns deserializer that enables deserializing buffer.
      * 
      * @since 0.6.0
      * @param bytes
@@ -278,8 +387,7 @@ public class MessagePack {
     }
 
     /**
-     * Returns deserializer that enables deserializing
-     * buffer.
+     * Returns deserializer that enables deserializing buffer.
      * 
      * @since 0.6.0
      * @param buffer
