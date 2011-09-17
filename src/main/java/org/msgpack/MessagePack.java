@@ -111,7 +111,8 @@ import org.msgpack.type.Value;
  * </pre>
  * 
  * <p>
- * Then you'll get the jar file of MessagePack for Java in <code>target</code> directory.
+ * Then you'll get the jar file of MessagePack for Java in <code>target</code>
+ * directory.
  * </p>
  * 
  * <h3>Quick Start MessagePack for Java</h3>
@@ -310,8 +311,8 @@ import org.msgpack.type.Value;
  * <h3>Optional Fields</h3>
  * 
  * <p>
- * You can add new fields maintaining the compatibility. Use the @Optional in
- * the new fields.
+ * You can add new fields maintaining the compatibility. Use the
+ * <code>@Optional</code> in the new fields.
  * </p>
  * 
  * <pre>
