@@ -57,6 +57,63 @@ import org.msgpack.type.Value;
  * serialization.
  * </p>
  * 
+ * <h3>Install</h3>
+ * 
+ * <p>
+ * The official Maven2 repository for MessagePack for Java is located here. <a
+ * href="http://msgpack.org/maven2/">http://msgpack.org/maven2/</a>
+ * </p>
+ * 
+ * <p>
+ * You could use the following <code>pom.xml</code> to install MessagePack for
+ * Java via Maven.
+ * </p>
+ * 
+ * <pre>
+ * &lt;project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ *    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"&gt;
+ * 
+ *   &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+ *   &lt;groupId&gt;org.sample&lt;/groupId&gt;
+ *   &lt;artifactId&gt;sample&lt;/artifactId&gt;
+ *   &lt;packaging&gt;jar&lt;/packaging&gt;
+ *   &lt;version&gt;0.0.1&lt;/version&gt;
+ * 
+ *   &lt;repositories&gt;
+ *     &lt;repository&gt;
+ *     &lt;id&gt;msgpack.org&lt;/id&gt;
+ *     &lt;name&gt;MessagePack Repository for Maven&lt;/name&gt;
+ *     &lt;url&gt;http://msgpack.org/maven2/&lt;/url&gt;
+ *     &lt;/repository&gt;
+ *   &lt;/repositories&gt;
+ * 
+ *   &lt;dependencies&gt;
+ *     &lt;dependency&gt;
+ *       &lt;groupId&gt;org.msgpack&lt;/groupId&gt;
+ *       &lt;artifactId&gt;msgpack&lt;/artifactId&gt;
+ *       &lt;version&gt;0.6.0-devel&lt;/version&gt;
+ *     &lt;/dependency&gt;
+ *   &lt;/dependencies&gt;
+ * &lt;/project&gt;
+ * </pre>
+ * 
+ * <p>
+ * You can build and install latest source code of MessagePack for Java as
+ * follows. The source code resides in GitHub. <a
+ * href="https://github.com/msgpack/msgpack-java/"
+ * >https://github.com/msgpack/msgpack-java/</a>.
+ * </p>
+ * 
+ * <pre>
+ * $ git clone git@github.com:msgpack/msgpack-java.git
+ * $ cd msgpack-java
+ * $ mvn package
+ * </pre>
+ * 
+ * <p>
+ * Then you'll get the jar file of MessagePack for Java in <code>target</code> directory.
+ * </p>
+ * 
  * <h3>Quick Start MessagePack for Java</h3>
  * 
  * <p>
