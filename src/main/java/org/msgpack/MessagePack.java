@@ -228,7 +228,6 @@ import org.msgpack.type.Value;
  * 	packer.write(Boolean.TRUE);
  * 	packer.write(new Integer(10));
  * 	packer.write(new Double(10.5));
- * 	packer.write(&quot;MesagePack&quot;); // String object
  * 
  * 	// serialize various types of arrays
  * 	packer.write(new int[] { 1, 2, 3, 4 });
@@ -237,6 +236,7 @@ import org.msgpack.type.Value;
  * 	packer.write(new byte[] { 0x30, 0x31, 0x32 }); // byte array
  * 
  * 	// serialize various types of other reference values
+ * 	packer.write(&quot;MesagePack&quot;); // String object
  * 	packer.write(java.nio.ByteBufer.wrap(new byte[] { 0x30, 0x31, 0x32 })); // ByteBuffer object
  * 	packer.write(java.math.BigInteger.ONE); // BigInteger object
  * 	java.util.List&lt;String&gt; list = new java.util.ArrayList&lt;String&gt;();
@@ -263,20 +263,20 @@ import org.msgpack.type.Value;
  * 	double d = unpacker.readDouble(); // double value
  * 
  * 	// to primitive wrapper value
- * 	Boolean wb = unpacker.readBoolean();
- * 	Integer wi = unpacker.readInt();
- * 	Double wd = unpacker.readDouble();
- * 	String ws = unpacker.readString();
+ * 	Boolean wb = unpacker.read(Boolean.class);
+ * 	Integer wi = unpacker.read(Integer.class);
+ * 	Double wd = unpacker.read(Double.class);
  * 
  * 	// to arrays
  * 	int[] ia = unpacker.read(int[].class);
  * 	Double[] da = unpacker.read(Double[].class);
  * 	String[] sa = unpacker.read(String[].class);
- * 	byte[] ba = unpacker.readByteArray();
+ * 	byte[] ba = unpacker.read(byte[].class);
  * 
- * 	// to ByteBuffer object, BigInteger object, List object and Map object
- * 	java.nio.ByteBuffer buf = unpacker.readByteBuffer();
- * 	java.math.BigInteger bi = unpacker.readBigInteger();
+ * 	// to String object, ByteBuffer object, BigInteger object, List object and Map object
+ * 	String ws = unpacker.read(String.class);
+ * 	java.nio.ByteBuffer buf = unpacker.read(java.nio.ByteBuffer.class);
+ * 	java.math.BigInteger bi = unpacker.read(java.math.BigInteger.class);
  * 	java.util.List&lt;String&gt; dstList = new java.util.ArrayList&lt;String&gt;();
  * 	dstList = unpacker.read(dstList);
  * 	java.util.Map&lt;String, String&gt; dstMap = new java.util.HashMap&lt;String, String&gt;();
@@ -284,6 +284,28 @@ import org.msgpack.type.Value;
  *     }
  * }
  * </pre>
+ * 
+ * <p>
+ * <code>write</code> methods provided by <code>Packer</code> allows serializing
+ * various types of data.
+ * </p>
+ * 
+ * <p>
+ * <code>Unpacker</code> provides deserialization methods for deserializing
+ * binary to primitive values. For example, if you want to deserialize binary to
+ * value of <code>boolean</code> (or <code>int</code>) type, you can use
+ * <code>readBoolean</code> (or <code>readInt</code>) method in
+ * <code>Unpacker</code>.
+ * </p>
+ * 
+ * <p>
+ * <code>Unpacker</code> also provides <code>read</code> methods for reference
+ * values. Its methods allow deserializing binary to values of references which
+ * types you specified as parameters. For example, if you want to deserialize
+ * binary to <code>String</code> (or <code>byte[]) object, 
+ * you have to describe a call of <code>read(String.class)</code> (or
+ * <code>read(byte[].class)</code>) method.
+ * </p>
  * 
  * <h3>Without Annotations</h3>
  * 
