@@ -91,7 +91,7 @@ public class TestBigIntegerTemplate {
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
-	    	    BigInteger ret = tmpl.read(unpacker, null);
+	    BigInteger ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	}
     }
