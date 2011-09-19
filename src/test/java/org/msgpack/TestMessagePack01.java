@@ -12,8 +12,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Ignore;
 import org.junit.Test;
+import org.msgpack.template.Template;
+import static org.msgpack.template.Templates.tList;
+import static org.msgpack.template.Templates.tMap;
 import org.msgpack.type.Value;
 
 
@@ -109,12 +111,41 @@ public class TestMessagePack01 {
 	new TestByteArrayUnconvertConvert().testByteArray();
     }
 
-    @Ignore @Test // FIXME #MN *MUST* fix it in this version
+    @Test
+    public void testListBufferPackBufferUnpack() throws Exception {
+	new TestListBufferPackBufferUnpack().testList();
+    }
+
+    @Test
+    public void testListBufferPackUnpack() throws Exception {
+	new TestListBufferPackUnpack().testList();
+    }
+
+    @Test
+    public void testListPackBufferUnpack() throws Exception {
+	new TestListPackBufferUnpack().testList();
+    }
+
+    @Test
     public void testListPackUnpack() throws Exception {
 	new TestListPackUnpack().testList();
     }
 
-    @Ignore @Test // FIXME #MN *MUST* fix it in this version
+    @Test
+    public void testMapBufferPackBufferUnpack() throws Exception {
+	new TestMapBufferPackBufferUnpack().testMap();
+    }
+
+    @Test
+    public void testMapBufferPackUnpack() throws Exception {
+	new TestMapBufferPackUnpack().testMap();
+    }
+
+    @Test
+    public void testMapPackBufferUnpack() throws Exception {
+	new TestMapPackBufferUnpack().testMap();
+    }
+    @Test
     public void testMapPackUnpack() throws Exception {
 	new TestMapPackUnpack().testMap();
     }
@@ -461,6 +492,84 @@ public class TestMessagePack01 {
 	}
     }
 
+    public static class TestListBufferPackBufferUnpack extends org.msgpack.TestSet {
+	@Test @Override
+	public void testList() throws Exception {
+	    super.testList();
+	}
+
+	@Override
+	public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    Template<E> tElm = msgpack.lookup(elementClass);
+	    byte[] bytes = msgpack.write(v, tList(tElm));
+	    List<E> ret = msgpack.read(bytes, new ArrayList<E>(), tList(tElm));
+	    if (v == null) {
+		assertEquals(null, ret);
+		return;
+	    }
+	    assertEquals(v.size(), ret.size());
+	    Iterator<E> v_iter = v.iterator();
+	    Iterator<E> ret_iter = ret.iterator();
+	    while (v_iter.hasNext()) {
+		assertEquals(v_iter.next(), ret_iter.next());
+	    }
+	}
+    }
+
+    public static class TestListBufferPackUnpack extends org.msgpack.TestSet {
+	@Test @Override
+	public void testList() throws Exception {
+	    super.testList();
+	}
+
+	@Override
+	public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    Template<E> tElm = msgpack.lookup(elementClass);
+	    byte[] bytes = msgpack.write(v, tList(tElm));
+	    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+	    List<E> ret = msgpack.read(in, new ArrayList<E>(), tList(tElm));
+	    if (v == null) {
+		assertEquals(null, ret);
+		return;
+	    }
+	    assertEquals(v.size(), ret.size());
+	    Iterator<E> v_iter = v.iterator();
+	    Iterator<E> ret_iter = ret.iterator();
+	    while (v_iter.hasNext()) {
+		assertEquals(v_iter.next(), ret_iter.next());
+	    }
+	}
+    }
+
+    public static class TestListPackBufferUnpack extends org.msgpack.TestSet {
+	@Test @Override
+	public void testList() throws Exception {
+	    super.testList();
+	}
+
+	@Override
+	public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    Template<E> tElm = msgpack.lookup(elementClass);
+	    msgpack.write(out, v, tList(tElm));
+	    byte[] bytes = out.toByteArray();
+	    List<E> ret = msgpack.read(bytes, tList(tElm));
+	    if (v == null) {
+		assertEquals(null, ret);
+		return;
+	    }
+	    assertEquals(v.size(), ret.size());
+	    Iterator<E> v_iter = v.iterator();
+	    Iterator<E> ret_iter = ret.iterator();
+	    while (v_iter.hasNext()) {
+		assertEquals(v_iter.next(), ret_iter.next());
+	    }
+	}
+    }
+
     public static class TestListPackUnpack extends org.msgpack.TestSet {
 	@Test @Override
 	public void testList() throws Exception {
@@ -471,9 +580,10 @@ public class TestMessagePack01 {
 	public <E> void testList(List<E> v, Class<E> elementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
-	    msgpack.write(out, v);
+	    Template<E> tElm = msgpack.lookup(elementClass);
+	    msgpack.write(out, v, tList(tElm));
 	    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	    List<E> ret = msgpack.read(in, new ArrayList<E>());
+	    List<E> ret = msgpack.read(in, new ArrayList<E>(), tList(tElm));
 	    if (v == null) {
 		assertEquals(null, ret);
 		return;
@@ -483,6 +593,84 @@ public class TestMessagePack01 {
 	    Iterator<E> ret_iter = ret.iterator();
 	    while (v_iter.hasNext()) {
 		assertEquals(v_iter.next(), ret_iter.next());
+	    }
+	}
+    }
+
+    public static class TestMapBufferPackBufferUnpack extends org.msgpack.TestSet {
+	@Test @Override
+	public void testMap() throws Exception {
+	    super.testMap();
+	}
+
+	@Override
+	public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    Template<K> tKey = msgpack.lookup(keyElementClass);
+	    Template<V> tValue = msgpack.lookup(valueElementClass);
+	    byte[] bytes = msgpack.write(v, tMap(tKey, tValue));
+	    Map<K, V> ret = msgpack.read(bytes, new HashMap<K, V>(), tMap(tKey, tValue));
+	    if (v == null) {
+		assertEquals(null, ret);
+		return;
+	    }
+	    assertEquals(v.size(), ret.size());
+	    for (Map.Entry<K, V> e : ((Map<K, V>) v).entrySet()) {
+		Object value = ret.get(e.getKey());
+		assertEquals(e.getValue(), value);
+	    }
+	}
+    }
+
+    public static class TestMapBufferPackUnpack extends org.msgpack.TestSet {
+	@Test @Override
+	public void testMap() throws Exception {
+	    super.testMap();
+	}
+
+	@Override
+	public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    Template<K> tKey = msgpack.lookup(keyElementClass);
+	    Template<V> tValue = msgpack.lookup(valueElementClass);
+	    byte[] bytes = msgpack.write(v, tMap(tKey, tValue));
+	    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+	    Map<K, V> ret = msgpack.read(in, new HashMap<K, V>(), tMap(tKey, tValue));
+	    if (v == null) {
+		assertEquals(null, ret);
+		return;
+	    }
+	    assertEquals(v.size(), ret.size());
+	    for (Map.Entry<K, V> e : ((Map<K, V>) v).entrySet()) {
+		Object value = ret.get(e.getKey());
+		assertEquals(e.getValue(), value);
+	    }
+	}
+    }
+
+    public static class TestMapPackBufferUnpack extends org.msgpack.TestSet {
+	@Test @Override
+	public void testMap() throws Exception {
+	    super.testMap();
+	}
+
+	@Override
+	public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    Template<K> tKey = msgpack.lookup(keyElementClass);
+	    Template<V> tValue = msgpack.lookup(valueElementClass);
+	    msgpack.write(out, v, tMap(tKey, tValue));
+	    byte[] bytes = out.toByteArray();
+	    Map<K, V> ret = msgpack.read(bytes, new HashMap<K, V>(), tMap(tKey, tValue));
+	    if (v == null) {
+		assertEquals(null, ret);
+		return;
+	    }
+	    assertEquals(v.size(), ret.size());
+	    for (Map.Entry<K, V> e : ((Map<K, V>) v).entrySet()) {
+		Object value = ret.get(e.getKey());
+		assertEquals(e.getValue(), value);
 	    }
 	}
     }
@@ -497,9 +685,11 @@ public class TestMessagePack01 {
 	public <K, V> void testMap(Map<K, V> v, Class<K> keyElementClass, Class<V> valueElementClass) throws Exception {
 	    MessagePack msgpack = new MessagePack();
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
-	    msgpack.write(out, v);
+	    Template<K> tKey = msgpack.lookup(keyElementClass);
+	    Template<V> tValue = msgpack.lookup(valueElementClass);
+	    msgpack.write(out, v, tMap(tKey, tValue));
 	    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-	    Map<K, V> ret = msgpack.read(in, new HashMap<K, V>());
+	    Map<K, V> ret = msgpack.read(in, new HashMap<K, V>(), tMap(tKey, tValue));
 	    if (v == null) {
 		assertEquals(null, ret);
 		return;
