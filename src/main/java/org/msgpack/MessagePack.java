@@ -45,8 +45,8 @@ import org.msgpack.type.Value;
  * 
  * <p>
  * MessagePack is a binary-based efficient object serialization library for
- * cross languages. It enables to exchange structured objects between many
- * languages like JSON. But unlike JSON, it is very fast and small.
+ * cross languages. It enables exchanging structured objects between many
+ * languages like JSON, but it is very fast and small compared to JSON.
  * </p>
  * 
  * <p>
@@ -60,7 +60,7 @@ import org.msgpack.type.Value;
  * <h3>How to Install</h3>
  * 
  * <p>
- * The official Maven2 repository for MessagePack for Java is located here. <a
+ * The official Maven2 repository of MessagePack for Java is located here. <a
  * href="http://msgpack.org/maven2/">http://msgpack.org/maven2/</a>
  * </p>
  * 
@@ -155,11 +155,11 @@ import org.msgpack.type.Value;
  * <p>
  * If you want to serialize multiple objects sequentially, MessagePack
  * recommends use of {@link org.msgpack.packer.Packer} and
- * {@link org.msgpack.unpacker.Unpacker} objects. Because
+ * {@link org.msgpack.unpacker.Unpacker} objects. This is because
  * {@link MessagePack#write(Object)} and {@link #read(byte[])} method
  * invocations create {@link org.msgpack.packer.Packer} and
  * {@link org.msgpack.unpacker.Unpacker} objects every times. To use
- * <code>Packer</code> and <code>Unpacker</code> objects, you call
+ * <code>Packer</code> and <code>Unpacker</code> objects, call
  * {@link #createPacker(OutputStream)} and {@link #createUnpacker(byte[])}.
  * </p>
  * 
@@ -177,14 +177,19 @@ import org.msgpack.type.Value;
  * 	src3.version = 1.0;
  * 
  * 	MessagePack msgpack = new MessagePack();
- * 	// serialize src data to byte array
+ * 	//
+ * 	// serialize
+ * 	//
  * 	ByteArrayOutputStream out = new ByteArrayOutputStream();
  * 	Packer packer = msgpack.createPacker(out);
  * 	packer.write(src1);
  * 	packer.write(src2);
  * 	packer.write(src3);
  * 	byte[] bytes = out.toByteArray();
- * 	// deserialize byte array to MyMessage object
+ * 
+ * 	//
+ * 	// deserialize
+ * 	//
  * 	ByteArrayInputStream in = new ByteArrayInputStream(bytes);
  * 	Unpacker unpacker = msgpack.createUnpacker(in);
  * 	MyMessage dst1 = unpacker.read(bytes, MyMessage.class);
@@ -214,7 +219,6 @@ import org.msgpack.type.Value;
  * 	//
  * 	// serialization
  * 	//
- * 
  * 	ByteArrayOutputStream out = new ByteArrayOutputStream();
  * 	Packer packer = msgpack.createPacker(out);
  * 
@@ -242,7 +246,6 @@ import org.msgpack.type.Value;
  * 	//
  * 	// deserialization
  * 	//
- * 
  * 	byte[] bytes = out.toByteArray();
  * 	ByteArrayInputStream in = new ByteArrayInputStream(bytes);
  * 	Unpacker unpacker = msgpack.createUnpacker(in);
@@ -297,12 +300,23 @@ import org.msgpack.type.Value;
  * </h3>
  * 
  * <p>
- * You can serialize <code>List</code> and <code>Map</code> objects with
- * {@link org.msgpack.template.Template} objects, which are pairs of
- * serializer/deserializer. The type of elements in <code>List</code> object
- * needs to be specified to <code>Template</code> object for effective
- * serialization/deserialization. Types of keys and values in <code>Map</code>
- * object also need to be specified to <code>Template</code> object.
+ * To serialize generic container objects like <code>List</code> and
+ * <code>Map</code> objects, you can use {@link org.msgpack.template.Template}.
+ * <code>Template</code> objects are pairs of serializer and deserializer. For
+ * example, to serialize a <code>List</code> object that has
+ * <code>Integer</code> objects as elements, you create the
+ * <code>Template</code> object by the following way.
+ * </p>
+ * 
+ * <pre>
+ * Template listTmpl = Templates.tList(Templates.TInteger);
+ * </pre>
+ * 
+ * <p>
+ * <code>tList</code>, <code>TInteger</code> are <code>static method</code> and
+ * <code>field</code> in {@link org.msgpack.template.Templates}. A simple
+ * example of <code>List</code> and <code>Map</code> objects is shown in the
+ * following.
  * </p>
  * 
  * <pre>
@@ -372,10 +386,10 @@ import org.msgpack.type.Value;
  * <p>
  * For example, if <code>MyMessage2</code> class is included in external
  * library, you cannot easily modify the class declaration and append
- * <code>@Message</code> to it. {@link #register} method allows to generate
- * serializer/deserializer of <code>MyMessage2</code> class automatically. You
- * can serialize objects of <code>MyMessage2</code> class after executing the
- * method.
+ * <code>@Message</code> to it. {@link #register} method allows to generate a
+ * pair of serializer and deserializer for <code>MyMessage2</code> class
+ * automatically. You can serialize objects of <code>MyMessage2</code> class
+ * after executing the method.
  * </p>
  * 
  * <h3>Optional Fields</h3>
