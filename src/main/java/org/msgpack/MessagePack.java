@@ -57,7 +57,7 @@ import org.msgpack.type.Value;
  * serialization.
  * </p>
  * 
- * <h3>Install</h3>
+ * <h3>How to Install</h3>
  * 
  * <p>
  * The official Maven2 repository for MessagePack for Java is located here. <a
@@ -201,9 +201,8 @@ import org.msgpack.type.Value;
  * values of various types as follows. They enable serializing/deserializing
  * values of various types like values of primitive types, values of primitive
  * wrapper classes, <code>String</code> objects, <code>byte[]</code> objects,
- * <code>ByteBuffer</code> objects, <code>List</code> objects, </code>Map</code>
- * objects and so on. As mentioned above, they also enable
- * serializing/deserizing objects of your own classes annotated by
+ * <code>ByteBuffer</code> objects and so on. As mentioned above, they also
+ * enable serializing/deserizing objects of your own classes annotated by
  * <code>@Message</code>.
  * </p>
  * 
@@ -239,15 +238,6 @@ import org.msgpack.type.Value;
  * 	packer.write(&quot;MesagePack&quot;); // String object
  * 	packer.write(java.nio.ByteBufer.wrap(new byte[] { 0x30, 0x31, 0x32 })); // ByteBuffer object
  * 	packer.write(java.math.BigInteger.ONE); // BigInteger object
- * 	java.util.List&lt;String&gt; list = new java.util.ArrayList&lt;String&gt;();
- * 	list.add(&quot;msgpack&quot;);
- * 	list.add(&quot;for&quot;);
- * 	list.add(&quot;java&quot;);
- * 	packer.write(list); // List object
- * 	java.util.Map&lt;String, String&gt; map = new java.util.HashMap&lt;String, String&gt;();
- * 	map.put(&quot;sadayuki&quot;, &quot;furuhashi&quot;);
- * 	map.put(&quot;muga&quot;, &quot;nishizawa&quot;);
- * 	packer.write(map); // Map object
  * 
  * 	//
  * 	// deserialization
@@ -277,10 +267,6 @@ import org.msgpack.type.Value;
  * 	String ws = unpacker.read(String.class);
  * 	java.nio.ByteBuffer buf = unpacker.read(java.nio.ByteBuffer.class);
  * 	java.math.BigInteger bi = unpacker.read(java.math.BigInteger.class);
- * 	java.util.List&lt;String&gt; dstList = new java.util.ArrayList&lt;String&gt;();
- * 	dstList = unpacker.read(dstList);
- * 	java.util.Map&lt;String, String&gt; dstMap = new java.util.HashMap&lt;String, String&gt;();
- * 	dstMap = unpacker.read(dstMap);
  *     }
  * }
  * </pre>
@@ -306,6 +292,68 @@ import org.msgpack.type.Value;
  * you have to describe a call of <code>read(String.class)</code> (or
  * <code>read(byte[].class)</code>) method.
  * </p>
+ * 
+ * <h3><code>List</code>, <code>Map</code> objects Serialization/Deserialization
+ * </h3>
+ * 
+ * <p>
+ * You can serialize <code>List</code> and <code>Map</code> objects with
+ * {@link org.msgpack.template.Template} objects, which are pairs of
+ * serializer/deserializer. The type of elements in <code>List</code> object
+ * needs to be specified to <code>Template</code> object for effective
+ * serialization/deserialization. Types of keys and values in <code>Map</code>
+ * object also need to be specified to <code>Template</code> object.
+ * </p>
+ * 
+ * <pre>
+ * import static org.msgpack.template.Templates.tList;
+ * import static org.msgpack.template.Templates.tMap;
+ * import static org.msgpack.template.Templates.TString;
+ * 
+ * public class Main4 {
+ *     public static void main(String[] args) {
+ * 	MessagePack msgpack = new MessagePack();
+ * 
+ * 	// create templates for serializing/deserializing List and Map objects
+ * 	org.msgpack.template.Template listTmpl = tList(TString);
+ * 	org.msgpack.template.Template mapTmpl = tMap(TString, TString);
+ * 
+ * 	//
+ * 	// serialization
+ * 	//
+ * 
+ * 	ByteArrayOutputStream out = new ByteArrayOutputStream();
+ * 	Packer packer = msgpack.createPacker(out);
+ * 
+ * 	// serialize List object
+ * 	java.util.List&lt;String&gt; list = new java.util.ArrayList&lt;String&gt;();
+ * 	list.add(&quot;msgpack&quot;);
+ * 	list.add(&quot;for&quot;);
+ * 	list.add(&quot;java&quot;);
+ * 	packer.write(list, listTmpl); // List object
+ * 
+ * 	// serialize Map object
+ * 	java.util.Map&lt;String, String&gt; map = new java.util.HashMap&lt;String, String&gt;();
+ * 	map.put(&quot;sadayuki&quot;, &quot;furuhashi&quot;);
+ * 	map.put(&quot;muga&quot;, &quot;nishizawa&quot;);
+ * 	packer.write(map, mapTmpl); // Map object
+ * 
+ * 	//
+ * 	// deserialization
+ * 	//
+ * 
+ * 	byte[] bytes = out.toByteArray();
+ * 	ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+ * 	Unpacker unpacker = msgpack.createUnpacker(in);
+ * 
+ * 	// to List object
+ * 	dstList = unpacker.read(dstList, listTmpl);
+ * 
+ * 	// to Map object
+ * 	dstMap = unpacker.read(dstMap, mapTmpl);
+ *     }
+ * }
+ * </pre>
  * 
  * <h3>Without Annotations</h3>
  * 
