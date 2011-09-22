@@ -84,8 +84,8 @@ public class TestReadTemplate {
         Collection<Long> tcollection = u().read(tCollection(TLong));
         assertNull(tcollection);
 
-        //MyEnum tordinalenum = u().read(tOrdinalEnum(MyEnum.class));
-        //assertNull(tordinalenum);
+        MyEnum tordinalenum = u().read(tOrdinalEnum(MyEnum.class));
+        assertNull(tordinalenum);
     }
 
     // return unpacker that can read a nil
