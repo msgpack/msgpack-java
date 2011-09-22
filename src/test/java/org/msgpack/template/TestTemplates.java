@@ -19,7 +19,6 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.unpacker.BufferUnpacker;
 
 import static org.msgpack.template.Templates.*;
-import static org.msgpack.template.Templates.TByte;
 
 import org.junit.Test;
 
