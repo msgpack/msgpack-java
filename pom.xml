@@ -3,10 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.msgpack</groupId>
   <artifactId>msgpack</artifactId>
-  <version>0.6.0-devel</version>
-  <description>MessagePack for Java</description>
-
   <name>MessagePack for Java</name>
+  <description>MessagePack for Java is a binary-based efficient object 
+      serialization library in Java.</description>
+  <version>0.6.0-devel</version>
+  <packaging>jar</packaging>
   <url>http://msgpack.org/</url>
 
   <licenses>
@@ -18,9 +19,27 @@
   </licenses>
 
   <scm>
-    <connection>scm:git:git://github.com/msgpack/msgpack.git</connection>
-    <url>scm:git:git://github.com/msgpack/msgpack.git</url>
+    <connection>scm:git:git://github.com/msgpack/msgpack-java.git</connection>
+    <url>scm:git:git://github.com/msgpack/msgpack-java.git</url>
   </scm>
+
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://jira.msgpack.org/browse/MSGPACK</url>
+  </issueManagement>
+
+  <developers>
+    <developer>
+    	<id>frsyuki</id>
+    	<name>Sadayuki Furuhashi</name>
+    	<email>frsyuki@users.sourceforge.jp</email>
+    </developer>
+    <developer>
+    	<id>muga</id>
+    	<name>Muga Nishizawa</name>
+    	<email>muga.nishizawa@gmail.com</email>
+    </developer>
+  </developers>
 
   <dependencies>
     <dependency>
@@ -63,7 +82,6 @@
         <directory>src/test/resources</directory>
       </testResource>
     </testResources>
-
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -73,12 +91,10 @@
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
-
       <plugin>
       	<artifactId>maven-eclipse-plugin</artifactId>
       	<version>2.5.1</version>
       </plugin>
-
       <plugin>
         <artifactId>maven-release-plugin</artifactId>
         <configuration>
@@ -87,7 +103,6 @@
           <connectionUrl>scm:git://github.com/msgpack/msgpack.git</connectionUrl>
         </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
@@ -100,10 +115,8 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
-
 
   <reporting>
     <plugins>
@@ -118,12 +131,10 @@
 	  <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-report-plugin</artifactId>
