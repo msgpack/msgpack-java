@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.BufferOverflowException;
 
+
 public class ByteBufferOutput implements Output {
     public static interface ExpandBufferCallback {
         ByteBuffer call(ByteBuffer buffer, int len) throws IOException;

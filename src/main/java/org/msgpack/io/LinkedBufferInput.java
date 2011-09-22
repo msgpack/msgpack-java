@@ -19,9 +19,9 @@ package org.msgpack.io;
 
 import java.io.IOException;
 import java.io.EOFException;
-import java.util.List;
 import java.util.LinkedList;
 import java.nio.ByteBuffer;
+
 
 public class LinkedBufferInput implements Input {
     private LinkedList<ByteBuffer> link;

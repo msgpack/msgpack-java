@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.io.DataOutputStream;
 import java.nio.ByteBuffer;
 
+
 public class StreamOutput implements Output {
     private DataOutputStream out;
 
@@ -42,7 +43,7 @@ public class StreamOutput implements Output {
             out.write(array, offset, bb.remaining());
             bb.position(bb.limit());
         } else {
-            int pos = bb.position();
+            //int pos = bb.position();
             byte[] buf = new byte[bb.remaining()];
             bb.get(buf);
             out.write(buf);

@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.io.IOException;
 import java.io.EOFException;
 
+
 public class StreamInput implements Input {
     private final InputStream in;
 
