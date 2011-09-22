@@ -23,7 +23,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
-import java.nio.charset.MalformedInputException;
+
 
 abstract class AbstractRawValue extends AbstractValue implements RawValue {
     @Override

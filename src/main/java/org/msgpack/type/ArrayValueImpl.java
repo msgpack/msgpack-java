@@ -17,11 +17,10 @@
 //
 package org.msgpack.type;
 
-import java.util.List;
-import java.util.Iterator;
 import java.util.ListIterator;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
+
 
 class ArrayValueImpl extends AbstractArrayValue {
     private static ArrayValueImpl emptyInstance = new ArrayValueImpl(new Value[0], true);
@@ -116,7 +115,7 @@ class ArrayValueImpl extends AbstractArrayValue {
             return equals((ArrayValueImpl) v);
         }
 
-        ListIterator oi = v.asArrayValue().listIterator();
+        ListIterator<Value> oi = v.asArrayValue().listIterator();
         int i = 0;
         while(i < array.length) {
             if(!oi.hasNext() || !array[i].equals(oi.next())) {

@@ -17,6 +17,7 @@
 //
 package org.msgpack.type;
 
+
 public interface BooleanValue extends Value {
     public boolean getBoolean();
 }

@@ -17,11 +17,8 @@
 //
 package org.msgpack.type;
 
-import java.util.List;
-import java.util.Map;
-import java.util.ListIterator;
-import java.math.BigInteger;
 import org.msgpack.MessageTypeException;
+
 
 abstract class AbstractValue implements Value {
     public boolean isNilValue() {

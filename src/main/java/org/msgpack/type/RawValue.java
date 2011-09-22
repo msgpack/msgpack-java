@@ -17,6 +17,7 @@
 //
 package org.msgpack.type;
 
+
 public interface RawValue extends Value {
     public byte[] getByteArray();
 

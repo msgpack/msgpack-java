@@ -21,8 +21,9 @@ import java.math.BigInteger;
 import java.math.BigDecimal;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
-import org.msgpack.MessageTypeException;
 
+
+@SuppressWarnings("serial")
 class FloatValueImpl extends FloatValue {
     private float value;
 

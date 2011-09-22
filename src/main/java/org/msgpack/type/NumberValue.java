@@ -20,6 +20,8 @@ package org.msgpack.type;
 import java.math.BigInteger;
 import org.msgpack.MessageTypeException;
 
+
+@SuppressWarnings("serial")
 public abstract class NumberValue extends Number implements Value {
     @Override
     public boolean isNilValue() {

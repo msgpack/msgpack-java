@@ -28,6 +28,7 @@ import java.util.NoSuchElementException;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
 
+
 class SequentialMapValueImpl extends AbstractMapValue {
     private static SequentialMapValueImpl emptyInstance = new SequentialMapValueImpl(new Value[0], true);
 
@@ -252,27 +253,27 @@ class SequentialMapValueImpl extends AbstractMapValue {
     //    return true;
     //}
 
-    private boolean equalsValue(Value[] oarray, Value key, Value val, int hint) {
-        for(int j=hint; j < array.length; j+=2) {
-            if(key.equals(oarray[j])) {
-                if(val.equals(oarray[j+1])) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-        for(int j=0; j < hint; j+=2) {
-            if(key.equals(oarray[j])) {
-                if(val.equals(oarray[j+1])) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-        return false;
-    }
+//    private boolean equalsValue(Value[] oarray, Value key, Value val, int hint) {
+//        for(int j=hint; j < array.length; j+=2) {
+//            if(key.equals(oarray[j])) {
+//                if(val.equals(oarray[j+1])) {
+//                    return true;
+//                } else {
+//                    return false;
+//                }
+//            }
+//        }
+//        for(int j=0; j < hint; j+=2) {
+//            if(key.equals(oarray[j])) {
+//                if(val.equals(oarray[j+1])) {
+//                    return true;
+//                } else {
+//                    return false;
+//                }
+//            }
+//        }
+//        return false;
+//    }
 
     // TODO compareTo?
 

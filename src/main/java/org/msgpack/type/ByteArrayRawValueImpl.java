@@ -18,16 +18,15 @@
 package org.msgpack.type;
 
 import java.util.Arrays;
-import java.io.UnsupportedEncodingException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
-import java.nio.charset.MalformedInputException;
 import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
+
 
 class ByteArrayRawValueImpl extends AbstractRawValue {
     private static ByteArrayRawValueImpl emptyInstance = new ByteArrayRawValueImpl(new byte[0], true);

@@ -22,6 +22,8 @@ import java.io.IOException;
 import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
 
+
+@SuppressWarnings("serial")
 class BigIntegerValueImpl extends IntegerValue {
     private BigInteger value;
 

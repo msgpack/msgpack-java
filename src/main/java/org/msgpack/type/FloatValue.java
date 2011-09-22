@@ -17,6 +17,8 @@
 //
 package org.msgpack.type;
 
+
+@SuppressWarnings("serial")
 public abstract class FloatValue extends NumberValue {
     @Override
     public ValueType getType() {

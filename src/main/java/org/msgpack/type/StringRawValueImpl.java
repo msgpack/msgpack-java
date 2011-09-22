@@ -23,6 +23,7 @@ import java.io.IOException;
 import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
 
+
 class StringRawValueImpl extends AbstractRawValue {
     private String string;
 

@@ -18,8 +18,9 @@
 package org.msgpack.type;
 
 import java.math.BigInteger;
-import org.msgpack.MessageTypeException;
 
+
+@SuppressWarnings("serial")
 public abstract class IntegerValue extends NumberValue {
     @Override
     public ValueType getType() {

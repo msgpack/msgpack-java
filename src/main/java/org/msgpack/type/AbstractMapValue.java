@@ -20,6 +20,7 @@ package org.msgpack.type;
 import java.util.AbstractMap;
 import org.msgpack.MessageTypeException;
 
+
 abstract class AbstractMapValue extends AbstractMap<Value,Value> implements MapValue {
     @Override
     public ValueType getType() {
