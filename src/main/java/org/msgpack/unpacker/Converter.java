@@ -20,7 +20,6 @@ package org.msgpack.unpacker;
 import java.io.IOException;
 import java.io.EOFException;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;

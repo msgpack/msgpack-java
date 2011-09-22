@@ -19,6 +19,7 @@ package org.msgpack.unpacker;
 
 import org.msgpack.MessageTypeException;
 
+
 final class IntAccept extends Accept {
     int value;
 

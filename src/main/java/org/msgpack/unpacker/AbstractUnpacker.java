@@ -18,10 +18,7 @@
 package org.msgpack.unpacker;
 
 import java.io.IOException;
-import java.io.Closeable;
 import java.nio.ByteBuffer;
-import java.math.BigInteger;
-import java.lang.Iterable;
 import org.msgpack.type.Value;
 import org.msgpack.MessagePack;
 import org.msgpack.template.Template;
@@ -79,6 +76,7 @@ public abstract class AbstractUnpacker implements Unpacker {
         return tmpl.read(this, null);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T read(T to) throws IOException {
         if(tryReadNil()) {

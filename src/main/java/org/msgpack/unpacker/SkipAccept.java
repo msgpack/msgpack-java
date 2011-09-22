@@ -17,6 +17,7 @@
 //
 package org.msgpack.unpacker;
 
+
 final class SkipAccept extends Accept {
     @Override
     void acceptBoolean(boolean v) {

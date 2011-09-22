@@ -17,6 +17,7 @@
 //
 package org.msgpack.unpacker;
 
+
 final class DoubleAccept extends Accept {
     double value;
 

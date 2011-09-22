@@ -18,7 +18,7 @@
 package org.msgpack.unpacker;
 
 import java.math.BigInteger;
-import org.msgpack.MessageTypeException;
+
 
 final class BigIntegerAccept extends Accept {
     BigInteger value;

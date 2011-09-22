@@ -17,6 +17,7 @@
 //
 package org.msgpack.unpacker;
 
+
 final class ArrayAccept extends Accept {
     int size;
 

@@ -20,9 +20,9 @@ package org.msgpack.unpacker;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
-import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
 import org.msgpack.packer.Unconverter;
+
 
 final class ValueAccept extends Accept {
     private Unconverter uc = null;
