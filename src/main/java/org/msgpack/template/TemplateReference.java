@@ -38,6 +38,7 @@ public class TemplateReference<T> extends AbstractTemplate<T> {
 	this.targetType = targetType;
     }
 
+    @SuppressWarnings("unchecked")
     private void validateActualTemplate() {
 	if (actualTemplate == null) {
 	    actualTemplate = (Template<T>) registry.cache.get(targetType);

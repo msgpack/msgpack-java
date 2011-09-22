@@ -22,7 +22,6 @@ import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 
-
 /**
  * CharacterTemplate<br/>
  *

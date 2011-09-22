@@ -13,10 +13,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 
 import org.msgpack.MessagePack;
-import org.msgpack.packer.Packer;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.unpacker.BufferUnpacker;
 
 import static org.msgpack.template.Templates.*;
 
@@ -28,6 +26,7 @@ public class TestTemplates {
         A, B, C;
     }
 
+    @SuppressWarnings("unused")
     @Test
     public void testGenericsTypesCompliable() throws IOException {
         Template<Byte> tbyte = TByte;

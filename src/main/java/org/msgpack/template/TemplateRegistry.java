@@ -53,6 +53,7 @@ import org.msgpack.template.builder.TemplateBuilderChain;
 import org.msgpack.type.Value;
 
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class TemplateRegistry {
 
     private TemplateRegistry parent = null;
@@ -220,7 +221,6 @@ public class TemplateRegistry {
 		"Cannot find template for " + targetClass + " class. Try to add @Message annotation to the class or call MessagePack.register(Type).");
     }
 
-    @SuppressWarnings("unchecked")
     private Template<Type> lookupGenericType(Type targetType) {
 	Template<Type> tmpl = null;
 	if (targetType instanceof ParameterizedType) {

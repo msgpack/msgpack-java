@@ -1,6 +1,5 @@
 package org.msgpack.unpacker;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
@@ -11,19 +10,14 @@ import java.util.Collection;
 import java.util.Date;
 import java.math.BigInteger;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 
 import org.msgpack.MessagePack;
-import org.msgpack.packer.Packer;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.unpacker.Unpacker;
-import org.msgpack.unpacker.BufferUnpacker;
-import org.msgpack.template.Template;
 
 import static org.msgpack.template.Templates.*;
 
 import org.junit.Test;
-import org.junit.Ignore;
 
 
 public class TestReadTemplate {

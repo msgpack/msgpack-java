@@ -8,6 +8,7 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class ObjectArrayTemplate extends AbstractTemplate {
     protected Class componentClass;
 

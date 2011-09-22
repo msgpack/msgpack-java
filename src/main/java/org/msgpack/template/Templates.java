@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import org.msgpack.type.Value;
 
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public final class Templates {
     public static final Template<Value> TValue = ValueTemplate.getInstance();
 
@@ -57,7 +58,6 @@ public final class Templates {
     public static final Template<ByteBuffer> TByteBuffer = ByteBufferTemplate.getInstance();
 
     public static final Template<Date> TDate = DateTemplate.getInstance();
-
 
     public static <T> Template<T> tNotNullable(Template<T> innerTemplate) {
         return new NotNullableTemplate(innerTemplate);

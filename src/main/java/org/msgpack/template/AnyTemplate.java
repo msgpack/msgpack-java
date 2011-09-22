@@ -25,8 +25,10 @@ import org.msgpack.unpacker.Unpacker;
 
 
 public class AnyTemplate<T> extends AbstractTemplate<T> {
+    @SuppressWarnings("rawtypes")
     private static AnyTemplate INSTANCE = null;
 
+    @SuppressWarnings("rawtypes")
     public static AnyTemplate getInstance(TemplateRegistry registry) {
 	if (INSTANCE == null) {
 	    INSTANCE = new AnyTemplate(registry);
@@ -40,6 +42,7 @@ public class AnyTemplate<T> extends AbstractTemplate<T> {
         this.registry = registry;
     }
 
+    @SuppressWarnings("unchecked")
     public void write(Packer pk, T target, boolean required) throws IOException {
 	if(target instanceof Value) {
 	    pk.write((Value) target);
