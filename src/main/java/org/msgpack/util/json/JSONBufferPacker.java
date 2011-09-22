@@ -18,9 +18,7 @@
 package org.msgpack.util.json;
 
 import org.msgpack.MessagePack;
-import org.msgpack.io.Output;
 import org.msgpack.io.LinkedBufferOutput;
-import org.msgpack.packer.Packer;
 import org.msgpack.packer.BufferPacker;
 
 

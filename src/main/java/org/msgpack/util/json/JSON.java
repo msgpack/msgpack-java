@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import org.msgpack.MessagePack;
-import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.unpacker.Unpacker;

@@ -17,16 +17,11 @@
 //
 package org.msgpack.util.json;
 
-import java.io.IOException;
-import java.io.EOFException;
 import java.io.ByteArrayInputStream;
 import java.io.Reader;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import org.msgpack.MessagePack;
-import org.msgpack.MessageTypeException;
-import org.msgpack.type.Value;
-import org.msgpack.unpacker.Unpacker;
 import org.msgpack.unpacker.BufferUnpacker;
 
 

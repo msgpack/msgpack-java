@@ -22,11 +22,8 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
-import java.nio.charset.MalformedInputException;
-import org.json.simple.JSONValue;
 import org.msgpack.io.Output;
 import org.msgpack.io.StreamOutput;
 import org.msgpack.MessagePack;
@@ -53,7 +50,7 @@ public class JSONPacker extends AbstractPacker {
     private static final int FLAG_FIRST_ELEMENT = 0x01;
     private static final int FLAG_MAP_KEY       = 0x02;
     private static final int FLAG_MAP_VALUE     = 0x04;
-    private static final int FLAG_MAP           = FLAG_MAP_KEY | FLAG_MAP_VALUE;
+    //private static final int FLAG_MAP           = FLAG_MAP_KEY | FLAG_MAP_VALUE;
 
     protected final Output out;
     private int[] flags;

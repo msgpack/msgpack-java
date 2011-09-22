@@ -18,22 +18,15 @@
 package org.msgpack.util.json;
 
 import java.io.IOException;
-import java.io.EOFException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 import java.util.Iterator;
-import java.math.BigInteger;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-//import org.msgpack.io.Input;
-//import org.msgpack.io.StreamInput;
 import org.msgpack.MessagePack;
-import org.msgpack.MessageTypeException;
-import org.msgpack.unpacker.Unpacker;
 import org.msgpack.unpacker.Converter;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
@@ -69,6 +62,7 @@ public class JSONUnpacker extends Converter {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     private Value objectToValue(Object obj) {
         if(obj instanceof String) {
             return ValueFactory.createRawValue((String)obj);
@@ -89,6 +83,7 @@ public class JSONUnpacker extends Converter {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     private Value listToValue(List list) {
         Value[] array = new Value[list.size()];
         for(int i=0; i < array.length; i++) {
@@ -97,6 +92,7 @@ public class JSONUnpacker extends Converter {
         return ValueFactory.createArrayValue(array, true);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private Value mapToValue(Map map) {
         Value[] kvs = new Value[map.size()*2];
         Iterator<Map.Entry> it = map.entrySet().iterator();
