@@ -41,6 +41,12 @@ import org.msgpack.type.Value;
  * deserializers for objects of classes.
  * </p>
  * 
+ * <p>
+ * See <a
+ * href="http://wiki.msgpack.org/display/MSGPACK/QuickStart+for+Java">Quick
+ * Start for Java</a> on MessagePack wiki.
+ * </p>
+ * 
  */
 public class MessagePack {
     private TemplateRegistry registry;
