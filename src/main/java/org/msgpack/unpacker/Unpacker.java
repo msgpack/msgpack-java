@@ -25,7 +25,6 @@ import java.lang.Iterable;
 
 import org.msgpack.template.Template;
 import org.msgpack.type.Value;
-import org.msgpack.template.Template;
 
 /**
  * Standard deserializer.
@@ -33,8 +32,6 @@ import org.msgpack.template.Template;
  * @version 0.6.0
  */
 public interface Unpacker extends Iterable<Value>, Closeable {
-    public <T> T read(Template<T> template) throws IOException;
-
     public <T> T read(Class<T> klass) throws IOException;
 
     public <T> T read(T to) throws IOException;
