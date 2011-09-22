@@ -22,6 +22,8 @@ import java.io.Closeable;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import java.lang.Iterable;
+
+import org.msgpack.template.Template;
 import org.msgpack.type.Value;
 
 /**
@@ -33,6 +35,10 @@ public interface Unpacker extends Iterable<Value>, Closeable {
     public <T> T read(Class<T> klass) throws IOException;
 
     public <T> T read(T to) throws IOException;
+
+    public <T> T read(Template<T> tmpl) throws IOException;
+
+    public <T> T read(T to, Template<T> tmpl) throws IOException;
 
     public void skip() throws IOException;
 
