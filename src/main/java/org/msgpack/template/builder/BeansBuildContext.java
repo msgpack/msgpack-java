@@ -30,6 +30,7 @@ import javassist.CtNewConstructor;
 import javassist.NotFoundException;
 
 
+@SuppressWarnings("rawtypes")
 public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
     protected BeansFieldEntry[] entries;
 

@@ -33,6 +33,7 @@ import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.TemplateRegistry;
 
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
 
     private static Logger LOG = LoggerFactory.getLogger(JavassistTemplateBuilder.class);

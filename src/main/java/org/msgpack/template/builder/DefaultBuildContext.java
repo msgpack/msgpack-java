@@ -33,6 +33,8 @@ import javassist.CtConstructor;
 import javassist.CtNewConstructor;
 import javassist.NotFoundException;
 
+
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class DefaultBuildContext extends BuildContext<FieldEntry> {
     protected FieldEntry[] entries;
 

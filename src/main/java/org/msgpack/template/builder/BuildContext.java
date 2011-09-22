@@ -34,6 +34,8 @@ import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+@SuppressWarnings({ "rawtypes" })
 public abstract class BuildContext<T extends FieldEntry> {
 
     private static Logger LOG = LoggerFactory.getLogger(BuildContext.class);

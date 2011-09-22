@@ -41,11 +41,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArrayTemplateBuilder.class);
 
     static class ReflectionMultidimentionalArrayTemplate extends AbstractTemplate {
+
 	private Class componentClass;
 
 	private Template componentTemplate;

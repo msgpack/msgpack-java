@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
  * @author takeshita
  *
  */
+@SuppressWarnings({ "rawtypes" })
 public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
 
     private static Logger LOG = LoggerFactory.getLogger(ReflectionBeansTemplateBuilder.class);

@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 
     private static Logger LOG = LoggerFactory.getLogger(ReflectionBeansTemplateBuilder.class);
@@ -63,7 +64,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 
 	@Override
 	public Object read(Unpacker unpacker, Object to, boolean required) throws IOException {
-	    Class<Object> type = (Class<Object>) entry.getType();
+	    //Class<Object> type = (Class<Object>) entry.getType();
 	    Object f = entry.get(to);
 	    Object o = template.read(unpacker, f, required);
 	    if (o != f) {
@@ -186,7 +187,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 	ReflectionFieldTemplate[] templates = new ReflectionFieldTemplate[entries.length];
 	for (int i = 0; i < entries.length; i++) {
 	    FieldEntry entry = entries[i];
-	    Class<?> t = entry.getType();
+	    //Class<?> t = entry.getType();
 	    Template template = registry.lookup(entry.getGenericType());
 	    templates[i] = new FieldTemplateImpl(entry, template);
 	}
