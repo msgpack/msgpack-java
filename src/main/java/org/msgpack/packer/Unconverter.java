@@ -31,7 +31,7 @@ public class Unconverter extends AbstractPacker {
     private PackerStack stack;
     private Object[] values;
     private Value result;
-    private Value topContainer;
+    //private Value topContainer;
 
     public Unconverter() {
 	this(new MessagePack());
@@ -115,7 +115,7 @@ public class Unconverter extends AbstractPacker {
     @Override
     public Packer writeArrayBegin(int size) throws IOException {
         if(size == 0) {
-            Value[] array = new Value[size];
+            //Value[] array = new Value[size];
             putContainer(ValueFactory.createArrayValue());
             stack.pushArray(0);
             values[stack.getDepth()] = null;

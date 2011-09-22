@@ -194,6 +194,7 @@ public abstract class AbstractPacker implements Packer {
         return this;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public Packer write(Object o) throws IOException {
         if(o == null) {

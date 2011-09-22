@@ -19,6 +19,7 @@ package org.msgpack.packer;
 
 import org.msgpack.MessageTypeException;
 
+
 public final class PackerStack {
     private int top;
     private byte[] types;
