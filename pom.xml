@@ -6,7 +6,7 @@
   <name>MessagePack for Java</name>
   <description>MessagePack for Java is a binary-based efficient object 
       serialization library in Java.</description>
-  <version>0.6.0-devel</version>
+  <version>0.6.0</version>
   <packaging>jar</packaging>
   <url>http://msgpack.org/</url>
 
@@ -20,6 +20,7 @@
 
   <scm>
     <connection>scm:git:git://github.com/msgpack/msgpack-java.git</connection>
+    <developerConnection>scm:git:git@github.com:msgpack/msgpack-java.git</developerConnection>
     <url>scm:git:git://github.com/msgpack/msgpack-java.git</url>
   </scm>
 
@@ -142,57 +143,9 @@
     </plugins>
   </reporting>
 
-  <repositories>
-    <repository>
-      <id>msgpack.org</id>
-      <name>MessagePack Maven2 Repository</name>
-      <url>http://msgpack.org/maven2</url>
-    </repository>
-  </repositories>
-
-  <distributionManagement>
-   <repository>
-      <uniqueVersion>false</uniqueVersion>
-      <id>msgpack.org</id>
-      <name>Repository at msgpack.org</name>
-	  <url>file://${project.build.directory}/website/maven2/</url>
-    </repository>
-    <snapshotRepository>
-       <uniqueVersion>true</uniqueVersion>
-       <id>msgpack.org</id>
-       <name>Repository at msgpack.org</name>
-	   <url>file://${project.build.directory}/website/maven2/</url>
-    </snapshotRepository>
-     <!--<repository>
-      <uniqueVersion>false</uniqueVersion>
-      <id>deploy.release</id>
-      <name>Repository for release</name>
-	  <url>${deploy-release-url}</url>
-    </repository>
-    <snapshotRepository>
-       <uniqueVersion>true</uniqueVersion>
-       <id>deploy.snapshot</id>
-       <name>Repository for snapshot</name>
-	   <url>${deploy-snapshot-url}</url>
-    </snapshotRepository>-->
-  </distributionManagement>
-
-  <profiles>
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-          <plugin>
-            <inherited>true</inherited>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-deploy-plugin</artifactId>
-            <version>2.4</version>
-            <configuration>
-              <updateReleaseInfo>true</updateReleaseInfo>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
 </project>
