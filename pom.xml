@@ -97,14 +97,6 @@
       	<version>2.5.1</version>
       </plugin>
       <plugin>
-        <artifactId>maven-release-plugin</artifactId>
-        <configuration>
-          <!--  do not run site-deploy goal, which is included in the default setting  -->
-          <goals>deploy</goals>
-          <connectionUrl>scm:git://github.com/msgpack/msgpack.git</connectionUrl>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
         <executions>
