@@ -31,14 +31,14 @@
 
   <developers>
     <developer>
-    	<id>frsyuki</id>
-    	<name>Sadayuki Furuhashi</name>
-    	<email>frsyuki@users.sourceforge.jp</email>
+      <id>frsyuki</id>
+      <name>Sadayuki Furuhashi</name>
+      <email>frsyuki@users.sourceforge.jp</email>
     </developer>
     <developer>
-    	<id>muga</id>
-    	<name>Muga Nishizawa</name>
-    	<email>muga.nishizawa@gmail.com</email>
+      <id>muga</id>
+      <name>Muga Nishizawa</name>
+      <email>muga.nishizawa@gmail.com</email>
     </developer>
   </developers>
 
@@ -54,7 +54,7 @@
       <version>3.15.0-GA</version>
       <scope>compile</scope>
     </dependency>
-      <dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>1.6.1</version>
@@ -99,8 +99,8 @@
         </configuration>
       </plugin>
       <plugin>
-      	<artifactId>maven-eclipse-plugin</artifactId>
-      	<version>2.5.1</version>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <version>2.5.1</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -115,18 +115,12 @@
         </executions>
       </plugin>
       <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-scm-plugin</artifactId>
-          <configuration>
-              <pushChanges>false</pushChanges>
-          </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-scm-plugin</artifactId>
+        <configuration>
+          <pushChanges>false</pushChanges>
+        </configuration>
       </plugin>
-    </plugins>
-  </build>
-
-  <reporting>
-    <plugins>
-      <!-- Generating JavaDoc -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
@@ -134,9 +128,14 @@
           <doctitle>${project.name} ${project.version} API</doctitle>
           <aggregate>true</aggregate>
           <locale>en_US</locale>
-	  <encoding>UTF-8</encoding>
+          <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
+    </plugins>
+  </build>
+
+  <reporting>
+    <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
