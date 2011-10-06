@@ -33,10 +33,6 @@ public class MessagePackPacker extends AbstractPacker {
 
     private PackerStack stack = new PackerStack();
 
-    public MessagePackPacker(OutputStream stream) {
-        this(new MessagePack(), stream);
-    }
-
     public MessagePackPacker(MessagePack msgpack, OutputStream stream) {
         this(msgpack, new StreamOutput(stream));
     }

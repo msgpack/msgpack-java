@@ -132,7 +132,7 @@ public class MessagePack {
      * @return buffer-based deserializer
      */
     public BufferUnpacker createBufferUnpacker() {
-	return new MessagePackBufferUnpacker();
+	return new MessagePackBufferUnpacker(this);
     }
 
     /**
