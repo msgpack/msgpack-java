@@ -6,7 +6,7 @@
   <name>MessagePack for Java</name>
   <description>MessagePack for Java is a binary-based efficient object 
       serialization library in Java.</description>
-  <version>0.6.1-SNAPSHOT</version>
+  <version>0.6.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <url>http://msgpack.org/</url>
 
@@ -72,6 +72,12 @@
     </dependency>
   </dependencies>
 
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+
   <build>
     <resources>
       <resource>
@@ -108,6 +114,13 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-scm-plugin</artifactId>
+          <configuration>
+              <pushChanges>false</pushChanges>
+          </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -135,9 +148,4 @@
     </plugins>
   </reporting>
 
-  <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>7</version>
-  </parent>
 </project>
