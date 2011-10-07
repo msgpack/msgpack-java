@@ -174,7 +174,7 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 
             if (e.isOptional()) {
 	        buildString("  if ($1.trySkipNil()) {");
-		buildString("    _$$_t.%s = null;\n", e.getName());
+	        // if Optional and nil, then keep default value
 	        buildString("  } else {\n");
             }
 

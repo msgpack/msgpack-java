@@ -134,7 +134,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
                     if (!tmpl.entry.isAvailable()) {
                         unpacker.skip();
                     } else if (tmpl.entry.isOptional() && unpacker.trySkipNil()) {
-                        tmpl.setNil(to);
+                        // if Optional + nil, than keep default value
                     } else {
                         tmpl.read(unpacker, to, false);
                     }
