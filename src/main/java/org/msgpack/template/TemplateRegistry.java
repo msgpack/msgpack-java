@@ -278,7 +278,7 @@ public class TemplateRegistry {
 	TemplateBuilder builder = chain.select(targetClass, true);
 	Template<T> tmpl = null;
 	if (builder != null) {
-	    tmpl = builder.loadTemplate(targetClass);
+	    tmpl = chain.getForceBuilder().loadTemplate(targetClass);
 	    if (tmpl != null) {
 		register(targetClass, tmpl);
 		return tmpl;

@@ -261,7 +261,9 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
     }
 
     @Override
-    public Template loadTemplate(Class<?> targetClass) {
+    public Template loadTemplate(Class<?> targetClass, FieldEntry[] entries, Template[] templates) {
+	this.entries = entries;
+	this.templates = templates;
 	this.origClass = targetClass;
 	this.origName = origClass.getName();
 	return load(origName);

@@ -227,7 +227,7 @@ public abstract class BuildContext<T extends FieldEntry> {
 	}
     }
 
-    protected abstract Template loadTemplate(Class<?> targetClass);
+    protected abstract Template loadTemplate(Class<?> targetClass, T[] entries, Template[] templates);
 
     protected Template load(final String className) {
 	String tmplName = className + "_$$_Template";
