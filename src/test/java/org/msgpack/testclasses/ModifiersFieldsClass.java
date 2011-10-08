@@ -9,19 +9,19 @@ import org.msgpack.annotation.Message;
 public class ModifiersFieldsClass {
     public int f0;
 
-    private int f1;
+    private int f1 = 5;
 
-    protected int f2;
+    protected int f2 = 10;
 
-    int f3;
+    int f3 = 15;
 
     public String f4;
 
-    private String f5;
+    private String f5 = "nishizawa";
 
-    protected String f6;
+    protected String f6 = "muga";
 
-    String f7;
+    String f7 = "hello";
 
     public ModifiersFieldsClass() {}
 

@@ -289,6 +289,7 @@ public class TestSet {
 	testModifiersFieldsClass(new ModifiersFieldsClass());
 	ModifiersFieldsClass v = new ModifiersFieldsClass();
 	v.f0 = 0;
+	v.f4 = "muga";
 	testModifiersFieldsClass(v);
     }
 
@@ -297,9 +298,15 @@ public class TestSet {
 
     public void testModifiersFieldsClassNotNullable() throws Exception {
 	testModifiersFieldsClassNotNullable(null);
-	testModifiersFieldsClassNotNullable(new ModifiersFieldsClassNotNullable());
+	try {
+	    testModifiersFieldsClassNotNullable(new ModifiersFieldsClassNotNullable());
+	    Assert.fail();
+	} catch (Throwable t) {
+	    Assert.assertTrue(t instanceof MessageTypeException);
+	}
 	ModifiersFieldsClassNotNullable v = new ModifiersFieldsClassNotNullable();
 	v.f0 = 0;
+	v.f4 = "muga";
 	testModifiersFieldsClassNotNullable(v);
     }
 
