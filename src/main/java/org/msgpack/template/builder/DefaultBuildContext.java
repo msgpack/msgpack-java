@@ -117,7 +117,8 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 		buildString("  if (%s.readPrivateField(_$$_t, %s.class, \"%s\") == null) {\n",
 			DefaultBuildContext.class.getName(), de.getField().getDeclaringClass().getName(), de.getName());
 		if (de.isNotNullable()) {
-		    buildString("    throw new %s();\n", MessageTypeException.class.getName());
+		    buildString("    throw new %s(\"%s cannot be null by @NotNullable\");\n",
+			    MessageTypeException.class.getName(), de.getName());
 		} else {
 		    buildString("    $1.writeNil();\n");
 		}
