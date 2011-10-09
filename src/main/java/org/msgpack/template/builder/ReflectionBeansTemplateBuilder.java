@@ -27,10 +27,8 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Ignore;
 import org.msgpack.annotation.Index;
-import org.msgpack.annotation.MessagePackBeans;
 import org.msgpack.annotation.NotNullable;
 import org.msgpack.annotation.Optional;
 import org.msgpack.packer.Packer;
@@ -78,13 +76,7 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
     @Override
     public boolean matchType(Type targetType, boolean hasAnnotation) {
 	Class<?> targetClass = (Class<?>) targetType;
-	boolean matched;
-	if (hasAnnotation) {
-	    matched = AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, Beans.class)
-			|| AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, MessagePackBeans.class);
-	} else {
-	    matched = !targetClass.isEnum() || !targetClass.isInterface();
-	}
+	boolean matched = matchAtBeansClassTemplateBuilder(targetClass, hasAnnotation);
 	if (matched) {
 	    LOG.debug("matched type: " + targetClass.getName());
 	}

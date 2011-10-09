@@ -26,9 +26,11 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Ignore;
 import org.msgpack.annotation.Index;
 import org.msgpack.annotation.Message;
+import org.msgpack.annotation.MessagePackBeans;
 import org.msgpack.annotation.MessagePackMessage;
 import org.msgpack.annotation.MessagePackOrdinalEnum;
 import org.msgpack.annotation.NotNullable;
@@ -244,6 +246,16 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 		    || AbstractTemplateBuilder.isAnnotated(targetClass, MessagePackMessage.class);
 	} else {
 	    return !targetClass.isEnum() && !targetClass.isInterface();
+	}
+    }
+
+    public static boolean matchAtBeansClassTemplateBuilder(Type targetType, boolean hasAnnotation) {
+	Class<?> targetClass = (Class<?>) targetType;
+	if (hasAnnotation) {
+	    return AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, Beans.class)
+			|| AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, MessagePackBeans.class);
+	} else {
+	    return !targetClass.isEnum() || !targetClass.isInterface();
 	}
     }
 

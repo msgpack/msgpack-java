@@ -65,7 +65,9 @@ public class TemplateBuilderChain {
 	if (enableDynamicCodeGeneration()) { // use dynamic code generation
 	    builder = forceBuilder;
 	    templateBuilders.add(builder);
-	    templateBuilders.add(new JavassistBeansTemplateBuilder(registry));
+	    // FIXME #MN next version
+	    //templateBuilders.add(new JavassistBeansTemplateBuilder(registry));
+	    templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
 	} else { // use reflection
 	    builder = new ReflectionTemplateBuilder(registry);
 	    templateBuilders.add(builder);
