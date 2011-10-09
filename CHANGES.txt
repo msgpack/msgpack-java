@@ -5,6 +5,10 @@ Release 0.6.2 -
   BUG FIXES
     MSGPACK-42 VerifyError occurs when generating templates for classes that have 
     @Optional primitive fields
+    MSGPACK-43 Mutually referencing MessagePack objects causes StackOverflowError
+
+  IMPROVEMENTS
+    Adds deleteTemplateClass method to TemplatePrecompiler.
 
 Release 0.6.1 - 2011/10/07
   IMPROVEMENTS
