@@ -67,6 +67,9 @@ public class MessagePack {
     public MessagePack(MessagePack msgpack) {
 	registry = new TemplateRegistry(msgpack.registry);
     }
+    public MessagePack(TemplateRegistry registry) {
+        this.registry = registry;
+    }
 
     /**
      * 

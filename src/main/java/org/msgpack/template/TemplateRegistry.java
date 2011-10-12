@@ -69,7 +69,7 @@ public class TemplateRegistry {
      */
     private TemplateRegistry() {
 	parent = null;
-	chain = new TemplateBuilderChain(this);
+	chain = createTemplateBuilderChain();
 	genericCache = new HashMap<Type, GenericTemplate>();
 	cache = new HashMap<Type, Template<Type>>();
 	registerTemplates();
@@ -86,10 +86,15 @@ public class TemplateRegistry {
 	} else {
 	    parent = new TemplateRegistry();
 	}
-	chain = new TemplateBuilderChain(this);
+	chain = createTemplateBuilderChain();
 	cache = new HashMap<Type, Template<Type>>();
 	genericCache = parent.genericCache;
     }
+
+    protected TemplateBuilderChain createTemplateBuilderChain(){
+        return new TemplateBuilderChain(this);
+    }
+
 
     public void setClassLoader(final ClassLoader cl) {
 	chain = new TemplateBuilderChain(this, cl);
