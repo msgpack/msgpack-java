@@ -52,10 +52,6 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     private final ValueAccept valueAccept = new ValueAccept();
     private final SkipAccept skipAccept = new SkipAccept();
 
-    public MessagePackUnpacker(InputStream stream) {
-        this(new MessagePack(), stream);
-    }
-
     public MessagePackUnpacker(MessagePack msgpack, InputStream stream) {
         this(msgpack, new StreamInput(stream));
     }

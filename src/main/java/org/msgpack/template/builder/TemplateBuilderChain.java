@@ -36,6 +36,8 @@ public class TemplateBuilderChain {
 
     protected List<TemplateBuilder> templateBuilders;
 
+    protected TemplateBuilder forceBuilder;
+
     public TemplateBuilderChain(final TemplateRegistry registry) {
 	this(registry, null);
     }
@@ -50,22 +52,32 @@ public class TemplateBuilderChain {
 	    throw new NullPointerException("registry is null");
 	}
 
+	// forceBuilder
+	forceBuilder = new JavassistTemplateBuilder(registry);
+	if (cl != null) {
+	    ((JavassistTemplateBuilder) forceBuilder).addClassLoader(cl);
+	}
+
+	// builder
 	TemplateBuilder builder;
 	templateBuilders.add(new ArrayTemplateBuilder(registry));
 	templateBuilders.add(new OrdinalEnumTemplateBuilder(registry));
 	if (enableDynamicCodeGeneration()) { // use dynamic code generation
-	    builder = new JavassistTemplateBuilder(registry);
-	    if (cl != null) {
-		((JavassistTemplateBuilder) builder).addClassLoader(cl);
-	    }
+	    builder = forceBuilder;
 	    templateBuilders.add(builder);
-	    templateBuilders.add(new JavassistBeansTemplateBuilder(registry));
+	    // FIXME #MN next version
+	    //templateBuilders.add(new JavassistBeansTemplateBuilder(registry));
+	    templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
 	} else { // use reflection
 	    builder = new ReflectionTemplateBuilder(registry);
 	    templateBuilders.add(builder);
 	    templateBuilders.add(new OrdinalEnumTemplateBuilder(registry));
 	    templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
 	}
+    }
+
+    public TemplateBuilder getForceBuilder() {
+	return forceBuilder;
     }
 
     public TemplateBuilder select(final Type targetType, final boolean hasAnnotation) {

@@ -110,24 +110,26 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 		if (!isPrivate) {
 		    buildString("  $1.%s(_$$_t.%s);\n", primitiveWriteName(type), de.getName());
 		} else {
-		    buildString("  %s.writePrivateField($1, _$$_t, \"%s\", templates[%d]);\n",
-			    DefaultBuildContext.class.getName(), de.getName(), i);
+		    buildString("  %s.writePrivateField($1, _$$_t, %s.class, \"%s\", templates[%d]);\n",
+			    DefaultBuildContext.class.getName(), de.getField().getDeclaringClass().getName(), de.getName(), i);
 		}
 	    } else { // reference types
-		buildString("  if (_$$_t.%s == null) {\n", de.getName());
+		buildString("  if (%s.readPrivateField(_$$_t, %s.class, \"%s\") == null) {\n",
+			DefaultBuildContext.class.getName(), de.getField().getDeclaringClass().getName(), de.getName());
 		if (de.isNotNullable()) {
-		    buildString("    throw new %s();\n", MessageTypeException.class.getName());
+		    buildString("    throw new %s(\"%s cannot be null by @NotNullable\");\n",
+			    MessageTypeException.class.getName(), de.getName());
 		} else {
 		    buildString("    $1.writeNil();\n");
 		}
 		buildString("  } else {\n");
 		if (!isPrivate) {
 		    buildString("    templates[%d].write($1, _$$_t.%s);\n", i, de.getName());
-		    buildString("  }\n");
 		} else {
-		    buildString("    %s.writePrivateField($1, _$$_t, \"%s\", templates[%d]);\n",
-			    DefaultBuildContext.class.getName(), de.getName(), i);
+		    buildString("    %s.writePrivateField($1, _$$_t, %s.class, \"%s\", templates[%d]);\n",
+			    DefaultBuildContext.class.getName(), de.getField().getDeclaringClass().getName(), de.getName(), i);
 		}
+		buildString("  }\n");
 	    }
 	}
 
@@ -136,15 +138,35 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 	return getBuiltString();
     }
 
-    public static void writePrivateField(Packer packer, Object target, String fieldName, Template tmpl) {
+    public static Object readPrivateField(Object target, Class targetClass, String fieldName) {
+	Field field = null;
 	try {
-	    Field field = target.getClass().getDeclaredField(fieldName);
+	    field = targetClass.getDeclaredField(fieldName);
+	    field.setAccessible(true);
+	    Object valueReference = field.get(target);
+	    return valueReference;
+	} catch (Exception e) {
+	    throw new MessageTypeException(e);
+	} finally {
+	    if (field != null) {
+		field.setAccessible(false);
+	    }
+	}
+    }
+
+    public static void writePrivateField(Packer packer, Object target, Class targetClass, String fieldName, Template tmpl) {
+	Field field = null;
+	try {
+	    field = targetClass.getDeclaredField(fieldName);
 	    field.setAccessible(true);
 	    Object valueReference = field.get(target);
 	    tmpl.write(packer, valueReference);
-	    field.setAccessible(false);
 	} catch (Exception e) {
 	    throw new MessageTypeException(e);
+	} finally {
+	    if (field != null) {
+		field.setAccessible(false);
+	    }
 	}
     }
 
@@ -174,7 +196,7 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 
             if (e.isOptional()) {
 	        buildString("  if ($1.trySkipNil()) {");
-		buildString("    _$$_t.%s = null;\n", e.getName());
+	        // if Optional and nil, then keep default value
 	        buildString("  } else {\n");
             }
 
@@ -185,16 +207,16 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 		if (!isPrivate) {
 		    buildString("    _$$_t.%s = $1.%s();\n", de.getName(), primitiveReadName(type));
 		} else {
-		    buildString("    %s.readPrivateField($1, _$$_t, \"%s\", templates[%d]);\n",
-			    DefaultBuildContext.class.getName(), de.getName(), i);
+		    buildString("    %s.readPrivateField($1, _$$_t, %s.class, \"%s\", templates[%d]);\n",
+			    DefaultBuildContext.class.getName(), de.getField().getDeclaringClass().getName(), de.getName(), i);
 		}
 	    } else {
 		if (!isPrivate) {
 		    buildString("    _$$_t.%s = (%s) this.templates[%d].read($1, _$$_t.%s);\n",
 			    de.getName(), de.getJavaTypeName(), i, de.getName());
 		} else {
-		    buildString("    %s.readPrivateField($1, _$$_t, \"%s\", templates[%d]);\n",
-			    DefaultBuildContext.class.getName(), de.getName(), i);
+		    buildString("    %s.readPrivateField($1, _$$_t, %s.class, \"%s\", templates[%d]);\n",
+			    DefaultBuildContext.class.getName(), de.getField().getDeclaringClass().getName(), de.getName(), i);
 		}
 	    }
 
@@ -210,18 +232,22 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 	return getBuiltString();
     }
 
-    public static void readPrivateField(Unpacker unpacker, Object target, String fieldName, Template tmpl) {
+    public static void readPrivateField(Unpacker unpacker, Object target, Class targetClass, String fieldName, Template tmpl) {
+	Field field = null;
 	try {
-	    Field field = target.getClass().getDeclaredField(fieldName);
+	    field = targetClass.getDeclaredField(fieldName);
 	    field.setAccessible(true);
 	    Object fieldReference = field.get(target);
 	    Object valueReference = tmpl.read(unpacker, fieldReference);
 	    if (valueReference != fieldReference) {
 		field.set(target, valueReference);
 	    }
-	    field.setAccessible(false);
 	} catch (Exception e) {
 	    throw new MessageTypeException(e);
+	} finally {
+	    if (field != null) {
+		field.setAccessible(false);
+	    }
 	}
     }
 
@@ -235,7 +261,9 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
     }
 
     @Override
-    public Template loadTemplate(Class<?> targetClass) {
+    public Template loadTemplate(Class<?> targetClass, FieldEntry[] entries, Template[] templates) {
+	this.entries = entries;
+	this.templates = templates;
 	this.origClass = targetClass;
 	this.origName = origClass.getName();
 	return load(origName);

@@ -102,8 +102,7 @@ public abstract class BuildContext<T extends FieldEntry> {
     protected abstract Template buildInstance(Class<?> c) throws NoSuchMethodException,
     	InstantiationException, IllegalAccessException, InvocationTargetException;
 
-    protected void buildWriteMethod() throws CannotCompileException,
-	    NotFoundException {
+    protected void buildWriteMethod() throws CannotCompileException, NotFoundException {
 	LOG.debug("started generating write method in template class %s",
 		new Object[] { tmplCtClass.getName() });
 	String mbody = buildWriteMethodBody();
@@ -127,8 +126,7 @@ public abstract class BuildContext<T extends FieldEntry> {
 
     protected abstract String buildWriteMethodBody();
 
-    protected void buildReadMethod() throws CannotCompileException,
-	    NotFoundException {
+    protected void buildReadMethod() throws CannotCompileException, NotFoundException {
 	LOG.debug("started generating read method in template class %s",
 		new Object[] { tmplCtClass.getName() });
 	String mbody = buildReadMethodBody();
@@ -229,7 +227,7 @@ public abstract class BuildContext<T extends FieldEntry> {
 	}
     }
 
-    protected abstract Template loadTemplate(Class<?> targetClass);
+    protected abstract Template loadTemplate(Class<?> targetClass, T[] entries, Template[] templates);
 
     protected Template load(final String className) {
 	String tmplName = className + "_$$_Template";

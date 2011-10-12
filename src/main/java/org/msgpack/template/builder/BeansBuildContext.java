@@ -182,7 +182,7 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
     }
 
     @Override
-    public Template loadTemplate(Class<?> targetClass) {
+    public Template loadTemplate(Class<?> targetClass, BeansFieldEntry[] entries, Template[] templates) {
 	return null;
     }
 }

@@ -1,3 +1,21 @@
+Release 0.6.2 -
+  NEW FEATURES
+    Enables serializing private fields in objects by Javassist generated templates.
+
+  BUG FIXES
+    MSGPACK-42 VerifyError occurs when generating templates for classes that have 
+    @Optional primitive fields
+    MSGPACK-43 Mutually referencing MessagePack objects causes StackOverflowError
+
+  IMPROVEMENTS
+    Adds deleteTemplateClass method to TemplatePrecompiler.
+
+Release 0.6.1 - 2011/10/07
+  IMPROVEMENTS
+    Deleted unused methods in Packer and Unpacker classes.
+
+Release 0.6.0 - 2011/10/03
+  See "Quick Start" (http://wiki.msgpack.org/display/MSGPACK/QuickStart+for+Java).
 
 Release 0.5.2 - 2011/04/23
   NEW FEATURES

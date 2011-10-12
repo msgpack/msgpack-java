@@ -148,9 +148,20 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
 
     @Override
     public <T> Template<T> loadTemplate(Type targetType) {
+	// FIXME #MN must consider how to load "reference cycle class" in next version
 	Class<T> targetClass = (Class) targetType;
 	checkClassValidation(targetClass);
+	try {
+	    // check loadable
+	    String tmplName = targetClass.getName() + "_$$_Template";
+	    targetClass.getClassLoader().loadClass(tmplName);
+	} catch (ClassNotFoundException e) {
+	    return null;
+	}
+	FieldOption implicitOption = getFieldOption(targetClass);
+	FieldEntry[] entries = toFieldEntries(targetClass, implicitOption);
+	Template<?>[] tmpls = toTemplate(entries);
 	BuildContext bc = createBuildContext();
-	return bc.loadTemplate(targetClass);
+	return bc.loadTemplate(targetClass, entries, tmpls);
     }
 }
