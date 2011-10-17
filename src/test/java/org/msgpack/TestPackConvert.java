@@ -5,6 +5,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,8 +13,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.Assert;
 import org.junit.Test;
 import org.msgpack.packer.Packer;
+import org.msgpack.type.ValueFactory;
 import org.msgpack.unpacker.BufferUnpacker;
 import org.msgpack.unpacker.Converter;
 import org.msgpack.type.Value;
@@ -303,4 +306,32 @@ public class TestPackConvert extends TestSet {
 	    assertEquals(e.getValue(), value);
 	}
     }
+    @Test
+    public void testPackValue() throws IOException {
+    	MessagePack msgpack = new MessagePack();
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    Packer packer = msgpack.createPacker(out);
+        String text = "This is Value";
+        Value value = ValueFactory.createRawValue(text);
+        packer.write(value);
+        byte[] bytes = out.toByteArray();
+        Assert.assertEquals(text.length() + 1,bytes.length);
+        Assert.assertEquals(0xa0 + text.length(), 0xff & bytes[0]);
+    }
+
+
+    @Test
+    public void testPackValuePassedAsObject() throws IOException{
+    	MessagePack msgpack = new MessagePack();
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    Packer packer = msgpack.createPacker(out);
+        String text = "This is Value";
+        Object value = ValueFactory.createRawValue(text);
+        packer.write(value); // passed as object
+        byte[] bytes = out.toByteArray();
+        Assert.assertEquals(text.length() + 1,bytes.length);
+        Assert.assertEquals(0xa0 + text.length(), 0xff & bytes[0]);
+
+    }
+
 }

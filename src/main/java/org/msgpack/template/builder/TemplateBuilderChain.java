@@ -47,7 +47,7 @@ public class TemplateBuilderChain {
 	reset(registry, cl);
     }
 
-    private void reset(final TemplateRegistry registry, final ClassLoader cl) {
+    protected void reset(final TemplateRegistry registry, final ClassLoader cl) {
 	if (registry == null) {
 	    throw new NullPointerException("registry is null");
 	}
