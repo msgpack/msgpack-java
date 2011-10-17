@@ -29,6 +29,7 @@ public class TestNestedList {
         NestedList obj = new NestedList();
         obj.list.add(list("aaa", "bbb"));
         obj.list.add(list(new MyClass("obj1"), new MyClass("obj2")));
+        obj.list2.add((List<MyClass>)list(new MyClass("obj3")));
 
         byte[] bytes = messagePack.write(obj);
 
@@ -37,11 +38,14 @@ public class TestNestedList {
         ArrayValue root = unpacked.asArrayValue().getElementArray()[0].asArrayValue();
         ArrayValue list1 = root.getElementArray()[0].asArrayValue();
         ArrayValue list2 = root.getElementArray()[1].asArrayValue();
+        ArrayValue list3 = unpacked.asArrayValue().getElementArray()[1].asArrayValue();
+        list3 = list3.getElementArray()[0].asArrayValue();
 
         Assert.assertEquals("aaa",list1.getElementArray()[0].asRawValue().getString());
         Assert.assertEquals("bbb",list1.getElementArray()[1].asRawValue().getString());
         Assert.assertEquals("obj1",messagePack.convert(list2.getElementArray()[0],MyClass.class).name);
         Assert.assertEquals("obj2",messagePack.convert(list2.getElementArray()[1],MyClass.class).name);
+        Assert.assertEquals("obj3",messagePack.convert(list3.getElementArray()[0],MyClass.class).name);
 
     }
 
@@ -56,6 +60,8 @@ public class TestNestedList {
     @Message
     public static class NestedList{
         public List<List> list = new ArrayList<List>();
+
+        public List<List<MyClass>> list2 = new ArrayList<List<MyClass>>();
 
     }
 

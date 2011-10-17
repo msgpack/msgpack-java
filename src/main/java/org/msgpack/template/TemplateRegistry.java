@@ -134,10 +134,10 @@ public class TemplateRegistry {
         /*register(List.class, new ListTemplate(AnyTemplate.getInstance(this)));
         register(Collection.class,new CollectionTemplate(AnyTemplate.getInstance(this)));
         register(Map.class,new MapTemplate(AnyTemplate.getInstance(this), AnyTemplate.getInstance(this)));
-
+        */
         registerGeneric(List.class, new GenericCollectionTemplate(this, ListTemplate.class));
         registerGeneric(Collection.class, new GenericCollectionTemplate(this, CollectionTemplate.class));
-        registerGeneric(Map.class, new GenericMapTemplate(this, MapTemplate.class));*/
+        registerGeneric(Map.class, new GenericMapTemplate(this, MapTemplate.class));
     }
 
 
@@ -147,10 +147,10 @@ public class TemplateRegistry {
         register(List.class, new ListTemplate(anyTemplate));//new ListTemplate(AnyTemplate.getInstance(this)));
         register(Collection.class,new CollectionTemplate(anyTemplate));//new CollectionTemplate(AnyTemplate.getInstance(this)));
         register(Map.class,new MapTemplate(anyTemplate,anyTemplate));//new MapTemplate(AnyTemplate.getInstance(this), AnyTemplate.getInstance(this)));
-
+        /*
         registerGeneric(List.class, new GenericCollectionTemplate(this, ListTemplate.class));
         registerGeneric(Collection.class, new GenericCollectionTemplate(this, CollectionTemplate.class));
-        registerGeneric(Map.class, new GenericMapTemplate(this, MapTemplate.class));
+        registerGeneric(Map.class, new GenericMapTemplate(this, MapTemplate.class));*/
     }
 
     public void register(final Class<?> targetClass) {
