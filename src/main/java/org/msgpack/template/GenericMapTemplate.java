@@ -30,7 +30,8 @@ public class GenericMapTemplate implements GenericTemplate {
 	try {
 	    constructor = tmpl.getConstructor(new Class<?>[] { Template.class, Template.class });
 	    constructor.newInstance(new Object[] {
-		    AnyTemplate.getInstance(registry), AnyTemplate.getInstance(registry)});
+              new AnyTemplate(registry),new AnyTemplate(registry)});
+		    //AnyTemplate.getInstance(registry), AnyTemplate.getInstance(registry)});
 	} catch (NoSuchMethodException e) {
 	    throw new IllegalArgumentException(e);
 	} catch (InvocationTargetException e) {

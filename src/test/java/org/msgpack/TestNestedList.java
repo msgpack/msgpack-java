@@ -34,12 +34,12 @@ public class TestNestedList {
 
         // Can't unpack as NestedList
         Value unpacked = messagePack.read(bytes);
-        ArrayValue root = unpacked.asArrayValue();
+        ArrayValue root = unpacked.asArrayValue().getElementArray()[0].asArrayValue();
         ArrayValue list1 = root.getElementArray()[0].asArrayValue();
         ArrayValue list2 = root.getElementArray()[1].asArrayValue();
 
-        Assert.assertEquals("aaa",list1.getElementArray()[0].asIntegerValue().getInt());
-        Assert.assertEquals("bbb",list1.getElementArray()[1].asIntegerValue().getInt());
+        Assert.assertEquals("aaa",list1.getElementArray()[0].asRawValue().getString());
+        Assert.assertEquals("bbb",list1.getElementArray()[1].asRawValue().getString());
         Assert.assertEquals("obj1",messagePack.convert(list2.getElementArray()[0],MyClass.class).name);
         Assert.assertEquals("obj2",messagePack.convert(list2.getElementArray()[1],MyClass.class).name);
 
