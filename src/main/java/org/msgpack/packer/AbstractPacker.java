@@ -199,6 +199,8 @@ public abstract class AbstractPacker implements Packer {
     public Packer write(Object o) throws IOException {
         if(o == null) {
             writeNil();
+        } else if(o instanceof Value){
+            write((Value)o);
         } else {
             Template tmpl = msgpack.lookup(o.getClass());
             tmpl.write(this, o);

@@ -20,6 +20,7 @@ package org.msgpack;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
@@ -188,7 +189,9 @@ public class MessagePack {
 	BufferPacker pk = createBufferPacker();
 	if (v == null) {
 	    pk.writeNil();
-	} else {
+	} else if(v instanceof Value){
+        return write((Value)v);
+    }else {
 	    @SuppressWarnings("unchecked")
 	    Template<T> tmpl = registry.lookup(v.getClass());
 	    tmpl.write(pk, v);
@@ -609,6 +612,9 @@ public class MessagePack {
 	return registry.lookup(type);
     }
 
+    public Template<?> lookup(Type type) {
+	  return registry.lookup(type);
+    }
     private static final MessagePack globalMessagePack = new MessagePack();
 
     /**
