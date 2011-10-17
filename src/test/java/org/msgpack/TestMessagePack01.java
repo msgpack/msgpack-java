@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import org.msgpack.template.Template;
 import static org.msgpack.template.Templates.tList;
 import static org.msgpack.template.Templates.tMap;
 import org.msgpack.type.Value;
+import org.msgpack.type.ValueFactory;
 
 
 public class TestMessagePack01 {
@@ -701,4 +703,23 @@ public class TestMessagePack01 {
 	    }
 	}
     }
+
+    /*:*
+     * test pack org.msgpack.type.Value, but compiler recognize it as java.lang.Object
+     */
+    @Test
+    public void testValuePassedAsObject() throws IOException {
+
+	    MessagePack msgpack = new MessagePack();
+        String text = "This class is Value but...";
+        Object value = ValueFactory.createRawValue("This class is Value but...");
+
+        byte[] strValue = msgpack.write(value);
+        for(byte b : strValue){
+          System.out.print(String.format("%02x ", b));
+        }
+        // should be raw type
+        assertEquals(0xa0 + text.length(),0xff & strValue[0]);
+    }
+
 }
