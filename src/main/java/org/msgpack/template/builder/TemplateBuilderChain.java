@@ -71,7 +71,6 @@ public class TemplateBuilderChain {
 	} else { // use reflection
 	    builder = new ReflectionTemplateBuilder(registry);
 	    templateBuilders.add(builder);
-	    templateBuilders.add(new OrdinalEnumTemplateBuilder(registry));
 	    templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
 	}
     }
