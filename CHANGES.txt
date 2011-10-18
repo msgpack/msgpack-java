@@ -6,8 +6,10 @@ Release 0.6.2 -
     MSGPACK-42 VerifyError occurs when generating templates for classes that have 
     @Optional primitive fields
     MSGPACK-43 Mutually referencing MessagePack objects causes StackOverflowError
+    MSGPACK-49 Fail to pack org.msgpack.type.Value classes
 
   IMPROVEMENTS
+    Modifies TemplateRegistry class for msgpack-scala
     Adds deleteTemplateClass method to TemplatePrecompiler.
 
 Release 0.6.1 - 2011/10/07

@@ -709,15 +709,11 @@ public class TestMessagePack01 {
      */
     @Test
     public void testValuePassedAsObject() throws IOException {
-
-	    MessagePack msgpack = new MessagePack();
+	MessagePack msgpack = new MessagePack();
         String text = "This class is Value but...";
         Object value = ValueFactory.createRawValue("This class is Value but...");
 
         byte[] strValue = msgpack.write(value);
-        for(byte b : strValue){
-          System.out.print(String.format("%02x ", b));
-        }
         // should be raw type
         assertEquals(0xa0 + text.length(),0xff & strValue[0]);
     }

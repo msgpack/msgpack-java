@@ -298,6 +298,7 @@ public class TemplateRegistry {
 	TemplateBuilder builder = chain.select(targetClass, true);
 	Template<T> tmpl = null;
 	if (builder != null) {
+	    // TODO #MN for Android, we should modify here
 	    tmpl = chain.getForceBuilder().loadTemplate(targetClass);
 	    if (tmpl != null) {
 		register(targetClass, tmpl);
