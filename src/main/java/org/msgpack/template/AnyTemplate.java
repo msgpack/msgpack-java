@@ -25,7 +25,7 @@ import org.msgpack.unpacker.Unpacker;
 
 
 public class AnyTemplate<T> extends AbstractTemplate<T> {
-    @SuppressWarnings("rawtypes")
+    /*@SuppressWarnings("rawtypes")
     private static AnyTemplate INSTANCE = null;
 
     @SuppressWarnings("rawtypes")
@@ -34,11 +34,11 @@ public class AnyTemplate<T> extends AbstractTemplate<T> {
 	    INSTANCE = new AnyTemplate(registry);
 	}
 	return INSTANCE;
-    }
+    }*/
 
     private TemplateRegistry registry;
 
-    private AnyTemplate(TemplateRegistry registry) {
+    public AnyTemplate(TemplateRegistry registry) {
         this.registry = registry;
     }
 
