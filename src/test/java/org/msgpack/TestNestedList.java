@@ -49,6 +49,26 @@ public class TestNestedList {
 
     }
 
+    @Test
+    public void testNestedListToValue() throws IOException {
+
+        List values = list( list("hoge",4) , list(list(2,"aaa"),list("bbb")));
+
+        Value value = messagePack.unconvert(values);
+
+        Value[] rootArray = value.asArrayValue().getElementArray();
+        Value[] list1 = rootArray[0].asArrayValue().getElementArray();
+        Value[] list2 = rootArray[1].asArrayValue().getElementArray();
+        Value[] list3 = list2[0].asArrayValue().getElementArray();
+        Value[] list4 = list2[1].asArrayValue().getElementArray();
+        Assert.assertEquals("hoge",list1[0].asRawValue().getString());
+        Assert.assertEquals(4,list1[1].asIntegerValue().getInt());
+        Assert.assertEquals(2,list3[0].asIntegerValue().getInt());
+        Assert.assertEquals("aaa",list3[1].asRawValue().getString());
+        Assert.assertEquals("bbb",list4[0].asRawValue().getString());
+
+    }
+
     private List<?> list( Object ... elements){
         List<Object> list = new ArrayList();
         for(Object o : elements){
