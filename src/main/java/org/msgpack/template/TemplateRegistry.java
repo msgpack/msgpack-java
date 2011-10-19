@@ -88,7 +88,6 @@ public class TemplateRegistry {
 	}
 	chain = createTemplateBuilderChain();
 	cache = new HashMap<Type, Template<Type>>();
-	//genericCache = parent.genericCache;
 	genericCache = new HashMap<Type, GenericTemplate>();
         registerTemplatesWhichRefersRegistry();
     }
@@ -103,7 +102,6 @@ public class TemplateRegistry {
     }
 
     private void registerTemplates() {
-
         register(boolean.class, BooleanTemplate.getInstance());
         register(Boolean.class, BooleanTemplate.getInstance());
         register(byte.class, ByteTemplate.getInstance());
@@ -136,14 +134,12 @@ public class TemplateRegistry {
 
     }
 
-
     protected void registerTemplatesWhichRefersRegistry() {
         AnyTemplate anyTemplate = new AnyTemplate(this);
 
-        register(List.class, new ListTemplate(anyTemplate));//new ListTemplate(AnyTemplate.getInstance(this)));
-        register(Collection.class,new CollectionTemplate(anyTemplate));//new CollectionTemplate(AnyTemplate.getInstance(this)));
-        register(Map.class,new MapTemplate(anyTemplate,anyTemplate));//new MapTemplate(AnyTemplate.getInstance(this), AnyTemplate.getInstance(this)));
-
+        register(List.class, new ListTemplate(anyTemplate));
+        register(Collection.class, new CollectionTemplate(anyTemplate));
+        register(Map.class, new MapTemplate(anyTemplate,anyTemplate));
         registerGeneric(List.class, new GenericCollectionTemplate(this, ListTemplate.class));
         registerGeneric(Collection.class, new GenericCollectionTemplate(this, CollectionTemplate.class));
         registerGeneric(Map.class, new GenericMapTemplate(this, MapTemplate.class));

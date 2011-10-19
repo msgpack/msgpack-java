@@ -25,16 +25,6 @@ import org.msgpack.unpacker.Unpacker;
 
 
 public class AnyTemplate<T> extends AbstractTemplate<T> {
-    /*@SuppressWarnings("rawtypes")
-    private static AnyTemplate INSTANCE = null;
-
-    @SuppressWarnings("rawtypes")
-    public static AnyTemplate getInstance(TemplateRegistry registry) {
-	if (INSTANCE == null) {
-	    INSTANCE = new AnyTemplate(registry);
-	}
-	return INSTANCE;
-    }*/
 
     private TemplateRegistry registry;
 
@@ -44,9 +34,9 @@ public class AnyTemplate<T> extends AbstractTemplate<T> {
 
     @SuppressWarnings("unchecked")
     public void write(Packer pk, T target, boolean required) throws IOException {
-	if(target instanceof Value) {
+	if (target instanceof Value) {
 	    pk.write((Value) target);
-	} else if(target == null) {
+	} else if (target == null) {
             if(required) {
 		throw new MessageTypeException("Attempted to write null");
             }
@@ -57,11 +47,11 @@ public class AnyTemplate<T> extends AbstractTemplate<T> {
     }
 
     public T read(Unpacker u, T to, boolean required) throws IOException, MessageTypeException {
-        if(!required && u.trySkipNil()) {
+        if (!required && u.trySkipNil()) {
             return null;
         }
 	T o = u.read(to);
-        if(required && o == null) {
+        if (required && o == null) {
             throw new MessageTypeException("Unexpected nil value");
         }
         return o;

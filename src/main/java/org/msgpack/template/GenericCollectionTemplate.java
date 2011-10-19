@@ -29,7 +29,7 @@ public class GenericCollectionTemplate implements GenericTemplate {
     public GenericCollectionTemplate(TemplateRegistry registry, Class<? extends Template> tmpl) {
 	try {
 	    constructor = tmpl.getConstructor(new Class<?>[]{ Template.class });
-	    constructor.newInstance(new Object[]{ new AnyTemplate(registry)});//AnyTemplate.getInstance(registry) });
+	    constructor.newInstance(new Object[]{ new AnyTemplate(registry)});
 	} catch (NoSuchMethodException e) {
 	    throw new IllegalArgumentException(e);
 	} catch (InvocationTargetException e) {
