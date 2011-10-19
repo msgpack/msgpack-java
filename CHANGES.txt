@@ -6,7 +6,9 @@ Release 0.6.2 -
     MSGPACK-42 VerifyError occurs when generating templates for classes that have 
     @Optional primitive fields
     MSGPACK-43 Mutually referencing MessagePack objects causes StackOverflowError
-    MSGPACK-49 Fail to pack org.msgpack.type.Value classes
+    MSGPACK-49 Fail to serialize org.msgpack.type.Value objects
+    MSGPACK-50 Fail to serialize object representing classes have fields of
+    nested non-generic List, Map and Collection types
 
   IMPROVEMENTS
     Modifies TemplateRegistry class for msgpack-scala
