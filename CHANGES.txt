@@ -1,4 +1,6 @@
-Release 0.6.2 -
+Release 0.6.3 -
+
+Release 0.6.2 - 2011/10/24
   NEW FEATURES
     Enables serializing private fields in objects by Javassist generated templates.
 
