@@ -19,11 +19,13 @@ package org.msgpack.template;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
@@ -77,7 +79,7 @@ public class TemplateRegistry {
     }
 
     /**
-     * 
+     *
      * @param registry
      */
     public TemplateRegistry(TemplateRegistry registry) {
@@ -129,6 +131,8 @@ public class TemplateRegistry {
         register(byte[].class, ByteArrayTemplate.getInstance());
         register(ByteBuffer.class, ByteBufferTemplate.getInstance());
         register(Value.class, ValueTemplate.getInstance());
+        register(BigDecimal.class, BigDecimalTemplate.getInstance());
+        register(Date.class, DateTemplate.getInstance());
 
         registerTemplatesWhichRefersRegistry();
 
@@ -338,6 +342,11 @@ public class TemplateRegistry {
 			if (tmpl != null) {
 			    register(targetClass, tmpl);
 			    return tmpl;
+			} else {
+			    tmpl = (Template<T>) lookupInterfaceTypes(superClass);
+			    if (tmpl != null) {
+			        return tmpl;
+			    }
 			}
 		    } catch (NullPointerException e) { // ignore
 		    }
