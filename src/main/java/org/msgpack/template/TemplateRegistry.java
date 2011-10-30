@@ -342,6 +342,11 @@ public class TemplateRegistry {
 			if (tmpl != null) {
 			    register(targetClass, tmpl);
 			    return tmpl;
+			} else {
+			    tmpl = (Template<T>) lookupInterfaceTypes(superClass);
+			    if (tmpl != null) {
+			        return tmpl;
+			    }
 			}
 		    } catch (NullPointerException e) { // ignore
 		    }
