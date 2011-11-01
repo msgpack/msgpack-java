@@ -34,9 +34,7 @@ public class AnyTemplate<T> extends AbstractTemplate<T> {
 
     @SuppressWarnings("unchecked")
     public void write(Packer pk, T target, boolean required) throws IOException {
-	if (target instanceof Value) {
-	    pk.write((Value) target);
-	} else if (target == null) {
+        if (target == null) {
             if(required) {
 		throw new MessageTypeException("Attempted to write null");
             }

@@ -233,6 +233,12 @@ public class TemplateRegistry {
 	    return tmpl;
 	}
 
+	// lookup template of interface type of superclasss
+	tmpl = lookupSuperclassInterfaceTypes(targetClass);
+	if (tmpl != null) {
+	    return tmpl;
+	}
+
 	throw new MessageTypeException(
 		"Cannot find template for " + targetClass + " class. Try to add @Message annotation to the class or call MessagePack.register(Type).");
     }
@@ -342,11 +348,6 @@ public class TemplateRegistry {
 			if (tmpl != null) {
 			    register(targetClass, tmpl);
 			    return tmpl;
-			} else {
-			    tmpl = (Template<T>) lookupInterfaceTypes(superClass);
-			    if (tmpl != null) {
-			        return tmpl;
-			    }
 			}
 		    } catch (NullPointerException e) { // ignore
 		    }
@@ -354,6 +355,30 @@ public class TemplateRegistry {
 	    }
 	}
 	return tmpl;
+    }
+
+    private <T> Template<T> lookupSuperclassInterfaceTypes(Class<T> targetClass) {
+        Class<?> superClass = targetClass.getSuperclass();
+        Template<T> tmpl = null;
+        if (superClass != null) {
+            for (; superClass != Object.class; superClass = superClass.getSuperclass()) {
+                tmpl = (Template<T>) lookupInterfaceTypes(superClass);
+                if (tmpl != null) {
+                    register(targetClass, tmpl);
+                    return tmpl;
+                } else {
+                    try {
+                        tmpl = (Template<T>) parent.lookupCache(superClass);
+                        if (tmpl != null) {
+                            register(targetClass, tmpl);
+                            return tmpl;
+                        }
+                    } catch (NullPointerException e) { // ignore
+                    }
+                }
+            }
+        }
+        return tmpl;
     }
 
     private synchronized Template buildAndRegister(TemplateBuilder builder, final Class targetClass,

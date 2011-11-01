@@ -189,9 +189,7 @@ public class MessagePack {
 	BufferPacker pk = createBufferPacker();
 	if (v == null) {
 	    pk.writeNil();
-	} else if(v instanceof Value){
-        return write((Value)v);
-    }else {
+	}else {
 	    @SuppressWarnings("unchecked")
 	    Template<T> tmpl = registry.lookup(v.getClass());
 	    tmpl.write(pk, v);
