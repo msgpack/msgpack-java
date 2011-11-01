@@ -1,4 +1,6 @@
 Release 0.6.3 -
+  IMPROVEMENTS
+    Changes source and target release, which are Javac options, to 1.6
 
 Release 0.6.2 - 2011/10/24
   NEW FEATURES
