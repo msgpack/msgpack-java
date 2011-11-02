@@ -114,8 +114,12 @@ public class DefaultBuildContext extends BuildContext<FieldEntry> {
 			    DefaultBuildContext.class.getName(), de.getField().getDeclaringClass().getName(), de.getName(), i);
 		}
 	    } else { // reference types
-		buildString("  if (%s.readPrivateField(_$$_t, %s.class, \"%s\") == null) {\n",
-			DefaultBuildContext.class.getName(), de.getField().getDeclaringClass().getName(), de.getName());
+	        if (!isPrivate) {
+                    buildString("  if (_$$_t.%s == null) {\n", de.getName());
+	        } else {
+                    buildString("  if (%s.readPrivateField(_$$_t, %s.class, \"%s\") == null) {\n",
+                            DefaultBuildContext.class.getName(), de.getField().getDeclaringClass().getName(), de.getName());
+	        }
 		if (de.isNotNullable()) {
 		    buildString("    throw new %s(\"%s cannot be null by @NotNullable\");\n",
 			    MessageTypeException.class.getName(), de.getName());
