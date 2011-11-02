@@ -57,12 +57,9 @@ public final class UnpackerStack {
 
         if(types[top] == TYPE_ARRAY) {
             throw new MessageTypeException("Array is end but readArrayEnd() is not called");
-
         } else if(types[top] == TYPE_MAP) {
             throw new MessageTypeException("Map is end but readMapEnd() is not called");
-
-        } else {
-            // empty
+        } else { // empty
             return;
         }
     }

@@ -30,16 +30,15 @@ import org.msgpack.packer.Unconverter;
 
 
 public class MessagePackUnpacker extends AbstractUnpacker {
-    protected final Input in;
-
     private static final byte REQUIRE_TO_READ_HEAD = (byte)0xc6;
+
+    protected final Input in;
+    private final UnpackerStack stack = new UnpackerStack();
 
     private byte headByte = REQUIRE_TO_READ_HEAD;
 
     private byte[] raw;
     private int rawFilled;
-
-    private final UnpackerStack stack = new UnpackerStack();
 
     private final IntAccept intAccept = new IntAccept();
     private final LongAccept longAccept = new LongAccept();
@@ -557,6 +556,16 @@ public class MessagePackUnpacker extends AbstractUnpacker {
 
     public void close() throws IOException {
         in.close();
+    }
+
+    @Override
+    public long getLastMessageSize() {
+        return in.getSize();
+    }
+
+    @Override
+    public void setMessageSizeLimit(long size) {
+        in.resetSize();
     }
 }
 

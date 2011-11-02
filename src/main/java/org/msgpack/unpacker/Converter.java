@@ -406,5 +406,15 @@ public class Converter extends AbstractUnpacker {
     @Override
     public void close() throws IOException {
     }
+
+    @Override
+    public long getLastMessageSize() {
+        throw new UnsupportedOperationException("getLastMessageSize()");
+    }
+
+    @Override
+    public void setMessageSizeLimit(long size) {
+        throw new UnsupportedOperationException("setMessageSizeLimit()");
+    }
 }
 

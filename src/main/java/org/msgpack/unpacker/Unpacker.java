@@ -40,8 +40,8 @@ public interface Unpacker extends Iterable<Value>, Closeable {
 
     public <T> T read(T to, Template<T> tmpl) throws IOException;
 
-    public void skip() throws IOException;
 
+    public void skip() throws IOException;
 
     public int readArrayBegin() throws IOException;
 
@@ -86,5 +86,10 @@ public interface Unpacker extends Iterable<Value>, Closeable {
 
 
     public UnpackerIterator iterator();
+
+
+    public long getLastMessageSize();
+
+    public void setMessageSizeLimit(long size);
 }
 
