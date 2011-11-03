@@ -28,6 +28,8 @@ import org.msgpack.packer.Unconverter;
 public abstract class AbstractUnpacker implements Unpacker {
     protected MessagePack msgpack;
 
+    protected long messageSize;
+
     protected AbstractUnpacker(MessagePack msgpack) {
 	this.msgpack = msgpack;
     }
@@ -100,5 +102,37 @@ public abstract class AbstractUnpacker implements Unpacker {
             return null;
         }
         return (T) tmpl.read(this, to);
+    }
+
+    public long getLastMessageSize() {
+        return messageSize;
+    }
+
+    public void setMessageSizeLimit(long size) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    protected void incrMessageSize(long size) {
+        messageSize += size;
+    }
+
+    protected void incrMessageSizeOne() {
+        messageSize += 1;
+    }
+
+    protected void incrMessageSizeTwo() {
+        messageSize += 2;
+    }
+
+    protected void incrMessageSizeFour() {
+        messageSize += 4;
+    }
+
+    protected void incrMessageSizeEight() {
+        messageSize += 8;
+    }
+
+    protected void resetMessageSize() {
+        messageSize = 0;
     }
 }
