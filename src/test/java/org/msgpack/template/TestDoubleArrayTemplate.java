@@ -121,7 +121,7 @@ public class TestDoubleArrayTemplate {
 	    }
 	    double[] ret = tmpl.read(unpacker, ret0);
 	    assertDoubleArrayEquals(v, ret);
-	    assertEquals(bytes.length, unpacker.getLastMessageSize());
+	    assertEquals(bytes.length, unpacker.getReadByteCount());
 	}
     }
 
@@ -170,7 +170,7 @@ public class TestDoubleArrayTemplate {
 	    }
 	    double[] ret = tmpl.read(unpacker, ret0);
 	    assertDoubleArrayEquals(v, ret);
-	    assertEquals(bytes.length, unpacker.getLastMessageSize());
+	    assertEquals(bytes.length, unpacker.getReadByteCount());
 	}
     }
 
@@ -218,7 +218,7 @@ public class TestDoubleArrayTemplate {
 	    }
 	    double[] ret = tmpl.read(unpacker, ret0);
 	    assertDoubleArrayEquals(v, ret);
-	    assertEquals(bytes.length, unpacker.getLastMessageSize());
+	    assertEquals(bytes.length, unpacker.getReadByteCount());
 	}
     }
 
@@ -266,7 +266,7 @@ public class TestDoubleArrayTemplate {
 	    }
 	    double[] ret = tmpl.read(unpacker, ret0);
 	    assertDoubleArrayEquals(v, ret);
-	    assertEquals(bytes.length, unpacker.getLastMessageSize());
+	    assertEquals(bytes.length, unpacker.getReadByteCount());
 	}
     }
 

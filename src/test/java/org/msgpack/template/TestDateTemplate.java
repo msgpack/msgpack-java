@@ -54,7 +54,7 @@ public class TestDateTemplate {
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	    Date ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
-	    assertEquals(bytes.length, unpacker.getLastMessageSize());
+	    assertEquals(bytes.length, unpacker.getReadByteCount());
 	}
     }
 
@@ -75,7 +75,7 @@ public class TestDateTemplate {
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    Date ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
-	    assertEquals(bytes.length, unpacker.getLastMessageSize());
+	    assertEquals(bytes.length, unpacker.getReadByteCount());
 	}
     }
 
@@ -95,7 +95,7 @@ public class TestDateTemplate {
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    Date ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
-	    assertEquals(bytes.length, unpacker.getLastMessageSize());
+	    assertEquals(bytes.length, unpacker.getReadByteCount());
 	}
     }
 
@@ -115,7 +115,7 @@ public class TestDateTemplate {
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	    Date ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
-	    assertEquals(bytes.length, unpacker.getLastMessageSize());
+	    assertEquals(bytes.length, unpacker.getReadByteCount());
 	}
     }
 }

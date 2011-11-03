@@ -34,7 +34,7 @@ public class TestOrdinalEnumBufferPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	EnumTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -57,6 +57,6 @@ public class TestOrdinalEnumBufferPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	EnumTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 }

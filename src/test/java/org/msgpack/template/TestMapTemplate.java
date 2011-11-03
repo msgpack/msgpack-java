@@ -56,7 +56,7 @@ public class TestMapTemplate {
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	    Map<K, V> ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
-	    assertEquals(bytes.length, unpacker.getLastMessageSize());
+	    assertEquals(bytes.length, unpacker.getReadByteCount());
 	}
     }
 
@@ -79,7 +79,7 @@ public class TestMapTemplate {
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    Map<K, V> ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
-	    assertEquals(bytes.length, unpacker.getLastMessageSize());
+	    assertEquals(bytes.length, unpacker.getReadByteCount());
 	}
     }
 
@@ -101,7 +101,7 @@ public class TestMapTemplate {
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    Map<K, V> ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
-	    assertEquals(bytes.length, unpacker.getLastMessageSize());
+	    assertEquals(bytes.length, unpacker.getReadByteCount());
 	}
     }
 
@@ -123,7 +123,7 @@ public class TestMapTemplate {
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	    Map<K, V> ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
-	    assertEquals(bytes.length, unpacker.getLastMessageSize());
+	    assertEquals(bytes.length, unpacker.getReadByteCount());
 	}
     }
 }

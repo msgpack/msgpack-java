@@ -31,7 +31,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	boolean ret = unpacker.readBoolean();
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -48,7 +48,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	byte ret = unpacker.readByte();
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -65,7 +65,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	short ret = unpacker.readShort();
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -82,7 +82,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	int ret = unpacker.readInt();
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -99,7 +99,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	long ret = unpacker.readLong();
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -116,7 +116,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	float ret = unpacker.readFloat();
 	assertEquals(v, ret, 10e-10);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -133,7 +133,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	double ret = unpacker.readDouble();
 	assertEquals(v, ret, 10e-10);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -144,7 +144,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	unpacker.readNil();
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -161,7 +161,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	BigInteger ret = unpacker.read(BigInteger.class);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -178,7 +178,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	String ret = unpacker.read(String.class);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -195,7 +195,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	byte[] ret = unpacker.read(byte[].class);
 	assertArrayEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -234,7 +234,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	while (v_iter.hasNext()) {
 	    assertEquals(v_iter.next(), ret_iter.next());
 	}
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -275,6 +275,6 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	    Object value = ret.get(e.getKey());
 	    assertEquals(e.getValue(), value);
 	}
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 }

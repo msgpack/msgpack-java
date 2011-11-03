@@ -60,7 +60,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	PrimitiveTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -84,7 +84,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	PrimitiveTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -108,7 +108,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	ReferenceTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -132,7 +132,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	ReferenceTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -156,7 +156,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	ListTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -180,7 +180,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	ListTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -204,7 +204,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	MapTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -228,7 +228,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	MapTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -252,7 +252,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	FinalClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -299,7 +299,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	ModifiersFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -323,7 +323,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	ModifiersFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -347,7 +347,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	UserDefinedTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -371,7 +371,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	UserDefinedTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -395,7 +395,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	ReferenceCycleTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -419,7 +419,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	ReferenceCycleTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -443,7 +443,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	InheritanceClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -467,7 +467,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	InheritanceClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -491,7 +491,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	MessagePackableTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
     @Test @Override
@@ -515,7 +515,7 @@ public class TestReflectionPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	MessagePackableTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, u.getLastMessageSize());
+	assertEquals(bytes.length, u.getReadByteCount());
     }
 
 }

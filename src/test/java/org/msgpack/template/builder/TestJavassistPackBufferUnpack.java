@@ -56,7 +56,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	PrimitiveTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -78,7 +78,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	PrimitiveTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -100,7 +100,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	ReferenceTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -122,7 +122,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	ReferenceTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -144,7 +144,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	ListTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -166,7 +166,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	ListTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -188,7 +188,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	MapTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -210,7 +210,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	MapTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -232,7 +232,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	FinalClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -277,7 +277,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	ModifiersFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -299,7 +299,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	ModifiersFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -321,7 +321,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	UserDefinedTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -343,7 +343,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	UserDefinedTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -365,7 +365,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	ReferenceCycleTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -387,7 +387,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	ReferenceCycleTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -409,7 +409,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	InheritanceClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -431,7 +431,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	InheritanceClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -453,7 +453,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	MessagePackableTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override
@@ -475,7 +475,7 @@ public class TestJavassistPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	MessagePackableTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
-	assertEquals(bytes.length, unpacker.getLastMessageSize());
+	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
 }

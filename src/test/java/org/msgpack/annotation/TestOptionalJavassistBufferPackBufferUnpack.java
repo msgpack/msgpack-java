@@ -33,7 +33,7 @@ public class TestOptionalJavassistBufferPackBufferUnpack {
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker();
 	    unpacker.wrap(bytes);
 	    MyMessage01 dst = tmpl01.read(unpacker, null);
-	    assertEquals(bytes.length, unpacker.getLastMessageSize());
+	    assertEquals(bytes.length, unpacker.getReadByteCount());
 	    return dst;
 	}
 
@@ -54,7 +54,7 @@ public class TestOptionalJavassistBufferPackBufferUnpack {
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker();
 	    unpacker.wrap(bytes);
 	    MyMessage02 dst = tmpl02.read(unpacker, null);
-	    assertEquals(bytes.length, unpacker.getLastMessageSize());
+	    assertEquals(bytes.length, unpacker.getReadByteCount());
 	    return dst;
 	}
 
@@ -75,7 +75,7 @@ public class TestOptionalJavassistBufferPackBufferUnpack {
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker();
 	    unpacker.wrap(bytes);
 	    MyMessage03 dst = tmpl03.read(unpacker, null);
-	    assertEquals(bytes.length, unpacker.getLastMessageSize());
+	    assertEquals(bytes.length, unpacker.getReadByteCount());
 	    return dst;
 	}
 
@@ -96,7 +96,7 @@ public class TestOptionalJavassistBufferPackBufferUnpack {
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker();
 	    unpacker.wrap(bytes);
 	    MyMessage03 dst = tmpl03.read(unpacker, null);
-	    assertEquals(bytes.length, unpacker.getLastMessageSize());
+	    assertEquals(bytes.length, unpacker.getReadByteCount());
 	    return dst;
 	}
     }
