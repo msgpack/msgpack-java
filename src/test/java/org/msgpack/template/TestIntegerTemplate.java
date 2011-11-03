@@ -53,6 +53,7 @@ public class TestIntegerTemplate {
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	    int ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 
@@ -73,6 +74,7 @@ public class TestIntegerTemplate {
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    int ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 
@@ -92,6 +94,7 @@ public class TestIntegerTemplate {
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    int ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 
@@ -111,6 +114,7 @@ public class TestIntegerTemplate {
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	    int ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 }

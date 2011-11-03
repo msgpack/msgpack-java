@@ -52,6 +52,7 @@ public class TestCharacterTemplate {
             Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
             Character ret = tmpl.read(unpacker, null);
             assertEquals(v, ret);
+            assertEquals(bytes.length, unpacker.getLastMessageSize());
         }
     }
 
@@ -72,6 +73,7 @@ public class TestCharacterTemplate {
             BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
             Character ret = tmpl.read(unpacker, null);
             assertEquals(v, ret);
+            assertEquals(bytes.length, unpacker.getLastMessageSize());
         }
     }
 
@@ -91,6 +93,7 @@ public class TestCharacterTemplate {
             BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
             Character ret = tmpl.read(unpacker, null);
             assertEquals(v, ret);
+            assertEquals(bytes.length, unpacker.getLastMessageSize());
         }
     }
 
@@ -110,6 +113,7 @@ public class TestCharacterTemplate {
             Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
             Character ret = tmpl.read(unpacker, null);
             assertEquals(v, ret);
+            assertEquals(bytes.length, unpacker.getLastMessageSize());
         }
     }
 }

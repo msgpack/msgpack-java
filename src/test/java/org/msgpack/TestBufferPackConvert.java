@@ -36,6 +36,7 @@ public class TestBufferPackConvert extends TestSet {
 	assertTrue(value.isBooleanValue());
 	boolean ret = new Converter(value).readBoolean();
 	assertEquals(v, ret);
+        assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -54,6 +55,7 @@ public class TestBufferPackConvert extends TestSet {
 	assertTrue(value.isIntegerValue());
 	byte ret = new Converter(value).readByte();
 	assertEquals(v, ret);
+        assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -72,6 +74,7 @@ public class TestBufferPackConvert extends TestSet {
 	assertTrue(value.isIntegerValue());
 	short ret = new Converter(value).readShort();
 	assertEquals(v, ret);
+        assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -90,6 +93,7 @@ public class TestBufferPackConvert extends TestSet {
 	assertTrue(value.isIntegerValue());
 	int ret = new Converter(value).readInt();
 	assertEquals(v, ret);
+        assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -108,6 +112,7 @@ public class TestBufferPackConvert extends TestSet {
 	assertTrue(value.isIntegerValue());
 	long ret = new Converter(value).readLong();
 	assertEquals(v, ret);
+        assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -126,6 +131,7 @@ public class TestBufferPackConvert extends TestSet {
 	assertTrue(value.isFloatValue());
 	float ret = new Converter(value).readFloat();
 	assertEquals(v, ret, 10e-10);
+        assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -144,6 +150,7 @@ public class TestBufferPackConvert extends TestSet {
 	assertTrue(value.isFloatValue());
 	double ret = new Converter(value).readDouble();
 	assertEquals(v, ret, 10e-10);
+        assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -156,6 +163,7 @@ public class TestBufferPackConvert extends TestSet {
 	Value value = unpacker.readValue();
 	assertTrue(value.isNilValue());
 	new Converter(value).readNil();
+        assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -169,10 +177,11 @@ public class TestBufferPackConvert extends TestSet {
 	BufferPacker packer = msgpack.createBufferPacker();
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
-	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+        BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	Value value = unpacker.readValue();
 	BigInteger ret = new Converter(value).read(BigInteger.class);
 	assertEquals(v, ret);
+        assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -190,6 +199,7 @@ public class TestBufferPackConvert extends TestSet {
 	Value value = unpacker.readValue();
 	String ret = new Converter(value).read(String.class);
 	assertEquals(v, ret);
+        assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -207,6 +217,7 @@ public class TestBufferPackConvert extends TestSet {
 	Value value = unpacker.readValue();
 	byte[] ret = new Converter(value).read(byte[].class);
 	assertArrayEquals(v, ret);
+        assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -246,6 +257,7 @@ public class TestBufferPackConvert extends TestSet {
 	while (v_iter.hasNext()) {
 	    assertEquals(v_iter.next(), ret_iter.next());
 	}
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -288,5 +300,6 @@ public class TestBufferPackConvert extends TestSet {
 	    Object value = ret.get(e.getKey());
 	    assertEquals(e.getValue(), value);
 	}
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 }

@@ -1,6 +1,7 @@
 package org.msgpack.template;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -63,6 +64,7 @@ public class TestByteBufferTemplate {
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	    ByteBuffer ret = tmpl.read(unpacker, null);
 	    assertArrayEquals(toByteArray(v), toByteArray(ret));
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 
@@ -83,6 +85,7 @@ public class TestByteBufferTemplate {
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    ByteBuffer ret = tmpl.read(unpacker, null);
 	    assertArrayEquals(toByteArray(v), toByteArray(ret));
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 
@@ -102,6 +105,7 @@ public class TestByteBufferTemplate {
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    ByteBuffer ret = tmpl.read(unpacker, null);
 	    assertArrayEquals(toByteArray(v), toByteArray(ret));
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 
@@ -121,6 +125,7 @@ public class TestByteBufferTemplate {
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	    ByteBuffer ret = tmpl.read(unpacker, null);
 	    assertArrayEquals(toByteArray(v), toByteArray(ret));
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 }

@@ -56,6 +56,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	PrimitiveTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -76,6 +77,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	PrimitiveTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -96,6 +98,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	ReferenceTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -116,6 +119,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	ReferenceTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -136,6 +140,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	ListTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -156,6 +161,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	ListTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -176,6 +182,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	MapTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -196,6 +203,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	MapTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -216,6 +224,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	FinalClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -259,6 +268,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	ModifiersFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -279,6 +289,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	ModifiersFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -299,6 +310,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	UserDefinedTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -319,6 +331,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	UserDefinedTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -339,6 +352,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	ReferenceCycleTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -359,6 +373,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	ReferenceCycleTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -379,6 +394,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	InheritanceClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -399,6 +415,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	InheritanceClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -419,6 +436,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	MessagePackableTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
     @Test @Override
@@ -439,6 +457,7 @@ public class TestReflectionBeansPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	MessagePackableTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getLastMessageSize());
     }
 
 }

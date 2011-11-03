@@ -1,5 +1,7 @@
 package org.msgpack.annotation;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.ByteArrayOutputStream;
 
 import org.junit.Test;
@@ -30,7 +32,9 @@ public class TestOptionalReflectionBufferPackBufferUnpack {
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker();
 	    unpacker.wrap(bytes);
-	    return tmpl01.read(unpacker, null);
+            MyMessage01 dst = tmpl01.read(unpacker, null);
+            assertEquals(bytes.length, unpacker.getLastMessageSize());
+            return dst;
 	}
 
 	public void testOptional0102() throws Exception {
@@ -49,7 +53,9 @@ public class TestOptionalReflectionBufferPackBufferUnpack {
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker();
 	    unpacker.wrap(bytes);
-	    return tmpl02.read(unpacker, null);
+            MyMessage02 dst = tmpl02.read(unpacker, null);
+            assertEquals(bytes.length, unpacker.getLastMessageSize());
+            return dst;
 	}
 
 	public void testOptional0103() throws Exception {
@@ -68,7 +74,9 @@ public class TestOptionalReflectionBufferPackBufferUnpack {
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker();
 	    unpacker.wrap(bytes);
-	    return tmpl03.read(unpacker, null);
+            MyMessage03 dst = tmpl03.read(unpacker, null);
+            assertEquals(bytes.length, unpacker.getLastMessageSize());
+            return dst;
 	}
 
 	public void testOptional0203() throws Exception {
@@ -87,7 +95,9 @@ public class TestOptionalReflectionBufferPackBufferUnpack {
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker();
 	    unpacker.wrap(bytes);
-	    return tmpl03.read(unpacker, null);
+            MyMessage03 dst = tmpl03.read(unpacker, null);
+            assertEquals(bytes.length, unpacker.getLastMessageSize());
+            return dst;
 	}
     }
 

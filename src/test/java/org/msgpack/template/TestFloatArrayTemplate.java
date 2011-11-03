@@ -121,6 +121,7 @@ public class TestFloatArrayTemplate {
 	    }
 	    float[] ret = tmpl.read(unpacker, ret0);
 	    assertFloatArrayEquals(v, ret);
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 
@@ -169,6 +170,7 @@ public class TestFloatArrayTemplate {
 	    }
 	    float[] ret = tmpl.read(unpacker, ret0);
 	    assertFloatArrayEquals(v, ret);
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 
@@ -217,6 +219,7 @@ public class TestFloatArrayTemplate {
 	    }
 	    float[] ret = tmpl.read(unpacker, ret0);
 	    assertFloatArrayEquals(v, ret);
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 
@@ -264,6 +267,7 @@ public class TestFloatArrayTemplate {
 	    }
 	    float[] ret = tmpl.read(unpacker, ret0);
 	    assertFloatArrayEquals(v, ret);
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 

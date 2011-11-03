@@ -121,6 +121,7 @@ public class TestIntegerArrayTemplate {
 	    }
 	    int[] ret = tmpl.read(unpacker, ret0);
 	    assertIntegerArrayEquals(v, ret);
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 
@@ -169,6 +170,7 @@ public class TestIntegerArrayTemplate {
 	    }
 	    int[] ret = tmpl.read(unpacker, ret0);
 	    assertIntegerArrayEquals(v, ret);
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 
@@ -216,6 +218,7 @@ public class TestIntegerArrayTemplate {
 	    }
 	    int[] ret = tmpl.read(unpacker, ret0);
 	    assertIntegerArrayEquals(v, ret);
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 
@@ -263,6 +266,7 @@ public class TestIntegerArrayTemplate {
 	    }
 	    int[] ret = tmpl.read(unpacker, ret0);
 	    assertIntegerArrayEquals(v, ret);
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 

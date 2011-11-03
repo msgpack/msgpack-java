@@ -53,6 +53,7 @@ public class TestDoubleTemplate {
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	    double ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret, 10e-10);
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 
@@ -73,6 +74,7 @@ public class TestDoubleTemplate {
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    double ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret, 10e-10);
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 
@@ -92,6 +94,7 @@ public class TestDoubleTemplate {
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 	    double ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret, 10e-10);
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 
@@ -111,6 +114,7 @@ public class TestDoubleTemplate {
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
 	    double ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret, 10e-10);
+	    assertEquals(bytes.length, unpacker.getLastMessageSize());
 	}
     }
 }

@@ -41,6 +41,7 @@ public class TestOrdinalEnumPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	EnumTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, u.getLastMessageSize());
     }
 
     @Test @Override
@@ -66,5 +67,6 @@ public class TestOrdinalEnumPackConvert extends TestSet {
 	Converter unpacker = new Converter(value);
 	EnumTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, u.getLastMessageSize());
     }
 }

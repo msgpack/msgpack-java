@@ -1,5 +1,7 @@
 package org.msgpack.annotation;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
@@ -31,7 +33,9 @@ public class TestOptionalJavassistPackUnpack {
 	    byte[] bytes = out.toByteArray();
 	    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	    Unpacker unpacker = msgpack.createUnpacker(in);
-	    return tmpl01.read(unpacker, null);
+            MyMessage01 dst = tmpl01.read(unpacker, null);
+            assertEquals(bytes.length, unpacker.getLastMessageSize());
+            return dst;
 	}
 
 	public void testOptional0102() throws Exception {
@@ -50,7 +54,9 @@ public class TestOptionalJavassistPackUnpack {
 	    byte[] bytes = out.toByteArray();
 	    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	    Unpacker unpacker = msgpack.createUnpacker(in);
-	    return tmpl02.read(unpacker, null);
+            MyMessage02 dst = tmpl02.read(unpacker, null);
+            assertEquals(bytes.length, unpacker.getLastMessageSize());
+            return dst;
 	}
 
 	public void testOptional0103() throws Exception {
@@ -69,7 +75,9 @@ public class TestOptionalJavassistPackUnpack {
 	    byte[] bytes = out.toByteArray();
 	    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	    Unpacker unpacker = msgpack.createUnpacker(in);
-	    return tmpl03.read(unpacker, null);
+            MyMessage03 dst = tmpl03.read(unpacker, null);
+            assertEquals(bytes.length, unpacker.getLastMessageSize());
+            return dst;
 	}
 
 	public void testOptional0203() throws Exception {
@@ -88,7 +96,9 @@ public class TestOptionalJavassistPackUnpack {
 	    byte[] bytes = out.toByteArray();
 	    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	    Unpacker unpacker = msgpack.createUnpacker(in);
-	    return tmpl03.read(unpacker, null);
+            MyMessage03 dst = tmpl03.read(unpacker, null);
+            assertEquals(bytes.length, unpacker.getLastMessageSize());
+            return dst;
 	}
     }
 
