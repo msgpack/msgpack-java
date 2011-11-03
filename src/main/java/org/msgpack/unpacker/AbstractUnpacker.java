@@ -28,7 +28,7 @@ import org.msgpack.packer.Unconverter;
 public abstract class AbstractUnpacker implements Unpacker {
     protected MessagePack msgpack;
 
-    protected long rawSizeLimit = 67108864;
+    protected int rawSizeLimit = 67108864;
 
     protected int arraySizeLimit = 4096;
 
@@ -116,7 +116,7 @@ public abstract class AbstractUnpacker implements Unpacker {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    public void setRawSizeLimit(long size) {
+    public void setRawSizeLimit(int size) {
         if (size < 32) {
             rawSizeLimit = 32;
         } else {
