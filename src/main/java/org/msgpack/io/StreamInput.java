@@ -65,6 +65,7 @@ public class StreamInput extends AbstractInput {
     }
 
     public void advance() {
+        incrReadByteCount(filled);
         filled = 0;
     }
 
@@ -74,7 +75,6 @@ public class StreamInput extends AbstractInput {
             if (n < 0) {
                 throw new EOFException();
             }
-            incrReadByteCount(n);
             filled += n;
         }
     }
