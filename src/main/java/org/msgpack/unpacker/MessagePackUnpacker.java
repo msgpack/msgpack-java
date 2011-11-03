@@ -212,6 +212,11 @@ public class MessagePackUnpacker extends AbstractUnpacker {
                     headByte = REQUIRE_TO_READ_HEAD;
                     return true;
                 }
+                if (count >= rawSizeLimit) {
+                    String reason = String.format("Size of raw (%d) over limit at %d",
+                            new Object[] { count, rawSizeLimit });
+                    throw new SizeLimitException(reason);
+                }
                 in.advance();
                 if (!tryReferRawBody(a, count)) {
                     readRawBody(count);
@@ -224,16 +229,16 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xdb:  // raw 32
             {
                 int count = in.getInt();
-                if (count < 0 || count > rawSizeLimit) {
-                    String reason = String.format("Size of raw (%d) over limit at %d",
-                            new Object[] { count, rawSizeLimit });
-                    throw new SizeLimitException(reason);
-                }
                 if (count == 0) {
                     a.acceptEmptyRaw();
                     in.advance();
                     headByte = REQUIRE_TO_READ_HEAD;
                     return true;
+                }
+                if (count < 0 || count >= rawSizeLimit) {
+                    String reason = String.format("Size of raw (%d) over limit at %d",
+                            new Object[] { count, rawSizeLimit });
+                    throw new SizeLimitException(reason);
                 }
                 in.advance();
                 if (!tryReferRawBody(a, count)) {
@@ -247,7 +252,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xdc:  // array 16
             {
                 int count = in.getShort() & 0xffff;
-                if (count > arraySizeLimit) {
+                if (count >= arraySizeLimit) {
                     String reason = String.format("Size of array (%d) over limit at %d",
                             new Object[] { count, arraySizeLimit });
                     throw new SizeLimitException(reason);
@@ -262,7 +267,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xdd:  // array 32
             {
                 int count = in.getInt();
-                if (count < 0 || count > arraySizeLimit) {
+                if (count < 0 || count >= arraySizeLimit) {
                     String reason = String.format("Size of array (%d) over limit at %d",
                             new Object[] { count, arraySizeLimit });
                     throw new SizeLimitException(reason);
@@ -277,7 +282,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xde:  // map 16
             {
                 int count = in.getShort() & 0xffff;
-                if (count > mapSizeLimit) {
+                if (count >= mapSizeLimit) {
                     String reason = String.format("Size of map (%d) over limit at %d",
                             new Object[] { count, mapSizeLimit });
                     throw new SizeLimitException(reason);
@@ -292,7 +297,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xdf:  // map 32
             {
                 int count = in.getInt();
-                if (count < 0 || count > mapSizeLimit) {
+                if (count < 0 || count >= mapSizeLimit) {
                     String reason = String.format("Size of map (%d) over limit at %d",
                             new Object[] { count, mapSizeLimit });
                     throw new SizeLimitException(reason);

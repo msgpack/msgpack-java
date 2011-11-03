@@ -117,22 +117,24 @@ public abstract class AbstractUnpacker implements Unpacker {
     }
 
     public void setRawSizeLimit(long size) {
-        if (size > 0 && size >= 67108864) {
+        if (size < 32) {
+            rawSizeLimit = 32;
+        } else {
             rawSizeLimit = size;
         }
     }
 
     public void setArraySizeLimit(int size) {
-        if(size < 0 || size >= 4096) {
-            arraySizeLimit = 4096;
+        if (size < 16) {
+            arraySizeLimit = 16;
         } else {
             arraySizeLimit = size;
         }
     }
 
     public void setMapSizeLimit(int size) {
-        if(size < 0 || size >= 4096) {
-            mapSizeLimit = 4096;
+        if (size < 16) {
+            mapSizeLimit = 16;
         } else {
             mapSizeLimit = size;
         }
