@@ -68,11 +68,16 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         return b;
     }
 
-    final void readOne(Accept a) throws IOException {
+    private void checkStackCount() {
+        // throws MessageTypeException if stack is invalid
         int depth = stack.checkCount();
         if (depth == 0) {
             resetMessageSize();
         }
+    }
+
+    final void readOne(Accept a) throws IOException {
+        checkStackCount();
         if (readOneWithoutStack(a)) {
             stack.reduceCount();
         }
@@ -340,7 +345,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
 
     @Override
     protected boolean tryReadNil() throws IOException {
-        stack.checkCount();
+        checkStackCount();
         int b = getHeadByte() & 0xff;
         if (b == 0xc0) {
             incrMessageSizeOne();
@@ -375,7 +380,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     @Override
     public void readNil() throws IOException {
         // optimized not to allocate nilAccept
-        stack.checkCount();
+        checkStackCount();
         int b = getHeadByte() & 0xff;
         incrMessageSizeOne();
         if (b == 0xc0) {
@@ -389,7 +394,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     @Override
     public boolean readBoolean() throws IOException {
         // optimized not to allocate booleanAccept
-        stack.checkCount();
+        checkStackCount();
         int b = getHeadByte() & 0xff;
         incrMessageSizeOne();
         if (b == 0xc2) {
@@ -407,7 +412,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     @Override
     public byte readByte() throws IOException {
         // optimized not to allocate byteAccept
-        stack.checkCount();
+        checkStackCount();
         readOneWithoutStack(intAccept);
         int value = intAccept.value;
         if (value < (int)Byte.MIN_VALUE || value > (int)Byte.MAX_VALUE) {
@@ -420,7 +425,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     @Override
     public short readShort() throws IOException {
         // optimized not to allocate shortAccept
-        stack.checkCount();
+        checkStackCount();
         readOneWithoutStack(intAccept);
         int value = intAccept.value;
         if (value < (int)Short.MIN_VALUE || value > (int)Short.MAX_VALUE) {
@@ -527,7 +532,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         }
         valueAccept.setUnconverter(uc);
 
-        stack.checkCount();
+        checkStackCount();
         if (readOneWithoutStack(valueAccept)) {
             stack.reduceCount();
             if (uc.getResult() != null) {
@@ -557,7 +562,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
 
     @Override
     public void skip() throws IOException {
-        stack.checkCount();
+        checkStackCount();
         if (readOneWithoutStack(skipAccept)) {
             stack.reduceCount();
             return;
