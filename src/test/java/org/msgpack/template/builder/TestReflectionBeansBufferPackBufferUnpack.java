@@ -50,6 +50,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	PrimitiveTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -71,6 +72,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	PrimitiveTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -92,6 +94,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	ReferenceTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -113,6 +116,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	ReferenceTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -134,6 +138,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	ListTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -155,6 +160,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	ListTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -176,6 +182,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	MapTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -197,6 +204,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	MapTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -218,6 +226,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	FinalClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -262,6 +271,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	ModifiersFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -283,6 +293,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	ModifiersFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -304,6 +315,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	UserDefinedTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -325,6 +337,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	UserDefinedTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -346,6 +359,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	ReferenceCycleTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -367,6 +381,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	ReferenceCycleTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -388,6 +403,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	InheritanceClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -409,6 +425,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	InheritanceClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -430,6 +447,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	MessagePackableTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -451,6 +469,7 @@ public class TestReflectionBeansBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	MessagePackableTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);

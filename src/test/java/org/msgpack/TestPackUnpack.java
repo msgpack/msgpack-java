@@ -33,6 +33,7 @@ public class TestPackUnpack extends TestSet {
 	byte[] bytes = out.toByteArray();
 	ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
 	boolean ret = unpacker.readBoolean();
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -52,6 +53,7 @@ public class TestPackUnpack extends TestSet {
         byte[] bytes = out.toByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
 	byte ret = unpacker.readByte();
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -71,6 +73,7 @@ public class TestPackUnpack extends TestSet {
         byte[] bytes = out.toByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
 	short ret = unpacker.readShort();
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -90,6 +93,7 @@ public class TestPackUnpack extends TestSet {
         byte[] bytes = out.toByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
 	int ret = unpacker.readInt();
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -109,6 +113,7 @@ public class TestPackUnpack extends TestSet {
         byte[] bytes = out.toByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
 	long ret = unpacker.readLong();
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -123,6 +128,7 @@ public class TestPackUnpack extends TestSet {
         byte[] bytes = out.toByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
 	float ret = unpacker.readFloat();
 	assertEquals(v, ret, 10e-10);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -142,6 +148,7 @@ public class TestPackUnpack extends TestSet {
         byte[] bytes = out.toByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
 	double ret = unpacker.readDouble();
 	assertEquals(v, ret, 10e-10);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -156,6 +163,7 @@ public class TestPackUnpack extends TestSet {
         byte[] bytes = out.toByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
 	unpacker.readNil();
 	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
@@ -174,6 +182,7 @@ public class TestPackUnpack extends TestSet {
         byte[] bytes = out.toByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
 	BigInteger ret = unpacker.read(BigInteger.class);
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -193,6 +202,7 @@ public class TestPackUnpack extends TestSet {
         byte[] bytes = out.toByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
 	String ret = unpacker.read(String.class);
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -212,6 +222,7 @@ public class TestPackUnpack extends TestSet {
         byte[] bytes = out.toByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
 	byte[] ret = unpacker.read(byte[].class);
 	assertArrayEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -239,6 +250,7 @@ public class TestPackUnpack extends TestSet {
         byte[] bytes = out.toByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
 	if (unpacker.trySkipNil()) {
 	    assertEquals(null, v);
 	    return;
@@ -281,6 +293,7 @@ public class TestPackUnpack extends TestSet {
         byte[] bytes = out.toByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
 	if (unpacker.trySkipNil()) {
 	    assertEquals(null, v);
 	    return;

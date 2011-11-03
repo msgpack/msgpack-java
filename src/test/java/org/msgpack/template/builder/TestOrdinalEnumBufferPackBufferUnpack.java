@@ -31,6 +31,7 @@ public class TestOrdinalEnumBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	EnumTypeFieldsClass ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
@@ -54,6 +55,7 @@ public class TestOrdinalEnumBufferPackBufferUnpack extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
 	unpacker.wrap(bytes);
 	EnumTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);

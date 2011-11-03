@@ -55,6 +55,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -78,6 +79,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -101,6 +103,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -124,6 +127,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -147,6 +151,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -170,6 +175,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -193,6 +199,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -216,6 +223,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -239,6 +247,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -285,6 +294,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -308,6 +318,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -331,6 +342,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -354,6 +366,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -377,6 +390,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -400,6 +414,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -423,6 +438,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -446,6 +462,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -469,6 +486,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -492,6 +510,7 @@ public class TestJavassistPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = out.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);

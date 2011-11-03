@@ -53,6 +53,7 @@ public class TestListTemplate {
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+	    unpacker.resetReadByteCount();
 	    List<E> ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	    assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -75,6 +76,7 @@ public class TestListTemplate {
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	    unpacker.resetReadByteCount();
 	    List<E> ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	    assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -96,6 +98,7 @@ public class TestListTemplate {
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	    unpacker.resetReadByteCount();
 	    List<E> ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	    assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -117,6 +120,7 @@ public class TestListTemplate {
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+	    unpacker.resetReadByteCount();
 	    List<E> ret = tmpl.read(unpacker, null);
 	    assertEquals(v, ret);
 	    assertEquals(bytes.length, unpacker.getReadByteCount());

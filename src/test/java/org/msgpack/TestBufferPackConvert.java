@@ -32,6 +32,7 @@ public class TestBufferPackConvert extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	Value value = unpacker.readValue();
 	assertTrue(value.isBooleanValue());
 	boolean ret = new Converter(value).readBoolean();
@@ -51,6 +52,7 @@ public class TestBufferPackConvert extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	Value value = unpacker.readValue();
 	assertTrue(value.isIntegerValue());
 	byte ret = new Converter(value).readByte();
@@ -70,6 +72,7 @@ public class TestBufferPackConvert extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+        unpacker.resetReadByteCount();
 	Value value = unpacker.readValue();
 	assertTrue(value.isIntegerValue());
 	short ret = new Converter(value).readShort();
@@ -89,6 +92,7 @@ public class TestBufferPackConvert extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	Value value = unpacker.readValue();
 	assertTrue(value.isIntegerValue());
 	int ret = new Converter(value).readInt();
@@ -108,6 +112,7 @@ public class TestBufferPackConvert extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	Value value = unpacker.readValue();
 	assertTrue(value.isIntegerValue());
 	long ret = new Converter(value).readLong();
@@ -127,6 +132,7 @@ public class TestBufferPackConvert extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	Value value = unpacker.readValue();
 	assertTrue(value.isFloatValue());
 	float ret = new Converter(value).readFloat();
@@ -146,6 +152,7 @@ public class TestBufferPackConvert extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	Value value = unpacker.readValue();
 	assertTrue(value.isFloatValue());
 	double ret = new Converter(value).readDouble();
@@ -160,6 +167,7 @@ public class TestBufferPackConvert extends TestSet {
 	packer.writeNil();
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	Value value = unpacker.readValue();
 	assertTrue(value.isNilValue());
 	new Converter(value).readNil();
@@ -178,6 +186,7 @@ public class TestBufferPackConvert extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
         BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+        unpacker.resetReadByteCount();
 	Value value = unpacker.readValue();
 	BigInteger ret = new Converter(value).read(BigInteger.class);
 	assertEquals(v, ret);
@@ -196,6 +205,7 @@ public class TestBufferPackConvert extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	Value value = unpacker.readValue();
 	String ret = new Converter(value).read(String.class);
 	assertEquals(v, ret);
@@ -214,6 +224,7 @@ public class TestBufferPackConvert extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	Value value = unpacker.readValue();
 	byte[] ret = new Converter(value).read(byte[].class);
 	assertArrayEquals(v, ret);
@@ -240,6 +251,7 @@ public class TestBufferPackConvert extends TestSet {
         }
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	if (unpacker.trySkipNil()) {
 	    assertEquals(null, v);
 	    return;
@@ -281,6 +293,7 @@ public class TestBufferPackConvert extends TestSet {
 	}
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	if (unpacker.trySkipNil()) {
 	    assertEquals(null, v);
 	    return;

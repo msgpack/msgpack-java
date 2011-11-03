@@ -33,6 +33,7 @@ public class TestOptionalReflectionPackUnpack {
 	    byte[] bytes = out.toByteArray();
 	    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	    Unpacker unpacker = msgpack.createUnpacker(in);
+	    unpacker.resetReadByteCount();
             MyMessage01 dst = tmpl01.read(unpacker, null);
             assertEquals(bytes.length, unpacker.getReadByteCount());
             return dst;
@@ -54,6 +55,7 @@ public class TestOptionalReflectionPackUnpack {
 	    byte[] bytes = out.toByteArray();
 	    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	    Unpacker unpacker = msgpack.createUnpacker(in);
+	    unpacker.resetReadByteCount();
             MyMessage02 dst = tmpl02.read(unpacker, null);
             assertEquals(bytes.length, unpacker.getReadByteCount());
             return dst;
@@ -75,6 +77,7 @@ public class TestOptionalReflectionPackUnpack {
 	    byte[] bytes = out.toByteArray();
 	    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	    Unpacker unpacker = msgpack.createUnpacker(in);
+	    unpacker.resetReadByteCount();
             MyMessage03 dst = tmpl03.read(unpacker, null);
             assertEquals(bytes.length, unpacker.getReadByteCount());
             return dst;
@@ -96,6 +99,7 @@ public class TestOptionalReflectionPackUnpack {
 	    byte[] bytes = out.toByteArray();
 	    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 	    Unpacker unpacker = msgpack.createUnpacker(in);
+	    unpacker.resetReadByteCount();
             MyMessage03 dst = tmpl03.read(unpacker, null);
             assertEquals(bytes.length, unpacker.getReadByteCount());
             return dst;

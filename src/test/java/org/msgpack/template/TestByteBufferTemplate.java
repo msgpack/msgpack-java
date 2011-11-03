@@ -62,6 +62,7 @@ public class TestByteBufferTemplate {
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+	    unpacker.resetReadByteCount();
 	    ByteBuffer ret = tmpl.read(unpacker, null);
 	    assertArrayEquals(toByteArray(v), toByteArray(ret));
 	    assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -83,6 +84,7 @@ public class TestByteBufferTemplate {
 	    tmpl.write(packer, v);
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	    unpacker.resetReadByteCount();
 	    ByteBuffer ret = tmpl.read(unpacker, null);
 	    assertArrayEquals(toByteArray(v), toByteArray(ret));
 	    assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -103,6 +105,7 @@ public class TestByteBufferTemplate {
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	    unpacker.resetReadByteCount();
 	    ByteBuffer ret = tmpl.read(unpacker, null);
 	    assertArrayEquals(toByteArray(v), toByteArray(ret));
 	    assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -123,6 +126,7 @@ public class TestByteBufferTemplate {
 	    tmpl.write(packer, v);
 	    byte[] bytes = packer.toByteArray();
 	    Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+	    unpacker.resetReadByteCount();
 	    ByteBuffer ret = tmpl.read(unpacker, null);
 	    assertArrayEquals(toByteArray(v), toByteArray(ret));
 	    assertEquals(bytes.length, unpacker.getReadByteCount());

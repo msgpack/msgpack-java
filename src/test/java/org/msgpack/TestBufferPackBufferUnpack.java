@@ -29,6 +29,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	boolean ret = unpacker.readBoolean();
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -46,6 +47,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	byte ret = unpacker.readByte();
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -63,6 +65,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	short ret = unpacker.readShort();
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -80,6 +83,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	int ret = unpacker.readInt();
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -97,6 +101,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	long ret = unpacker.readLong();
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -114,6 +119,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	float ret = unpacker.readFloat();
 	assertEquals(v, ret, 10e-10);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -131,6 +137,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	double ret = unpacker.readDouble();
 	assertEquals(v, ret, 10e-10);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -143,6 +150,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	packer.writeNil();
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	unpacker.readNil();
 	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
@@ -159,6 +167,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	BigInteger ret = unpacker.read(BigInteger.class);
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -176,6 +185,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	String ret = unpacker.read(String.class);
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -193,6 +203,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	packer.write(v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	byte[] ret = unpacker.read(byte[].class);
 	assertArrayEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -218,6 +229,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	}
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	if (unpacker.trySkipNil()) {
 	    assertEquals(null, v);
 	    return;
@@ -258,6 +270,7 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	}
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
 	if (unpacker.trySkipNil()) {
 	    assertEquals(null, v);
 	    return;

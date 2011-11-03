@@ -31,6 +31,7 @@ public class TestOptionalReflectionBufferPackBufferUnpack {
 	    tmpl01.write(packer, src);
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	    unpacker.resetReadByteCount();
 	    unpacker.wrap(bytes);
             MyMessage01 dst = tmpl01.read(unpacker, null);
             assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -52,6 +53,7 @@ public class TestOptionalReflectionBufferPackBufferUnpack {
 	    tmpl01.write(packer, src);
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	    unpacker.resetReadByteCount();
 	    unpacker.wrap(bytes);
             MyMessage02 dst = tmpl02.read(unpacker, null);
             assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -73,6 +75,7 @@ public class TestOptionalReflectionBufferPackBufferUnpack {
 	    tmpl01.write(packer, src);
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	    unpacker.resetReadByteCount();
 	    unpacker.wrap(bytes);
             MyMessage03 dst = tmpl03.read(unpacker, null);
             assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -94,6 +97,7 @@ public class TestOptionalReflectionBufferPackBufferUnpack {
 	    tmpl02.write(packer, src);
 	    byte[] bytes = out.toByteArray();
 	    BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	    unpacker.resetReadByteCount();
 	    unpacker.wrap(bytes);
             MyMessage03 dst = tmpl03.read(unpacker, null);
             assertEquals(bytes.length, unpacker.getReadByteCount());

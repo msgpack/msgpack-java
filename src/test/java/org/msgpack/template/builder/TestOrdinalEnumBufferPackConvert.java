@@ -33,6 +33,7 @@ public class TestOrdinalEnumBufferPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
@@ -58,6 +59,7 @@ public class TestOrdinalEnumBufferPackConvert extends TestSet {
 	tmpl.write(packer, v);
 	byte[] bytes = packer.toByteArray();
 	BufferUnpacker u = msgpack.createBufferUnpacker();
+	u.resetReadByteCount();
 	u.wrap(bytes);
 	Value value = u.readValue();
 	Converter unpacker = new Converter(value);
