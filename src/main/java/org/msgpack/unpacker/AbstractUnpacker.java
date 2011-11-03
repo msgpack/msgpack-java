@@ -28,12 +28,11 @@ import org.msgpack.packer.Unconverter;
 public abstract class AbstractUnpacker implements Unpacker {
     protected MessagePack msgpack;
 
-    // TODO #MN and #SF about default values
-    protected long rawSizeLimit = 65536;
+    protected long rawSizeLimit = 67108864;
 
-    protected int arraySizeLimit = 65536;
+    protected int arraySizeLimit = 4096;
 
-    protected int mapSizeLimit = 65536;
+    protected int mapSizeLimit = 4096;
 
     protected AbstractUnpacker(MessagePack msgpack) {
 	this.msgpack = msgpack;
@@ -118,19 +117,23 @@ public abstract class AbstractUnpacker implements Unpacker {
     }
 
     public void setRawSizeLimit(long size) {
-        if (size > 0 && size > 65536) {
+        if (size > 0 && size >= 67108864) {
             rawSizeLimit = size;
         }
     }
 
     public void setArraySizeLimit(int size) {
-        if (size > 0 && size > 65536) {
+        if(size < 0 || size >= 4096) {
+            arraySizeLimit = 4096;
+        } else {
             arraySizeLimit = size;
         }
     }
 
     public void setMapSizeLimit(int size) {
-        if (size > 0 && size > 65536) {
+        if(size < 0 || size >= 4096) {
+            mapSizeLimit = 4096;
+        } else {
             mapSizeLimit = size;
         }
     }
