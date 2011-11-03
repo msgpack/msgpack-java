@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.EOFException;
 
 
-public class StreamInput extends AbstractInput {// FIXME #MN
+public class StreamInput extends AbstractInput {
     private final InputStream in;
 
     private byte[] castBuffer;
@@ -41,10 +41,10 @@ public class StreamInput extends AbstractInput {// FIXME #MN
         int remain = len;
         while (remain > 0) {
             int n = in.read(b, off, remain);
-            incrReadByteCount(remain);
             if (n <= 0) {
                 throw new EOFException();
             }
+            incrReadByteCount(n);
             remain -= n;
             off += n;
         }
@@ -57,10 +57,10 @@ public class StreamInput extends AbstractInput {// FIXME #MN
 
     public byte readByte() throws IOException {
         int n = in.read();
-        incrReadOneByteCount();
         if(n < 0) {
             throw new EOFException();
         }
+        incrReadOneByteCount();
         return (byte)n;
     }
 
@@ -71,10 +71,10 @@ public class StreamInput extends AbstractInput {// FIXME #MN
     private void require(int len) throws IOException {
         while (filled < len) {
             int n = in.read(castBuffer, filled, len - filled);
-            incrReadByteCount(len - filled);
             if (n < 0) {
                 throw new EOFException();
             }
+            incrReadByteCount(n);
             filled += n;
         }
     }

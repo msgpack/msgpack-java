@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import java.nio.ByteBuffer;
 
 
-public class LinkedBufferInput extends AbstractInput {// FIXME #MN
+public class LinkedBufferInput extends AbstractInput {
     private LinkedList<ByteBuffer> link;
 
     private int writable;
@@ -81,7 +81,7 @@ public class LinkedBufferInput extends AbstractInput {// FIXME #MN
         try {
             bb.limit(pos + len);
             ref.refer(bb, true);
-            this.incrReadByteCount(len);
+            incrReadByteCount(len);
             success = true;
         } finally {
             bb.limit(lim);
@@ -127,6 +127,7 @@ public class LinkedBufferInput extends AbstractInput {// FIXME #MN
                 break;
             }
         }
+        incrReadByteCount(nextAdvance);
         nextAdvance = 0;
     }
 
@@ -174,11 +175,9 @@ public class LinkedBufferInput extends AbstractInput {// FIXME #MN
         }
         if(n <= bb.remaining()) {
             nextAdvance = n;
-            incrReadByteCount(n);
             return bb;
         } else {
             requireMore(n);
-            incrReadByteCount(n);
             nextAdvance = n;
             return tmpByteBuffer;
         }
