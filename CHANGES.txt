@@ -1,7 +1,14 @@
 Release 0.6.3 -
+  NEW FEATURES
+    Adds getReadByteCount and resetReadByteCount methods to Unpacker interface.
+
+  BUG FIXES
+    Perf. loss occurs because generated templates reflectively accessed via
+    variables of public fields in the objects.
+
   IMPROVEMENTS
-    Changes source and target release, which are Javac options, to 1.6
-    Registers Date and BigDecimal templates as builtin
+    Changes source and target release, which are Javac options, to 1.6.
+    Registers Date and BigDecimal templates as builtin.
 
 Release 0.6.2 - 2011/10/24
   NEW FEATURES
