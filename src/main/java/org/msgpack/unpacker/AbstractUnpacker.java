@@ -28,6 +28,13 @@ import org.msgpack.packer.Unconverter;
 public abstract class AbstractUnpacker implements Unpacker {
     protected MessagePack msgpack;
 
+    // TODO #MN and #SF about default values
+    protected long rawSizeLimit = 65536;
+
+    protected int arraySizeLimit = 65536;
+
+    protected int mapSizeLimit = 65536;
+
     protected AbstractUnpacker(MessagePack msgpack) {
 	this.msgpack = msgpack;
     }
@@ -108,5 +115,23 @@ public abstract class AbstractUnpacker implements Unpacker {
 
     public void resetReadByteCount() {
         throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public void setRawSizeLimit(long size) {
+        if (size > 0 && size > 65536) {
+            rawSizeLimit = size;
+        }
+    }
+
+    public void setArraySizeLimit(int size) {
+        if (size > 0 && size > 65536) {
+            arraySizeLimit = size;
+        }
+    }
+
+    public void setMapSizeLimit(int size) {
+        if (size > 0 && size > 65536) {
+            mapSizeLimit = size;
+        }
     }
 }

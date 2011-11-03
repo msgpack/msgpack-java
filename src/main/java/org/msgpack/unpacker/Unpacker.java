@@ -90,5 +90,12 @@ public interface Unpacker extends Iterable<Value>, Closeable {
     public long getReadByteCount();
 
     public void resetReadByteCount();
+
+
+    public void setRawSizeLimit(long size);
+
+    public void setArraySizeLimit(int size);
+
+    public void setMapSizeLimit(int size);
 }
 
