@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import java.nio.ByteBuffer;
 
 
-public class LinkedBufferInput extends AbstractInput {
+public class LinkedBufferInput implements Input {
     private LinkedList<ByteBuffer> link;
 
     private int writable;
@@ -53,12 +53,10 @@ public class LinkedBufferInput extends AbstractInput {
             ByteBuffer bb = link.peekFirst();
             if(len < bb.remaining()) {
                 bb.get(b, off, len);
-                incrSize(olen);
                 return olen;
             }
             int rem = bb.remaining();
             bb.get(b, off, rem);
-            incrSize(rem);
             len -= rem;
             off += rem;
             if(!removeFirstLink(bb)) {
@@ -81,7 +79,6 @@ public class LinkedBufferInput extends AbstractInput {
         try {
             bb.limit(pos+len);
             ref.refer(bb, true);
-            incrSize(len);
             success = true;
         } finally {
             bb.limit(lim);
@@ -103,7 +100,6 @@ public class LinkedBufferInput extends AbstractInput {
             throw new EndOfBufferException();
         }
         byte result = bb.get();
-        incrSize(1);
         if(bb.remaining() == 0) {
             removeFirstLink(bb);
         }
@@ -177,7 +173,6 @@ public class LinkedBufferInput extends AbstractInput {
             return bb;
         } else {
             requireMore(n);
-            incrSize(n);
             nextAdvance = n;
             return tmpByteBuffer;
         }
