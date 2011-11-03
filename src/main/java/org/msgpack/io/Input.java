@@ -41,5 +41,9 @@ public interface Input extends Closeable {
     public float getFloat() throws IOException;
 
     public double getDouble() throws IOException;
+
+    public long getReadByteCount();
+
+    public void resetReadByteCount();
 }
 

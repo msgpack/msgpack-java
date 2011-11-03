@@ -87,9 +87,8 @@ public interface Unpacker extends Iterable<Value>, Closeable {
 
     public UnpackerIterator iterator();
 
+    public long getReadByteCount();
 
-    public long getLastMessageSize();
-
-    public void setMessageSizeLimit(long size);
+    public void resetReadByteCount();
 }
 

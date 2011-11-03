@@ -68,16 +68,8 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         return b;
     }
 
-    private void checkStackCount() {
-        // throws MessageTypeException if stack is invalid
-        int depth = stack.checkCount();
-        if (depth == 0) {
-            resetMessageSize();
-        }
-    }
-
     final void readOne(Accept a) throws IOException {
-        checkStackCount();
+        stack.checkCount();
         if (readOneWithoutStack(a)) {
             stack.reduceCount();
         }
@@ -87,14 +79,12 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         if (raw != null) {
             readRawBodyCont();
             a.acceptRaw(raw);
-            incrMessageSize(raw.length);
             raw = null;
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         }
 
         final int b = (int)getHeadByte();
-        incrMessageSizeOne();
 
         if ((b & 0x80) == 0) {  // Positive Fixnum
             //System.out.println("positive fixnum "+b);
@@ -122,7 +112,6 @@ public class MessagePackUnpacker extends AbstractUnpacker {
                 a.acceptRaw(raw);
                 raw = null;
             }
-            incrMessageSize(count);
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         }
@@ -166,68 +155,57 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             return true;
         case 0xca:  // float
             a.acceptFloat(in.getFloat());
-            incrMessageSizeFour();
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xcb:  // double
             a.acceptDouble(in.getDouble());
-            incrMessageSizeEight();
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xcc:  // unsigned int  8
             a.acceptUnsignedInteger(in.getByte());
-            incrMessageSizeOne();
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xcd:  // unsigned int 16
             a.acceptUnsignedInteger(in.getShort());
-            incrMessageSizeTwo();
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xce:  // unsigned int 32
             a.acceptUnsignedInteger(in.getInt());
-            incrMessageSizeFour();
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xcf:  // unsigned int 64
             a.acceptUnsignedInteger(in.getLong());
-            incrMessageSizeEight();
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xd0:  // signed int  8
             a.acceptInteger(in.getByte());
-            incrMessageSizeOne();
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xd1:  // signed int 16
             a.acceptInteger(in.getShort());
-            incrMessageSizeTwo();
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xd2:  // signed int 32
             a.acceptInteger(in.getInt());
-            incrMessageSizeFour();
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xd3:  // signed int 64
             a.acceptInteger(in.getLong());
-            incrMessageSizeEight();
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         case 0xda:  // raw 16
             {
                 int count = in.getShort() & 0xffff;
-                incrMessageSizeTwo();
                 if (count == 0) {
                     a.acceptEmptyRaw();
                     in.advance();
@@ -240,14 +218,12 @@ public class MessagePackUnpacker extends AbstractUnpacker {
                     a.acceptRaw(raw);
                     raw = null;
                 }
-                incrMessageSize(count);
                 headByte = REQUIRE_TO_READ_HEAD;
                 return true;
             }
         case 0xdb:  // raw 32
             {
                 int count = in.getInt();
-                incrMessageSizeFour();
                 if (count < 0) {
                     throw new IOException("Raw size too large");  // TODO error MessageSizeException
                 }
@@ -263,14 +239,12 @@ public class MessagePackUnpacker extends AbstractUnpacker {
                     a.acceptRaw(raw);
                     raw = null;
                 }
-                incrMessageSize(count);
                 headByte = REQUIRE_TO_READ_HEAD;
                 return true;
             }
         case 0xdc:  // array 16
             {
                 int count = in.getShort() & 0xffff;
-                incrMessageSizeTwo();
                 a.acceptArray(count);
                 stack.reduceCount();
                 stack.pushArray(count);
@@ -281,7 +255,6 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xdd:  // array 32
             {
                 int count = in.getInt();
-                incrMessageSizeFour();
                 if (count < 0) {
                     throw new IOException("Array size too large");  // TODO error MessageSizeException
                 }
@@ -295,7 +268,6 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xde:  // map 16
             {
                 int count = in.getShort() & 0xffff;
-                incrMessageSizeTwo();
                 a.acceptMap(count);
                 stack.reduceCount();
                 stack.pushMap(count);
@@ -306,7 +278,6 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xdf:  // map 32
             {
                 int count = in.getInt();
-                incrMessageSizeFour();
                 if (count < 0) {
                     throw new IOException("Map size too large");  // TODO error MessageSizeException
                 }
@@ -345,10 +316,9 @@ public class MessagePackUnpacker extends AbstractUnpacker {
 
     @Override
     protected boolean tryReadNil() throws IOException {
-        checkStackCount();
+        stack.checkCount();
         int b = getHeadByte() & 0xff;
         if (b == 0xc0) {
-            incrMessageSizeOne();
             // nil is read
             stack.reduceCount();
             headByte = REQUIRE_TO_READ_HEAD;
@@ -367,7 +337,6 @@ public class MessagePackUnpacker extends AbstractUnpacker {
 
         int b = getHeadByte() & 0xff;
         if (b == 0xc0) {
-            incrMessageSizeOne();
             // nil is skipped
             stack.reduceCount();
             headByte = REQUIRE_TO_READ_HEAD;
@@ -380,9 +349,8 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     @Override
     public void readNil() throws IOException {
         // optimized not to allocate nilAccept
-        checkStackCount();
+        stack.checkCount();
         int b = getHeadByte() & 0xff;
-        incrMessageSizeOne();
         if (b == 0xc0) {
             stack.reduceCount();
             headByte = REQUIRE_TO_READ_HEAD;
@@ -394,9 +362,8 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     @Override
     public boolean readBoolean() throws IOException {
         // optimized not to allocate booleanAccept
-        checkStackCount();
+        stack.checkCount();
         int b = getHeadByte() & 0xff;
-        incrMessageSizeOne();
         if (b == 0xc2) {
             stack.reduceCount();
             headByte = REQUIRE_TO_READ_HEAD;
@@ -412,7 +379,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     @Override
     public byte readByte() throws IOException {
         // optimized not to allocate byteAccept
-        checkStackCount();
+        stack.checkCount();
         readOneWithoutStack(intAccept);
         int value = intAccept.value;
         if (value < (int)Byte.MIN_VALUE || value > (int)Byte.MAX_VALUE) {
@@ -425,7 +392,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     @Override
     public short readShort() throws IOException {
         // optimized not to allocate shortAccept
-        checkStackCount();
+        stack.checkCount();
         readOneWithoutStack(intAccept);
         int value = intAccept.value;
         if (value < (int)Short.MIN_VALUE || value > (int)Short.MAX_VALUE) {
@@ -532,7 +499,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         }
         valueAccept.setUnconverter(uc);
 
-        checkStackCount();
+        stack.checkCount();
         if (readOneWithoutStack(valueAccept)) {
             stack.reduceCount();
             if (uc.getResult() != null) {
@@ -562,7 +529,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
 
     @Override
     public void skip() throws IOException {
-        checkStackCount();
+        stack.checkCount();
         if (readOneWithoutStack(skipAccept)) {
             stack.reduceCount();
             return;
@@ -589,6 +556,16 @@ public class MessagePackUnpacker extends AbstractUnpacker {
 
     public void close() throws IOException {
         in.close();
+    }
+
+    @Override
+    public long getReadByteCount() {
+        return in.getReadByteCount();
+    }
+
+    @Override
+    public void resetReadByteCount() {
+        in.resetReadByteCount();
     }
 }
 

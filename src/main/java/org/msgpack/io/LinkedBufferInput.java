@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import java.nio.ByteBuffer;
 
 
-public class LinkedBufferInput implements Input {
+public class LinkedBufferInput extends AbstractInput {// FIXME #MN
     private LinkedList<ByteBuffer> link;
 
     private int writable;
@@ -49,17 +49,19 @@ public class LinkedBufferInput implements Input {
             return 0;
         }
         int olen = len;
-        while(true) {
+        while (true) {
             ByteBuffer bb = link.peekFirst();
-            if(len < bb.remaining()) {
+            if (len < bb.remaining()) {
                 bb.get(b, off, len);
+                incrReadByteCount(len);
                 return olen;
             }
             int rem = bb.remaining();
             bb.get(b, off, rem);
+            incrReadByteCount(rem);
             len -= rem;
             off += rem;
-            if(!removeFirstLink(bb)) {
+            if (!removeFirstLink(bb)) {
                 break;
             }
         }
@@ -68,26 +70,27 @@ public class LinkedBufferInput implements Input {
 
     public boolean tryRefer(BufferReferer ref, int len) throws IOException {
         ByteBuffer bb = link.peekFirst();
-        if(bb == null) {
+        if (bb == null) {
             throw new EndOfBufferException();
-        } else if(bb.remaining() < len) {
+        } else if (bb.remaining() < len) {
             return false;
         }
         boolean success = false;
         int pos = bb.position();
         int lim = bb.limit();
         try {
-            bb.limit(pos+len);
+            bb.limit(pos + len);
             ref.refer(bb, true);
+            this.incrReadByteCount(len);
             success = true;
         } finally {
             bb.limit(lim);
-            if(success) {
-                bb.position(pos+len);
+            if (success) {
+                bb.position(pos + len);
             } else {
                 bb.position(pos);
             }
-            if(bb.remaining() == 0) {
+            if (bb.remaining() == 0) {
                 removeFirstLink(bb);
             }
         }
@@ -96,10 +99,11 @@ public class LinkedBufferInput implements Input {
 
     public byte readByte() throws EOFException {
         ByteBuffer bb = link.peekFirst();
-        if(bb == null || bb.remaining() == 0) {
+        if (bb == null || bb.remaining() == 0) {
             throw new EndOfBufferException();
         }
         byte result = bb.get();
+        incrReadOneByteCount();
         if(bb.remaining() == 0) {
             removeFirstLink(bb);
         }
@@ -146,8 +150,8 @@ public class LinkedBufferInput implements Input {
 
     private void requireMore(int n) throws EOFException {
         int off = 0;
-        for(ByteBuffer bb : link) {
-            if(n <= bb.remaining()) {
+        for (ByteBuffer bb : link) {
+            if (n <= bb.remaining()) {
                 int pos = bb.position();
                 bb.get(tmpBuffer, off, n);
                 bb.position(pos);
@@ -170,9 +174,11 @@ public class LinkedBufferInput implements Input {
         }
         if(n <= bb.remaining()) {
             nextAdvance = n;
+            incrReadByteCount(n);
             return bb;
         } else {
             requireMore(n);
+            incrReadByteCount(n);
             nextAdvance = n;
             return tmpByteBuffer;
         }

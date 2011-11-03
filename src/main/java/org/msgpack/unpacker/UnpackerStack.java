@@ -51,11 +51,11 @@ public final class UnpackerStack {
     }
 
     /**
-     * @return  current depth of stack
+     * throws MessageTypeException if stack is invalid
      */
-    public int checkCount() {
+    public void checkCount() {
         if(counts[top] > 0) {
-            return getDepth();
+            return;
         }
 
         if(types[top] == TYPE_ARRAY) {
@@ -63,7 +63,7 @@ public final class UnpackerStack {
         } else if(types[top] == TYPE_MAP) {
             throw new MessageTypeException("Map is end but readMapEnd() is not called");
         } else { // empty
-            return getDepth();
+            return;
         }
     }
 
