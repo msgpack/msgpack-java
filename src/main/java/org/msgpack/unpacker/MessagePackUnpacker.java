@@ -580,7 +580,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     }
 
     @Override
-    public long getReadByteCount() {
+    public int getReadByteCount() {
         return in.getReadByteCount();
     }
 

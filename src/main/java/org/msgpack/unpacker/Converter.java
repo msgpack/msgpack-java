@@ -408,7 +408,7 @@ public class Converter extends AbstractUnpacker {
     }
 
     @Override
-    public long getReadByteCount() {
+    public int getReadByteCount() {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 }

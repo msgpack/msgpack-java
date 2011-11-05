@@ -108,7 +108,7 @@ public abstract class AbstractUnpacker implements Unpacker {
         return (T) tmpl.read(this, to);
     }
 
-    public long getReadByteCount() {
+    public int getReadByteCount() {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 

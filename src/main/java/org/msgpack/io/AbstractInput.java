@@ -20,21 +20,21 @@ package org.msgpack.io;
 
 abstract class AbstractInput implements Input {
 
-    private long count = 0;
+    private int readByteCount = 0;
 
-    public long getReadByteCount() {
-        return count;
+    public int getReadByteCount() {
+        return readByteCount;
     }
 
     public void resetReadByteCount() {
-        count = 0;
+        readByteCount = 0;
     }
 
-    protected final void incrReadByteCount(long size) {
-        count += size;
+    protected final void incrReadByteCount(int size) {
+        readByteCount += size;
     }
 
     protected final void incrReadOneByteCount() {
-        count += 1;
+        readByteCount += 1;
     }
 }

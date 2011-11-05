@@ -42,7 +42,7 @@ public interface Input extends Closeable {
 
     public double getDouble() throws IOException;
 
-    public long getReadByteCount();
+    public int getReadByteCount();
 
     public void resetReadByteCount();
 }
