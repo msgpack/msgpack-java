@@ -17,11 +17,11 @@
 //
 package org.msgpack.unpacker;
 
-import org.msgpack.MessageTypeException;
+import java.io.IOException;
 
 
 @SuppressWarnings("serial")
-public class SizeLimitException extends MessageTypeException {
+public class SizeLimitException extends IOException {
     public SizeLimitException() {
         super();
     }
