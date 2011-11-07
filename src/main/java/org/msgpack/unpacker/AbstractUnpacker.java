@@ -109,11 +109,11 @@ public abstract class AbstractUnpacker implements Unpacker {
     }
 
     public int getReadByteCount() {
-        throw new UnsupportedOperationException("Not implemented yet");
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     public void resetReadByteCount() {
-        throw new UnsupportedOperationException("Not implemented yet");
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     public void setRawSizeLimit(int size) {

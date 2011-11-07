@@ -104,6 +104,16 @@ public class JSONUnpacker extends Converter {
         return ValueFactory.createMapValue(kvs, true);
     }
 
+    @Override
+    public int getReadByteCount() {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public void resetReadByteCount() {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
     public void close() throws IOException {
         in.close();
         super.close();
