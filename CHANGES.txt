@@ -1,10 +1,12 @@
 Release 0.6.3 -
   NEW FEATURES
     Adds getReadByteCount and resetReadByteCount methods to Unpacker interface.
+    Adds setRawSizeLimit, setArraySizeLimit and setMapSizeLimit methods to
+    Unpacker interface.
 
   BUG FIXES
-    Perf. loss occurs because generated templates reflectively accessed via
-    variables of public fields in the objects.
+    Fixes Perf. loss: generated templates reflectively accessed via variables of
+    public fields in the objects.
 
   IMPROVEMENTS
     Changes source and target release, which are Javac options, to 1.6.
