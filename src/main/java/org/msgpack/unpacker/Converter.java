@@ -411,5 +411,20 @@ public class Converter extends AbstractUnpacker {
     public int getReadByteCount() {
         throw new UnsupportedOperationException("Not implemented yet");
     }
+
+    @Override
+    public void setRawSizeLimit(int size) {
+	throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public void setArraySizeLimit(int size) {
+	throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public void setMapSizeLimit(int size) {
+	throw new UnsupportedOperationException("Not implemented yet");
+    }
 }
 

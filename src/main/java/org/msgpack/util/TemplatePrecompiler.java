@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
  * Application enables to load the .class files and use templates.
  *
  */
-@SuppressWarnings("restriction")
 public class TemplatePrecompiler {
 
     private static final Logger LOG = LoggerFactory.getLogger(TemplatePrecompiler.class);

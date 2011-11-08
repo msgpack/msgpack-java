@@ -20,7 +20,6 @@ package org.msgpack.template;
 import java.io.IOException;
 import org.msgpack.*;
 import org.msgpack.packer.Packer;
-import org.msgpack.type.Value;
 import org.msgpack.unpacker.Unpacker;
 
 
