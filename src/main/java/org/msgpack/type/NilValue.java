@@ -20,9 +20,9 @@ package org.msgpack.type;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
 
-
 public class NilValue extends AbstractValue {
-    private NilValue() { }
+    private NilValue() {
+    }
 
     private static NilValue instance = new NilValue();
 
@@ -62,10 +62,10 @@ public class NilValue extends AbstractValue {
 
     @Override
     public boolean equals(Object o) {
-        if(o == this) {
+        if (o == this) {
             return true;
         }
-        if(!(o instanceof Value)) {
+        if (!(o instanceof Value)) {
             return false;
         }
         return ((Value) o).isNilValue();
@@ -76,4 +76,3 @@ public class NilValue extends AbstractValue {
         return 0;
     }
 }
-

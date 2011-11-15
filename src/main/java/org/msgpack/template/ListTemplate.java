@@ -24,7 +24,6 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-
 public class ListTemplate<E> extends AbstractTemplate<List<E>> {
     private Template<E> elementTemplate;
 
@@ -32,8 +31,9 @@ public class ListTemplate<E> extends AbstractTemplate<List<E>> {
         this.elementTemplate = elementTemplate;
     }
 
-    public void write(Packer pk, List<E> target, boolean required) throws IOException {
-        if (! (target instanceof List)) {
+    public void write(Packer pk, List<E> target, boolean required)
+            throws IOException {
+        if (!(target instanceof List)) {
             if (target == null) {
                 if (required) {
                     throw new MessageTypeException("Attempted to write null");
@@ -41,7 +41,8 @@ public class ListTemplate<E> extends AbstractTemplate<List<E>> {
                 pk.writeNil();
                 return;
             }
-            throw new MessageTypeException("Target is not a List but " + target.getClass());
+            throw new MessageTypeException("Target is not a List but "
+                    + target.getClass());
         }
         pk.writeArrayBegin(target.size());
         for (E e : target) {
@@ -50,7 +51,8 @@ public class ListTemplate<E> extends AbstractTemplate<List<E>> {
         pk.writeArrayEnd();
     }
 
-    public List<E> read(Unpacker u, List<E> to, boolean required) throws IOException {
+    public List<E> read(Unpacker u, List<E> to, boolean required)
+            throws IOException {
         if (!required && u.trySkipNil()) {
             return null;
         }
@@ -68,4 +70,3 @@ public class ListTemplate<E> extends AbstractTemplate<List<E>> {
         return to;
     }
 }
-

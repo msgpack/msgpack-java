@@ -23,7 +23,6 @@ import java.io.IOException;
 import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
 
-
 class StringRawValueImpl extends AbstractRawValue {
     private String string;
 
@@ -53,22 +52,21 @@ class StringRawValueImpl extends AbstractRawValue {
 
     @Override
     public boolean equals(Object o) {
-        if(this == o) {
+        if (this == o) {
             return true;
         }
-        if(!(o instanceof Value)) {
+        if (!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isRawValue()) {
+        if (!v.isRawValue()) {
             return false;
         }
 
-        if(v.getClass() == StringRawValueImpl.class) {
+        if (v.getClass() == StringRawValueImpl.class) {
             return string.equals(((StringRawValueImpl) v).string);
         }
 
         return Arrays.equals(getByteArray(), v.asRawValue().getByteArray());
     }
 }
-

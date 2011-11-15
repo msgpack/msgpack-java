@@ -22,16 +22,16 @@ import java.nio.ByteBuffer;
 import org.msgpack.MessagePack;
 import org.msgpack.io.LinkedBufferInput;
 
-
 public class MessagePackBufferUnpacker extends MessagePackUnpacker implements BufferUnpacker {
-    private static final int DEFAULT_BUFFER_SIZE = 512;  // TODO default buffer size
+    private static final int DEFAULT_BUFFER_SIZE = 512; // TODO default buffer
+                                                        // size
 
     public MessagePackBufferUnpacker(MessagePack msgpack) {
-	this(msgpack, DEFAULT_BUFFER_SIZE);
+        this(msgpack, DEFAULT_BUFFER_SIZE);
     }
 
     public MessagePackBufferUnpacker(MessagePack msgpack, int bufferSize) {
-	super(msgpack, new LinkedBufferInput(bufferSize));
+        super(msgpack, new LinkedBufferInput(bufferSize));
     }
 
     @Override
@@ -95,4 +95,3 @@ public class MessagePackBufferUnpacker extends MessagePackUnpacker implements Bu
         reset();
     }
 }
-

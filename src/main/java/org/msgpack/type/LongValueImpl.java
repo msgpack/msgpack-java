@@ -22,7 +22,6 @@ import java.io.IOException;
 import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
 
-
 @SuppressWarnings("serial")
 class LongValueImpl extends IntegerValue {
     private long value;
@@ -31,36 +30,36 @@ class LongValueImpl extends IntegerValue {
         this.value = value;
     }
 
-    private static long BYTE_MAX = (long)Byte.MAX_VALUE;
-    private static long SHORT_MAX = (long)Short.MAX_VALUE;
-    private static long INT_MAX = (long)Integer.MAX_VALUE;
+    private static long BYTE_MAX = (long) Byte.MAX_VALUE;
+    private static long SHORT_MAX = (long) Short.MAX_VALUE;
+    private static long INT_MAX = (long) Integer.MAX_VALUE;
 
-    private static long BYTE_MIN = (long)Byte.MIN_VALUE;
-    private static long SHORT_MIN = (long)Short.MIN_VALUE;
-    private static long INT_MIN = (long)Integer.MIN_VALUE;
+    private static long BYTE_MIN = (long) Byte.MIN_VALUE;
+    private static long SHORT_MIN = (long) Short.MIN_VALUE;
+    private static long INT_MIN = (long) Integer.MIN_VALUE;
 
     @Override
     public byte getByte() {
-        if(value > BYTE_MAX || value < BYTE_MIN) {
-            throw new MessageTypeException();  // TODO message
+        if (value > BYTE_MAX || value < BYTE_MIN) {
+            throw new MessageTypeException(); // TODO message
         }
-        return (byte)value;
+        return (byte) value;
     }
 
     @Override
     public short getShort() {
-        if(value > SHORT_MAX || value < SHORT_MIN) {
-            throw new MessageTypeException();  // TODO message
+        if (value > SHORT_MAX || value < SHORT_MIN) {
+            throw new MessageTypeException(); // TODO message
         }
-        return (short)value;
+        return (short) value;
     }
 
     @Override
     public int getInt() {
-        if(value > INT_MAX || value < INT_MIN) {
-            throw new MessageTypeException();  // TODO message
+        if (value > INT_MAX || value < INT_MIN) {
+            throw new MessageTypeException(); // TODO message
         }
-        return (int)value;
+        return (int) value;
     }
 
     @Override
@@ -75,17 +74,17 @@ class LongValueImpl extends IntegerValue {
 
     @Override
     public byte byteValue() {
-        return (byte)value;
+        return (byte) value;
     }
 
     @Override
     public short shortValue() {
-        return (short)value;
+        return (short) value;
     }
 
     @Override
     public int intValue() {
-        return (int)value;
+        return (int) value;
     }
 
     @Override
@@ -100,12 +99,12 @@ class LongValueImpl extends IntegerValue {
 
     @Override
     public float floatValue() {
-        return (float)value;
+        return (float) value;
     }
 
     @Override
     public double doubleValue() {
-        return (double)value;
+        return (double) value;
     }
 
     @Override
@@ -117,14 +116,14 @@ class LongValueImpl extends IntegerValue {
 
     @Override
     public boolean equals(Object o) {
-        if(o == this) {
+        if (o == this) {
             return true;
         }
-        if(!(o instanceof Value)) {
+        if (!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isIntegerValue()) {
+        if (!v.isIntegerValue()) {
             return false;
         }
 
@@ -138,10 +137,10 @@ class LongValueImpl extends IntegerValue {
 
     @Override
     public int hashCode() {
-        if(INT_MIN <= value && value <= INT_MAX) {
-            return (int)value;
+        if (INT_MIN <= value && value <= INT_MAX) {
+            return (int) value;
         } else {
-            return (int)(value^(value>>>32));
+            return (int) (value ^ (value >>> 32));
         }
     }
 
@@ -155,4 +154,3 @@ class LongValueImpl extends IntegerValue {
         return sb.append(Long.toString(value));
     }
 }
-

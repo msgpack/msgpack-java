@@ -23,65 +23,64 @@ import java.lang.reflect.Type;
 import org.msgpack.MessageTypeException;
 import org.msgpack.template.FieldOption;
 
-
 public class DefaultFieldEntry extends FieldEntry {
     protected Field field;
 
     public DefaultFieldEntry() {
-	this(null, FieldOption.IGNORE);
+        this(null, FieldOption.IGNORE);
     }
 
     public DefaultFieldEntry(final DefaultFieldEntry e) {
-	this(e.field, e.option);
+        this(e.field, e.option);
     }
 
     public DefaultFieldEntry(final Field field, final FieldOption option) {
-	super(option);
-	this.field = field;
+        super(option);
+        this.field = field;
     }
 
     public Field getField() {
-	return field;
+        return field;
     }
 
     public void setField(final Field field) {
-	this.field = field;
+        this.field = field;
     }
 
     @Override
     public String getName() {
-	return field.getName();
+        return field.getName();
     }
 
     @Override
     public Class<?> getType() {
-	return field.getType();
+        return field.getType();
     }
 
     @Override
     public Type getGenericType() {
-	return field.getGenericType();
+        return field.getGenericType();
     }
 
     @Override
     public Object get(Object target) {
-	try {
-	    return getField().get(target);
-	} catch (IllegalArgumentException e) {
-	    throw new MessageTypeException(e);
-	} catch (IllegalAccessException e) {
-	    throw new MessageTypeException(e);
-	}
+        try {
+            return getField().get(target);
+        } catch (IllegalArgumentException e) {
+            throw new MessageTypeException(e);
+        } catch (IllegalAccessException e) {
+            throw new MessageTypeException(e);
+        }
     }
 
     @Override
     public void set(Object target, Object value) {
-	try {
-	    field.set(target, value);
-	} catch (IllegalArgumentException e) {
-	    throw new MessageTypeException(e);
-	} catch (IllegalAccessException e) {
-	    throw new MessageTypeException(e);
-	}
+        try {
+            field.set(target, value);
+        } catch (IllegalArgumentException e) {
+            throw new MessageTypeException(e);
+        } catch (IllegalAccessException e) {
+            throw new MessageTypeException(e);
+        }
     }
 }

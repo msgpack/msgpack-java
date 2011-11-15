@@ -25,15 +25,14 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import org.msgpack.MessageTypeException;
 
-
 final class StringAccept extends Accept {
     String value;
     private CharsetDecoder decoder;
 
     public StringAccept() {
-        this.decoder = Charset.forName("UTF-8").newDecoder().
-            onMalformedInput(CodingErrorAction.REPORT).
-            onUnmappableCharacter(CodingErrorAction.REPORT);
+        this.decoder = Charset.forName("UTF-8").newDecoder()
+                .onMalformedInput(CodingErrorAction.REPORT)
+                .onUnmappableCharacter(CodingErrorAction.REPORT);
     }
 
     @Override
@@ -59,4 +58,3 @@ final class StringAccept extends Accept {
         }
     }
 }
-

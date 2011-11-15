@@ -22,11 +22,12 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-
 public class LongTemplate extends AbstractTemplate<Long> {
-    private LongTemplate() { }
+    private LongTemplate() {
+    }
 
-    public void write(Packer pk, Long target, boolean required) throws IOException {
+    public void write(Packer pk, Long target, boolean required)
+            throws IOException {
         if (target == null) {
             if (required) {
                 throw new MessageTypeException("Attempted to write null");
@@ -34,7 +35,7 @@ public class LongTemplate extends AbstractTemplate<Long> {
             pk.writeNil();
             return;
         }
-        pk.write((long)target);
+        pk.write((long) target);
     }
 
     public Long read(Unpacker u, Long to, boolean required) throws IOException {
@@ -50,4 +51,3 @@ public class LongTemplate extends AbstractTemplate<Long> {
 
     static final LongTemplate instance = new LongTemplate();
 }
-

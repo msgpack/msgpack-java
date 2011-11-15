@@ -20,65 +20,64 @@ package org.msgpack.template;
 import java.util.List;
 import java.util.ArrayList;
 
-
 public class FieldList {
     public static class Entry {
-	private String name;
+        private String name;
 
-	private FieldOption option;
+        private FieldOption option;
 
-	public Entry() {
-	    this(null, FieldOption.IGNORE);
-	}
+        public Entry() {
+            this(null, FieldOption.IGNORE);
+        }
 
-	public Entry(final String name, final FieldOption option) {
-	    this.name = name;
-	    this.option = option;
-	}
+        public Entry(final String name, final FieldOption option) {
+            this.name = name;
+            this.option = option;
+        }
 
-	public String getName() {
-	    return name;
-	}
+        public String getName() {
+            return name;
+        }
 
-	public FieldOption getOption() {
-	    return option;
-	}
+        public FieldOption getOption() {
+            return option;
+        }
 
-	public boolean isAvailable() {
-	    return option != FieldOption.IGNORE;
-	}
+        public boolean isAvailable() {
+            return option != FieldOption.IGNORE;
+        }
     }
 
     private ArrayList<Entry> list;
 
     public FieldList() {
-	list = new ArrayList<Entry>();
+        list = new ArrayList<Entry>();
     }
 
     public void add(final String name) {
-	add(name, FieldOption.DEFAULT);
+        add(name, FieldOption.DEFAULT);
     }
 
     public void add(final String name, final FieldOption option) {
-	list.add(new Entry(name, option));
+        list.add(new Entry(name, option));
     }
 
     public void put(final int index, final String name) {
-	put(index, name, FieldOption.DEFAULT);
+        put(index, name, FieldOption.DEFAULT);
     }
 
     public void put(final int index, final String name, final FieldOption option) {
-	if (list.size() < index) {
-	    do {
-		list.add(new Entry());
-	    } while (list.size() < index);
-	    list.add(new Entry(name, option));
-	} else {
-	    list.set(index, new Entry(name, option));
-	}
+        if (list.size() < index) {
+            do {
+                list.add(new Entry());
+            } while (list.size() < index);
+            list.add(new Entry(name, option));
+        } else {
+            list.set(index, new Entry(name, option));
+        }
     }
 
     public List<Entry> getList() {
-	return list;
+        return list;
     }
 }

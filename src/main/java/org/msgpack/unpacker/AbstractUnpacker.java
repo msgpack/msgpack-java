@@ -24,7 +24,6 @@ import org.msgpack.MessagePack;
 import org.msgpack.template.Template;
 import org.msgpack.packer.Unconverter;
 
-
 public abstract class AbstractUnpacker implements Unpacker {
     protected MessagePack msgpack;
 
@@ -35,7 +34,7 @@ public abstract class AbstractUnpacker implements Unpacker {
     protected int mapSizeLimit = 4096;
 
     protected AbstractUnpacker(MessagePack msgpack) {
-	this.msgpack = msgpack;
+        this.msgpack = msgpack;
     }
 
     @Override
@@ -43,18 +42,15 @@ public abstract class AbstractUnpacker implements Unpacker {
         return ByteBuffer.wrap(readByteArray());
     }
 
-
     @Override
     public void readArrayEnd() throws IOException {
         readArrayEnd(false);
     }
 
-
     @Override
     public void readMapEnd() throws IOException {
         readMapEnd(false);
     }
-
 
     @Override
     public UnpackerIterator iterator() {
@@ -70,12 +66,11 @@ public abstract class AbstractUnpacker implements Unpacker {
         return uc.getResult();
     }
 
-
     protected abstract boolean tryReadNil() throws IOException;
 
     @Override
     public <T> T read(Class<T> klass) throws IOException {
-        if(tryReadNil()) {
+        if (tryReadNil()) {
             return null;
         }
         Template<T> tmpl = msgpack.lookup(klass);
@@ -85,7 +80,7 @@ public abstract class AbstractUnpacker implements Unpacker {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T read(T to) throws IOException {
-        if(tryReadNil()) {
+        if (tryReadNil()) {
             return null;
         }
         Template<T> tmpl = msgpack.lookup((Class<T>) to.getClass());
@@ -94,15 +89,15 @@ public abstract class AbstractUnpacker implements Unpacker {
 
     @Override
     public <T> T read(Template<T> tmpl) throws IOException {
-	if (tryReadNil()) {
-	    return null;
-	}
-	return (T) tmpl.read(this, null);
+        if (tryReadNil()) {
+            return null;
+        }
+        return (T) tmpl.read(this, null);
     }
 
     @Override
     public <T> T read(T to, Template<T> tmpl) throws IOException {
-        if(tryReadNil()) {
+        if (tryReadNil()) {
             return null;
         }
         return (T) tmpl.read(this, to);

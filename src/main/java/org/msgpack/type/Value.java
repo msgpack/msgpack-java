@@ -20,7 +20,6 @@ package org.msgpack.type;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
 
-
 public interface Value {
     public ValueType getType();
 
@@ -56,4 +55,3 @@ public interface Value {
 
     public StringBuilder toString(StringBuilder sb);
 }
-

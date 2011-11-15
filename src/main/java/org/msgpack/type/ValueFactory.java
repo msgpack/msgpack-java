@@ -20,14 +20,13 @@ package org.msgpack.type;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
-
 public final class ValueFactory {
     public static NilValue createNilValue() {
         return NilValue.getInstance();
     }
 
     public static BooleanValue createBooleanValue(boolean v) {
-        if(v) {
+        if (v) {
             return TrueValueImpl.getInstance();
         } else {
             return FalseValueImpl.getInstance();
@@ -35,11 +34,11 @@ public final class ValueFactory {
     }
 
     public static IntegerValue createIntegerValue(byte v) {
-        return new IntValueImpl((int)v);
+        return new IntValueImpl((int) v);
     }
 
     public static IntegerValue createIntegerValue(short v) {
-        return new IntValueImpl((int)v);
+        return new IntValueImpl((int) v);
     }
 
     public static IntegerValue createIntegerValue(int v) {
@@ -98,7 +97,7 @@ public final class ValueFactory {
     }
 
     public static ArrayValue createArrayValue(Value[] array) {
-        if(array.length == 0) {
+        if (array.length == 0) {
             // TODO EmptyArrayValueImpl?
             return ArrayValueImpl.getEmptyInstance();
         }
@@ -106,7 +105,7 @@ public final class ValueFactory {
     }
 
     public static ArrayValue createArrayValue(Value[] array, boolean gift) {
-        if(array.length == 0) {
+        if (array.length == 0) {
             // TODO EmptyArrayValueImpl?
             return ArrayValueImpl.getEmptyInstance();
         }
@@ -118,7 +117,7 @@ public final class ValueFactory {
     }
 
     public static MapValue createMapValue(Value[] kvs) {
-        if(kvs.length == 0) {
+        if (kvs.length == 0) {
             // TODO EmptyMapValueImpl?
             return SequentialMapValueImpl.getEmptyInstance();
         }
@@ -126,18 +125,18 @@ public final class ValueFactory {
     }
 
     public static MapValue createMapValue(Value[] kvs, boolean gift) {
-        if(kvs.length == 0) {
+        if (kvs.length == 0) {
             // TODO EmptyMapValueImpl?
             return SequentialMapValueImpl.getEmptyInstance();
         }
         return new SequentialMapValueImpl(kvs, gift);
     }
 
-    //TODO
-    //public static Value get(Object obj) {
-    //    return new Unconverter().pack(obj).getResult();
-    //}
+    // TODO
+    // public static Value get(Object obj) {
+    // return new Unconverter().pack(obj).getResult();
+    // }
 
-    private ValueFactory() { }
+    private ValueFactory() {
+    }
 }
-

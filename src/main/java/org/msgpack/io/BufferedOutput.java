@@ -20,7 +20,6 @@ package org.msgpack.io;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-
 abstract class BufferedOutput implements Output {
     protected byte[] buffer;
     protected int filled;
@@ -28,7 +27,7 @@ abstract class BufferedOutput implements Output {
     protected ByteBuffer castByteBuffer;
 
     public BufferedOutput(int bufferSize) {
-        if(bufferSize < 9) {
+        if (bufferSize < 9) {
             bufferSize = 9;
         }
         this.bufferSize = bufferSize;
@@ -40,12 +39,12 @@ abstract class BufferedOutput implements Output {
     }
 
     private void reserve(int len) throws IOException {
-        if(buffer == null) {
+        if (buffer == null) {
             allocateNewBuffer();
             return;
         }
-        if(bufferSize - filled < len) {
-            if(!flushBuffer(buffer, 0, filled)) {
+        if (bufferSize - filled < len) {
+            if (!flushBuffer(buffer, 0, filled)) {
                 buffer = new byte[bufferSize];
                 castByteBuffer = ByteBuffer.wrap(buffer);
             }
@@ -55,18 +54,18 @@ abstract class BufferedOutput implements Output {
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
-        if(buffer == null) {
-            if(bufferSize < len) {
+        if (buffer == null) {
+            if (bufferSize < len) {
                 flushBuffer(b, off, len);
                 return;
             }
             allocateNewBuffer();
         }
-        if(len <= bufferSize - filled) {
+        if (len <= bufferSize - filled) {
             System.arraycopy(b, off, buffer, filled, len);
             filled += len;
-        } else if(len <= bufferSize) {
-            if(!flushBuffer(buffer, 0, filled)) {
+        } else if (len <= bufferSize) {
+            if (!flushBuffer(buffer, 0, filled)) {
                 allocateNewBuffer();
             }
             filled = 0;
@@ -81,18 +80,18 @@ abstract class BufferedOutput implements Output {
     @Override
     public void write(ByteBuffer bb) throws IOException {
         int len = bb.remaining();
-        if(buffer == null) {
-            if(bufferSize < len) {
+        if (buffer == null) {
+            if (bufferSize < len) {
                 flushByteBuffer(bb);
                 return;
             }
             allocateNewBuffer();
         }
-        if(len <= bufferSize - filled) {
+        if (len <= bufferSize - filled) {
             bb.get(buffer, filled, len);
             filled += len;
-        } else if(len <= bufferSize) {
-            if(!flushBuffer(buffer, 0, filled)) {
+        } else if (len <= bufferSize) {
+            if (!flushBuffer(buffer, 0, filled)) {
                 allocateNewBuffer();
             }
             filled = 0;
@@ -194,8 +193,8 @@ abstract class BufferedOutput implements Output {
 
     @Override
     public void flush() throws IOException {
-        if(filled > 0) {
-            if(!flushBuffer(buffer, 0, filled)) {
+        if (filled > 0) {
+            if (!flushBuffer(buffer, 0, filled)) {
                 buffer = null;
             }
             filled = 0;
@@ -203,10 +202,10 @@ abstract class BufferedOutput implements Output {
     }
 
     protected void flushByteBuffer(ByteBuffer bb) throws IOException {
-        if(bb.hasArray()) {
+        if (bb.hasArray()) {
             byte[] array = bb.array();
             int offset = bb.arrayOffset();
-            flushBuffer(array, offset+bb.position(), bb.remaining());
+            flushBuffer(array, offset + bb.position(), bb.remaining());
             bb.position(bb.limit());
         } else {
             byte[] buf = new byte[bb.remaining()];
@@ -215,6 +214,6 @@ abstract class BufferedOutput implements Output {
         }
     }
 
-    protected abstract boolean flushBuffer(byte[] buffer, int off, int len) throws IOException;
+    protected abstract boolean flushBuffer(byte[] buffer, int off, int len)
+            throws IOException;
 }
-

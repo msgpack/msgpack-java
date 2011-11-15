@@ -21,7 +21,6 @@ import java.io.IOException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 
-
 public abstract class AbstractTemplate<T> implements Template<T> {
 
     public void write(Packer pk, T v) throws IOException {
@@ -32,4 +31,3 @@ public abstract class AbstractTemplate<T> implements Template<T> {
         return read(u, to, false);
     }
 }
-

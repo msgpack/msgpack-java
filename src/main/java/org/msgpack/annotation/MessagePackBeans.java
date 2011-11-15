@@ -24,13 +24,14 @@ import java.lang.annotation.Target;
 
 import org.msgpack.template.FieldOption;
 
-
 /**
  * Annotation for java beans class
+ * 
  * @author takeshita
- *
+ * 
  */
-@Target(ElementType.TYPE) @Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface MessagePackBeans {
     FieldOption value() default FieldOption.DEFAULT;
 }

@@ -22,11 +22,12 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-
 public class ByteTemplate extends AbstractTemplate<Byte> {
-    private ByteTemplate() { }
+    private ByteTemplate() {
+    }
 
-    public void write(Packer pk, Byte target, boolean required) throws IOException {
+    public void write(Packer pk, Byte target, boolean required)
+            throws IOException {
         if (target == null) {
             if (required) {
                 throw new MessageTypeException("Attempted to write null");
@@ -50,4 +51,3 @@ public class ByteTemplate extends AbstractTemplate<Byte> {
 
     static final ByteTemplate instance = new ByteTemplate();
 }
-

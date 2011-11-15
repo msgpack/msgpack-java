@@ -24,16 +24,15 @@ import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 
-
 public class OrdinalEnumTemplate<T> extends AbstractTemplate<T> {
     protected T[] entries;
     protected HashMap<T, Integer> reverse;
 
     public OrdinalEnumTemplate(Class<T> targetClass) {
-	entries = targetClass.getEnumConstants();
+        entries = targetClass.getEnumConstants();
         reverse = new HashMap<T, Integer>();
-        for(int i = 0; i < entries.length; i++) {
-                reverse.put(entries[i], i);
+        for (int i = 0; i < entries.length; i++) {
+            reverse.put(entries[i], i);
         }
     }
 
@@ -46,22 +45,25 @@ public class OrdinalEnumTemplate<T> extends AbstractTemplate<T> {
             pk.writeNil();
             return;
         }
-	Integer ordinal = reverse.get(target);
+        Integer ordinal = reverse.get(target);
         if (ordinal == null) {
-            throw new MessageTypeException(new IllegalArgumentException("ordinal: " + ordinal));
+            throw new MessageTypeException(
+                    new IllegalArgumentException("ordinal: " + ordinal));
         }
-        pk.write((int)ordinal);
+        pk.write((int) ordinal);
     }
 
     @Override
-    public T read(Unpacker pac, T to, boolean required) throws IOException, MessageTypeException {
-	if (!required && pac.trySkipNil()) {
-	    return null;
-	}
+    public T read(Unpacker pac, T to, boolean required) throws IOException,
+            MessageTypeException {
+        if (!required && pac.trySkipNil()) {
+            return null;
+        }
 
         int ordinal = pac.readInt();
         if (entries.length <= ordinal) {
-                throw new MessageTypeException(new IllegalArgumentException("ordinal: " + ordinal));
+            throw new MessageTypeException(
+                    new IllegalArgumentException("ordinal: " + ordinal));
         }
         return entries[ordinal];
     }

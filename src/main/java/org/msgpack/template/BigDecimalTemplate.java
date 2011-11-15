@@ -23,13 +23,14 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-
 public class BigDecimalTemplate extends AbstractTemplate<BigDecimal> {
-    private BigDecimalTemplate() { }
+    private BigDecimalTemplate() {
+    }
 
-    public void write(Packer pk, BigDecimal target, boolean required) throws IOException {
-        if(target == null) {
-            if(required) {
+    public void write(Packer pk, BigDecimal target, boolean required)
+            throws IOException {
+        if (target == null) {
+            if (required) {
                 throw new MessageTypeException("Attempted to write null");
             }
             pk.writeNil();
@@ -38,8 +39,9 @@ public class BigDecimalTemplate extends AbstractTemplate<BigDecimal> {
         pk.write(target.toString());
     }
 
-    public BigDecimal read(Unpacker u, BigDecimal to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+    public BigDecimal read(Unpacker u, BigDecimal to, boolean required)
+            throws IOException {
+        if (!required && u.trySkipNil()) {
             return null;
         }
         String temp = u.readString();
@@ -52,4 +54,3 @@ public class BigDecimalTemplate extends AbstractTemplate<BigDecimal> {
 
     static final BigDecimalTemplate instance = new BigDecimalTemplate();
 }
-

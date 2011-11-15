@@ -26,7 +26,6 @@ import org.msgpack.packer.BufferPacker;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.unpacker.BufferUnpacker;
 
-
 public class JSON extends MessagePack {
     public JSON() {
         super();
@@ -35,7 +34,6 @@ public class JSON extends MessagePack {
     public JSON(MessagePack msgpack) {
         super(msgpack);
     }
-
 
     @Override
     public Packer createPacker(OutputStream stream) {
@@ -77,4 +75,3 @@ public class JSON extends MessagePack {
         return createBufferUnpacker().wrap(bb);
     }
 }
-

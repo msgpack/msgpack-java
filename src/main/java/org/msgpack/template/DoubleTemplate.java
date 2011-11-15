@@ -22,11 +22,12 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-
 public class DoubleTemplate extends AbstractTemplate<Double> {
-    private DoubleTemplate() { }
+    private DoubleTemplate() {
+    }
 
-    public void write(Packer pk, Double target, boolean required) throws IOException {
+    public void write(Packer pk, Double target, boolean required)
+            throws IOException {
         if (target == null) {
             if (required) {
                 throw new MessageTypeException("Attempted to write null");
@@ -34,10 +35,11 @@ public class DoubleTemplate extends AbstractTemplate<Double> {
             pk.writeNil();
             return;
         }
-        pk.write((double)target);
+        pk.write((double) target);
     }
 
-    public Double read(Unpacker u, Double to, boolean required) throws IOException {
+    public Double read(Unpacker u, Double to, boolean required)
+            throws IOException {
         if (!required && u.trySkipNil()) {
             return null;
         }
@@ -50,4 +52,3 @@ public class DoubleTemplate extends AbstractTemplate<Double> {
 
     static final DoubleTemplate instance = new DoubleTemplate();
 }
-

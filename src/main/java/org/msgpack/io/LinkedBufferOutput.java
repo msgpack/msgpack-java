@@ -19,7 +19,6 @@ package org.msgpack.io;
 
 import java.util.LinkedList;
 
-
 public final class LinkedBufferOutput extends BufferedOutput {
     private static final class Link {
         final byte[] buffer;
@@ -75,4 +74,3 @@ public final class LinkedBufferOutput extends BufferedOutput {
     public void close() {
     }
 }
-

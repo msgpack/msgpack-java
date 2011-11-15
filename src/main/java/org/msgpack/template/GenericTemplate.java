@@ -17,7 +17,6 @@
 //
 package org.msgpack.template;
 
-
 public interface GenericTemplate {
     @SuppressWarnings("rawtypes")
     public Template build(Template[] params);

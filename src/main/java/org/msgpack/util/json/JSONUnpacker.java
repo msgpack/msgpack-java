@@ -31,7 +31,6 @@ import org.msgpack.unpacker.Converter;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
 
-
 public class JSONUnpacker extends Converter {
     protected Reader in;
     private JSONParser parser;
@@ -56,28 +55,28 @@ public class JSONUnpacker extends Converter {
             Object obj = parser.parse(in);
             return objectToValue(obj);
         } catch (ParseException e) {
-            throw new IOException(e);  // TODO error FormatException
+            throw new IOException(e); // TODO error FormatException
         } catch (IOException e) {
-            throw new IOException(e);  // TODO error FormatException
+            throw new IOException(e); // TODO error FormatException
         }
     }
 
     @SuppressWarnings("rawtypes")
     private Value objectToValue(Object obj) {
-        if(obj instanceof String) {
-            return ValueFactory.createRawValue((String)obj);
-        } else if(obj instanceof Integer) {
-            return ValueFactory.createIntegerValue((Integer)obj);
-        } else if(obj instanceof Long) {
-            return ValueFactory.createIntegerValue((Long)obj);
-        } else if(obj instanceof Map) {
-            return mapToValue((Map)obj);
-        } else if(obj instanceof List) {
-            return listToValue((List)obj);
-        } else if(obj instanceof Boolean) {
-            return ValueFactory.createBooleanValue((Boolean)obj);
-        } else if(obj instanceof Double) {
-            return ValueFactory.createFloatValue((Double)obj);
+        if (obj instanceof String) {
+            return ValueFactory.createRawValue((String) obj);
+        } else if (obj instanceof Integer) {
+            return ValueFactory.createIntegerValue((Integer) obj);
+        } else if (obj instanceof Long) {
+            return ValueFactory.createIntegerValue((Long) obj);
+        } else if (obj instanceof Map) {
+            return mapToValue((Map) obj);
+        } else if (obj instanceof List) {
+            return listToValue((List) obj);
+        } else if (obj instanceof Boolean) {
+            return ValueFactory.createBooleanValue((Boolean) obj);
+        } else if (obj instanceof Double) {
+            return ValueFactory.createFloatValue((Double) obj);
         } else {
             return ValueFactory.createNilValue();
         }
@@ -86,7 +85,7 @@ public class JSONUnpacker extends Converter {
     @SuppressWarnings("rawtypes")
     private Value listToValue(List list) {
         Value[] array = new Value[list.size()];
-        for(int i=0; i < array.length; i++) {
+        for (int i = 0; i < array.length; i++) {
             array[i] = objectToValue(list.get(i));
         }
         return ValueFactory.createArrayValue(array, true);
@@ -94,12 +93,12 @@ public class JSONUnpacker extends Converter {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private Value mapToValue(Map map) {
-        Value[] kvs = new Value[map.size()*2];
+        Value[] kvs = new Value[map.size() * 2];
         Iterator<Map.Entry> it = map.entrySet().iterator();
-        for(int i=0; i < kvs.length; i+=2) {
+        for (int i = 0; i < kvs.length; i += 2) {
             Map.Entry pair = it.next();
             kvs[i] = objectToValue(pair.getKey());
-            kvs[i+1] = objectToValue(pair.getValue());
+            kvs[i + 1] = objectToValue(pair.getValue());
         }
         return ValueFactory.createMapValue(kvs, true);
     }
@@ -119,4 +118,3 @@ public class JSONUnpacker extends Converter {
         super.close();
     }
 }
-

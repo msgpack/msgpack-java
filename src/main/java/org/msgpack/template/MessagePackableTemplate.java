@@ -23,15 +23,15 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessagePackable;
 import org.msgpack.MessageTypeException;
 
-
 public class MessagePackableTemplate extends AbstractTemplate<MessagePackable> {
     private Class<?> targetClass;
 
     MessagePackableTemplate(Class<?> targetClass) {
-	this.targetClass = targetClass;
+        this.targetClass = targetClass;
     }
 
-    public void write(Packer pk, MessagePackable target, boolean required) throws IOException {
+    public void write(Packer pk, MessagePackable target, boolean required)
+            throws IOException {
         if (target == null) {
             if (required) {
                 throw new MessageTypeException("Attempted to write null");
@@ -42,21 +42,21 @@ public class MessagePackableTemplate extends AbstractTemplate<MessagePackable> {
         target.writeTo(pk);
     }
 
-    public MessagePackable read(Unpacker u, MessagePackable to, boolean required) throws IOException {
+    public MessagePackable read(Unpacker u, MessagePackable to, boolean required)
+            throws IOException {
         if (!required && u.trySkipNil()) {
             return null;
         }
-	if (to == null) {
-	    try {
-		to = (MessagePackable) targetClass.newInstance();
-	    } catch (InstantiationException e) {
-		throw new MessageTypeException(e);
-	    } catch (IllegalAccessException e) {
-		throw new MessageTypeException(e);
-	    }
-	}
-	to.readFrom(u);
-	return to;
+        if (to == null) {
+            try {
+                to = (MessagePackable) targetClass.newInstance();
+            } catch (InstantiationException e) {
+                throw new MessageTypeException(e);
+            } catch (IllegalAccessException e) {
+                throw new MessageTypeException(e);
+            }
+        }
+        to.readFrom(u);
+        return to;
     }
 }
-

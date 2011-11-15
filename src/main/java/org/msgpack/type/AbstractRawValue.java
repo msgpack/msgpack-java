@@ -24,7 +24,6 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 
-
 abstract class AbstractRawValue extends AbstractValue implements RawValue {
     @Override
     public ValueType getType() {
@@ -43,14 +42,14 @@ abstract class AbstractRawValue extends AbstractValue implements RawValue {
 
     @Override
     public boolean equals(Object o) {
-        if(this == o) {
+        if (this == o) {
             return true;
         }
-        if(!(o instanceof Value)) {
+        if (!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isRawValue()) {
+        if (!v.isRawValue()) {
             return false;
         }
 
@@ -70,15 +69,15 @@ abstract class AbstractRawValue extends AbstractValue implements RawValue {
     @Override
     public StringBuilder toString(StringBuilder sb) {
         String s;
-        if(getClass() == StringRawValueImpl.class) {
+        if (getClass() == StringRawValueImpl.class) {
             // StringRawValueImpl.getString never throws exception
             s = getString();
         } else {
             // don't throw encoding error exception
             // ignore malformed bytes
-            CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder().
-                onMalformedInput(CodingErrorAction.IGNORE).
-                onUnmappableCharacter(CodingErrorAction.IGNORE);
+            CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder()
+                    .onMalformedInput(CodingErrorAction.IGNORE)
+                    .onUnmappableCharacter(CodingErrorAction.IGNORE);
             try {
                 s = decoder.decode(ByteBuffer.wrap(getByteArray())).toString();
             } catch (CharacterCodingException ex) {
@@ -88,10 +87,10 @@ abstract class AbstractRawValue extends AbstractValue implements RawValue {
         }
 
         sb.append("\"");
-        for(int i=0; i < s.length(); i++) {
+        for (int i = 0; i < s.length(); i++) {
             char ch = s.charAt(i);
-            if(ch < 0x20) {
-                switch(ch) {
+            if (ch < 0x20) {
+                switch (ch) {
                 case '\n':
                     sb.append("\\n");
                     break;
@@ -112,8 +111,8 @@ abstract class AbstractRawValue extends AbstractValue implements RawValue {
                     escapeChar(sb, ch);
                     break;
                 }
-            } else if(ch <= 0x7f) {
-                switch(ch) {
+            } else if (ch <= 0x7f) {
+                switch (ch) {
                 case '\\':
                     sb.append("\\\\");
                     break;
@@ -124,7 +123,7 @@ abstract class AbstractRawValue extends AbstractValue implements RawValue {
                     sb.append(ch);
                     break;
                 }
-            } else if(ch >= 0xd800 && ch <= 0xdfff) {
+            } else if (ch >= 0xd800 && ch <= 0xdfff) {
                 // surrogates
                 escapeChar(sb, ch);
             } else {
@@ -146,4 +145,3 @@ abstract class AbstractRawValue extends AbstractValue implements RawValue {
         sb.append(HEX_TABLE[ch & 0x0f]);
     }
 }
-

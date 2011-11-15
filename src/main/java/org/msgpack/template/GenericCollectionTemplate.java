@@ -20,38 +20,36 @@ package org.msgpack.template;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-
 public class GenericCollectionTemplate implements GenericTemplate {
     @SuppressWarnings("rawtypes")
     Constructor<? extends Template> constructor;
 
     @SuppressWarnings("rawtypes")
     public GenericCollectionTemplate(TemplateRegistry registry, Class<? extends Template> tmpl) {
-	try {
-	    constructor = tmpl.getConstructor(new Class<?>[]{ Template.class });
-	    constructor.newInstance(new Object[]{ new AnyTemplate(registry)});
-	} catch (NoSuchMethodException e) {
-	    throw new IllegalArgumentException(e);
-	} catch (InvocationTargetException e) {
-	    throw new IllegalArgumentException(e);
-	} catch (IllegalAccessException e) {
-	    throw new IllegalArgumentException(e);
-	} catch (InstantiationException e) {
-	    throw new IllegalArgumentException(e);
-	}
+        try {
+            constructor = tmpl.getConstructor(new Class<?>[] { Template.class });
+            constructor.newInstance(new Object[] { new AnyTemplate(registry) });
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException(e);
+        } catch (InvocationTargetException e) {
+            throw new IllegalArgumentException(e);
+        } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException(e);
+        } catch (InstantiationException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @SuppressWarnings("rawtypes")
     public Template build(Template[] params) {
-	try {
-	    return constructor.newInstance((Object[]) params);
-	} catch (InvocationTargetException e) {
-	    throw new IllegalArgumentException(e);
-	} catch (IllegalAccessException e) {
-	    throw new IllegalArgumentException(e);
-	} catch (InstantiationException e) {
-	    throw new IllegalArgumentException(e);
-	}
+        try {
+            return constructor.newInstance((Object[]) params);
+        } catch (InvocationTargetException e) {
+            throw new IllegalArgumentException(e);
+        } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException(e);
+        } catch (InstantiationException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 }
-

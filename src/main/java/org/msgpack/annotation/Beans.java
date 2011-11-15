@@ -24,8 +24,8 @@ import java.lang.annotation.Target;
 
 import org.msgpack.template.FieldOption;
 
-
-@Target(ElementType.TYPE) @Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Beans {
     FieldOption value() default FieldOption.DEFAULT;
 }

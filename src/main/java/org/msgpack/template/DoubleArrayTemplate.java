@@ -22,11 +22,12 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-
 public class DoubleArrayTemplate extends AbstractTemplate<double[]> {
-    private DoubleArrayTemplate() { }
+    private DoubleArrayTemplate() {
+    }
 
-    public void write(Packer pk, double[] target, boolean required) throws IOException {
+    public void write(Packer pk, double[] target, boolean required)
+            throws IOException {
         if (target == null) {
             if (required) {
                 throw new MessageTypeException("Attempted to write null");
@@ -41,7 +42,8 @@ public class DoubleArrayTemplate extends AbstractTemplate<double[]> {
         pk.writeArrayEnd();
     }
 
-    public double[] read(Unpacker u, double[] to, boolean required) throws IOException {
+    public double[] read(Unpacker u, double[] to, boolean required)
+            throws IOException {
         if (!required && u.trySkipNil()) {
             return null;
         }
@@ -49,7 +51,7 @@ public class DoubleArrayTemplate extends AbstractTemplate<double[]> {
         if (to == null || to.length != n) {
             to = new double[n];
         }
-        for (int i=0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             to[i] = u.readDouble();
         }
         u.readArrayEnd();
@@ -62,4 +64,3 @@ public class DoubleArrayTemplate extends AbstractTemplate<double[]> {
 
     static final DoubleArrayTemplate instance = new DoubleArrayTemplate();
 }
-

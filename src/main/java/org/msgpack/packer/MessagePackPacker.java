@@ -27,7 +27,6 @@ import org.msgpack.io.StreamOutput;
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 
-
 public class MessagePackPacker extends AbstractPacker {
     protected final Output out;
 
@@ -44,8 +43,8 @@ public class MessagePackPacker extends AbstractPacker {
 
     @Override
     protected void writeByte(byte d) throws IOException {
-        if(d < -(1<<5)) {
-            out.writeByteAndByte((byte)0xd0, d);
+        if (d < -(1 << 5)) {
+            out.writeByteAndByte((byte) 0xd0, d);
         } else {
             out.writeByte(d);
         }
@@ -54,24 +53,24 @@ public class MessagePackPacker extends AbstractPacker {
 
     @Override
     protected void writeShort(short d) throws IOException {
-        if(d < -(1<<5)) {
-            if(d < -(1<<7)) {
+        if (d < -(1 << 5)) {
+            if (d < -(1 << 7)) {
                 // signed 16
-                out.writeByteAndShort((byte)0xd1, d);
+                out.writeByteAndShort((byte) 0xd1, d);
             } else {
                 // signed 8
-                out.writeByteAndByte((byte)0xd0, (byte)d);
+                out.writeByteAndByte((byte) 0xd0, (byte) d);
             }
-        } else if(d < (1<<7)) {
+        } else if (d < (1 << 7)) {
             // fixnum
-            out.writeByte((byte)d);
+            out.writeByte((byte) d);
         } else {
-            if(d < (1<<8)) {
+            if (d < (1 << 8)) {
                 // unsigned 8
-                out.writeByteAndByte((byte)0xcc, (byte)d);
+                out.writeByteAndByte((byte) 0xcc, (byte) d);
             } else {
                 // unsigned 16
-                out.writeByteAndShort((byte)0xcd, d);
+                out.writeByteAndShort((byte) 0xcd, d);
             }
         }
         stack.reduceCount();
@@ -79,30 +78,30 @@ public class MessagePackPacker extends AbstractPacker {
 
     @Override
     protected void writeInt(int d) throws IOException {
-        if(d < -(1<<5)) {
-            if(d < -(1<<15)) {
+        if (d < -(1 << 5)) {
+            if (d < -(1 << 15)) {
                 // signed 32
-                out.writeByteAndInt((byte)0xd2, d);
-            } else if(d < -(1<<7)) {
+                out.writeByteAndInt((byte) 0xd2, d);
+            } else if (d < -(1 << 7)) {
                 // signed 16
-                out.writeByteAndShort((byte)0xd1, (short)d);
+                out.writeByteAndShort((byte) 0xd1, (short) d);
             } else {
                 // signed 8
-                out.writeByteAndByte((byte)0xd0, (byte)d);
+                out.writeByteAndByte((byte) 0xd0, (byte) d);
             }
-        } else if(d < (1<<7)) {
+        } else if (d < (1 << 7)) {
             // fixnum
-            out.writeByte((byte)d);
+            out.writeByte((byte) d);
         } else {
-            if(d < (1<<8)) {
+            if (d < (1 << 8)) {
                 // unsigned 8
-                out.writeByteAndByte((byte)0xcc, (byte)d);
-            } else if(d < (1<<16)) {
+                out.writeByteAndByte((byte) 0xcc, (byte) d);
+            } else if (d < (1 << 16)) {
                 // unsigned 16
-                out.writeByteAndShort((byte)0xcd, (short)d);
+                out.writeByteAndShort((byte) 0xcd, (short) d);
             } else {
                 // unsigned 32
-                out.writeByteAndInt((byte)0xce, d);
+                out.writeByteAndInt((byte) 0xce, d);
             }
         }
         stack.reduceCount();
@@ -110,43 +109,43 @@ public class MessagePackPacker extends AbstractPacker {
 
     @Override
     protected void writeLong(long d) throws IOException {
-        if(d < -(1L<<5)) {
-            if(d < -(1L<<15)) {
-                if(d < -(1L<<31)) {
+        if (d < -(1L << 5)) {
+            if (d < -(1L << 15)) {
+                if (d < -(1L << 31)) {
                     // signed 64
-                    out.writeByteAndLong((byte)0xd3, d);
+                    out.writeByteAndLong((byte) 0xd3, d);
                 } else {
                     // signed 32
-                    out.writeByteAndInt((byte)0xd2, (int)d);
+                    out.writeByteAndInt((byte) 0xd2, (int) d);
                 }
             } else {
-                if(d < -(1<<7)) {
+                if (d < -(1 << 7)) {
                     // signed 16
-                    out.writeByteAndShort((byte)0xd1, (short)d);
+                    out.writeByteAndShort((byte) 0xd1, (short) d);
                 } else {
                     // signed 8
-                    out.writeByteAndByte((byte)0xd0, (byte)d);
+                    out.writeByteAndByte((byte) 0xd0, (byte) d);
                 }
             }
-        } else if(d < (1<<7)) {
+        } else if (d < (1 << 7)) {
             // fixnum
-            out.writeByte((byte)d);
+            out.writeByte((byte) d);
         } else {
-            if(d < (1L<<16)) {
-                if(d < (1<<8)) {
+            if (d < (1L << 16)) {
+                if (d < (1 << 8)) {
                     // unsigned 8
-                    out.writeByteAndByte((byte)0xcc, (byte)d);
+                    out.writeByteAndByte((byte) 0xcc, (byte) d);
                 } else {
                     // unsigned 16
-                    out.writeByteAndShort((byte)0xcd, (short)d);
+                    out.writeByteAndShort((byte) 0xcd, (short) d);
                 }
             } else {
-                if(d < (1L<<32)) {
+                if (d < (1L << 32)) {
                     // unsigned 32
-                    out.writeByteAndInt((byte)0xce, (int)d);
+                    out.writeByteAndInt((byte) 0xce, (int) d);
                 } else {
                     // unsigned 64
-                    out.writeByteAndLong((byte)0xcf, d);
+                    out.writeByteAndLong((byte) 0xcf, d);
                 }
             }
         }
@@ -155,50 +154,52 @@ public class MessagePackPacker extends AbstractPacker {
 
     @Override
     protected void writeBigInteger(BigInteger d) throws IOException {
-        if(d.bitLength() <= 63) {
+        if (d.bitLength() <= 63) {
             writeLong(d.longValue());
             stack.reduceCount();
-        } else if(d.bitLength() == 64 && d.signum() == 1) {
+        } else if (d.bitLength() == 64 && d.signum() == 1) {
             // unsigned 64
-            out.writeByteAndLong((byte)0xcf, d.longValue());
+            out.writeByteAndLong((byte) 0xcf, d.longValue());
             stack.reduceCount();
         } else {
-            throw new MessageTypeException("MessagePack can't serialize BigInteger larger than (2^64)-1");
+            throw new MessageTypeException(
+                    "MessagePack can't serialize BigInteger larger than (2^64)-1");
         }
     }
 
     @Override
     protected void writeFloat(float d) throws IOException {
-        out.writeByteAndFloat((byte)0xca, d);
+        out.writeByteAndFloat((byte) 0xca, d);
         stack.reduceCount();
     }
 
     @Override
     protected void writeDouble(double d) throws IOException {
-        out.writeByteAndDouble((byte)0xcb, d);
+        out.writeByteAndDouble((byte) 0xcb, d);
         stack.reduceCount();
     }
 
     @Override
     protected void writeBoolean(boolean d) throws IOException {
-        if(d) {
+        if (d) {
             // true
-            out.writeByte((byte)0xc3);
+            out.writeByte((byte) 0xc3);
         } else {
             // false
-            out.writeByte((byte)0xc2);
+            out.writeByte((byte) 0xc2);
         }
         stack.reduceCount();
     }
 
     @Override
-    protected void writeByteArray(byte[] b, int off, int len) throws IOException {
-        if(len < 32) {
-            out.writeByte((byte)(0xa0 | len));
-        } else if(len < 65536) {
-            out.writeByteAndShort((byte)0xda, (short)len);
+    protected void writeByteArray(byte[] b, int off, int len)
+            throws IOException {
+        if (len < 32) {
+            out.writeByte((byte) (0xa0 | len));
+        } else if (len < 65536) {
+            out.writeByteAndShort((byte) 0xda, (short) len);
         } else {
-            out.writeByteAndInt((byte)0xdb, len);
+            out.writeByteAndInt((byte) 0xdb, len);
         }
         out.write(b, off, len);
         stack.reduceCount();
@@ -207,12 +208,12 @@ public class MessagePackPacker extends AbstractPacker {
     @Override
     protected void writeByteBuffer(ByteBuffer bb) throws IOException {
         int len = bb.remaining();
-        if(len < 32) {
-            out.writeByte((byte)(0xa0 | len));
-        } else if(len < 65536) {
-            out.writeByteAndShort((byte)0xda, (short)len);
+        if (len < 32) {
+            out.writeByte((byte) (0xa0 | len));
+        } else if (len < 65536) {
+            out.writeByteAndShort((byte) 0xda, (short) len);
         } else {
-            out.writeByteAndInt((byte)0xdb, len);
+            out.writeByteAndInt((byte) 0xdb, len);
         }
         int pos = bb.position();
         try {
@@ -238,7 +239,7 @@ public class MessagePackPacker extends AbstractPacker {
 
     @Override
     public Packer writeNil() throws IOException {
-        out.writeByte((byte)0xc0);
+        out.writeByte((byte) 0xc0);
         stack.reduceCount();
         return this;
     }
@@ -246,13 +247,13 @@ public class MessagePackPacker extends AbstractPacker {
     @Override
     public Packer writeArrayBegin(int size) throws IOException {
         // TODO check size < 0?
-        if(size < 16) {
+        if (size < 16) {
             // FixArray
-            out.writeByte((byte)(0x90 | size));
-        } else if(size < 65536) {
-            out.writeByteAndShort((byte)0xdc, (short)size);
+            out.writeByte((byte) (0x90 | size));
+        } else if (size < 65536) {
+            out.writeByteAndShort((byte) 0xdc, (short) size);
         } else {
-            out.writeByteAndInt((byte)0xdd, size);
+            out.writeByteAndInt((byte) 0xdd, size);
         }
         stack.reduceCount();
         stack.pushArray(size);
@@ -261,16 +262,18 @@ public class MessagePackPacker extends AbstractPacker {
 
     @Override
     public Packer writeArrayEnd(boolean check) throws IOException {
-        if(!stack.topIsArray()) {
-            throw new MessageTypeException("writeArrayEnd() is called but writeArrayBegin() is not called");
+        if (!stack.topIsArray()) {
+            throw new MessageTypeException(
+                    "writeArrayEnd() is called but writeArrayBegin() is not called");
         }
 
         int remain = stack.getTopCount();
-        if(remain > 0) {
-            if(check) {
-                throw new MessageTypeException("writeArrayEnd(check=true) is called but the array is not end: "+remain);
+        if (remain > 0) {
+            if (check) {
+                throw new MessageTypeException(
+                        "writeArrayEnd(check=true) is called but the array is not end: " + remain);
             }
-            for(int i=0; i < remain; i++) {
+            for (int i = 0; i < remain; i++) {
                 writeNil();
             }
         }
@@ -281,13 +284,13 @@ public class MessagePackPacker extends AbstractPacker {
     @Override
     public Packer writeMapBegin(int size) throws IOException {
         // TODO check size < 0?
-        if(size < 16) {
+        if (size < 16) {
             // FixMap
-            out.writeByte((byte)(0x80 | size));
-        } else if(size < 65536) {
-            out.writeByteAndShort((byte)0xde, (short)size);
+            out.writeByte((byte) (0x80 | size));
+        } else if (size < 65536) {
+            out.writeByteAndShort((byte) 0xde, (short) size);
         } else {
-            out.writeByteAndInt((byte)0xdf, size);
+            out.writeByteAndInt((byte) 0xdf, size);
         }
         stack.reduceCount();
         stack.pushMap(size);
@@ -296,16 +299,18 @@ public class MessagePackPacker extends AbstractPacker {
 
     @Override
     public Packer writeMapEnd(boolean check) throws IOException {
-        if(!stack.topIsMap()) {
-            throw new MessageTypeException("writeMapEnd() is called but writeMapBegin() is not called");
+        if (!stack.topIsMap()) {
+            throw new MessageTypeException(
+                    "writeMapEnd() is called but writeMapBegin() is not called");
         }
 
         int remain = stack.getTopCount();
-        if(remain > 0) {
-            if(check) {
-                throw new MessageTypeException("writeMapEnd(check=true) is called but the map is not end: "+remain);
+        if (remain > 0) {
+            if (check) {
+                throw new MessageTypeException(
+                        "writeMapEnd(check=true) is called but the map is not end: " + remain);
             }
-            for(int i=0; i < remain; i++) {
+            for (int i = 0; i < remain; i++) {
                 writeNil();
             }
         }
@@ -327,4 +332,3 @@ public class MessagePackPacker extends AbstractPacker {
         out.close();
     }
 }
-

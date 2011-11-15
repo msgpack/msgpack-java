@@ -22,11 +22,12 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-
 public class ShortArrayTemplate extends AbstractTemplate<short[]> {
-    private ShortArrayTemplate() { }
+    private ShortArrayTemplate() {
+    }
 
-    public void write(Packer pk, short[] target, boolean required) throws IOException {
+    public void write(Packer pk, short[] target, boolean required)
+            throws IOException {
         if (target == null) {
             if (required) {
                 throw new MessageTypeException("Attempted to write null");
@@ -41,7 +42,8 @@ public class ShortArrayTemplate extends AbstractTemplate<short[]> {
         pk.writeArrayEnd();
     }
 
-    public short[] read(Unpacker u, short[] to, boolean required) throws IOException {
+    public short[] read(Unpacker u, short[] to, boolean required)
+            throws IOException {
         if (!required && u.trySkipNil()) {
             return null;
         }
@@ -62,4 +64,3 @@ public class ShortArrayTemplate extends AbstractTemplate<short[]> {
 
     static final ShortArrayTemplate instance = new ShortArrayTemplate();
 }
-

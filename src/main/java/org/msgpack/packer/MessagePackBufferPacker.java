@@ -20,16 +20,16 @@ package org.msgpack.packer;
 import org.msgpack.MessagePack;
 import org.msgpack.io.LinkedBufferOutput;
 
-
 public class MessagePackBufferPacker extends MessagePackPacker implements BufferPacker {
-    private static final int DEFAULT_BUFFER_SIZE = 512; // TODO default buffer size
+    private static final int DEFAULT_BUFFER_SIZE = 512; // TODO default buffer
+                                                        // size
 
     public MessagePackBufferPacker(MessagePack msgpack) {
-	this(msgpack, DEFAULT_BUFFER_SIZE);
+        this(msgpack, DEFAULT_BUFFER_SIZE);
     }
 
     public MessagePackBufferPacker(MessagePack msgpack, int bufferSize) {
-	super(msgpack, new LinkedBufferOutput(bufferSize));
+        super(msgpack, new LinkedBufferOutput(bufferSize));
     }
 
     @Override
@@ -43,4 +43,3 @@ public class MessagePackBufferPacker extends MessagePackPacker implements Buffer
         ((LinkedBufferOutput) out).clear();
     }
 }
-

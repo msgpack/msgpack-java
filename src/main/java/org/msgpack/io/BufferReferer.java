@@ -20,8 +20,6 @@ package org.msgpack.io;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-
 public interface BufferReferer {
     public void refer(ByteBuffer bb, boolean gift) throws IOException;
 }
-

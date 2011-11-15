@@ -24,9 +24,8 @@ import java.nio.ByteBuffer;
 import org.msgpack.MessagePack;
 import org.msgpack.unpacker.BufferUnpacker;
 
-
 public class JSONBufferUnpacker extends JSONUnpacker implements BufferUnpacker {
-    private static final int DEFAULT_BUFFER_SIZE = 512;  // TODO default buffer size
+    private static final int DEFAULT_BUFFER_SIZE = 512; // TODO default buffer size
 
     public JSONBufferUnpacker() {
         this(DEFAULT_BUFFER_SIZE);
@@ -58,37 +57,44 @@ public class JSONBufferUnpacker extends JSONUnpacker implements BufferUnpacker {
 
     @Override
     public JSONBufferUnpacker wrap(ByteBuffer buf) {
-        throw new UnsupportedOperationException("JSONBufferUnpacker doesn't support wrap(ByteBuffer buf)");
+        throw new UnsupportedOperationException(
+                "JSONBufferUnpacker doesn't support wrap(ByteBuffer buf)");
     }
 
     @Override
     public JSONBufferUnpacker feed(byte[] b) {
-        throw new UnsupportedOperationException("JSONBufferUnpacker doesn't support feed()");
+        throw new UnsupportedOperationException(
+                "JSONBufferUnpacker doesn't support feed()");
     }
 
     @Override
     public JSONBufferUnpacker feed(byte[] b, boolean nocopy) {
-        throw new UnsupportedOperationException("JSONBufferUnpacker doesn't support feed()");
+        throw new UnsupportedOperationException(
+                "JSONBufferUnpacker doesn't support feed()");
     }
 
     @Override
     public JSONBufferUnpacker feed(byte[] b, int off, int len) {
-        throw new UnsupportedOperationException("JSONBufferUnpacker doesn't support feed()");
+        throw new UnsupportedOperationException(
+                "JSONBufferUnpacker doesn't support feed()");
     }
 
     @Override
     public JSONBufferUnpacker feed(byte[] b, int off, int len, boolean nocopy) {
-        throw new UnsupportedOperationException("JSONBufferUnpacker doesn't support feed()");
+        throw new UnsupportedOperationException(
+                "JSONBufferUnpacker doesn't support feed()");
     }
 
     @Override
     public JSONBufferUnpacker feed(ByteBuffer buf) {
-        throw new UnsupportedOperationException("JSONBufferUnpacker doesn't support feed()");
+        throw new UnsupportedOperationException(
+                "JSONBufferUnpacker doesn't support feed()");
     }
 
     @Override
     public JSONBufferUnpacker feed(ByteBuffer buf, boolean nocopy) {
-        throw new UnsupportedOperationException("JSONBufferUnpacker doesn't support feed()");
+        throw new UnsupportedOperationException(
+                "JSONBufferUnpacker doesn't support feed()");
     }
 
     @Override
@@ -101,4 +107,3 @@ public class JSONBufferUnpacker extends JSONUnpacker implements BufferUnpacker {
         return new InputStreamReader(new ByteArrayInputStream(new byte[0]));
     }
 }
-

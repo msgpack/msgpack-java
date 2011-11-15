@@ -17,7 +17,6 @@
 //
 package org.msgpack.unpacker;
 
-
 final class MapAccept extends Accept {
     int size;
 
@@ -26,4 +25,3 @@ final class MapAccept extends Accept {
         this.size = size;
     }
 }
-

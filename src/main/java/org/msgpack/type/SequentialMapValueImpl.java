@@ -28,7 +28,6 @@ import java.util.NoSuchElementException;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
 
-
 class SequentialMapValueImpl extends AbstractMapValue {
     private static SequentialMapValueImpl emptyInstance = new SequentialMapValueImpl(new Value[0], true);
 
@@ -44,10 +43,10 @@ class SequentialMapValueImpl extends AbstractMapValue {
     }
 
     SequentialMapValueImpl(Value[] array, boolean gift) {
-        if(array.length % 2 != 0) {
-            throw new IllegalArgumentException();  // TODO message
+        if (array.length % 2 != 0) {
+            throw new IllegalArgumentException(); // TODO message
         }
-        if(gift) {
+        if (gift) {
             this.array = array;
         } else {
             this.array = new Value[array.length];
@@ -57,18 +56,18 @@ class SequentialMapValueImpl extends AbstractMapValue {
 
     @Override
     public Value get(Object key) {
-        if(key == null) {
+        if (key == null) {
             return null;
         }
-        for(int i=array.length-2; i >= 0; i-=2) {
-            if(array[i].equals(key)) {
-                return array[i+1];
+        for (int i = array.length - 2; i >= 0; i -= 2) {
+            if (array[i].equals(key)) {
+                return array[i + 1];
             }
         }
         return null;
     }
 
-    private static class EntrySet extends AbstractSet<Map.Entry<Value,Value>> {
+    private static class EntrySet extends AbstractSet<Map.Entry<Value, Value>> {
         private Value[] array;
 
         EntrySet(Value[] array) {
@@ -81,12 +80,13 @@ class SequentialMapValueImpl extends AbstractMapValue {
         }
 
         @Override
-        public Iterator<Map.Entry<Value,Value>> iterator() {
+        public Iterator<Map.Entry<Value, Value>> iterator() {
             return new EntrySetIterator(array);
         }
     }
 
-    private static class EntrySetIterator implements Iterator<Map.Entry<Value,Value>> {
+    private static class EntrySetIterator implements
+            Iterator<Map.Entry<Value, Value>> {
         private Value[] array;
         private int pos;
 
@@ -101,18 +101,19 @@ class SequentialMapValueImpl extends AbstractMapValue {
         }
 
         @Override
-        public Map.Entry<Value,Value> next() {
-            if(pos >= array.length) {
-                throw new NoSuchElementException();  // TODO message
+        public Map.Entry<Value, Value> next() {
+            if (pos >= array.length) {
+                throw new NoSuchElementException(); // TODO message
             }
-            Map.Entry<Value,Value> pair = new AbstractMap.SimpleImmutableEntry<Value,Value>(array[pos], array[pos+1]);
+            Map.Entry<Value, Value> pair =
+                new AbstractMap.SimpleImmutableEntry<Value, Value>(array[pos], array[pos + 1]);
             pos += 2;
             return pair;
         }
 
         @Override
         public void remove() {
-            throw new UnsupportedOperationException();  // TODO message
+            throw new UnsupportedOperationException(); // TODO message
         }
     }
 
@@ -168,8 +169,8 @@ class SequentialMapValueImpl extends AbstractMapValue {
 
         @Override
         public Value next() {
-            if(pos >= array.length) {
-                throw new NoSuchElementException();  // TODO message
+            if (pos >= array.length) {
+                throw new NoSuchElementException(); // TODO message
             }
             Value v = array[pos];
             pos += 2;
@@ -178,12 +179,12 @@ class SequentialMapValueImpl extends AbstractMapValue {
 
         @Override
         public void remove() {
-            throw new UnsupportedOperationException();  // TODO message
+            throw new UnsupportedOperationException(); // TODO message
         }
     }
 
     @Override
-    public Set<Map.Entry<Value,Value>> entrySet() {
+    public Set<Map.Entry<Value, Value>> entrySet() {
         return new EntrySet(array);
     }
 
@@ -199,8 +200,8 @@ class SequentialMapValueImpl extends AbstractMapValue {
 
     @Override
     public void writeTo(Packer pk) throws IOException {
-        pk.writeMapBegin(array.length/2);
-        for(int i=0; i < array.length; i++) {
+        pk.writeMapBegin(array.length / 2);
+        for (int i = 0; i < array.length; i++) {
             array[i].writeTo(pk);
         }
         pk.writeMapEnd();
@@ -208,27 +209,27 @@ class SequentialMapValueImpl extends AbstractMapValue {
 
     @Override
     public boolean equals(Object o) {
-        if(o == this) {
+        if (o == this) {
             return true;
         }
-        if(!(o instanceof Value)) {
+        if (!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isMapValue()) {
+        if (!v.isMapValue()) {
             return false;
         }
 
-        Map<Value,Value> om = v.asMapValue();
-        if (om.size() != array.length/2) {
+        Map<Value, Value> om = v.asMapValue();
+        if (om.size() != array.length / 2) {
             return false;
         }
 
         try {
-            for(int i=0; i < array.length; i+=2) {
+            for (int i = 0; i < array.length; i += 2) {
                 Value key = array[i];
-                Value value = array[i+1];
-                if(!value.equals(om.get(key))) {
+                Value value = array[i + 1];
+                if (!value.equals(om.get(key))) {
                     return false;
                 }
             }
@@ -241,47 +242,47 @@ class SequentialMapValueImpl extends AbstractMapValue {
         return true;
     }
 
-    //private boolean equals(SequentialMapValueImpl o) {
-    //    if(array.length != o.array.length) {
-    //        return false;
-    //    }
-    //    for(int i=0; i < array.length; i+=2) {
-    //        if(!equalsValue(o.array, array[i], array[i+1], i)) {
-    //            return false;
-    //        }
-    //    }
-    //    return true;
-    //}
+    // private boolean equals(SequentialMapValueImpl o) {
+    //   if(array.length != o.array.length) {
+    //     return false;
+    //   }
+    //   for(int i=0; i < array.length; i+=2) {
+    //     if(!equalsValue(o.array, array[i], array[i+1], i)) {
+    //     return false;
+    //     }
+    //   }
+    //   return true;
+    // }
 
-//    private boolean equalsValue(Value[] oarray, Value key, Value val, int hint) {
-//        for(int j=hint; j < array.length; j+=2) {
-//            if(key.equals(oarray[j])) {
-//                if(val.equals(oarray[j+1])) {
-//                    return true;
-//                } else {
-//                    return false;
-//                }
-//            }
-//        }
-//        for(int j=0; j < hint; j+=2) {
-//            if(key.equals(oarray[j])) {
-//                if(val.equals(oarray[j+1])) {
-//                    return true;
-//                } else {
-//                    return false;
-//                }
-//            }
-//        }
-//        return false;
-//    }
+    // private boolean equalsValue(Value[] oarray, Value key, Value val, int hint) {
+    //   for(int j=hint; j < array.length; j+=2) {
+    //     if(key.equals(oarray[j])) {
+    //       if(val.equals(oarray[j+1])) {
+    //         return true;
+    //       } else {
+    //         return false;
+    //       }
+    //     }
+    //   }
+    //   for(int j=0; j < hint; j+=2) {
+    //     if(key.equals(oarray[j])) {
+    //       if(val.equals(oarray[j+1])) {
+    //         return true;
+    //       } else {
+    //         return false;
+    //       }
+    //     }
+    //   }
+    //   return false;
+    // }
 
     // TODO compareTo?
 
     @Override
     public int hashCode() {
         int h = 0;
-        for(int i=0; i < array.length; i+=2) {
-            h += array[i].hashCode() ^ array[i+1].hashCode();
+        for (int i = 0; i < array.length; i += 2) {
+            h += array[i].hashCode() ^ array[i + 1].hashCode();
         }
         return h;
     }
@@ -293,21 +294,20 @@ class SequentialMapValueImpl extends AbstractMapValue {
 
     @Override
     public StringBuilder toString(StringBuilder sb) {
-        if(array.length == 0) {
+        if (array.length == 0) {
             return sb.append("{}");
         }
         sb.append("{");
         sb.append(array[0]);
         sb.append(":");
         sb.append(array[1]);
-        for(int i=2; i < array.length; i+=2) {
+        for (int i = 2; i < array.length; i += 2) {
             sb.append(",");
             array[i].toString(sb);
             sb.append(":");
-            array[i+1].toString(sb);
+            array[i + 1].toString(sb);
         }
         sb.append("}");
         return sb;
     }
 }
-

@@ -29,7 +29,6 @@ import javassist.CtConstructor;
 import javassist.CtNewConstructor;
 import javassist.NotFoundException;
 
-
 @SuppressWarnings("rawtypes")
 public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
     protected BeansFieldEntry[] entries;
@@ -41,40 +40,39 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
     protected Template<?>[] templates;
 
     public BeansBuildContext(JavassistTemplateBuilder director) {
-	super(director);
+        super(director);
     }
 
-    public Template buildTemplate(Class<?> targetClass, BeansFieldEntry[] entries, Template[] templates) {
-	this.entries = entries;
-	this.templates = templates;
-	this.origClass = targetClass;
-	this.origName = origClass.getName();
-	return build(origName);
+    public Template buildTemplate(Class<?> targetClass,
+            BeansFieldEntry[] entries, Template[] templates) {
+        this.entries = entries;
+        this.templates = templates;
+        this.origClass = targetClass;
+        this.origName = origClass.getName();
+        return build(origName);
     }
 
     protected void setSuperClass() throws CannotCompileException, NotFoundException {
-	tmplCtClass.setSuperclass(director.getCtClass(
-		JavassistTemplateBuilder.JavassistTemplate.class.getName()));
+        tmplCtClass.setSuperclass(director.getCtClass(
+                JavassistTemplateBuilder.JavassistTemplate.class.getName()));
     }
 
     protected void buildConstructor() throws CannotCompileException,
-	    NotFoundException {
-	// Constructor(Class targetClass, Template[] templates)
-	CtConstructor newCtCons = CtNewConstructor.make(
-		new CtClass[] {
-			director.getCtClass(Class.class.getName()),
-			director.getCtClass(Template.class.getName() + "[]")
-		},
-		new CtClass[0], tmplCtClass);
-	tmplCtClass.addConstructor(newCtCons);
+            NotFoundException {
+        // Constructor(Class targetClass, Template[] templates)
+        CtConstructor newCtCons = CtNewConstructor.make(
+                new CtClass[] {
+                        director.getCtClass(Class.class.getName()),
+                        director.getCtClass(Template.class.getName() + "[]")
+                }, new CtClass[0], tmplCtClass);
+        tmplCtClass.addConstructor(newCtCons);
     }
 
     protected Template buildInstance(Class<?> c) throws NoSuchMethodException,
-	    InstantiationException, IllegalAccessException,
-	    InvocationTargetException {
-	Constructor<?> cons = c.getConstructor(new Class[] { Class.class, Template[].class });
-	Object tmpl = cons.newInstance(new Object[] { origClass, templates });
-	return (Template) tmpl;
+            InstantiationException, IllegalAccessException, InvocationTargetException {
+        Constructor<?> cons = c.getConstructor(new Class[] { Class.class, Template[].class });
+        Object tmpl = cons.newInstance(new Object[] { origClass, templates });
+        return (Template) tmpl;
     }
 
     protected void buildMethodInit() {
@@ -82,8 +80,8 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
 
     @Override
     protected String buildWriteMethodBody() {
-	resetStringBuilder();
-	buildString("{");
+        resetStringBuilder();
+        buildString("{");
 
         buildString("if($2 == null) {");
         buildString("  if($3) {");
@@ -93,96 +91,99 @@ public class BeansBuildContext extends BuildContext<BeansFieldEntry> {
         buildString("  return;");
         buildString("}");
 
-	buildString("%s _$$_t = (%s)$2;", origName, origName);
-	buildString("$1.writeArrayBegin(%d);", entries.length);
+        buildString("%s _$$_t = (%s)$2;", origName, origName);
+        buildString("$1.writeArrayBegin(%d);", entries.length);
 
-	for (int i = 0; i < entries.length; i++) {
-	    BeansFieldEntry e = entries[i];
-	    if (!e.isAvailable()) {
-		buildString("$1.writeNil();");
-		continue;
-	    }
-	    Class<?> type = e.getType();
-	    if (type.isPrimitive()) {
-		buildString("$1.%s(_$$_t.%s());", primitiveWriteName(type), e.getGetterName());
-	    } else {
-		buildString("if(_$$_t.%s() == null) {", e.getGetterName());
-		if (e.isNotNullable()) {
-		    buildString("throw new %s();", MessageTypeException.class.getName());
-		} else {
-		    buildString("$1.writeNil();");
-		}
-		buildString("} else {");
-		buildString("  this.templates[%d].write($1, _$$_t.%s());", i, e.getGetterName());
-		buildString("}");
-	    }
-	}
+        for (int i = 0; i < entries.length; i++) {
+            BeansFieldEntry e = entries[i];
+            if (!e.isAvailable()) {
+                buildString("$1.writeNil();");
+                continue;
+            }
+            Class<?> type = e.getType();
+            if (type.isPrimitive()) {
+                buildString("$1.%s(_$$_t.%s());", primitiveWriteName(type), e.getGetterName());
+            } else {
+                buildString("if(_$$_t.%s() == null) {", e.getGetterName());
+                if (e.isNotNullable()) {
+                    buildString("throw new %s();", MessageTypeException.class.getName());
+                } else {
+                    buildString("$1.writeNil();");
+                }
+                buildString("} else {");
+                buildString("  this.templates[%d].write($1, _$$_t.%s());", i, e.getGetterName());
+                buildString("}");
+            }
+        }
 
-	buildString("$1.writeArrayEnd();");
-	buildString("}");
-	return getBuiltString();
+        buildString("$1.writeArrayEnd();");
+        buildString("}");
+        return getBuiltString();
     }
 
     @Override
     protected String buildReadMethodBody() {
-	resetStringBuilder();
-	buildString("{ ");
+        resetStringBuilder();
+        buildString("{ ");
 
         buildString("if(!$3 && $1.trySkipNil()) {");
         buildString("  return null;");
         buildString("}");
 
-	buildString("%s _$$_t;", origName);
-	buildString("if($2 == null) {");
-	buildString("  _$$_t = new %s();", origName);
-	buildString("} else {");
-	buildString("  _$$_t = (%s)$2;", origName);
-	buildString("}");
+        buildString("%s _$$_t;", origName);
+        buildString("if($2 == null) {");
+        buildString("  _$$_t = new %s();", origName);
+        buildString("} else {");
+        buildString("  _$$_t = (%s)$2;", origName);
+        buildString("}");
 
-	buildString("$1.readArrayBegin();");
+        buildString("$1.readArrayBegin();");
 
-        for(int i=0; i < entries.length; i++) {
-	    BeansFieldEntry e = entries[i];
+        for (int i = 0; i < entries.length; i++) {
+            BeansFieldEntry e = entries[i];
 
-	    if (!e.isAvailable()) {
-		buildString("$1.skip();"); // TODO #MN
+            if (!e.isAvailable()) {
+                buildString("$1.skip();"); // TODO #MN
                 continue;
             }
 
             if (e.isOptional()) {
-	        buildString("if($1.trySkipNil()) {");
-		buildString("_$$_t.%s(null);", e.getSetterName());
-	        buildString("} else {");
+                buildString("if($1.trySkipNil()) {");
+                buildString("_$$_t.%s(null);", e.getSetterName());
+                buildString("} else {");
             }
 
             Class<?> type = e.getType();
             if (type.isPrimitive()) {
                 buildString("_$$_t.%s( $1.%s() );", e.getSetterName(), primitiveReadName(type));
             } else {
-                buildString("_$$_t.%s( (%s)this.templates[%d].read($1, _$$_t.%s()) );",
+                buildString(
+                        "_$$_t.%s( (%s)this.templates[%d].read($1, _$$_t.%s()) );",
                         e.getSetterName(), e.getJavaTypeName(), i, e.getGetterName());
             }
 
             if (e.isOptional()) {
-	        buildString("}");
+                buildString("}");
             }
         }
 
-	buildString("$1.readArrayEnd();");
-	buildString("return _$$_t;");
+        buildString("$1.readArrayEnd();");
+        buildString("return _$$_t;");
 
-	buildString("}");
+        buildString("}");
 
-	return getBuiltString();
+        return getBuiltString();
     }
 
     @Override
-    public void writeTemplate(Class<?> targetClass, BeansFieldEntry[] entries, Template[] templates, String directoryName) {
-	throw new UnsupportedOperationException(targetClass.getName());
+    public void writeTemplate(Class<?> targetClass, BeansFieldEntry[] entries,
+            Template[] templates, String directoryName) {
+        throw new UnsupportedOperationException(targetClass.getName());
     }
 
     @Override
-    public Template loadTemplate(Class<?> targetClass, BeansFieldEntry[] entries, Template[] templates) {
-	return null;
+    public Template loadTemplate(Class<?> targetClass,
+            BeansFieldEntry[] entries, Template[] templates) {
+        return null;
     }
 }

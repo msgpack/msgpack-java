@@ -22,7 +22,6 @@ import java.math.BigDecimal;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
 
-
 @SuppressWarnings("serial")
 class DoubleValueImpl extends FloatValue {
     private double value;
@@ -33,7 +32,7 @@ class DoubleValueImpl extends FloatValue {
 
     @Override
     public float getFloat() {
-        return (float)value;
+        return (float) value;
     }
 
     @Override
@@ -43,22 +42,22 @@ class DoubleValueImpl extends FloatValue {
 
     @Override
     public byte byteValue() {
-        return (byte)value;
+        return (byte) value;
     }
 
     @Override
     public short shortValue() {
-        return (short)value;
+        return (short) value;
     }
 
     @Override
     public int intValue() {
-        return (int)value;
+        return (int) value;
     }
 
     @Override
     public long longValue() {
-        return (long)value;
+        return (long) value;
     }
 
     @Override
@@ -68,7 +67,7 @@ class DoubleValueImpl extends FloatValue {
 
     @Override
     public float floatValue() {
-        return (float)value;
+        return (float) value;
     }
 
     @Override
@@ -83,14 +82,14 @@ class DoubleValueImpl extends FloatValue {
 
     @Override
     public boolean equals(Object o) {
-        if(o == this) {
+        if (o == this) {
             return true;
         }
-        if(!(o instanceof Value)) {
+        if (!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isFloatValue()) {
+        if (!v.isFloatValue()) {
             return false;
         }
 
@@ -102,7 +101,7 @@ class DoubleValueImpl extends FloatValue {
     @Override
     public int hashCode() {
         long v = Double.doubleToLongBits(value);
-        return (int)(v^(v>>>32));
+        return (int) (v ^ (v >>> 32));
     }
 
     @Override
@@ -115,4 +114,3 @@ class DoubleValueImpl extends FloatValue {
         return sb.append(Double.toString(value));
     }
 }
-

@@ -19,7 +19,6 @@ package org.msgpack.unpacker;
 
 import org.msgpack.MessageTypeException;
 
-
 public final class UnpackerStack {
     private int top;
     private byte[] types;
@@ -47,21 +46,23 @@ public final class UnpackerStack {
     public void pushMap(int size) {
         top++;
         types[top] = TYPE_MAP;
-        counts[top] = size*2;
+        counts[top] = size * 2;
     }
 
     /**
      * throws MessageTypeException if stack is invalid
      */
     public void checkCount() {
-        if(counts[top] > 0) {
+        if (counts[top] > 0) {
             return;
         }
 
-        if(types[top] == TYPE_ARRAY) {
-            throw new MessageTypeException("Array is end but readArrayEnd() is not called");
-        } else if(types[top] == TYPE_MAP) {
-            throw new MessageTypeException("Map is end but readMapEnd() is not called");
+        if (types[top] == TYPE_ARRAY) {
+            throw new MessageTypeException(
+                    "Array is end but readArrayEnd() is not called");
+        } else if (types[top] == TYPE_MAP) {
+            throw new MessageTypeException(
+                    "Map is end but readMapEnd() is not called");
         } else { // empty
             return;
         }
@@ -95,4 +96,3 @@ public final class UnpackerStack {
         top = 0;
     }
 }
-

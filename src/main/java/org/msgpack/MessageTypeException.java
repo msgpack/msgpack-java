@@ -17,7 +17,6 @@
 //
 package org.msgpack;
 
-
 @SuppressWarnings("serial")
 public class MessageTypeException extends RuntimeException {
     public MessageTypeException() {
@@ -36,4 +35,3 @@ public class MessageTypeException extends RuntimeException {
         super(cause);
     }
 }
-

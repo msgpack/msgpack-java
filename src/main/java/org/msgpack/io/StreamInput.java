@@ -22,7 +22,6 @@ import java.nio.ByteBuffer;
 import java.io.IOException;
 import java.io.EOFException;
 
-
 public class StreamInput extends AbstractInput {
     private final InputStream in;
 
@@ -57,11 +56,11 @@ public class StreamInput extends AbstractInput {
 
     public byte readByte() throws IOException {
         int n = in.read();
-        if(n < 0) {
+        if (n < 0) {
             throw new EOFException();
         }
         incrReadOneByteCount();
-        return (byte)n;
+        return (byte) n;
     }
 
     public void advance() {
@@ -113,4 +112,3 @@ public class StreamInput extends AbstractInput {
         in.close();
     }
 }
-

@@ -19,7 +19,6 @@ package org.msgpack.type;
 
 import org.msgpack.MessageTypeException;
 
-
 abstract class AbstractValue implements Value {
     public boolean isNilValue() {
         return false;
@@ -77,4 +76,3 @@ abstract class AbstractValue implements Value {
         throw new MessageTypeException();
     }
 }
-

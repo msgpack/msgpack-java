@@ -22,7 +22,6 @@ import java.io.IOException;
 import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
 
-
 @SuppressWarnings("serial")
 class BigIntegerValueImpl extends IntegerValue {
     private BigInteger value;
@@ -31,44 +30,43 @@ class BigIntegerValueImpl extends IntegerValue {
         this.value = value;
     }
 
-    private static BigInteger BYTE_MAX = BigInteger.valueOf((long)Byte.MAX_VALUE);
-    private static BigInteger SHORT_MAX = BigInteger.valueOf((long)Short.MAX_VALUE);
-    private static BigInteger INT_MAX = BigInteger.valueOf((long)Integer.MAX_VALUE);
-    private static BigInteger LONG_MAX = BigInteger.valueOf((long)Long.MAX_VALUE);
-
-    private static BigInteger BYTE_MIN = BigInteger.valueOf((long)Byte.MIN_VALUE);
-    private static BigInteger SHORT_MIN = BigInteger.valueOf((long)Short.MIN_VALUE);
-    private static BigInteger INT_MIN = BigInteger.valueOf((long)Integer.MIN_VALUE);
-    private static BigInteger LONG_MIN = BigInteger.valueOf((long)Long.MIN_VALUE);
+    private static BigInteger BYTE_MAX = BigInteger.valueOf((long) Byte.MAX_VALUE);
+    private static BigInteger SHORT_MAX = BigInteger.valueOf((long) Short.MAX_VALUE);
+    private static BigInteger INT_MAX = BigInteger.valueOf((long) Integer.MAX_VALUE);
+    private static BigInteger LONG_MAX = BigInteger.valueOf((long) Long.MAX_VALUE);
+    private static BigInteger BYTE_MIN = BigInteger.valueOf((long) Byte.MIN_VALUE);
+    private static BigInteger SHORT_MIN = BigInteger.valueOf((long) Short.MIN_VALUE);
+    private static BigInteger INT_MIN = BigInteger.valueOf((long) Integer.MIN_VALUE);
+    private static BigInteger LONG_MIN = BigInteger.valueOf((long) Long.MIN_VALUE);
 
     @Override
     public byte getByte() {
-        if(value.compareTo(BYTE_MAX) > 0 || value.compareTo(BYTE_MIN) < 0) {
-            throw new MessageTypeException();  // TODO message
+        if (value.compareTo(BYTE_MAX) > 0 || value.compareTo(BYTE_MIN) < 0) {
+            throw new MessageTypeException(); // TODO message
         }
         return value.byteValue();
     }
 
     @Override
     public short getShort() {
-        if(value.compareTo(SHORT_MAX) > 0 || value.compareTo(SHORT_MIN) < 0) {
-            throw new MessageTypeException();  // TODO message
+        if (value.compareTo(SHORT_MAX) > 0 || value.compareTo(SHORT_MIN) < 0) {
+            throw new MessageTypeException(); // TODO message
         }
         return value.shortValue();
     }
 
     @Override
     public int getInt() {
-        if(value.compareTo(INT_MAX) > 0 || value.compareTo(INT_MIN) < 0) {
-            throw new MessageTypeException();  // TODO message
+        if (value.compareTo(INT_MAX) > 0 || value.compareTo(INT_MIN) < 0) {
+            throw new MessageTypeException(); // TODO message
         }
         return value.intValue();
     }
 
     @Override
     public long getLong() {
-        if(value.compareTo(LONG_MAX) > 0 || value.compareTo(LONG_MIN) < 0) {
-            throw new MessageTypeException();  // TODO message
+        if (value.compareTo(LONG_MAX) > 0 || value.compareTo(LONG_MIN) < 0) {
+            throw new MessageTypeException(); // TODO message
         }
         return value.longValue();
     }
@@ -122,14 +120,14 @@ class BigIntegerValueImpl extends IntegerValue {
 
     @Override
     public boolean equals(Object o) {
-        if(o == this) {
+        if (o == this) {
             return true;
         }
-        if(!(o instanceof Value)) {
+        if (!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isIntegerValue()) {
+        if (!v.isIntegerValue()) {
             return false;
         }
 
@@ -138,11 +136,12 @@ class BigIntegerValueImpl extends IntegerValue {
 
     @Override
     public int hashCode() {
-        if(INT_MIN.compareTo(value) <= 0 && value.compareTo(INT_MAX) <= 0) {
-            return (int)value.longValue();
-        } else if(LONG_MIN.compareTo(value) <= 0 && value.compareTo(LONG_MAX) <= 0) {
+        if (INT_MIN.compareTo(value) <= 0 && value.compareTo(INT_MAX) <= 0) {
+            return (int) value.longValue();
+        } else if (LONG_MIN.compareTo(value) <= 0
+                && value.compareTo(LONG_MAX) <= 0) {
             long v = value.longValue();
-            return (int)(v^(v>>>32));
+            return (int) (v ^ (v >>> 32));
         }
         return value.hashCode();
     }
@@ -157,4 +156,3 @@ class BigIntegerValueImpl extends IntegerValue {
         return sb.append(value.toString());
     }
 }
-

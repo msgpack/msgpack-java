@@ -20,7 +20,6 @@ package org.msgpack.io;
 import java.io.IOException;
 import java.io.Closeable;
 
-
 public interface Input extends Closeable {
     public int read(byte[] b, int off, int len) throws IOException;
 
@@ -46,4 +45,3 @@ public interface Input extends Closeable {
 
     public void resetReadByteCount();
 }
-

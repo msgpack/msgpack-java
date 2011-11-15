@@ -28,7 +28,7 @@ import org.msgpack.type.Value;
 
 /**
  * Standard deserializer.
- *
+ * 
  * @version 0.6.0
  */
 public interface Unpacker extends Iterable<Value>, Closeable {
@@ -39,7 +39,6 @@ public interface Unpacker extends Iterable<Value>, Closeable {
     public <T> T read(Template<T> tmpl) throws IOException;
 
     public <T> T read(T to, Template<T> tmpl) throws IOException;
-
 
     public void skip() throws IOException;
 
@@ -58,7 +57,6 @@ public interface Unpacker extends Iterable<Value>, Closeable {
     public void readNil() throws IOException;
 
     public boolean trySkipNil() throws IOException;
-
 
     public boolean readBoolean() throws IOException;
 
@@ -84,13 +82,11 @@ public interface Unpacker extends Iterable<Value>, Closeable {
 
     public Value readValue() throws IOException;
 
-
     public UnpackerIterator iterator();
 
     public int getReadByteCount();
 
     public void resetReadByteCount();
-
 
     public void setRawSizeLimit(int size);
 
@@ -98,4 +94,3 @@ public interface Unpacker extends Iterable<Value>, Closeable {
 
     public void setMapSizeLimit(int size);
 }
-

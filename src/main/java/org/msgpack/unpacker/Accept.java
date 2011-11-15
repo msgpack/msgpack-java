@@ -22,7 +22,6 @@ import java.nio.ByteBuffer;
 import org.msgpack.io.BufferReferer;
 import org.msgpack.MessageTypeException;
 
-
 abstract class Accept implements BufferReferer {
     void acceptBoolean(boolean v) throws IOException {
         throw new MessageTypeException("Unexpected boolean value");
@@ -60,9 +59,9 @@ abstract class Accept implements BufferReferer {
         throw new MessageTypeException("Unexpected integer value");
     }
 
-    //void checkRawAcceptable() throws IOException {
-    //    throw new MessageTypeException("Unexpected raw value");
-    //}
+    // void checkRawAcceptable() throws IOException {
+    // throw new MessageTypeException("Unexpected raw value");
+    // }
 
     void acceptRaw(byte[] raw) throws IOException {
         throw new MessageTypeException("Unexpected raw value");
@@ -72,17 +71,17 @@ abstract class Accept implements BufferReferer {
         throw new MessageTypeException("Unexpected raw value");
     }
 
-    //void checkArrayAcceptable(int size) throws IOException {
-    //    throw new MessageTypeException("Unexpected array value");
-    //}
+    // void checkArrayAcceptable(int size) throws IOException {
+    // throw new MessageTypeException("Unexpected array value");
+    // }
 
     void acceptArray(int size) throws IOException {
         throw new MessageTypeException("Unexpected array value");
     }
 
-    //void checkMapAcceptable(int size) throws IOException {
-    //    throw new MessageTypeException("Unexpected map value");
-    //}
+    // void checkMapAcceptable(int size) throws IOException {
+    // throw new MessageTypeException("Unexpected map value");
+    // }
 
     void acceptMap(int size) throws IOException {
         throw new MessageTypeException("Unexpected map value");
@@ -104,4 +103,3 @@ abstract class Accept implements BufferReferer {
         throw new MessageTypeException("Unexpected raw value");
     }
 }
-

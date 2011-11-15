@@ -22,11 +22,12 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-
 public class IntegerTemplate extends AbstractTemplate<Integer> {
-    private IntegerTemplate() { }
+    private IntegerTemplate() {
+    }
 
-    public void write(Packer pk, Integer target, boolean required) throws IOException {
+    public void write(Packer pk, Integer target, boolean required)
+            throws IOException {
         if (target == null) {
             if (required) {
                 throw new MessageTypeException("Attempted to write null");
@@ -34,10 +35,11 @@ public class IntegerTemplate extends AbstractTemplate<Integer> {
             pk.writeNil();
             return;
         }
-        pk.write((int)target);
+        pk.write((int) target);
     }
 
-    public Integer read(Unpacker u, Integer to, boolean required) throws IOException {
+    public Integer read(Unpacker u, Integer to, boolean required)
+            throws IOException {
         if (!required && u.trySkipNil()) {
             return null;
         }
@@ -50,4 +52,3 @@ public class IntegerTemplate extends AbstractTemplate<Integer> {
 
     static final IntegerTemplate instance = new IntegerTemplate();
 }
-

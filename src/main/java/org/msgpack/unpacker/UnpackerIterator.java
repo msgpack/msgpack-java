@@ -24,9 +24,8 @@ import java.util.NoSuchElementException;
 import org.msgpack.type.Value;
 import org.msgpack.packer.Unconverter;
 
-
 public class UnpackerIterator implements Iterator<Value> {
-    private final AbstractUnpacker u;  // FIXME -> Unpacker
+    private final AbstractUnpacker u; // FIXME -> Unpacker
     private final Unconverter uc;
     private IOException exception;
 
@@ -36,7 +35,7 @@ public class UnpackerIterator implements Iterator<Value> {
     }
 
     public boolean hasNext() {
-        if(uc.getResult() != null) {
+        if (uc.getResult() != null) {
             return true;
         }
         try {
@@ -52,7 +51,7 @@ public class UnpackerIterator implements Iterator<Value> {
     }
 
     public Value next() {
-        if(!hasNext()) {
+        if (!hasNext()) {
             throw new NoSuchElementException();
         }
         Value v = uc.getResult();
@@ -68,4 +67,3 @@ public class UnpackerIterator implements Iterator<Value> {
         return exception;
     }
 }
-

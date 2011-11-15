@@ -19,23 +19,22 @@ package org.msgpack.unpacker;
 
 import org.msgpack.MessageTypeException;
 
-
 final class LongAccept extends Accept {
     long value;
 
     @Override
     void acceptInteger(byte v) {
-        this.value = (long)v;
+        this.value = (long) v;
     }
 
     @Override
     void acceptInteger(short v) {
-        this.value = (long)v;
+        this.value = (long) v;
     }
 
     @Override
     void acceptInteger(int v) {
-        this.value = (long)v;
+        this.value = (long) v;
     }
 
     @Override
@@ -45,29 +44,28 @@ final class LongAccept extends Accept {
 
     @Override
     void acceptUnsignedInteger(byte v) {
-        this.value = (long)(v & 0xff);
+        this.value = (long) (v & 0xff);
     }
 
     @Override
     void acceptUnsignedInteger(short v) {
-        this.value = (long)(v & 0xffff);
+        this.value = (long) (v & 0xffff);
     }
 
     @Override
     void acceptUnsignedInteger(int v) {
-        if(v < 0) {
-            this.value = (long)(v & 0x7fffffff) + 0x80000000L;
+        if (v < 0) {
+            this.value = (long) (v & 0x7fffffff) + 0x80000000L;
         } else {
-            this.value = (long)v;
+            this.value = (long) v;
         }
     }
 
     @Override
     void acceptUnsignedInteger(long v) {
-        if(v < 0L) {
-            throw new MessageTypeException();  // TODO message
+        if (v < 0L) {
+            throw new MessageTypeException(); // TODO message
         }
         this.value = v;
     }
 }
-

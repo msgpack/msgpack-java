@@ -22,7 +22,6 @@ import java.io.Closeable;
 import java.io.Flushable;
 import java.nio.ByteBuffer;
 
-
 public interface Output extends Closeable, Flushable {
     public void write(byte[] b, int off, int len) throws IOException;
 
@@ -52,4 +51,3 @@ public interface Output extends Closeable, Flushable {
 
     public void writeByteAndDouble(byte b, double v) throws IOException;
 }
-

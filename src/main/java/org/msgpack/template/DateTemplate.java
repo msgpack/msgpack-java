@@ -24,11 +24,12 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-
 public class DateTemplate extends AbstractTemplate<Date> {
-    private DateTemplate() { }
+    private DateTemplate() {
+    }
 
-    public void write(Packer pk, Date target, boolean required) throws IOException {
+    public void write(Packer pk, Date target, boolean required)
+            throws IOException {
         if (target == null) {
             if (required) {
                 throw new MessageTypeException("Attempted to write null");
@@ -36,7 +37,7 @@ public class DateTemplate extends AbstractTemplate<Date> {
             pk.writeNil();
             return;
         }
-        pk.write((long)target.getTime());
+        pk.write((long) target.getTime());
     }
 
     public Date read(Unpacker u, Date to, boolean required) throws IOException {
@@ -53,4 +54,3 @@ public class DateTemplate extends AbstractTemplate<Date> {
 
     static final DateTemplate instance = new DateTemplate();
 }
-

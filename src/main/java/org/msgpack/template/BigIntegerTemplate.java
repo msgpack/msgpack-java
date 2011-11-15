@@ -23,11 +23,12 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-
 public class BigIntegerTemplate extends AbstractTemplate<BigInteger> {
-    private BigIntegerTemplate() { }
+    private BigIntegerTemplate() {
+    }
 
-    public void write(Packer pk, BigInteger target, boolean required) throws IOException {
+    public void write(Packer pk, BigInteger target, boolean required)
+            throws IOException {
         if (target == null) {
             if (required) {
                 throw new MessageTypeException("Attempted to write null");
@@ -35,10 +36,11 @@ public class BigIntegerTemplate extends AbstractTemplate<BigInteger> {
             pk.writeNil();
             return;
         }
-        pk.write((BigInteger)target);
+        pk.write((BigInteger) target);
     }
 
-    public BigInteger read(Unpacker u, BigInteger to, boolean required) throws IOException {
+    public BigInteger read(Unpacker u, BigInteger to, boolean required)
+            throws IOException {
         if (!required && u.trySkipNil()) {
             return null;
         }
@@ -51,4 +53,3 @@ public class BigIntegerTemplate extends AbstractTemplate<BigInteger> {
 
     static final BigIntegerTemplate instance = new BigIntegerTemplate();
 }
-

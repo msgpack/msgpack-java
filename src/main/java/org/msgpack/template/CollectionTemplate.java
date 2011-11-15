@@ -24,7 +24,6 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-
 public class CollectionTemplate<E> extends AbstractTemplate<Collection<E>> {
     private Template<E> elementTemplate;
 
@@ -32,7 +31,8 @@ public class CollectionTemplate<E> extends AbstractTemplate<Collection<E>> {
         this.elementTemplate = elementTemplate;
     }
 
-    public void write(Packer pk, Collection<E> target, boolean required) throws IOException {
+    public void write(Packer pk, Collection<E> target, boolean required)
+            throws IOException {
         if (target == null) {
             if (required) {
                 throw new MessageTypeException("Attempted to write null");
@@ -48,7 +48,8 @@ public class CollectionTemplate<E> extends AbstractTemplate<Collection<E>> {
         pk.writeArrayEnd();
     }
 
-    public Collection<E> read(Unpacker u, Collection<E> to, boolean required) throws IOException {
+    public Collection<E> read(Unpacker u, Collection<E> to, boolean required)
+            throws IOException {
         if (!required && u.trySkipNil()) {
             return null;
         }
@@ -58,7 +59,7 @@ public class CollectionTemplate<E> extends AbstractTemplate<Collection<E>> {
         } else {
             to.clear();
         }
-        for (int i= 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             E e = elementTemplate.read(u, null);
             to.add(e);
         }
@@ -66,4 +67,3 @@ public class CollectionTemplate<E> extends AbstractTemplate<Collection<E>> {
         return to;
     }
 }
-

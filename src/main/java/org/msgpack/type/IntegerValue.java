@@ -19,7 +19,6 @@ package org.msgpack.type;
 
 import java.math.BigInteger;
 
-
 @SuppressWarnings("serial")
 public abstract class IntegerValue extends NumberValue {
     @Override
@@ -52,4 +51,3 @@ public abstract class IntegerValue extends NumberValue {
     // TODO equals
     // TODO hashCode
 }
-

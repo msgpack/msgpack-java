@@ -21,9 +21,9 @@ import org.msgpack.MessagePack;
 import org.msgpack.io.LinkedBufferOutput;
 import org.msgpack.packer.BufferPacker;
 
-
 public class JSONBufferPacker extends JSONPacker implements BufferPacker {
-    private static final int DEFAULT_BUFFER_SIZE = 512; // TODO default buffer size
+    private static final int DEFAULT_BUFFER_SIZE = 512; // TODO default buffer
+                                                        // size
 
     public JSONBufferPacker() {
         this(DEFAULT_BUFFER_SIZE);
@@ -34,11 +34,11 @@ public class JSONBufferPacker extends JSONPacker implements BufferPacker {
     }
 
     public JSONBufferPacker(MessagePack msgpack) {
-	this(msgpack, DEFAULT_BUFFER_SIZE);
+        this(msgpack, DEFAULT_BUFFER_SIZE);
     }
 
     public JSONBufferPacker(MessagePack msgpack, int bufferSize) {
-	super(msgpack, new LinkedBufferOutput(bufferSize));
+        super(msgpack, new LinkedBufferOutput(bufferSize));
     }
 
     @Override
@@ -52,4 +52,3 @@ public class JSONBufferPacker extends JSONPacker implements BufferPacker {
         ((LinkedBufferOutput) out).clear();
     }
 }
-

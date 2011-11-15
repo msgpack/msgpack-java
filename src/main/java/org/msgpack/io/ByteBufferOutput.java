@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.BufferOverflowException;
 
-
 public class ByteBufferOutput implements Output {
     public static interface ExpandBufferCallback {
         ByteBuffer call(ByteBuffer buffer, int len) throws IOException;
@@ -40,10 +39,10 @@ public class ByteBufferOutput implements Output {
     }
 
     private void reserve(int len) throws IOException {
-        if(len <= buffer.remaining()) {
+        if (len <= buffer.remaining()) {
             return;
         }
-        if(callback == null) {
+        if (callback == null) {
             throw new BufferOverflowException();
         }
         buffer = callback.call(buffer, len);
@@ -147,4 +146,3 @@ public class ByteBufferOutput implements Output {
     public void close() {
     }
 }
-

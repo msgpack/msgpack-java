@@ -26,19 +26,19 @@ import org.msgpack.MessageTypeException;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
 
-
 public class Unconverter extends AbstractPacker {
     private PackerStack stack;
     private Object[] values;
     private Value result;
-    //private Value topContainer;
+
+    // private Value topContainer;
 
     public Unconverter() {
-	this(new MessagePack());
+        this(new MessagePack());
     }
 
     public Unconverter(MessagePack msgpack) {
-	super(msgpack);
+        super(msgpack);
         this.stack = new PackerStack();
         this.values = new Object[PackerStack.MAX_STACK_SIZE];
     }
@@ -114,8 +114,8 @@ public class Unconverter extends AbstractPacker {
 
     @Override
     public Packer writeArrayBegin(int size) throws IOException {
-        if(size == 0) {
-            //Value[] array = new Value[size];
+        if (size == 0) {
+            // Value[] array = new Value[size];
             putContainer(ValueFactory.createArrayValue());
             stack.pushArray(0);
             values[stack.getDepth()] = null;
@@ -130,21 +130,23 @@ public class Unconverter extends AbstractPacker {
 
     @Override
     public Packer writeArrayEnd(boolean check) throws IOException {
-        if(!stack.topIsArray()) {
-            throw new MessageTypeException("writeArrayEnd() is called but writeArrayBegin() is not called");
+        if (!stack.topIsArray()) {
+            throw new MessageTypeException(
+                    "writeArrayEnd() is called but writeArrayBegin() is not called");
         }
 
         int remain = stack.getTopCount();
-        if(remain > 0) {
-            if(check) {
-                throw new MessageTypeException("writeArrayEnd(check=true) is called but the array is not end");
+        if (remain > 0) {
+            if (check) {
+                throw new MessageTypeException(
+                        "writeArrayEnd(check=true) is called but the array is not end");
             }
-            for(int i=0; i < remain; i++) {
+            for (int i = 0; i < remain; i++) {
                 writeNil();
             }
         }
         stack.pop();
-        if(stack.getDepth() <= 0) {
+        if (stack.getDepth() <= 0) {
             this.result = (Value) values[0];
         }
         return this;
@@ -153,12 +155,12 @@ public class Unconverter extends AbstractPacker {
     @Override
     public Packer writeMapBegin(int size) throws IOException {
         stack.checkCount();
-        if(size == 0) {
+        if (size == 0) {
             putContainer(ValueFactory.createMapValue());
             stack.pushMap(0);
             values[stack.getDepth()] = null;
         } else {
-            Value[] array = new Value[size*2];
+            Value[] array = new Value[size * 2];
             putContainer(ValueFactory.createMapValue(array, true));
             stack.pushMap(size);
             values[stack.getDepth()] = array;
@@ -168,21 +170,23 @@ public class Unconverter extends AbstractPacker {
 
     @Override
     public Packer writeMapEnd(boolean check) throws IOException {
-        if(!stack.topIsMap()) {
-            throw new MessageTypeException("writeMapEnd() is called but writeMapBegin() is not called");
+        if (!stack.topIsMap()) {
+            throw new MessageTypeException(
+                    "writeMapEnd() is called but writeMapBegin() is not called");
         }
 
         int remain = stack.getTopCount();
-        if(remain > 0) {
-            if(check) {
-                throw new MessageTypeException("writeMapEnd(check=true) is called but the map is not end");
+        if (remain > 0) {
+            if (check) {
+                throw new MessageTypeException(
+                        "writeMapEnd(check=true) is called but the map is not end");
             }
-            for(int i=0; i < remain; i++) {
+            for (int i = 0; i < remain; i++) {
                 writeNil();
             }
         }
         stack.pop();
-        if(stack.getDepth() <= 0) {
+        if (stack.getDepth() <= 0) {
             this.result = (Value) values[0];
         }
         return this;
@@ -195,22 +199,22 @@ public class Unconverter extends AbstractPacker {
     }
 
     private void put(Value v) {
-        if(stack.getDepth() <= 0) {
+        if (stack.getDepth() <= 0) {
             this.result = v;
         } else {
             stack.checkCount();
-            Value[] array = (Value[])values[stack.getDepth()];
+            Value[] array = (Value[]) values[stack.getDepth()];
             array[array.length - stack.getTopCount()] = v;
             stack.reduceCount();
         }
     }
 
     private void putContainer(Value v) {
-        if(stack.getDepth() <= 0) {
+        if (stack.getDepth() <= 0) {
             values[0] = (Object) v;
         } else {
             stack.checkCount();
-            Value[] array = (Value[])values[stack.getDepth()];
+            Value[] array = (Value[]) values[stack.getDepth()];
             array[array.length - stack.getTopCount()] = v;
             stack.reduceCount();
         }
@@ -224,4 +228,3 @@ public class Unconverter extends AbstractPacker {
     public void close() throws IOException {
     }
 }
-

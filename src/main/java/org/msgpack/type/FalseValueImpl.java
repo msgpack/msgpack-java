@@ -20,9 +20,9 @@ package org.msgpack.type;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
 
-
 class FalseValueImpl extends AbstractBooleanValue {
-    private FalseValueImpl() { }
+    private FalseValueImpl() {
+    }
 
     private static FalseValueImpl instance = new FalseValueImpl();
 
@@ -42,14 +42,14 @@ class FalseValueImpl extends AbstractBooleanValue {
 
     @Override
     public boolean equals(Object o) {
-        if(o == this) {
+        if (o == this) {
             return true;
         }
-        if(!(o instanceof Value)) {
+        if (!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isBooleanValue()) {
+        if (!v.isBooleanValue()) {
             return false;
         }
 
@@ -71,4 +71,3 @@ class FalseValueImpl extends AbstractBooleanValue {
         return sb.append("false");
     }
 }
-

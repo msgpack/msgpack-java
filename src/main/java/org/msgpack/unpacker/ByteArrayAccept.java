@@ -20,7 +20,6 @@ package org.msgpack.unpacker;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-
 final class ByteArrayAccept extends Accept {
     byte[] value;
 
@@ -41,4 +40,3 @@ final class ByteArrayAccept extends Accept {
         bb.get(value);
     }
 }
-

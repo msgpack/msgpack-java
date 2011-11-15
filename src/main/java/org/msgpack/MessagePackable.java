@@ -21,9 +21,8 @@ import java.io.IOException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 
-
 public interface MessagePackable {
     public void writeTo(Packer pk) throws IOException;
+
     public void readFrom(Unpacker u) throws IOException;
 }
-

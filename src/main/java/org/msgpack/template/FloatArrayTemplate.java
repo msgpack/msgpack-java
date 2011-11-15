@@ -22,11 +22,12 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-
 public class FloatArrayTemplate extends AbstractTemplate<float[]> {
-    private FloatArrayTemplate() { }
+    private FloatArrayTemplate() {
+    }
 
-    public void write(Packer pk, float[] target, boolean required) throws IOException {
+    public void write(Packer pk, float[] target, boolean required)
+            throws IOException {
         if (target == null) {
             if (required) {
                 throw new MessageTypeException("Attempted to write null");
@@ -41,8 +42,9 @@ public class FloatArrayTemplate extends AbstractTemplate<float[]> {
         pk.writeArrayEnd();
     }
 
-    public float[] read(Unpacker u, float[] to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+    public float[] read(Unpacker u, float[] to, boolean required)
+            throws IOException {
+        if (!required && u.trySkipNil()) {
             return null;
         }
         int n = u.readArrayBegin();
@@ -62,4 +64,3 @@ public class FloatArrayTemplate extends AbstractTemplate<float[]> {
 
     static final FloatArrayTemplate instance = new FloatArrayTemplate();
 }
-

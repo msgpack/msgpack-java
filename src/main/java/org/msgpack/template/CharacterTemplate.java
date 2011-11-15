@@ -24,15 +24,17 @@ import org.msgpack.unpacker.Unpacker;
 
 /**
  * CharacterTemplate<br/>
- *
- * @author  watabiki
+ * 
+ * @author watabiki
  */
 public class CharacterTemplate extends AbstractTemplate<Character> {
 
-    private CharacterTemplate() { }
+    private CharacterTemplate() {
+    }
 
     @Override
-    public void write(Packer pk, Character target, boolean required) throws IOException {
+    public void write(Packer pk, Character target, boolean required)
+            throws IOException {
         if (target == null) {
             if (required) {
                 throw new MessageTypeException("Attempted to write null");
@@ -40,11 +42,12 @@ public class CharacterTemplate extends AbstractTemplate<Character> {
             pk.writeNil();
             return;
         }
-        pk.write((int)(char)target);
+        pk.write((int) (char) target);
     }
 
     @Override
-    public Character read(Unpacker u, Character to, boolean required) throws IOException {
+    public Character read(Unpacker u, Character to, boolean required)
+            throws IOException {
         if (!required && u.trySkipNil()) {
             return null;
         }

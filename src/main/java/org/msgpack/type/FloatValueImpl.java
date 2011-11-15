@@ -22,7 +22,6 @@ import java.math.BigDecimal;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
 
-
 @SuppressWarnings("serial")
 class FloatValueImpl extends FloatValue {
     private float value;
@@ -38,32 +37,32 @@ class FloatValueImpl extends FloatValue {
 
     @Override
     public double getDouble() {
-        return (double)value;
+        return (double) value;
     }
 
     @Override
     public byte byteValue() {
-        return (byte)value;
+        return (byte) value;
     }
 
     @Override
     public short shortValue() {
-        return (short)value;
+        return (short) value;
     }
 
     @Override
     public int intValue() {
-        return (int)value;
+        return (int) value;
     }
 
     @Override
     public long longValue() {
-        return (long)value;
+        return (long) value;
     }
 
     @Override
     public BigInteger bigIntegerValue() {
-        return new BigDecimal((double)value).toBigInteger();
+        return new BigDecimal((double) value).toBigInteger();
     }
 
     @Override
@@ -73,23 +72,23 @@ class FloatValueImpl extends FloatValue {
 
     @Override
     public double doubleValue() {
-        return (double)value;
+        return (double) value;
     }
 
     @Override
     public boolean equals(Object o) {
-        if(o == this) {
+        if (o == this) {
             return true;
         }
-        if(!(o instanceof Value)) {
+        if (!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isFloatValue()) {
+        if (!v.isFloatValue()) {
             return false;
         }
 
-        return (double)value == v.asFloatValue().getDouble();
+        return (double) value == v.asFloatValue().getDouble();
     }
 
     @Override
@@ -114,4 +113,3 @@ class FloatValueImpl extends FloatValue {
         return sb.append(Float.toString(value));
     }
 }
-

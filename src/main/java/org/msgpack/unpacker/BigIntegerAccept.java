@@ -19,23 +19,22 @@ package org.msgpack.unpacker;
 
 import java.math.BigInteger;
 
-
 final class BigIntegerAccept extends Accept {
     BigInteger value;
 
     @Override
     void acceptInteger(byte v) {
-        this.value = BigInteger.valueOf((long)v);
+        this.value = BigInteger.valueOf((long) v);
     }
 
     @Override
     void acceptInteger(short v) {
-        this.value = BigInteger.valueOf((long)v);
+        this.value = BigInteger.valueOf((long) v);
     }
 
     @Override
     void acceptInteger(int v) {
-        this.value = BigInteger.valueOf((long)v);
+        this.value = BigInteger.valueOf((long) v);
     }
 
     @Override
@@ -45,30 +44,29 @@ final class BigIntegerAccept extends Accept {
 
     @Override
     void acceptUnsignedInteger(byte v) {
-        BigInteger.valueOf((long)(v & 0xff));
+        BigInteger.valueOf((long) (v & 0xff));
     }
 
     @Override
     void acceptUnsignedInteger(short v) {
-        BigInteger.valueOf((long)(v & 0xffff));
+        BigInteger.valueOf((long) (v & 0xffff));
     }
 
     @Override
     void acceptUnsignedInteger(int v) {
-        if(v < 0) {
-            this.value = BigInteger.valueOf((long)(v & 0x7fffffff) + 0x80000000L);
+        if (v < 0) {
+            this.value = BigInteger.valueOf((long) (v & 0x7fffffff) + 0x80000000L);
         } else {
-            this.value = BigInteger.valueOf((long)v);
+            this.value = BigInteger.valueOf((long) v);
         }
     }
 
     @Override
     void acceptUnsignedInteger(long v) {
-        if(v < 0L) {
-            this.value = BigInteger.valueOf(v+Long.MAX_VALUE+1L).setBit(63);
+        if (v < 0L) {
+            this.value = BigInteger.valueOf(v + Long.MAX_VALUE + 1L).setBit(63);
         } else {
             this.value = BigInteger.valueOf(v);
         }
     }
 }
-

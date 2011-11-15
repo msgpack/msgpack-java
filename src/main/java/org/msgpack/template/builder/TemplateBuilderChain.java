@@ -23,15 +23,14 @@ import java.util.List;
 
 import org.msgpack.template.TemplateRegistry;
 
-
 public class TemplateBuilderChain {
 
-    private static boolean enableDynamicCodeGeneration(){
-	try {
-	    return !System.getProperty("java.vm.name").equals("Dalvik");
-	} catch (Exception e) {
-	    return true;
-	}
+    private static boolean enableDynamicCodeGeneration() {
+        try {
+            return !System.getProperty("java.vm.name").equals("Dalvik");
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     protected List<TemplateBuilder> templateBuilders;
@@ -39,52 +38,53 @@ public class TemplateBuilderChain {
     protected TemplateBuilder forceBuilder;
 
     public TemplateBuilderChain(final TemplateRegistry registry) {
-	this(registry, null);
+        this(registry, null);
     }
 
     public TemplateBuilderChain(final TemplateRegistry registry, final ClassLoader cl) {
-	templateBuilders = new ArrayList<TemplateBuilder>();
-	reset(registry, cl);
+        templateBuilders = new ArrayList<TemplateBuilder>();
+        reset(registry, cl);
     }
 
     protected void reset(final TemplateRegistry registry, final ClassLoader cl) {
-	if (registry == null) {
-	    throw new NullPointerException("registry is null");
-	}
+        if (registry == null) {
+            throw new NullPointerException("registry is null");
+        }
 
-	// forceBuilder
-	forceBuilder = new JavassistTemplateBuilder(registry);
-	if (cl != null) {
-	    ((JavassistTemplateBuilder) forceBuilder).addClassLoader(cl);
-	}
+        // forceBuilder
+        forceBuilder = new JavassistTemplateBuilder(registry);
+        if (cl != null) {
+            ((JavassistTemplateBuilder) forceBuilder).addClassLoader(cl);
+        }
 
-	// builder
-	TemplateBuilder builder;
-	templateBuilders.add(new ArrayTemplateBuilder(registry));
-	templateBuilders.add(new OrdinalEnumTemplateBuilder(registry));
-	if (enableDynamicCodeGeneration()) { // use dynamic code generation
-	    builder = forceBuilder;
-	    templateBuilders.add(builder);
-	    // FIXME #MN next version
-	    //templateBuilders.add(new JavassistBeansTemplateBuilder(registry));
-	    templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
-	} else { // use reflection
-	    builder = new ReflectionTemplateBuilder(registry);
-	    templateBuilders.add(builder);
-	    templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
-	}
+        // builder
+        TemplateBuilder builder;
+        templateBuilders.add(new ArrayTemplateBuilder(registry));
+        templateBuilders.add(new OrdinalEnumTemplateBuilder(registry));
+        if (enableDynamicCodeGeneration()) { // use dynamic code generation
+            builder = forceBuilder;
+            templateBuilders.add(builder);
+            // FIXME #MN next version
+            // templateBuilders.add(new
+            // JavassistBeansTemplateBuilder(registry));
+            templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
+        } else { // use reflection
+            builder = new ReflectionTemplateBuilder(registry);
+            templateBuilders.add(builder);
+            templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
+        }
     }
 
     public TemplateBuilder getForceBuilder() {
-	return forceBuilder;
+        return forceBuilder;
     }
 
     public TemplateBuilder select(final Type targetType, final boolean hasAnnotation) {
-	for (TemplateBuilder tb : templateBuilders) {
-	    if (tb.matchType(targetType, hasAnnotation)) {
-		return tb;
-	    }
-	}
-	return null;
+        for (TemplateBuilder tb : templateBuilders) {
+            if (tb.matchType(targetType, hasAnnotation)) {
+                return tb;
+            }
+        }
+        return null;
     }
 }

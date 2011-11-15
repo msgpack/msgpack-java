@@ -31,61 +31,63 @@ import org.msgpack.unpacker.Unpacker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 
     private static Logger LOG = LoggerFactory.getLogger(ReflectionBeansTemplateBuilder.class);
 
     protected static abstract class ReflectionFieldTemplate extends AbstractTemplate<Object> {
-	protected FieldEntry entry;
+        protected FieldEntry entry;
 
-	ReflectionFieldTemplate(final FieldEntry entry) {
-	    this.entry = entry;
-	}
+        ReflectionFieldTemplate(final FieldEntry entry) {
+            this.entry = entry;
+        }
 
-	void setNil(Object v) {
-	    entry.set(v, null);
-	}
+        void setNil(Object v) {
+            entry.set(v, null);
+        }
     }
 
     static final class FieldTemplateImpl extends ReflectionFieldTemplate {
-	private Template template;
+        private Template template;
 
-	public FieldTemplateImpl(final FieldEntry entry, final Template template) {
-	    super(entry);
-	    this.template = template;
-	}
+        public FieldTemplateImpl(final FieldEntry entry, final Template template) {
+            super(entry);
+            this.template = template;
+        }
 
-	@Override
-	public void write(Packer packer, Object v, boolean required) throws IOException {
-	    template.write(packer, v, required);
-	}
+        @Override
+        public void write(Packer packer, Object v, boolean required)
+                throws IOException {
+            template.write(packer, v, required);
+        }
 
-	@Override
-	public Object read(Unpacker unpacker, Object to, boolean required) throws IOException {
-	    //Class<Object> type = (Class<Object>) entry.getType();
-	    Object f = entry.get(to);
-	    Object o = template.read(unpacker, f, required);
-	    if (o != f) {
-		entry.set(to, o);
-	    }
-	    return o;
-	}
+        @Override
+        public Object read(Unpacker unpacker, Object to, boolean required)
+                throws IOException {
+            // Class<Object> type = (Class<Object>) entry.getType();
+            Object f = entry.get(to);
+            Object o = template.read(unpacker, f, required);
+            if (o != f) {
+                entry.set(to, o);
+            }
+            return o;
+        }
     }
 
     protected static class ReflectionClassTemplate<T> extends AbstractTemplate<T> {
-	protected Class<T> targetClass;
+        protected Class<T> targetClass;
 
-	protected ReflectionFieldTemplate[] templates;
+        protected ReflectionFieldTemplate[] templates;
 
-	protected ReflectionClassTemplate(Class<T> targetClass, ReflectionFieldTemplate[] templates) {
-	    this.targetClass = targetClass;
-	    this.templates = templates;
-	}
+        protected ReflectionClassTemplate(Class<T> targetClass, ReflectionFieldTemplate[] templates) {
+            this.targetClass = targetClass;
+            this.templates = templates;
+        }
 
-	@Override
-	public void write(Packer packer, T target, boolean required) throws IOException {
+        @Override
+        public void write(Packer packer, T target, boolean required)
+                throws IOException {
             if (target == null) {
                 if (required) {
                     throw new MessageTypeException("attempted to write null");
@@ -93,44 +95,46 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
                 packer.writeNil();
                 return;
             }
-	    try {
-		packer.writeArrayBegin(templates.length);
-		for (ReflectionFieldTemplate tmpl : templates) {
-		    if (!tmpl.entry.isAvailable()) {
-			packer.writeNil();
-			continue;
-		    }
-		    Object obj = tmpl.entry.get(target);
-		    if (obj == null) {
-			if (tmpl.entry.isNotNullable()) {
-			    throw new MessageTypeException(tmpl.entry.getName() + " cannot be null by @NotNullable");
-			}
-			packer.writeNil();
-		    } else {
-			tmpl.write(packer, obj, true);
-		    }
-		}
-		packer.writeArrayEnd();
-	    } catch (IOException e) {
-		throw e;
-	    } catch (Exception e) {
-		throw new MessageTypeException(e);
-	    }
-	}
+            try {
+                packer.writeArrayBegin(templates.length);
+                for (ReflectionFieldTemplate tmpl : templates) {
+                    if (!tmpl.entry.isAvailable()) {
+                        packer.writeNil();
+                        continue;
+                    }
+                    Object obj = tmpl.entry.get(target);
+                    if (obj == null) {
+                        if (tmpl.entry.isNotNullable()) {
+                            throw new MessageTypeException(tmpl.entry.getName()
+                                    + " cannot be null by @NotNullable");
+                        }
+                        packer.writeNil();
+                    } else {
+                        tmpl.write(packer, obj, true);
+                    }
+                }
+                packer.writeArrayEnd();
+            } catch (IOException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new MessageTypeException(e);
+            }
+        }
 
-	@Override
-	public T read(Unpacker unpacker, T to, boolean required) throws IOException {
+        @Override
+        public T read(Unpacker unpacker, T to, boolean required)
+                throws IOException {
             if (!required && unpacker.trySkipNil()) {
                 return null;
             }
-	    try {
-		if (to == null) {
-		    to = targetClass.newInstance();
-		}
+            try {
+                if (to == null) {
+                    to = targetClass.newInstance();
+                }
 
-		unpacker.readArrayBegin();
+                unpacker.readArrayBegin();
                 for (int i = 0; i < templates.length; i++) {
-		    ReflectionFieldTemplate tmpl = templates[i];
+                    ReflectionFieldTemplate tmpl = templates[i];
                     if (!tmpl.entry.isAvailable()) {
                         unpacker.skip();
                     } else if (tmpl.entry.isOptional() && unpacker.trySkipNil()) {
@@ -140,57 +144,57 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
                     }
                 }
 
-		unpacker.readArrayEnd();
-		return to;
-	    } catch (IOException e) {
-		throw e;
-	    } catch (Exception e) {
-		throw new MessageTypeException(e);
-	    }
-	}
+                unpacker.readArrayEnd();
+                return to;
+            } catch (IOException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new MessageTypeException(e);
+            }
+        }
     }
 
     public ReflectionTemplateBuilder(TemplateRegistry registry) {
-	super(registry);
+        super(registry);
     }
 
     @Override
     public boolean matchType(Type targetType, boolean hasAnnotation) {
-	Class<?> targetClass = (Class<?>) targetType;
-	boolean matched = matchAtClassTemplateBuilder(targetClass, hasAnnotation);
-	if (matched) {
-	    LOG.debug("matched type: " + targetClass.getName());
-	}
-	return matched;
+        Class<?> targetClass = (Class<?>) targetType;
+        boolean matched = matchAtClassTemplateBuilder(targetClass, hasAnnotation);
+        if (matched) {
+            LOG.debug("matched type: " + targetClass.getName());
+        }
+        return matched;
     }
 
     @Override
     public <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries) {
-	if (entries == null) {
-	    throw new NullPointerException("entries is null: " + targetClass);
-	}
+        if (entries == null) {
+            throw new NullPointerException("entries is null: " + targetClass);
+        }
 
-	ReflectionFieldTemplate[] tmpls = toTemplates(entries);
-	return new ReflectionClassTemplate<T>(targetClass, tmpls);
+        ReflectionFieldTemplate[] tmpls = toTemplates(entries);
+        return new ReflectionClassTemplate<T>(targetClass, tmpls);
     }
 
     protected ReflectionFieldTemplate[] toTemplates(FieldEntry[] entries) {
-	// TODO Now it is simply cast. #SF
-	for (FieldEntry entry : entries) {
-	    Field field = ((DefaultFieldEntry) entry).getField();
-	    int mod = field.getModifiers();
-	    if (!Modifier.isPublic(mod)) {
-		field.setAccessible(true);
-	    }
-	}
+        // TODO Now it is simply cast. #SF
+        for (FieldEntry entry : entries) {
+            Field field = ((DefaultFieldEntry) entry).getField();
+            int mod = field.getModifiers();
+            if (!Modifier.isPublic(mod)) {
+                field.setAccessible(true);
+            }
+        }
 
-	ReflectionFieldTemplate[] templates = new ReflectionFieldTemplate[entries.length];
-	for (int i = 0; i < entries.length; i++) {
-	    FieldEntry entry = entries[i];
-	    //Class<?> t = entry.getType();
-	    Template template = registry.lookup(entry.getGenericType());
-	    templates[i] = new FieldTemplateImpl(entry, template);
-	}
-	return templates;
+        ReflectionFieldTemplate[] templates = new ReflectionFieldTemplate[entries.length];
+        for (int i = 0; i < entries.length; i++) {
+            FieldEntry entry = entries[i];
+            // Class<?> t = entry.getType();
+            Template template = registry.lookup(entry.getGenericType());
+            templates[i] = new FieldTemplateImpl(entry, template);
+        }
+        return templates;
     }
 }

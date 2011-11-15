@@ -32,11 +32,11 @@ import org.msgpack.packer.Packer;
 import org.msgpack.packer.AbstractPacker;
 import org.msgpack.packer.PackerStack;
 
-
 public class JSONPacker extends AbstractPacker {
     private static final byte[] NULL = new byte[] { 0x6e, 0x75, 0x6c, 0x6c };
     private static final byte[] TRUE = new byte[] { 0x74, 0x72, 0x75, 0x65 };
     private static final byte[] FALSE = new byte[] { 0x66, 0x61, 0x6c, 0x73, 0x65 };
+
     private static final byte COMMA = 0x2c;
     private static final byte COLON = 0x3a;
     private static final byte QUOTE = 0x22;
@@ -48,9 +48,9 @@ public class JSONPacker extends AbstractPacker {
     private static final byte ZERO = 0x30;
 
     private static final int FLAG_FIRST_ELEMENT = 0x01;
-    private static final int FLAG_MAP_KEY       = 0x02;
-    private static final int FLAG_MAP_VALUE     = 0x04;
-    //private static final int FLAG_MAP           = FLAG_MAP_KEY | FLAG_MAP_VALUE;
+    private static final int FLAG_MAP_KEY = 0x02;
+    private static final int FLAG_MAP_VALUE = 0x04;
+    // private static final int FLAG_MAP = FLAG_MAP_KEY | FLAG_MAP_VALUE;
 
     protected final Output out;
     private int[] flags;
@@ -63,7 +63,7 @@ public class JSONPacker extends AbstractPacker {
     }
 
     public JSONPacker(MessagePack msgpack, OutputStream stream) {
-	this(msgpack, new StreamOutput(stream));
+        this(msgpack, new StreamOutput(stream));
     }
 
     protected JSONPacker(MessagePack msgpack, Output out) {
@@ -71,15 +71,15 @@ public class JSONPacker extends AbstractPacker {
         this.out = out;
         this.stack = new PackerStack();
         this.flags = new int[PackerStack.MAX_STACK_SIZE];
-        this.decoder = Charset.forName("UTF-8").newDecoder().
-            onMalformedInput(CodingErrorAction.REPORT).
-            onUnmappableCharacter(CodingErrorAction.REPORT);
+        this.decoder = Charset.forName("UTF-8").newDecoder()
+                .onMalformedInput(CodingErrorAction.REPORT)
+                .onUnmappableCharacter(CodingErrorAction.REPORT);
     }
 
     @Override
     protected void writeBoolean(boolean v) throws IOException {
         beginElement();
-        if(v) {
+        if (v) {
             out.write(TRUE, 0, TRUE.length);
         } else {
             out.write(FALSE, 0, FALSE.length);
@@ -90,7 +90,7 @@ public class JSONPacker extends AbstractPacker {
     @Override
     protected void writeByte(byte v) throws IOException {
         beginElement();
-        byte[] b = Byte.toString(v).getBytes();  // TODO optimize
+        byte[] b = Byte.toString(v).getBytes(); // TODO optimize
         out.write(b, 0, b.length);
         endElement();
     }
@@ -98,7 +98,7 @@ public class JSONPacker extends AbstractPacker {
     @Override
     protected void writeShort(short v) throws IOException {
         beginElement();
-        byte[] b = Short.toString(v).getBytes();  // TODO optimize
+        byte[] b = Short.toString(v).getBytes(); // TODO optimize
         out.write(b, 0, b.length);
         endElement();
     }
@@ -106,7 +106,7 @@ public class JSONPacker extends AbstractPacker {
     @Override
     protected void writeInt(int v) throws IOException {
         beginElement();
-        byte[] b = Integer.toString(v).getBytes();  // TODO optimize
+        byte[] b = Integer.toString(v).getBytes(); // TODO optimize
         out.write(b, 0, b.length);
         endElement();
     }
@@ -114,7 +114,7 @@ public class JSONPacker extends AbstractPacker {
     @Override
     protected void writeLong(long v) throws IOException {
         beginElement();
-        byte[] b = Long.toString(v).getBytes();  // TODO optimize
+        byte[] b = Long.toString(v).getBytes(); // TODO optimize
         out.write(b, 0, b.length);
         endElement();
     }
@@ -122,7 +122,7 @@ public class JSONPacker extends AbstractPacker {
     @Override
     protected void writeBigInteger(BigInteger v) throws IOException {
         beginElement();
-        byte[] b = v.toString().getBytes();  // TODO optimize
+        byte[] b = v.toString().getBytes(); // TODO optimize
         out.write(b, 0, b.length);
         endElement();
     }
@@ -131,10 +131,11 @@ public class JSONPacker extends AbstractPacker {
     protected void writeFloat(float v) throws IOException {
         beginElement();
         Float r = v;
-        if(r.isInfinite() || r.isNaN()) {
-            throw new IOException("JSONPacker doesn't support NaN and infinite float value");
+        if (r.isInfinite() || r.isNaN()) {
+            throw new IOException(
+                    "JSONPacker doesn't support NaN and infinite float value");
         }
-        byte[] b = Float.toString(v).getBytes();  // TODO optimize
+        byte[] b = Float.toString(v).getBytes(); // TODO optimize
         out.write(b, 0, b.length);
         endElement();
     }
@@ -143,10 +144,11 @@ public class JSONPacker extends AbstractPacker {
     protected void writeDouble(double v) throws IOException {
         beginElement();
         Double r = v;
-        if(r.isInfinite() || r.isNaN()) {
-            throw new IOException("JSONPacker doesn't support NaN and infinite float value");
+        if (r.isInfinite() || r.isNaN()) {
+            throw new IOException(
+                    "JSONPacker doesn't support NaN and infinite float value");
         }
-        byte[] b = Double.toString(v).getBytes();  // TODO optimize
+        byte[] b = Double.toString(v).getBytes(); // TODO optimize
         out.write(b, 0, b.length);
         endElement();
     }
@@ -203,16 +205,18 @@ public class JSONPacker extends AbstractPacker {
 
     @Override
     public Packer writeArrayEnd(boolean check) throws IOException {
-        if(!stack.topIsArray()) {
-            throw new MessageTypeException("writeArrayEnd() is called but writeArrayBegin() is not called");
+        if (!stack.topIsArray()) {
+            throw new MessageTypeException(
+                    "writeArrayEnd() is called but writeArrayBegin() is not called");
         }
 
         int remain = stack.getTopCount();
-        if(remain > 0) {
-            if(check) {
-                throw new MessageTypeException("writeArrayEnd(check=true) is called but the array is not end: "+remain);
+        if (remain > 0) {
+            if (check) {
+                throw new MessageTypeException(
+                        "writeArrayEnd(check=true) is called but the array is not end: " + remain);
             }
-            for(int i=0; i < remain; i++) {
+            for (int i = 0; i < remain; i++) {
                 writeNil();
             }
         }
@@ -234,16 +238,18 @@ public class JSONPacker extends AbstractPacker {
 
     @Override
     public Packer writeMapEnd(boolean check) throws IOException {
-        if(!stack.topIsMap()) {
-            throw new MessageTypeException("writeMapEnd() is called but writeMapBegin() is not called");
+        if (!stack.topIsMap()) {
+            throw new MessageTypeException(
+                    "writeMapEnd() is called but writeMapBegin() is not called");
         }
 
         int remain = stack.getTopCount();
-        if(remain > 0) {
-            if(check) {
-                throw new MessageTypeException("writeMapEnd(check=true) is called but the map is not end: "+remain);
+        if (remain > 0) {
+            if (check) {
+                throw new MessageTypeException(
+                        "writeMapEnd(check=true) is called but the map is not end: " + remain);
             }
-            for(int i=0; i < remain; i++) {
+            for (int i = 0; i < remain; i++) {
                 writeNil();
             }
         }
@@ -269,7 +275,7 @@ public class JSONPacker extends AbstractPacker {
 
     private void beginElement() throws IOException {
         int flag = flags[stack.getDepth()];
-        if((flag & FLAG_MAP_KEY) != 0) {
+        if ((flag & FLAG_MAP_KEY) != 0) {
             throw new IOException("Key of a map must be a string in JSON");
         }
         beginStringElement();
@@ -277,19 +283,19 @@ public class JSONPacker extends AbstractPacker {
 
     private void beginStringElement() throws IOException {
         int flag = flags[stack.getDepth()];
-        if((flag & FLAG_MAP_VALUE) != 0) {
+        if ((flag & FLAG_MAP_VALUE) != 0) {
             out.writeByte(COLON);
-        } else if(stack.getDepth() > 0 && (flag & FLAG_FIRST_ELEMENT) == 0) {
+        } else if (stack.getDepth() > 0 && (flag & FLAG_FIRST_ELEMENT) == 0) {
             out.writeByte(COMMA);
         }
     }
 
     private void endElement() throws IOException {
         int flag = flags[stack.getDepth()];
-        if((flag & FLAG_MAP_KEY) != 0) {
+        if ((flag & FLAG_MAP_KEY) != 0) {
             flag &= ~FLAG_MAP_KEY;
             flag |= FLAG_MAP_VALUE;
-        } else if((flag & FLAG_MAP_VALUE) != 0) {
+        } else if ((flag & FLAG_MAP_VALUE) != 0) {
             flag &= ~FLAG_MAP_VALUE;
             flag |= FLAG_MAP_KEY;
         }
@@ -335,7 +341,7 @@ public class JSONPacker extends AbstractPacker {
     private static void escape(Output out, String s) throws IOException {
         byte[] tmp = new byte[] { (byte) '\\', (byte) 'u', 0, 0, 0, 0 };
         char[] chars = s.toCharArray();
-        for(int i=0; i < chars.length; i++) {
+        for (int i = 0; i < chars.length; i++) {
             int ch = chars[i];
             if (ch <= 0x7f) {
                 int e = ESCAPE_TABLE[ch];
@@ -378,4 +384,3 @@ public class JSONPacker extends AbstractPacker {
         }
     }
 }
-

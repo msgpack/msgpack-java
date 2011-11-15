@@ -20,9 +20,9 @@ package org.msgpack.type;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
 
-
 class TrueValueImpl extends AbstractBooleanValue {
-    private TrueValueImpl() { }
+    private TrueValueImpl() {
+    }
 
     private static TrueValueImpl instance = new TrueValueImpl();
 
@@ -42,14 +42,14 @@ class TrueValueImpl extends AbstractBooleanValue {
 
     @Override
     public boolean equals(Object o) {
-        if(o == this) {
+        if (o == this) {
             return true;
         }
-        if(!(o instanceof Value)) {
+        if (!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isBooleanValue()) {
+        if (!v.isBooleanValue()) {
             return false;
         }
 
@@ -71,4 +71,3 @@ class TrueValueImpl extends AbstractBooleanValue {
         return sb.append("true");
     }
 }
-

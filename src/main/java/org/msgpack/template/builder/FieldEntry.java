@@ -21,37 +21,36 @@ import java.lang.reflect.Type;
 
 import org.msgpack.template.FieldOption;
 
-
 public abstract class FieldEntry {
 
     protected FieldOption option;
 
     public FieldEntry() {
-	this(FieldOption.IGNORE);
+        this(FieldOption.IGNORE);
     }
 
     public FieldEntry(FieldOption option) {
-	this.option = option;
+        this.option = option;
     }
 
     public FieldOption getOption() {
-	return option;
+        return option;
     }
 
     public void setOption(FieldOption option) {
-	this.option = option;
+        this.option = option;
     }
 
     public boolean isAvailable() {
-	return option != FieldOption.IGNORE;
+        return option != FieldOption.IGNORE;
     }
 
     public boolean isOptional() {
-	return option == FieldOption.OPTIONAL;
+        return option == FieldOption.OPTIONAL;
     }
 
     public boolean isNotNullable() {
-	return option == FieldOption.NOTNULLABLE;
+        return option == FieldOption.NOTNULLABLE;
     }
 
     public abstract String getName();
@@ -65,27 +64,27 @@ public abstract class FieldEntry {
     public abstract void set(Object target, Object value);
 
     public String getJavaTypeName() {
-	Class<?> type = getType();
-	if (type.isArray()) {
-	    return arrayTypeToString(type);
-	} else {
-	    return type.getName();
-	}
+        Class<?> type = getType();
+        if (type.isArray()) {
+            return arrayTypeToString(type);
+        } else {
+            return type.getName();
+        }
     }
 
     public String arrayTypeToString(Class<?> type) {
-	int dim = 1;
-	Class<?> baseType = type.getComponentType();
-	while (baseType.isArray()) {
-	    baseType = baseType.getComponentType();
-	    dim += 1;
-	}
-	StringBuilder sb = new StringBuilder();
-	sb.append(baseType.getName());
-	for (int i = 0; i < dim; ++i) {
-	    sb.append("[]");
-	}
-	return sb.toString();
+        int dim = 1;
+        Class<?> baseType = type.getComponentType();
+        while (baseType.isArray()) {
+            baseType = baseType.getComponentType();
+            dim += 1;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(baseType.getName());
+        for (int i = 0; i < dim; ++i) {
+            sb.append("[]");
+        }
+        return sb.toString();
     }
 
 }

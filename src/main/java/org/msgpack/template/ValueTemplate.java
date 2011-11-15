@@ -23,11 +23,12 @@ import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 import org.msgpack.type.Value;
 
-
 public class ValueTemplate extends AbstractTemplate<Value> {
-    private ValueTemplate() { }
+    private ValueTemplate() {
+    }
 
-    public void write(Packer pk, Value target, boolean required) throws IOException {
+    public void write(Packer pk, Value target, boolean required)
+            throws IOException {
         if (target == null) {
             if (required) {
                 throw new MessageTypeException("Attempted to write null");
@@ -38,7 +39,8 @@ public class ValueTemplate extends AbstractTemplate<Value> {
         target.writeTo(pk);
     }
 
-    public Value read(Unpacker u, Value to, boolean required) throws IOException {
+    public Value read(Unpacker u, Value to, boolean required)
+            throws IOException {
         if (!required && u.trySkipNil()) {
             return null;
         }
@@ -51,4 +53,3 @@ public class ValueTemplate extends AbstractTemplate<Value> {
 
     static final ValueTemplate instance = new ValueTemplate();
 }
-

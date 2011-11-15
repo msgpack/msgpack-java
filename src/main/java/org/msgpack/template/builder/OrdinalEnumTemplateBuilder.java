@@ -26,41 +26,41 @@ import org.msgpack.template.builder.TemplateBuildException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class OrdinalEnumTemplateBuilder extends AbstractTemplateBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(OrdinalEnumTemplateBuilder.class);
 
     public OrdinalEnumTemplateBuilder(TemplateRegistry registry) {
-	super(registry);
+        super(registry);
     }
 
     @Override
     public boolean matchType(Type targetType, boolean hasAnnotation) {
-	Class<?> targetClass = (Class<?>) targetType;
-	boolean matched = matchAtOrdinalEnumTemplateBuilder(targetClass, hasAnnotation);
-	if (matched) {
-	    LOG.debug("matched type: " + targetClass.getName());
-	}
-	return matched;
+        Class<?> targetClass = (Class<?>) targetType;
+        boolean matched = matchAtOrdinalEnumTemplateBuilder(targetClass, hasAnnotation);
+        if (matched) {
+            LOG.debug("matched type: " + targetClass.getName());
+        }
+        return matched;
     }
 
     @Override
     public <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries) {
-	throw new UnsupportedOperationException("fatal error: " + targetClass.getName());
+        throw new UnsupportedOperationException("fatal error: " + targetClass.getName());
     }
 
     @Override
     public <T> Template<T> buildTemplate(Type targetType) throws TemplateBuildException {
-	@SuppressWarnings("unchecked")
-	Class<T> targetClass = (Class<T>) targetType;
-	checkOrdinalEnumValidation(targetClass);
-	return new OrdinalEnumTemplate<T>(targetClass);
+        @SuppressWarnings("unchecked")
+        Class<T> targetClass = (Class<T>) targetType;
+        checkOrdinalEnumValidation(targetClass);
+        return new OrdinalEnumTemplate<T>(targetClass);
     }
 
     protected void checkOrdinalEnumValidation(Class<?> targetClass) {
-	if(! targetClass.isEnum()) {
-	    throw new TemplateBuildException("tried to build ordinal enum template of non-enum class: " + targetClass.getName());
-	}
+        if (!targetClass.isEnum()) {
+            throw new TemplateBuildException(
+                    "tried to build ordinal enum template of non-enum class: " + targetClass.getName());
+        }
     }
 }

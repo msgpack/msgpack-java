@@ -26,7 +26,6 @@ import java.math.BigInteger;
 import java.math.BigDecimal;
 import org.msgpack.type.Value;
 
-
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public final class Templates {
     public static final Template<Value> TValue = ValueTemplate.getInstance();
@@ -67,7 +66,7 @@ public final class Templates {
         return new ListTemplate(elementTemplate);
     }
 
-    public static <K,V> Template<Map<K,V>> tMap(Template<K> keyTemplate, Template<V> valueTemplate) {
+    public static <K, V> Template<Map<K, V>> tMap(Template<K> keyTemplate, Template<V> valueTemplate) {
         return new MapTemplate(keyTemplate, valueTemplate);
     }
 
@@ -79,79 +78,77 @@ public final class Templates {
         return new OrdinalEnumTemplate(enumClass);
     }
 
-    //public static Template<T> tClass(Class<T> target) {
-    //    // TODO
-    //}
-
-
-    @Deprecated
-	public static Template tByte() {
-		return TByte;
-	}
+    // public static Template<T> tClass(Class<T> target) {
+    // // TODO
+    // }
 
     @Deprecated
-	public static Template tShort() {
-		return TShort;
-	}
+    public static Template tByte() {
+        return TByte;
+    }
 
     @Deprecated
-	public static Template tInteger() {
-		return TInteger;
-	}
+    public static Template tShort() {
+        return TShort;
+    }
 
     @Deprecated
-	public static Template tLong() {
-		return TLong;
-	}
+    public static Template tInteger() {
+        return TInteger;
+    }
 
     @Deprecated
-	public static Template tCharacter() {
-		return TCharacter;
-	}
+    public static Template tLong() {
+        return TLong;
+    }
 
     @Deprecated
-	public static Template tBigInteger() {
-		return TBigInteger;
-	}
+    public static Template tCharacter() {
+        return TCharacter;
+    }
 
     @Deprecated
-	public static Template tBigDecimal() {
-		return TBigDecimal;
-	}
+    public static Template tBigInteger() {
+        return TBigInteger;
+    }
 
     @Deprecated
-	public static Template tFloat() {
-		return TFloat;
-	}
+    public static Template tBigDecimal() {
+        return TBigDecimal;
+    }
 
     @Deprecated
-	public static Template tDouble() {
-		return TDouble;
-	}
+    public static Template tFloat() {
+        return TFloat;
+    }
 
     @Deprecated
-	public static Template tBoolean() {
-		return TBoolean;
-	}
+    public static Template tDouble() {
+        return TDouble;
+    }
 
     @Deprecated
-	public static Template tString() {
-		return TString;
-	}
+    public static Template tBoolean() {
+        return TBoolean;
+    }
 
     @Deprecated
-	public static Template tByteArray() {
-		return TByteArray;
-	}
+    public static Template tString() {
+        return TString;
+    }
 
     @Deprecated
-	public static Template tByteBuffer() {
-		return TByteBuffer;
-	}
+    public static Template tByteArray() {
+        return TByteArray;
+    }
 
     @Deprecated
-	public static Template tDate() {
-		return TDate;
-	}
+    public static Template tByteBuffer() {
+        return TByteBuffer;
+    }
+
+    @Deprecated
+    public static Template tDate() {
+        return TDate;
+    }
 }
-

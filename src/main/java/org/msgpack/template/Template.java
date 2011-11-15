@@ -21,7 +21,6 @@ import java.io.IOException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 
-
 public interface Template<T> {
     public void write(Packer pk, T v) throws IOException;
 
@@ -31,4 +30,3 @@ public interface Template<T> {
 
     public T read(Unpacker u, T to, boolean required) throws IOException;
 }
-

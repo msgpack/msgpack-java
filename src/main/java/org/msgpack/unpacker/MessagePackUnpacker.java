@@ -28,9 +28,8 @@ import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Unconverter;
 
-
 public class MessagePackUnpacker extends AbstractUnpacker {
-    private static final byte REQUIRE_TO_READ_HEAD = (byte)0xc6;
+    private static final byte REQUIRE_TO_READ_HEAD = (byte) 0xc6;
 
     protected final Input in;
     private final UnpackerStack stack = new UnpackerStack();
@@ -84,23 +83,23 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             return true;
         }
 
-        final int b = (int)getHeadByte();
+        final int b = (int) getHeadByte();
 
-        if ((b & 0x80) == 0) {  // Positive Fixnum
-            //System.out.println("positive fixnum "+b);
+        if ((b & 0x80) == 0) { // Positive Fixnum
+            // System.out.println("positive fixnum "+b);
             a.acceptInteger(b);
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         }
 
-        if ((b & 0xe0) == 0xe0) {  // Negative Fixnum
-            //System.out.println("negative fixnum "+b);
+        if ((b & 0xe0) == 0xe0) { // Negative Fixnum
+            // System.out.println("negative fixnum "+b);
             a.acceptInteger(b);
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         }
 
-        if ((b & 0xe0) == 0xa0) {  // FixRaw
+        if ((b & 0xe0) == 0xa0) { // FixRaw
             int count = b & 0x1f;
             if (count == 0) {
                 a.acceptEmptyRaw();
@@ -116,9 +115,9 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             return true;
         }
 
-        if ((b & 0xf0) == 0x90) {  // FixArray
+        if ((b & 0xf0) == 0x90) { // FixArray
             int count = b & 0x0f;
-            //System.out.println("fixarray count:"+count);
+            // System.out.println("fixarray count:"+count);
             a.acceptArray(count);
             stack.reduceCount();
             stack.pushArray(count);
@@ -126,9 +125,9 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             return false;
         }
 
-        if ((b & 0xf0) == 0x80) {  // FixMap
+        if ((b & 0xf0) == 0x80) { // FixMap
             int count = b & 0x0f;
-            //System.out.println("fixmap count:"+count/2);
+            // System.out.println("fixmap count:"+count/2);
             a.acceptMap(count);
             stack.reduceCount();
             stack.pushMap(count);
@@ -139,181 +138,188 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         return readOneWithoutStackLarge(a, b);
     }
 
-    private boolean readOneWithoutStackLarge(Accept a, final int b) throws IOException {
-        switch(b & 0xff) {
-        case 0xc0:  // nil
+    private boolean readOneWithoutStackLarge(Accept a, final int b)
+            throws IOException {
+        switch (b & 0xff) {
+        case 0xc0: // nil
             a.acceptNil();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
-        case 0xc2:  // false
+        case 0xc2: // false
             a.acceptBoolean(false);
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
-        case 0xc3:  // true
+        case 0xc3: // true
             a.acceptBoolean(true);
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
-        case 0xca:  // float
+        case 0xca: // float
             a.acceptFloat(in.getFloat());
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
-        case 0xcb:  // double
+        case 0xcb: // double
             a.acceptDouble(in.getDouble());
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
-        case 0xcc:  // unsigned int  8
+        case 0xcc: // unsigned int 8
             a.acceptUnsignedInteger(in.getByte());
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
-        case 0xcd:  // unsigned int 16
+        case 0xcd: // unsigned int 16
             a.acceptUnsignedInteger(in.getShort());
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
-        case 0xce:  // unsigned int 32
+        case 0xce: // unsigned int 32
             a.acceptUnsignedInteger(in.getInt());
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
-        case 0xcf:  // unsigned int 64
+        case 0xcf: // unsigned int 64
             a.acceptUnsignedInteger(in.getLong());
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
-        case 0xd0:  // signed int  8
+        case 0xd0: // signed int 8
             a.acceptInteger(in.getByte());
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
-        case 0xd1:  // signed int 16
+        case 0xd1: // signed int 16
             a.acceptInteger(in.getShort());
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
-        case 0xd2:  // signed int 32
+        case 0xd2: // signed int 32
             a.acceptInteger(in.getInt());
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
-        case 0xd3:  // signed int 64
+        case 0xd3: // signed int 64
             a.acceptInteger(in.getLong());
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
-        case 0xda:  // raw 16
-            {
-                int count = in.getShort() & 0xffff;
-                if (count == 0) {
-                    a.acceptEmptyRaw();
-                    in.advance();
-                    headByte = REQUIRE_TO_READ_HEAD;
-                    return true;
-                }
-                if (count >= rawSizeLimit) {
-                    String reason = String.format("Size of raw (%d) over limit at %d",
-                            new Object[] { count, rawSizeLimit });
-                    throw new SizeLimitException(reason);
-                }
+        case 0xda: // raw 16
+        {
+            int count = in.getShort() & 0xffff;
+            if (count == 0) {
+                a.acceptEmptyRaw();
                 in.advance();
-                if (!tryReferRawBody(a, count)) {
-                    readRawBody(count);
-                    a.acceptRaw(raw);
-                    raw = null;
-                }
                 headByte = REQUIRE_TO_READ_HEAD;
                 return true;
             }
-        case 0xdb:  // raw 32
-            {
-                int count = in.getInt();
-                if (count == 0) {
-                    a.acceptEmptyRaw();
-                    in.advance();
-                    headByte = REQUIRE_TO_READ_HEAD;
-                    return true;
-                }
-                if (count < 0 || count >= rawSizeLimit) {
-                    String reason = String.format("Size of raw (%d) over limit at %d",
-                            new Object[] { count, rawSizeLimit });
-                    throw new SizeLimitException(reason);
-                }
+            if (count >= rawSizeLimit) {
+                String reason = String.format(
+                        "Size of raw (%d) over limit at %d",
+                        new Object[] { count, rawSizeLimit });
+                throw new SizeLimitException(reason);
+            }
+            in.advance();
+            if (!tryReferRawBody(a, count)) {
+                readRawBody(count);
+                a.acceptRaw(raw);
+                raw = null;
+            }
+            headByte = REQUIRE_TO_READ_HEAD;
+            return true;
+        }
+        case 0xdb: // raw 32
+        {
+            int count = in.getInt();
+            if (count == 0) {
+                a.acceptEmptyRaw();
                 in.advance();
-                if (!tryReferRawBody(a, count)) {
-                    readRawBody(count);
-                    a.acceptRaw(raw);
-                    raw = null;
-                }
                 headByte = REQUIRE_TO_READ_HEAD;
                 return true;
             }
-        case 0xdc:  // array 16
-            {
-                int count = in.getShort() & 0xffff;
-                if (count >= arraySizeLimit) {
-                    String reason = String.format("Size of array (%d) over limit at %d",
-                            new Object[] { count, arraySizeLimit });
-                    throw new SizeLimitException(reason);
-                }
-                a.acceptArray(count);
-                stack.reduceCount();
-                stack.pushArray(count);
-                in.advance();
-                headByte = REQUIRE_TO_READ_HEAD;
-                return false;
+            if (count < 0 || count >= rawSizeLimit) {
+                String reason = String.format(
+                        "Size of raw (%d) over limit at %d",
+                        new Object[] { count, rawSizeLimit });
+                throw new SizeLimitException(reason);
             }
-        case 0xdd:  // array 32
-            {
-                int count = in.getInt();
-                if (count < 0 || count >= arraySizeLimit) {
-                    String reason = String.format("Size of array (%d) over limit at %d",
-                            new Object[] { count, arraySizeLimit });
-                    throw new SizeLimitException(reason);
-                }
-                a.acceptArray(count);
-                stack.reduceCount();
-                stack.pushArray(count);
-                in.advance();
-                headByte = REQUIRE_TO_READ_HEAD;
-                return false;
+            in.advance();
+            if (!tryReferRawBody(a, count)) {
+                readRawBody(count);
+                a.acceptRaw(raw);
+                raw = null;
             }
-        case 0xde:  // map 16
-            {
-                int count = in.getShort() & 0xffff;
-                if (count >= mapSizeLimit) {
-                    String reason = String.format("Size of map (%d) over limit at %d",
-                            new Object[] { count, mapSizeLimit });
-                    throw new SizeLimitException(reason);
-                }
-                a.acceptMap(count);
-                stack.reduceCount();
-                stack.pushMap(count);
-                in.advance();
-                headByte = REQUIRE_TO_READ_HEAD;
-                return false;
+            headByte = REQUIRE_TO_READ_HEAD;
+            return true;
+        }
+        case 0xdc: // array 16
+        {
+            int count = in.getShort() & 0xffff;
+            if (count >= arraySizeLimit) {
+                String reason = String.format(
+                        "Size of array (%d) over limit at %d",
+                        new Object[] { count, arraySizeLimit });
+                throw new SizeLimitException(reason);
             }
-        case 0xdf:  // map 32
-            {
-                int count = in.getInt();
-                if (count < 0 || count >= mapSizeLimit) {
-                    String reason = String.format("Size of map (%d) over limit at %d",
-                            new Object[] { count, mapSizeLimit });
-                    throw new SizeLimitException(reason);
-                }
-                a.acceptMap(count);
-                stack.reduceCount();
-                stack.pushMap(count);
-                in.advance();
-                headByte = REQUIRE_TO_READ_HEAD;
-                return false;
+            a.acceptArray(count);
+            stack.reduceCount();
+            stack.pushArray(count);
+            in.advance();
+            headByte = REQUIRE_TO_READ_HEAD;
+            return false;
+        }
+        case 0xdd: // array 32
+        {
+            int count = in.getInt();
+            if (count < 0 || count >= arraySizeLimit) {
+                String reason = String.format(
+                        "Size of array (%d) over limit at %d",
+                        new Object[] { count, arraySizeLimit });
+                throw new SizeLimitException(reason);
             }
+            a.acceptArray(count);
+            stack.reduceCount();
+            stack.pushArray(count);
+            in.advance();
+            headByte = REQUIRE_TO_READ_HEAD;
+            return false;
+        }
+        case 0xde: // map 16
+        {
+            int count = in.getShort() & 0xffff;
+            if (count >= mapSizeLimit) {
+                String reason = String.format(
+                        "Size of map (%d) over limit at %d",
+                        new Object[] { count, mapSizeLimit });
+                throw new SizeLimitException(reason);
+            }
+            a.acceptMap(count);
+            stack.reduceCount();
+            stack.pushMap(count);
+            in.advance();
+            headByte = REQUIRE_TO_READ_HEAD;
+            return false;
+        }
+        case 0xdf: // map 32
+        {
+            int count = in.getInt();
+            if (count < 0 || count >= mapSizeLimit) {
+                String reason = String.format(
+                        "Size of map (%d) over limit at %d",
+                        new Object[] { count, mapSizeLimit });
+                throw new SizeLimitException(reason);
+            }
+            a.acceptMap(count);
+            stack.reduceCount();
+            stack.pushMap(count);
+            in.advance();
+            headByte = REQUIRE_TO_READ_HEAD;
+            return false;
+        }
         default:
-            //System.out.println("unknown b "+(b&0xff));
+            // System.out.println("unknown b "+(b&0xff));
             // headByte = CS_INVALID
             headByte = REQUIRE_TO_READ_HEAD;
-            throw new IOException("Invalid byte: "+b);  // TODO error FormatException
+            throw new IOException("Invalid byte: " + b); // TODO error FormatException
         }
     }
 
@@ -394,7 +400,8 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         }
-        throw new MessageTypeException("Expected Boolean but got not boolean value");
+        throw new MessageTypeException(
+                "Expected Boolean but got not boolean value");
     }
 
     @Override
@@ -403,11 +410,11 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         stack.checkCount();
         readOneWithoutStack(intAccept);
         int value = intAccept.value;
-        if (value < (int)Byte.MIN_VALUE || value > (int)Byte.MAX_VALUE) {
-            throw new MessageTypeException();  // TODO message
+        if (value < (int) Byte.MIN_VALUE || value > (int) Byte.MAX_VALUE) {
+            throw new MessageTypeException(); // TODO message
         }
         stack.reduceCount();
-        return (byte)value;
+        return (byte) value;
     }
 
     @Override
@@ -416,11 +423,11 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         stack.checkCount();
         readOneWithoutStack(intAccept);
         int value = intAccept.value;
-        if (value < (int)Short.MIN_VALUE || value > (int)Short.MAX_VALUE) {
-            throw new MessageTypeException();  // TODO message
+        if (value < (int) Short.MIN_VALUE || value > (int) Short.MAX_VALUE) {
+            throw new MessageTypeException(); // TODO message
         }
         stack.reduceCount();
-        return (short)value;
+        return (short) value;
     }
 
     @Override
@@ -444,7 +451,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     @Override
     public float readFloat() throws IOException {
         readOne(doubleAccept);
-        return (float)doubleAccept.value;
+        return (float) doubleAccept.value;
     }
 
     @Override
@@ -474,13 +481,15 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     @Override
     public void readArrayEnd(boolean check) throws IOException {
         if (!stack.topIsArray()) {
-            throw new MessageTypeException("readArrayEnd() is called but readArrayBegin() is not called");
+            throw new MessageTypeException(
+                    "readArrayEnd() is called but readArrayBegin() is not called");
         }
 
         int remain = stack.getTopCount();
         if (remain > 0) {
             if (check) {
-                throw new MessageTypeException("readArrayEnd(check=true) is called but the array is not end");
+                throw new MessageTypeException(
+                        "readArrayEnd(check=true) is called but the array is not end");
             }
             for (int i = 0; i < remain; i++) {
                 skip();
@@ -498,13 +507,15 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     @Override
     public void readMapEnd(boolean check) throws IOException {
         if (!stack.topIsMap()) {
-            throw new MessageTypeException("readMapEnd() is called but readMapBegin() is not called");
+            throw new MessageTypeException(
+                    "readMapEnd() is called but readMapBegin() is not called");
         }
 
         int remain = stack.getTopCount();
         if (remain > 0) {
             if (check) {
-                throw new MessageTypeException("readMapEnd(check=true) is called but the map is not end");
+                throw new MessageTypeException(
+                        "readMapEnd(check=true) is called but the map is not end");
             }
             for (int i = 0; i < remain; i++) {
                 skip();
@@ -532,11 +543,11 @@ public class MessagePackUnpacker extends AbstractUnpacker {
                 if (stack.topIsArray()) {
                     uc.writeArrayEnd(true);
                     stack.pop();
-                    //stack.reduceCount();
+                    // stack.reduceCount();
                 } else if (stack.topIsMap()) {
                     uc.writeMapEnd(true);
                     stack.pop();
-                    //stack.reduceCount();
+                    // stack.reduceCount();
                 } else {
                     throw new RuntimeException("invalid stack"); // FIXME error?
                 }
@@ -589,4 +600,3 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         in.resetReadByteCount();
     }
 }
-

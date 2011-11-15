@@ -18,10 +18,10 @@
 package org.msgpack.template;
 
 import java.io.IOException;
-import org.msgpack.*;
+
+import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
-
 
 public class AnyTemplate<T> extends AbstractTemplate<T> {
 
@@ -34,20 +34,21 @@ public class AnyTemplate<T> extends AbstractTemplate<T> {
     @SuppressWarnings("unchecked")
     public void write(Packer pk, T target, boolean required) throws IOException {
         if (target == null) {
-            if(required) {
-		throw new MessageTypeException("Attempted to write null");
+            if (required) {
+                throw new MessageTypeException("Attempted to write null");
             }
-	    pk.writeNil();
-	} else {
-	    registry.lookup(target.getClass()).write(pk, target);
-	}
+            pk.writeNil();
+        } else {
+            registry.lookup(target.getClass()).write(pk, target);
+        }
     }
 
-    public T read(Unpacker u, T to, boolean required) throws IOException, MessageTypeException {
+    public T read(Unpacker u, T to, boolean required) throws IOException,
+            MessageTypeException {
         if (!required && u.trySkipNil()) {
             return null;
         }
-	T o = u.read(to);
+        T o = u.read(to);
         if (required && o == null) {
             throw new MessageTypeException("Unexpected nil value");
         }

@@ -17,7 +17,6 @@
 //
 package org.msgpack.io;
 
-
 abstract class AbstractInput implements Input {
 
     private int readByteCount = 0;

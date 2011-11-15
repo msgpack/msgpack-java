@@ -23,7 +23,6 @@ import java.math.BigInteger;
 import org.msgpack.type.ValueFactory;
 import org.msgpack.packer.Unconverter;
 
-
 final class ValueAccept extends Accept {
     private Unconverter uc = null;
 
@@ -68,8 +67,8 @@ final class ValueAccept extends Accept {
 
     @Override
     void acceptUnsignedInteger(int v) throws IOException {
-        if(v < 0) {
-            long value = (long)(v & 0x7fffffff) + 0x80000000L;
+        if (v < 0) {
+            long value = (long) (v & 0x7fffffff) + 0x80000000L;
             uc.write(ValueFactory.createIntegerValue(value));
         } else {
             uc.write(ValueFactory.createIntegerValue(v));
@@ -78,8 +77,9 @@ final class ValueAccept extends Accept {
 
     @Override
     void acceptUnsignedInteger(long v) throws IOException {
-        if(v < 0L) {
-            BigInteger value = BigInteger.valueOf(v+Long.MAX_VALUE+1L).setBit(63);
+        if (v < 0L) {
+            BigInteger value = BigInteger.valueOf(v + Long.MAX_VALUE + 1L)
+                    .setBit(63);
             uc.write(ValueFactory.createIntegerValue(value));
         } else {
             uc.write(ValueFactory.createIntegerValue(v));
@@ -129,4 +129,3 @@ final class ValueAccept extends Accept {
         uc.write(ValueFactory.createFloatValue(v));
     }
 }
-

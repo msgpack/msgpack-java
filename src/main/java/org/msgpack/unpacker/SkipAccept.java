@@ -17,7 +17,6 @@
 //
 package org.msgpack.unpacker;
 
-
 final class SkipAccept extends Accept {
     @Override
     void acceptBoolean(boolean v) {
@@ -83,4 +82,3 @@ final class SkipAccept extends Accept {
     void acceptDouble(double v) {
     }
 }
-

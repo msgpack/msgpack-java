@@ -19,7 +19,6 @@ package org.msgpack.unpacker;
 
 import java.io.IOException;
 
-
 @SuppressWarnings("serial")
 public class SizeLimitException extends IOException {
     public SizeLimitException() {

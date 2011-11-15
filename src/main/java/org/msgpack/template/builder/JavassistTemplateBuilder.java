@@ -32,20 +32,19 @@ import org.msgpack.template.Template;
 import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.TemplateRegistry;
 
-
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
 
     private static Logger LOG = LoggerFactory.getLogger(JavassistTemplateBuilder.class);
 
     public static abstract class JavassistTemplate<T> extends AbstractTemplate<T> {
-	public Class<T> targetClass;
-	public Template<?>[] templates;
+        public Class<T> targetClass;
+        public Template<?>[] templates;
 
-	public JavassistTemplate(Class<T> targetClass, Template<?>[] templates) {
-	    this.targetClass = targetClass;
-	    this.templates = templates;
-	}
+        public JavassistTemplate(Class<T> targetClass, Template<?>[] templates) {
+            this.targetClass = targetClass;
+            this.templates = templates;
+        }
     }
 
     protected ClassPool pool;
@@ -53,115 +52,116 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
     protected int seqId = 0;
 
     public JavassistTemplateBuilder(TemplateRegistry registry) {
-	super(registry);
-	pool = new ClassPool();
-	boolean appended = false;
-	ClassLoader cl = null;
-	try {
-	    cl = Thread.currentThread().getContextClassLoader();
-	    if (cl != null) {
-		pool.appendClassPath(new LoaderClassPath(cl));
-		appended = true;
-	    }
-	} catch (SecurityException e) {
-	    LOG.debug("Cannot append a search path of context classloader", e);
-	}
-	try {
-	    ClassLoader cl2 = getClass().getClassLoader();
-	    if (cl2 != null && cl2 != cl) {
-		pool.appendClassPath(new LoaderClassPath(cl2));
-		appended = true;
-	    }
-	} catch (SecurityException e) {
-	    LOG.debug("Cannot append a search path of classloader", e);
-	}
-	if (!appended) {
-	    pool.appendSystemPath();
-	}
+        super(registry);
+        pool = new ClassPool();
+        boolean appended = false;
+        ClassLoader cl = null;
+        try {
+            cl = Thread.currentThread().getContextClassLoader();
+            if (cl != null) {
+                pool.appendClassPath(new LoaderClassPath(cl));
+                appended = true;
+            }
+        } catch (SecurityException e) {
+            LOG.debug("Cannot append a search path of context classloader", e);
+        }
+        try {
+            ClassLoader cl2 = getClass().getClassLoader();
+            if (cl2 != null && cl2 != cl) {
+                pool.appendClassPath(new LoaderClassPath(cl2));
+                appended = true;
+            }
+        } catch (SecurityException e) {
+            LOG.debug("Cannot append a search path of classloader", e);
+        }
+        if (!appended) {
+            pool.appendSystemPath();
+        }
     }
 
     @Override
     public boolean matchType(Type targetType, boolean hasAnnotation) {
-	Class<?> targetClass = (Class<?>) targetType;
-	boolean matched = matchAtClassTemplateBuilder(targetClass, hasAnnotation);
-	if (matched) {
-	    LOG.debug("matched type: " + targetClass.getName());
-	}
-	return matched;
+        Class<?> targetClass = (Class<?>) targetType;
+        boolean matched = matchAtClassTemplateBuilder(targetClass, hasAnnotation);
+        if (matched) {
+            LOG.debug("matched type: " + targetClass.getName());
+        }
+        return matched;
     }
 
     public void addClassLoader(ClassLoader cl) {
-	pool.appendClassPath(new LoaderClassPath(cl));
+        pool.appendClassPath(new LoaderClassPath(cl));
     }
 
     protected CtClass makeCtClass(String className) {
-	return pool.makeClass(className);
+        return pool.makeClass(className);
     }
 
     protected CtClass getCtClass(String className) throws NotFoundException {
-	return pool.get(className);
+        return pool.get(className);
     }
 
     protected int nextSeqId() {
-	return seqId++;
+        return seqId++;
     }
 
     protected BuildContext createBuildContext() {
-	return new DefaultBuildContext(this);
+        return new DefaultBuildContext(this);
     }
 
     @Override
     public <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries) {
-	Template<?>[] tmpls = toTemplate(entries);
-	BuildContext bc = createBuildContext();
-	return bc.buildTemplate(targetClass, entries, tmpls);
+        Template<?>[] tmpls = toTemplate(entries);
+        BuildContext bc = createBuildContext();
+        return bc.buildTemplate(targetClass, entries, tmpls);
     }
 
     private Template<?>[] toTemplate(FieldEntry[] from) {
-	Template<?>[] tmpls = new Template<?>[from.length];
-	for(int i = 0; i < from.length; ++i) {
-	    FieldEntry e = from[i];
-	    if(!e.isAvailable()) {
-		tmpls[i] = null;
-	    } else {
-		Template<?> tmpl = registry.lookup(e.getGenericType());
-		tmpls[i] = tmpl;
-	    }
-	}
-	return tmpls;
+        Template<?>[] tmpls = new Template<?>[from.length];
+        for (int i = 0; i < from.length; ++i) {
+            FieldEntry e = from[i];
+            if (!e.isAvailable()) {
+                tmpls[i] = null;
+            } else {
+                Template<?> tmpl = registry.lookup(e.getGenericType());
+                tmpls[i] = tmpl;
+            }
+        }
+        return tmpls;
     }
 
     @Override
     public void writeTemplate(Type targetType, String directoryName) {
-	Class<?> targetClass = (Class<?>)targetType;
-	checkClassValidation(targetClass);
-	FieldOption implicitOption = getFieldOption(targetClass);
-	FieldEntry[] entries = toFieldEntries(targetClass, implicitOption);
-	writeTemplate(targetClass, entries, directoryName);
+        Class<?> targetClass = (Class<?>) targetType;
+        checkClassValidation(targetClass);
+        FieldOption implicitOption = getFieldOption(targetClass);
+        FieldEntry[] entries = toFieldEntries(targetClass, implicitOption);
+        writeTemplate(targetClass, entries, directoryName);
     }
 
     private void writeTemplate(Class<?> targetClass, FieldEntry[] entries, String directoryName) {
-	Template[] tmpls = toTemplate(entries);
-	BuildContext bc = createBuildContext();
-	bc.writeTemplate(targetClass, entries, tmpls, directoryName);
+        Template[] tmpls = toTemplate(entries);
+        BuildContext bc = createBuildContext();
+        bc.writeTemplate(targetClass, entries, tmpls, directoryName);
     }
 
     @Override
     public <T> Template<T> loadTemplate(Type targetType) {
-	// FIXME #MN must consider how to load "reference cycle class" in next version
-	Class<T> targetClass = (Class) targetType;
-	checkClassValidation(targetClass);
-	try {
-	    // check loadable
-	    String tmplName = targetClass.getName() + "_$$_Template";
-	    targetClass.getClassLoader().loadClass(tmplName);
-	} catch (ClassNotFoundException e) {
-	    return null;
-	}
-	FieldOption implicitOption = getFieldOption(targetClass);
-	FieldEntry[] entries = toFieldEntries(targetClass, implicitOption);
-	Template<?>[] tmpls = toTemplate(entries);
-	BuildContext bc = createBuildContext();
-	return bc.loadTemplate(targetClass, entries, tmpls);
+        // FIXME #MN must consider how to load "reference cycle class" in next
+        // version
+        Class<T> targetClass = (Class) targetType;
+        checkClassValidation(targetClass);
+        try {
+            // check loadable
+            String tmplName = targetClass.getName() + "_$$_Template";
+            targetClass.getClassLoader().loadClass(tmplName);
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+        FieldOption implicitOption = getFieldOption(targetClass);
+        FieldEntry[] entries = toFieldEntries(targetClass, implicitOption);
+        Template<?>[] tmpls = toTemplate(entries);
+        BuildContext bc = createBuildContext();
+        return bc.loadTemplate(targetClass, entries, tmpls);
     }
 }

@@ -57,7 +57,7 @@ public class MessagePack {
      * @since 0.6.0
      */
     public MessagePack() {
-	registry = new TemplateRegistry(null);
+        registry = new TemplateRegistry(null);
     }
 
     /**
@@ -66,8 +66,9 @@ public class MessagePack {
      * @param msgpack
      */
     public MessagePack(MessagePack msgpack) {
-	registry = new TemplateRegistry(msgpack.registry);
+        registry = new TemplateRegistry(msgpack.registry);
     }
+
     protected MessagePack(TemplateRegistry registry) {
         this.registry = registry;
     }
@@ -78,7 +79,7 @@ public class MessagePack {
      * @param cl
      */
     public void setClassLoader(final ClassLoader cl) {
-	registry.setClassLoader(cl);
+        registry.setClassLoader(cl);
     }
 
     /**
@@ -91,7 +92,7 @@ public class MessagePack {
      * @return stream-based serializer
      */
     public Packer createPacker(OutputStream out) {
-	return new MessagePackPacker(this, out);
+        return new MessagePackPacker(this, out);
     }
 
     /**
@@ -101,7 +102,7 @@ public class MessagePack {
      * @return buffer-based serializer
      */
     public BufferPacker createBufferPacker() {
-	return new MessagePackBufferPacker(this);
+        return new MessagePackBufferPacker(this);
     }
 
     /**
@@ -113,7 +114,7 @@ public class MessagePack {
      * @return buffer-based serializer
      */
     public BufferPacker createBufferPacker(int bufferSize) {
-	return new MessagePackBufferPacker(this, bufferSize);
+        return new MessagePackBufferPacker(this, bufferSize);
     }
 
     /**
@@ -126,7 +127,7 @@ public class MessagePack {
      * @return stream-based deserializer
      */
     public Unpacker createUnpacker(InputStream in) {
-	return new MessagePackUnpacker(this, in);
+        return new MessagePackUnpacker(this, in);
     }
 
     /**
@@ -136,7 +137,7 @@ public class MessagePack {
      * @return buffer-based deserializer
      */
     public BufferUnpacker createBufferUnpacker() {
-	return new MessagePackBufferUnpacker(this);
+        return new MessagePackBufferUnpacker(this);
     }
 
     /**
@@ -148,7 +149,7 @@ public class MessagePack {
      * @return buffer-based deserializer
      */
     public BufferUnpacker createBufferUnpacker(byte[] bytes) {
-	return createBufferUnpacker().wrap(bytes);
+        return createBufferUnpacker().wrap(bytes);
     }
 
     /**
@@ -161,7 +162,7 @@ public class MessagePack {
      * @return buffer-based deserializer
      */
     public BufferUnpacker createBufferUnpacker(byte[] bytes, int off, int len) {
-	return createBufferUnpacker().wrap(bytes, off, len);
+        return createBufferUnpacker().wrap(bytes, off, len);
     }
 
     /**
@@ -173,7 +174,7 @@ public class MessagePack {
      * @return buffer-based deserializer
      */
     public BufferUnpacker createBufferUnpacker(ByteBuffer buffer) {
-	return createBufferUnpacker().wrap(buffer);
+        return createBufferUnpacker().wrap(buffer);
     }
 
     /**
@@ -186,15 +187,15 @@ public class MessagePack {
      * @throws IOException
      */
     public <T> byte[] write(T v) throws IOException {
-	BufferPacker pk = createBufferPacker();
-	if (v == null) {
-	    pk.writeNil();
-	}else {
-	    @SuppressWarnings("unchecked")
-	    Template<T> tmpl = registry.lookup(v.getClass());
-	    tmpl.write(pk, v);
-	}
-	return pk.toByteArray();
+        BufferPacker pk = createBufferPacker();
+        if (v == null) {
+            pk.writeNil();
+        } else {
+            @SuppressWarnings("unchecked")
+            Template<T> tmpl = registry.lookup(v.getClass());
+            tmpl.write(pk, v);
+        }
+        return pk.toByteArray();
     }
 
     /**
@@ -208,9 +209,9 @@ public class MessagePack {
      * @throws IOException
      */
     public <T> byte[] write(T v, Template<T> template) throws IOException {
-	BufferPacker pk = createBufferPacker();
-	template.write(pk, v);
-	return pk.toByteArray();
+        BufferPacker pk = createBufferPacker();
+        template.write(pk, v);
+        return pk.toByteArray();
     }
 
     /**
@@ -224,14 +225,14 @@ public class MessagePack {
      * @throws IOException
      */
     public <T> void write(OutputStream out, T v) throws IOException {
-	Packer pk = createPacker(out);
-	if (v == null) {
-	    pk.writeNil();
-	} else {
-	    @SuppressWarnings("unchecked")
-	    Template<T> tmpl = registry.lookup(v.getClass());
-	    tmpl.write(pk, v);
-	}
+        Packer pk = createPacker(out);
+        if (v == null) {
+            pk.writeNil();
+        } else {
+            @SuppressWarnings("unchecked")
+            Template<T> tmpl = registry.lookup(v.getClass());
+            tmpl.write(pk, v);
+        }
     }
 
     /**
@@ -247,9 +248,9 @@ public class MessagePack {
      * @throws IOException
      */
     public <T> void write(OutputStream out, T v, Template<T> template)
-	    throws IOException {
-	Packer pk = createPacker(out);
-	template.write(pk, v);
+            throws IOException {
+        Packer pk = createPacker(out);
+        template.write(pk, v);
     }
 
     /**
@@ -262,10 +263,10 @@ public class MessagePack {
      * @throws IOException
      */
     public byte[] write(Value v) throws IOException {
-	// FIXME ValueTemplate should do this
-	BufferPacker pk = createBufferPacker();
-	pk.write(v);
-	return pk.toByteArray();
+        // FIXME ValueTemplate should do this
+        BufferPacker pk = createBufferPacker();
+        pk.write(v);
+        return pk.toByteArray();
     }
 
     /**
@@ -279,7 +280,7 @@ public class MessagePack {
      * @throws IOException
      */
     public Value read(byte[] bytes) throws IOException {
-	return read(bytes, 0, bytes.length);
+        return read(bytes, 0, bytes.length);
     }
 
     /**
@@ -293,7 +294,7 @@ public class MessagePack {
      * @throws IOException
      */
     public Value read(byte[] bytes, int off, int len) throws IOException {
-	return createBufferUnpacker(bytes, off, len).readValue();
+        return createBufferUnpacker(bytes, off, len).readValue();
     }
 
     /**
@@ -307,7 +308,7 @@ public class MessagePack {
      * @throws IOException
      */
     public Value read(ByteBuffer buffer) throws IOException {
-	return createBufferUnpacker(buffer).readValue();
+        return createBufferUnpacker(buffer).readValue();
     }
 
     /**
@@ -320,7 +321,7 @@ public class MessagePack {
      * @throws IOException
      */
     public Value read(InputStream in) throws IOException {
-	return createUnpacker(in).readValue();
+        return createUnpacker(in).readValue();
     }
 
     /**
@@ -334,52 +335,57 @@ public class MessagePack {
      * @throws IOException
      */
     public <T> T read(byte[] bytes, T v) throws IOException {
-	@SuppressWarnings("unchecked")
-	Template<T> tmpl = registry.lookup(v.getClass());
-	return read(bytes, v, tmpl);
+        @SuppressWarnings("unchecked")
+        Template<T> tmpl = registry.lookup(v.getClass());
+        return read(bytes, v, tmpl);
     }
 
     /**
      * Deserializes byte array to object according to template.
      * 
      * @since 0.6.0
-     * @param bytes	input byte array
-     * @param tmpl	template
+     * @param bytes
+     *            input byte array
+     * @param tmpl
+     *            template
      * @return
      * @throws IOException
      */
     public <T> T read(byte[] bytes, Template<T> tmpl) throws IOException {
-	return read(bytes, null, tmpl);
+        return read(bytes, null, tmpl);
     }
 
     /**
      * Deserializes byte array to object of specified class.
      * 
      * @since 0.6.0
-     * @param bytes	input byte array
+     * @param bytes
+     *            input byte array
      * @param c
      * @return
      * @throws IOException
      */
     public <T> T read(byte[] bytes, Class<T> c) throws IOException {
-	@SuppressWarnings("unchecked")
-	Template<T> tmpl = registry.lookup(c);
-	return read(bytes, null, tmpl);
+        @SuppressWarnings("unchecked")
+        Template<T> tmpl = registry.lookup(c);
+        return read(bytes, null, tmpl);
     }
 
     /**
      * Deserializes byte array to object according to specified template.
      * 
      * @since 0.6.0
-     * @param bytes	input byte array
+     * @param bytes
+     *            input byte array
      * @param v
-     * @param tmpl	template
+     * @param tmpl
+     *            template
      * @return
      * @throws IOException
      */
     public <T> T read(byte[] bytes, T v, Template<T> tmpl) throws IOException {
-	BufferUnpacker u = createBufferUnpacker(bytes);
-	return (T) tmpl.read(u, v);
+        BufferUnpacker u = createBufferUnpacker(bytes);
+        return (T) tmpl.read(u, v);
     }
 
     /**
@@ -393,22 +399,23 @@ public class MessagePack {
      * @throws IOException
      */
     public <T> T read(ByteBuffer b, T v) throws IOException {
-	@SuppressWarnings("unchecked")
-	Template<T> tmpl = registry.lookup(v.getClass());
-	return read(b, v, tmpl);
+        @SuppressWarnings("unchecked")
+        Template<T> tmpl = registry.lookup(v.getClass());
+        return read(b, v, tmpl);
     }
 
     /**
      * Deserializes buffer to object according to template.
      * 
      * @since 0.6.0
-     * @param b		input buffer object
+     * @param b
+     *            input buffer object
      * @param tmpl
      * @return
      * @throws IOException
      */
     public <T> T read(ByteBuffer b, Template<T> tmpl) throws IOException {
-	return read(b, null, tmpl);
+        return read(b, null, tmpl);
     }
 
     /**
@@ -418,27 +425,28 @@ public class MessagePack {
      * @param b
      * @param c
      * @return
-     * @throws IOException 
+     * @throws IOException
      */
     public <T> T read(ByteBuffer b, Class<T> c) throws IOException {
-	@SuppressWarnings("unchecked")
-	Template<T> tmpl = registry.lookup(c);
-	return read(b, null, tmpl);
+        @SuppressWarnings("unchecked")
+        Template<T> tmpl = registry.lookup(c);
+        return read(b, null, tmpl);
     }
 
     /**
      * Deserializes buffer to object according to template.
      * 
      * @since 0.6.0
-     * @param b		input buffer object
+     * @param b
+     *            input buffer object
      * @param v
      * @param tmpl
      * @return
      * @throws IOException
      */
     public <T> T read(ByteBuffer b, T v, Template<T> tmpl) throws IOException {
-	BufferUnpacker u = createBufferUnpacker(b);
-	return tmpl.read(u, v);
+        BufferUnpacker u = createBufferUnpacker(b);
+        return tmpl.read(u, v);
     }
 
     /**
@@ -452,22 +460,23 @@ public class MessagePack {
      * @throws IOException
      */
     public <T> T read(InputStream in, T v) throws IOException {
-	@SuppressWarnings("unchecked")
-	Template<T> tmpl = registry.lookup(v.getClass());
-	return read(in, v, tmpl);
+        @SuppressWarnings("unchecked")
+        Template<T> tmpl = registry.lookup(v.getClass());
+        return read(in, v, tmpl);
     }
 
     /**
      * Deserializes input stream to object according to template.
      * 
      * @since 0.6.0
-     * @param in	input stream
+     * @param in
+     *            input stream
      * @param tmpl
      * @return
      * @throws IOException
      */
     public <T> T read(InputStream in, Template<T> tmpl) throws IOException {
-	return read(in, null, tmpl);
+        return read(in, null, tmpl);
     }
 
     /**
@@ -480,24 +489,25 @@ public class MessagePack {
      * @throws IOException
      */
     public <T> T read(InputStream in, Class<T> c) throws IOException {
-	@SuppressWarnings("unchecked")
-	Template<T> tmpl = registry.lookup(c);
-	return read(in, null, tmpl);
+        @SuppressWarnings("unchecked")
+        Template<T> tmpl = registry.lookup(c);
+        return read(in, null, tmpl);
     }
 
     /**
      * Deserializes input stream to object according to template
      * 
      * @since 0.6.0
-     * @param in	input stream
+     * @param in
+     *            input stream
      * @param v
      * @param tmpl
      * @return
      * @throws IOException
      */
     public <T> T read(InputStream in, T v, Template<T> tmpl) throws IOException {
-	Unpacker u = createUnpacker(in);
-	return tmpl.read(u, v);
+        Unpacker u = createUnpacker(in);
+        return tmpl.read(u, v);
     }
 
     /**
@@ -510,9 +520,9 @@ public class MessagePack {
      * @throws IOException
      */
     public <T> T convert(Value v, T to) throws IOException {
-	@SuppressWarnings("unchecked")
-	Template<T> tmpl = registry.lookup(to.getClass());
-	return tmpl.read(new Converter(this, v), to);
+        @SuppressWarnings("unchecked")
+        Template<T> tmpl = registry.lookup(to.getClass());
+        return tmpl.read(new Converter(this, v), to);
     }
 
     /**
@@ -525,9 +535,9 @@ public class MessagePack {
      * @throws IOException
      */
     public <T> T convert(Value v, Class<T> c) throws IOException {
-	@SuppressWarnings("unchecked")
-	Template<T> tmpl = registry.lookup(c);
-	return tmpl.read(new Converter(this, v), null);
+        @SuppressWarnings("unchecked")
+        Template<T> tmpl = registry.lookup(c);
+        return tmpl.read(new Converter(this, v), null);
     }
 
     /**
@@ -539,15 +549,15 @@ public class MessagePack {
      * @throws IOException
      */
     public <T> Value unconvert(T v) throws IOException {
-	Unconverter pk = new Unconverter(this);
-	if (v == null) {
-	    pk.writeNil();
-	} else {
-	    @SuppressWarnings("unchecked")
-	    Template<T> tmpl = registry.lookup(v.getClass());
-	    tmpl.write(pk, v);
-	}
-	return pk.getResult();
+        Unconverter pk = new Unconverter(this);
+        if (v == null) {
+            pk.writeNil();
+        } else {
+            @SuppressWarnings("unchecked")
+            Template<T> tmpl = registry.lookup(v.getClass());
+            tmpl.write(pk, v);
+        }
+        return pk.getResult();
     }
 
     /**
@@ -559,7 +569,7 @@ public class MessagePack {
      * @param type
      */
     public void register(Class<?> type) {
-	registry.register(type);
+        registry.register(type);
     }
 
     /**
@@ -572,7 +582,7 @@ public class MessagePack {
      * @param template
      */
     public <T> void register(Class<T> type, Template<T> template) {
-	registry.register(type, template);
+        registry.register(type, template);
     }
 
     /**
@@ -584,7 +594,7 @@ public class MessagePack {
      * @return
      */
     public boolean unregister(Class<?> type) {
-	return registry.unregister(type);
+        return registry.unregister(type);
     }
 
     /**
@@ -594,7 +604,7 @@ public class MessagePack {
      * @since 0.6.0
      */
     public void unregister() {
-	registry.unregister();
+        registry.unregister();
     }
 
     /**
@@ -607,12 +617,13 @@ public class MessagePack {
      */
     @SuppressWarnings("unchecked")
     public <T> Template<T> lookup(Class<T> type) {
-	return registry.lookup(type);
+        return registry.lookup(type);
     }
 
     public Template<?> lookup(Type type) {
-	  return registry.lookup(type);
+        return registry.lookup(type);
     }
+
     private static final MessagePack globalMessagePack = new MessagePack();
 
     /**
@@ -625,7 +636,7 @@ public class MessagePack {
      */
     @Deprecated
     public static byte[] pack(Object v) throws IOException {
-	return globalMessagePack.write(v);
+        return globalMessagePack.write(v);
     }
 
     /**
@@ -638,7 +649,7 @@ public class MessagePack {
      */
     @Deprecated
     public static void pack(OutputStream out, Object v) throws IOException {
-	globalMessagePack.write(out, v);
+        globalMessagePack.write(out, v);
     }
 
     /**
@@ -652,7 +663,7 @@ public class MessagePack {
      */
     @Deprecated
     public static <T> byte[] pack(T v, Template<T> template) throws IOException {
-	return globalMessagePack.write(v, template);
+        return globalMessagePack.write(v, template);
     }
 
     /**
@@ -667,8 +678,8 @@ public class MessagePack {
      */
     @Deprecated
     public static <T> void pack(OutputStream out, T v, Template<T> template)
-	    throws IOException {
-	globalMessagePack.write(out, v, template);
+            throws IOException {
+        globalMessagePack.write(out, v, template);
     }
 
     /**
@@ -681,23 +692,19 @@ public class MessagePack {
      */
     @Deprecated
     public static Value unpack(byte[] bytes) throws IOException {
-	return globalMessagePack.read(bytes);
+        return globalMessagePack.read(bytes);
     }
 
     @Deprecated
-    public static <T> T unpack(byte[] bytes, Template<T> template)
-	    throws IOException {
-	BufferUnpacker u = new MessagePackBufferUnpacker(globalMessagePack)
-		.wrap(bytes);
-	return template.read(u, null);
+    public static <T> T unpack(byte[] bytes, Template<T> template) throws IOException {
+        BufferUnpacker u = new MessagePackBufferUnpacker(globalMessagePack).wrap(bytes);
+        return template.read(u, null);
     }
 
     @Deprecated
-    public static <T> T unpack(byte[] bytes, Template<T> template, T to)
-	    throws IOException {
-	BufferUnpacker u = new MessagePackBufferUnpacker(globalMessagePack)
-		.wrap(bytes);
-	return template.read(u, to);
+    public static <T> T unpack(byte[] bytes, Template<T> template, T to) throws IOException {
+        BufferUnpacker u = new MessagePackBufferUnpacker(globalMessagePack).wrap(bytes);
+        return template.read(u, to);
     }
 
     /**
@@ -711,7 +718,7 @@ public class MessagePack {
      */
     @Deprecated
     public static <T> T unpack(byte[] bytes, Class<T> klass) throws IOException {
-	return globalMessagePack.read(bytes, klass);
+        return globalMessagePack.read(bytes, klass);
     }
 
     /**
@@ -724,7 +731,7 @@ public class MessagePack {
      */
     @Deprecated
     public static <T> T unpack(byte[] bytes, T to) throws IOException {
-	return globalMessagePack.read(bytes, to);
+        return globalMessagePack.read(bytes, to);
     }
 
     /**
@@ -737,7 +744,7 @@ public class MessagePack {
      */
     @Deprecated
     public static Value unpack(InputStream in) throws IOException {
-	return globalMessagePack.read(in);
+        return globalMessagePack.read(in);
     }
 
     /**
@@ -750,8 +757,8 @@ public class MessagePack {
      */
     @Deprecated
     public static <T> T unpack(InputStream in, Template<T> tmpl)
-	    throws IOException, MessageTypeException {
-	return tmpl.read(new MessagePackUnpacker(globalMessagePack, in), null);
+            throws IOException, MessageTypeException {
+        return tmpl.read(new MessagePackUnpacker(globalMessagePack, in), null);
     }
 
     /**
@@ -765,9 +772,8 @@ public class MessagePack {
      */
     @Deprecated
     public static <T> T unpack(InputStream in, Template<T> tmpl, T to)
-	    throws IOException, MessageTypeException {
-	return (T) tmpl
-		.read(new MessagePackUnpacker(globalMessagePack, in), to);
+            throws IOException, MessageTypeException {
+        return (T) tmpl.read(new MessagePackUnpacker(globalMessagePack, in), to);
     }
 
     /**
@@ -781,8 +787,8 @@ public class MessagePack {
      */
     @Deprecated
     public static <T> T unpack(InputStream in, Class<T> klass)
-	    throws IOException {
-	return globalMessagePack.read(in, klass);
+            throws IOException {
+        return globalMessagePack.read(in, klass);
     }
 
     /**
@@ -796,6 +802,6 @@ public class MessagePack {
      */
     @Deprecated
     public static <T> T unpack(InputStream in, T to) throws IOException {
-	return globalMessagePack.read(in, to);
+        return globalMessagePack.read(in, to);
     }
 }

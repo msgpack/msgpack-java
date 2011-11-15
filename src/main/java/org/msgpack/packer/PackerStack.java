@@ -19,7 +19,6 @@ package org.msgpack.packer;
 
 import org.msgpack.MessageTypeException;
 
-
 public final class PackerStack {
     private int top;
     private byte[] types;
@@ -47,19 +46,21 @@ public final class PackerStack {
     public void pushMap(int size) {
         top++;
         types[top] = TYPE_MAP;
-        counts[top] = size*2;
+        counts[top] = size * 2;
     }
 
     public void checkCount() {
-        if(counts[top] > 0) {
+        if (counts[top] > 0) {
             return;
         }
 
-        if(types[top] == TYPE_ARRAY) {
-            throw new MessageTypeException("Array is end but writeArrayEnd() is not called");
+        if (types[top] == TYPE_ARRAY) {
+            throw new MessageTypeException(
+                    "Array is end but writeArrayEnd() is not called");
 
-        } else if(types[top] == TYPE_MAP) {
-            throw new MessageTypeException("Map is end but writeMapEnd() is not called");
+        } else if (types[top] == TYPE_MAP) {
+            throw new MessageTypeException(
+                    "Map is end but writeMapEnd() is not called");
 
         } else {
             // empty
@@ -95,4 +96,3 @@ public final class PackerStack {
         top = 0;
     }
 }
-

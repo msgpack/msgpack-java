@@ -19,7 +19,6 @@ package org.msgpack.io;
 
 import java.io.EOFException;
 
-
 @SuppressWarnings("serial")
 public class EndOfBufferException extends EOFException {
     public EndOfBufferException() {
@@ -30,4 +29,3 @@ public class EndOfBufferException extends EOFException {
         super(s);
     }
 }
-

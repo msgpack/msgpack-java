@@ -19,18 +19,17 @@ package org.msgpack.unpacker;
 
 import org.msgpack.MessageTypeException;
 
-
 final class IntAccept extends Accept {
     int value;
 
     @Override
     void acceptInteger(byte v) {
-        this.value = (int)v;
+        this.value = (int) v;
     }
 
     @Override
     void acceptInteger(short v) {
-        this.value = (int)v;
+        this.value = (int) v;
     }
 
     @Override
@@ -40,10 +39,10 @@ final class IntAccept extends Accept {
 
     @Override
     void acceptInteger(long v) {
-        if(value < (long)Integer.MIN_VALUE || value > (long)Integer.MAX_VALUE) {
-            throw new MessageTypeException();  // TODO message
+        if (value < (long) Integer.MIN_VALUE || value > (long) Integer.MAX_VALUE) {
+            throw new MessageTypeException(); // TODO message
         }
-        this.value = (int)v;
+        this.value = (int) v;
     }
 
     @Override
@@ -58,18 +57,17 @@ final class IntAccept extends Accept {
 
     @Override
     void acceptUnsignedInteger(int v) {
-        if(v < 0) {
-            throw new MessageTypeException();  // TODO message
+        if (v < 0) {
+            throw new MessageTypeException(); // TODO message
         }
         this.value = v;
     }
 
     @Override
     void acceptUnsignedInteger(long v) {
-        if(v < 0 || v > (long)Integer.MAX_VALUE) {
-            throw new MessageTypeException();  // TODO message
+        if (v < 0 || v > (long) Integer.MAX_VALUE) {
+            throw new MessageTypeException(); // TODO message
         }
-        this.value = (int)v;
+        this.value = (int) v;
     }
 }
-

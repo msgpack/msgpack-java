@@ -22,14 +22,15 @@ import java.lang.reflect.Type;
 import org.msgpack.template.FieldList;
 import org.msgpack.template.Template;
 
-
 public interface TemplateBuilder {
 
     boolean matchType(Type targetType, boolean forceBuild);
 
-    <T> Template<T> buildTemplate(Type targetType) throws TemplateBuildException;
+    <T> Template<T> buildTemplate(Type targetType)
+            throws TemplateBuildException;
 
-    <T> Template<T> buildTemplate(Class<T> targetClass, FieldList flist) throws TemplateBuildException;
+    <T> Template<T> buildTemplate(Class<T> targetClass, FieldList flist)
+            throws TemplateBuildException;
 
     void writeTemplate(Type targetType, String directoryName);
 

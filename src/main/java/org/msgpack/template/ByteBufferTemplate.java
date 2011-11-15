@@ -24,11 +24,12 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-
 public class ByteBufferTemplate extends AbstractTemplate<ByteBuffer> {
-    private ByteBufferTemplate() { }
+    private ByteBufferTemplate() {
+    }
 
-    public void write(Packer pk, ByteBuffer target, boolean required) throws IOException {
+    public void write(Packer pk, ByteBuffer target, boolean required)
+            throws IOException {
         if (target == null) {
             if (required) {
                 throw new MessageTypeException("Attempted to write null");
@@ -39,11 +40,12 @@ public class ByteBufferTemplate extends AbstractTemplate<ByteBuffer> {
         pk.write(target);
     }
 
-    public ByteBuffer read(Unpacker u, ByteBuffer to, boolean required) throws IOException {
+    public ByteBuffer read(Unpacker u, ByteBuffer to, boolean required)
+            throws IOException {
         if (!required && u.trySkipNil()) {
             return null;
         }
-        return u.readByteBuffer();  // TODO read to 'to' obj?
+        return u.readByteBuffer(); // TODO read to 'to' obj?
     }
 
     static public ByteBufferTemplate getInstance() {
@@ -52,4 +54,3 @@ public class ByteBufferTemplate extends AbstractTemplate<ByteBuffer> {
 
     static final ByteBufferTemplate instance = new ByteBufferTemplate();
 }
-

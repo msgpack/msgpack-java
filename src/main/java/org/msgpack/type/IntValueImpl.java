@@ -22,7 +22,6 @@ import java.io.IOException;
 import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
 
-
 @SuppressWarnings("serial")
 class IntValueImpl extends IntegerValue {
     private int value;
@@ -31,26 +30,26 @@ class IntValueImpl extends IntegerValue {
         this.value = value;
     }
 
-    private static int BYTE_MAX = (int)Byte.MAX_VALUE;
-    private static int SHORT_MAX = (int)Short.MAX_VALUE;
+    private static int BYTE_MAX = (int) Byte.MAX_VALUE;
+    private static int SHORT_MAX = (int) Short.MAX_VALUE;
 
-    private static int BYTE_MIN = (int)Byte.MIN_VALUE;
-    private static int SHORT_MIN = (int)Short.MIN_VALUE;
+    private static int BYTE_MIN = (int) Byte.MIN_VALUE;
+    private static int SHORT_MIN = (int) Short.MIN_VALUE;
 
     @Override
     public byte getByte() {
-        if(value > BYTE_MAX || value < BYTE_MIN) {
-            throw new MessageTypeException();  // TODO message
+        if (value > BYTE_MAX || value < BYTE_MIN) {
+            throw new MessageTypeException(); // TODO message
         }
-        return (byte)value;
+        return (byte) value;
     }
 
     @Override
     public short getShort() {
-        if(value > SHORT_MAX || value < SHORT_MIN) {
-            throw new MessageTypeException();  // TODO message
+        if (value > SHORT_MAX || value < SHORT_MIN) {
+            throw new MessageTypeException(); // TODO message
         }
-        return (short)value;
+        return (short) value;
     }
 
     @Override
@@ -65,17 +64,17 @@ class IntValueImpl extends IntegerValue {
 
     @Override
     public BigInteger getBigInteger() {
-        return BigInteger.valueOf((long)value);
+        return BigInteger.valueOf((long) value);
     }
 
     @Override
     public byte byteValue() {
-        return (byte)value;
+        return (byte) value;
     }
 
     @Override
     public short shortValue() {
-        return (short)value;
+        return (short) value;
     }
 
     @Override
@@ -85,22 +84,22 @@ class IntValueImpl extends IntegerValue {
 
     @Override
     public long longValue() {
-        return (long)value;
+        return (long) value;
     }
 
     @Override
     public BigInteger bigIntegerValue() {
-        return BigInteger.valueOf((long)value);
+        return BigInteger.valueOf((long) value);
     }
 
     @Override
     public float floatValue() {
-        return (float)value;
+        return (float) value;
     }
 
     @Override
     public double doubleValue() {
-        return (double)value;
+        return (double) value;
     }
 
     @Override
@@ -112,14 +111,14 @@ class IntValueImpl extends IntegerValue {
 
     @Override
     public boolean equals(Object o) {
-        if(o == this) {
+        if (o == this) {
             return true;
         }
-        if(!(o instanceof Value)) {
+        if (!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isIntegerValue()) {
+        if (!v.isIntegerValue()) {
             return false;
         }
 
@@ -146,4 +145,3 @@ class IntValueImpl extends IntegerValue {
         return sb.append(Integer.toString(value));
     }
 }
-

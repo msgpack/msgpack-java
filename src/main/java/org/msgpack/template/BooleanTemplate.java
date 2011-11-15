@@ -22,23 +22,25 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-
 public class BooleanTemplate extends AbstractTemplate<Boolean> {
-    private BooleanTemplate() { }
+    private BooleanTemplate() {
+    }
 
-    public void write(Packer pk, Boolean target, boolean required) throws IOException {
-        if(target == null) {
-            if(required) {
+    public void write(Packer pk, Boolean target, boolean required)
+            throws IOException {
+        if (target == null) {
+            if (required) {
                 throw new MessageTypeException("Attempted to write null");
             }
             pk.writeNil();
             return;
         }
-        pk.write((boolean)target);
+        pk.write((boolean) target);
     }
 
-    public Boolean read(Unpacker u, Boolean to, boolean required) throws IOException {
-        if(!required && u.trySkipNil()) {
+    public Boolean read(Unpacker u, Boolean to, boolean required)
+            throws IOException {
+        if (!required && u.trySkipNil()) {
             return null;
         }
         return u.readBoolean();
@@ -50,4 +52,3 @@ public class BooleanTemplate extends AbstractTemplate<Boolean> {
 
     static final BooleanTemplate instance = new BooleanTemplate();
 }
-

@@ -27,7 +27,6 @@ import java.nio.charset.CodingErrorAction;
 import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
 
-
 class ByteArrayRawValueImpl extends AbstractRawValue {
     private static ByteArrayRawValueImpl emptyInstance = new ByteArrayRawValueImpl(new byte[0], true);
 
@@ -38,7 +37,7 @@ class ByteArrayRawValueImpl extends AbstractRawValue {
     private byte[] bytes;
 
     ByteArrayRawValueImpl(byte[] bytes, boolean gift) {
-        if(gift) {
+        if (gift) {
             this.bytes = bytes;
         } else {
             this.bytes = new byte[bytes.length];
@@ -59,9 +58,9 @@ class ByteArrayRawValueImpl extends AbstractRawValue {
 
     @Override
     public String getString() {
-        CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder().
-            onMalformedInput(CodingErrorAction.REPORT).
-            onUnmappableCharacter(CodingErrorAction.REPORT);
+        CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder()
+                .onMalformedInput(CodingErrorAction.REPORT)
+                .onUnmappableCharacter(CodingErrorAction.REPORT);
         try {
             return decoder.decode(ByteBuffer.wrap(bytes)).toString();
         } catch (CharacterCodingException ex) {
@@ -76,14 +75,14 @@ class ByteArrayRawValueImpl extends AbstractRawValue {
 
     @Override
     public boolean equals(Object o) {
-        if(this == o) {
+        if (this == o) {
             return true;
         }
-        if(!(o instanceof Value)) {
+        if (!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isRawValue()) {
+        if (!v.isRawValue()) {
             return false;
         }
 
@@ -95,4 +94,3 @@ class ByteArrayRawValueImpl extends AbstractRawValue {
         return Arrays.hashCode(bytes);
     }
 }
-

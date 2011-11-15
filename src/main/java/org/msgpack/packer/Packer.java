@@ -28,7 +28,7 @@ import org.msgpack.type.Value;
  * Standard serializer in MessagePack for Java. It allows users to serialize
  * objects like <tt>String</tt>, <tt>List</tt>, <tt>Map</tt>, <tt>byte[]</tt>,
  * primitive types and so on.
- *
+ * 
  * @version 0.6.0
  */
 public interface Packer extends Closeable, Flushable {
@@ -74,7 +74,6 @@ public interface Packer extends Closeable, Flushable {
 
     public Packer write(Object o) throws IOException;
 
-
     public Packer writeNil() throws IOException;
 
     public Packer writeArrayBegin(int size) throws IOException;
@@ -89,4 +88,3 @@ public interface Packer extends Closeable, Flushable {
 
     public Packer writeMapEnd() throws IOException;
 }
-

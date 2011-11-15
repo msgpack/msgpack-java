@@ -22,11 +22,12 @@ import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-
 public class LongArrayTemplate extends AbstractTemplate<long[]> {
-    private LongArrayTemplate() { }
+    private LongArrayTemplate() {
+    }
 
-    public void write(Packer pk, long[] target, boolean required) throws IOException {
+    public void write(Packer pk, long[] target, boolean required)
+            throws IOException {
         if (target == null) {
             if (required) {
                 throw new MessageTypeException("Attempted to write null");
@@ -41,7 +42,8 @@ public class LongArrayTemplate extends AbstractTemplate<long[]> {
         pk.writeArrayEnd();
     }
 
-    public long[] read(Unpacker u, long[] to, boolean required) throws IOException {
+    public long[] read(Unpacker u, long[] to, boolean required)
+            throws IOException {
         if (!required && u.trySkipNil()) {
             return null;
         }
@@ -49,7 +51,7 @@ public class LongArrayTemplate extends AbstractTemplate<long[]> {
         if (to == null || to.length != n) {
             to = new long[n];
         }
-        for (int i=0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             to[i] = u.readLong();
         }
         u.readArrayEnd();
@@ -62,4 +64,3 @@ public class LongArrayTemplate extends AbstractTemplate<long[]> {
 
     static final LongArrayTemplate instance = new LongArrayTemplate();
 }
-

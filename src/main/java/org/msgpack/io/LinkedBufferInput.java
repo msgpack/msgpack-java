@@ -22,7 +22,6 @@ import java.io.EOFException;
 import java.util.LinkedList;
 import java.nio.ByteBuffer;
 
-
 public class LinkedBufferInput extends AbstractInput {
     private LinkedList<ByteBuffer> link;
 
@@ -45,7 +44,7 @@ public class LinkedBufferInput extends AbstractInput {
     }
 
     public int read(byte[] b, int off, int len) throws EOFException {
-        if(link.isEmpty()) {
+        if (link.isEmpty()) {
             return 0;
         }
         int olen = len;
@@ -104,26 +103,26 @@ public class LinkedBufferInput extends AbstractInput {
         }
         byte result = bb.get();
         incrReadOneByteCount();
-        if(bb.remaining() == 0) {
+        if (bb.remaining() == 0) {
             removeFirstLink(bb);
         }
         return result;
     }
 
     public void advance() {
-        if(link.isEmpty()) {
+        if (link.isEmpty()) {
             return;
         }
         int len = nextAdvance;
         ByteBuffer bb;
-        while(true) {
+        while (true) {
             bb = link.peekFirst();
-            if(len < bb.remaining()) {
-                bb.position(bb.position()+len);
+            if (len < bb.remaining()) {
+                bb.position(bb.position() + len);
                 break;
             }
             len -= bb.remaining();
-            if(!removeFirstLink(bb)) {
+            if (!removeFirstLink(bb)) {
                 break;
             }
         }
@@ -132,8 +131,8 @@ public class LinkedBufferInput extends AbstractInput {
     }
 
     private boolean removeFirstLink(ByteBuffer first) {
-        if(link.size() == 1) {
-            if(writable >= 0) {
+        if (link.size() == 1) {
+            if (writable >= 0) {
                 first.position(0);
                 first.limit(0);
                 writable = first.capacity();
@@ -170,10 +169,10 @@ public class LinkedBufferInput extends AbstractInput {
 
     private ByteBuffer require(int n) throws EOFException {
         ByteBuffer bb = link.peekFirst();
-        if(bb == null) {
+        if (bb == null) {
             throw new EndOfBufferException();
         }
-        if(n <= bb.remaining()) {
+        if (n <= bb.remaining()) {
             nextAdvance = n;
             return bb;
         } else {
@@ -226,8 +225,8 @@ public class LinkedBufferInput extends AbstractInput {
     }
 
     public void feed(byte[] b, int off, int len, boolean nocopy) {
-        if(nocopy) {
-            if(writable > 0 && link.size() == 1 && link.peekFirst().remaining() == 0) {
+        if (nocopy) {
+            if (writable > 0 && link.size() == 1 && link.peekFirst().remaining() == 0) {
                 link.addFirst(ByteBuffer.wrap(b, off, len));
                 return;
             }
@@ -237,7 +236,7 @@ public class LinkedBufferInput extends AbstractInput {
         }
 
         ByteBuffer bb = link.peekLast();
-        if(len <= writable) {
+        if (len <= writable) {
             int pos = bb.position();
             bb.position(bb.limit());
             bb.limit(bb.limit() + len);
@@ -247,7 +246,7 @@ public class LinkedBufferInput extends AbstractInput {
             return;
         }
 
-        if(writable > 0) {
+        if (writable > 0) {
             int pos = bb.position();
             bb.position(bb.limit());
             bb.limit(bb.limit() + writable);
@@ -272,8 +271,8 @@ public class LinkedBufferInput extends AbstractInput {
     }
 
     public void feed(ByteBuffer buf, boolean nocopy) {
-        if(nocopy) {
-            if(writable > 0 && link.size() == 1 && link.peekFirst().remaining() == 0) {
+        if (nocopy) {
+            if (writable > 0 && link.size() == 1 && link.peekFirst().remaining() == 0) {
                 link.addFirst(buf);
                 return;
             }
@@ -285,7 +284,7 @@ public class LinkedBufferInput extends AbstractInput {
         int rem = buf.remaining();
 
         ByteBuffer bb = link.peekLast();
-        if(rem <= writable) {
+        if (rem <= writable) {
             int pos = bb.position();
             bb.position(bb.limit());
             bb.limit(bb.limit() + rem);
@@ -295,7 +294,7 @@ public class LinkedBufferInput extends AbstractInput {
             return;
         }
 
-        if(writable > 0) {
+        if (writable > 0) {
             int pos = bb.position();
             bb.position(bb.limit());
             bb.limit(bb.limit() + writable);
@@ -317,7 +316,7 @@ public class LinkedBufferInput extends AbstractInput {
     }
 
     public void clear() {
-        if(writable > 0) {
+        if (writable > 0) {
             ByteBuffer bb = link.getLast();
             link.clear();
             bb.position(0);
@@ -333,4 +332,3 @@ public class LinkedBufferInput extends AbstractInput {
     public void close() {
     }
 }
-

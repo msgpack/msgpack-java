@@ -21,7 +21,7 @@ import java.nio.ByteBuffer;
 
 /**
  * This class is buffer-specific deserializer.
- *
+ * 
  * @version 0.6.0
  * @see {@link org.msgpack.packer.Unpacker}
  */
@@ -46,4 +46,3 @@ public interface BufferUnpacker extends Unpacker {
 
     public void clear();
 }
-
