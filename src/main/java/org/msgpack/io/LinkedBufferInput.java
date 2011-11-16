@@ -20,6 +20,7 @@ package org.msgpack.io;
 import java.io.IOException;
 import java.io.EOFException;
 import java.util.LinkedList;
+import java.util.Iterator;
 import java.nio.ByteBuffer;
 
 public class LinkedBufferInput extends AbstractInput {
@@ -315,7 +316,7 @@ public class LinkedBufferInput extends AbstractInput {
     }
 
     public void clear() {
-        if (writable > 0) {
+        if (writable >= 0) {
             ByteBuffer bb = link.getLast();
             link.clear();
             bb.position(0);
@@ -325,6 +326,46 @@ public class LinkedBufferInput extends AbstractInput {
         } else {
             link.clear();
             writable = -1;
+        }
+    }
+
+    public void copyReferencedBuffer() {
+        if (link.isEmpty()) {
+            return;
+        }
+
+        int size = 0;
+        for(ByteBuffer bb : link) {
+            size += bb.remaining();
+        }
+        if (size == 0) {
+            return;
+        }
+
+        if (writable >= 0) {
+            ByteBuffer last = link.removeLast();
+            byte[] copy = new byte[size - last.remaining()];
+            int off = 0;
+            for(ByteBuffer bb : link) {
+                int len = bb.remaining();
+                bb.get(copy, off, len);
+                off += len;
+            }
+            link.clear();
+            link.add(ByteBuffer.wrap(copy));
+            link.add(last);
+
+        } else {
+            byte[] copy = new byte[size];
+            int off = 0;
+            for(ByteBuffer bb : link) {
+                int len = bb.remaining();
+                bb.get(copy, off, len);
+                off += len;
+            }
+            link.clear();
+            link.add(ByteBuffer.wrap(copy));
+            writable = 0;
         }
     }
 

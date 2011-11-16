@@ -440,6 +440,101 @@ public class TestLinkedBufferInput {
     }
 
     @Test
+    public void testClearRecycle() throws IOException {
+        byte[] data = new byte[8];
+        data[0] = (byte)1;
+        data[2] = (byte)1;
+        data[4] = (byte)1;
+
+        LinkedBufferInput b = new LinkedBufferInput(16);
+
+        b.feed(data);
+        assertEquals(1, b.link.size());
+        assertEquals(8, b.writable);
+        b.clear();
+        assertEquals(1, b.link.size());
+        assertEquals(16, b.writable);
+
+        b.feed(data);
+        b.feed(data);
+        assertEquals(1, b.link.size());
+        assertEquals(0, b.writable);
+        b.clear();
+        assertEquals(1, b.link.size());
+        assertEquals(16, b.writable);
+    }
+
+    @Test
+    public void testCopyReferencedBuffer() throws IOException {
+        byte[] data = new byte[16];
+        data[0] = (byte)4;
+        data[3] = (byte)5;
+        data[6] = (byte)6;
+        data[10] = (byte)7;
+
+        LinkedBufferInput b = new LinkedBufferInput(32);
+        int n;
+        byte[] buf = new byte[16];
+
+        b.feed(data, true);
+        b.feed(data, true);
+        b.feed(data, true);
+        assertEquals(3, b.link.size());
+        assertEquals(-1, b.writable);
+
+        b.copyReferencedBuffer();
+        assertEquals(1, b.link.size());
+        assertEquals(0, b.writable);
+
+        n = b.read(buf, 0, 16);
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+
+        n = b.read(buf, 0, 16);
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+
+        n = b.read(buf, 0, 16);
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+    }
+
+    @Test
+    public void testCopyReferencedBufferOptimized() throws IOException {
+        byte[] data = new byte[16];
+        data[0] = (byte)4;
+        data[3] = (byte)5;
+        data[6] = (byte)6;
+        data[10] = (byte)7;
+
+        LinkedBufferInput b = new LinkedBufferInput(32);
+        int n;
+        byte[] buf = new byte[16];
+
+        b.feed(data, true);
+        b.feed(data, true);
+        b.feed(data);  // buffer allocated
+        assertEquals(3, b.link.size());
+        assertEquals(16, b.writable);
+
+        b.copyReferencedBuffer();
+        assertEquals(2, b.link.size());
+        assertEquals(16, b.writable);
+
+        n = b.read(buf, 0, 16);
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+
+        n = b.read(buf, 0, 16);
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+
+        n = b.read(buf, 0, 16);
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+    }
+
+    @Test
     public void testBufferRecycleByteArray() throws IOException {
         byte[] data = new byte[16];
         data[0] = (byte)4;
