@@ -34,15 +34,17 @@ public interface BufferUnpacker extends Unpacker {
 
     public BufferUnpacker feed(byte[] b);
 
-    public BufferUnpacker feed(byte[] b, boolean nocopy);
+    public BufferUnpacker feed(byte[] b, boolean reference);
 
     public BufferUnpacker feed(byte[] b, int off, int len);
 
-    public BufferUnpacker feed(byte[] b, int off, int len, boolean nocopy);
+    public BufferUnpacker feed(byte[] b, int off, int len, boolean reference);
 
     public BufferUnpacker feed(ByteBuffer b);
 
-    public BufferUnpacker feed(ByteBuffer buf, boolean nocopy);
+    public BufferUnpacker feed(ByteBuffer buf, boolean reference);
+
+    public void copyReferencedBuffer();
 
     public void clear();
 }

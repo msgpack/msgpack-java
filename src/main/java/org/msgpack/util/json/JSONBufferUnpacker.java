@@ -68,7 +68,7 @@ public class JSONBufferUnpacker extends JSONUnpacker implements BufferUnpacker {
     }
 
     @Override
-    public JSONBufferUnpacker feed(byte[] b, boolean nocopy) {
+    public JSONBufferUnpacker feed(byte[] b, boolean reference) {
         throw new UnsupportedOperationException(
                 "JSONBufferUnpacker doesn't support feed()");
     }
@@ -80,7 +80,7 @@ public class JSONBufferUnpacker extends JSONUnpacker implements BufferUnpacker {
     }
 
     @Override
-    public JSONBufferUnpacker feed(byte[] b, int off, int len, boolean nocopy) {
+    public JSONBufferUnpacker feed(byte[] b, int off, int len, boolean reference) {
         throw new UnsupportedOperationException(
                 "JSONBufferUnpacker doesn't support feed()");
     }
@@ -92,9 +92,15 @@ public class JSONBufferUnpacker extends JSONUnpacker implements BufferUnpacker {
     }
 
     @Override
-    public JSONBufferUnpacker feed(ByteBuffer buf, boolean nocopy) {
+    public JSONBufferUnpacker feed(ByteBuffer buf, boolean reference) {
         throw new UnsupportedOperationException(
                 "JSONBufferUnpacker doesn't support feed()");
+    }
+
+    @Override
+    public void copyReferencedBuffer() {
+        throw new UnsupportedOperationException(
+                "JSONBufferUnpacker doesn't support copyReferencedBuffer()");
     }
 
     @Override

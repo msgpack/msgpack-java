@@ -73,7 +73,7 @@ public class TestLinkedBufferInput {
     }
 
     @Test
-    public void testFeedByteArrayNoCopy() throws IOException {
+    public void testFeedByteArrayReference() throws IOException {
         byte[] small = new byte[8];
         small[0] = (byte)1;
         small[2] = (byte)1;
@@ -112,7 +112,7 @@ public class TestLinkedBufferInput {
     }
 
     @Test
-    public void testFeedByteArrayCopyNoCopy() throws IOException {
+    public void testFeedByteArrayCopyReference() throws IOException {
         byte[] small = new byte[8];
         small[0] = (byte)1;
         small[2] = (byte)1;
@@ -325,7 +325,7 @@ public class TestLinkedBufferInput {
     }
 
     @Test
-    public void testFeedByteBufferNoCopy() throws IOException {
+    public void testFeedByteBufferReference() throws IOException {
         byte[] small = new byte[8];
         small[0] = (byte)1;
         small[2] = (byte)1;
@@ -364,7 +364,7 @@ public class TestLinkedBufferInput {
     }
 
     @Test
-    public void testFeedByteBufferCopyNoCopy() throws IOException {
+    public void testFeedByteBufferCopyReference() throws IOException {
         byte[] small = new byte[8];
         small[0] = (byte)1;
         small[2] = (byte)1;
@@ -582,12 +582,12 @@ public class TestLinkedBufferInput {
         assertEquals(32, b.writable);  // recycled
         assertEquals(true, allocated == b.link.peekLast());
 
-        b.feed(data, true);  // feed nocopy 1;
+        b.feed(data, true);  // feed reference 1;
         assertEquals(2, b.link.size());  // leaves last writable buffer
         assertEquals(32, b.writable);    // which remains 32 bytes
         assertEquals(true, allocated == b.link.peekLast());
 
-        b.feed(data, true);  // feed nocopy 2;
+        b.feed(data, true);  // feed reference 2;
         assertEquals(3, b.link.size());  // leaves last writable buffer
         assertEquals(32, b.writable);    // which remains 32 bytes
         assertEquals(true, allocated == b.link.peekLast());
@@ -613,7 +613,7 @@ public class TestLinkedBufferInput {
         assertEquals(16, b.writable);
         assertEquals(true, allocated == b.link.peekLast());
 
-        b.feed(data, true);  // feed nocopy 2; writable buffer is hidden
+        b.feed(data, true);  // feed reference 2; writable buffer is hidden
         assertEquals(n, 16);
         assertArrayEquals(data, buf);
         assertEquals(2, b.link.size());
@@ -687,12 +687,12 @@ public class TestLinkedBufferInput {
         assertEquals(32, b.writable);  // recycled
         assertEquals(true, allocated == b.link.peekLast());
 
-        b.feed(bb.duplicate(), true);  // feed nocopy 1;
+        b.feed(bb.duplicate(), true);  // feed reference 1;
         assertEquals(2, b.link.size());  // leaves last writable buffer
         assertEquals(32, b.writable);    // which remains 32 bytes
         assertEquals(true, allocated == b.link.peekLast());
 
-        b.feed(bb.duplicate(), true);  // feed nocopy 2;
+        b.feed(bb.duplicate(), true);  // feed reference 2;
         assertEquals(3, b.link.size());  // leaves last writable buffer
         assertEquals(32, b.writable);    // which remains 32 bytes
         assertEquals(true, allocated == b.link.peekLast());
@@ -718,7 +718,7 @@ public class TestLinkedBufferInput {
         assertEquals(16, b.writable);
         assertEquals(true, allocated == b.link.peekLast());
 
-        b.feed(bb.duplicate(), true);  // feed nocopy 2; writable buffer is hidden
+        b.feed(bb.duplicate(), true);  // feed reference 2; writable buffer is hidden
         assertEquals(n, 16);
         assertArrayEquals(data, buf);
         assertEquals(2, b.link.size());

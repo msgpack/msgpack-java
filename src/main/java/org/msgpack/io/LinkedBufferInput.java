@@ -216,16 +216,16 @@ public class LinkedBufferInput extends AbstractInput {
         feed(b, 0, b.length, false);
     }
 
-    public void feed(byte[] b, boolean nocopy) {
-        feed(b, 0, b.length, nocopy);
+    public void feed(byte[] b, boolean reference) {
+        feed(b, 0, b.length, reference);
     }
 
     public void feed(byte[] b, int off, int len) {
         feed(b, off, len, false);
     }
 
-    public void feed(byte[] b, int off, int len, boolean nocopy) {
-        if (nocopy) {
+    public void feed(byte[] b, int off, int len, boolean reference) {
+        if (reference) {
             if (writable > 0 && link.peekLast().remaining() == 0) {
                 link.add(link.size()-1, ByteBuffer.wrap(b, off, len));
                 return;
@@ -270,8 +270,8 @@ public class LinkedBufferInput extends AbstractInput {
         feed(b, false);
     }
 
-    public void feed(ByteBuffer buf, boolean nocopy) {
-        if (nocopy) {
+    public void feed(ByteBuffer buf, boolean reference) {
+        if (reference) {
             if (writable > 0 && link.peekLast().remaining() == 0) {
                 link.add(link.size()-1, buf);
                 return;

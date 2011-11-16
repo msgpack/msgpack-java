@@ -60,8 +60,8 @@ public class MessagePackBufferUnpacker extends MessagePackUnpacker implements Bu
     }
 
     @Override
-    public MessagePackBufferUnpacker feed(byte[] b, boolean nocopy) {
-        ((LinkedBufferInput) in).feed(b, nocopy);
+    public MessagePackBufferUnpacker feed(byte[] b, boolean reference) {
+        ((LinkedBufferInput) in).feed(b, reference);
         return this;
     }
 
@@ -72,8 +72,8 @@ public class MessagePackBufferUnpacker extends MessagePackUnpacker implements Bu
     }
 
     @Override
-    public MessagePackBufferUnpacker feed(byte[] b, int off, int len, boolean nocopy) {
-        ((LinkedBufferInput) in).feed(b, off, len, nocopy);
+    public MessagePackBufferUnpacker feed(byte[] b, int off, int len, boolean reference) {
+        ((LinkedBufferInput) in).feed(b, off, len, reference);
         return this;
     }
 
@@ -84,9 +84,14 @@ public class MessagePackBufferUnpacker extends MessagePackUnpacker implements Bu
     }
 
     @Override
-    public MessagePackBufferUnpacker feed(ByteBuffer buf, boolean nocopy) {
-        ((LinkedBufferInput) in).feed(buf, nocopy);
+    public MessagePackBufferUnpacker feed(ByteBuffer buf, boolean reference) {
+        ((LinkedBufferInput) in).feed(buf, reference);
         return this;
+    }
+
+    @Override
+    public void copyReferencedBuffer() {
+        ((LinkedBufferInput) in).copyReferencedBuffer();
     }
 
     @Override
