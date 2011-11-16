@@ -1,6 +1,7 @@
 package org.msgpack.io;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
 import java.nio.ByteBuffer;
@@ -436,6 +437,213 @@ public class TestLinkedBufferInput {
 
             b.clear();
         }
+    }
+
+    @Test
+    public void testBufferRecycleByteArray() throws IOException {
+        byte[] data = new byte[16];
+        data[0] = (byte)4;
+        data[3] = (byte)5;
+        data[6] = (byte)6;
+        data[10] = (byte)7;
+
+        LinkedBufferInput b = new LinkedBufferInput(32);
+        int n;
+        byte[] buf = new byte[16];
+
+        b.feed(data);  // feed 1; buffer allocated; remains 32-16 = 16 bytes
+        assertEquals(1, b.link.size());
+        assertEquals(16, b.writable);
+        ByteBuffer allocated = b.link.peekLast();
+
+        b.feed(data);  // feed 2; remains 16-16 = 0 bytes
+        assertEquals(1, b.link.size());
+        assertEquals(0, b.writable);
+        assertEquals(true, allocated == b.link.peekLast());
+
+        n = b.read(buf, 0, 16);  // consume 16 bytes 1
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+        assertEquals(1, b.link.size());
+        assertEquals(0, b.writable);  // no writable
+        assertEquals(true, allocated == b.link.peekLast());
+
+        n = b.read(buf, 0, 16);  // consume 16 bytes 2; comsume all buffer; recycled
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+        assertEndOfBuffer(b);
+        assertEquals(1, b.link.size());
+        assertEquals(32, b.writable);  // recycled
+        assertEquals(true, allocated == b.link.peekLast());
+
+        b.feed(data);  // feed 1; remains 32-16 = 16 bytes
+        assertEquals(1, b.link.size());
+        assertEquals(16, b.writable);
+        assertEquals(true, allocated == b.link.peekLast());
+
+        b.clear();  // clear; recycled
+        assertEndOfBuffer(b);
+        assertEquals(1, b.link.size());
+        assertEquals(32, b.writable);  // recycled
+        assertEquals(true, allocated == b.link.peekLast());
+
+        b.feed(data, true);  // feed nocopy 1;
+        assertEquals(2, b.link.size());  // leaves last writable buffer
+        assertEquals(32, b.writable);    // which remains 32 bytes
+        assertEquals(true, allocated == b.link.peekLast());
+
+        b.feed(data, true);  // feed nocopy 2;
+        assertEquals(3, b.link.size());  // leaves last writable buffer
+        assertEquals(32, b.writable);    // which remains 32 bytes
+        assertEquals(true, allocated == b.link.peekLast());
+
+        n = b.read(buf, 0, 16);  // consume first link 1
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+        assertEquals(2, b.link.size());  // first link is removed
+        assertEquals(32, b.writable);    // which remains 32 bytes
+        assertEquals(true, allocated == b.link.peekLast());
+
+        n = b.read(buf, 0, 16);  // consume first link 2
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+        assertEquals(1, b.link.size());  // first link is removed
+        assertEquals(32, b.writable);    // which remains 32 bytes
+        assertEquals(true, allocated == b.link.peekLast());
+
+        b.feed(data);  // feed 1; remains 32-16 = 16 bytes;
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+        assertEquals(1, b.link.size());
+        assertEquals(16, b.writable);
+        assertEquals(true, allocated == b.link.peekLast());
+
+        b.feed(data, true);  // feed nocopy 2; writable buffer is hidden
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+        assertEquals(2, b.link.size());
+        assertEquals(-1, b.writable);  // now not writable
+        assertEquals(true, allocated != b.link.peekLast());
+        assertEquals(true, allocated == b.link.peekFirst());
+
+        n = b.read(buf, 0, 16);  // consume data 1
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+        assertEquals(1, b.link.size());  // recycled buffer is removed
+        assertEquals(-1, b.writable);
+        assertEquals(true, allocated != b.link.peekLast());
+
+        n = b.read(buf, 0, 16);  // consume data 2
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+        assertEndOfBuffer(b);
+        assertEquals(0, b.link.size());
+        assertEquals(-1, b.writable);
+    }
+
+    // copied from testBufferRecycleByteArray
+    @Test
+    public void testBufferRecycleByteBuffer() throws IOException {
+        byte[] data = new byte[16];
+        data[0] = (byte)4;
+        data[3] = (byte)5;
+        data[6] = (byte)6;
+        data[10] = (byte)7;
+
+        ByteBuffer bb = ByteBuffer.wrap(data);
+
+        LinkedBufferInput b = new LinkedBufferInput(32);
+        int n;
+        byte[] buf = new byte[16];
+
+        b.feed(bb.duplicate());  // feed 1; buffer allocated; remains 32-16 = 16 bytes
+        assertEquals(1, b.link.size());
+        assertEquals(16, b.writable);
+        ByteBuffer allocated = b.link.peekLast();
+
+        b.feed(bb.duplicate());  // feed 2; remains 16-16 = 0 bytes
+        assertEquals(1, b.link.size());
+        assertEquals(0, b.writable);
+        assertEquals(true, allocated == b.link.peekLast());
+
+        n = b.read(buf, 0, 16);  // consume 16 bytes 1
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+        assertEquals(1, b.link.size());
+        assertEquals(0, b.writable);  // no writable
+        assertEquals(true, allocated == b.link.peekLast());
+
+        n = b.read(buf, 0, 16);  // consume 16 bytes 2; comsume all buffer; recycled
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+        assertEndOfBuffer(b);
+        assertEquals(1, b.link.size());
+        assertEquals(32, b.writable);  // recycled
+        assertEquals(true, allocated == b.link.peekLast());
+
+        b.feed(bb.duplicate());  // feed 1; remains 32-16 = 16 bytes
+        assertEquals(1, b.link.size());
+        assertEquals(16, b.writable);
+        assertEquals(true, allocated == b.link.peekLast());
+
+        b.clear();  // clear; recycled
+        assertEndOfBuffer(b);
+        assertEquals(1, b.link.size());
+        assertEquals(32, b.writable);  // recycled
+        assertEquals(true, allocated == b.link.peekLast());
+
+        b.feed(bb.duplicate(), true);  // feed nocopy 1;
+        assertEquals(2, b.link.size());  // leaves last writable buffer
+        assertEquals(32, b.writable);    // which remains 32 bytes
+        assertEquals(true, allocated == b.link.peekLast());
+
+        b.feed(bb.duplicate(), true);  // feed nocopy 2;
+        assertEquals(3, b.link.size());  // leaves last writable buffer
+        assertEquals(32, b.writable);    // which remains 32 bytes
+        assertEquals(true, allocated == b.link.peekLast());
+
+        n = b.read(buf, 0, 16);  // consume first link 1
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+        assertEquals(2, b.link.size());  // first link is removed
+        assertEquals(32, b.writable);    // which remains 32 bytes
+        assertEquals(true, allocated == b.link.peekLast());
+
+        n = b.read(buf, 0, 16);  // consume first link 2
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+        assertEquals(1, b.link.size());  // first link is removed
+        assertEquals(32, b.writable);    // which remains 32 bytes
+        assertEquals(true, allocated == b.link.peekLast());
+
+        b.feed(bb.duplicate());  // feed 1; remains 32-16 = 16 bytes;
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+        assertEquals(1, b.link.size());
+        assertEquals(16, b.writable);
+        assertEquals(true, allocated == b.link.peekLast());
+
+        b.feed(bb.duplicate(), true);  // feed nocopy 2; writable buffer is hidden
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+        assertEquals(2, b.link.size());
+        assertEquals(-1, b.writable);  // now not writable
+        assertEquals(true, allocated != b.link.peekLast());
+        assertEquals(true, allocated == b.link.peekFirst());
+
+        n = b.read(buf, 0, 16);  // consume data 1
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+        assertEquals(1, b.link.size());  // recycled buffer is removed
+        assertEquals(-1, b.writable);
+        assertEquals(true, allocated != b.link.peekLast());
+
+        n = b.read(buf, 0, 16);  // consume data 2
+        assertEquals(n, 16);
+        assertArrayEquals(data, buf);
+        assertEndOfBuffer(b);
+        assertEquals(0, b.link.size());
+        assertEquals(-1, b.writable);
     }
 
     private void assertEndOfBuffer(LinkedBufferInput b) throws IOException {

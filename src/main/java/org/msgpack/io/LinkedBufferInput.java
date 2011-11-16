@@ -23,9 +23,9 @@ import java.util.LinkedList;
 import java.nio.ByteBuffer;
 
 public class LinkedBufferInput extends AbstractInput {
-    private LinkedList<ByteBuffer> link;
+    LinkedList<ByteBuffer> link;
 
-    private int writable;
+    int writable;
 
     private int nextAdvance;
 
@@ -143,7 +143,6 @@ public class LinkedBufferInput extends AbstractInput {
             }
         } else {
             link.removeFirst();
-            writable = -1;
             return true;
         }
     }
@@ -226,8 +225,8 @@ public class LinkedBufferInput extends AbstractInput {
 
     public void feed(byte[] b, int off, int len, boolean nocopy) {
         if (nocopy) {
-            if (writable > 0 && link.size() == 1 && link.peekFirst().remaining() == 0) {
-                link.addFirst(ByteBuffer.wrap(b, off, len));
+            if (writable > 0 && link.peekLast().remaining() == 0) {
+                link.add(link.size()-1, ByteBuffer.wrap(b, off, len));
                 return;
             }
             link.addLast(ByteBuffer.wrap(b, off, len));
@@ -272,8 +271,8 @@ public class LinkedBufferInput extends AbstractInput {
 
     public void feed(ByteBuffer buf, boolean nocopy) {
         if (nocopy) {
-            if (writable > 0 && link.size() == 1 && link.peekFirst().remaining() == 0) {
-                link.addFirst(buf);
+            if (writable > 0 && link.peekLast().remaining() == 0) {
+                link.add(link.size()-1, buf);
                 return;
             }
             link.addLast(buf);
