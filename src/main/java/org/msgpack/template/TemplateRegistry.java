@@ -50,6 +50,7 @@ import org.msgpack.template.ShortTemplate;
 import org.msgpack.template.StringTemplate;
 import org.msgpack.template.Template;
 import org.msgpack.template.ValueTemplate;
+import org.msgpack.template.builder.ArrayTemplateBuilder;
 import org.msgpack.template.builder.TemplateBuilder;
 import org.msgpack.template.builder.TemplateBuilderChain;
 import org.msgpack.type.Value;
@@ -78,7 +79,7 @@ public class TemplateRegistry {
     }
 
     /**
-     * 
+     *
      * @param registry
      */
     public TemplateRegistry(TemplateRegistry registry) {
@@ -300,8 +301,12 @@ public class TemplateRegistry {
         TemplateBuilder builder = chain.select(targetClass, true);
         Template<T> tmpl = null;
         if (builder != null) {
-            // TODO #MN for Android, we should modify here
-            tmpl = chain.getForceBuilder().loadTemplate(targetClass);
+            if (builder instanceof ArrayTemplateBuilder) {
+                tmpl = builder.loadTemplate(targetClass);
+            } else {
+                // TODO #MN for Android, we should modify here
+                tmpl = chain.getForceBuilder().loadTemplate(targetClass);
+            }
             if (tmpl != null) {
                 register(targetClass, tmpl);
                 return tmpl;
