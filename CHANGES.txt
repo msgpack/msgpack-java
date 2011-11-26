@@ -1,4 +1,9 @@
-Release 0.6.3 -
+Release 0.6.4 -
+  BUG FIXES
+    Fixes bug:validation error occurs when loading templates of array classes with
+    Javassist-based template builder.
+
+Release 0.6.3 - 2011/11/08
   NEW FEATURES
     Adds getReadByteCount and resetReadByteCount methods to Unpacker interface.
     Adds setRawSizeLimit, setArraySizeLimit and setMapSizeLimit methods to
