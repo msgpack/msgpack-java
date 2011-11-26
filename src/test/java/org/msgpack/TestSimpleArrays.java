@@ -17,8 +17,6 @@ import org.msgpack.type.Value;
 import org.msgpack.unpacker.BufferUnpacker;
 import org.msgpack.unpacker.Converter;
 
-
-@Ignore
 public class TestSimpleArrays {
 
     @Message
@@ -204,7 +202,7 @@ public class TestSimpleArrays {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Test
+    @Ignore @Test
     public void testGenerics() throws Exception {
 	MessagePack msgpack = new MessagePack();
 
@@ -272,7 +270,7 @@ public class TestSimpleArrays {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Test
+    @Ignore @Test
     public void testDim2() throws Exception {
 	MessagePack msgpack = new MessagePack();
 	Dim2Test t = new Dim2Test();
@@ -337,7 +335,7 @@ public class TestSimpleArrays {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Test
+    @Ignore @Test
     public void testDim3() throws Exception {
 	MessagePack msgpack = new MessagePack();
 

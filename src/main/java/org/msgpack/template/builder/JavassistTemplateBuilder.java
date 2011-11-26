@@ -150,11 +150,16 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
         // FIXME #MN must consider how to load "reference cycle class" in next
         // version
         Class<T> targetClass = (Class) targetType;
-        checkClassValidation(targetClass);
+        //checkClassValidation(targetClass);
         try {
             // check loadable
             String tmplName = targetClass.getName() + "_$$_Template";
-            targetClass.getClassLoader().loadClass(tmplName);
+            ClassLoader cl = targetClass.getClassLoader();
+            if (cl != null) {
+                cl.loadClass(tmplName);
+            } else {
+                return null;
+            }
         } catch (ClassNotFoundException e) {
             return null;
         }
