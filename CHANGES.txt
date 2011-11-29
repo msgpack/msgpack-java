@@ -38,7 +38,18 @@ Release 0.6.1 - 2011/10/07
     Deleted unused methods in Packer and Unpacker classes.
 
 Release 0.6.0 - 2011/10/03
-  See "Quick Start" (http://wiki.msgpack.org/display/MSGPACK/QuickStart+for+Java).
+  NEW FEATURES
+    Adds some new APIs (Packer, Unpacker, Value, and so on).  See
+    "Quick Start" (http://wiki.msgpack.org/display/MSGPACK/QuickStart+for+Java).
+    Adds JSON data serialization. See org.msgpack.util.json package. It allows
+    serializing JSON data to MessagePack binary.
+    MessagePack jar file was deployed to Maven's central repository.
+    License of Javassist was changed into triple license of the MPL, the LGPL,
+    and the Apache License.  MessagePack uses Javassist under Apache License.
+
+  IMPROVEMENTS
+    Refactors and optimizes core library for serialization/deserialization.
+    Refactors template classes and those builder classes.
 
 Release 0.5.2 - 2011/04/23
   NEW FEATURES
