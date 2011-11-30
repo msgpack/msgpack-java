@@ -21,8 +21,7 @@ import org.msgpack.MessagePack;
 import org.msgpack.io.LinkedBufferOutput;
 
 public class MessagePackBufferPacker extends MessagePackPacker implements BufferPacker {
-    private static final int DEFAULT_BUFFER_SIZE = 512; // TODO default buffer
-                                                        // size
+    private static final int DEFAULT_BUFFER_SIZE = 512;
 
     public MessagePackBufferPacker(MessagePack msgpack) {
         this(msgpack, DEFAULT_BUFFER_SIZE);
@@ -32,12 +31,14 @@ public class MessagePackBufferPacker extends MessagePackPacker implements Buffer
         super(msgpack, new LinkedBufferOutput(bufferSize));
     }
 
-    @Override
+    public int getBufferSize() {
+        return ((LinkedBufferOutput) out).getSize();
+    }
+
     public byte[] toByteArray() {
         return ((LinkedBufferOutput) out).toByteArray();
     }
 
-    @Override
     public void clear() {
         reset();
         ((LinkedBufferOutput) out).clear();

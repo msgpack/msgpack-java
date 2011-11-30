@@ -24,6 +24,8 @@ package org.msgpack.packer;
  * @see {@link org.msgpack.packer.Packer}
  */
 public interface BufferPacker extends Packer {
+    public int getBufferSize();
+
     public byte[] toByteArray();
 
     public void clear();
