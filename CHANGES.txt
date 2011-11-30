@@ -1,4 +1,7 @@
 Release 0.6.4 -
+  NEW FEATURES
+    Adds getBufferSize in BufferUnpacker interface.
+
   BUG FIXES
     Fixes bug:validation error occurs when loading templates of array classes with
     Javassist-based template builder.
