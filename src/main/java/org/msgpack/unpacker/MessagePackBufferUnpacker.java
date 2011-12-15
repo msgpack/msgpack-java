@@ -90,6 +90,11 @@ public class MessagePackBufferUnpacker extends MessagePackUnpacker implements Bu
     }
 
     @Override
+    public int getBufferSize() {
+        return ((LinkedBufferInput) in).getSize();
+    }
+
+    @Override
     public void copyReferencedBuffer() {
         ((LinkedBufferInput) in).copyReferencedBuffer();
     }

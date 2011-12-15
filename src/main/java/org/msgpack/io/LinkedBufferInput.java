@@ -369,6 +369,14 @@ public class LinkedBufferInput extends AbstractInput {
         }
     }
 
+    public int getSize() {
+        int size = 0;
+        for(ByteBuffer bb : link) {
+            size += bb.remaining();
+        }
+        return size;
+    }
+
     public void close() {
     }
 }

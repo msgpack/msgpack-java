@@ -98,6 +98,12 @@ public class JSONBufferUnpacker extends JSONUnpacker implements BufferUnpacker {
     }
 
     @Override
+    public int getBufferSize() {
+        throw new UnsupportedOperationException(
+                "JSONBufferUnpacker doesn't support getBufferSize()");
+    }
+
+    @Override
     public void copyReferencedBuffer() {
         throw new UnsupportedOperationException(
                 "JSONBufferUnpacker doesn't support copyReferencedBuffer()");

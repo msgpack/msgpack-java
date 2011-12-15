@@ -44,6 +44,8 @@ public interface BufferUnpacker extends Unpacker {
 
     public BufferUnpacker feed(ByteBuffer buf, boolean reference);
 
+    public int getBufferSize();
+
     public void copyReferencedBuffer();
 
     public void clear();
