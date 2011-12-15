@@ -123,6 +123,7 @@ public class LinkedBufferInput extends AbstractInput {
                 break;
             }
             len -= bb.remaining();
+            bb.position(bb.position() + bb.remaining());
             if (!removeFirstLink(bb)) {
                 break;
             }
