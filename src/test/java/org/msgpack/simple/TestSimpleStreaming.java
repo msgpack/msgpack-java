@@ -1,4 +1,4 @@
-package org.msgpack;
+package org.msgpack.simple;
 
 import org.msgpack.MessagePack;
 import org.msgpack.packer.Packer;

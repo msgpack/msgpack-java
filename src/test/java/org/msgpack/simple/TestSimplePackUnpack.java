@@ -1,4 +1,4 @@
-package org.msgpack;
+package org.msgpack.simple;
 
 import java.nio.ByteBuffer;
 import java.io.IOException;
