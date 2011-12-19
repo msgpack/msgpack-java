@@ -5,6 +5,7 @@ Release 0.6.4 -
   BUG FIXES
     Fixes bug:validation error occurs when loading templates of array classes with
     Javassist-based template builder.
+    PULL REQUEST-10 Fix compilation error caused by package name mistake.
 
 Release 0.6.3 - 2011/11/08
   NEW FEATURES
