@@ -17,40 +17,20 @@
 //
 package org.msgpack.template;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.msgpack.MessagePackable;
 import org.msgpack.MessageTypeException;
-import org.msgpack.template.BigIntegerTemplate;
-import org.msgpack.template.BooleanTemplate;
-import org.msgpack.template.ByteArrayTemplate;
-import org.msgpack.template.ByteTemplate;
-import org.msgpack.template.DoubleArrayTemplate;
-import org.msgpack.template.DoubleTemplate;
-import org.msgpack.template.FieldList;
-import org.msgpack.template.FloatArrayTemplate;
-import org.msgpack.template.FloatTemplate;
-import org.msgpack.template.GenericTemplate;
-import org.msgpack.template.IntegerArrayTemplate;
-import org.msgpack.template.IntegerTemplate;
-import org.msgpack.template.LongArrayTemplate;
-import org.msgpack.template.LongTemplate;
-import org.msgpack.template.ShortArrayTemplate;
-import org.msgpack.template.ShortTemplate;
-import org.msgpack.template.StringTemplate;
-import org.msgpack.template.Template;
-import org.msgpack.template.ValueTemplate;
-import org.msgpack.template.builder.ArrayTemplateBuilder;
 import org.msgpack.template.builder.TemplateBuilder;
 import org.msgpack.template.builder.TemplateBuilderChain;
 import org.msgpack.type.Value;
@@ -218,24 +198,28 @@ public class TemplateRegistry {
         // find matched template builder and build template
         tmpl = lookupAfterBuilding(targetClass);
         if (tmpl != null) {
+            register(targetClass, tmpl);
             return tmpl;
         }
 
         // lookup template of interface type
         tmpl = lookupInterfaceTypes(targetClass);
         if (tmpl != null) {
+            register(targetClass, tmpl);
             return tmpl;
         }
 
         // lookup template of superclass type
         tmpl = lookupSuperclasses(targetClass);
         if (tmpl != null) {
+            register(targetClass, tmpl);
             return tmpl;
         }
 
         // lookup template of interface type of superclasss
-        tmpl = lookupSuperclassInterfaceTypes(targetClass);
+        tmpl = lookupRemainingInterfaceTypes(targetClass);
         if (tmpl != null) {
+            register(targetClass, tmpl);
             return tmpl;
         }
 
@@ -304,7 +288,6 @@ public class TemplateRegistry {
             // TODO #MN for Android, we should modify here
             tmpl = chain.getForceBuilder().loadTemplate(targetClass);
             if (tmpl != null) {
-                register(targetClass, tmpl);
                 return tmpl;
             }
             tmpl = buildAndRegister(builder, targetClass, true, null);
@@ -316,19 +299,9 @@ public class TemplateRegistry {
         Class<?>[] infTypes = targetClass.getInterfaces();
         Template<T> tmpl = null;
         for (Class<?> infType : infTypes) {
-            tmpl = (Template<T>) cache.get(infType);
+            tmpl = (Template<T>) lookupCache(infType);
             if (tmpl != null) {
-                register(targetClass, tmpl);
                 return tmpl;
-            } else {
-                try {
-                    tmpl = (Template<T>) parent.lookupCache(infType);
-                    if (tmpl != null) {
-                        register(targetClass, tmpl);
-                        return tmpl;
-                    }
-                } catch (NullPointerException e) { // ignore
-                }
             }
         }
         return tmpl;
@@ -338,46 +311,50 @@ public class TemplateRegistry {
         Class<?> superClass = targetClass.getSuperclass();
         Template<T> tmpl = null;
         if (superClass != null) {
-            for (; superClass != Object.class; superClass = superClass
-                    .getSuperclass()) {
-                tmpl = (Template<T>) cache.get(superClass);
+            for (; superClass != Object.class; superClass = superClass.getSuperclass()) {
+                tmpl = (Template<T>) lookupCache(superClass);
                 if (tmpl != null) {
-                    register(targetClass, tmpl);
                     return tmpl;
-                } else {
-                    try {
-                        tmpl = (Template<T>) parent.lookupCache(superClass);
-                        if (tmpl != null) {
-                            register(targetClass, tmpl);
-                            return tmpl;
-                        }
-                    } catch (NullPointerException e) { // ignore
-                    }
                 }
             }
         }
         return tmpl;
     }
 
-    private <T> Template<T> lookupSuperclassInterfaceTypes(Class<T> targetClass) {
-        Class<?> superClass = targetClass.getSuperclass();
+    private <T> Template<T> lookupRemainingInterfaceTypes(Class<T> targetClass) {
         Template<T> tmpl = null;
-        if (superClass != null) {
+        Class<?>[] infTypes = targetClass.getInterfaces();
+        for (Class<?> infType : infTypes) {
+            tmpl = (Template<T>) lookupInterfaceTypesRecursively(infType);
+            if (tmpl != null) {
+                return tmpl;
+            }
+        }
+        Class<?> superClass = targetClass.getSuperclass();
+        if (superClass != null && superClass != Object.class) {
             for (; superClass != Object.class; superClass = superClass.getSuperclass()) {
-                tmpl = (Template<T>) lookupInterfaceTypes(superClass);
+                tmpl = (Template<T>) lookupInterfaceTypesRecursively(superClass);
                 if (tmpl != null) {
-                    register(targetClass, tmpl);
                     return tmpl;
-                } else {
-                    try {
-                        tmpl = (Template<T>) parent.lookupCache(superClass);
-                        if (tmpl != null) {
-                            register(targetClass, tmpl);
-                            return tmpl;
-                        }
-                    } catch (NullPointerException e) { // ignore
-                    }
                 }
+            }
+        }
+        return tmpl;
+    }
+
+    private <T> Template<T> lookupInterfaceTypesRecursively(Class<T> targetClass) {
+        Class<?>[] infTypes = targetClass.getInterfaces();
+        Template<T> tmpl = null;
+        for (Class<?> infType : infTypes) {
+            tmpl = (Template<T>) lookupCache(infType);
+            if (tmpl != null) {
+                return tmpl;
+            }
+        }
+        for (Class<?> infType : infTypes) {
+            tmpl = (Template<T>) lookupInterfaceTypesRecursively(infType);
+            if (tmpl != null) {
+                return tmpl;
             }
         }
         return tmpl;
