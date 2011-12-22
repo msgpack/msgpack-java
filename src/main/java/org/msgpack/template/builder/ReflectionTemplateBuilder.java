@@ -162,7 +162,7 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
     public boolean matchType(Type targetType, boolean hasAnnotation) {
         Class<?> targetClass = (Class<?>) targetType;
         boolean matched = matchAtClassTemplateBuilder(targetClass, hasAnnotation);
-        if (matched) {
+        if (matched && LOG.isDebugEnabled()) {
             LOG.debug("matched type: " + targetClass.getName());
         }
         return matched;

@@ -107,7 +107,7 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
     public boolean matchType(Type targetType, boolean forceBuild) {
         Class<?> targetClass = (Class<?>) targetType;
         boolean matched = AbstractTemplateBuilder.matchAtArrayTemplateBuilder(targetClass, false);
-        if (matched) {
+        if (matched && LOG.isDebugEnabled()) {
             LOG.debug("matched type: " + targetClass.getName());
         }
         return matched;
