@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
@@ -28,13 +30,11 @@ import org.msgpack.template.Template;
 import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.unpacker.Unpacker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
 
-    private static Logger LOG = LoggerFactory.getLogger(ReflectionBeansTemplateBuilder.class);
+    private static Logger LOG = Logger.getLogger(ReflectionBeansTemplateBuilder.class.getName());
 
     protected static abstract class ReflectionFieldTemplate extends AbstractTemplate<Object> {
         protected FieldEntry entry;
@@ -162,8 +162,8 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
     public boolean matchType(Type targetType, boolean hasAnnotation) {
         Class<?> targetClass = (Class<?>) targetType;
         boolean matched = matchAtClassTemplateBuilder(targetClass, hasAnnotation);
-        if (matched && LOG.isDebugEnabled()) {
-            LOG.debug("matched type: " + targetClass.getName());
+        if (matched && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("matched type: " + targetClass.getName());
         }
         return matched;
     }

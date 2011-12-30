@@ -18,17 +18,17 @@
 package org.msgpack.template.builder;
 
 import java.lang.reflect.Type;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.msgpack.template.OrdinalEnumTemplate;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.builder.TemplateBuildException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class OrdinalEnumTemplateBuilder extends AbstractTemplateBuilder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OrdinalEnumTemplateBuilder.class);
+    private static final Logger LOG = Logger.getLogger(OrdinalEnumTemplateBuilder.class.getName());
 
     public OrdinalEnumTemplateBuilder(TemplateRegistry registry) {
         super(registry);
@@ -38,8 +38,8 @@ public class OrdinalEnumTemplateBuilder extends AbstractTemplateBuilder {
     public boolean matchType(Type targetType, boolean hasAnnotation) {
         Class<?> targetClass = (Class<?>) targetType;
         boolean matched = matchAtOrdinalEnumTemplateBuilder(targetClass, hasAnnotation);
-        if (matched && LOG.isDebugEnabled()) {
-            LOG.debug("matched type: " + targetClass.getName());
+        if (matched && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("matched type: " + targetClass.getName());
         }
         return matched;
     }

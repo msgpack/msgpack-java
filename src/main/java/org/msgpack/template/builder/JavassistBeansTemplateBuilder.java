@@ -1,14 +1,14 @@
 package org.msgpack.template.builder;
 
 import java.lang.reflect.Type;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.msgpack.template.TemplateRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({ "rawtypes" })
 public class JavassistBeansTemplateBuilder extends JavassistTemplateBuilder {
-    private static final Logger LOG = LoggerFactory.getLogger(JavassistBeansTemplateBuilder.class);
+    private static final Logger LOG = Logger.getLogger(JavassistBeansTemplateBuilder.class.getName());
 
     public JavassistBeansTemplateBuilder(TemplateRegistry registry) {
         super(registry);
@@ -18,8 +18,8 @@ public class JavassistBeansTemplateBuilder extends JavassistTemplateBuilder {
     public boolean matchType(Type targetType, boolean hasAnnotation) {
         Class<?> targetClass = (Class<?>) targetType;
         boolean matched = matchAtClassTemplateBuilder(targetClass, hasAnnotation);
-        if (matched && LOG.isDebugEnabled()) {
-            LOG.debug("matched type: " + targetClass.getName());
+        if (matched && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("matched type: " + targetClass.getName());
         }
         return matched;
     }

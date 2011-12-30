@@ -26,6 +26,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.msgpack.annotation.Ignore;
 import org.msgpack.annotation.Index;
@@ -36,8 +38,6 @@ import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.unpacker.Unpacker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class for building java reflection template builder for java beans class.
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings({ "rawtypes" })
 public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
 
-    private static Logger LOG = LoggerFactory.getLogger(ReflectionBeansTemplateBuilder.class);
+    private static Logger LOG = Logger.getLogger(ReflectionBeansTemplateBuilder.class.getName());
 
     static class ReflectionBeansFieldTemplate extends ReflectionFieldTemplate {
         ReflectionBeansFieldTemplate(final FieldEntry entry) {
@@ -76,8 +76,8 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
     public boolean matchType(Type targetType, boolean hasAnnotation) {
         Class<?> targetClass = (Class<?>) targetType;
         boolean matched = matchAtBeansClassTemplateBuilder(targetClass, hasAnnotation);
-        if (matched && LOG.isDebugEnabled()) {
-            LOG.debug("matched type: " + targetClass.getName());
+        if (matched && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("matched type: " + targetClass.getName());
         }
         return matched;
     }

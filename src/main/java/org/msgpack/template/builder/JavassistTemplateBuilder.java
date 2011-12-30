@@ -19,14 +19,14 @@ package org.msgpack.template.builder;
 
 import java.lang.Thread;
 import java.lang.reflect.Type;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.LoaderClassPath;
 import javassist.NotFoundException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
 import org.msgpack.template.AbstractTemplate;
@@ -35,7 +35,7 @@ import org.msgpack.template.TemplateRegistry;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
 
-    private static Logger LOG = LoggerFactory.getLogger(JavassistTemplateBuilder.class);
+    private static Logger LOG = Logger.getLogger(JavassistTemplateBuilder.class.getName());
 
     public static abstract class JavassistTemplate<T> extends AbstractTemplate<T> {
         public Class<T> targetClass;
@@ -63,7 +63,8 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
                 appended = true;
             }
         } catch (SecurityException e) {
-            LOG.debug("Cannot append a search path of context classloader", e);
+            LOG.fine("Cannot append a search path of context classloader");
+            e.printStackTrace();
         }
         try {
             ClassLoader cl2 = getClass().getClassLoader();
@@ -72,7 +73,8 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
                 appended = true;
             }
         } catch (SecurityException e) {
-            LOG.debug("Cannot append a search path of classloader", e);
+            LOG.fine("Cannot append a search path of classloader");
+            e.printStackTrace();
         }
         if (!appended) {
             pool.appendSystemPath();
@@ -83,8 +85,8 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
     public boolean matchType(Type targetType, boolean hasAnnotation) {
         Class<?> targetClass = (Class<?>) targetType;
         boolean matched = matchAtClassTemplateBuilder(targetClass, hasAnnotation);
-        if (matched && LOG.isDebugEnabled()) {
-            LOG.debug("matched type: " + targetClass.getName());
+        if (matched && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("matched type: " + targetClass.getName());
         }
         return matched;
     }

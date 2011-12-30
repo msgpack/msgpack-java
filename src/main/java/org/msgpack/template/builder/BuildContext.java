@@ -19,6 +19,7 @@ package org.msgpack.template.builder;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Logger;
 
 import org.msgpack.*;
 import org.msgpack.packer.Packer;
@@ -31,13 +32,10 @@ import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.NotFoundException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @SuppressWarnings({ "rawtypes" })
 public abstract class BuildContext<T extends FieldEntry> {
 
-    private static Logger LOG = LoggerFactory.getLogger(BuildContext.class);
+    private static Logger LOG = Logger.getLogger(BuildContext.class.getName());
 
     protected JavassistTemplateBuilder director;
 
@@ -58,20 +56,20 @@ public abstract class BuildContext<T extends FieldEntry> {
     protected Template build(final String className) {
         try {
             reset(className, false);
-            LOG.debug("started generating template class %s for original class %s",
-                    new Object[] { tmplCtClass.getName(), className });
+            LOG.fine(String.format("started generating template class %s for original class %s",
+                    new Object[] { tmplCtClass.getName(), className }));
             buildClass();
             buildConstructor();
             buildMethodInit();
             buildWriteMethod();
             buildReadMethod();
-            LOG.debug("finished generating template class %s for original class %s",
-                    new Object[] { tmplCtClass.getName(), className });
+            LOG.fine(String.format("finished generating template class %s for original class %s",
+                    new Object[] { tmplCtClass.getName(), className }));
             return buildInstance(createClass());
         } catch (Exception e) {
             String code = getBuiltString();
             if (code != null) {
-                LOG.error("builder: " + code, e);
+                LOG.severe("builder: " + code);
                 throw new TemplateBuildException("Cannot compile: " + code, e);
             } else {
                 throw new TemplateBuildException(e);
@@ -103,8 +101,8 @@ public abstract class BuildContext<T extends FieldEntry> {
             IllegalAccessException, InvocationTargetException;
 
     protected void buildWriteMethod() throws CannotCompileException, NotFoundException {
-        LOG.debug("started generating write method in template class %s",
-                new Object[] { tmplCtClass.getName() });
+        LOG.fine(String.format("started generating write method in template class %s",
+                new Object[] { tmplCtClass.getName() }));
         String mbody = buildWriteMethodBody();
         int mod = javassist.Modifier.PUBLIC;
         CtClass returnType = CtClass.voidType;
@@ -117,19 +115,19 @@ public abstract class BuildContext<T extends FieldEntry> {
         CtClass[] exceptTypes = new CtClass[] {
                 director.getCtClass(IOException.class.getName())
         };
-        LOG.debug("compiling write method body: %s", new Object[] { mbody });
+        LOG.fine(String.format("compiling write method body: %s", new Object[] { mbody }));
         CtMethod newCtMethod = CtNewMethod.make(
                 mod, returnType, mname, paramTypes, exceptTypes, mbody, tmplCtClass);
         tmplCtClass.addMethod(newCtMethod);
-        LOG.debug("finished generating write method in template class %s",
-                new Object[] { tmplCtClass.getName() });
+        LOG.fine(String.format("finished generating write method in template class %s",
+                new Object[] { tmplCtClass.getName() }));
     }
 
     protected abstract String buildWriteMethodBody();
 
     protected void buildReadMethod() throws CannotCompileException, NotFoundException {
-        LOG.debug("started generating read method in template class %s",
-                new Object[] { tmplCtClass.getName() });
+        LOG.fine(String.format("started generating read method in template class %s",
+                new Object[] { tmplCtClass.getName() }));
         String mbody = buildReadMethodBody();
         int mod = javassist.Modifier.PUBLIC;
         CtClass returnType = director.getCtClass(Object.class.getName());
@@ -142,12 +140,12 @@ public abstract class BuildContext<T extends FieldEntry> {
         CtClass[] exceptTypes = new CtClass[] {
                 director.getCtClass(MessageTypeException.class.getName())
         };
-        LOG.debug("compiling read method body: %s", new Object[] { mbody });
+        LOG.fine(String.format("compiling read method body: %s", new Object[] { mbody }));
         CtMethod newCtMethod = CtNewMethod.make(
                 mod, returnType, mname, paramTypes, exceptTypes, mbody, tmplCtClass);
         tmplCtClass.addMethod(newCtMethod);
-        LOG.debug("finished generating read method in template class %s",
-                new Object[] { tmplCtClass.getName() });
+        LOG.fine(String.format("finished generating read method in template class %s",
+                new Object[] { tmplCtClass.getName() }));
     }
 
     protected abstract String buildReadMethodBody();
@@ -221,7 +219,7 @@ public abstract class BuildContext<T extends FieldEntry> {
         } catch (Exception e) {
             String code = getBuiltString();
             if (code != null) {
-                LOG.error("builder: " + code, e);
+                LOG.severe("builder: " + code);
                 throw new TemplateBuildException("Cannot compile: " + code, e);
             } else {
                 throw new TemplateBuildException(e);
@@ -241,7 +239,7 @@ public abstract class BuildContext<T extends FieldEntry> {
         } catch (Exception e) {
             String code = getBuiltString();
             if (code != null) {
-                LOG.error("builder: " + code, e);
+                LOG.severe("builder: " + code);
                 throw new TemplateBuildException("Cannot compile: " + code, e);
             } else {
                 throw new TemplateBuildException(e);

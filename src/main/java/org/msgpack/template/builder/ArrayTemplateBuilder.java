@@ -22,6 +22,8 @@ import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
@@ -37,13 +39,11 @@ import org.msgpack.template.ShortArrayTemplate;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.unpacker.Unpacker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ArrayTemplateBuilder.class);
+    private static final Logger LOG = Logger.getLogger(ArrayTemplateBuilder.class.getName());
 
     static class ReflectionMultidimentionalArrayTemplate extends AbstractTemplate {
 
@@ -107,8 +107,8 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
     public boolean matchType(Type targetType, boolean forceBuild) {
         Class<?> targetClass = (Class<?>) targetType;
         boolean matched = AbstractTemplateBuilder.matchAtArrayTemplateBuilder(targetClass, false);
-        if (matched && LOG.isDebugEnabled()) {
-            LOG.debug("matched type: " + targetClass.getName());
+        if (matched && LOG.isLoggable(Level.FINE)) {
+            LOG.fine("matched type: " + targetClass.getName());
         }
         return matched;
     }

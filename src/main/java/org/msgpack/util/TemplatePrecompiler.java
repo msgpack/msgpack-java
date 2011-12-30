@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,8 +36,6 @@ import javax.tools.ToolProvider;
 
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.builder.JavassistTemplateBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class is a template precompiler, which is used for saving templates that
@@ -46,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TemplatePrecompiler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TemplatePrecompiler.class);
+    private static final Logger LOG = Logger.getLogger(TemplatePrecompiler.class.getName());
 
     public static final String DEST = "msgpack.template.destdir";
 
