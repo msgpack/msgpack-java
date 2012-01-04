@@ -683,9 +683,9 @@ public class MessagePack {
     }
 
     /**
-     * Converts byte array to {@linke org.msgpack.type.Value} object.
+     * Converts byte array to {@link org.msgpack.type.Value} object.
      * 
-     * @deprecated {@linke MessagePack#read(byte[])}
+     * @deprecated {@link MessagePack#read(byte[])}
      * @param bytes
      * @return
      * @throws IOException
