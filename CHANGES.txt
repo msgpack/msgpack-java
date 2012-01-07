@@ -1,3 +1,7 @@
+Release 0.6.5
+  IMPROVEMENTS
+    MSGPACK-59: includes OSGi headers in manifest
+
 Release 0.6.4 - 2012/01/05
   NEW FEATURES
     Adds getBufferSize in BufferUnpacker interface.
