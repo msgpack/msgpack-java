@@ -7,7 +7,7 @@
   <description>MessagePack for Java is a binary-based efficient object
       serialization library in Java.</description>
   <version>0.6.5-SNAPSHOT</version>
-  <packaging>jar</packaging>
+  <packaging>bundle</packaging>
   <url>http://msgpack.org/</url>
 
   <licenses>
@@ -87,6 +87,12 @@
           <target>1.6</target>
           <encoding>UTF-8</encoding>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>2.3.6</version>
+        <extensions>true</extensions>
       </plugin>
       <plugin>
         <artifactId>maven-eclipse-plugin</artifactId>
