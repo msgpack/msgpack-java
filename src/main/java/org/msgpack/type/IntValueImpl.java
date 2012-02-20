@@ -23,7 +23,7 @@ import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
 
 @SuppressWarnings("serial")
-class IntValueImpl extends IntegerValue {
+public class IntValueImpl extends IntegerValue {
     private int value;
 
     IntValueImpl(int value) {

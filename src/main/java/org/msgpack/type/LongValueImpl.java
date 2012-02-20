@@ -23,7 +23,7 @@ import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
 
 @SuppressWarnings("serial")
-class LongValueImpl extends IntegerValue {
+public class LongValueImpl extends IntegerValue {
     private long value;
 
     LongValueImpl(long value) {

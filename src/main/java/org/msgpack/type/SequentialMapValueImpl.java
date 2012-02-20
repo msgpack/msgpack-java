@@ -28,7 +28,7 @@ import java.util.NoSuchElementException;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
 
-class SequentialMapValueImpl extends AbstractMapValue {
+public class SequentialMapValueImpl extends AbstractMapValue {
     private static SequentialMapValueImpl emptyInstance = new SequentialMapValueImpl(new Value[0], true);
 
     public static MapValue getEmptyInstance() {

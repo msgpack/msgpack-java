@@ -23,7 +23,7 @@ import java.io.IOException;
 import org.msgpack.packer.Packer;
 
 @SuppressWarnings("serial")
-class DoubleValueImpl extends FloatValue {
+public class DoubleValueImpl extends FloatValue {
     private double value;
 
     DoubleValueImpl(double value) {

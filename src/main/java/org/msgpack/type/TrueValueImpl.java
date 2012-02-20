@@ -20,7 +20,7 @@ package org.msgpack.type;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
 
-class TrueValueImpl extends AbstractBooleanValue {
+public class TrueValueImpl extends AbstractBooleanValue {
     private TrueValueImpl() {
     }
 

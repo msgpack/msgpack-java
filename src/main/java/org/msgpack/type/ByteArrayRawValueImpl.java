@@ -27,7 +27,7 @@ import java.nio.charset.CodingErrorAction;
 import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
 
-class ByteArrayRawValueImpl extends AbstractRawValue {
+public class ByteArrayRawValueImpl extends AbstractRawValue {
     private static ByteArrayRawValueImpl emptyInstance = new ByteArrayRawValueImpl(new byte[0], true);
 
     public static RawValue getEmptyInstance() {
