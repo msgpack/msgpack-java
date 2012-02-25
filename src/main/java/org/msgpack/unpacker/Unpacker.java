@@ -25,6 +25,7 @@ import java.lang.Iterable;
 
 import org.msgpack.template.Template;
 import org.msgpack.type.Value;
+import org.msgpack.type.ValueType;
 
 /**
  * Standard deserializer.
@@ -81,6 +82,8 @@ public interface Unpacker extends Iterable<Value>, Closeable {
     public String readString() throws IOException;
 
     public Value readValue() throws IOException;
+
+    public ValueType getNextType() throws IOException;
 
     public UnpackerIterator iterator();
 

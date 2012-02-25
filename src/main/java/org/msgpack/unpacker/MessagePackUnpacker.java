@@ -27,6 +27,7 @@ import org.msgpack.io.BufferReferer;
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Unconverter;
+import org.msgpack.type.ValueType;
 
 public class MessagePackUnpacker extends AbstractUnpacker {
     private static final byte REQUIRE_TO_READ_HEAD = (byte) 0xc6;
@@ -578,6 +579,55 @@ public class MessagePackUnpacker extends AbstractUnpacker {
                 }
             }
             readOne(valueAccept);
+        }
+    }
+
+    public ValueType getNextType() throws IOException {
+        final int b = (int) getHeadByte();
+        if ((b & 0x80) == 0) { // Positive Fixnum
+            return ValueType.INTEGER;
+        }
+        if ((b & 0xe0) == 0xe0) { // Negative Fixnum
+            return ValueType.INTEGER;
+        }
+        if ((b & 0xe0) == 0xa0) { // FixRaw
+            return ValueType.RAW;
+        }
+        if ((b & 0xf0) == 0x90) { // FixArray
+            return ValueType.ARRAY;
+        }
+        if ((b & 0xf0) == 0x80) { // FixMap
+            return ValueType.MAP;
+        }
+        switch (b & 0xff) {
+        case 0xc0: // nil
+            return ValueType.NIL;
+        case 0xc2: // false
+        case 0xc3: // true
+            return ValueType.BOOLEAN;
+        case 0xca: // float
+        case 0xcb: // double
+            return ValueType.FLOAT;
+        case 0xcc: // unsigned int 8
+        case 0xcd: // unsigned int 16
+        case 0xce: // unsigned int 32
+        case 0xcf: // unsigned int 64
+        case 0xd0: // signed int 8
+        case 0xd1: // signed int 16
+        case 0xd2: // signed int 32
+        case 0xd3: // signed int 64
+            return ValueType.INTEGER;
+        case 0xda: // raw 16
+        case 0xdb: // raw 32
+            return ValueType.RAW;
+        case 0xdc: // array 16
+        case 0xdd: // array 32
+            return ValueType.ARRAY;
+        case 0xde: // map 16
+        case 0xdf: // map 32
+            return ValueType.MAP;
+        default:
+            throw new IOException("Invalid byte: " + b); // TODO error FormatException
         }
     }
 

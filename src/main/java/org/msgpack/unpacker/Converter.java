@@ -25,6 +25,7 @@ import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Unconverter;
 import org.msgpack.type.Value;
+import org.msgpack.type.ValueType;
 import org.msgpack.type.ArrayValue;
 import org.msgpack.type.MapValue;
 
@@ -400,6 +401,10 @@ public class Converter extends AbstractUnpacker {
                 stack.reduceCount();
             }
         }
+    }
+
+    public ValueType getNextType() throws IOException {
+        return getTop().getType();
     }
 
     public void reset() {
