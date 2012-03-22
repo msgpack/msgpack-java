@@ -571,14 +571,11 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         while (true) {
             while (stack.getTopCount() == 0) {
                 stack.pop();
-                if (stack.getTopCount() == 0) {
-                    stack.pop();
-                    if (stack.getDepth() <= targetDepth) {
-                        return;
-                    }
+                if (stack.getDepth() <= targetDepth) {
+                    return;
                 }
             }
-            readOne(valueAccept);
+            readOne(skipAccept);
         }
     }
 

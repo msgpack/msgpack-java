@@ -17,6 +17,9 @@
 //
 package org.msgpack.unpacker;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
 final class SkipAccept extends Accept {
     @Override
     void acceptBoolean(boolean v) {
@@ -60,6 +63,10 @@ final class SkipAccept extends Accept {
 
     @Override
     void acceptEmptyRaw() {
+    }
+
+    @Override
+    public void refer(ByteBuffer bb, boolean gift) throws IOException {
     }
 
     @Override
