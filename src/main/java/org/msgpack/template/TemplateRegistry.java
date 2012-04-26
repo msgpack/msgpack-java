@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -193,7 +194,13 @@ public class TemplateRegistry {
     public synchronized Template lookup(Type targetType) {
         Template tmpl;
 
+        // TODO FIXME #MN should refactor this method call.
         tmpl = lookupGenericType(targetType);
+        if (tmpl != null) {
+            return tmpl;
+        }
+
+        tmpl = lookupGenericArrayType(targetType);
         if (tmpl != null) {
             return tmpl;
         }
@@ -282,6 +289,88 @@ public class TemplateRegistry {
         }
 
         return tmpl.build(tmpls);
+    }
+
+    private Template<Type> lookupGenericArrayType(Type targetType) {
+        // TODO GenericArrayType is not a Class<?> => buildArrayTemplate
+        if (! (targetType instanceof GenericArrayType)) {
+            return null;
+        }
+
+        GenericArrayType genericArrayType = (GenericArrayType) targetType;
+        Template<Type> tmpl = lookupGenericArrayTypeImpl(genericArrayType);
+        if (tmpl != null) {
+            return tmpl;
+        }
+
+        try {
+            tmpl = parent.lookupGenericArrayTypeImpl(genericArrayType);
+            if (tmpl != null) {
+                return tmpl;
+            }
+        } catch (NullPointerException e) { // ignore
+        }
+
+        return null;
+    }
+
+    private Template lookupGenericArrayTypeImpl(GenericArrayType genericArrayType) {
+        String genericArrayTypeName = "" + genericArrayType;
+        int dim = genericArrayTypeName.split("\\[").length - 1;
+        if (dim <= 0) {
+            throw new MessageTypeException(
+                    String.format("fatal error: type=", genericArrayTypeName));
+        } else if (dim > 1) {
+            throw new UnsupportedOperationException(String.format(
+                    "Not implemented template generation of %s", genericArrayTypeName));
+        }
+
+        String genericCompTypeName = "" + genericArrayType.getGenericComponentType();
+        boolean isPrimitiveType = isPrimitiveType(genericCompTypeName);
+        StringBuffer sbuf = new StringBuffer();
+        for (int i = 0; i < dim; i++) {
+            sbuf.append('[');
+        }
+        if (!isPrimitiveType) {
+            sbuf.append('L');
+            sbuf.append(toJvmReferenceTypeName(genericCompTypeName));
+            sbuf.append(';');
+        } else {
+            sbuf.append(toJvmPrimitiveTypeName(genericCompTypeName));
+        }
+
+        String jvmArrayClassName = sbuf.toString();
+        Class jvmArrayClass = null;
+        ClassLoader cl = null;
+        try {
+            cl = Thread.currentThread().getContextClassLoader();
+            if (cl != null) {
+                jvmArrayClass = cl.loadClass(jvmArrayClassName);
+                if (jvmArrayClass != null) {
+                    return lookupAfterBuilding(jvmArrayClass);
+                }
+            }
+        } catch (ClassNotFoundException e) {} // ignore
+
+        try {
+            cl = getClass().getClassLoader();
+            if (cl != null) {
+                jvmArrayClass = cl.loadClass(jvmArrayClassName);
+                if (jvmArrayClass != null) {
+                    return lookupAfterBuilding(jvmArrayClass);
+                }
+            }
+        } catch (ClassNotFoundException e) {} // ignore
+
+        try {
+            jvmArrayClass = Class.forName(jvmArrayClassName);
+            if (jvmArrayClass != null) {
+                return lookupAfterBuilding(jvmArrayClass);
+            }
+        } catch (ClassNotFoundException e) {} // ignore
+
+        throw new MessageTypeException(String.format(
+                "cannot find template of %s", jvmArrayClassName));
     }
 
     private Template<Type> lookupCache(Type targetType) {
@@ -416,6 +505,46 @@ public class TemplateRegistry {
             if (newTmpl != null) {
                 cache.put(targetClass, newTmpl);
             }
+        }
+    }
+
+    private static boolean isPrimitiveType(String genericCompTypeName) {
+        return (genericCompTypeName.equals("byte")
+                || genericCompTypeName.equals("short")
+                || genericCompTypeName.equals("int")
+                || genericCompTypeName.equals("long")
+                || genericCompTypeName.equals("float")
+                || genericCompTypeName.equals("double")
+                || genericCompTypeName.equals("boolean")
+                || genericCompTypeName.equals("char"));
+    }
+
+    private static String toJvmReferenceTypeName(String typeName) {
+        // delete "class " from class name
+        // e.g. "class Foo" to "Foo" by this method
+        return typeName.substring(6);
+    }
+
+    private static String toJvmPrimitiveTypeName(String typeName) {
+        if (typeName.equals("byte")) {
+            return "B";
+        } else if (typeName.equals("short")) {
+            return "S";
+        } else if (typeName.equals("int")) {
+            return "I";
+        } else if (typeName.equals("long")) {
+            return "J";
+        } else if (typeName.equals("float")) {
+            return "F";
+        } else if (typeName.equals("double")) {
+            return "D";
+        } else if (typeName.equals("boolean")) {
+            return "Z";
+        } else if (typeName.equals("char")) {
+            return "C";
+        } else {
+            throw new MessageTypeException(String.format(
+                    "fatal error: type=%s", typeName));
         }
     }
 }
