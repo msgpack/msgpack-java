@@ -145,6 +145,19 @@ public class TestSet {
         v.f5.add(ByteBuffer.wrap("e1".getBytes()));
         v.f5.add(ByteBuffer.wrap("e2".getBytes()));
         v.f5.add(ByteBuffer.wrap("e3".getBytes()));
+        v.f6 = new ArrayList<int[]>();
+        v.f6.add(new int[] { 1, 2, 3 });
+        v.f6.add(new int[] { 3, 3, 3 });
+        v.f7 = new ArrayList<String[]>();
+        v.f7.add(new String[] { "muga", "nishizawa", "fryusuki" });
+        v.f8 = new ArrayList<ListTypeFieldsClass.NestedClass[]>();
+        ListTypeFieldsClass.NestedClass nested01 = new ListTypeFieldsClass.NestedClass();
+        nested01.f0 = new byte[] { 0x01, 0x02 };
+        nested01.f1 = "muga";
+        ListTypeFieldsClass.NestedClass nested02 = new ListTypeFieldsClass.NestedClass();
+        nested02.f0 = new byte[] { 0x01, 0x02 };
+        nested02.f1 = "muga";
+        v.f8.add(new ListTypeFieldsClass.NestedClass[] { nested01, nested02 });
 	testListTypeFieldsClass(v);
     }
 
@@ -180,6 +193,19 @@ public class TestSet {
         v.f5.add(ByteBuffer.wrap("e1".getBytes()));
         v.f5.add(ByteBuffer.wrap("e2".getBytes()));
         v.f5.add(ByteBuffer.wrap("e3".getBytes()));
+        v.f6 = new ArrayList<int[]>();
+        v.f6.add(new int[] { 1, 2, 3 });
+        v.f6.add(new int[] { 3, 3, 3 });
+        v.f7 = new ArrayList<String[]>();
+        v.f7.add(new String[] { "muga", "nishizawa", "fryusuki" });
+        v.f8 = new ArrayList<ListTypeFieldsClassNotNullable.NestedClass[]>();
+        ListTypeFieldsClassNotNullable.NestedClass nested01 = new ListTypeFieldsClassNotNullable.NestedClass();
+        nested01.f0 = new byte[] { 0x01, 0x02 };
+        nested01.f1 = "muga";
+        ListTypeFieldsClassNotNullable.NestedClass nested02 = new ListTypeFieldsClassNotNullable.NestedClass();
+        nested02.f0 = new byte[] { 0x01, 0x02 };
+        nested02.f1 = "muga";
+        v.f8.add(new ListTypeFieldsClassNotNullable.NestedClass[] { nested01, nested02 });
 	testListTypeFieldsClassNotNullable(v);
     }
 
@@ -200,9 +226,19 @@ public class TestSet {
         v.f2.put("k2", 2);
         v.f2.put("k3", 3);
         v.f3 = new HashMap<String, MapTypeFieldsClass.NestedClass>();
-        MapTypeFieldsClass.NestedClass nested = new MapTypeFieldsClass.NestedClass();
-        nested.f0 = "muga";
-        v.f3.put("muga", nested);
+        MapTypeFieldsClass.NestedClass nested01 = new MapTypeFieldsClass.NestedClass();
+        nested01.f0 = "muga";
+        v.f3.put("muga", nested01);
+        v.f4 = new HashMap<String, int[]>();
+        v.f4.put("nishizawa", new int[] { 1, 2, 3 });
+        v.f4.put("fryusuki", new int[] { 3, 3, 3 });
+        v.f5 = new HashMap<String, String[]>();
+        v.f5.put("muga", new String[] { "f1", "f2", "f3" });
+        v.f5.put("nishizawa", new String[] { "f3", "f2", "f1" });
+        v.f6 = new HashMap<String, MapTypeFieldsClass.NestedClass[]>();
+        MapTypeFieldsClass.NestedClass nested02 = new MapTypeFieldsClass.NestedClass();
+        nested02.f0 = "nishizawa";
+        v.f6.put("muga", new MapTypeFieldsClass.NestedClass[] { nested02 });
         testMapTypeFieldsClass(v);
     }
 
@@ -231,6 +267,16 @@ public class TestSet {
         MapTypeFieldsClassNotNullable.NestedClass nested = new MapTypeFieldsClassNotNullable.NestedClass();
         nested.f0 = "muga";
         v.f3.put("muga", nested);
+        v.f4 = new HashMap<String, int[]>();
+        v.f4.put("nishizawa", new int[] { 1, 2, 3 });
+        v.f4.put("fryusuki", new int[] { 3, 3, 3 });
+        v.f5 = new HashMap<String, String[]>();
+        v.f5.put("muga", new String[] { "f1", "f2", "f3" });
+        v.f5.put("nishizawa", new String[] { "f3", "f2", "f1" });
+        v.f6 = new HashMap<String, MapTypeFieldsClassNotNullable.NestedClass[]>();
+        MapTypeFieldsClassNotNullable.NestedClass nested02 = new MapTypeFieldsClassNotNullable.NestedClass();
+        nested02.f0 = "nishizawa";
+        v.f6.put("muga", new MapTypeFieldsClassNotNullable.NestedClass[] { nested02 });
         testMapTypeFieldsClassNotNullable(v);
     }
 

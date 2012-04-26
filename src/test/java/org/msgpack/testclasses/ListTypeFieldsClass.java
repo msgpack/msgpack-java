@@ -24,6 +24,12 @@ public class ListTypeFieldsClass {
 
     public List<ByteBuffer> f5;
 
+    public List<int[]> f6;
+
+    public List<String[]> f7;
+
+    public List<NestedClass[]> f8;
+
     public ListTypeFieldsClass() {
     }
 
@@ -73,6 +79,30 @@ public class ListTypeFieldsClass {
 
     public void setF5(List<ByteBuffer> f5) {
         this.f5 = f5;
+    }
+
+    public List<int[]> getF6() {
+        return f6;
+    }
+
+    public void setF6(List<int[]> f6) {
+        this.f6 = f6;
+    }
+
+    public List<String[]> getF7() {
+        return f7;
+    }
+
+    public void setF7(List<String[]> f7) {
+        this.f7 = f7;
+    }
+
+    public List<NestedClass[]> getF8() {
+        return f8;
+    }
+
+    public void setF8(List<NestedClass[]> f8) {
+        this.f8 = f8;
     }
 
     @Override
@@ -205,7 +235,74 @@ public class ListTypeFieldsClass {
 		}
 	    }
 	}
-	return true;
+	// f6
+        if (f6 == null) {
+            if (that.f6 != null) {
+                return false;
+            }
+        }
+        if (that.f6 != null) {
+            if (f6.size() != that.f6.size()) {
+                return false;
+            }
+            Iterator<int[]> this_f6_iter = f6.iterator();
+            Iterator<int[]> that_f6_iter = that.f6.iterator();
+            for (; this_f6_iter.hasNext();) {
+                int[] this_f6_elm = this_f6_iter.next();
+                int[] that_f6_elm = that_f6_iter.next();
+                for (int i = 0; i < this_f6_elm.length; i++) {
+                    if (this_f6_elm[i] != that_f6_elm[i]) {
+                        return false;
+                    }
+                }
+            }
+        }
+        // f7
+        if (f7 == null) {
+            if (that.f7 != null) {
+                return false;
+            }
+        }
+        if (that.f7 != null) {
+            if (f7.size() != that.f7.size()) {
+                return false;
+            }
+            Iterator<String[]> this_f7_iter = f7.iterator();
+            Iterator<String[]> that_f7_iter = that.f7.iterator();
+            for (; this_f7_iter.hasNext();) {
+                String[] this_f7_elm = this_f7_iter.next();
+                String[] that_f7_elm = that_f7_iter.next();
+                for (int i = 0; i < this_f7_elm.length; i++) {
+                    if (!this_f7_elm[i].equals(that_f7_elm[i])) {
+                        return false;
+                    }
+                }
+            }
+        }
+        // f8
+        if (f8 == null) {
+            if (that.f8 != null) {
+                return false;
+            }
+        }
+        if (that.f8 != null) {
+            if (f8.size() != that.f8.size()) {
+                return false;
+            }
+            Iterator<NestedClass[]> this_f8_iter = f8.iterator();
+            Iterator<NestedClass[]> that_f8_iter = that.f8.iterator();
+            for (; this_f8_iter.hasNext();) {
+                NestedClass[] this_f8_elm = this_f8_iter.next();
+                NestedClass[] that_f8_elm = that_f8_iter.next();
+                for (int i = 0; i < this_f8_elm.length; i++) {
+                    if (!this_f8_elm[i].equals(that_f8_elm[i])) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     @Ignore @Message @Beans

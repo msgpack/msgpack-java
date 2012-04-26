@@ -17,6 +17,12 @@ public class MapTypeFieldsClass {
 
     public Map<String, NestedClass> f3;
 
+    public Map<String, int[]> f4;
+
+    public Map<String, String[]> f5;
+
+    public Map<String, NestedClass[]> f6;
+
     public MapTypeFieldsClass() {
     }
 
@@ -50,6 +56,30 @@ public class MapTypeFieldsClass {
 
     public void setF3(Map<String, NestedClass> f3) {
         this.f3 = f3;
+    }
+
+    public Map<String, int[]> getF4() {
+        return f4;
+    }
+
+    public void setF4(Map<String, int[]> f4) {
+        this.f4 = f4;
+    }
+
+    public Map<String, String[]> getF5() {
+        return f5;
+    }
+
+    public void setF5(Map<String, String[]> f5) {
+        this.f5 = f5;
+    }
+
+    public Map<String, NestedClass[]> getF6() {
+        return f6;
+    }
+
+    public void setF6(Map<String, NestedClass[]> f6) {
+        this.f6 = f6;
     }
 
     @Override
@@ -118,7 +148,62 @@ public class MapTypeFieldsClass {
 		}
 	    }
 	}
-	return true;
+	// f4
+	if (f4 == null) {
+	    if (that.f4 != null) {
+	        return false;
+	    }
+	}
+	if (that.f4 != null) {
+	    for (Map.Entry<String, int[]> e : f4.entrySet()) {
+	        String key = e.getKey();
+	        int[] this_val = e.getValue();
+	        int[] that_val = that.f4.get(key);
+	        for (int i = 0; i < this_val.length; i++) {
+	            if (this_val[i] != that_val[i]) {
+	                return false;
+	            }
+	        }
+	    }
+	}
+	// f5
+        if (f5 == null) {
+            if (that.f5 != null) {
+                return false;
+            }
+        }
+        if (that.f5 != null) {
+            for (Map.Entry<String, String[]> e : f5.entrySet()) {
+                String key = e.getKey();
+                String[] this_val = e.getValue();
+                String[] that_val = that.f5.get(key);
+                for (int i = 0; i < this_val.length; i++) {
+                    if (!this_val[i].equals(that_val[i])) {
+                        return false;
+                    }
+                }
+            }
+        }
+        // f6
+        if (f6 == null) {
+            if (that.f6 != null) {
+                return false;
+            }
+        }
+        if (that.f6 != null) {
+            for (Map.Entry<String, NestedClass[]> e : f6.entrySet()) {
+                String key = e.getKey();
+                NestedClass[] this_val = e.getValue();
+                NestedClass[] that_val = that.f6.get(key);
+                for (int i = 0; i < this_val.length; i++) {
+                    if (!this_val[i].equals(that_val[i])) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     @Ignore @Message @Beans
