@@ -1,4 +1,9 @@
-Release 0.6.5
+Release 0.6.6 - 2011/11/08
+  IMPROVEMENTS
+    Changes version of dependency json-simple: 1.1 to 1.1.1
+    Changes version of dependency Javassist: 3.15.0-GA to 3.16.1-GA
+
+Release 0.6.5 - 2012/01/12
   IMPROVEMENTS
     MSGPACK-59: includes OSGi headers in manifest
     Implements a template generation for GenericArrayType
