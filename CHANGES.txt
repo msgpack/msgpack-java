@@ -7,6 +7,7 @@ Release 0.6.6 - 2012/XX/XX
     Changes version of dependency json-simple: 1.1 to 1.1.1
     Changes version of dependency Javassist: 3.15.0-GA to 3.16.1-GA
     Implements a template generation for GenericArrayType
+    Increases limition of element sizes of unpacked array and map objects
 
 Release 0.6.5 - 2012/01/12
   IMPROVEMENTS
