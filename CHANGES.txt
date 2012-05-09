@@ -1,4 +1,6 @@
-Release 0.6.6 - 2012/XX/XX
+Release 0.6.7 - 20XX/XX/XX
+
+Release 0.6.6 - 2012/05/09
   BUG FIXES
     Fixes bug: cannot generate templates of user-classes that have fields of
     generic WildcardType types
