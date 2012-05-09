@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -194,10 +195,14 @@ public class TemplateRegistry {
     public synchronized Template lookup(Type targetType) {
         Template tmpl;
 
-        // TODO FIXME #MN should refactor this method call.
-        tmpl = lookupGenericType(targetType);
-        if (tmpl != null) {
-            return tmpl;
+        if (targetType instanceof ParameterizedType) {
+            // ParameterizedType is not a Class<?>
+            ParameterizedType paramedType = (ParameterizedType) targetType;
+            tmpl = lookupGenericType(paramedType);
+            if (tmpl != null) {
+                return tmpl;
+            }
+            targetType = paramedType.getRawType();
         }
 
         tmpl = lookupGenericArrayType(targetType);
@@ -210,6 +215,13 @@ public class TemplateRegistry {
             return tmpl;
         }
 
+        if (targetType instanceof WildcardType) {
+            // WildcardType is not a Class<?>
+            tmpl = new AnyTemplate<Object>(this);
+            register(targetType, tmpl);
+            return tmpl;
+        }
+
         Class<?> targetClass = (Class<?>) targetType;
 
         // MessagePackable interface is implemented
@@ -219,6 +231,14 @@ public class TemplateRegistry {
             // or lookupInterfaceTypes method in next version
             tmpl = new MessagePackableTemplate(targetClass);
             register(targetClass, tmpl);
+            return tmpl;
+        }
+
+        if (targetClass.isInterface()) {
+            // writing interfaces will succeed
+            // reading into interfaces will fail
+            tmpl = new AnyTemplate<Object>(this);
+            register(targetType, tmpl);
             return tmpl;
         }
 
@@ -251,34 +271,28 @@ public class TemplateRegistry {
                 "Try to add @Message annotation to the class or call MessagePack.register(Type).");
     }
 
-    private Template<Type> lookupGenericType(Type targetType) {
-        Template<Type> tmpl = null;
-        if (targetType instanceof ParameterizedType) {
-            ParameterizedType paramedType = (ParameterizedType) targetType;
+    private Template<Type> lookupGenericType(ParameterizedType paramedType) {
+        Template<Type> tmpl = lookupGenericTypeImpl(paramedType);
+        if (tmpl != null) {
+            return tmpl;
+        }
 
-            // ParameterizedType is not a Class<?>?
-            tmpl = lookupGenericTypeImpl(paramedType);
+        try {
+            tmpl = parent.lookupGenericTypeImpl(paramedType);
             if (tmpl != null) {
                 return tmpl;
             }
-
-            try {
-                tmpl = parent.lookupGenericTypeImpl(paramedType);
-                if (tmpl != null) {
-                    return tmpl;
-                }
-            } catch (NullPointerException e) { // ignore
-            }
-            targetType = paramedType.getRawType();
+        } catch (NullPointerException e) { // ignore
         }
-        return tmpl;
+
+        return null;
     }
 
     private Template lookupGenericTypeImpl(final ParameterizedType targetType) {
         Type rawType = targetType.getRawType();
 
-        GenericTemplate tmpl = genericCache.get(rawType);
-        if (tmpl == null) {
+        GenericTemplate gtmpl = genericCache.get(rawType);
+        if (gtmpl == null) {
             return null;
         }
 
@@ -288,7 +302,7 @@ public class TemplateRegistry {
             tmpls[i] = lookup(types[i]);
         }
 
-        return tmpl.build(tmpls);
+        return gtmpl.build(tmpls);
     }
 
     private Template<Type> lookupGenericArrayType(Type targetType) {
