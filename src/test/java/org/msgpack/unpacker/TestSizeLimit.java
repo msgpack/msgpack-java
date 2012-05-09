@@ -28,62 +28,6 @@ public class TestSizeLimit {
     public void testRawSizeLimit() throws Exception {
         MessagePack msgpack = new MessagePack();
         Template<byte[]> tmpl = Templates.TByteArray;
-        { // default limit = 67108864, size < 67108864
-            int len = 67108863;
-            byte[] src = new byte[len];
-            for (int i = 0; i < len; i++) {
-                src[i] = 0x0a;
-            }
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            Packer packer = msgpack.createPacker(out);
-            packer.write(src);
-            byte[] bytes = out.toByteArray();
-
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
-            byte[] dst = unpacker.read(tmpl);
-            assertEquals(src.length, dst.length);
-        }
-        { // default limit = 67108864, size == 67108864
-            int len = 67108864;
-            byte[] src = new byte[len];
-            for (int i = 0; i < len; i++) {
-                src[i] = 0x0a;
-            }
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            Packer packer = msgpack.createPacker(out);
-            packer.write(src);
-            byte[] bytes = out.toByteArray();
-
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
-            try {
-                unpacker.read(tmpl);
-                fail();
-            } catch (Throwable t) {
-                assertTrue(t instanceof SizeLimitException);
-            }
-        }
-        { // default limit = 67108864, size > 67108864
-            int len = 67108865;
-            byte[] src = new byte[len];
-            for (int i = 0; i < len; i++) {
-                src[i] = 0x0a;
-            }
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            Packer packer = msgpack.createPacker(out);
-            packer.write(src);
-            byte[] bytes = out.toByteArray();
-
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
-            try {
-                unpacker.read(tmpl);
-                fail();
-            } catch (Throwable t) {
-                assertTrue(t instanceof SizeLimitException);
-            }
-        }
         { // set limit == 10, size < 10
             int len = 9;
             byte[] src = new byte[len];
@@ -301,62 +245,6 @@ public class TestSizeLimit {
     public void testArraySizeLimit() throws Exception {
         MessagePack msgpack = new MessagePack();
         Template<List<Integer>> tmpl = new ListTemplate<Integer>(Templates.TInteger);
-        { // default limit == 4096, size < 4096
-            int len = 4095;
-            List<Integer> src = new ArrayList<Integer>(len);
-            for (int i = 0; i < len; i++) {
-                src.add(i);
-            }
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            Packer packer = msgpack.createPacker(out);
-            packer.write(src);
-            byte[] bytes = out.toByteArray();
-
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
-            List<Integer> dst = unpacker.read(tmpl);
-            assertEquals(src.size(), dst.size());
-        }
-        { // default limit == 4096, size == 4096
-            int len = 4096;
-            List<Integer> src = new ArrayList<Integer>(len);
-            for (int i = 0; i < len; i++) {
-                src.add(i);
-            }
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            Packer packer = msgpack.createPacker(out);
-            packer.write(src);
-            byte[] bytes = out.toByteArray();
-
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
-            try {
-                unpacker.read(tmpl);
-                fail();
-            } catch (Throwable t) {
-                assertTrue(t instanceof SizeLimitException);
-            }
-        }
-        { // default limit == 4096, size > 4096
-            int len = 4097;
-            List<Integer> src = new ArrayList<Integer>(len);
-            for (int i = 0; i < len; i++) {
-                src.add(i);
-            }
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            Packer packer = msgpack.createPacker(out);
-            packer.write(src);
-            byte[] bytes = out.toByteArray();
-
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
-            try {
-                unpacker.read(tmpl);
-                fail();
-            } catch (Throwable t) {
-                assertTrue(t instanceof SizeLimitException);
-            }
-        }
         { // set limit == 10, size < 10
             int len = 9;
             List<Integer> src = new ArrayList<Integer>(len);
@@ -575,62 +463,6 @@ public class TestSizeLimit {
         MessagePack msgpack = new MessagePack();
         Template<Map<Integer, Integer>> tmpl =
             new MapTemplate<Integer, Integer>(Templates.TInteger, Templates.TInteger);
-        { // default limit == 4096, size < 4096
-            int len = 4095;
-            Map<Integer, Integer> src = new HashMap<Integer, Integer>(len);
-            for (int i = 0; i < len; i++) {
-                src.put(i, i);
-            }
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            Packer packer = msgpack.createPacker(out);
-            packer.write(src);
-            byte[] bytes = out.toByteArray();
-
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
-            Map<Integer, Integer> dst = unpacker.read(tmpl);
-            assertEquals(src.size(), dst.size());
-        }
-        { // default limit == 4096, size == 4096
-            int len = 4096;
-            Map<Integer, Integer> src = new HashMap<Integer, Integer>(len);
-            for (int i = 0; i < len; i++) {
-                src.put(i, i);
-            }
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            Packer packer = msgpack.createPacker(out);
-            packer.write(src);
-            byte[] bytes = out.toByteArray();
-
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
-            try {
-                unpacker.read(tmpl);
-                fail();
-            } catch (Throwable t) {
-                assertTrue(t instanceof SizeLimitException);
-            }
-        }
-        { // default limit == 4096, size > 4096
-            int len = 4097;
-            Map<Integer, Integer> src = new HashMap<Integer, Integer>(len);
-            for (int i = 0; i < len; i++) {
-                src.put(i, i);
-            }
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            Packer packer = msgpack.createPacker(out);
-            packer.write(src);
-            byte[] bytes = out.toByteArray();
-
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
-            try {
-                unpacker.read(tmpl);
-                fail();
-            } catch (Throwable t) {
-                assertTrue(t instanceof SizeLimitException);
-            }
-        }
         { // set limit == 10, size < 10
             int len = 9;
             Map<Integer, Integer> src = new HashMap<Integer, Integer>(len);
