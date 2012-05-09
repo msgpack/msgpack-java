@@ -27,9 +27,9 @@ import org.msgpack.packer.Unconverter;
 public abstract class AbstractUnpacker implements Unpacker {
     protected MessagePack msgpack;
 
-    protected int rawSizeLimit = 67108864;
+    protected int rawSizeLimit = 134217728;
 
-    protected int arraySizeLimit = 4096;
+    protected int arraySizeLimit = 65536;
 
     protected int mapSizeLimit = 4096;
 
