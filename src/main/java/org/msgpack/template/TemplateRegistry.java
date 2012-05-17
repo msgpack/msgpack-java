@@ -285,12 +285,25 @@ public class TemplateRegistry {
         } catch (NullPointerException e) { // ignore
         }
 
+        tmpl = lookupGenericInterfaceTypes(paramedType);
+        if (tmpl != null) {
+            return tmpl;
+        }
+
+        tmpl = lookupGenericSuperclasses(paramedType);
+        if (tmpl != null) {
+            return tmpl;
+        }
+
         return null;
     }
 
-    private Template lookupGenericTypeImpl(final ParameterizedType targetType) {
+    private Template lookupGenericTypeImpl(ParameterizedType targetType) {
         Type rawType = targetType.getRawType();
+        return lookupGenericTypeImpl0(targetType, rawType);
+    }
 
+    private Template lookupGenericTypeImpl0(ParameterizedType targetType, Type rawType) {
         GenericTemplate gtmpl = genericCache.get(rawType);
         if (gtmpl == null) {
             return null;
@@ -303,6 +316,47 @@ public class TemplateRegistry {
         }
 
         return gtmpl.build(tmpls);
+    }
+
+    private <T> Template<T> lookupGenericInterfaceTypes(ParameterizedType targetType) {
+        Type rawType = targetType.getRawType();
+        Template<T> tmpl = null;
+
+        try {
+            Class<?>[] infTypes = ((Class) rawType).getInterfaces();
+            for (Class<?> infType : infTypes) {
+                tmpl = lookupGenericTypeImpl0(targetType, infType);
+                if (tmpl != null) {
+                    return tmpl;
+                }
+            }
+        } catch (ClassCastException e) { // ignore
+        }
+
+        return tmpl;
+    }
+
+    private <T> Template<T> lookupGenericSuperclasses(ParameterizedType targetType) {
+        Type rawType = targetType.getRawType();
+        Template<T> tmpl = null;
+
+        try {
+            Class<?> superClass = ((Class) rawType).getSuperclass();
+            if (superClass == null) {
+                return null;
+            }
+
+            for (; superClass != Object.class; superClass = superClass.getSuperclass()) {
+                tmpl = lookupGenericTypeImpl0(targetType, superClass);
+                if (tmpl != null) {
+                    register(targetType, tmpl);
+                    return tmpl;
+                }
+            }
+        } catch (ClassCastException e) { // ignore
+        }
+
+        return tmpl;
     }
 
     private Template<Type> lookupGenericArrayType(Type targetType) {
