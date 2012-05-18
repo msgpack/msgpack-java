@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -143,9 +144,11 @@ public class TemplateRegistry {
         AnyTemplate anyTemplate = new AnyTemplate(this);
 
         register(List.class, new ListTemplate(anyTemplate));
+        register(Set.class, new SetTemplate(anyTemplate));
         register(Collection.class, new CollectionTemplate(anyTemplate));
         register(Map.class, new MapTemplate(anyTemplate, anyTemplate));
         registerGeneric(List.class, new GenericCollectionTemplate(this, ListTemplate.class));
+        registerGeneric(Set.class, new GenericCollectionTemplate(this, SetTemplate.class));
         registerGeneric(Collection.class, new GenericCollectionTemplate(this, CollectionTemplate.class));
         registerGeneric(Map.class, new GenericMapTemplate(this, MapTemplate.class));
     }
