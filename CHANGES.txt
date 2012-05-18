@@ -1,4 +1,7 @@
 Release 0.6.7 - 20XX/XX/XX
+  BUG FIXES
+    MSGPACK-74 Writing message with java.util.Set field causes StackOverflowError
+    MSGPACK-74 Reading message with java.util.Set field causes IllegalArgumentException
 
 Release 0.6.6 - 2012/05/09
   BUG FIXES
