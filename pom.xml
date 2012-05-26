@@ -25,8 +25,8 @@
   </scm>
 
   <issueManagement>
-    <system>JIRA</system>
-    <url>http://jira.msgpack.org/browse/MSGPACK</url>
+    <system>GitHub</system>
+    <url>https://github.com/msgpack/msgpack-java/issues</url>
   </issueManagement>
 
   <developers>
