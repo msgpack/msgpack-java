@@ -250,6 +250,7 @@ public class TestReflectionPackBufferUnpack extends TestSet {
 	ReflectionTemplateBuilder builder = new ReflectionTemplateBuilder(registry);
 	try {
 	    builder.buildTemplate(AbstractClass.class);
+	    fail();
 	} catch (Throwable t) {
 	    assertTrue(t instanceof TemplateBuildException);
 	}

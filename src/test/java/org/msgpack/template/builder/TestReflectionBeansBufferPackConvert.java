@@ -259,6 +259,7 @@ public class TestReflectionBeansBufferPackConvert extends TestSet {
 	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
 	try {
 	    builder.buildTemplate(AbstractClass.class);
+	    fail();
 	} catch (Throwable t) {
 	    assertTrue(t instanceof TemplateBuildException);
 	}

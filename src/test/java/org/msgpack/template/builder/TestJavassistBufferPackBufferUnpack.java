@@ -239,6 +239,7 @@ public class TestJavassistBufferPackBufferUnpack extends TestSet {
 	JavassistTemplateBuilder builder = new JavassistTemplateBuilder(registry);
 	try {
 	    builder.buildTemplate(AbstractClass.class);
+            fail();
 	} catch (Throwable t) {
 	    assertTrue(t instanceof TemplateBuildException);
 	}
