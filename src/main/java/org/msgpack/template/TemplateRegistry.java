@@ -27,6 +27,7 @@ import java.util.Set;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -218,7 +219,8 @@ public class TemplateRegistry {
             return tmpl;
         }
 
-        if (targetType instanceof WildcardType) {
+        if (targetType instanceof WildcardType ||
+                targetType instanceof TypeVariable) {
             // WildcardType is not a Class<?>
             tmpl = new AnyTemplate<Object>(this);
             register(targetType, tmpl);
