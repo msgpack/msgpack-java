@@ -1,5 +1,7 @@
 Release 0.6.7 - 20XX/XX/XX
   BUG FIXES
+    MSGPACK-76 Tries to generate a template of an abstract class
+    MSGPACK-75 ClassCastException occurs during generating a class that has fields of TypeVariable types
     MSGPACK-74 Writing message with java.util.Set field causes StackOverflowError
     MSGPACK-74 Reading message with java.util.Set field causes IllegalArgumentException
 
