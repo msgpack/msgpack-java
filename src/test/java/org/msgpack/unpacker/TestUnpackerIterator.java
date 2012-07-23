@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.msgpack.MessagePack;
 import org.msgpack.packer.Packer;
 
-public class TestUnpackerInterator {
+public class TestUnpackerIterator {
 
     @Test
     public void testSample() throws Exception {
