@@ -22,7 +22,8 @@ public class TestUnpackerIterator {
         packer.write(3);
         byte[] bytes = out.toByteArray();
 
-        Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+        Unpacker unpacker = msgpack.createUnpacker(
+                new ByteArrayInputStream(bytes));
         UnpackerIterator iter = unpacker.iterator();
         unpacker.resetReadByteCount();
         iter.hasNext();

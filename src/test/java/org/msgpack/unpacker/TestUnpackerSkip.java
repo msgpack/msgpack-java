@@ -2,9 +2,6 @@ package org.msgpack.unpacker;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-
 import org.junit.Test;
 import org.msgpack.MessagePack;
 import org.msgpack.packer.BufferPacker;
@@ -19,7 +16,7 @@ public class TestUnpackerSkip {
 
         BufferPacker packer = msgpack.createBufferPacker();
 
-        for(int i=0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             packer.write(1);
             packer.write(i);
         }
@@ -27,7 +24,7 @@ public class TestUnpackerSkip {
         byte[] bytes = packer.toByteArray();
         BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 
-        for(int i=0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             unpacker.skip();
             int n = unpacker.readInt();
             assertEquals(i, n);
@@ -41,30 +38,35 @@ public class TestUnpackerSkip {
         BufferPacker packer = msgpack.createBufferPacker();
 
         Value v1 = ValueFactory.createArrayValue(new Value[] {
-            ValueFactory.createRawValue("a"),
-            ValueFactory.createMapValue(new Value[] {
-                ValueFactory.createRawValue("k1"),
-                ValueFactory.createArrayValue(new Value[] { ValueFactory.createIntegerValue(1) })
-            })
-        });
+                ValueFactory.createRawValue("a"),
+                ValueFactory.createMapValue(new Value[] {
+                        ValueFactory.createRawValue("k1"),
+                        ValueFactory
+                                .createArrayValue(new Value[] { ValueFactory
+                                        .createIntegerValue(1) }) }) });
 
         Value v2 = ValueFactory.createArrayValue(new Value[] {
-            ValueFactory.createMapValue(new Value[] {
-                ValueFactory.createRawValue("k1"),
-                ValueFactory.createArrayValue(new Value[] { ValueFactory.createIntegerValue(1) }),
-                ValueFactory.createRawValue("k2"),
-                ValueFactory.createArrayValue(new Value[] { ValueFactory.createIntegerValue(2) })
-            }),
-            ValueFactory.createMapValue(new Value[] {
-                ValueFactory.createRawValue("k1"),
-                ValueFactory.createArrayValue(new Value[] { ValueFactory.createIntegerValue(1) }),
-                ValueFactory.createRawValue("k2"),
-                ValueFactory.createArrayValue(new Value[] { ValueFactory.createIntegerValue(2) })
-            }),
-            ValueFactory.createRawValue("a")
-        });
+                ValueFactory.createMapValue(new Value[] {
+                        ValueFactory.createRawValue("k1"),
+                        ValueFactory
+                                .createArrayValue(new Value[] { ValueFactory
+                                        .createIntegerValue(1) }),
+                        ValueFactory.createRawValue("k2"),
+                        ValueFactory
+                                .createArrayValue(new Value[] { ValueFactory
+                                        .createIntegerValue(2) }) }),
+                ValueFactory.createMapValue(new Value[] {
+                        ValueFactory.createRawValue("k1"),
+                        ValueFactory
+                                .createArrayValue(new Value[] { ValueFactory
+                                        .createIntegerValue(1) }),
+                        ValueFactory.createRawValue("k2"),
+                        ValueFactory
+                                .createArrayValue(new Value[] { ValueFactory
+                                        .createIntegerValue(2) }) }),
+                ValueFactory.createRawValue("a") });
 
-        for(int i=0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             packer.write(v1);
             packer.write(v2);
         }
@@ -72,11 +74,10 @@ public class TestUnpackerSkip {
         byte[] bytes = packer.toByteArray();
         BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
 
-        for(int i=0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             unpacker.skip();
             Value v2a = unpacker.readValue();
             assertEquals(v2, v2a);
         }
     }
 }
-

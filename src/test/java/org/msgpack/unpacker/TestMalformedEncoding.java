@@ -19,16 +19,17 @@ import org.msgpack.type.RawValue;
 import org.msgpack.type.ValueFactory;
 import org.msgpack.util.json.JSON;
 
-
 public class TestMalformedEncoding {
-    private byte[][] malforms = new byte[][] {
-        { (byte)0xc0, (byte)0xaf },             // '/' in 2 bytes
-        { (byte)0xe0, (byte)0x80, (byte)0xaf }  // '/' in 3 bytes
+    private byte[][] malforms = new byte[][] { { (byte) 0xc0, (byte) 0xaf }, // '/'
+                                                                             // in
+                                                                             // 2
+                                                                             // bytes
+            { (byte) 0xe0, (byte) 0x80, (byte) 0xaf } // '/' in 3 bytes
     };
 
     @Test
     public void testRawValueGetString() throws Exception {
-        for(byte[] malform : malforms) {
+        for (byte[] malform : malforms) {
             RawValue r = ValueFactory.createRawValue(malform);
             try {
                 r.getString();
@@ -42,7 +43,7 @@ public class TestMalformedEncoding {
 
     @Test
     public void testBufferUnpackerUnpackString() throws Exception {
-        for(byte[] malform : malforms) {
+        for (byte[] malform : malforms) {
             MessagePack msgpack = new MessagePack();
             BufferPacker pk = msgpack.createBufferPacker();
             pk.write(malform);
@@ -60,7 +61,7 @@ public class TestMalformedEncoding {
 
     @Test
     public void testUnpackerUnpackString() throws Exception {
-        for(byte[] malform : malforms) {
+        for (byte[] malform : malforms) {
             MessagePack msgpack = new MessagePack();
             BufferPacker pk = msgpack.createBufferPacker();
             pk.write(malform);
@@ -78,7 +79,7 @@ public class TestMalformedEncoding {
 
     @Test
     public void testConverterUnpackString() throws Exception {
-        for(byte[] malform : malforms) {
+        for (byte[] malform : malforms) {
             MessagePack msgpack = new MessagePack();
             RawValue r = ValueFactory.createRawValue(malform);
             Converter u = new Converter(msgpack, r);
@@ -94,7 +95,7 @@ public class TestMalformedEncoding {
 
     @Test
     public void testJSONPackerWriteString() throws Exception {
-        for(byte[] malform : malforms) {
+        for (byte[] malform : malforms) {
             JSON json = new JSON();
             Packer pk = json.createPacker(new ByteArrayOutputStream());
             try {
@@ -107,7 +108,7 @@ public class TestMalformedEncoding {
 
     @Test
     public void testJSONBufferPackerWriteString() throws Exception {
-        for(byte[] malform : malforms) {
+        for (byte[] malform : malforms) {
             JSON json = new JSON();
             Packer pk = json.createBufferPacker();
             try {
@@ -120,7 +121,7 @@ public class TestMalformedEncoding {
 
     @Test
     public void testValueToString() throws Exception {
-        for(byte[] malform : malforms) {
+        for (byte[] malform : malforms) {
             RawValue r = ValueFactory.createRawValue(malform);
             String str = r.toString();
             // malformed bytes will be ignored
@@ -128,4 +129,3 @@ public class TestMalformedEncoding {
         }
     }
 }
-

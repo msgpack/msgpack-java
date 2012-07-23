@@ -13,12 +13,10 @@ import java.math.BigDecimal;
 
 import org.msgpack.MessagePack;
 import org.msgpack.packer.BufferPacker;
+import org.msgpack.template.Templates;
 import org.msgpack.unpacker.Unpacker;
 
-import static org.msgpack.template.Templates.*;
-
 import org.junit.Test;
-
 
 public class TestReadTemplate {
     public static enum MyEnum {
@@ -27,58 +25,60 @@ public class TestReadTemplate {
 
     @Test
     public void testReadTemplateNull() throws IOException {
-        Byte tbyte = u().read(TByte);
+        Byte tbyte = u().read(Templates.TByte);
         assertNull(tbyte);
 
-        Short tshort = u().read(TShort);
+        Short tshort = u().read(Templates.TShort);
         assertNull(tshort);
 
-        Integer tinteger = u().read(TInteger);
+        Integer tinteger = u().read(Templates.TInteger);
         assertNull(tinteger);
 
-        Long tlong = u().read(TLong);
+        Long tlong = u().read(Templates.TLong);
         assertNull(tlong);
 
-        Character tcharacter = u().read(TCharacter);
+        Character tcharacter = u().read(Templates.TCharacter);
         assertNull(tcharacter);
 
-        BigInteger tbiginteger = u().read(TBigInteger);
+        BigInteger tbiginteger = u().read(Templates.TBigInteger);
         assertNull(tbiginteger);
 
-        BigDecimal tbigdecimail = u().read(TBigDecimal);
+        BigDecimal tbigdecimail = u().read(Templates.TBigDecimal);
         assertNull(tbigdecimail);
 
-        Float tfloat = u().read(TFloat);
+        Float tfloat = u().read(Templates.TFloat);
         assertNull(tfloat);
 
-        Double tdouble = u().read(TDouble);
+        Double tdouble = u().read(Templates.TDouble);
         assertNull(tdouble);
 
-        Boolean tboolean = u().read(TBoolean);
+        Boolean tboolean = u().read(Templates.TBoolean);
         assertNull(tboolean);
 
-        String tstring = u().read(TString);
+        String tstring = u().read(Templates.TString);
         assertNull(tstring);
 
-        byte[] tbytearray = u().read(TByteArray);
+        byte[] tbytearray = u().read(Templates.TByteArray);
         assertNull(tbytearray);
 
-        ByteBuffer tbytebuffer = u().read(TByteBuffer);
+        ByteBuffer tbytebuffer = u().read(Templates.TByteBuffer);
         assertNull(tbytebuffer);
 
-        Date tdate = u().read(TDate);
+        Date tdate = u().read(Templates.TDate);
         assertNull(tdate);
 
-        List<String> tlist = u().read(tList(TString));
+        List<String> tlist = u().read(Templates.tList(Templates.TString));
         assertNull(tlist);
 
-        Map<String,Integer> tmap = u().read(tMap(TString, TInteger));
+        Map<String, Integer> tmap = u().read(
+                Templates.tMap(Templates.TString, Templates.TInteger));
         assertNull(tmap);
 
-        Collection<Long> tcollection = u().read(tCollection(TLong));
+        Collection<Long> tcollection = u().read(
+                Templates.tCollection(Templates.TLong));
         assertNull(tcollection);
 
-        MyEnum tordinalenum = u().read(tOrdinalEnum(MyEnum.class));
+        MyEnum tordinalenum = u().read(Templates.tOrdinalEnum(MyEnum.class));
         assertNull(tordinalenum);
     }
 
@@ -91,4 +91,3 @@ public class TestReadTemplate {
         return u;
     }
 }
-

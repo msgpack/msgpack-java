@@ -21,7 +21,6 @@ import org.msgpack.template.Templates;
 import org.msgpack.unpacker.SizeLimitException;
 import org.msgpack.unpacker.Unpacker;
 
-
 public class TestSizeLimit {
 
     @Test
@@ -40,7 +39,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setRawSizeLimit(10);
             byte[] dst = unpacker.read(tmpl);
             assertEquals(src.length, dst.length);
@@ -57,7 +57,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setRawSizeLimit(10);
             byte[] dst = unpacker.read(tmpl);
             assertEquals(src.length, dst.length);
@@ -74,7 +75,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setRawSizeLimit(10);
             byte[] dst = unpacker.read(tmpl);
             assertEquals(src.length, dst.length);
@@ -91,7 +93,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setRawSizeLimit(10);
             try {
                 unpacker.read(tmpl);
@@ -112,7 +115,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setRawSizeLimit(10);
             try {
                 unpacker.read(tmpl);
@@ -133,7 +137,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setRawSizeLimit(33);
             byte[] dst = unpacker.read(tmpl);
             assertEquals(src.length, dst.length);
@@ -150,7 +155,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setRawSizeLimit(33);
             try {
                 unpacker.read(tmpl);
@@ -171,7 +177,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setRawSizeLimit(33);
             try {
                 unpacker.read(tmpl);
@@ -192,7 +199,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setRawSizeLimit(65536);
             byte[] dst = unpacker.read(tmpl);
             assertEquals(src.length, dst.length);
@@ -209,7 +217,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setRawSizeLimit(65536);
             try {
                 unpacker.read(tmpl);
@@ -230,7 +239,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setRawSizeLimit(65536);
             try {
                 unpacker.read(tmpl);
@@ -244,7 +254,8 @@ public class TestSizeLimit {
     @Test
     public void testArraySizeLimit() throws Exception {
         MessagePack msgpack = new MessagePack();
-        Template<List<Integer>> tmpl = new ListTemplate<Integer>(Templates.TInteger);
+        Template<List<Integer>> tmpl = new ListTemplate<Integer>(
+                Templates.TInteger);
         { // set limit == 10, size < 10
             int len = 9;
             List<Integer> src = new ArrayList<Integer>(len);
@@ -257,7 +268,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setArraySizeLimit(10);
             List<Integer> dst = unpacker.read(tmpl);
             assertEquals(src.size(), dst.size());
@@ -274,7 +286,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setArraySizeLimit(10);
             List<Integer> dst = unpacker.read(tmpl);
             assertEquals(src.size(), dst.size());
@@ -291,7 +304,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setArraySizeLimit(10);
             List<Integer> dst = unpacker.read(tmpl);
             assertEquals(src.size(), dst.size());
@@ -308,7 +322,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setArraySizeLimit(10);
             try {
                 unpacker.read(tmpl);
@@ -329,7 +344,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setArraySizeLimit(10);
             try {
                 unpacker.read(tmpl);
@@ -350,7 +366,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setArraySizeLimit(20);
             List<Integer> dst = unpacker.read(tmpl);
             assertEquals(src.size(), dst.size());
@@ -367,7 +384,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setArraySizeLimit(20);
             try {
                 unpacker.read(tmpl);
@@ -388,7 +406,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setArraySizeLimit(20);
             try {
                 unpacker.read(tmpl);
@@ -409,7 +428,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setArraySizeLimit(65536);
             List<Integer> dst = unpacker.read(tmpl);
             assertEquals(src.size(), dst.size());
@@ -426,7 +446,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setArraySizeLimit(65536);
             try {
                 unpacker.read(tmpl);
@@ -447,7 +468,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setArraySizeLimit(65536);
             try {
                 unpacker.read(tmpl);
@@ -461,8 +483,8 @@ public class TestSizeLimit {
     @Test
     public void testMapSizeLimit() throws Exception {
         MessagePack msgpack = new MessagePack();
-        Template<Map<Integer, Integer>> tmpl =
-            new MapTemplate<Integer, Integer>(Templates.TInteger, Templates.TInteger);
+        Template<Map<Integer, Integer>> tmpl = new MapTemplate<Integer, Integer>(
+                Templates.TInteger, Templates.TInteger);
         { // set limit == 10, size < 10
             int len = 9;
             Map<Integer, Integer> src = new HashMap<Integer, Integer>(len);
@@ -475,7 +497,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setMapSizeLimit(10);
             Map<Integer, Integer> dst = unpacker.read(tmpl);
             assertEquals(src.size(), dst.size());
@@ -492,7 +515,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setMapSizeLimit(10);
             Map<Integer, Integer> dst = unpacker.read(tmpl);
             assertEquals(src.size(), dst.size());
@@ -509,7 +533,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setMapSizeLimit(10);
             Map<Integer, Integer> dst = unpacker.read(tmpl);
             assertEquals(src.size(), dst.size());
@@ -526,7 +551,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setMapSizeLimit(10);
             try {
                 unpacker.read(tmpl);
@@ -547,7 +573,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setMapSizeLimit(10);
             try {
                 unpacker.read(tmpl);
@@ -568,7 +595,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setMapSizeLimit(20);
             Map<Integer, Integer> dst = unpacker.read(tmpl);
             assertEquals(src.size(), dst.size());
@@ -585,7 +613,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setMapSizeLimit(20);
             try {
                 unpacker.read(tmpl);
@@ -606,7 +635,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setMapSizeLimit(20);
             try {
                 unpacker.read(tmpl);
@@ -627,7 +657,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setMapSizeLimit(65536);
             Map<Integer, Integer> dst = unpacker.read(tmpl);
             assertEquals(src.size(), dst.size());
@@ -644,7 +675,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setMapSizeLimit(65536);
             try {
                 unpacker.read(tmpl);
@@ -665,7 +697,8 @@ public class TestSizeLimit {
             packer.write(src);
             byte[] bytes = out.toByteArray();
 
-            Unpacker unpacker = msgpack.createUnpacker(new ByteArrayInputStream(bytes));
+            Unpacker unpacker = msgpack
+                    .createUnpacker(new ByteArrayInputStream(bytes));
             unpacker.setMapSizeLimit(65536);
             try {
                 unpacker.read(tmpl);
