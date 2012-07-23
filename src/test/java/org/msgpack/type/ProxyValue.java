@@ -5,7 +5,8 @@ import java.io.IOException;
 import org.msgpack.packer.Packer;
 
 public abstract class ProxyValue implements Value {
-    public ProxyValue() { }
+    public ProxyValue() {
+    }
 
     protected abstract Value getValue();
 
@@ -108,4 +109,3 @@ public abstract class ProxyValue implements Value {
         return getValue().equals(o);
     }
 }
-
