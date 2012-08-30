@@ -262,6 +262,7 @@ public class TestSimpleArrays {
     @Message
     public static class Dim2Test {
 	public int[][] i;
+	public byte[][] b;
 	public String[][] str;
 	public List<String>[][] slist;
 
@@ -277,6 +278,9 @@ public class TestSimpleArrays {
 	t.i = new int[2][];
 	t.i[0] = new int[] { 0, 1 };
 	t.i[1] = new int[] { 2, 3, 4 };
+	t.b = new byte[2][];
+	t.b[0] = new byte[] { 5, 6 };
+	t.b[1] = new byte[] { 7, 8, 9 };
 	t.str = new String[2][];
 	t.str[0] = new String[] { "aa", "bb" };
 	t.str[1] = new String[] { "cc", "dd", "ee" };
@@ -298,21 +302,28 @@ public class TestSimpleArrays {
 	byte[] raw = packer.toByteArray();
 	BufferUnpacker unpacker = msgpack.createBufferUnpacker(raw);
 	Dim2Test u = unpacker.read(Dim2Test.class);
-	assertEquals(t.i.length, t.i.length);
+	assertEquals(t.i.length, u.i.length);
 	for (int i = 0; i < t.i.length; i++) {
 	    assertEquals(t.i[i].length, u.i[i].length);
 	    for (int j = 0; j < t.i[i].length; j++) {
 		assertEquals(t.i[i][j], u.i[i][j]);
 	    }
 	}
-	assertEquals(t.str.length, t.str.length);
+	assertEquals(t.b.length, u.b.length);
+	for (int i = 0; i < t.b.length; i++) {
+	    assertEquals(t.b[i].length, u.b[i].length);
+	    for (int j = 0; j < t.i[i].length; j++) {
+		assertEquals(t.b[i][j], u.b[i][j]);
+	    }
+	}
+	assertEquals(t.str.length, u.str.length);
 	for (int i = 0; i < t.str.length; i++) {
 	    assertEquals(t.str[i].length, u.str[i].length);
 	    for (int j = 0; j < t.str[i].length; j++) {
 		assertEquals(t.str[i][j], u.str[i][j]);
 	    }
 	}
-	assertEquals(t.slist.length, t.slist.length);
+	assertEquals(t.slist.length, u.slist.length);
 	for (int i = 0; i < t.slist.length; i++) {
 	    assertEquals(t.slist[i].length, u.slist[i].length);
 	    for (int j = 0; j < t.slist[i].length; j++) {
