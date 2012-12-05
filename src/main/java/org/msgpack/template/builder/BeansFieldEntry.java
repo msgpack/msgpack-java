@@ -1,6 +1,6 @@
 package org.msgpack.template.builder;
 
-import java.beans.PropertyDescriptor;
+import custom.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 
