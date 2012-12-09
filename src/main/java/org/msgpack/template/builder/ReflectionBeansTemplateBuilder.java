@@ -17,10 +17,10 @@
 //
 package org.msgpack.template.builder;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
+import custom.beans.BeanInfo;
+import custom.beans.IntrospectionException;
+import custom.beans.Introspector;
+import custom.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
