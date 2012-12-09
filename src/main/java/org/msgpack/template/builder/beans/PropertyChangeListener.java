@@ -15,22 +15,11 @@
 // the License.
 //
 
-package custom.beans;
+package org.msgpack.template.builder.beans;
 
+import java.util.EventListener;
 
-public interface BeanInfo {
+public interface PropertyChangeListener extends EventListener {
 
-    public PropertyDescriptor[] getPropertyDescriptors();
-
-    public MethodDescriptor[] getMethodDescriptors();
-
-    public EventSetDescriptor[] getEventSetDescriptors();
-
-    public BeanInfo[] getAdditionalBeanInfo();
-
-    public BeanDescriptor getBeanDescriptor();
-
-    public int getDefaultPropertyIndex();
-
-    public int getDefaultEventIndex();
+    public void propertyChange(PropertyChangeEvent event);
 }

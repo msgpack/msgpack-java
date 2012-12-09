@@ -15,7 +15,7 @@
 // the License.
 //
 
-package custom.beans;
+package org.msgpack.template.builder.beans;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;

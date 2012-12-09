@@ -15,7 +15,7 @@
 // the License.
 //
 
-package custom.beans;
+package org.msgpack.template.builder.beans;
 
 import java.io.InputStream;
 import java.lang.reflect.Array;
@@ -28,12 +28,12 @@ import java.util.Stack;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.harmony.beans.internal.nls.Messages;
+import org.msgpack.template.builder.beans.Statement.MethodComparator;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import custom.beans.Statement.MethodComparator;
 
 /**
  * <code>XMLDecoder</code> reads objects from xml created by

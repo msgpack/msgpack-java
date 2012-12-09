@@ -15,7 +15,7 @@
 // the License.
 //
 
-package custom.beans;
+package org.msgpack.template.builder.beans;
 
 import java.util.Collections;
 import java.util.Map;

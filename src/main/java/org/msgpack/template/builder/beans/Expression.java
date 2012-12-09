@@ -15,7 +15,7 @@
 // the License.
 //
 
-package custom.beans;
+package org.msgpack.template.builder.beans;
 
 import org.apache.harmony.beans.BeansUtils;
 

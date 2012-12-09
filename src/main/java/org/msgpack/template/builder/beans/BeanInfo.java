@@ -15,9 +15,22 @@
 // the License.
 //
 
-package custom.beans;
+package org.msgpack.template.builder.beans;
 
-public interface ExceptionListener {
 
-    public void exceptionThrown(Exception e);
+public interface BeanInfo {
+
+    public PropertyDescriptor[] getPropertyDescriptors();
+
+    public MethodDescriptor[] getMethodDescriptors();
+
+    public EventSetDescriptor[] getEventSetDescriptors();
+
+    public BeanInfo[] getAdditionalBeanInfo();
+
+    public BeanDescriptor getBeanDescriptor();
+
+    public int getDefaultPropertyIndex();
+
+    public int getDefaultEventIndex();
 }

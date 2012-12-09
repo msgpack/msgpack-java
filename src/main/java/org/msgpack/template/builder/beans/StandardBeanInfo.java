@@ -15,9 +15,9 @@
 // the License.
 //
 
-package custom.beans;
+package org.msgpack.template.builder.beans;
 
-import static custom.beans.Introspector.decapitalize;
+import static org.msgpack.template.builder.beans.Introspector.decapitalize;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;

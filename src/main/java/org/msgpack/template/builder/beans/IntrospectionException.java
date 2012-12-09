@@ -15,29 +15,13 @@
 // the License.
 //
 
-package custom.beans;
+package org.msgpack.template.builder.beans;
 
-import custom.beans.PropertyChangeListener;
+public class IntrospectionException extends Exception {
 
-public interface PropertyEditor {
+    private static final long serialVersionUID = -3728150539969542619L;
 
-    public void setAsText(String text) throws IllegalArgumentException;
-
-    public String[] getTags();
-
-    public String getJavaInitializationString();
-
-    public String getAsText();
-
-    public void setValue(Object value);
-
-    public Object getValue();
-
-    public void removePropertyChangeListener(PropertyChangeListener listener);
-
-    public void addPropertyChangeListener(PropertyChangeListener listener);
-
-    public boolean supportsCustomEditor();
-
-    public boolean isPaintable();
+    public IntrospectionException(String message) {
+        super(message);
+    }
 }

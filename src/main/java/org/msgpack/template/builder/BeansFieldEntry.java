@@ -1,11 +1,11 @@
 package org.msgpack.template.builder;
 
-import custom.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 
 import org.msgpack.MessageTypeException;
 import org.msgpack.template.FieldOption;
+import org.msgpack.template.builder.beans.PropertyDescriptor;
 
 public class BeansFieldEntry extends FieldEntry {
 
