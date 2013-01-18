@@ -43,6 +43,7 @@ import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.builder.TemplateBuildException;
 
 public abstract class AbstractTemplateBuilder implements TemplateBuilder {
+    private static boolean hasJavassist = true;
 
     protected TemplateRegistry registry;
 
@@ -72,10 +73,15 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
     protected abstract <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries);
 
     protected void checkClassValidation(final Class<?> targetClass) {
-        if (javassist.Modifier.isAbstract(targetClass.getModifiers())) {
-            throw new TemplateBuildException(
-                    "Cannot build template for abstract class: " + targetClass.getName());
+        try {
+            if (hasJavassist && javassist.Modifier.isAbstract(targetClass.getModifiers())) {
+                throw new TemplateBuildException(
+                        "Cannot build template for abstract class: " + targetClass.getName());
+            }
+        } catch (NoClassDefFoundError e) {
+            hasJavassist = false;
         }
+        
         if (targetClass.isInterface()) {
             throw new TemplateBuildException(
                     "Cannot build template for interface: " + targetClass.getName());
