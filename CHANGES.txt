@@ -1,4 +1,9 @@
-Release 0.6.7 - 20XX/XX/XX
+Release 0.6.8 - 20XX/XX/XX
+
+Release 0.6.7 - 2012/12/09
+  NEW FEATURES
+    Adds MessagePack for Android
+
   BUG FIXES
     MSGPACK-78 Generated template causes SecurityException when used from Java web start applications
     MSGPACK-76 Tries to generate a template of an abstract class

@@ -17,10 +17,6 @@
 //
 package org.msgpack.template.builder;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -37,6 +33,10 @@ import org.msgpack.packer.Packer;
 import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
+import org.msgpack.template.builder.beans.BeanInfo;
+import org.msgpack.template.builder.beans.IntrospectionException;
+import org.msgpack.template.builder.beans.Introspector;
+import org.msgpack.template.builder.beans.PropertyDescriptor;
 import org.msgpack.unpacker.Unpacker;
 
 /**
