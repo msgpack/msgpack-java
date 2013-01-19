@@ -22,7 +22,24 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.msgpack.MessageTypeException;
+import org.msgpack.template.OrdinalEnumTemplate;
+
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OrdinalEnum {
+
+	/**
+	 * Specify whether the ordinal index lookup should be handled strictly or
+	 * not when mapping ordinal value to an enum value. By specifying true,
+	 * {@link MessageTypeException} will be thrown if the enum specified by the
+	 * ordinal value does not exist in this implementation. If false, then the
+	 * missing ordinal value treated as null, gracefully handling the lookup.
+	 * Default is true.
+	 * 
+	 * @since 0.6.8
+	 * @see OrdinalEnumTemplate
+	 */
+	boolean strict() default true;
+
 }
