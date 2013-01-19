@@ -343,7 +343,7 @@ public class MessagePack {
     /**
      * Deserializes byte array to object.
      * 
-     * @since 0.6.0
+     * @since 0.6.8
      * @param bytes
      *            input byte array
      * @param v
