@@ -29,6 +29,7 @@ import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.BooleanArrayTemplate;
+import org.msgpack.template.ByteArrayTemplate;
 import org.msgpack.template.DoubleArrayTemplate;
 import org.msgpack.template.FieldList;
 import org.msgpack.template.FloatArrayTemplate;
@@ -156,6 +157,8 @@ public class ArrayTemplateBuilder extends AbstractTemplateBuilder {
                 return FloatArrayTemplate.getInstance();
             } else if (baseClass == double.class) {
                 return DoubleArrayTemplate.getInstance();
+            } else if (baseClass == byte.class) {
+                return ByteArrayTemplate.getInstance();
             } else {
                 Template baseTemplate = registry.lookup(genericBaseType);
                 return new ObjectArrayTemplate(baseClass, baseTemplate);

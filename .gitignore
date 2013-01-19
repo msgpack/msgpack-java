@@ -5,3 +5,7 @@ target
 .settings
 .iml
 *~
+._*
+.DS_Store
+build
+lib
