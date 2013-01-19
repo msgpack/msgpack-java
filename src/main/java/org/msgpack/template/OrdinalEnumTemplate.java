@@ -21,12 +21,14 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import org.msgpack.MessageTypeException;
+import org.msgpack.annotation.OrdinalEnum;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
 
 public class OrdinalEnumTemplate<T> extends AbstractTemplate<T> {
     protected T[] entries;
     protected HashMap<T, Integer> reverse;
+    protected boolean strict;
 
     public OrdinalEnumTemplate(Class<T> targetClass) {
         entries = targetClass.getEnumConstants();
@@ -34,6 +36,8 @@ public class OrdinalEnumTemplate<T> extends AbstractTemplate<T> {
         for (int i = 0; i < entries.length; i++) {
             reverse.put(entries[i], i);
         }
+		strict = !targetClass.isAnnotationPresent(OrdinalEnum.class)
+				|| targetClass.getAnnotation(OrdinalEnum.class).strict();
     }
 
     @Override
@@ -61,10 +65,17 @@ public class OrdinalEnumTemplate<T> extends AbstractTemplate<T> {
         }
 
         int ordinal = pac.readInt();
-        if (entries.length <= ordinal) {
-            throw new MessageTypeException(
-                    new IllegalArgumentException("ordinal: " + ordinal));
-        }
-        return entries[ordinal];
+
+		if (ordinal < entries.length) {
+			return entries[ordinal];
+		}
+
+		if (!strict) {
+			return null;
+		}
+
+		throw new MessageTypeException(new IllegalArgumentException("ordinal: "
+				+ ordinal));
+
     }
 }
