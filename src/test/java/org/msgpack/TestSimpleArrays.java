@@ -267,14 +267,13 @@ public class TestSimpleArrays {
         public int[][] i;
         public byte[][] b;
         public String[][] str;
-        public List<String>[][] slist;
+        //public List<String>[][] slist;
 
         public Dim2Test() {
         }
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Ignore
     @Test
     public void testDim2() throws Exception {
         MessagePack msgpack = new MessagePack();
@@ -288,6 +287,7 @@ public class TestSimpleArrays {
         t.str = new String[2][];
         t.str[0] = new String[] { "aa", "bb" };
         t.str[1] = new String[] { "cc", "dd", "ee" };
+        /**
         t.slist = new List[2][];
         t.slist[0] = new List[1];
         t.slist[0][0] = new ArrayList();
@@ -300,6 +300,7 @@ public class TestSimpleArrays {
         t.slist[1][1] = new ArrayList();
         t.slist[1][1].add("jj");
         t.slist[1][1].add("kk");
+        */
 
         BufferPacker packer = msgpack.createBufferPacker();
         packer.write(t);
@@ -327,6 +328,7 @@ public class TestSimpleArrays {
                 assertEquals(t.str[i][j], u.str[i][j]);
             }
         }
+        /**
         assertEquals(t.slist.length, u.slist.length);
         for (int i = 0; i < t.slist.length; i++) {
             assertEquals(t.slist[i].length, u.slist[i].length);
@@ -337,6 +339,7 @@ public class TestSimpleArrays {
                 }
             }
         }
+        */
     }
 
     @Message
