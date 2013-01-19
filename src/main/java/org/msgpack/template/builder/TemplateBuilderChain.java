@@ -51,6 +51,9 @@ public class TemplateBuilderChain {
             throw new NullPointerException("registry is null");
         }
 
+        // FIXME
+        // Javassist{,Beans}TemplateBuilder should be created with reflection for android.
+
         // forceBuilder
         forceBuilder = new JavassistTemplateBuilder(registry);
         if (cl != null) {
