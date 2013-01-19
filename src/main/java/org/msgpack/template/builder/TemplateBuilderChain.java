@@ -51,17 +51,16 @@ public class TemplateBuilderChain {
             throw new NullPointerException("registry is null");
         }
 
-        // forceBuilder
-        forceBuilder = new JavassistTemplateBuilder(registry);
-        if (cl != null) {
-            ((JavassistTemplateBuilder) forceBuilder).addClassLoader(cl);
-        }
-
         // builder
         TemplateBuilder builder;
         templateBuilders.add(new ArrayTemplateBuilder(registry));
         templateBuilders.add(new OrdinalEnumTemplateBuilder(registry));
         if (enableDynamicCodeGeneration()) { // use dynamic code generation
+            forceBuilder = new JavassistTemplateBuilder(registry);
+            if (cl != null) {
+                ((JavassistTemplateBuilder) forceBuilder).addClassLoader(cl);
+            }
+
             builder = forceBuilder;
             templateBuilders.add(builder);
             // FIXME #MN next version
@@ -69,7 +68,8 @@ public class TemplateBuilderChain {
             // JavassistBeansTemplateBuilder(registry));
             templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
         } else { // use reflection
-            builder = new ReflectionTemplateBuilder(registry);
+            forceBuilder = new ReflectionTemplateBuilder(registry);
+            builder = forceBuilder;
             templateBuilders.add(builder);
             templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
         }
