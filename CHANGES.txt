@@ -2,6 +2,7 @@ Release 0.6.8 - 20XX/XX/XX
   BUG FIXES
     Replaces method calls of LinkedList#peek{First,Last}() into get{First,Last}() within LinkedBufferInput class (pull request #18)
     Make encoding byte[][] work correctly (pull request #24)
+    Ports SimpleImmutableEntry for Android2.2 or below (pull request #27)
 
   IMPROVEMENTS
     MSGPACK-83 Gracefully handling new enum value with OrdinalEnum (pull request #26)
