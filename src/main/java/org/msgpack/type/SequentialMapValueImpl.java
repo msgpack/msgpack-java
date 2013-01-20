@@ -27,7 +27,7 @@ import java.util.AbstractCollection;
 import java.util.NoSuchElementException;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
-import org.msgpack.util.PortedImmutableEntry;
+import org.msgpack.util.android.PortedImmutableEntry;
 
 class SequentialMapValueImpl extends AbstractMapValue {
     private static SequentialMapValueImpl emptyInstance = new SequentialMapValueImpl(new Value[0], true);
@@ -117,13 +117,20 @@ class SequentialMapValueImpl extends AbstractMapValue {
             if (pos >= array.length) {
                 throw new NoSuchElementException(); // TODO message
             }
-            
+
             Value key = array[pos];
             Value value = array[pos + 1];
+            /**
+             * @see https://github.com/msgpack/msgpack-java/pull/27
+             *
+             * msgpack-java was crashed on Android 2.2 or below because
+             * the method calls java.util.AbstractMap$SimpleImmutableEntry
+             * that doesn't exist in Android 2.2 or below.
+             */
             Map.Entry<Value, Value> pair = hasDefaultImmutableEntry ?
                 new AbstractMap.SimpleImmutableEntry<Value, Value>(key, value) :
                 new PortedImmutableEntry<Value, Value>(key, value);
-                  
+
             pos += 2;
             return pair;
         }

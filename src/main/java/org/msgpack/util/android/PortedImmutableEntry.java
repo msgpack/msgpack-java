@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.msgpack.util;
+package org.msgpack.util.android;
 
 import java.io.Serializable;
 import java.util.Map;
