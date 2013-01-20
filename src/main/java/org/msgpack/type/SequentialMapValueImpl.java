@@ -27,6 +27,7 @@ import java.util.AbstractCollection;
 import java.util.NoSuchElementException;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
+import org.msgpack.util.PortedImmutableEntry;
 
 class SequentialMapValueImpl extends AbstractMapValue {
     private static SequentialMapValueImpl emptyInstance = new SequentialMapValueImpl(new Value[0], true);
@@ -89,6 +90,17 @@ class SequentialMapValueImpl extends AbstractMapValue {
             Iterator<Map.Entry<Value, Value>> {
         private Value[] array;
         private int pos;
+        private static final boolean hasDefaultImmutableEntry;
+        static {
+            boolean hasIt = true;
+            try {
+                Class.forName("java.util.AbstractMap.SimpleImmutableEntry");
+            } catch (ClassNotFoundException e) {
+                hasIt = false;
+            } finally {
+                hasDefaultImmutableEntry = hasIt;
+            }
+        }
 
         EntrySetIterator(Value[] array) {
             this.array = array;
@@ -105,8 +117,13 @@ class SequentialMapValueImpl extends AbstractMapValue {
             if (pos >= array.length) {
                 throw new NoSuchElementException(); // TODO message
             }
-            Map.Entry<Value, Value> pair =
-                new AbstractMap.SimpleImmutableEntry<Value, Value>(array[pos], array[pos + 1]);
+            
+            Value key = array[pos];
+            Value value = array[pos + 1];
+            Map.Entry<Value, Value> pair = hasDefaultImmutableEntry ?
+                new AbstractMap.SimpleImmutableEntry<Value, Value>(key, value) :
+                new PortedImmutableEntry<Value, Value>(key, value);
+                  
             pos += 2;
             return pair;
         }
