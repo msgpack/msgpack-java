@@ -341,23 +341,6 @@ public class MessagePack {
     }
 
     /**
-     * Deserializes byte array to object.
-     * 
-     * @since 0.6.8
-     * @param bytes
-     *            input byte array
-     * @param v
-     * @return
-     * @throws IOException
-     */
-    public <T> T read(byte[] bytes, int off, int len, Class<T> c) throws IOException {
-    	@SuppressWarnings("unchecked")
-        Template<T> tmpl = registry.lookup(c);
-        BufferUnpacker u = createBufferUnpacker(bytes, off, len);
-        return (T) tmpl.read(u, null);
-    }
-    
-    /**
      * Deserializes byte array to object according to template.
      * 
      * @since 0.6.0
@@ -403,6 +386,23 @@ public class MessagePack {
     public <T> T read(byte[] bytes, T v, Template<T> tmpl) throws IOException {
         BufferUnpacker u = createBufferUnpacker(bytes);
         return (T) tmpl.read(u, v);
+    }
+
+    /**
+     * Deserializes byte array to object.
+     *
+     * @since 0.6.8
+     * @param bytes
+     *            input byte array
+     * @param v
+     * @return
+     * @throws IOException
+     */
+    public <T> T read(byte[] bytes, int off, int len, Class<T> c) throws IOException {
+        @SuppressWarnings("unchecked")
+        Template<T> tmpl = registry.lookup(c);
+        BufferUnpacker u = createBufferUnpacker(bytes, off, len);
+        return (T) tmpl.read(u, null);
     }
 
     /**
