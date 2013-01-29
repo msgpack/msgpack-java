@@ -22,15 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.msgpack.template.TemplateRegistry;
+import org.msgpack.util.android.DalvikVmChecker;
 
 public class TemplateBuilderChain {
 
     private static boolean enableDynamicCodeGeneration() {
-        try {
-            return !System.getProperty("java.vm.name").equals("Dalvik");
-        } catch (Exception e) {
-            return true;
-        }
+        return !DalvikVmChecker.isDalvikVm();
     }
 
     protected List<TemplateBuilder> templateBuilders;
