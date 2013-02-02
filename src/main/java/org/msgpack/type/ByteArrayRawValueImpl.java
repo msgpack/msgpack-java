@@ -29,10 +29,19 @@ import org.msgpack.MessageTypeException;
 
 class ByteArrayRawValueImpl extends AbstractRawValue {
     private static ByteArrayRawValueImpl emptyInstance = new ByteArrayRawValueImpl(new byte[0], true);
-
+    
     public static RawValue getEmptyInstance() {
         return emptyInstance;
     }
+    
+    private static final ThreadLocal<CharsetDecoder> decoderStore = new ThreadLocal<CharsetDecoder>() {
+        @Override
+        protected CharsetDecoder initialValue() {
+            return Charset.forName("UTF-8").newDecoder()
+                    .onMalformedInput(CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(CodingErrorAction.REPORT);
+        }
+    };
 
     private byte[] bytes;
 
@@ -58,9 +67,7 @@ class ByteArrayRawValueImpl extends AbstractRawValue {
 
     @Override
     public String getString() {
-        CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder()
-                .onMalformedInput(CodingErrorAction.REPORT)
-                .onUnmappableCharacter(CodingErrorAction.REPORT);
+        CharsetDecoder decoder = decoderStore.get();
         try {
             return decoder.decode(ByteBuffer.wrap(bytes)).toString();
         } catch (CharacterCodingException ex) {
