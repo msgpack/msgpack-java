@@ -52,10 +52,7 @@ public class TemplateBuilderChain {
         // Javassist{,Beans}TemplateBuilder should be created with reflection for android.
 
         // forceBuilder
-        forceBuilder = new JavassistTemplateBuilder(registry);
-        if (cl != null) {
-            ((JavassistTemplateBuilder) forceBuilder).addClassLoader(cl);
-        }
+        forceBuilder = new JavassistTemplateBuilder(registry, cl);
 
         // builder
         TemplateBuilder builder;
