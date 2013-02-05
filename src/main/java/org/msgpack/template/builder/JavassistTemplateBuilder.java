@@ -51,25 +51,24 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
 
     protected int seqId = 0;
 
+    protected ClassLoader loader;
+
     public JavassistTemplateBuilder(TemplateRegistry registry) {
+        this(registry, null);
+    }
+
+    public JavassistTemplateBuilder(TemplateRegistry registry, ClassLoader cl) {
         super(registry);
         pool = new ClassPool();
         boolean appended = false;
-        ClassLoader cl = null;
-        try {
-            cl = Thread.currentThread().getContextClassLoader();
-            if (cl != null) {
-                pool.appendClassPath(new LoaderClassPath(cl));
-                appended = true;
-            }
-        } catch (SecurityException e) {
-            LOG.fine("Cannot append a search path of context classloader");
-            e.printStackTrace();
+        loader = cl;
+        if (loader == null) {
+            loader = pool.getClassLoader();
         }
+
         try {
-            ClassLoader cl2 = getClass().getClassLoader();
-            if (cl2 != null && cl2 != cl) {
-                pool.appendClassPath(new LoaderClassPath(cl2));
+            if (loader != null) {
+                pool.appendClassPath(new LoaderClassPath(loader));
                 appended = true;
             }
         } catch (SecurityException e) {
@@ -89,10 +88,6 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
             LOG.fine("matched type: " + targetClass.getName());
         }
         return matched;
-    }
-
-    public void addClassLoader(ClassLoader cl) {
-        pool.appendClassPath(new LoaderClassPath(cl));
     }
 
     protected CtClass makeCtClass(String className) {
@@ -170,5 +165,9 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
         Template<?>[] tmpls = toTemplate(entries);
         BuildContext bc = createBuildContext();
         return bc.loadTemplate(targetClass, entries, tmpls);
+    }
+
+    protected ClassLoader getClassLoader() {
+        return loader;
     }
 }

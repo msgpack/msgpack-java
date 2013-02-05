@@ -151,7 +151,7 @@ public abstract class BuildContext<T extends FieldEntry> {
     protected abstract String buildReadMethodBody();
 
     protected Class<?> createClass() throws CannotCompileException {
-        return (Class<?>) tmplCtClass.toClass(null, getClass().getProtectionDomain());
+        return (Class<?>) tmplCtClass.toClass(director.getClassLoader(), getClass().getProtectionDomain());
     }
 
     protected void saveClass(final String directoryName) throws CannotCompileException, IOException {
