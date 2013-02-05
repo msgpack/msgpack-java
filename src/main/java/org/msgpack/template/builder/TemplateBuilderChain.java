@@ -17,6 +17,8 @@
 //
 package org.msgpack.template.builder;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,24 @@ public class TemplateBuilderChain {
 
     private static boolean enableDynamicCodeGeneration() {
         return !DalvikVmChecker.isDalvikVm();
+    }
+    
+    private static final Constructor<?> javassistTemplateBuilderConstructor;
+    static {
+        Constructor<?> constructor = null;
+        try {
+            if (!DalvikVmChecker.isDalvikVm()) {
+                Class<?> clazz = Class.forName("org.msgpack.template.builder.JavassistTemplateBuilder");
+                constructor = clazz.getConstructor(TemplateRegistry.class, ClassLoader.class);
+            }
+        } catch (ClassNotFoundException e) {
+            // DalvikVM
+        } catch (NoSuchMethodException e) {
+            // TODO: should output any message ?
+        }
+        finally {
+            javassistTemplateBuilderConstructor = constructor;
+        }
     }
 
     protected List<TemplateBuilder> templateBuilders;
@@ -51,14 +71,27 @@ public class TemplateBuilderChain {
         // FIXME
         // Javassist{,Beans}TemplateBuilder should be created with reflection for android.
 
-        // forceBuilder
-        forceBuilder = new JavassistTemplateBuilder(registry, cl);
+        TemplateBuilder javassistTemplateBuilder = null;
+        if (javassistTemplateBuilderConstructor != null) {
+            try {
+                javassistTemplateBuilder = (TemplateBuilder) javassistTemplateBuilderConstructor.newInstance(registry, cl);
+            } catch (InstantiationException e) {
+                new IllegalStateException(e);
+            } catch (IllegalAccessException e) {
+                new IllegalStateException(e);
+            } catch (InvocationTargetException e) {
+                new IllegalStateException(e);
+            }
+        }
 
         // builder
         TemplateBuilder builder;
         templateBuilders.add(new ArrayTemplateBuilder(registry));
         templateBuilders.add(new OrdinalEnumTemplateBuilder(registry));
-        if (enableDynamicCodeGeneration()) { // use dynamic code generation
+        if (enableDynamicCodeGeneration() && javassistTemplateBuilder != null) { // use dynamic code generation
+            // forceBuilder
+            forceBuilder = javassistTemplateBuilder;
+            
             builder = forceBuilder;
             templateBuilders.add(builder);
             // FIXME #MN next version
@@ -66,7 +99,9 @@ public class TemplateBuilderChain {
             // JavassistBeansTemplateBuilder(registry));
             templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
         } else { // use reflection
-            builder = new ReflectionTemplateBuilder(registry);
+            // forceBuilder
+            forceBuilder = new ReflectionTemplateBuilder(registry);
+            builder = forceBuilder;
             templateBuilders.add(builder);
             templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
         }

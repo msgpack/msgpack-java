@@ -21,6 +21,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -41,8 +43,26 @@ import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
 import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.builder.TemplateBuildException;
+import org.msgpack.util.android.DalvikVmChecker;
 
 public abstract class AbstractTemplateBuilder implements TemplateBuilder {
+    
+    private static final Method javassistModifierIsAbstractMethod;
+    static {
+        Method method = null;
+        try {
+            if (!DalvikVmChecker.isDalvikVm()) {
+                Class<?> clazz = Class.forName("javassist.Modifier");
+                method = clazz.getMethod("isAbstract", int.class);
+            }
+        } catch (ClassNotFoundException e) {
+            // DalvikVM
+        } catch (NoSuchMethodException e) {
+           // TODO: should output any message ?
+        } finally {
+            javassistModifierIsAbstractMethod = method;
+        }
+    }
 
     protected TemplateRegistry registry;
 
@@ -72,10 +92,19 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
     protected abstract <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries);
 
     protected void checkClassValidation(final Class<?> targetClass) {
-        if (javassist.Modifier.isAbstract(targetClass.getModifiers())) {
-            throw new TemplateBuildException(
-                    "Cannot build template for abstract class: " + targetClass.getName());
+        if (javassistModifierIsAbstractMethod != null) {
+            try {
+                if ((Boolean) javassistModifierIsAbstractMethod.invoke(null, targetClass.getModifiers())) {
+                    throw new TemplateBuildException(
+                            "Cannot build template for abstract class: " + targetClass.getName());
+                }
+            } catch (IllegalAccessException e) {
+                new TemplateBuildException(e);
+            } catch (InvocationTargetException e) {
+                new TemplateBuildException(e);
+            }
         }
+ 
         if (targetClass.isInterface()) {
             throw new TemplateBuildException(
                     "Cannot build template for interface: " + targetClass.getName());
