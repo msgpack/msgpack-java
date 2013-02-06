@@ -27,27 +27,13 @@ import org.msgpack.template.TemplateRegistry;
 import org.msgpack.util.android.DalvikVmChecker;
 
 public class TemplateBuilderChain {
+	private static final String JAVASSIST_TEMPLATE_BUILDER_CLASS_NAME =
+			"org.msgpack.template.builder.JavassistTemplateBuilder";
+	private static final String REFLECTION_TEMPLATE_BUILDER_CLASS_NAME =
+			"org.msgpack.template.builder.ReflectionTemplateBuilder";
 
     private static boolean enableDynamicCodeGeneration() {
         return !DalvikVmChecker.isDalvikVm();
-    }
-    
-    private static final Constructor<?> javassistTemplateBuilderConstructor;
-    static {
-        Constructor<?> constructor = null;
-        try {
-            if (!DalvikVmChecker.isDalvikVm()) {
-                Class<?> clazz = Class.forName("org.msgpack.template.builder.JavassistTemplateBuilder");
-                constructor = clazz.getConstructor(TemplateRegistry.class, ClassLoader.class);
-            }
-        } catch (ClassNotFoundException e) {
-            // DalvikVM
-        } catch (NoSuchMethodException e) {
-            // TODO: should output any message ?
-        }
-        finally {
-            javassistTemplateBuilderConstructor = constructor;
-        }
     }
 
     protected List<TemplateBuilder> templateBuilders;
@@ -71,40 +57,45 @@ public class TemplateBuilderChain {
         // FIXME
         // Javassist{,Beans}TemplateBuilder should be created with reflection for android.
 
-        TemplateBuilder javassistTemplateBuilder = null;
-        if (javassistTemplateBuilderConstructor != null) {
-            try {
-                javassistTemplateBuilder = (TemplateBuilder) javassistTemplateBuilderConstructor.newInstance(registry, cl);
-            } catch (InstantiationException e) {
-                new IllegalStateException(e);
-            } catch (IllegalAccessException e) {
-                new IllegalStateException(e);
-            } catch (InvocationTargetException e) {
-                new IllegalStateException(e);
-            }
+        String forceBuilderClassName = null;
+        if (enableDynamicCodeGeneration()) { // use dynamic code generation
+            forceBuilderClassName = JAVASSIST_TEMPLATE_BUILDER_CLASS_NAME;
+        } else {
+            forceBuilderClassName = REFLECTION_TEMPLATE_BUILDER_CLASS_NAME;
         }
 
-        // builder
-        TemplateBuilder builder;
+        // create builder chain
+        forceBuilder = createForceTemplateBuilder(forceBuilderClassName, registry, cl);
+        TemplateBuilder builder = forceBuilder;
         templateBuilders.add(new ArrayTemplateBuilder(registry));
         templateBuilders.add(new OrdinalEnumTemplateBuilder(registry));
-        if (enableDynamicCodeGeneration() && javassistTemplateBuilder != null) { // use dynamic code generation
-            // forceBuilder
-            forceBuilder = javassistTemplateBuilder;
-            
-            builder = forceBuilder;
-            templateBuilders.add(builder);
-            // FIXME #MN next version
-            // templateBuilders.add(new
-            // JavassistBeansTemplateBuilder(registry));
-            templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
-        } else { // use reflection
-            // forceBuilder
-            forceBuilder = new ReflectionTemplateBuilder(registry);
-            builder = forceBuilder;
-            templateBuilders.add(builder);
-            templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
-        }
+        templateBuilders.add(builder);
+        templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
+    }
+
+	private static TemplateBuilder createForceTemplateBuilder(String className,
+			TemplateRegistry registry, ClassLoader cl) {
+		try {
+			Class<?> c = (Class<?>) Class.forName(className); // TODO
+			Constructor<?> cons = c.getConstructor(TemplateRegistry.class,
+					ClassLoader.class);
+			return (TemplateBuilder) cons.newInstance(registry, cl);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace(); // TODO
+		} catch (SecurityException e) {
+			e.printStackTrace(); // TODO
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace(); // TODO
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace(); // TODO
+		} catch (InstantiationException e) {
+			e.printStackTrace(); // TODO
+		} catch (IllegalAccessException e) {
+			e.printStackTrace(); // TODO
+		} catch (InvocationTargetException e) {
+			e.printStackTrace(); // TODO
+		}
+		return null; // TODO
     }
 
     public TemplateBuilder getForceBuilder() {

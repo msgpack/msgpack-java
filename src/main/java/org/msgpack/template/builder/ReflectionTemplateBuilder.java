@@ -155,6 +155,10 @@ public class ReflectionTemplateBuilder extends AbstractTemplateBuilder {
     }
 
     public ReflectionTemplateBuilder(TemplateRegistry registry) {
+        this(registry, null);
+    }
+
+    public ReflectionTemplateBuilder(TemplateRegistry registry, ClassLoader cl) {
         super(registry);
     }
 
