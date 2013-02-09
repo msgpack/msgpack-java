@@ -95,7 +95,7 @@ public class TemplateBuilderChain {
 		} catch (InvocationTargetException e) {
 			e.printStackTrace(); // TODO
 		}
-		return null; // TODO
+		return new ReflectionTemplateBuilder(registry, cl);
     }
 
     public TemplateBuilder getForceBuilder() {
