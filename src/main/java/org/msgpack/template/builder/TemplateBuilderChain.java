@@ -17,6 +17,8 @@
 //
 package org.msgpack.template.builder;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,10 @@ import org.msgpack.template.TemplateRegistry;
 import org.msgpack.util.android.DalvikVmChecker;
 
 public class TemplateBuilderChain {
+	private static final String JAVASSIST_TEMPLATE_BUILDER_CLASS_NAME =
+			"org.msgpack.template.builder.JavassistTemplateBuilder";
+	private static final String REFLECTION_TEMPLATE_BUILDER_CLASS_NAME =
+			"org.msgpack.template.builder.ReflectionTemplateBuilder";
 
     private static boolean enableDynamicCodeGeneration() {
         return !DalvikVmChecker.isDalvikVm();
@@ -51,25 +57,45 @@ public class TemplateBuilderChain {
         // FIXME
         // Javassist{,Beans}TemplateBuilder should be created with reflection for android.
 
-        // forceBuilder
-        forceBuilder = new JavassistTemplateBuilder(registry, cl);
+        String forceBuilderClassName = null;
+        if (enableDynamicCodeGeneration()) { // use dynamic code generation
+            forceBuilderClassName = JAVASSIST_TEMPLATE_BUILDER_CLASS_NAME;
+        } else {
+            forceBuilderClassName = REFLECTION_TEMPLATE_BUILDER_CLASS_NAME;
+        }
 
-        // builder
-        TemplateBuilder builder;
+        // create builder chain
+        forceBuilder = createForceTemplateBuilder(forceBuilderClassName, registry, cl);
+        TemplateBuilder builder = forceBuilder;
         templateBuilders.add(new ArrayTemplateBuilder(registry));
         templateBuilders.add(new OrdinalEnumTemplateBuilder(registry));
-        if (enableDynamicCodeGeneration()) { // use dynamic code generation
-            builder = forceBuilder;
-            templateBuilders.add(builder);
-            // FIXME #MN next version
-            // templateBuilders.add(new
-            // JavassistBeansTemplateBuilder(registry));
-            templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
-        } else { // use reflection
-            builder = new ReflectionTemplateBuilder(registry);
-            templateBuilders.add(builder);
-            templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
-        }
+        templateBuilders.add(builder);
+        templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
+    }
+
+	private static TemplateBuilder createForceTemplateBuilder(String className,
+			TemplateRegistry registry, ClassLoader cl) {
+		try {
+			Class<?> c = (Class<?>) Class.forName(className); // TODO
+			Constructor<?> cons = c.getConstructor(TemplateRegistry.class,
+					ClassLoader.class);
+			return (TemplateBuilder) cons.newInstance(registry, cl);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace(); // TODO
+		} catch (SecurityException e) {
+			e.printStackTrace(); // TODO
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace(); // TODO
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace(); // TODO
+		} catch (InstantiationException e) {
+			e.printStackTrace(); // TODO
+		} catch (IllegalAccessException e) {
+			e.printStackTrace(); // TODO
+		} catch (InvocationTargetException e) {
+			e.printStackTrace(); // TODO
+		}
+		return new ReflectionTemplateBuilder(registry, cl);
     }
 
     public TemplateBuilder getForceBuilder() {

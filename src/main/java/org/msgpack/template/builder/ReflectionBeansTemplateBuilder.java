@@ -69,7 +69,7 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
     }
 
     public ReflectionBeansTemplateBuilder(TemplateRegistry registry) {
-        super(registry);
+        super(registry, null);
     }
 
     @Override
