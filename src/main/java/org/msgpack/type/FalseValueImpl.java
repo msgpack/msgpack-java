@@ -20,7 +20,7 @@ package org.msgpack.type;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
 
-class FalseValueImpl extends AbstractBooleanValue {
+public class FalseValueImpl extends AbstractBooleanValue {
     private FalseValueImpl() {
     }
 

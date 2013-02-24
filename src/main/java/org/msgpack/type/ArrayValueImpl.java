@@ -21,7 +21,7 @@ import java.util.ListIterator;
 import java.io.IOException;
 import org.msgpack.packer.Packer;
 
-class ArrayValueImpl extends AbstractArrayValue {
+public class ArrayValueImpl extends AbstractArrayValue {
     private static ArrayValueImpl emptyInstance = new ArrayValueImpl(new Value[0], true);
 
     public static ArrayValue getEmptyInstance() {

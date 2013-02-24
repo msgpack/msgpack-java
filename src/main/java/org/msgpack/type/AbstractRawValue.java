@@ -24,7 +24,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 
-abstract class AbstractRawValue extends AbstractValue implements RawValue {
+public abstract class AbstractRawValue extends AbstractValue implements RawValue {
     @Override
     public ValueType getType() {
         return ValueType.RAW;
