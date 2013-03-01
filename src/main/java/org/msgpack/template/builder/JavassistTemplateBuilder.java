@@ -17,7 +17,6 @@
 //
 package org.msgpack.template.builder;
 
-import java.lang.Thread;
 import java.lang.reflect.Type;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -88,6 +87,10 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
             LOG.fine("matched type: " + targetClass.getName());
         }
         return matched;
+    }
+    
+    public void addClassLoader(ClassLoader cl) {
+    	pool.appendClassPath(new LoaderClassPath(cl));
     }
 
     protected CtClass makeCtClass(String className) {
