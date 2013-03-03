@@ -556,6 +556,19 @@ public class MessagePack {
         Template<T> tmpl = registry.lookup(c);
         return tmpl.read(new Converter(this, v), null);
     }
+        
+    /**
+     * Converts {@link org.msgpack.type.Value} object to object according to template
+     * 
+     * @since 0.6.8
+     * @param v
+     * @param tmpl
+     * @return
+     * @throws IOException
+     */
+    public <T> T convert(Value v, Template<T> tmpl) throws IOException {
+        return tmpl.read(new Converter(this, v), null);
+    }
 
     /**
      * Unconverts specified object to {@link org.msgpack.type.Value} object.
