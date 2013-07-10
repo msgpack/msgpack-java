@@ -76,26 +76,14 @@ public class TemplateBuilderChain {
 	private static TemplateBuilder createForceTemplateBuilder(String className,
 			TemplateRegistry registry, ClassLoader cl) {
 		try {
-			Class<?> c = (Class<?>) Class.forName(className); // TODO
+			Class<?> c = (Class<?>) Class.forName(className);
 			Constructor<?> cons = c.getConstructor(TemplateRegistry.class,
 					ClassLoader.class);
 			return (TemplateBuilder) cons.newInstance(registry, cl);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace(); // TODO
-		} catch (SecurityException e) {
-			e.printStackTrace(); // TODO
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace(); // TODO
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace(); // TODO
-		} catch (InstantiationException e) {
-			e.printStackTrace(); // TODO
-		} catch (IllegalAccessException e) {
-			e.printStackTrace(); // TODO
-		} catch (InvocationTargetException e) {
-			e.printStackTrace(); // TODO
+		} catch (Exception e) {
+		    e.printStackTrace();
 		}
-		return new ReflectionTemplateBuilder(registry, cl);
+        return new ReflectionTemplateBuilder(registry, cl);
     }
 
     public TemplateBuilder getForceBuilder() {
