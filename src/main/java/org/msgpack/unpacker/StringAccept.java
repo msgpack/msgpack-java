@@ -30,6 +30,7 @@ final class StringAccept extends Accept {
     private CharsetDecoder decoder;
 
     public StringAccept() {
+        super("raw value");
         this.decoder = Charset.forName("UTF-8").newDecoder()
                 .onMalformedInput(CodingErrorAction.REPORT)
                 .onUnmappableCharacter(CodingErrorAction.REPORT);

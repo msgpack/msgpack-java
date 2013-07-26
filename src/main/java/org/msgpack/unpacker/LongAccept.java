@@ -22,6 +22,10 @@ import org.msgpack.MessageTypeException;
 final class LongAccept extends Accept {
     long value;
 
+    LongAccept() {
+        super("integer");
+    }
+
     @Override
     void acceptInteger(byte v) {
         this.value = (long) v;
