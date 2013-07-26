@@ -20,6 +20,10 @@ package org.msgpack.unpacker;
 final class ArrayAccept extends Accept {
     int size;
 
+    ArrayAccept() {
+        super("array");
+    }
+
     @Override
     void acceptArray(int size) {
         this.size = size;

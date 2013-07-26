@@ -22,6 +22,10 @@ import org.msgpack.MessageTypeException;
 final class IntAccept extends Accept {
     int value;
 
+    IntAccept() {
+        super("integer");
+    }
+
     @Override
     void acceptInteger(byte v) {
         this.value = (int) v;

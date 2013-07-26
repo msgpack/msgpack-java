@@ -23,40 +23,46 @@ import org.msgpack.io.BufferReferer;
 import org.msgpack.MessageTypeException;
 
 abstract class Accept implements BufferReferer {
+    private final String expected;
+
+    Accept(String expected) {
+        this.expected = expected;
+    }
+
     void acceptBoolean(boolean v) throws IOException {
-        throw new MessageTypeException("Unexpected boolean value");
+        throw new MessageTypeException(String.format("Expected %s, but got boolean", expected));
     }
 
     void acceptInteger(byte v) throws IOException {
-        throw new MessageTypeException("Unexpected integer value");
+        throw new MessageTypeException(String.format("Expected %s, but got integer value", expected));
     }
 
     void acceptInteger(short v) throws IOException {
-        throw new MessageTypeException("Unexpected integer value");
+        throw new MessageTypeException(String.format("Expected %s, but got integer value", expected));
     }
 
     void acceptInteger(int v) throws IOException {
-        throw new MessageTypeException("Unexpected integer value");
+        throw new MessageTypeException(String.format("Expected %s, but got integer value", expected));
     }
 
     void acceptInteger(long v) throws IOException {
-        throw new MessageTypeException("Unexpected integer value");
+        throw new MessageTypeException(String.format("Expected %s, but got integer value", expected));
     }
 
     void acceptUnsignedInteger(byte v) throws IOException {
-        throw new MessageTypeException("Unexpected integer value");
+        throw new MessageTypeException(String.format("Expected %s, but got integer value", expected));
     }
 
     void acceptUnsignedInteger(short v) throws IOException {
-        throw new MessageTypeException("Unexpected integer value");
+        throw new MessageTypeException(String.format("Expected %s, but got integer value", expected));
     }
 
     void acceptUnsignedInteger(int v) throws IOException {
-        throw new MessageTypeException("Unexpected integer value");
+        throw new MessageTypeException(String.format("Expected %s, but got integer value", expected));
     }
 
     void acceptUnsignedInteger(long v) throws IOException {
-        throw new MessageTypeException("Unexpected integer value");
+        throw new MessageTypeException(String.format("Expected %s, but got integer value", expected));
     }
 
     // void checkRawAcceptable() throws IOException {
@@ -64,11 +70,11 @@ abstract class Accept implements BufferReferer {
     // }
 
     void acceptRaw(byte[] raw) throws IOException {
-        throw new MessageTypeException("Unexpected raw value");
+        throw new MessageTypeException(String.format("Expected %s, but got raw value", expected));
     }
 
     void acceptEmptyRaw() throws IOException {
-        throw new MessageTypeException("Unexpected raw value");
+        throw new MessageTypeException(String.format("Expected %s, but got raw value", expected));
     }
 
     // void checkArrayAcceptable(int size) throws IOException {
@@ -76,7 +82,7 @@ abstract class Accept implements BufferReferer {
     // }
 
     void acceptArray(int size) throws IOException {
-        throw new MessageTypeException("Unexpected array value");
+        throw new MessageTypeException(String.format("Expected %s, but got array value", expected));
     }
 
     // void checkMapAcceptable(int size) throws IOException {
@@ -84,22 +90,22 @@ abstract class Accept implements BufferReferer {
     // }
 
     void acceptMap(int size) throws IOException {
-        throw new MessageTypeException("Unexpected map value");
+        throw new MessageTypeException(String.format("Expected %s, but got map value", expected));
     }
 
     void acceptNil() throws IOException {
-        throw new MessageTypeException("Unexpected nil value");
+        throw new MessageTypeException(String.format("Expected %s, but got nil value", expected));
     }
 
     void acceptFloat(float v) throws IOException {
-        throw new MessageTypeException("Unexpected float value");
+        throw new MessageTypeException(String.format("Expected %s, but got float value", expected));
     }
 
     void acceptDouble(double v) throws IOException {
-        throw new MessageTypeException("Unexpected float value");
+        throw new MessageTypeException(String.format("Expected %s, but got float value", expected));
     }
 
     public void refer(ByteBuffer bb, boolean gift) throws IOException {
-        throw new MessageTypeException("Unexpected raw value");
+        throw new MessageTypeException(String.format("Expected %s, but got raw value", expected));
     }
 }

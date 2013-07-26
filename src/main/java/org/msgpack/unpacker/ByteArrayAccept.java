@@ -23,6 +23,10 @@ import java.nio.ByteBuffer;
 final class ByteArrayAccept extends Accept {
     byte[] value;
 
+    ByteArrayAccept() {
+        super("raw value");
+    }
+
     @Override
     void acceptRaw(byte[] raw) {
         this.value = raw;

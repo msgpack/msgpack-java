@@ -26,6 +26,10 @@ import org.msgpack.packer.Unconverter;
 final class ValueAccept extends Accept {
     private Unconverter uc = null;
 
+    ValueAccept() {
+        super(null);
+    }
+
     void setUnconverter(Unconverter uc) throws IOException {
         this.uc = uc;
     }

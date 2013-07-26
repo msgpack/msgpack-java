@@ -21,6 +21,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 final class SkipAccept extends Accept {
+    SkipAccept() {
+        super(null);
+    }
+
     @Override
     void acceptBoolean(boolean v) {
     }

@@ -22,6 +22,10 @@ import java.math.BigInteger;
 final class BigIntegerAccept extends Accept {
     BigInteger value;
 
+    BigIntegerAccept() {
+        super("integer");
+    }
+
     @Override
     void acceptInteger(byte v) {
         this.value = BigInteger.valueOf((long) v);
