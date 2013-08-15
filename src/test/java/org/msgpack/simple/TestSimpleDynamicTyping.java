@@ -2,7 +2,6 @@ package org.msgpack.simple;
 
 import org.msgpack.MessagePack;
 import org.msgpack.type.Value;
-import org.msgpack.type.RawValue;
 import org.msgpack.type.ArrayValue;
 
 import java.io.IOException;
@@ -24,16 +23,16 @@ public class TestSimpleDynamicTyping {
         if(v.isArrayValue()) {
             // ArrayValue extends List<Value>
             ArrayValue array = v.asArrayValue();
-            int n0 = array.get(0).asIntegerValue().intValue();
+            int n0 = array.get(0).asIntegerClassValue().intValue();
             assertEquals(1, n0);
-            int n1 = array.get(1).asIntegerValue().intValue();
+            int n1 = array.get(1).asIntegerClassValue().intValue();
             assertEquals(2, n1);
-            int n2 = array.get(2).asIntegerValue().intValue();
+            int n2 = array.get(2).asIntegerClassValue().intValue();
             assertEquals(3, n2);
 
         } else if(v.isIntegerValue()) {
             // IntegerValue extends Number
-            int num = v.asIntegerValue().intValue();
+            int num = v.asIntegerClassValue().intValue();
 
         } else if(v.isRawValue()) {
             // getString() or getByteArray()
@@ -42,7 +41,7 @@ public class TestSimpleDynamicTyping {
         // other types:
         //   NilValue asNilValue() / isNilValue()
         //   BooleanValue asBooleanValue() / isBooleanValue()
-        //   IntegerValue asIntegerValue() / isIntegerValue()
+        //   IntegerValue asIntegerClassValue() / isIntegerValue()
         //   FloatValue asFloatValue() / isFloatValue()
         //   ArrayValue asArrayValue() / isArrayValue()
         //   MapValue asMapValue() / isMapValue()

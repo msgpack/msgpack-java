@@ -32,7 +32,7 @@ public abstract class IntegerClassValue extends NumberValue {
     }
 
     @Override
-    public IntegerClassValue asIntegerValue() {
+    public IntegerClassValue asIntegerClassValue() {
         return this;
     }
 

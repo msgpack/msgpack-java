@@ -124,7 +124,7 @@ class IntValueImpl extends IntegerClassValue {
 
         try {
             // TODO
-            return value == v.asIntegerValue().getInt();
+            return value == v.asIntegerClassValue().getInt();
         } catch (MessageTypeException ex) {
             return false;
         }

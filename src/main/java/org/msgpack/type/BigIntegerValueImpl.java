@@ -131,7 +131,7 @@ class BigIntegerValueImpl extends IntegerClassValue {
             return false;
         }
 
-        return value.equals(v.asIntegerValue().bigIntegerValue());
+        return value.equals(v.asIntegerClassValue().bigIntegerValue());
     }
 
     @Override

@@ -129,7 +129,7 @@ class LongValueImpl extends IntegerClassValue {
 
         try {
             // TODO
-            return value == v.asIntegerValue().getLong();
+            return value == v.asIntegerClassValue().getLong();
         } catch (MessageTypeException ex) {
             return false;
         }

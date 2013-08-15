@@ -107,7 +107,7 @@ public class Converter extends AbstractUnpacker {
 
     @Override
     public byte readByte() throws IOException {
-        byte v = getTop().asIntegerValue().getByte();
+        byte v = getTop().asIntegerClassValue().getByte();
         stack.reduceCount();
         if (stack.getDepth() == 0) {
             value = null;
@@ -117,7 +117,7 @@ public class Converter extends AbstractUnpacker {
 
     @Override
     public short readShort() throws IOException {
-        short v = getTop().asIntegerValue().getShort();
+        short v = getTop().asIntegerClassValue().getShort();
         stack.reduceCount();
         if (stack.getDepth() == 0) {
             value = null;
@@ -127,7 +127,7 @@ public class Converter extends AbstractUnpacker {
 
     @Override
     public int readInt() throws IOException {
-        int v = getTop().asIntegerValue().getInt();
+        int v = getTop().asIntegerClassValue().getInt();
         stack.reduceCount();
         if (stack.getDepth() == 0) {
             value = null;
@@ -137,7 +137,7 @@ public class Converter extends AbstractUnpacker {
 
     @Override
     public long readLong() throws IOException {
-        long v = getTop().asIntegerValue().getLong();
+        long v = getTop().asIntegerClassValue().getLong();
         stack.reduceCount();
         if (stack.getDepth() == 0) {
             value = null;
@@ -147,7 +147,7 @@ public class Converter extends AbstractUnpacker {
 
     @Override
     public BigInteger readBigInteger() throws IOException {
-        BigInteger v = getTop().asIntegerValue().getBigInteger();
+        BigInteger v = getTop().asIntegerClassValue().getBigInteger();
         stack.reduceCount();
         if (stack.getDepth() == 0) {
             value = null;
