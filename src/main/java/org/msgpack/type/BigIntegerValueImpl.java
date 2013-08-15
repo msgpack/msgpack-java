@@ -40,6 +40,11 @@ class BigIntegerValueImpl extends IntegerClassValue {
     private static BigInteger LONG_MIN = BigInteger.valueOf((long) Long.MIN_VALUE);
 
     @Override
+    public ValueType getType() {
+        return ValueType.LONG;
+    }
+
+    @Override
     public byte getByte() {
         if (value.compareTo(BYTE_MAX) > 0 || value.compareTo(BYTE_MIN) < 0) {
             throw new MessageTypeException(); // TODO message
@@ -127,7 +132,7 @@ class BigIntegerValueImpl extends IntegerClassValue {
             return false;
         }
         Value v = (Value) o;
-        if (!v.isIntegerValue()) {
+        if (!v.isIntegerClassValue()) {
             return false;
         }
 

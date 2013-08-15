@@ -39,6 +39,11 @@ class LongValueImpl extends IntegerClassValue {
     private static long INT_MIN = (long) Integer.MIN_VALUE;
 
     @Override
+    public ValueType getType() {
+        return ValueType.LONG;
+    }
+
+    @Override
     public byte getByte() {
         if (value > BYTE_MAX || value < BYTE_MIN) {
             throw new MessageTypeException(); // TODO message
@@ -123,7 +128,7 @@ class LongValueImpl extends IntegerClassValue {
             return false;
         }
         Value v = (Value) o;
-        if (!v.isIntegerValue()) {
+        if (!v.isIntegerClassValue()) {
             return false;
         }
 

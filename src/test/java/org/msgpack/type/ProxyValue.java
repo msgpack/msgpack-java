@@ -25,8 +25,28 @@ public abstract class ProxyValue implements Value {
     }
 
     @Override
-    public boolean isIntegerValue() {
-        return getValue().isIntegerValue();
+    public boolean isIntegerClassValue() {
+        return getValue().isIntegerClassValue();
+    }
+
+    @Override
+    public boolean isByteValue() {
+        return getValue().isIntValue();
+    }
+
+    @Override
+    public boolean isShortValue() {
+        return getValue().isLongValue();
+    }
+
+    @Override
+    public boolean isIntValue() {
+        return getValue().isIntValue();
+    }
+
+    @Override
+    public boolean isLongValue() {
+        return getValue().isLongValue();
     }
 
     @Override

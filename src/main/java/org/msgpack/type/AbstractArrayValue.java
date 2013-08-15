@@ -47,7 +47,27 @@ abstract class AbstractArrayValue extends AbstractList<Value> implements ArrayVa
     }
 
     @Override
-    public boolean isIntegerValue() {
+    public boolean isIntegerClassValue() {
+        return false;
+    }
+
+    @Override
+    public boolean isByteValue() {
+        return false;
+    }
+
+    @Override
+    public boolean isShortValue() {
+        return false;
+    }
+
+    @Override
+    public boolean isIntValue() {
+        return false;
+    }
+
+    @Override
+    public boolean isLongValue() {
         return false;
     }
 

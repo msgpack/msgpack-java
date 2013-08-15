@@ -17,28 +17,26 @@
 //
 package org.msgpack.type;
 
-import java.math.BigInteger;
-import java.io.IOException;
-import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
+import org.msgpack.packer.Packer;
+
+import java.io.IOException;
+import java.math.BigInteger;
 
 @SuppressWarnings("serial")
-class IntValueImpl extends IntegerClassValue {
-    private int value;
+class ShortValueImpl extends IntegerClassValue {
+    private short value;
 
-    IntValueImpl(int value) {
+    ShortValueImpl(short value) {
         this.value = value;
     }
 
     private static int BYTE_MAX = (int) Byte.MAX_VALUE;
-    private static int SHORT_MAX = (int) Short.MAX_VALUE;
-
     private static int BYTE_MIN = (int) Byte.MIN_VALUE;
-    private static int SHORT_MIN = (int) Short.MIN_VALUE;
 
     @Override
     public ValueType getType() {
-        return ValueType.INT;
+        return ValueType.SHORT;
     }
 
     @Override
@@ -51,10 +49,7 @@ class IntValueImpl extends IntegerClassValue {
 
     @Override
     public short getShort() {
-        if (value > SHORT_MAX || value < SHORT_MIN) {
-            throw new MessageTypeException(); // TODO message
-        }
-        return (short) value;
+        return value;
     }
 
     @Override
@@ -129,7 +124,7 @@ class IntValueImpl extends IntegerClassValue {
 
         try {
             // TODO
-            return value == v.asIntegerClassValue().getInt();
+            return value == v.asIntegerClassValue().getShort();
         } catch (MessageTypeException ex) {
             return false;
         }

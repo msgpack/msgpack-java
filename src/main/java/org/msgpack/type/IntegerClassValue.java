@@ -22,12 +22,7 @@ import java.math.BigInteger;
 @SuppressWarnings("serial")
 public abstract class IntegerClassValue extends NumberValue {
     @Override
-    public ValueType getType() {
-        return ValueType.INTEGER;
-    }
-
-    @Override
-    public boolean isIntegerValue() {
+    public boolean isIntegerClassValue() {
         return true;
     }
 

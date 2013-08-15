@@ -30,7 +30,7 @@ public class TestSimpleDynamicTyping {
             int n2 = array.get(2).asIntegerClassValue().intValue();
             assertEquals(3, n2);
 
-        } else if(v.isIntegerValue()) {
+        } else if(v.isIntegerClassValue()) {
             // IntegerValue extends Number
             int num = v.asIntegerClassValue().intValue();
 
@@ -41,7 +41,7 @@ public class TestSimpleDynamicTyping {
         // other types:
         //   NilValue asNilValue() / isNilValue()
         //   BooleanValue asBooleanValue() / isBooleanValue()
-        //   IntegerValue asIntegerClassValue() / isIntegerValue()
+        //   IntegerValue asIntegerClassValue() / isIntegerClassValue()
         //   FloatValue asFloatValue() / isFloatValue()
         //   ArrayValue asArrayValue() / isArrayValue()
         //   MapValue asMapValue() / isMapValue()

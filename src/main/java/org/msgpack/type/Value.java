@@ -28,7 +28,11 @@ public interface Value {
 
     public boolean isBooleanValue();
 
-    public boolean isIntegerValue();
+    public boolean isIntegerClassValue();
+    public boolean isByteValue();
+    public boolean isShortValue();
+    public boolean isIntValue();
+    public boolean isLongValue();
 
     public boolean isFloatValue();
 
