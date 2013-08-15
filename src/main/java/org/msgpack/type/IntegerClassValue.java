@@ -20,7 +20,7 @@ package org.msgpack.type;
 import java.math.BigInteger;
 
 @SuppressWarnings("serial")
-public abstract class IntegerValue extends NumberValue {
+public abstract class IntegerClassValue extends NumberValue {
     @Override
     public ValueType getType() {
         return ValueType.INTEGER;
@@ -32,7 +32,7 @@ public abstract class IntegerValue extends NumberValue {
     }
 
     @Override
-    public IntegerValue asIntegerValue() {
+    public IntegerClassValue asIntegerValue() {
         return this;
     }
 

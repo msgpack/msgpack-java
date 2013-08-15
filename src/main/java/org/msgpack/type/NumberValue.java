@@ -68,7 +68,7 @@ public abstract class NumberValue extends Number implements Value {
     }
 
     @Override
-    public IntegerValue asIntegerValue() {
+    public IntegerClassValue asIntegerValue() {
         throw new MessageTypeException();
     }
 

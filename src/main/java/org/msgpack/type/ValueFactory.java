@@ -33,23 +33,23 @@ public final class ValueFactory {
         }
     }
 
-    public static IntegerValue createIntegerValue(byte v) {
+    public static IntegerClassValue createIntegerValue(byte v) {
         return new IntValueImpl((int) v);
     }
 
-    public static IntegerValue createIntegerValue(short v) {
+    public static IntegerClassValue createIntegerValue(short v) {
         return new IntValueImpl((int) v);
     }
 
-    public static IntegerValue createIntegerValue(int v) {
+    public static IntegerClassValue createIntegerValue(int v) {
         return new IntValueImpl(v);
     }
 
-    public static IntegerValue createIntegerValue(long v) {
+    public static IntegerClassValue createIntegerValue(long v) {
         return new LongValueImpl(v);
     }
 
-    public static IntegerValue createIntegerValue(BigInteger v) {
+    public static IntegerClassValue createIntegerValue(BigInteger v) {
         return new BigIntegerValueImpl(v);
     }
 

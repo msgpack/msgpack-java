@@ -2,7 +2,6 @@ package org.msgpack.simple;
 
 import org.msgpack.MessagePack;
 import org.msgpack.type.Value;
-import org.msgpack.type.IntegerValue;
 import org.msgpack.type.RawValue;
 import org.msgpack.type.ArrayValue;
 

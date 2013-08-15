@@ -77,7 +77,7 @@ abstract class AbstractMapValue extends AbstractMap<Value, Value> implements Map
     }
 
     @Override
-    public IntegerValue asIntegerValue() {
+    public IntegerClassValue asIntegerValue() {
         throw new MessageTypeException();
     }
 

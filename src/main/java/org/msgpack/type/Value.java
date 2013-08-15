@@ -42,7 +42,7 @@ public interface Value {
 
     public BooleanValue asBooleanValue();
 
-    public IntegerValue asIntegerValue();
+    public IntegerClassValue asIntegerValue();
 
     public FloatValue asFloatValue();
 

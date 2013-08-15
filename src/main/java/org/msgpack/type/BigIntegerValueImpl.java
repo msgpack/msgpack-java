@@ -23,7 +23,7 @@ import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
 
 @SuppressWarnings("serial")
-class BigIntegerValueImpl extends IntegerValue {
+class BigIntegerValueImpl extends IntegerClassValue {
     private BigInteger value;
 
     BigIntegerValueImpl(BigInteger value) {

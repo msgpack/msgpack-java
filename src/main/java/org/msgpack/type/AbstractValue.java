@@ -56,7 +56,7 @@ abstract class AbstractValue implements Value {
         throw new MessageTypeException();
     }
 
-    public IntegerValue asIntegerValue() {
+    public IntegerClassValue asIntegerValue() {
         throw new MessageTypeException();
     }
 

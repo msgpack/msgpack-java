@@ -60,7 +60,7 @@ public abstract class ProxyValue implements Value {
     }
 
     @Override
-    public IntegerValue asIntegerValue() {
+    public IntegerClassValue asIntegerValue() {
         return getValue().asIntegerValue();
     }
 

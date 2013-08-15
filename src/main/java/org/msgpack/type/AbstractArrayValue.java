@@ -77,7 +77,7 @@ abstract class AbstractArrayValue extends AbstractList<Value> implements ArrayVa
     }
 
     @Override
-    public IntegerValue asIntegerValue() {
+    public IntegerClassValue asIntegerValue() {
         throw new MessageTypeException();
     }
 
