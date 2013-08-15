@@ -88,14 +88,18 @@ public class MessagePackUnpacker extends AbstractUnpacker {
 
         if ((b & 0x80) == 0) { // Positive Fixnum
             // System.out.println("positive fixnum "+b);
-            a.acceptInteger(b);
+            if (b <= Byte.MAX_VALUE && b >= Byte.MIN_VALUE) {
+                a.acceptInteger((byte)b);
+            } else if (b <= Short.MAX_VALUE && b >= Short.MIN_VALUE) {
+                a.acceptInteger((short)b);
+            }
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         }
 
         if ((b & 0xe0) == 0xe0) { // Negative Fixnum
             // System.out.println("negative fixnum "+b);
-            a.acceptInteger(b);
+            a.acceptInteger((byte)b);
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         }
@@ -582,10 +586,10 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     public ValueType getNextType() throws IOException {
         final int b = (int) getHeadByte();
         if ((b & 0x80) == 0) { // Positive Fixnum
-            return ValueType.INTEGER;
+            return ValueType.SHORT;
         }
         if ((b & 0xe0) == 0xe0) { // Negative Fixnum
-            return ValueType.INTEGER;
+            return ValueType.BYTE;
         }
         if ((b & 0xe0) == 0xa0) { // FixRaw
             return ValueType.RAW;
@@ -606,14 +610,21 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xcb: // double
             return ValueType.FLOAT;
         case 0xcc: // unsigned int 8
+            return ValueType.SHORT;
         case 0xcd: // unsigned int 16
+            return ValueType.BYTE;
         case 0xce: // unsigned int 32
+            return ValueType.LONG;
         case 0xcf: // unsigned int 64
+            return ValueType.LONG;
         case 0xd0: // signed int 8
+            return ValueType.BYTE;
         case 0xd1: // signed int 16
+            return ValueType.SHORT;
         case 0xd2: // signed int 32
+            return ValueType.INT;
         case 0xd3: // signed int 64
-            return ValueType.INTEGER;
+            return ValueType.LONG;
         case 0xda: // raw 16
         case 0xdb: // raw 32
             return ValueType.RAW;

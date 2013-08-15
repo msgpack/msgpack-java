@@ -18,5 +18,5 @@
 package org.msgpack.type;
 
 public enum ValueType {
-    NIL, BOOLEAN, INTEGER, FLOAT, ARRAY, MAP, RAW, BYTE, SHORT, INT, LONG;
+    NIL, BOOLEAN, INTEGER_CLASS, FLOAT, ARRAY, MAP, RAW, BYTE, SHORT, INT, LONG;
 }

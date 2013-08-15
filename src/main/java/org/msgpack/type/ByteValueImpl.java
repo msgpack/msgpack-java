@@ -32,6 +32,11 @@ class ByteValueImpl extends IntegerClassValue {
     }
 
     @Override
+    public boolean isByteValue() {
+        return true;
+    }
+
+    @Override
     public ValueType getType() {
         return ValueType.BYTE;
     }
@@ -63,7 +68,7 @@ class ByteValueImpl extends IntegerClassValue {
 
     @Override
     public byte byteValue() {
-        return (byte) value;
+        return value;
     }
 
     @Override
@@ -73,7 +78,7 @@ class ByteValueImpl extends IntegerClassValue {
 
     @Override
     public int intValue() {
-        return value;
+        return (int) value;
     }
 
     @Override

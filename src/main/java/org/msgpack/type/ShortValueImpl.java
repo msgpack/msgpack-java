@@ -35,6 +35,11 @@ class ShortValueImpl extends IntegerClassValue {
     private static int BYTE_MIN = (int) Byte.MIN_VALUE;
 
     @Override
+    public boolean isShortValue() {
+        return true;
+    }
+
+    @Override
     public ValueType getType() {
         return ValueType.SHORT;
     }
@@ -74,12 +79,12 @@ class ShortValueImpl extends IntegerClassValue {
 
     @Override
     public short shortValue() {
-        return (short) value;
+        return value;
     }
 
     @Override
     public int intValue() {
-        return value;
+        return (int) value;
     }
 
     @Override

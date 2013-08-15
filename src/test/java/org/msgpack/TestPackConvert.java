@@ -17,6 +17,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.msgpack.packer.Packer;
 import org.msgpack.type.ValueFactory;
+import org.msgpack.type.ValueType;
 import org.msgpack.unpacker.BufferUnpacker;
 import org.msgpack.unpacker.Converter;
 import org.msgpack.type.Value;
@@ -61,6 +62,7 @@ public class TestPackConvert extends TestSet {
 	unpacker.resetReadByteCount();
 	Value value = unpacker.readValue();
 	assertTrue(value.isIntegerClassValue());
+        assertValueType(v, value);
 	byte ret = new Converter(value).readByte();
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -82,6 +84,7 @@ public class TestPackConvert extends TestSet {
 	unpacker.resetReadByteCount();
 	Value value = unpacker.readValue();
 	assertTrue(value.isIntegerClassValue());
+        assertValueType(v, value);
 	short ret = new Converter(value).readShort();
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -103,6 +106,7 @@ public class TestPackConvert extends TestSet {
 	unpacker.resetReadByteCount();
 	Value value = unpacker.readValue();
 	assertTrue(value.isIntegerClassValue());
+        assertValueType(v, value);
 	int ret = new Converter(value).readInt();
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
@@ -124,9 +128,62 @@ public class TestPackConvert extends TestSet {
 	unpacker.resetReadByteCount();
 	Value value = unpacker.readValue();
 	assertTrue(value.isIntegerClassValue());
+        assertValueType(v, value);
 	long ret = new Converter(value).readLong();
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+
+    private void assertValueType(long d, Value value) {
+        if (d < -(1L << 5)) {
+            if (d < -(1L << 15)) {
+                if (d < -(1L << 31)) {
+                    // signed 64
+                    assertEquals("Unexpected type. value is " + d,
+                            ValueType.LONG, value.getType());
+                } else {
+                    // signed 32
+                    assertEquals("Unexpected type. value is " + d,
+                            ValueType.INT, value.getType());
+                }
+            } else {
+                if (d < -(1 << 7)) {
+                    // signed 16
+                    assertEquals("Unexpected type. value is " + d,
+                            ValueType.SHORT, value.getType());
+                } else {
+                    // signed 8
+                    assertEquals("Unexpected type. value is " + d,
+                            ValueType.BYTE, value.getType());
+                }
+            }
+        } else if (d < (1 << 7)) {
+            // fixnum
+            assertEquals("Unexpected type. value is " + d,
+                    ValueType.BYTE, value.getType());
+        } else {
+            if (d < (1L << 15)) {
+                if (d < (1 << 7)) {
+                    // unsigned 8
+                    assertEquals("Unexpected type. value is " + d,
+                            ValueType.BYTE, value.getType());
+                } else {
+                    // unsigned 16
+                    assertEquals("Unexpected type. value is " + d,
+                            ValueType.SHORT, value.getType());
+                }
+            } else {
+                if (d < (1L << 31)) {
+                    // unsigned 32
+                    assertEquals("Unexpected type. value is " + d,
+                            ValueType.INT, value.getType());
+                } else {
+                    // unsigned 64
+                    assertEquals("Unexpected type. value is " + d,
+                            ValueType.LONG, value.getType());
+                }
+            }
+        }
     }
 
     @Test @Override

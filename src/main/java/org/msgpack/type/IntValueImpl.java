@@ -37,6 +37,11 @@ class IntValueImpl extends IntegerClassValue {
     private static int SHORT_MIN = (int) Short.MIN_VALUE;
 
     @Override
+    public boolean isIntValue() {
+        return true;
+    }
+
+    @Override
     public ValueType getType() {
         return ValueType.INT;
     }

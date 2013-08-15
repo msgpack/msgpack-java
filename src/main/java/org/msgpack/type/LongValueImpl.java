@@ -39,6 +39,11 @@ class LongValueImpl extends IntegerClassValue {
     private static long INT_MIN = (long) Integer.MIN_VALUE;
 
     @Override
+    public boolean isLongValue() {
+        return true;
+    }
+
+    @Override
     public ValueType getType() {
         return ValueType.LONG;
     }
