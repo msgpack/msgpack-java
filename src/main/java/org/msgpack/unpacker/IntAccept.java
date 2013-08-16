@@ -43,7 +43,7 @@ final class IntAccept extends Accept {
 
     @Override
     void acceptInteger(long v) {
-        if (value < (long) Integer.MIN_VALUE || value > (long) Integer.MAX_VALUE) {
+        if (v < (long) Integer.MIN_VALUE || v > (long) Integer.MAX_VALUE) {
             throw new MessageTypeException(); // TODO message
         }
         this.value = (int) v;
