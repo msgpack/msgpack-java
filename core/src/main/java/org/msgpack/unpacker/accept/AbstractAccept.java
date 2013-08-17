@@ -66,4 +66,8 @@ public abstract class AbstractAccept implements Accept {
     public void acceptMapHeader(int size) throws IOException {
         throw new MessageTypeException("Unexpected map value");
     }
+
+    public void acceptExt(byte type, byte[] value) throws IOException {
+        throw new MessageTypeException("Unexpected ext value");
+    }
 }

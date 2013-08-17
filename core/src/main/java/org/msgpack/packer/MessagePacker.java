@@ -260,6 +260,42 @@ public class MessagePacker implements Packer {
         return this;
     }
 
+    public Packer writeExt(byte type, byte[] o) throws IOException {
+      return writeExt(type, o, 0, o.length);
+    }
+
+    public Packer writeExt(byte type, byte[] o, int offset, int length) throws IOException {
+      switch(length){
+        case 1:      // fixext 1
+          out.writeByte((byte)0xd4);
+          break;
+        case 2:      // fixext 2
+          out.writeByte((byte)0xd5);
+          break;
+        case 4:      // fixext 4
+          out.writeByte((byte)0xd6);
+          break;
+        case 8:      // fixext 8
+          out.writeByte((byte)0xd7);
+          break;
+        case 16:    // fixext 16
+          out.writeByte((byte)0xd8);
+          break;
+        default:
+          if(length <= 0xFF){              // ext 8
+            out.writeByteAndByte((byte)0xc7, (byte)length);
+          } else if(length <= 0xFFFF){    // ext 16
+            out.writeByteAndShort((byte)0xc8, (short)length);
+          } else {                        // ext 32
+            out.writeByteAndInt((byte)0xc9, length);
+          }
+          break;
+        }
+        out.writeByte(type);
+        out.write(o, offset, length);
+        return this;
+    }
+
     public void flush() throws IOException {
         out.flush();
     }

@@ -51,6 +51,8 @@ public interface Unpacker extends Closeable {
 
     public int readMapHeader() throws IOException;
 
+    public Ext readExt() throws IOException;
+
     public void readNil() throws IOException;
 
     public boolean tryReadNil() throws IOException;
@@ -60,5 +62,14 @@ public interface Unpacker extends Closeable {
     public void readToken(Accept accept) throws IOException;
 
     public void close() throws IOException;
+
+    public class Ext {
+        public final byte type;
+        public final byte[] value;
+        public Ext(byte type, byte[] value){
+            this.type = type;
+            this.value = value;
+        }
+    }
 }
 

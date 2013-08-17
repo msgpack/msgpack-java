@@ -35,6 +35,7 @@ import org.msgpack.unpacker.accept.ByteArrayAccept;
 import org.msgpack.unpacker.accept.StringAccept;
 import org.msgpack.unpacker.accept.ArrayAccept;
 import org.msgpack.unpacker.accept.MapAccept;
+import org.msgpack.unpacker.accept.ExtAccept;
 
 public class MessageUnpacker implements Unpacker {
     private UnpackerChannel in;
@@ -48,6 +49,7 @@ public class MessageUnpacker implements Unpacker {
     private byte[] raw;
     private int rawFilled;
 
+    // TODO FIXME Wow, use of this class may not be thread-safe because these Accept instances are statefull.
     private static final ByteAccept byteAccept = new ByteAccept();
     private static final ShortAccept shortAccept = new ShortAccept();
     private static final IntAccept intAccept = new IntAccept();
@@ -61,6 +63,7 @@ public class MessageUnpacker implements Unpacker {
     private static final StringAccept stringAccept = new StringAccept();
     private static final ArrayAccept arrayAccept = new ArrayAccept();
     private static final MapAccept mapAccept = new MapAccept();
+    private static final ExtAccept extAccept = new ExtAccept();
 
     public MessageUnpacker(UnpackerChannel in) {
         this.in = in;
@@ -275,6 +278,74 @@ public class MessageUnpacker implements Unpacker {
                 resetHeadByte();
                 return;
             }
+        case 0xd4: // fixext 1
+            {
+                byte type = in.readByte();
+                readRawBody(1);
+                a.acceptExt(type, raw);
+                resetHeadByte();
+                return;
+            }
+        case 0xd5: // fixext 2
+            {
+                byte type = in.readByte();
+                readRawBody(2);
+                a.acceptExt(type, raw);
+                resetHeadByte();
+                return;
+            }
+        case 0xd6: // fixext 4
+            {
+                byte type = in.readByte();
+                readRawBody(4);
+                a.acceptExt(type, raw);
+                resetHeadByte();
+                return;
+            }
+        case 0xd7: // fixext 8
+            {
+                byte type = in.readByte();
+                readRawBody(8);
+                a.acceptExt(type, raw);
+                resetHeadByte();
+                return;
+            }
+        case 0xd8: // fixext 16
+            {
+                byte type = in.readByte();
+                readRawBody(16);
+                a.acceptExt(type, raw);
+                resetHeadByte();
+                return;
+            }
+        case 0xc7: // ext 8
+            {
+                int length = in.readByte() & 0xFF;
+                byte type = in.readByte();
+                readRawBody(length);
+                a.acceptExt(type, raw);
+                resetHeadByte();
+                return;
+            }
+        case 0xc8: // ext 16
+            {
+                int length = in.readShort() & 0xFFFF;
+                byte type = in.readByte();
+                readRawBody(length);
+                a.acceptExt(type, raw);
+                resetHeadByte();
+                return;
+            }
+        case 0xc9: // ext 32
+            {
+                // TODO Array length is limited upto 0x7FFFFFFF in Java
+                int length = in.readInt();
+                byte type = in.readByte();
+                readRawBody(length);
+                a.acceptExt(type, raw);
+                resetHeadByte();
+                return;
+            }
         default:
             // System.out.println("unknown b "+(b&0xff));
             // headByte = CS_INVALID
@@ -398,6 +469,11 @@ public class MessageUnpacker implements Unpacker {
         return mapAccept.getSize();
     }
 
+    public Ext readExt() throws IOException {
+      readToken(extAccept);
+      return extAccept.getValue();
+    }
+
     public ValueType getNextType() throws IOException {
         final int b = (int) getHeadByte();
         if ((b & 0x80) == 0) { // Positive Fixnum
@@ -442,6 +518,15 @@ public class MessageUnpacker implements Unpacker {
         case 0xde: // map 16
         case 0xdf: // map 32
             return ValueType.MAP;
+        case 0xd4: // fixext 1
+        case 0xd5: // fixext 2
+        case 0xd6: // fixext 4
+        case 0xd7: // fixext 8
+        case 0xd8: // fixext 16
+        case 0xc7: // ext 8
+        case 0xc8: // ext 16
+        case 0xc9: // ext 32
+            return ValueType.EXT;
         default:
             throw new MessageFormatException("Invalid MessagePack format: " + b);
         }
