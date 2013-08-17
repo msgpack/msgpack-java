@@ -119,6 +119,34 @@ public class TestPackUnpack extends TestSet {
 	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
+    @Test(expected=MessageTypeException.class)
+    public void testReadIntOverUpperBound() throws Exception {
+        long v = Integer.MAX_VALUE + 1L;
+        MessagePack msgpack = new MessagePack();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Packer packer = msgpack.createPacker(out);
+        packer.write(v);
+        byte[] bytes = out.toByteArray();
+        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+        Unpacker unpacker = msgpack.createUnpacker(in);
+        unpacker.resetReadByteCount();
+        unpacker.readInt();
+    }
+
+    @Test(expected=MessageTypeException.class)
+    public void testReadIntUnderLowerBound() throws Exception {
+        long v = Integer.MIN_VALUE - 1L;
+        MessagePack msgpack = new MessagePack();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Packer packer = msgpack.createPacker(out);
+        packer.write(v);
+        byte[] bytes = out.toByteArray();
+        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+        Unpacker unpacker = msgpack.createUnpacker(in);
+        unpacker.resetReadByteCount();
+        unpacker.readInt();
+    }
+
     @Override
     public void testFloat(float v) throws Exception {
 	MessagePack msgpack = new MessagePack();
