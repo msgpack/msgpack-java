@@ -42,7 +42,8 @@ public interface Unpacker extends Closeable {
 
     public byte[] readByteArray() throws IOException;
 
-    public void readByteArray(byte[] o, int off, int len) throws IOException;
+    // TODO
+    //public void readByteArray(byte[] o, int off, int len) throws IOException;
 
     public String readString() throws IOException;
 
