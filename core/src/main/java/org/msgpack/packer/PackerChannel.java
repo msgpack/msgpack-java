@@ -23,9 +23,9 @@ import java.io.Flushable;
 import java.nio.ByteBuffer;
 
 public interface PackerChannel extends Closeable, Flushable {
-    public void writeByteArray(byte[] b, int off, int len) throws IOException;
+    public void write(byte[] b, int off, int len) throws IOException;
 
-    public void writeByteBuffer(ByteBuffer bb) throws IOException;
+    public void write(ByteBuffer bb) throws IOException;
 
     public void writeByte(byte v) throws IOException;
 

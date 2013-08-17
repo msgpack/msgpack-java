@@ -56,7 +56,5 @@ public interface Packer extends Closeable, Flushable {
     public Packer writeArrayHeader(int size) throws IOException;
 
     public Packer writeMapHeader(int size) throws IOException;
-
-    public void reset();
 }
 
