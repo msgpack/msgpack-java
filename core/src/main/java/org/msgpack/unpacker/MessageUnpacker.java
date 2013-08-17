@@ -37,7 +37,7 @@ import org.msgpack.unpacker.accept.ArrayAccept;
 import org.msgpack.unpacker.accept.MapAccept;
 
 public class MessageUnpacker implements Unpacker {
-    private UnpackerChannel ch;
+    private UnpackerChannel in;
 
     protected int rawSizeLimit = 134217728;
     protected int arraySizeLimit = 4194304;
@@ -62,9 +62,19 @@ public class MessageUnpacker implements Unpacker {
     private static final ArrayAccept arrayAccept = new ArrayAccept();
     private static final MapAccept mapAccept = new MapAccept();
 
-    public MessageUnpacker(UnpackerChannel ch) {
-        this.ch = ch;
+    public MessageUnpacker(UnpackerChannel in) {
+        this.in = in;
     }
+
+    // TODO
+    //public MessageUnpacker(ReadableByteChannel in) {
+    //    this(new ReadableByteChannelUnpackerChannel(in));
+    //}
+
+    // TODO
+    //public MessageUnpacker(InputStream in) {
+    //    this(new InputStreamChannelUnpackerChannel(in));
+    //}
 
     private static final byte REQUIRE_TO_READ_HEAD = (byte) 0xc6;
 
@@ -75,7 +85,7 @@ public class MessageUnpacker implements Unpacker {
     private byte getHeadByte() throws IOException {
         byte b = headByte;
         if(b == REQUIRE_TO_READ_HEAD) {
-            b = headByte = ch.readByte();
+            b = headByte = in.readByte();
         }
         return b;
     }
@@ -154,24 +164,24 @@ public class MessageUnpacker implements Unpacker {
             resetHeadByte();
             return;
         case 0xca: // float
-            a.acceptFloat(ch.readFloat());
+            a.acceptFloat(in.readFloat());
             resetHeadByte();
             return;
         case 0xcb: // double
-            a.acceptDouble(ch.readDouble());
+            a.acceptDouble(in.readDouble());
             resetHeadByte();
             return;
         case 0xcc: // unsigned int 8
-            a.acceptInt((int) (ch.readByte() & 0xff));
+            a.acceptInt((int) (in.readByte() & 0xff));
             resetHeadByte();
             return;
         case 0xcd: // unsigned int 16
-            a.acceptInt((int) (ch.readShort() & 0xffff));
+            a.acceptInt((int) (in.readShort() & 0xffff));
             resetHeadByte();
             return;
         case 0xce: // unsigned int 32
             {
-                int v = ch.readInt();
+                int v = in.readInt();
                 if(v < 0) {
                     a.acceptLong((long) (v & 0x7fffffff) + 0x80000000L);
                 } else {
@@ -181,7 +191,7 @@ public class MessageUnpacker implements Unpacker {
             return;
         case 0xcf: // unsigned int 64
             {
-                long v = ch.readLong();
+                long v = in.readLong();
                 if(v < 0) {
                     a.acceptUnsignedLong(v);
                 } else {
@@ -191,24 +201,24 @@ public class MessageUnpacker implements Unpacker {
             resetHeadByte();
             return;
         case 0xd0: // signed int 8
-            a.acceptInt((int) ch.readByte());
+            a.acceptInt((int) in.readByte());
             resetHeadByte();
             return;
         case 0xd1: // signed int 16
-            a.acceptInt((int) ch.readShort());
+            a.acceptInt((int) in.readShort());
             resetHeadByte();
             return;
         case 0xd2: // signed int 32
-            a.acceptInt(ch.readInt());
+            a.acceptInt(in.readInt());
             resetHeadByte();
             return;
         case 0xd3: // signed int 64
-            a.acceptLong(ch.readLong());
+            a.acceptLong(in.readLong());
             resetHeadByte();
             return;
         case 0xda: // raw 16
             {
-                int size = ch.readShort() & 0xffff;
+                int size = in.readShort() & 0xffff;
                 if(size == 0) {
                     a.acceptEmptyByteArray();
                     resetHeadByte();
@@ -221,7 +231,7 @@ public class MessageUnpacker implements Unpacker {
             return;
         case 0xdb: // raw 32
             {
-                int size = ch.readInt();
+                int size = in.readInt();
                 if(size == 0) {
                     a.acceptEmptyByteArray();
                     resetHeadByte();
@@ -235,7 +245,7 @@ public class MessageUnpacker implements Unpacker {
             return;
         case 0xdc: // array 16
             {
-                int size = ch.readShort() & 0xffff;
+                int size = in.readShort() & 0xffff;
                 checkArraySize(size);
                 a.acceptArrayHeader(size);
                 resetHeadByte();
@@ -243,7 +253,7 @@ public class MessageUnpacker implements Unpacker {
             }
         case 0xdd: // array 32
             {
-                int size = ch.readInt();
+                int size = in.readInt();
                 checkArraySize(size);
                 a.acceptArrayHeader(size);
                 resetHeadByte();
@@ -251,7 +261,7 @@ public class MessageUnpacker implements Unpacker {
             }
         case 0xde: // map 16
             {
-                int size = ch.readShort() & 0xffff;
+                int size = in.readShort() & 0xffff;
                 checkMapSize(size);
                 a.acceptMapHeader(size);
                 resetHeadByte();
@@ -259,7 +269,7 @@ public class MessageUnpacker implements Unpacker {
             }
         case 0xdf: // map 32
             {
-                int size = ch.readInt();
+                int size = in.readInt();
                 checkMapSize(size);
                 a.acceptMapHeader(size);
                 resetHeadByte();
@@ -308,7 +318,7 @@ public class MessageUnpacker implements Unpacker {
     }
 
     private void readRawBodyCont() throws IOException {
-        int len = ch.read(raw, rawFilled, raw.length - rawFilled);
+        int len = in.read(raw, rawFilled, raw.length - rawFilled);
         rawFilled += len;
         if (rawFilled < raw.length) {
             throw new EOFException();
@@ -438,7 +448,7 @@ public class MessageUnpacker implements Unpacker {
     }
 
     public void close() throws IOException {
-        ch.close();
+        in.close();
     }
 }
 
