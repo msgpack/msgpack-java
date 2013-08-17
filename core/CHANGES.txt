@@ -1,11 +1,16 @@
-Release 0.6.8 - 20XX/XX/XX
+Release 0.6.8 - 2013/08/17
   BUG FIXES
     Replaces method calls of LinkedList#peek{First,Last}() into get{First,Last}() within LinkedBufferInput class (pull request #18)
-    Make encoding byte[][] work correctly (pull request #24)
+    Makes encoding byte[][] work correctly (pull request #24)
     Ports SimpleImmutableEntry for Android2.2 or below (pull request #27)
+    Fixes to check upper bound and lower bound of IntAccept#acceptInteger(long) correctly (pull request #43)
 
   IMPROVEMENTS
     MSGPACK-83 Gracefully handling new enum value with OrdinalEnum (pull request #26)
+    Refactors some jar dependencies for Android
+    Adds MessagePack#read(byte[] bytes, int off, int len, Class<T> c)
+    Changes README format to Markdown
+    Supports maven-findbugs-plugin
 
 Release 0.6.7 - 2012/12/09
   NEW FEATURES
