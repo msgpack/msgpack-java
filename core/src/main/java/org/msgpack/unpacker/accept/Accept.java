@@ -41,5 +41,7 @@ public interface Accept {
     public void acceptArrayHeader(int size) throws IOException;
 
     public void acceptMapHeader(int size) throws IOException;
+
+    public void acceptExt(byte type, byte[] value) throws IOException;
 }
 

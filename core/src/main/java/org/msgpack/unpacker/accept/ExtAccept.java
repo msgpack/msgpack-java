@@ -15,8 +15,19 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.value;
+package org.msgpack.unpacker.accept;
 
-public enum ValueType {
-    NIL, BOOLEAN, INTEGER, FLOAT, ARRAY, MAP, RAW, EXT;
+import org.msgpack.unpacker.Unpacker;
+
+public class ExtAccept extends AbstractAccept {
+    private Unpacker.Ext value;
+
+    public Unpacker.Ext getValue() {
+        return value;
+    }
+
+    @Override
+    public void acceptExt(byte type, byte[] value) {
+        this.value = new Unpacker.Ext(type, value);
+    }
 }
