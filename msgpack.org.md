@@ -1,5 +1,7 @@
 # MessagePack for Java
 
+QuickStart for msgpack-java is available [here](https://github.com/msgpack/msgpack-java/wiki/QuickStart).
+
 ## How to install
 
 You can install msgpack via maven:
