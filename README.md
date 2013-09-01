@@ -1,8 +1,19 @@
 # MessagePack for Java
 
-An implementation of [MessagePack](http://msgpack.org/) for Java.
+[MessagePack](http://msgpack.org/) is an efficient binary serialization format.
+It lets you exchange data among multiple languages like JSON but it's faster and smaller.
+For example, small integers (like flags or error code) are encoded into a single byte,
+and typical short strings only require an extra byte in addition to the strings themselves.
 
-## Installation
+You may be interested in how msgpack-java is faster than the other libraries.
+To know this, please see [jvm-serializers](https://github.com/eishay/jvm-serializers/wiki), which is one of well-known benchmarks for comparing Java libraries of data serialization.
+
+## Quick start
+
+Quick start for msgpack-java is available at [Wiki](https://github.com/msgpack/msgpack-java/wiki/QuickStart).
+
+
+## Build
 
 To build the JAR file of MessagePack, you need to install Maven (http://maven.apache.org), then type the following command:
 
@@ -34,4 +45,7 @@ To relese the project (compile, test, tagging, deploy), please use the commands 
     $ mvn release:prepare
     $ mvn release:perform
 
+## License
+
+This software is distributed under [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html).
 
