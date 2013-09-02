@@ -8,6 +8,8 @@ and typical short strings only require an extra byte in addition to the strings 
 You may be interested in how msgpack-java is faster than the other libraries.
 To know this, please see [jvm-serializers](https://github.com/eishay/jvm-serializers/wiki), which is one of well-known benchmarks for comparing Java libraries of data serialization.
 
+[![Build Status](https://travis-ci.org/msgpack/msgpack-java.png?branch=master)](https://travis-ci.org/msgpack/msgpack-java)
+
 ## Quick start
 
 Quick start for msgpack-java is available at [Wiki](https://github.com/msgpack/msgpack-java/wiki/QuickStart).
