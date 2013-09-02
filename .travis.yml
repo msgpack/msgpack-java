@@ -1,9 +1,12 @@
 language: java
 jdk:
   - openjdk6
+  - openjdk7
+  - oraclejdk7
 branches:
   only:
     - master
 notifications:
   email:
     - muga.nishizawa@gmail.com
+    - ozawa.tsuyoshi@gmail.com
