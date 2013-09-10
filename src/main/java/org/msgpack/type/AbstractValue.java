@@ -28,7 +28,23 @@ abstract class AbstractValue implements Value {
         return false;
     }
 
-    public boolean isIntegerValue() {
+    public boolean isIntegerClassValue() {
+        return false;
+    }
+
+    public boolean isByteValue() {
+        return false;
+    }
+
+    public boolean isShortValue() {
+        return false;
+    }
+
+    public boolean isIntValue() {
+        return false;
+    }
+
+    public boolean isLongValue() {
         return false;
     }
 
@@ -56,7 +72,7 @@ abstract class AbstractValue implements Value {
         throw new MessageTypeException();
     }
 
-    public IntegerValue asIntegerValue() {
+    public IntegerClassValue asIntegerClassValue() {
         throw new MessageTypeException();
     }
 

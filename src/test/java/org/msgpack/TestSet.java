@@ -80,6 +80,7 @@ public class TestSet {
 	testShort((short) 1);
 	testShort(Short.MIN_VALUE);
 	testShort(Short.MAX_VALUE);
+	testShort((short) 157);
 	Random rand = new Random();
 	byte[] bytes = new byte[2000];
 	rand.nextBytes(bytes);
@@ -154,6 +155,18 @@ public class TestSet {
 	testLong(0);
 	testLong(-1);
 	testLong(1);
+	testLong(Byte.MIN_VALUE);
+	testLong(Byte.MAX_VALUE);
+	testLong(Byte.MIN_VALUE-1);
+	testLong(Byte.MAX_VALUE+1);
+	testLong(Short.MIN_VALUE);
+	testLong(Short.MAX_VALUE);
+	testLong(Short.MIN_VALUE-1);
+	testLong(Short.MAX_VALUE+1);
+	testLong(Integer.MIN_VALUE);
+	testLong(Integer.MAX_VALUE);
+	testLong(Integer.MIN_VALUE-1);
+	testLong(Integer.MAX_VALUE+1);
 	testLong(Long.MIN_VALUE);
 	testLong(Long.MAX_VALUE);
 	Random rand = new Random();

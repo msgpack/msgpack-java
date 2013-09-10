@@ -23,7 +23,7 @@ import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
 
 @SuppressWarnings("serial")
-class BigIntegerValueImpl extends IntegerValue {
+class BigIntegerValueImpl extends IntegerClassValue {
     private BigInteger value;
 
     BigIntegerValueImpl(BigInteger value) {
@@ -38,6 +38,11 @@ class BigIntegerValueImpl extends IntegerValue {
     private static BigInteger SHORT_MIN = BigInteger.valueOf((long) Short.MIN_VALUE);
     private static BigInteger INT_MIN = BigInteger.valueOf((long) Integer.MIN_VALUE);
     private static BigInteger LONG_MIN = BigInteger.valueOf((long) Long.MIN_VALUE);
+
+    @Override
+    public ValueType getType() {
+        return ValueType.LONG;
+    }
 
     @Override
     public byte getByte() {
@@ -127,11 +132,11 @@ class BigIntegerValueImpl extends IntegerValue {
             return false;
         }
         Value v = (Value) o;
-        if (!v.isIntegerValue()) {
+        if (!v.isIntegerClassValue()) {
             return false;
         }
 
-        return value.equals(v.asIntegerValue().bigIntegerValue());
+        return value.equals(v.asIntegerClassValue().bigIntegerValue());
     }
 
     @Override

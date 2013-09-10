@@ -33,7 +33,27 @@ public abstract class NumberValue extends Number implements Value {
     }
 
     @Override
-    public boolean isIntegerValue() {
+    public boolean isIntegerClassValue() {
+        return false;
+    }
+
+    @Override
+    public boolean isByteValue() {
+        return false;
+    }
+
+    @Override
+    public boolean isShortValue() {
+        return false;
+    }
+
+    @Override
+    public boolean isIntValue() {
+        return false;
+    }
+
+    @Override
+    public boolean isLongValue() {
         return false;
     }
 
@@ -68,7 +88,7 @@ public abstract class NumberValue extends Number implements Value {
     }
 
     @Override
-    public IntegerValue asIntegerValue() {
+    public IntegerClassValue asIntegerClassValue() {
         throw new MessageTypeException();
     }
 

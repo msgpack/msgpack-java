@@ -23,7 +23,7 @@ final class IntAccept extends Accept {
     int value;
 
     IntAccept() {
-        super("integer");
+        super("int");
     }
 
     @Override

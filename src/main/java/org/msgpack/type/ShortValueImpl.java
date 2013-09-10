@@ -17,35 +17,31 @@
 //
 package org.msgpack.type;
 
-import java.math.BigInteger;
-import java.io.IOException;
-import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
+import org.msgpack.packer.Packer;
+
+import java.io.IOException;
+import java.math.BigInteger;
 
 @SuppressWarnings("serial")
-class LongValueImpl extends IntegerClassValue {
-    private long value;
+class ShortValueImpl extends IntegerClassValue {
+    private short value;
 
-    LongValueImpl(long value) {
+    ShortValueImpl(short value) {
         this.value = value;
     }
 
-    private static long BYTE_MAX = (long) Byte.MAX_VALUE;
-    private static long SHORT_MAX = (long) Short.MAX_VALUE;
-    private static long INT_MAX = (long) Integer.MAX_VALUE;
-
-    private static long BYTE_MIN = (long) Byte.MIN_VALUE;
-    private static long SHORT_MIN = (long) Short.MIN_VALUE;
-    private static long INT_MIN = (long) Integer.MIN_VALUE;
+    private static int BYTE_MAX = (int) Byte.MAX_VALUE;
+    private static int BYTE_MIN = (int) Byte.MIN_VALUE;
 
     @Override
-    public boolean isLongValue() {
+    public boolean isShortValue() {
         return true;
     }
 
     @Override
     public ValueType getType() {
-        return ValueType.LONG;
+        return ValueType.SHORT;
     }
 
     @Override
@@ -58,18 +54,12 @@ class LongValueImpl extends IntegerClassValue {
 
     @Override
     public short getShort() {
-        if (value > SHORT_MAX || value < SHORT_MIN) {
-            throw new MessageTypeException(); // TODO message
-        }
-        return (short) value;
+        return value;
     }
 
     @Override
     public int getInt() {
-        if (value > INT_MAX || value < INT_MIN) {
-            throw new MessageTypeException(); // TODO message
-        }
-        return (int) value;
+        return value;
     }
 
     @Override
@@ -79,7 +69,7 @@ class LongValueImpl extends IntegerClassValue {
 
     @Override
     public BigInteger getBigInteger() {
-        return BigInteger.valueOf(value);
+        return BigInteger.valueOf((long) value);
     }
 
     @Override
@@ -89,7 +79,7 @@ class LongValueImpl extends IntegerClassValue {
 
     @Override
     public short shortValue() {
-        return (short) value;
+        return value;
     }
 
     @Override
@@ -99,12 +89,12 @@ class LongValueImpl extends IntegerClassValue {
 
     @Override
     public long longValue() {
-        return value;
+        return (long) value;
     }
 
     @Override
     public BigInteger bigIntegerValue() {
-        return BigInteger.valueOf(value);
+        return BigInteger.valueOf((long) value);
     }
 
     @Override
@@ -139,7 +129,7 @@ class LongValueImpl extends IntegerClassValue {
 
         try {
             // TODO
-            return value == v.asIntegerClassValue().getLong();
+            return value == v.asIntegerClassValue().getShort();
         } catch (MessageTypeException ex) {
             return false;
         }
@@ -147,20 +137,16 @@ class LongValueImpl extends IntegerClassValue {
 
     @Override
     public int hashCode() {
-        if (INT_MIN <= value && value <= INT_MAX) {
-            return (int) value;
-        } else {
-            return (int) (value ^ (value >>> 32));
-        }
+        return value;
     }
 
     @Override
     public String toString() {
-        return Long.toString(value);
+        return Integer.toString(value);
     }
 
     @Override
     public StringBuilder toString(StringBuilder sb) {
-        return sb.append(Long.toString(value));
+        return sb.append(Integer.toString(value));
     }
 }

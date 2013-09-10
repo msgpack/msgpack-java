@@ -61,12 +61,22 @@ final class ValueAccept extends Accept {
 
     @Override
     void acceptUnsignedInteger(byte v) throws IOException {
-        uc.write(ValueFactory.createIntegerValue(v & 0xff));
+        if (v < 0) {
+            short value = (short) ((v & 0x7f) + 0x80);
+            uc.write(ValueFactory.createIntegerValue(value));
+        } else {
+            uc.write(ValueFactory.createIntegerValue(v));
+        }
     }
 
     @Override
     void acceptUnsignedInteger(short v) throws IOException {
-        uc.write(ValueFactory.createIntegerValue(v & 0xffff));
+        if (v < 0) {
+            int value = (int) (v & 0x7fff) + 0x8000;
+            uc.write(ValueFactory.createIntegerValue(value));
+        } else {
+            uc.write(ValueFactory.createIntegerValue(v));
+        }
     }
 
     @Override

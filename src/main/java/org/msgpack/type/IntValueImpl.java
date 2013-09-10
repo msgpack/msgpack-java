@@ -23,7 +23,7 @@ import org.msgpack.packer.Packer;
 import org.msgpack.MessageTypeException;
 
 @SuppressWarnings("serial")
-class IntValueImpl extends IntegerValue {
+class IntValueImpl extends IntegerClassValue {
     private int value;
 
     IntValueImpl(int value) {
@@ -35,6 +35,16 @@ class IntValueImpl extends IntegerValue {
 
     private static int BYTE_MIN = (int) Byte.MIN_VALUE;
     private static int SHORT_MIN = (int) Short.MIN_VALUE;
+
+    @Override
+    public boolean isIntValue() {
+        return true;
+    }
+
+    @Override
+    public ValueType getType() {
+        return ValueType.INT;
+    }
 
     @Override
     public byte getByte() {
@@ -118,13 +128,13 @@ class IntValueImpl extends IntegerValue {
             return false;
         }
         Value v = (Value) o;
-        if (!v.isIntegerValue()) {
+        if (!v.isIntegerClassValue()) {
             return false;
         }
 
         try {
             // TODO
-            return value == v.asIntegerValue().getInt();
+            return value == v.asIntegerClassValue().getInt();
         } catch (MessageTypeException ex) {
             return false;
         }
