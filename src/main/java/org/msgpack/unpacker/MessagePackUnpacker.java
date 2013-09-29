@@ -100,7 +100,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             return true;
         }
 
-        if ((b & 0xe0) == 0xa0) { // FixRaw
+        if ((b & 0xe0) == 0xa0) { // FixString
             int count = b & 0x1f;
             if (count == 0) {
                 a.acceptEmptyRaw();

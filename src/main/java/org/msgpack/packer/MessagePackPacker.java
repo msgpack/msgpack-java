@@ -194,12 +194,12 @@ public class MessagePackPacker extends AbstractPacker {
     @Override
     protected void writeByteArray(byte[] b, int off, int len)
             throws IOException {
-        if (len < 32) {
-            out.writeByte((byte) (0xa0 | len));
+        if (len < 256) {
+            out.writeByteAndByte((byte) 0xc4, (byte) len);
         } else if (len < 65536) {
-            out.writeByteAndShort((byte) 0xda, (short) len);
+            out.writeByteAndShort((byte) 0xc5, (short) len);
         } else {
-            out.writeByteAndInt((byte) 0xdb, len);
+            out.writeByteAndInt((byte) 0xc6, len);
         }
         out.write(b, off, len);
         stack.reduceCount();
@@ -208,12 +208,12 @@ public class MessagePackPacker extends AbstractPacker {
     @Override
     protected void writeByteBuffer(ByteBuffer bb) throws IOException {
         int len = bb.remaining();
-        if (len < 32) {
-            out.writeByte((byte) (0xa0 | len));
+        if (len < 256) {
+            out.writeByteAndByte((byte) 0xc4, (byte) len);
         } else if (len < 65536) {
-            out.writeByteAndShort((byte) 0xda, (short) len);
+            out.writeByteAndShort((byte) 0xc5, (short) len);
         } else {
-            out.writeByteAndInt((byte) 0xdb, len);
+            out.writeByteAndInt((byte) 0xc6, len);
         }
         int pos = bb.position();
         try {
@@ -233,7 +233,18 @@ public class MessagePackPacker extends AbstractPacker {
         } catch (UnsupportedEncodingException ex) {
             throw new MessageTypeException(ex);
         }
-        writeByteArray(b, 0, b.length);
+        int size = b.length;
+        if (size < 32) {
+            // FixString
+            out.writeByte((byte) (0xa0 | size));
+        } else if (size < 256) {
+            out.writeByteAndByte((byte) 0xd9, (byte) size);
+        } else if (size < 65536) {
+            out.writeByteAndShort((byte) 0xda, (short) size);
+        } else {
+            out.writeByteAndInt((byte) 0xdb, size);
+        }
+        out.write(b, 0, size);
         stack.reduceCount();
     }
 
