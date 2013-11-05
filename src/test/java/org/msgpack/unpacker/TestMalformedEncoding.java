@@ -45,9 +45,13 @@ public class TestMalformedEncoding {
     public void testBufferUnpackerUnpackString() throws Exception {
         for (byte[] malform : malforms) {
             MessagePack msgpack = new MessagePack();
-            BufferPacker pk = msgpack.createBufferPacker();
-            pk.write(malform);
-            byte[] b = pk.toByteArray();
+            byte[] b = new byte[malform.length+1];
+            // creating malformed byte sequence
+            byte len = (byte)malform.length;
+            b[0] = (byte) ((byte)0xa0 | len);
+            for(int i = 1; i < b.length; i++) {
+                b[i] = malform[i-1];
+            }
             Unpacker u = msgpack.createBufferUnpacker(b);
             try {
                 u.readString();
