@@ -65,6 +65,11 @@ abstract class AbstractMapValue extends AbstractMap<Value, Value> implements Map
     public boolean isRawValue() {
         return false;
     }
+    
+    @Override
+    public boolean isExtValue() {
+    	return false;
+    }
 
     @Override
     public NilValue asNilValue() {
@@ -94,5 +99,10 @@ abstract class AbstractMapValue extends AbstractMap<Value, Value> implements Map
     @Override
     public RawValue asRawValue() {
         throw new MessageTypeException();
+    }
+    
+    @Override
+    public ExtValue asExtValue() {
+    	throw new MessageTypeException();
     }
 }

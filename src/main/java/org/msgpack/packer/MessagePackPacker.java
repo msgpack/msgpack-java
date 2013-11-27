@@ -21,9 +21,12 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.Date;
 import java.math.BigInteger;
+
 import org.msgpack.io.Output;
 import org.msgpack.io.StreamOutput;
+import org.msgpack.type.RubySymbol;
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 
@@ -237,6 +240,37 @@ public class MessagePackPacker extends AbstractPacker {
         stack.reduceCount();
     }
 
+    @Override
+    protected void writeRubySymbol(RubySymbol r) throws IOException {
+    	byte[] b;
+    	try {
+    		b = r.toString().getBytes("UTF-8");
+    	} catch (UnsupportedEncodingException ex) {
+    		throw new MessageTypeException(ex);
+    	}
+    	if (b.length < 256) {
+    		out.writeByteAndByte((byte) 0xc7, (byte) b.length);
+    	} else if (b.length < 65536) {
+    		out.writeByteAndShort((byte) 0xc8, (short) b.length);
+    	} else {
+    		out.writeByteAndInt((byte) 0xc9, (int) b.length);
+    	}
+    	out.writeByte((byte) 0x14);
+    	out.write(b, 0, b.length);
+    	stack.reduceCount();
+    }
+    
+    @Override
+    protected void writeDate(Date d) throws IOException {
+    	long ms = d.getTime();
+    	long s = ms / 1000;
+    	long ns = (ms % 1000) * 1000000;
+    	out.writeByte((byte) 0xd7);
+    	out.writeInt((int) s);
+    	out.writeInt((int) ns);
+    	stack.reduceCount();
+    }
+    
     @Override
     public Packer writeNil() throws IOException {
         out.writeByte((byte) 0xc0);

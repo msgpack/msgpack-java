@@ -21,14 +21,15 @@ import java.io.IOException;
 import java.util.Date;
 
 import org.msgpack.packer.Packer;
+import org.msgpack.type.RubySymbol;
 import org.msgpack.unpacker.Unpacker;
 import org.msgpack.MessageTypeException;
 
-public class DateTemplate extends AbstractTemplate<Date> {
-    private DateTemplate() {
+public class RubySymbolTemplate extends AbstractTemplate<RubySymbol> {
+    private RubySymbolTemplate() {
     }
 
-    public void write(Packer pk, Date target, boolean required)
+    public void write(Packer pk, RubySymbol target, boolean required)
             throws IOException {
         if (target == null) {
             if (required) {
@@ -40,16 +41,16 @@ public class DateTemplate extends AbstractTemplate<Date> {
         pk.write(target);
     }
 
-    public Date read(Unpacker u, Date to, boolean required) throws IOException {
+    public RubySymbol read(Unpacker u, RubySymbol to, boolean required) throws IOException {
         if (!required && u.trySkipNil()) {
             return null;
         }
-        return u.readDate();
+        return u.readRubySymbol();
     }
 
-    static public DateTemplate getInstance() {
+    static public RubySymbolTemplate getInstance() {
         return instance;
     }
 
-    static final DateTemplate instance = new DateTemplate();
+    static final RubySymbolTemplate instance = new RubySymbolTemplate();
 }

@@ -20,10 +20,12 @@ package org.msgpack.unpacker;
 import java.io.IOException;
 import java.io.Closeable;
 import java.nio.ByteBuffer;
+import java.util.Date;
 import java.math.BigInteger;
 import java.lang.Iterable;
 
 import org.msgpack.template.Template;
+import org.msgpack.type.RubySymbol;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueType;
 
@@ -80,6 +82,10 @@ public interface Unpacker extends Iterable<Value>, Closeable {
     public ByteBuffer readByteBuffer() throws IOException;
 
     public String readString() throws IOException;
+    
+    public Date readDate() throws IOException;
+    
+    public RubySymbol readRubySymbol() throws IOException;
 
     public Value readValue() throws IOException;
 

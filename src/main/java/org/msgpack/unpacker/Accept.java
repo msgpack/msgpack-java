@@ -72,6 +72,10 @@ abstract class Accept implements BufferReferer {
     void acceptRaw(byte[] raw) throws IOException {
         throw new MessageTypeException(String.format("Expected %s, but got raw value", expected));
     }
+    
+    void acceptExt(int type, byte[] raw) throws IOException {
+    	throw new MessageTypeException(String.format("Expected %s, but got ext value", expected));
+    }
 
     void acceptEmptyRaw() throws IOException {
         throw new MessageTypeException(String.format("Expected %s, but got raw value", expected));

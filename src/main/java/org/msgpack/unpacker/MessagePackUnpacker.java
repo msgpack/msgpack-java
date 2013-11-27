@@ -21,12 +21,15 @@ import java.io.IOException;
 import java.io.EOFException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.util.Date;
+
 import org.msgpack.io.Input;
 import org.msgpack.io.StreamInput;
 import org.msgpack.io.BufferReferer;
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Unconverter;
+import org.msgpack.type.RubySymbol;
 import org.msgpack.type.ValueType;
 
 public class MessagePackUnpacker extends AbstractUnpacker {
@@ -50,7 +53,8 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     private final MapAccept mapAccept = new MapAccept();
     private final ValueAccept valueAccept = new ValueAccept();
     private final SkipAccept skipAccept = new SkipAccept();
-
+    private final ExtAccept extAccept = new ExtAccept();
+ 
     public MessagePackUnpacker(MessagePack msgpack, InputStream stream) {
         this(msgpack, new StreamInput(stream));
     }
@@ -154,6 +158,36 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             a.acceptBoolean(true);
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
+        case 0xc7: // ext 8
+        {
+          	int len = in.getByte() & 0xff;
+        	int type = in.getByte() & 0xff;
+          	readRawBody(len);
+          	a.acceptExt(type, raw);
+          	raw = null;
+           	headByte = REQUIRE_TO_READ_HEAD;
+        	return true;
+        }
+        case 0xc8: // ext 16
+        {
+          	int len = in.getShort() & 0xffff;
+        	int type = in.getByte() & 0xff;
+          	readRawBody(len);
+          	a.acceptExt(type, raw);
+          	raw = null;
+           	headByte = REQUIRE_TO_READ_HEAD;
+        	return true;
+        }
+        case 0xc9: // ext 32
+        {
+          	int len = in.getInt() & 0xffffffff;
+        	int type = in.getByte() & 0xff;
+          	readRawBody(len);
+          	a.acceptExt(type, raw);
+          	raw = null;
+           	headByte = REQUIRE_TO_READ_HEAD;
+        	return true;
+        }
         case 0xca: // float
             a.acceptFloat(in.getFloat());
             in.advance();
@@ -204,6 +238,51 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
+        case 0xd4: // fixext 1
+        {
+        	int type = in.getByte() & 0xff;
+        	readRawBody(1);
+        	a.acceptExt(type, raw);
+        	raw = null;
+        	headByte = REQUIRE_TO_READ_HEAD;
+        	return true;
+        }
+        case 0xd5: // fixext 2
+        {
+          	int type = in.getByte() & 0xff;
+          	readRawBody(2);
+          	a.acceptExt(type, raw);
+          	raw = null;
+           	headByte = REQUIRE_TO_READ_HEAD;
+        	return true;
+        }
+        case 0xd6: // fixext 4
+        {
+        	int type = in.getByte() & 0xff;
+        	readRawBody(4);
+        	a.acceptExt(type, raw);
+        	raw = null;
+           	headByte = REQUIRE_TO_READ_HEAD;
+        	return true;
+        }
+        case 0xd7: // fixext 8
+        {
+          	int type = in.getByte() & 0xff;
+          	readRawBody(8);
+          	a.acceptExt(type, raw);
+          	raw = null;
+           	headByte = REQUIRE_TO_READ_HEAD;
+        	return true;
+        }
+        case 0xd8: // fixext 16
+        {
+          	int type = in.getByte() & 0xff;
+          	readRawBody(16);
+          	a.acceptExt(type, raw);
+          	raw = null;
+           	headByte = REQUIRE_TO_READ_HEAD;
+        	return true;
+        }
         case 0xda: // raw 16
         {
             int count = in.getShort() & 0xffff;
@@ -387,6 +466,18 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         throw new MessageTypeException("Expected nil but got not nil value");
     }
 
+    @Override
+    public Date readDate() throws IOException {
+        readOne(extAccept);
+        return (Date) extAccept.value;
+    }
+    
+    @Override
+    public RubySymbol readRubySymbol() throws IOException {
+    	readOne(extAccept);
+    	return (RubySymbol) extAccept.value;
+    }
+    
     @Override
     public boolean readBoolean() throws IOException {
         // optimized not to allocate booleanAccept
@@ -602,6 +693,10 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xc2: // false
         case 0xc3: // true
             return ValueType.BOOLEAN;
+        case 0xc7: // ext 8
+        case 0xc8: // ext 16
+        case 0xc9: // ext 32
+        	return ValueType.EXT;
         case 0xca: // float
         case 0xcb: // double
             return ValueType.FLOAT;
@@ -614,6 +709,12 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xd2: // signed int 32
         case 0xd3: // signed int 64
             return ValueType.INTEGER;
+        case 0xd4: // fixext 1
+        case 0xd5: // fixext 2
+        case 0xd6: // fixext 4
+        case 0xd7: // fixext 8
+        case 0xd8: // fixext 16
+        	return ValueType.EXT;
         case 0xda: // raw 16
         case 0xdb: // raw 32
             return ValueType.RAW;

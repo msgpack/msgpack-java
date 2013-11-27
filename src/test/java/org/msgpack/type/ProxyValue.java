@@ -48,6 +48,11 @@ public abstract class ProxyValue implements Value {
     public boolean isRawValue() {
         return getValue().isRawValue();
     }
+    
+    @Override
+    public boolean isExtValue() {
+    	return getValue().isExtValue();
+    }
 
     @Override
     public NilValue asNilValue() {
@@ -84,6 +89,11 @@ public abstract class ProxyValue implements Value {
         return getValue().asRawValue();
     }
 
+    @Override
+    public ExtValue asExtValue() {
+    	return getValue().asExtValue();
+    }
+    
     @Override
     public void writeTo(Packer pk) throws IOException {
         getValue().writeTo(pk);

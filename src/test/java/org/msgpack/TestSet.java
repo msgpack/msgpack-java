@@ -439,7 +439,7 @@ public class TestSet {
     public void testCharacter() throws Exception {
         testCharacter(null);
         testCharacter('a');
-        testCharacter('あ');
+        testCharacter('q');
         testCharacter((char) 1);
         testCharacter(Character.MIN_VALUE);
         testCharacter(Character.MAX_VALUE);

@@ -37,6 +37,8 @@ public interface Value {
     public boolean isMapValue();
 
     public boolean isRawValue();
+    
+    public boolean isExtValue();
 
     public NilValue asNilValue();
 
@@ -51,6 +53,8 @@ public interface Value {
     public MapValue asMapValue();
 
     public RawValue asRawValue();
+    
+    public ExtValue asExtValue();
 
     public void writeTo(Packer pk) throws IOException;
 
