@@ -24,6 +24,8 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
+import java.util.Date;
+
 import org.msgpack.io.Output;
 import org.msgpack.io.StreamOutput;
 import org.msgpack.MessagePack;
@@ -31,6 +33,7 @@ import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
 import org.msgpack.packer.AbstractPacker;
 import org.msgpack.packer.PackerStack;
+import org.msgpack.type.RubySymbol;
 
 public class JSONPacker extends AbstractPacker {
     private static final byte[] NULL = new byte[] { 0x6e, 0x75, 0x6c, 0x6c };
@@ -183,6 +186,16 @@ public class JSONPacker extends AbstractPacker {
         escape(out, s);
         out.writeByte(QUOTE);
         endElement();
+    }
+    
+    @Override
+    protected void writeRubySymbol(RubySymbol r) throws IOException {
+    	throw new MessageTypeException("Cannot serialize a RubySymbol into JSON");
+    }
+    
+    @Override
+    protected void writeDate(Date d) throws IOException {
+    	throw new MessageTypeException("Cannot serialize a Date into JSON");
     }
 
     @Override

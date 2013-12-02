@@ -22,7 +22,10 @@ import java.io.IOException;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.nio.ByteBuffer;
+import java.util.Date;
+
 import org.msgpack.type.Value;
+import org.msgpack.type.RubySymbol;
 
 /**
  * Standard serializer in MessagePack for Java. It allows users to serialize
@@ -70,6 +73,10 @@ public interface Packer extends Closeable, Flushable {
 
     public Packer write(String o) throws IOException;
 
+    public Packer write(Date d) throws IOException;
+    
+    public Packer write(RubySymbol r) throws IOException;
+    
     public Packer write(Value v) throws IOException;
 
     public Packer write(Object o) throws IOException;

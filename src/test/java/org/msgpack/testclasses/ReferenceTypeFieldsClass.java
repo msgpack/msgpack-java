@@ -2,11 +2,13 @@ package org.msgpack.testclasses;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Date;
 
 import org.junit.Ignore;
 import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
 import org.msgpack.template.builder.TestSet;
+import org.msgpack.type.RubySymbol;
 
 
 @Ignore @Message @Beans
@@ -32,6 +34,10 @@ public class ReferenceTypeFieldsClass {
     public byte[] f9;
 
     public ByteBuffer f10;
+    
+    public RubySymbol f11;
+    
+    public Date f12;
 
     public ReferenceTypeFieldsClass() {}
 
@@ -122,7 +128,23 @@ public class ReferenceTypeFieldsClass {
     public void setF10(ByteBuffer f10) {
         this.f10 = f10;
     }
+    
+    public RubySymbol getF11() {
+        return f11;
+    }
 
+    public void setF11(RubySymbol f11) {
+        this.f11 = f11;
+    }    
+
+    public Date getF12() {
+        return f12;
+    }
+
+    public void setF12(Date f12) {
+        this.f12 = f12;
+    }
+    
     @Override
     public boolean equals(Object o) {
 	if (! (o instanceof ReferenceTypeFieldsClass)) {
@@ -226,6 +248,22 @@ public class ReferenceTypeFieldsClass {
 		    return false;
 		}
 	    }
+	}
+	if (f11 == null) {
+	    if (that.f11 != null) {
+		return false;
+	    }
+	}
+	if (that.f11 != null && ! f11.equals(that.f11)) {
+	    return false;
+	}
+	if (f12 == null) {
+	    if (that.f12 != null) {
+		return false;
+	    }
+	}
+	if (that.f12 != null && ! f12.equals(that.f12)) {
+	    return false;
 	}
 	return true;
     }

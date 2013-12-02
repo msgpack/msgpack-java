@@ -19,6 +19,9 @@ package org.msgpack.type;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Date;
+
+import org.msgpack.MessageTypeException;
 
 public final class ValueFactory {
     public static NilValue createNilValue() {
@@ -90,6 +93,25 @@ public final class ValueFactory {
         } finally {
             bb.position(pos);
         }
+    }
+    
+    public static ExtValue createExtValue(Date d) {
+    	return new DateExtValueImpl(d);
+    }
+    
+    public static ExtValue createExtValue(RubySymbol r) {
+    	return new RubySymbolExtValueImpl(r);
+    }
+    
+    public static ExtValue createExtValue(int type, byte[] data) {
+    	switch(type) {
+    	case 0x13:
+    		return new DateExtValueImpl(data);
+    	case 0x14:
+    		return new RubySymbolExtValueImpl(data);
+    	default:	
+    		throw new MessageTypeException(String.format("Unrecognized EXT subtype: 0x%02X", type));
+    	}
     }
 
     public static ArrayValue createArrayValue() {

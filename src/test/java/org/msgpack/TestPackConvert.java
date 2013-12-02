@@ -8,14 +8,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.msgpack.packer.Packer;
+import org.msgpack.type.RubySymbol;
 import org.msgpack.type.ValueFactory;
 import org.msgpack.unpacker.BufferUnpacker;
 import org.msgpack.unpacker.Converter;
@@ -222,6 +225,46 @@ public class TestPackConvert extends TestSet {
 	unpacker.resetReadByteCount();
 	Value value = unpacker.readValue();
 	String ret = new Converter(value).read(String.class);
+	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+    
+    @Test @Override
+    public void testRubySymbol() throws Exception {
+	super.testString();
+    }
+
+    @Override
+    public void testRubySymbol(RubySymbol v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	packer.write(v);
+	byte[] bytes = out.toByteArray();
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
+	Value value = unpacker.readValue();
+	RubySymbol ret = new Converter(value).read(RubySymbol.class);
+	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+    
+    @Test @Override
+    public void testDate() throws Exception {
+	super.testString();
+    }
+
+    @Override
+    public void testDate(Date v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	packer.write(v);
+	byte[] bytes = out.toByteArray();
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
+	Value value = unpacker.readValue();
+	Date ret = new Converter(value).read(Date.class);
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
     }

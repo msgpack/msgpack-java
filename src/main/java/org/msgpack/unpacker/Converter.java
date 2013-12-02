@@ -20,10 +20,12 @@ package org.msgpack.unpacker;
 import java.io.IOException;
 import java.io.EOFException;
 import java.math.BigInteger;
+import java.util.Date;
 
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Unconverter;
+import org.msgpack.type.RubySymbol;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueType;
 import org.msgpack.type.ArrayValue;
@@ -104,6 +106,20 @@ public class Converter extends AbstractUnpacker {
         stack.reduceCount();
         return v;
     }
+    
+    @Override
+    public RubySymbol readRubySymbol() throws IOException {
+    	RubySymbol r = (RubySymbol)getTop().asExtValue().getObject();
+    	stack.reduceCount();
+    	return r;
+    }
+    
+    @Override
+    public Date readDate() throws IOException {
+    	Date d = (Date)getTop().asExtValue().getObject();
+    	stack.reduceCount();
+    	return d;
+    }
 
     @Override
     public byte readByte() throws IOException {
@@ -144,7 +160,7 @@ public class Converter extends AbstractUnpacker {
         }
         return v;
     }
-
+    
     @Override
     public BigInteger readBigInteger() throws IOException {
         BigInteger v = getTop().asIntegerValue().getBigInteger();

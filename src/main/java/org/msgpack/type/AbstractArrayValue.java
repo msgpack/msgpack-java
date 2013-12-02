@@ -65,6 +65,11 @@ abstract class AbstractArrayValue extends AbstractList<Value> implements ArrayVa
     public boolean isRawValue() {
         return false;
     }
+    
+    @Override
+    public boolean isExtValue() {
+    	return false;
+    }
 
     @Override
     public NilValue asNilValue() {
@@ -94,5 +99,10 @@ abstract class AbstractArrayValue extends AbstractList<Value> implements ArrayVa
     @Override
     public RawValue asRawValue() {
         throw new MessageTypeException();
+    }
+    
+    @Override
+    public ExtValue asExtValue() {
+    	throw new MessageTypeException();
     }
 }

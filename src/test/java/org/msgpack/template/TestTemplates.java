@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import org.msgpack.MessagePack;
 import org.msgpack.packer.BufferPacker;
+import org.msgpack.type.RubySymbol;
 import org.msgpack.unpacker.Unpacker;
 
 import static org.msgpack.template.Templates.*;
@@ -43,7 +44,8 @@ public class TestTemplates {
         Template<byte[]> tbytearray = TByteArray;
         Template<ByteBuffer> tbytebuffer = TByteBuffer;
         Template<Date> tdate = TDate;
-
+        Template<RubySymbol> trubysymbol = TRubySymbol;
+        
         Template<List<String>> tlist = tList(TString);
         Template<Map<String,Integer>> tmap = tMap(TString, TInteger);
         Template<Collection<Long>> tcollection = tCollection(TLong);

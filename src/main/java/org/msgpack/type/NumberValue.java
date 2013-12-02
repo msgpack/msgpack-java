@@ -56,6 +56,11 @@ public abstract class NumberValue extends Number implements Value {
     public boolean isRawValue() {
         return false;
     }
+    
+    @Override
+    public boolean isExtValue() {
+    	return false;
+    }
 
     @Override
     public NilValue asNilValue() {
@@ -90,6 +95,11 @@ public abstract class NumberValue extends Number implements Value {
     @Override
     public RawValue asRawValue() {
         throw new MessageTypeException();
+    }
+    
+    @Override
+    public ExtValue asExtValue() {
+    	throw new MessageTypeException();
     }
 
     public abstract BigInteger bigIntegerValue();

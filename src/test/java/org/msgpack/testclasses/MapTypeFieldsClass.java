@@ -5,6 +5,7 @@ import java.util.Map;
 import org.junit.Ignore;
 import org.msgpack.annotation.Beans;
 import org.msgpack.annotation.Message;
+import org.msgpack.type.RubySymbol;
 
 
 @Ignore @Message @Beans
@@ -22,6 +23,8 @@ public class MapTypeFieldsClass {
     public Map<String, String[]> f5;
 
     public Map<String, NestedClass[]> f6;
+    
+    public Map<RubySymbol, String[]> f7;
 
     public MapTypeFieldsClass() {
     }
@@ -81,7 +84,15 @@ public class MapTypeFieldsClass {
     public void setF6(Map<String, NestedClass[]> f6) {
         this.f6 = f6;
     }
-
+    
+    public Map<RubySymbol, String[]> getF7() {
+    	return f7;
+    }
+    
+    public void setF7(Map<RubySymbol, String[]> f7) {
+    	this.f7 = f7;
+    }
+    
     @Override
     public boolean equals(Object o) {
 	if (! (o instanceof MapTypeFieldsClass)) {
@@ -195,6 +206,24 @@ public class MapTypeFieldsClass {
                 String key = e.getKey();
                 NestedClass[] this_val = e.getValue();
                 NestedClass[] that_val = that.f6.get(key);
+                for (int i = 0; i < this_val.length; i++) {
+                    if (!this_val[i].equals(that_val[i])) {
+                        return false;
+                    }
+                }
+            }
+        }
+    	// f7
+        if (f7 == null) {
+            if (that.f7 != null) {
+                return false;
+            }
+        }
+        if (that.f7 != null) {
+            for (Map.Entry<RubySymbol, String[]> e : f7.entrySet()) {
+                RubySymbol key = e.getKey();
+                String[] this_val = e.getValue();
+                String[] that_val = that.f7.get(key);
                 for (int i = 0; i < this_val.length; i++) {
                     if (!this_val[i].equals(that_val[i])) {
                         return false;

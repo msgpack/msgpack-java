@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import org.junit.Test;
 import org.msgpack.annotation.Message;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.packer.Unconverter;
+import org.msgpack.type.RubySymbol;
 import org.msgpack.type.Value;
 import org.msgpack.unpacker.BufferUnpacker;
 import org.msgpack.unpacker.Converter;
@@ -110,6 +112,8 @@ public class TestSimpleArrays {
         public Float[] f;
         public Double[] d;
         public String[] str;
+        public Date[] dt;
+        public RubySymbol[] r;
     }
 
     @Test
@@ -124,6 +128,9 @@ public class TestSimpleArrays {
         t.f = new Float[] { 2.0f, 4.0f };
         t.d = new Double[] { 8.0, 16.0 };
         t.str = new String[] { "furuhashi", "java" };
+        t.dt = new Date[] { new Date(1385902255), new Date(1385912255) };
+        t.r = new RubySymbol[] { new RubySymbol("rumpumpump"), new RubySymbol("oodelally") };
+        
 
         BufferPacker packer = msgpack.createBufferPacker();
         packer.write(t);
@@ -158,6 +165,14 @@ public class TestSimpleArrays {
         for (int i = 0; i < t.str.length; i++) {
             assertEquals(t.str[i], u.str[i]);
         }
+        assertEquals(t.dt.length, u.dt.length);
+        for (int i = 0; i < t.dt.length; i++) {
+            assertEquals(t.dt[i], u.dt[i]);
+        }
+        assertEquals(t.r.length, u.r.length);
+        for (int i = 0; i < t.r.length; i++) {
+            assertEquals(t.r[i], u.r[i]);
+        }
 
         Unconverter unconverter = new Unconverter(msgpack);
         unconverter.write(t);
@@ -191,6 +206,14 @@ public class TestSimpleArrays {
         assertEquals(t.str.length, c.str.length);
         for (int i = 0; i < t.str.length; i++) {
             assertEquals(t.str[i], c.str[i]);
+        }
+        assertEquals(t.dt.length, c.dt.length);
+        for (int i = 0; i < t.dt.length; i++) {
+            assertEquals(t.dt[i], c.dt[i]);
+        }
+        assertEquals(t.r.length, c.r.length);
+        for (int i = 0; i < t.r.length; i++) {
+            assertEquals(t.r[i], c.r[i]);
         }
     }
 

@@ -54,9 +54,9 @@ import org.msgpack.template.ShortTemplate;
 import org.msgpack.template.StringTemplate;
 import org.msgpack.template.Template;
 import org.msgpack.template.ValueTemplate;
-import org.msgpack.template.builder.ArrayTemplateBuilder;
 import org.msgpack.template.builder.TemplateBuilder;
 import org.msgpack.template.builder.TemplateBuilderChain;
+import org.msgpack.type.RubySymbol;
 import org.msgpack.type.Value;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -136,7 +136,8 @@ public class TemplateRegistry {
         register(Value.class, ValueTemplate.getInstance());
         register(BigDecimal.class, BigDecimalTemplate.getInstance());
         register(Date.class, DateTemplate.getInstance());
-
+        register(RubySymbol.class, RubySymbolTemplate.getInstance());
+        
         registerTemplatesWhichRefersRegistry();
 
     }

@@ -3,6 +3,7 @@ package org.msgpack.type;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
+import java.util.Date;
 
 import org.junit.Test;
 import org.msgpack.TestSet;
@@ -42,6 +43,21 @@ public class TestEquals extends TestSet {
         Value v1 = ValueFactory.createRawValue(v);
         Value v2 = ValueFactory.createRawValue(v);
         testEquals(v1, v2);
+    }
+    
+    @Override
+    public void testRubySymbol(RubySymbol v) throws Exception {
+    	Value v1 = ValueFactory.createExtValue(v);
+    	Value v2 = ValueFactory.createExtValue(v);
+    	testEquals(v1, v2);
+    }
+    
+
+    @Override
+    public void testDate(Date v) throws Exception {
+    	Value v1 = ValueFactory.createExtValue(v);
+    	Value v2 = ValueFactory.createExtValue(v);
+    	testEquals(v1, v2);
     }
 
     @Override

@@ -14,8 +14,8 @@ import java.math.BigDecimal;
 import org.msgpack.MessagePack;
 import org.msgpack.packer.BufferPacker;
 import org.msgpack.template.Templates;
+import org.msgpack.type.RubySymbol;
 import org.msgpack.unpacker.Unpacker;
-
 import org.junit.Test;
 
 public class TestReadTemplate {
@@ -57,6 +57,9 @@ public class TestReadTemplate {
 
         String tstring = u().read(Templates.TString);
         assertNull(tstring);
+        
+        RubySymbol trubysymbol = u().read(Templates.TRubySymbol);
+        assertNull(trubysymbol);
 
         byte[] tbytearray = u().read(Templates.TByteArray);
         assertNull(tbytearray);

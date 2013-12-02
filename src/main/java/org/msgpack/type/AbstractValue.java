@@ -47,6 +47,10 @@ abstract class AbstractValue implements Value {
     public boolean isRawValue() {
         return false;
     }
+    
+    public boolean isExtValue() {
+    	return false;
+    }
 
     public NilValue asNilValue() {
         throw new MessageTypeException();
@@ -74,5 +78,9 @@ abstract class AbstractValue implements Value {
 
     public RawValue asRawValue() {
         throw new MessageTypeException();
+    }
+    
+    public ExtValue asExtValue() {
+    	throw new MessageTypeException();
     }
 }

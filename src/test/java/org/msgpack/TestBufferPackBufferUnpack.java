@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.msgpack.packer.BufferPacker;
+import org.msgpack.type.RubySymbol;
 import org.msgpack.unpacker.BufferUnpacker;
 
 
@@ -189,6 +191,42 @@ public class TestBufferPackBufferUnpack extends TestSet {
 	String ret = unpacker.read(String.class);
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+    
+    @Test @Override
+    public void testRubySymbol() throws Exception {
+	super.testRubySymbol();
+    }
+    
+    @Override
+    public void testRubySymbol(RubySymbol v) throws Exception {
+    	MessagePack msgpack = new MessagePack();
+    	BufferPacker packer = msgpack.createBufferPacker();
+    	packer.write(v);
+    	byte[] bytes = packer.toByteArray();
+    	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+    	unpacker.resetReadByteCount();
+    	RubySymbol ret = unpacker.read(RubySymbol.class);
+    	assertEquals(v, ret);
+    	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+    
+    @Test @Override
+    public void testDate() throws Exception {
+	super.testDate();
+    }
+    
+    @Override
+    public void testDate(Date v) throws Exception {
+    	MessagePack msgpack = new MessagePack();
+    	BufferPacker packer = msgpack.createBufferPacker();
+    	packer.write(v);
+    	byte[] bytes = packer.toByteArray();
+    	BufferUnpacker  unpacker = msgpack.createBufferUnpacker(bytes);
+    	unpacker.resetReadByteCount();
+    	Date ret = unpacker.read(Date.class);
+    	assertEquals(v, ret);
+    	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
     @Test @Override

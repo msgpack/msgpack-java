@@ -19,7 +19,10 @@ package org.msgpack.packer;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Date;
 import java.io.IOException;
+
+import org.msgpack.type.RubySymbol;
 import org.msgpack.type.Value;
 import org.msgpack.MessagePack;
 import org.msgpack.template.Template;
@@ -192,6 +195,26 @@ public abstract class AbstractPacker implements Packer {
         }
         return this;
     }
+    
+    @Override
+    public Packer write(Date d) throws IOException {
+    	if (d == null) {
+    		writeNil();
+    	} else {
+    		writeDate(d);
+    	}
+    	return this;
+    }
+    
+    @Override
+    public Packer write(RubySymbol r) throws IOException {
+    	if (r == null) {
+    		writeNil();
+    	} else {
+    		writeRubySymbol(r);
+    	}
+    	return this;
+    }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
@@ -246,6 +269,10 @@ public abstract class AbstractPacker implements Packer {
     abstract protected void writeFloat(float v) throws IOException;
 
     abstract protected void writeDouble(double v) throws IOException;
+    
+    abstract protected void writeDate(Date d) throws IOException;
+    
+    abstract protected void writeRubySymbol(RubySymbol r) throws IOException;
 
     protected void writeByteArray(byte[] b) throws IOException {
         writeByteArray(b, 0, b.length);

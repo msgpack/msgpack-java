@@ -20,9 +20,11 @@ package org.msgpack.packer;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Date;
 
 import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
+import org.msgpack.type.RubySymbol;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
 
@@ -104,6 +106,16 @@ public class Unconverter extends AbstractPacker {
     @Override
     public void writeString(String s) throws IOException {
         put(ValueFactory.createRawValue(s));
+    }
+    
+    @Override
+    public void writeRubySymbol(RubySymbol r) throws IOException {
+    	put(ValueFactory.createExtValue(r));
+    }
+    
+    @Override
+    public void writeDate(Date d) throws IOException {
+    	put(ValueFactory.createExtValue(d));
     }
 
     @Override
