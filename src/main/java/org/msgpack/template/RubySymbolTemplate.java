@@ -18,7 +18,6 @@
 package org.msgpack.template;
 
 import java.io.IOException;
-import java.util.Date;
 
 import org.msgpack.packer.Packer;
 import org.msgpack.type.RubySymbol;

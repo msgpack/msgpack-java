@@ -34,9 +34,9 @@ class DateExtValueImpl extends AbstractExtValue {
 	  	if (data.length != 8) {
     		throw new MessageTypeException("Expected 8 bytes");
     	}
-        int secs = ((0xFF & data[0]) << 24) | ((0xFF & data[1]) << 16) |
+        long secs = ((0xFF & data[0]) << 24) | ((0xFF & data[1]) << 16) |
                    ((0xFF & data[2]) << 8) | (0xFF & data[3]);
-        int nsecs = ((0xFF & data[4]) << 24) | ((0xFF & data[5]) << 16) |
+        long nsecs = ((0xFF & data[4]) << 24) | ((0xFF & data[5]) << 16) |
         		    ((0xFF & data[6]) << 8) | (0xFF & data[7]);
         long msecs = secs * 1000 + nsecs / 1000000;
         _date = new Date(msecs);

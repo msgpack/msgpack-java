@@ -94,6 +94,11 @@ final class ValueAccept extends Accept {
     void acceptRaw(byte[] raw) throws IOException {
         uc.write(ValueFactory.createRawValue(raw));
     }
+    
+    @Override
+    void acceptExt(int type, byte[] raw) throws IOException {
+    	uc.write(ValueFactory.createExtValue(type, raw));
+    }
 
     @Override
     void acceptEmptyRaw() throws IOException {

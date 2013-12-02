@@ -103,7 +103,7 @@ public final class ValueFactory {
     	return new RubySymbolExtValueImpl(r);
     }
     
-    public static ExtValue createExtValue(byte type, byte[] data) {
+    public static ExtValue createExtValue(int type, byte[] data) {
     	switch(type) {
     	case 0x13:
     		return new DateExtValueImpl(data);

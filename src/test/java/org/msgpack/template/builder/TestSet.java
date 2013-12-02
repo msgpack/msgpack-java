@@ -2,6 +2,7 @@ package org.msgpack.template.builder;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.msgpack.testclasses.ReferenceTypeFieldsClass;
 import org.msgpack.testclasses.ReferenceTypeFieldsClassNotNullable;
 import org.msgpack.testclasses.UserDefinedTypeFieldsClass;
 import org.msgpack.testclasses.UserDefinedTypeFieldsClassNotNullable;
+import org.msgpack.type.RubySymbol;
 
 
 @Ignore
@@ -89,6 +91,8 @@ public class TestSet {
         v.f8 = "8";
         v.f9 = new byte[] { 0x01, 0x02 };
         v.f10 = ByteBuffer.wrap("muga".getBytes());
+        v.f11 = new RubySymbol("boingo");
+        v.f12 = new Date(1385913471);
         testReferenceTypeFieldsClass(v);
     }
 
@@ -115,6 +119,8 @@ public class TestSet {
         v.f8 = "8";
         v.f9 = new byte[] { 0x01, 0x02 };
         v.f10 = ByteBuffer.wrap("muga".getBytes());
+        v.f11 = new RubySymbol("boingo");
+        v.f12 = new Date(1385913471);
         testReferenceTypeFieldsClassNotNullable(v);
     }
 
@@ -240,6 +246,9 @@ public class TestSet {
         nested02.f0 = "nishizawa";
         v.f6.put("muga", new MapTypeFieldsClass.NestedClass[] { nested02 });
         testMapTypeFieldsClass(v);
+        v.f7 = new HashMap<RubySymbol, String[]>();
+        v.f7.put(new RubySymbol("ham"), new String[] { "f1", "f2", "f3" });
+        v.f7.put(new RubySymbol("cheese"), new String[] { "f3", "f2", "f1" });
     }
 
     public void testMapTypeFieldsClass(MapTypeFieldsClass v) throws Exception {

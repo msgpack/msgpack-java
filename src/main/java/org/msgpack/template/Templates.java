@@ -24,6 +24,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.math.BigInteger;
 import java.math.BigDecimal;
+
+import org.msgpack.type.RubySymbol;
 import org.msgpack.type.Value;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -57,6 +59,8 @@ public final class Templates {
     public static final Template<ByteBuffer> TByteBuffer = ByteBufferTemplate.getInstance();
 
     public static final Template<Date> TDate = DateTemplate.getInstance();
+    
+    public static final Template<RubySymbol> TRubySymbol = RubySymbolTemplate.getInstance();
 
     public static <T> Template<T> tNotNullable(Template<T> innerTemplate) {
         return new NotNullableTemplate(innerTemplate);

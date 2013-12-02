@@ -89,6 +89,7 @@ public class TestMalformedEncoding {
             } catch (MessageTypeException expected) {
             }
             byte[] a = u.readByteArray();
+            u.close();
             assertArrayEquals(malform, a);
         }
     }

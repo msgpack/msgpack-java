@@ -265,7 +265,7 @@ public class MessagePackPacker extends AbstractPacker {
     	long ms = d.getTime();
     	long s = ms / 1000;
     	long ns = (ms % 1000) * 1000000;
-    	out.writeByte((byte) 0xd7);
+    	out.writeByteAndByte((byte) 0xd7, (byte) 0x13);
     	out.writeInt((int) s);
     	out.writeInt((int) ns);
     	stack.reduceCount();

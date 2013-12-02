@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.msgpack.packer.Packer;
+import org.msgpack.type.RubySymbol;
 import org.msgpack.unpacker.Unpacker;
 
 
@@ -232,6 +234,46 @@ public class TestPackUnpack extends TestSet {
 	Unpacker unpacker = msgpack.createUnpacker(in);
 	unpacker.resetReadByteCount();
 	String ret = unpacker.read(String.class);
+	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+    
+    @Test @Override
+    public void testRubySymbol() throws Exception {
+	super.testString();
+    }
+
+    @Override
+    public void testRubySymbol(RubySymbol v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	packer.write(v);
+        byte[] bytes = out.toByteArray();
+        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
+	RubySymbol ret = unpacker.read(RubySymbol.class);
+	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+    
+    @Test @Override
+    public void testDate() throws Exception {
+	super.testDate();
+    }
+
+    @Override
+    public void testDate(Date v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	packer.write(v);
+        byte[] bytes = out.toByteArray();
+        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
+	Date ret = unpacker.read(Date.class);
 	assertEquals(v, ret);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
     }

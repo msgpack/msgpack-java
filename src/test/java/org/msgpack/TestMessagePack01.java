@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -15,8 +16,11 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.msgpack.template.Template;
+
 import static org.msgpack.template.Templates.tList;
 import static org.msgpack.template.Templates.tMap;
+
+import org.msgpack.type.RubySymbol;
 import org.msgpack.type.Value;
 import org.msgpack.type.ValueFactory;
 
@@ -81,6 +85,66 @@ public class TestMessagePack01 {
     @Test
     public void testStringUnconvertConvert() throws Exception {
 	new TestStringUnconvertConvert().testString();
+    }
+    
+    @Test
+    public void testRubySymbolBufferPackBufferUnpack() throws Exception {
+	new TestRubySymbolBufferPackBufferUnpack().testRubySymbol();
+    }
+
+    @Test
+    public void testRubySymbolBufferPackConvert() throws Exception {
+	new TestRubySymbolBufferPackConvert().testRubySymbol();
+    }
+
+    @Test
+    public void testRubySymbolBufferPackUnpack() throws Exception {
+	new TestRubySymbolBufferPackUnpack().testRubySymbol();
+    }
+
+    @Test
+    public void testRubySymbolPackConvert() throws Exception {
+	new TestRubySymbolPackConvert().testRubySymbol();
+    }
+
+    @Test
+    public void testRubySymbolPackUnpack() throws Exception {
+	new TestRubySymbolPackUnpack().testRubySymbol();
+    }
+
+    @Test
+    public void testRubySymbolUnconvertConvert() throws Exception {
+	new TestRubySymbolUnconvertConvert().testRubySymbol();
+    }
+    
+    @Test
+    public void testDateBufferPackBufferUnpack() throws Exception {
+	new TestDateBufferPackBufferUnpack().testDate();
+    }
+
+    @Test
+    public void testDateBufferPackConvert() throws Exception {
+	new TestDateBufferPackConvert().testDate();
+    }
+
+    @Test
+    public void testDateBufferPackUnpack() throws Exception {
+	new TestDateBufferPackUnpack().testDate();
+    }
+
+    @Test
+    public void testDatePackConvert() throws Exception {
+	new TestDatePackConvert().testDate();
+    }
+
+    @Test
+    public void testDatePackUnpack() throws Exception {
+	new TestDatePackUnpack().testDate();
+    }
+
+    @Test
+    public void testDateUnconvertConvert() throws Exception {
+	new TestDateUnconvertConvert().testDate();
     }
 
     @Test
@@ -379,7 +443,235 @@ public class TestMessagePack01 {
 	    assertEquals(v, ret);
 	}
     }
+    
+    public static class TestRubySymbolBufferPackBufferUnpack extends org.msgpack.TestSet {
+	@Test @Override
+	public void testRubySymbol() throws Exception {
+	    super.testRubySymbol();
+	}
 
+	@Override
+	public void testRubySymbol(RubySymbol v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    byte[] bytes = msgpack.write(v);
+	    RubySymbol ret = msgpack.read(bytes, RubySymbol.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestRubySymbolBufferPackConvert extends org.msgpack.TestSet {
+	@Test @Override
+	public void testRubySymbol() throws Exception {
+	    super.testRubySymbol();
+	}
+
+	@Override
+	public void testRubySymbol(RubySymbol v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    byte[] bytes = msgpack.write(v);
+	    Value value = msgpack.read(bytes);
+	    RubySymbol ret = msgpack.convert(value, RubySymbol.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestRubySymbolBufferPackUnpack extends org.msgpack.TestSet {
+	@Test @Override
+	public void testRubySymbol() throws Exception {
+	    super.testRubySymbol();
+	}
+
+	@Override
+	public void testRubySymbol(RubySymbol v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    byte[] bytes = msgpack.write(v);
+	    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+	    RubySymbol ret = msgpack.read(in, RubySymbol.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestRubySymbolPackBufferUnpack extends org.msgpack.TestSet {
+	@Test @Override
+	public void testRubySymbol() throws Exception {
+	    super.testRubySymbol();
+	}
+
+	@Override
+	public void testRubySymbol(RubySymbol v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    msgpack.write(out, v);
+	    byte[] bytes = out.toByteArray();
+	    RubySymbol ret = msgpack.read(bytes, RubySymbol.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestRubySymbolPackConvert extends org.msgpack.TestSet {
+	@Test @Override
+	public void testRubySymbol() throws Exception {
+	    super.testRubySymbol();
+	}
+
+	@Override
+	public void testRubySymbol(RubySymbol v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    msgpack.write(out, v);
+	    byte[] bytes = out.toByteArray();
+	    Value value = msgpack.read(bytes);
+	    RubySymbol ret = msgpack.convert(value, RubySymbol.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestRubySymbolPackUnpack extends org.msgpack.TestSet {
+	@Test @Override
+	public void testRubySymbol() throws Exception {
+	    super.testRubySymbol();
+	}
+
+	@Override
+	public void testRubySymbol(RubySymbol v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    msgpack.write(out, v);
+	    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+	    RubySymbol ret = msgpack.read(in, RubySymbol.class);
+	    assertEquals(v, ret);
+	}
+    }
+    
+    public static class TestRubySymbolUnconvertConvert extends org.msgpack.TestSet {
+    	@Test @Override
+    	public void testRubySymbol() throws Exception {
+    	    super.testRubySymbol();
+    	}
+
+    	@Override
+    	public void testRubySymbol(RubySymbol v) throws Exception {
+    	    MessagePack msgpack = new MessagePack();
+    	    Value value = msgpack.unconvert(v);
+    	    RubySymbol ret = msgpack.convert(value, RubySymbol.class);
+    	    assertEquals(v, ret);
+    	}
+    }    	
+
+    public static class TestDateBufferPackBufferUnpack extends org.msgpack.TestSet {
+    	@Test @Override
+    	public void testDate() throws Exception {
+    	    super.testDate();
+    	}
+
+    	@Override
+    	public void testDate(Date v) throws Exception {
+    	    MessagePack msgpack = new MessagePack();
+    	    byte[] bytes = msgpack.write(v);
+    	    Date ret = msgpack.read(bytes, Date.class);
+    	    assertEquals(v, ret);
+    	}
+    }
+
+    public static class TestDateBufferPackConvert extends org.msgpack.TestSet {
+    	@Test @Override
+    	public void testDate() throws Exception {
+    	    super.testDate();
+    	}
+
+    	@Override
+    	public void testDate(Date v) throws Exception {
+    	    MessagePack msgpack = new MessagePack();
+    	    byte[] bytes = msgpack.write(v);
+    	    Value value = msgpack.read(bytes);
+    	    Date ret = msgpack.convert(value, Date.class);
+    	    assertEquals(v, ret);
+    	}
+    }
+
+    public static class TestDateBufferPackUnpack extends org.msgpack.TestSet {
+    	@Test @Override
+    	public void testDate() throws Exception {
+    	    super.testDate();
+    	}
+
+    	@Override
+    	public void testDate(Date v) throws Exception {
+    	    MessagePack msgpack = new MessagePack();
+    	    byte[] bytes = msgpack.write(v);
+    	    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+    	    Date ret = msgpack.read(in, Date.class);
+    	    assertEquals(v, ret);
+    	}
+    }
+
+    public static class TestDatePackBufferUnpack extends org.msgpack.TestSet {
+    	@Test @Override
+    	public void testDate() throws Exception {
+    	    super.testDate();
+    }
+
+    	@Override
+    public void testDate(Date v) throws Exception {
+    	    MessagePack msgpack = new MessagePack();
+    	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    	    msgpack.write(out, v);
+    	    byte[] bytes = out.toByteArray();
+    	    Date ret = msgpack.read(bytes, Date.class);
+    	    assertEquals(v, ret);
+    	}
+    }
+
+    public static class TestDatePackConvert extends org.msgpack.TestSet {
+    	@Test @Override
+    	public void testDate() throws Exception {
+    	    super.testDate();
+    	}
+
+    	@Override
+    	public void testDate(Date v) throws Exception {
+    	    MessagePack msgpack = new MessagePack();
+    	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    	    msgpack.write(out, v);
+    	    byte[] bytes = out.toByteArray();
+    	    Value value = msgpack.read(bytes);
+    	    Date ret = msgpack.convert(value, Date.class);
+    	    assertEquals(v, ret);
+    	}
+    }
+
+    public static class TestDatePackUnpack extends org.msgpack.TestSet {
+    	@Test @Override
+    	public void testDate() throws Exception {
+    	    super.testDate();
+    	}
+
+    	@Override
+    	public void testDate(Date v) throws Exception {
+    	    MessagePack msgpack = new MessagePack();
+    	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    	    msgpack.write(out, v);
+    	    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+    	    Date ret = msgpack.read(in, Date.class);
+    	    assertEquals(v, ret);
+    	}
+    }
+        
+    public static class TestDateUnconvertConvert extends org.msgpack.TestSet {
+        @Test @Override
+        public void testDate() throws Exception {
+        	super.testDate();
+        }
+
+        @Override
+        public void testDate(Date v) throws Exception {
+        	MessagePack msgpack = new MessagePack();
+        	Value value = msgpack.unconvert(v);
+        	Date ret = msgpack.convert(value, Date.class);
+        	assertEquals(v, ret);
+        }
+    } 
+    
     public static class TestByteArrayBufferPackBufferUnpack extends org.msgpack.TestSet {
 	@Test @Override
 	public void testByteArray() throws Exception {

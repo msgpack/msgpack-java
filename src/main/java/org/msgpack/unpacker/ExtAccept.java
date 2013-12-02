@@ -45,9 +45,9 @@ final class ExtAccept extends Accept {
     	  	if (raw.length != 8) {
         		throw new MessageTypeException("Expected 8 bytes");
         	}
-            int secs = ((0xFF & raw[0]) << 24) | ((0xFF & raw[1]) << 16) |
+            long secs = ((0xFF & raw[0]) << 24) | ((0xFF & raw[1]) << 16) |
                        ((0xFF & raw[2]) << 8) | (0xFF & raw[3]);
-            int nsecs = ((0xFF & raw[4]) << 24) | ((0xFF & raw[5]) << 16) |
+            long nsecs = ((0xFF & raw[4]) << 24) | ((0xFF & raw[5]) << 16) |
             		    ((0xFF & raw[6]) << 8) | (0xFF & raw[7]);
             long msecs = secs * 1000 + nsecs / 1000000;
             this.value = new Date(msecs);
@@ -58,7 +58,7 @@ final class ExtAccept extends Accept {
     			throw new MessageTypeException(ex);
     		}
     	} else {
-    		throw new MessageTypeException("Unrecognized ext type code");
+    		throw new MessageTypeException(String.format("Unrecognized ext type code: %s", Integer.toHexString(type)));
     	}
     }	
 }

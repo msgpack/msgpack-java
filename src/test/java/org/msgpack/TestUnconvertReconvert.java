@@ -3,12 +3,14 @@ package org.msgpack;
 import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
 import org.msgpack.packer.Unconverter;
 import org.msgpack.unpacker.Converter;
+import org.msgpack.type.RubySymbol;
 import org.msgpack.type.Value;
 
 
@@ -159,6 +161,38 @@ public class TestUnconvertReconvert extends TestSet {
 
     @Override
     public void testString(String v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+        Unconverter packer = new Unconverter(msgpack);
+        packer.write(v);
+        Value r = packer.getResult();
+        Converter unpacker = new Converter(msgpack, r);
+        Value ret = unpacker.readValue();
+        assertEquals(r, ret);
+    }
+    
+    @Test @Override
+    public void testRubySymbol() throws Exception {
+	super.testRubySymbol();
+    }
+
+    @Override
+    public void testRubySymbol(RubySymbol v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+        Unconverter packer = new Unconverter(msgpack);
+        packer.write(v);
+        Value r = packer.getResult();
+        Converter unpacker = new Converter(msgpack, r);
+        Value ret = unpacker.readValue();
+        assertEquals(r, ret);
+    }
+    
+    @Test @Override
+    public void testDate() throws Exception {
+	super.testString();
+    }
+
+    @Override
+    public void testDate(Date v) throws Exception {
 	MessagePack msgpack = new MessagePack();
         Unconverter packer = new Unconverter(msgpack);
         packer.write(v);

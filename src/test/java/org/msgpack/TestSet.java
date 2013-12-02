@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.junit.Ignore;
+import org.msgpack.type.RubySymbol;
 
 
 @Ignore
@@ -277,6 +278,51 @@ public class TestSet {
     public void testNil() throws Exception {
     }
 
+    public void testRubySymbol() throws Exception {
+    	testRubySymbol(null);
+    	testRubySymbol(new RubySymbol("a"));
+    	testRubySymbol(new RubySymbol("ab"));
+    	testRubySymbol(new RubySymbol("abc"));
+    	StringBuilder sb;
+    	int len;
+    	// small size symbol
+    	{
+    	    for (int i = 0; i < 100; i++) {
+    		sb = new StringBuilder();
+    		len = (new Double(Math.random() * 31 + 1)).intValue();
+    		for (int j = 0; j < len; j++) {
+    		    sb.append((char)('a' + (new Double(Math.random() * 26)).intValue()));
+    		}
+    		testRubySymbol(new RubySymbol(sb.toString()));
+    	    }
+    	}
+    	// medium size symbol
+    	{
+    	    for (int i = 0; i < 100; i++) {
+    		sb = new StringBuilder();
+    		len = (new Double(Math.random() * 100 + (1 << 15))).intValue();
+    		for (int j = 0; j < len; j++) {
+    		    sb.append((char)('a' + (new Double(Math.random() * 26)).intValue()));
+    		}
+    		testRubySymbol(new RubySymbol(sb.toString()));
+    	    }
+    	}
+    	// large size symbol
+    	{
+    	    for (int i = 0; i < 10; i++) {
+    		sb = new StringBuilder();
+    		len = (new Double(Math.random() * 100 + (1 << 20))).intValue();
+    		for (int j = 0; j < len; j++) {
+    			sb.append((char)('a' + (new Double(Math.random() * 26)).intValue()));
+    		}
+    		testRubySymbol(new RubySymbol(sb.toString()));
+    	    }
+    	}
+    }
+
+    public void testRubySymbol(RubySymbol v) throws Exception {
+    }
+    
     public void testString() throws Exception {
 	testString(null);
 	testString("");

@@ -161,7 +161,9 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xc7: // ext 8
         {
           	int len = in.getByte() & 0xff;
+          	in.advance();
         	int type = in.getByte() & 0xff;
+        	in.advance();
           	readRawBody(len);
           	a.acceptExt(type, raw);
           	raw = null;
@@ -171,7 +173,9 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xc8: // ext 16
         {
           	int len = in.getShort() & 0xffff;
+          	in.advance();
         	int type = in.getByte() & 0xff;
+        	in.advance();
           	readRawBody(len);
           	a.acceptExt(type, raw);
           	raw = null;
@@ -181,7 +185,9 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xc9: // ext 32
         {
           	int len = in.getInt() & 0xffffffff;
+          	in.advance();
         	int type = in.getByte() & 0xff;
+        	in.advance();
           	readRawBody(len);
           	a.acceptExt(type, raw);
           	raw = null;
@@ -241,6 +247,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xd4: // fixext 1
         {
         	int type = in.getByte() & 0xff;
+        	in.advance();
         	readRawBody(1);
         	a.acceptExt(type, raw);
         	raw = null;
@@ -250,6 +257,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xd5: // fixext 2
         {
           	int type = in.getByte() & 0xff;
+          	in.advance();
           	readRawBody(2);
           	a.acceptExt(type, raw);
           	raw = null;
@@ -259,6 +267,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xd6: // fixext 4
         {
         	int type = in.getByte() & 0xff;
+        	in.advance();
         	readRawBody(4);
         	a.acceptExt(type, raw);
         	raw = null;
@@ -268,8 +277,9 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xd7: // fixext 8
         {
           	int type = in.getByte() & 0xff;
+          	in.advance();
           	readRawBody(8);
-          	a.acceptExt(type, raw);
+            a.acceptExt(type, raw);
           	raw = null;
            	headByte = REQUIRE_TO_READ_HEAD;
         	return true;
@@ -277,6 +287,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xd8: // fixext 16
         {
           	int type = in.getByte() & 0xff;
+          	in.advance();
           	readRawBody(16);
           	a.acceptExt(type, raw);
           	raw = null;
