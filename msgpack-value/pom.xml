@@ -9,10 +9,15 @@
         <version>0.7.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>msgpack-core</artifactId>
-    <name>msgpack-core</name>
+    <artifactId>msgpack-value</artifactId>
+    <name>msgpack-value</name>
 
     <dependencies>
+        <dependency>
+            <groupId>org.msgpack</groupId>
+            <artifactId>msgpack-core</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
