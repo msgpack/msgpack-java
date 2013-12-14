@@ -120,6 +120,7 @@ class ArrayValueImpl extends AbstractArrayValue {
             if (!oi.hasNext() || !array[i].equals(oi.next())) {
                 return false;
             }
+            i++;
         }
         return !oi.hasNext();
     }
