@@ -30,7 +30,7 @@ import org.msgpack.packer.Unconverter;
 import org.msgpack.type.ValueType;
 
 public class MessagePackUnpacker extends AbstractUnpacker {
-    private static final byte REQUIRE_TO_READ_HEAD = (byte) 0xc6;
+    private static final byte REQUIRE_TO_READ_HEAD = (byte) 0xc1;
 
     protected final Input in;
     private final UnpackerStack stack = new UnpackerStack();
@@ -154,6 +154,9 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             a.acceptBoolean(true);
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
+        //case 0xc4: // bin 8 -> see 0xd9
+        //case 0xc5: // bin 16 -> see 0xda
+        //case 0xc6: // bin 32 -> see 0xdb
         case 0xca: // float
             a.acceptFloat(in.getFloat());
             in.advance();
@@ -204,6 +207,32 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             in.advance();
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
+        case 0xc4: // bin 8
+        case 0xd9: // str 8
+        {
+            int count = in.getByte();
+            if (count == 0) {
+                a.acceptEmptyRaw();
+                in.advance();
+                headByte = REQUIRE_TO_READ_HEAD;
+                return true;
+            }
+            if (count >= rawSizeLimit) {
+                String reason = String.format(
+                    "Size of raw (%d) over limit at %d",
+                    new Object[] { count, rawSizeLimit });
+                throw new SizeLimitException(reason);
+            }
+            in.advance();
+            if (!tryReferRawBody(a, count)) {
+                readRawBody(count);
+                a.acceptRaw(raw);
+                raw = null;
+            }
+            headByte = REQUIRE_TO_READ_HEAD;
+            return true;
+        }
+        case 0xc5: // bin 16
         case 0xda: // raw 16
         {
             int count = in.getShort() & 0xffff;
@@ -228,6 +257,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
             headByte = REQUIRE_TO_READ_HEAD;
             return true;
         }
+        case 0xc6: // bin 32
         case 0xdb: // raw 32
         {
             int count = in.getInt();
@@ -614,6 +644,12 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xd2: // signed int 32
         case 0xd3: // signed int 64
             return ValueType.INTEGER;
+        // The definition based on a minor upgrade guide.
+        // https://github.com/msgpack/msgpack/blob/master/spec.md#impl-upgrade
+        case 0xc4: // bin 8
+        case 0xc5: // bin 16
+        case 0xc6: // bin 32
+        case 0xd9: // str8
         case 0xda: // raw 16
         case 0xdb: // raw 32
             return ValueType.RAW;
