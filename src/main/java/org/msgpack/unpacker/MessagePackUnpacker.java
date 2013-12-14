@@ -30,7 +30,7 @@ import org.msgpack.packer.Unconverter;
 import org.msgpack.type.ValueType;
 
 public class MessagePackUnpacker extends AbstractUnpacker {
-    private static final byte REQUIRE_TO_READ_HEAD = (byte) 0xc7;
+    private static final byte REQUIRE_TO_READ_HEAD = (byte) 0xc1;
 
     protected final Input in;
     private final UnpackerStack stack = new UnpackerStack();
