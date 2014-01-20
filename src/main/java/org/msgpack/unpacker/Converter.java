@@ -157,7 +157,17 @@ public class Converter extends AbstractUnpacker {
 
     @Override
     public float readFloat() throws IOException {
-        float v = getTop().asFloatValue().getFloat();
+        Value t = getTop();
+        float v;
+        if (t.isFloatValue()) {
+            v = t.asFloatValue().getFloat();
+        }
+        else if (t.isIntegerValue()) {
+            v = t.asIntegerValue().floatValue();
+        }
+        else {
+            throw new MessageTypeException();
+        }
         stack.reduceCount();
         if (stack.getDepth() == 0) {
             value = null;
@@ -167,7 +177,17 @@ public class Converter extends AbstractUnpacker {
 
     @Override
     public double readDouble() throws IOException {
-        double v = getTop().asFloatValue().getDouble();
+        Value t = getTop();
+        double v;
+        if (t.isFloatValue()) {
+            v = t.asFloatValue().getDouble();
+        }
+        else if (t.isIntegerValue()) {
+            v = t.asIntegerValue().doubleValue();
+        }
+        else {
+            throw new MessageTypeException();
+        }
         stack.reduceCount();
         if (stack.getDepth() == 0) {
             value = null;

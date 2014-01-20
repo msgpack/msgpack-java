@@ -205,6 +205,30 @@ public class TestSet {
     public void testFloat(float v) throws Exception {
     }
 
+    public void testFloatViaInteger() throws Exception {
+	testFloatViaInteger((float)Math.round(0.0));
+	testFloatViaInteger((float)Math.round(-0.0));
+	testFloatViaInteger((float)Math.round(1.0));
+	testFloatViaInteger((float)Math.round(-1.0));
+	assert Long.MAX_VALUE < Float.MAX_VALUE;
+	float max_round_val = (float)Long.MAX_VALUE;
+	testFloatViaInteger(max_round_val);
+	assert Long.MIN_VALUE > -Float.MAX_VALUE;
+	float min_round_val = (float)Long.MIN_VALUE;
+	testFloatViaInteger(min_round_val);
+	Random rand = new Random();
+	for (int i = 0; i < 1000; i++) {
+	    float f = rand.nextFloat();
+	    if (f > max_round_val) f = max_round_val;
+	    else if (f < min_round_val) f = min_round_val;
+	    else f = (float)Math.round(f);
+	    testFloatViaInteger(f);
+	}
+    }
+
+    public void testFloatViaInteger(float v) throws Exception {
+    }
+
     public void testFloatArray() throws Exception {
 	testFloatArray(null);
 	testFloatArray(new float[0]);
@@ -247,6 +271,30 @@ public class TestSet {
     }
 
     public void testDouble(double v) throws Exception {
+    }
+
+    public void testDoubleViaInteger() throws Exception {
+	testDoubleViaInteger(Math.round(0.0));
+	testDoubleViaInteger(Math.round(-0.0));
+	testDoubleViaInteger(Math.round(1.0));
+	testDoubleViaInteger(Math.round(-1.0));
+	assert Long.MAX_VALUE < Double.MAX_VALUE;
+	double max_round_val = (double)Long.MAX_VALUE;
+	testDoubleViaInteger(max_round_val);
+	assert Long.MIN_VALUE > -Double.MAX_VALUE;
+	double min_round_val = (double)Long.MIN_VALUE;
+	testDoubleViaInteger(min_round_val);
+	Random rand = new Random();
+	for (int i = 0; i < 1000; i++) {
+	    double f = rand.nextDouble();
+	    if (f > max_round_val) f = max_round_val;
+	    else if (f < min_round_val) f = min_round_val;
+	    else f = Math.round(f);
+	    testDoubleViaInteger(f);
+	}
+    }
+
+    public void testDoubleViaInteger(double v) throws Exception {
     }
 
     public void testDoubleArray() throws Exception {
