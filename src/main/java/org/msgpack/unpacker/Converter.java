@@ -28,6 +28,7 @@ import org.msgpack.type.Value;
 import org.msgpack.type.ValueType;
 import org.msgpack.type.ArrayValue;
 import org.msgpack.type.MapValue;
+import org.msgpack.type.NumberValue;
 
 public class Converter extends AbstractUnpacker {
     private final UnpackerStack stack;
@@ -148,6 +149,26 @@ public class Converter extends AbstractUnpacker {
     @Override
     public BigInteger readBigInteger() throws IOException {
         BigInteger v = getTop().asIntegerValue().getBigInteger();
+        stack.reduceCount();
+        if (stack.getDepth() == 0) {
+            value = null;
+        }
+        return v;
+    }
+
+    @Override
+    public NumberValue readNumber() throws IOException {
+        Value t = getTop();
+        NumberValue v;
+        if (t.isFloatValue()) {
+            v = t.asFloatValue();
+        }
+        else if (t.isIntegerValue()) {
+            v = t.asIntegerValue();
+        }
+        else {
+            throw new MessageTypeException();
+        }
         stack.reduceCount();
         if (stack.getDepth() == 0) {
             value = null;
