@@ -15,6 +15,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.Unpacker;
+import org.msgpack.type.NumberValue;
 
 
 public class TestPackUnpack extends TestSet {
@@ -181,6 +182,117 @@ public class TestPackUnpack extends TestSet {
 	assertEquals(v, ret, 10e-10);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
+
+    @Test @Override
+    public void testNumber() throws Exception {
+	super.testNumber();
+    }
+
+    @Override
+    public void testNumber(byte v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	packer.write(v);
+        byte[] bytes = out.toByteArray();
+        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
+	byte ret = unpacker.readNumber().byteValue();
+	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+
+    @Override
+    public void testNumber(short v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	packer.write(v);
+        byte[] bytes = out.toByteArray();
+        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
+	short ret = unpacker.readNumber().shortValue();
+	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+
+    @Override
+    public void testNumber(int v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	packer.write(v);
+        byte[] bytes = out.toByteArray();
+        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
+	int ret = unpacker.readNumber().intValue();
+	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+
+    @Override
+    public void testNumber(long v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	packer.write(v);
+        byte[] bytes = out.toByteArray();
+        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
+	long ret = unpacker.readNumber().longValue();
+	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+
+    @Override
+    public void testNumber(BigInteger v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	packer.write(v);
+        byte[] bytes = out.toByteArray();
+        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
+	BigInteger ret = unpacker.readNumber().bigIntegerValue();
+	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+
+    @Override
+    public void testNumber(float v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	packer.write(v);
+        byte[] bytes = out.toByteArray();
+        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
+	float ret = unpacker.readNumber().floatValue();
+	assertEquals(v, ret, 10e-10);
+	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+
+    @Override
+    public void testNumber(double v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	packer.write(v);
+        byte[] bytes = out.toByteArray();
+        ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+	Unpacker unpacker = msgpack.createUnpacker(in);
+	unpacker.resetReadByteCount();
+	double ret = unpacker.readNumber().doubleValue();
+	assertEquals(v, ret, 10e-10);
+	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+
 
     @Test @Override
     public void testNil() throws Exception {
