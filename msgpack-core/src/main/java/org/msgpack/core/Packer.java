@@ -45,15 +45,17 @@ public interface Packer extends Closeable, Flushable {
 
     public Packer writeString(String o) throws IOException;
 
-    public Packer writeRawStringLength(int len) throws IOException;
-
-    public Packer writeBinaryLength(int len) throws IOException;
-
-    public Packer writePayloadByByteArray(byte[] o, int off, int len) throws IOException;
-
-    public Packer writePayloadByByteBuffer(ByteBuffer o) throws IOException;
+    public Packer writeBinary(ByteBuffer src) throws IOException;
 
     public Packer writeArrayHeader(int size) throws IOException;
 
     public Packer writeMapHeader(int size) throws IOException;
+
+    public Packer writeRawStringLength(int len) throws IOException;
+
+    public Packer writeBinaryLength(int len) throws IOException;
+
+    public Packer rawWrite(ByteBuffer src) throws IOException;
+
+    public Packer rawWrite(byte[] o, int off, int len) throws IOException;
 }

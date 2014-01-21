@@ -15,12 +15,16 @@
 //
 package org.msgpack.core;
 
-public class MessageMalformedFormatException extends MessageException {
-    public MessageMalformedFormatException(String message) {
-        super(message);
-    }
+import java.nio.charset.CharacterCodingException;
 
-    public MessageMalformedFormatException(String message, Throwable cause) {
+public class MessageTypeStringCodingException extends MessageTypeConvertException {
+    public MessageTypeStringCodingException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public MessageTypeStringCodingException(Throwable cause) {
+        super(cause);
+    }
+
+    // TODO override getCause() to return CharacterCodingException
 }

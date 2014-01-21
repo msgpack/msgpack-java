@@ -175,6 +175,16 @@ public class MessagePacker implements Packer {
         return this;
     }
 
+    public Packer writeString(String o) throws IOException {
+        // TODO not implemented yet
+        return this;
+    }
+
+    public Packer writeBinary(ByteBuffer o) throws IOException {
+        // TODO not implemented yet
+        return this;
+    }
+
     public Packer writeRawStringLength(int len) throws IOException {
         // TODO not implemented yet
         return this;
@@ -185,17 +195,12 @@ public class MessagePacker implements Packer {
         return this;
     }
 
-    public Packer writePayloadByByteArray(byte[] o, int off, int len) throws IOException {
+    public Packer rawWrite(ByteBuffer o) throws IOException {
         // TODO not implemented yet
         return this;
     }
 
-    public Packer writePayloadByByteBuffer(ByteBuffer o) throws IOException {
-        // TODO not implemented yet
-        return this;
-    }
-
-    public Packer writeString(String o) throws IOException {
+    public Packer rawWrite(byte[] o, int off, int len) throws IOException {
         // TODO not implemented yet
         return this;
     }

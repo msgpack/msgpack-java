@@ -47,15 +47,21 @@ public interface Unpacker extends Closeable {
 
     public String readString() throws IOException;
 
-    public int readRawStringLength() throws IOException;
+    public ByteBuffer readRawString() throws IOException;
 
-    public int readBinaryLength() throws IOException;
-
-    public byte[] readPayloadToByteArray(int len) throws IOException;
-
-    public ByteBuffer readPayloadToBuferBuffer(int len) throws IOException;
+    public ByteBuffer readBinary() throws IOException;
 
     public int readArrayHeader() throws IOException;
 
     public int readMapHeader() throws IOException;
+
+    // TODO ext type
+
+    public int readRawStringLength() throws IOException;
+
+    public int readBinaryLength() throws IOException;
+
+    public void rawRead(ByteBuffer dst) throws IOException;
+
+    public void rawRead(byte[] b, int off, int len) throws IOException;
 }

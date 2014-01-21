@@ -20,11 +20,13 @@ import java.io.Closeable;
 import java.nio.ByteBuffer;
 
 public interface MessageUnpackerChannel extends Closeable {
-    public int readAll(ByteBuffer out) throws IOException;
+    public int read(ByteBuffer dst) throws IOException;
 
-    public ByteBuffer tryByteBufferReference(int size) throws IOException;
+    public int skip(int maxSize) throws IOException;
 
-    public int skip(int n) throws IOException;
+    public ByteBuffer readAll(int size) throws IOException;
+
+    public void skipAll(int size) throws IOException;
 
     public byte readByte() throws IOException;
 
@@ -38,4 +40,3 @@ public interface MessageUnpackerChannel extends Closeable {
 
     public double readDouble() throws IOException;
 }
-

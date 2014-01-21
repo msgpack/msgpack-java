@@ -15,12 +15,20 @@
 //
 package org.msgpack.core;
 
-public class MessageMalformedFormatException extends MessageException {
-    public MessageMalformedFormatException(String message) {
+public class MessageTypeConvertException extends MessageTypeException {
+    public MessageTypeConvertException() {
+        super();
+    }
+
+    public MessageTypeConvertException(String message) {
         super(message);
     }
 
-    public MessageMalformedFormatException(String message, Throwable cause) {
+    public MessageTypeConvertException(Throwable cause) {
+        super(cause);
+    }
+
+    public MessageTypeConvertException(String message, Throwable cause) {
         super(message, cause);
     }
 }

@@ -49,4 +49,3 @@ public interface MessagePackerChannel extends Closeable, Flushable {
 
     public void writeByteAndDouble(byte b, double v) throws IOException;
 }
-
