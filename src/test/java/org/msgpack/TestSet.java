@@ -42,9 +42,9 @@ public class TestSet {
     }
 
     public void testByte() throws Exception {
-	testShort((byte) 0);
-	testShort((byte) -1);
-	testShort((byte) 1);
+	testByte((byte) 0);
+	testByte((byte) -1);
+	testByte((byte) 1);
 	testByte(Byte.MIN_VALUE);
 	testByte(Byte.MAX_VALUE);
 	byte[] bytes = new byte[1000];
