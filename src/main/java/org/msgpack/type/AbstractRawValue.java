@@ -25,6 +25,8 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 
 abstract class AbstractRawValue extends AbstractValue implements RawValue {
+    static final String UTF8 = "UTF-8";
+
     @Override
     public ValueType getType() {
         return ValueType.RAW;
@@ -75,7 +77,7 @@ abstract class AbstractRawValue extends AbstractValue implements RawValue {
         } else {
             // don't throw encoding error exception
             // ignore malformed bytes
-            CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder()
+            CharsetDecoder decoder = Charset.forName(UTF8).newDecoder()
                     .onMalformedInput(CodingErrorAction.IGNORE)
                     .onUnmappableCharacter(CodingErrorAction.IGNORE);
             try {

@@ -34,7 +34,7 @@ class StringRawValueImpl extends AbstractRawValue {
     public byte[] getByteArray() {
         try {
             // TODO encoding error?
-            return string.getBytes("UTF-8");
+            return string.getBytes(UTF8);
         } catch (UnsupportedEncodingException ex) {
             throw new MessageTypeException(ex);
         }
