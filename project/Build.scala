@@ -90,7 +90,9 @@ object Build extends Build {
 
     val testLib = Seq(
       "org.scalatest" % "scalatest_2.10" % "2.1.0-RC2" % "test",
-      "org.scalacheck" % "scalacheck_2.10" % "1.11.3" % "test"
+      "org.scalacheck" % "scalacheck_2.10" % "1.11.3" % "test",
+      "org.xerial" % "xerial-core" % "3.2.3" % "test"
+
     )
   }
 
