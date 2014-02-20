@@ -398,6 +398,8 @@ public class TestSet {
         testBigInteger(BigInteger.valueOf(0));
         testBigInteger(BigInteger.valueOf(-1));
         testBigInteger(BigInteger.valueOf(1));
+        testBigInteger(BigInteger.valueOf(128l));
+        testBigInteger(BigInteger.valueOf(512l));
         testBigInteger(BigInteger.valueOf(Integer.MIN_VALUE));
         testBigInteger(BigInteger.valueOf(Integer.MAX_VALUE));
         testBigInteger(BigInteger.valueOf(Long.MIN_VALUE));

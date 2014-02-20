@@ -48,12 +48,12 @@ final class BigIntegerAccept extends Accept {
 
     @Override
     void acceptUnsignedInteger(byte v) {
-        BigInteger.valueOf((long) (v & 0xff));
+        this.value = BigInteger.valueOf((long) (v & 0xff));
     }
 
     @Override
     void acceptUnsignedInteger(short v) {
-        BigInteger.valueOf((long) (v & 0xffff));
+        this.value = BigInteger.valueOf((long) (v & 0xffff));
     }
 
     @Override
