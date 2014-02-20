@@ -672,6 +672,8 @@ public class MessageUnpacker /*implements Unpacker */{
     public String readString() throws IOException {
         ByteBuffer bb = readRawString();
         getCharsetDecoder().decode(bb);
+        // TODO impl
+        return null;
     }
 
     public ByteBuffer readRawString() throws IOException {

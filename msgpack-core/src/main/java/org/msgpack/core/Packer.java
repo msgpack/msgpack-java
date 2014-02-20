@@ -58,4 +58,6 @@ public interface Packer extends Closeable, Flushable {
     public Packer rawWrite(ByteBuffer src) throws IOException;
 
     public Packer rawWrite(byte[] o, int off, int len) throws IOException;
+
+    public Packer writePayloadByByteBuffer(ByteBuffer bb) throws IOException;
 }
