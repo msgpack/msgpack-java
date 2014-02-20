@@ -42,7 +42,7 @@ public class ImmutableBinaryValueImpl
     @Override
     public void writeTo(Packer pk) throws IOException {
         pk.writeBinaryLength(byteBuffer.remaining());
-        pk.writePayloadByByteBuffer(byteBuffer.asReadOnlyBuffer());
+        pk.rawWrite(byteBuffer.asReadOnlyBuffer());
     }
 
     @Override

@@ -18,9 +18,14 @@ package org.msgpack.core;
 import java.io.IOException;
 import java.io.Closeable;
 import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
 
-public interface MessageUnpackerChannel extends Closeable {
+public interface MessageUnpackerChannel extends ReadableByteChannel {
     public int read(ByteBuffer dst) throws IOException;
+
+    public void close() throws IOException;
+
+    public boolean isOpen();
 
     public int skip(int maxSize) throws IOException;
 
