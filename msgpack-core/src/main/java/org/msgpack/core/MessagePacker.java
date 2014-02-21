@@ -205,6 +205,12 @@ public class MessagePacker implements Packer {
         return this;
     }
 
+    @Override
+    public Packer writePayloadByByteBuffer(ByteBuffer bb) throws IOException {
+        // TODO
+        return null;
+    }
+
     /*
     public Packer writeByteArray(byte[] o) throws IOException {
         return writeByteArray(o, 0, o.length);
