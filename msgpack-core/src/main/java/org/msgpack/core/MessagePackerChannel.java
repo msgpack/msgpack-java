@@ -19,11 +19,14 @@ import java.io.IOException;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 
-public interface MessagePackerChannel extends Closeable, Flushable {
-    public void write(byte[] b, int off, int len) throws IOException;
+public interface MessagePackerChannel extends WritableByteChannel, Flushable {
+    public int write(ByteBuffer src) throws IOException;
 
-    public void write(ByteBuffer bb) throws IOException;
+    public void writeAll(byte[] b, int off, int len) throws IOException;
+
+    public void writeAll(ByteBuffer src) throws IOException;
 
     public void writeByte(byte v) throws IOException;
 

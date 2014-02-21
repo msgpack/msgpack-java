@@ -42,7 +42,7 @@ public class ImmutableRawStringValueImpl
     @Override
     public void writeTo(Packer pk) throws IOException {
         pk.writeRawStringLength(byteBuffer.remaining());
-        pk.writePayloadByByteBuffer(byteBuffer.asReadOnlyBuffer());
+        pk.rawWrite(byteBuffer.asReadOnlyBuffer());
     }
 
     @Override

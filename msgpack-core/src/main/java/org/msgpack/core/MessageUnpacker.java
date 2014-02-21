@@ -670,8 +670,9 @@ public class MessageUnpacker /*implements Unpacker */{
     }
 
     public String readString() throws IOException {
+        // TODO cache CharacterBuffer
         ByteBuffer bb = readRawString();
-        getCharsetDecoder().decode(bb);
+        return getCharsetDecoder().decode(bb).toString();
     }
 
     public ByteBuffer readRawString() throws IOException {
