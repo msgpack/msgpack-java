@@ -6,7 +6,7 @@ class MessagePackerTest extends MessagePackSpec {
   "MessagePacker" should {
 
     "serialize primitives" in {
-      pending 
+      pending
       val p = new MessagePacker(null)
 
       forAll{ (i:Int) =>
