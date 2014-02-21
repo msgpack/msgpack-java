@@ -263,7 +263,7 @@ public class MessageBuffer implements MessagePackerChannel, MessageUnpackerChann
     private ByteBuffer allocateLastWritableBuffer(int minSize) throws IOException {
         if (lastWritableBuffer != null) {
             producedLastChunk();
-            if (lastWritableBuffer != null && lastWritableBuffer.remaining() >= size) {
+            if (lastWritableBuffer != null && lastWritableBuffer.remaining() >= minSize) {
                 return lastWritableBuffer;
             }
         }
