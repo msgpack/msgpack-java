@@ -36,6 +36,7 @@ object Build extends Build {
     crossPaths := false,
     // Since sbt-0.13.2
     incOptions := incOptions.value.withNameHashing(true),
+    //resolvers += Resolver.mavenLocal,
     scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-target:jvm-1.6", "-feature"),
     pomExtra := {
       <url>http://msgpack.org/</url>
@@ -92,7 +93,7 @@ object Build extends Build {
       "org.scalatest" % "scalatest_2.10" % "2.1.0-RC2" % "test",
       "org.scalacheck" % "scalacheck_2.10" % "1.11.3" % "test",
       "org.xerial" % "xerial-core" % "3.2.3" % "test",
-      "org.msgpack" % "msgpack-java" % "0.6.9" % "test"
+      "org.msgpack" % "msgpack" % "0.6.9" % "test"
     )
   }
 
@@ -104,4 +105,4 @@ object Build extends Build {
 
 
 
- 
+

@@ -26,8 +26,7 @@ public class MessageUnpacker /*implements Unpacker */{
         //// upcast raw type  // default:true : getNextType returns RAW?
         // allow readBinary and readBinaryLength to read str types  // default:true
         // string decode malformed input action  // default:report
-        // string decode unmappable character action  // default:report
-        // byte buffer bulk allocation cache size
+        // string decode unmappable character action  // default:report        // byte buffer bulk allocation cache size
         // byte buffer allocator
         // allow byte buffer reference : advanced option
         // raw size limit
