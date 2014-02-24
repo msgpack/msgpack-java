@@ -16,5 +16,11 @@ class MessagePackerTest extends MessagePackSpec {
 
     }
 
+    "be used with 0.6.x" in {
+
+
+
+    }
+
   }
 }
