@@ -21,6 +21,7 @@ import java.lang.reflect.Type;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.LoaderClassPath;
@@ -59,6 +60,7 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
     public JavassistTemplateBuilder(TemplateRegistry registry, ClassLoader cl) {
         super(registry);
         pool = new ClassPool();
+        pool.appendClassPath(new ClassClassPath(getClass()));
         boolean appended = false;
         loader = cl;
         if (loader == null) {
