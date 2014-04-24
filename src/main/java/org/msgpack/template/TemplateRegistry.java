@@ -32,6 +32,7 @@ import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.msgpack.MessagePackable;
 import org.msgpack.MessageTypeException;
@@ -59,7 +60,7 @@ import org.msgpack.template.builder.TemplateBuilder;
 import org.msgpack.template.builder.TemplateBuilderChain;
 import org.msgpack.type.Value;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class TemplateRegistry {
 
     private TemplateRegistry parent = null;
@@ -77,13 +78,12 @@ public class TemplateRegistry {
         parent = null;
         chain = createTemplateBuilderChain();
         genericCache = new HashMap<Type, GenericTemplate>();
-        cache = new HashMap<Type, Template<Type>>();
+        cache = new ConcurrentHashMap<Type, Template<Type>>();
         registerTemplates();
         cache = Collections.unmodifiableMap(cache);
     }
 
     /**
-     *
      * @param registry
      */
     public TemplateRegistry(TemplateRegistry registry) {
@@ -93,8 +93,8 @@ public class TemplateRegistry {
             parent = new TemplateRegistry();
         }
         chain = createTemplateBuilderChain();
-        cache = new HashMap<Type, Template<Type>>();
-        genericCache = new HashMap<Type, GenericTemplate>();
+        cache = new ConcurrentHashMap<Type, Template<Type>>();
+        genericCache = new ConcurrentHashMap<Type, GenericTemplate>();
         registerTemplatesWhichRefersRegistry();
     }
 
@@ -166,7 +166,7 @@ public class TemplateRegistry {
         buildAndRegister(null, targetClass, false, flist);
     }
 
-    public synchronized void register(final Type targetType, final Template tmpl) {
+    public void register(final Type targetType, final Template tmpl) {
         if (tmpl == null) {
             throw new NullPointerException("Template object is null");
         }
@@ -178,7 +178,7 @@ public class TemplateRegistry {
         }
     }
 
-    public synchronized void registerGeneric(final Type targetType, final GenericTemplate tmpl) {
+    public void registerGeneric(final Type targetType, final GenericTemplate tmpl) {
         if (targetType instanceof ParameterizedType) {
             genericCache.put(((ParameterizedType) targetType).getRawType(),
                     tmpl);
@@ -187,16 +187,16 @@ public class TemplateRegistry {
         }
     }
 
-    public synchronized boolean unregister(final Type targetType) {
+    public boolean unregister(final Type targetType) {
         Template<Type> tmpl = cache.remove(targetType);
         return tmpl != null;
     }
 
-    public synchronized void unregister() {
+    public void unregister() {
         cache.clear();
     }
 
-    public synchronized Template lookup(Type targetType) {
+    public Template lookup(Type targetType) {
         Template tmpl;
 
         if (targetType instanceof ParameterizedType) {
@@ -273,7 +273,8 @@ public class TemplateRegistry {
 
         throw new MessageTypeException(
                 "Cannot find template for " + targetClass + " class.  " +
-                "Try to add @Message annotation to the class or call MessagePack.register(Type).");
+                        "Try to add @Message annotation to the class or call MessagePack.register(Type)."
+        );
     }
 
     private Template<Type> lookupGenericType(ParameterizedType paramedType) {
@@ -366,7 +367,7 @@ public class TemplateRegistry {
 
     private Template<Type> lookupGenericArrayType(Type targetType) {
         // TODO GenericArrayType is not a Class<?> => buildArrayTemplate
-        if (! (targetType instanceof GenericArrayType)) {
+        if (!(targetType instanceof GenericArrayType)) {
             return null;
         }
 
@@ -423,7 +424,8 @@ public class TemplateRegistry {
                     return lookupAfterBuilding(jvmArrayClass);
                 }
             }
-        } catch (ClassNotFoundException e) {} // ignore
+        } catch (ClassNotFoundException e) {
+        } // ignore
 
         try {
             cl = getClass().getClassLoader();
@@ -433,14 +435,16 @@ public class TemplateRegistry {
                     return lookupAfterBuilding(jvmArrayClass);
                 }
             }
-        } catch (ClassNotFoundException e) {} // ignore
+        } catch (ClassNotFoundException e) {
+        } // ignore
 
         try {
             jvmArrayClass = Class.forName(jvmArrayClassName);
             if (jvmArrayClass != null) {
                 return lookupAfterBuilding(jvmArrayClass);
             }
-        } catch (ClassNotFoundException e) {} // ignore
+        } catch (ClassNotFoundException e) {
+        } // ignore
 
         throw new MessageTypeException(String.format(
                 "cannot find template of %s", jvmArrayClassName));
@@ -545,7 +549,7 @@ public class TemplateRegistry {
         return tmpl;
     }
 
-    private synchronized Template buildAndRegister(TemplateBuilder builder,
+    private Template buildAndRegister(TemplateBuilder builder,
             final Class targetClass, final boolean hasAnnotation,
             final FieldList flist) {
         Template newTmpl = null;
