@@ -72,13 +72,13 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
     protected abstract <T> Template<T> buildTemplate(Class<T> targetClass, FieldEntry[] entries);
 
     protected void checkClassValidation(final Class<?> targetClass) {
-        if (Modifier.isAbstract(targetClass.getModifiers())) {
-            throw new TemplateBuildException(
-                    "Cannot build template for abstract class: " + targetClass.getName());
-        }
         if (targetClass.isInterface()) {
             throw new TemplateBuildException(
                     "Cannot build template for interface: " + targetClass.getName());
+        }
+        if (Modifier.isAbstract(targetClass.getModifiers())) {
+            throw new TemplateBuildException(
+                    "Cannot build template for abstract class: " + targetClass.getName());
         }
         if (targetClass.isArray()) {
             throw new TemplateBuildException(
