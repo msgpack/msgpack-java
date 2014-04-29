@@ -20,7 +20,6 @@ package org.msgpack.template.builder.beans;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The <code>Introspector</code> is a utility for developers to figure out
@@ -84,7 +83,7 @@ public class Introspector extends java.lang.Object {
     // The cache to store Bean Info objects that have been found or created
     private static final int DEFAULT_CAPACITY = 128;
 
-    private static Map<Class<?>, StandardBeanInfo> theCache = new ConcurrentHashMap<Class<?>, StandardBeanInfo>(DEFAULT_CAPACITY);
+    private static Map<Class<?>, StandardBeanInfo> theCache = Collections.synchronizedMap(new WeakHashMap<Class<?>, StandardBeanInfo>(DEFAULT_CAPACITY));
 
     private Introspector() {
         super();
