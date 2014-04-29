@@ -32,6 +32,7 @@ import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.msgpack.MessagePackable;
 import org.msgpack.MessageTypeException;
@@ -76,8 +77,8 @@ public class TemplateRegistry {
     private TemplateRegistry() {
         parent = null;
         chain = createTemplateBuilderChain();
-        genericCache = new HashMap<Type, GenericTemplate>();
-        cache = new HashMap<Type, Template<Type>>();
+        genericCache = new ConcurrentHashMap<Type, GenericTemplate>();
+        cache = new ConcurrentHashMap<Type, Template<Type>>();
         registerTemplates();
         cache = Collections.unmodifiableMap(cache);
     }
@@ -196,7 +197,7 @@ public class TemplateRegistry {
         cache.clear();
     }
 
-    public synchronized Template lookup(Type targetType) {
+    public Template lookup(Type targetType) {
         Template tmpl;
 
         if (targetType instanceof ParameterizedType) {
