@@ -551,21 +551,16 @@ public class TemplateRegistry {
             final FieldList flist) {
         Template newTmpl = null;
         Template oldTmpl = null;
+        TemplateReference ref = null;
         try {
             oldTmpl = cache.get(targetClass);
-            Template ref = new TemplateReference(this, targetClass);
-            try {
-                cache.put(targetClass, ref);
-                if (builder == null) {
-                    builder = chain.select(targetClass, hasAnnotation);
-                }
-                newTmpl = flist != null ?
-                        builder.buildTemplate(targetClass, flist) : builder.buildTemplate(targetClass);
-            } finally {
-                synchronized (ref) {
-                    ref.notifyAll();
-                }
+            ref = new TemplateReference(this, targetClass);
+            cache.put(targetClass, ref);
+            if (builder == null) {
+                builder = chain.select(targetClass, hasAnnotation);
             }
+            newTmpl = flist != null ?
+                    builder.buildTemplate(targetClass, flist) : builder.buildTemplate(targetClass);
             return newTmpl;
         } catch (Exception e) {
             if (oldTmpl != null) {
@@ -582,6 +577,9 @@ public class TemplateRegistry {
         } finally {
             if (newTmpl != null) {
                 cache.put(targetClass, newTmpl);
+            }
+            if(ref != null) {
+                ref.setReady();
             }
         }
     }

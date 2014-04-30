@@ -19,6 +19,7 @@ package org.msgpack.template;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.concurrent.CountDownLatch;
 
 import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Packer;
@@ -32,6 +33,9 @@ public class TemplateReference<T> extends AbstractTemplate<T> {
 
     private Template<T> actualTemplate;
 
+    private final CountDownLatch ready = new CountDownLatch(1);
+
+
     public TemplateReference(TemplateRegistry registry, Type targetType) {
         this.registry = registry;
         this.targetType = targetType;
@@ -42,13 +46,11 @@ public class TemplateReference<T> extends AbstractTemplate<T> {
         if (actualTemplate == null) {
             actualTemplate = (Template<T>) registry.cache.get(targetType);
             if (actualTemplate == this) {
-                synchronized (this) {
-                    try {
-                        wait();
-                        actualTemplate = (Template<T>) registry.cache.get(targetType);
-                    } catch (InterruptedException ignored) {
+                try {
+                    ready.await();
+                    actualTemplate = (Template<T>) registry.cache.get(targetType);
+                } catch (InterruptedException ignored) {
 
-                    }
                 }
             }
             if (actualTemplate == null) {
@@ -56,6 +58,10 @@ public class TemplateReference<T> extends AbstractTemplate<T> {
                         "Actual template have not been created");
             }
         }
+    }
+
+    public void setReady() {
+        ready.countDown();
     }
 
     @Override
