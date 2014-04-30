@@ -552,16 +552,15 @@ public class TemplateRegistry {
         Template newTmpl = null;
         Template oldTmpl = null;
         try {
-            if (cache.containsKey(targetClass)) {
-                oldTmpl = cache.get(targetClass);
-            }
+            oldTmpl = cache.get(targetClass);
             newTmpl = new TemplateReference(this, targetClass);
-            cache.put(targetClass, newTmpl);
+
             if (builder == null) {
                 builder = chain.select(targetClass, hasAnnotation);
             }
             newTmpl = flist != null ?
                     builder.buildTemplate(targetClass, flist) : builder.buildTemplate(targetClass);
+            cache.put(targetClass, newTmpl);
             return newTmpl;
         } catch (Exception e) {
             if (oldTmpl != null) {
