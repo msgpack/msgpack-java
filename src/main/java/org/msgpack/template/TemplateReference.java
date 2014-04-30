@@ -41,6 +41,16 @@ public class TemplateReference<T> extends AbstractTemplate<T> {
     private void validateActualTemplate() {
         if (actualTemplate == null) {
             actualTemplate = (Template<T>) registry.cache.get(targetType);
+            if (actualTemplate == this) {
+                synchronized (this) {
+                    try {
+                        wait();
+                        actualTemplate = (Template<T>) registry.cache.get(targetType);
+                    } catch (InterruptedException ignored) {
+
+                    }
+                }
+            }
             if (actualTemplate == null) {
                 throw new MessageTypeException(
                         "Actual template have not been created");

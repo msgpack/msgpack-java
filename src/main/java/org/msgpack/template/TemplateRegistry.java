@@ -553,14 +553,19 @@ public class TemplateRegistry {
         Template oldTmpl = null;
         try {
             oldTmpl = cache.get(targetClass);
-            newTmpl = new TemplateReference(this, targetClass);
-
-            if (builder == null) {
-                builder = chain.select(targetClass, hasAnnotation);
+            Template ref = new TemplateReference(this, targetClass);
+            try {
+                cache.put(targetClass, ref);
+                if (builder == null) {
+                    builder = chain.select(targetClass, hasAnnotation);
+                }
+                newTmpl = flist != null ?
+                        builder.buildTemplate(targetClass, flist) : builder.buildTemplate(targetClass);
+            } finally {
+                synchronized (ref) {
+                    ref.notifyAll();
+                }
             }
-            newTmpl = flist != null ?
-                    builder.buildTemplate(targetClass, flist) : builder.buildTemplate(targetClass);
-            cache.put(targetClass, newTmpl);
             return newTmpl;
         } catch (Exception e) {
             if (oldTmpl != null) {
