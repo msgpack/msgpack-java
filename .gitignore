@@ -10,4 +10,5 @@ target
 build
 lib
 .idea
+atlassian-ide-plugin.xml
 
