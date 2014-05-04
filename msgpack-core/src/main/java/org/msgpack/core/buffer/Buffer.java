@@ -24,22 +24,21 @@ public class Buffer {
 
     static {
         try {
-            // http://github.com/airlift/slice
-
-            // fetch theUnsafe object
+            // Fetch theUnsafe object for Orackle JDK and OpenJDK
             Field field = Unsafe.class.getDeclaredField("theUnsafe");
             field.setAccessible(true);
             unsafe = (Unsafe) field.get(null);
             if (unsafe == null) {
-                throw new RuntimeException("Unsafe access not available");
+                throw new RuntimeException("Unsafe is unavailable");
             }
+            // TODO Finding Unsafe instance for Android JVM
 
-            // make sure the VM thinks bytes are only one byte wide
+            // Make sure the VM thinks bytes are only one byte wide
             if (sun.misc.Unsafe.ARRAY_BYTE_INDEX_SCALE != 1) {
                 throw new IllegalStateException("Byte array index scale must be 1, but is " + ARRAY_BYTE_INDEX_SCALE);
             }
 
-            // fetch a method handle for the hidden constructor for DirectByteBuffer
+            // Fetch a method handle for the hidden constructor for DirectByteBuffer
             Class<?> directByteBufferClass = ClassLoader.getSystemClassLoader().loadClass("java.nio.DirectByteBuffer");
             Constructor<?> constructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
             constructor.setAccessible(true);
@@ -76,9 +75,35 @@ public class Buffer {
 
     private AtomicInteger referenceCounter;
 
-    static {
-        // something depending on architecture to get unsafe
-        //@Suppress...
+
+    static Buffer newOffHeapBuffer(int length) {
+        long address = unsafe.allocateMemory(length);
+        return new Buffer(address, length);
+    }
+
+    public static Buffer newDirectBuffer(int length) {
+        return new Buffer(ByteBuffer.allocateDirect(length));
+    }
+
+    public static Buffer newBuffer(int length) {
+        return new Buffer(ByteBuffer.allocate(length));
+    }
+
+    public static void releaseBuffer(Buffer buffer) {
+        if(buffer.base instanceof byte[]) {
+            // We have nothing to do. Wait until the garbage-collector collects this array object
+        }
+        else {
+            unsafe.freeMemory(buffer.address);
+        }
+    }
+
+
+    Buffer(long address, int length) {
+        this.base = null;
+        this.address = address;
+        this.size = length;
+        this.reference = null;
     }
 
     public Buffer(ByteBuffer bb) {
@@ -106,6 +131,8 @@ public class Buffer {
         this.size = arr.length;
         this.reference = null;
     }
+
+    public int size() { return size; }
 
 
     public byte getByte(int index) {

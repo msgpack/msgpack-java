@@ -1,6 +1,5 @@
 package org.msgpack.core;
 
-import org.msgpack.annotation.Message;
 
 public class Person {
     public int id;
