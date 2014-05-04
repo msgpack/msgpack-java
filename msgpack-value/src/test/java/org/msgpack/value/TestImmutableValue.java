@@ -38,7 +38,11 @@ public final class TestImmutableValue {
         Assert.assertFalse(v.isArrayValue());
         Assert.assertFalse(v.isMapValue());
         Assert.assertFalse(v.isExtendedValue());
+
+        Assert.assertFalse(v.isRawValue());
+        Assert.assertFalse(v.isNumberValue());
     }
+
 
     @Test
     public void testBooleanValue() {
@@ -53,6 +57,9 @@ public final class TestImmutableValue {
         Assert.assertFalse(v.isArrayValue());
         Assert.assertFalse(v.isMapValue());
         Assert.assertFalse(v.isExtendedValue());
+
+        Assert.assertFalse(v.isRawValue());
+        Assert.assertFalse(v.isNumberValue());
     }
 
     @Test
@@ -68,6 +75,9 @@ public final class TestImmutableValue {
         Assert.assertFalse(v.isArrayValue());
         Assert.assertFalse(v.isMapValue());
         Assert.assertFalse(v.isExtendedValue());
+
+        Assert.assertFalse(v.isRawValue());
+        Assert.assertTrue(v.isNumberValue());
     }
 
     @Test
@@ -83,6 +93,9 @@ public final class TestImmutableValue {
         Assert.assertFalse(v.isArrayValue());
         Assert.assertFalse(v.isMapValue());
         Assert.assertFalse(v.isExtendedValue());
+
+        Assert.assertFalse(v.isRawValue());
+        Assert.assertTrue(v.isNumberValue());
     }
 
     @Test
@@ -98,6 +111,9 @@ public final class TestImmutableValue {
         Assert.assertFalse(v.isArrayValue());
         Assert.assertFalse(v.isMapValue());
         Assert.assertFalse(v.isExtendedValue());
+
+        Assert.assertTrue(v.isRawValue());
+        Assert.assertFalse(v.isNumberValue());
     }
 
     @Test
@@ -113,6 +129,9 @@ public final class TestImmutableValue {
         Assert.assertFalse(v.isArrayValue());
         Assert.assertFalse(v.isMapValue());
         Assert.assertFalse(v.isExtendedValue());
+
+        Assert.assertTrue(v.isRawValue());
+        Assert.assertFalse(v.isNumberValue());
     }
 
     @Test
@@ -128,6 +147,9 @@ public final class TestImmutableValue {
         Assert.assertTrue(v.isArrayValue());
         Assert.assertFalse(v.isMapValue());
         Assert.assertFalse(v.isExtendedValue());
+
+        Assert.assertFalse(v.isRawValue());
+        Assert.assertFalse(v.isNumberValue());
 
         Assert.assertTrue("getType should return Array", v.isArrayValue());
         ArrayValue arrayValue = (ArrayValue) v;
@@ -148,6 +170,9 @@ public final class TestImmutableValue {
         Assert.assertFalse(v.isArrayValue());
         Assert.assertTrue(v.isMapValue());
         Assert.assertFalse(v.isExtendedValue());
+
+        Assert.assertFalse(v.isRawValue());
+        Assert.assertFalse(v.isNumberValue());
     }
 
     // TODO: Add test after implementing ExtendedValue
