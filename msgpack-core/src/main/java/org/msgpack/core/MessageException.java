@@ -15,6 +15,8 @@
 //
 package org.msgpack.core;
 
+
+
 public class MessageException extends RuntimeException {
     public MessageException() {
         super();

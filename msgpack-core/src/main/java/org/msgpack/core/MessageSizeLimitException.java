@@ -15,22 +15,20 @@
 //
 package org.msgpack.core;
 
-import java.io.IOException;
+public class MessageSizeLimitException extends MessageException {
+    private final long size;
 
-public class MessageUnpackerException extends IOException {
-    public MessageUnpackerException() {
+    public MessageSizeLimitException(long size) {
         super();
+        this.size = size;
     }
 
-    public MessageUnpackerException(String message) {
+    public MessageSizeLimitException(String message, long size) {
         super(message);
+        this.size = size;
     }
 
-    public MessageUnpackerException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public MessageUnpackerException(Throwable cause) {
-        super(cause);
+    public long getSize() {
+        return size;
     }
 }

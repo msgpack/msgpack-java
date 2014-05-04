@@ -15,52 +15,70 @@
 //
 package org.msgpack.core;
 
-import java.math.BigInteger;
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.CharsetDecoder;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 
-public class MessageUnpacker /*implements Unpacker */{
-    public static class Options {
-        //// upcast raw type  // default:true : getNextType returns RAW?
-        // allow readBinary and readBinaryLength to read str types  // default:true
-        // string decode malformed input action  // default:report
-        // string decode unmappable character action  // default:report        // byte buffer bulk allocation cache size
-        // byte buffer allocator
-        // allow byte buffer reference : advanced option
-        // raw size limit
+class ExtendedTypeHeader {
+    private final int type;
+    private final int length;
+    ExtendedTypeHeader(int type, int length) {
+        this.type = type;
+        this.length = length;
     }
 
+    public int getType() {
+        return type;
+    }
+
+    public int getLength() {
+        return length;
+    }
+}
+
+// TODO impl
+public class MessageUnpacker implements Closeable {
+
+    public static class Options {
+        // allow unpackBinaryHeader to read str format family  // default:true
+        // allow unpackRawStringHeader and unpackString to read bin format family // default: true
+        // string decode malformed input action  // default:report
+        // string decode unmappable character action  // default:report
+
+        // unpackString size limit // default: Integer.MAX_VALUE
+    }
+
+    //
     private static final byte HEAD_BYTE_NEVER_USED_TYPE = (byte) 0xc1;
+
     private static final byte REQUIRE_TO_READ_HEAD_BYTE = HEAD_BYTE_NEVER_USED_TYPE;
     private static final int REQUIRE_TO_READ_SIZE = -1;
 
     private static Charset UTF_8 = Charset.forName("UTF-8");
 
+    private final MessageBufferInput in;
 
-    //
-    // options
-    //
+    private MessageBuffer buffer;
+    private int position;
+    private int nextSize;
 
-    private final MessageUnpackerChannel in;
+    // For storing data at the buffer boundary (except in unpackString)
+    private MessageBuffer extraBuffer;
+    private int extraPosition;
 
-    //private final int maxRawStringSize = Integer.MAX_VALUE;
-    //private final int maxBinarySize = Integer.MAX_VALUE;
-    //private final int maxArraySize = Integer.MAX_VALUE;
-    //private final int maxMapSize = Integer.MAX_VALUE;
-
-    //
-    // state
-    //
-
-    private byte headByte = REQUIRE_TO_READ_HEAD_BYTE;
-
-    private int nextSize = REQUIRE_TO_READ_SIZE;
-
+    // For decoding String in unpackString
     private CharsetDecoder decoder;
+    private int stringLength;
 
-    public MessageUnpacker(MessageUnpackerChannel in) {
+    // internal states
+    private byte head;
+
+
+
+    public MessageUnpacker(MessageBufferInput in) {
         this.in = in;
     }
 
@@ -73,25 +91,6 @@ public class MessageUnpacker /*implements Unpacker */{
         return d;
     }
 
-    private byte getHeadByte() throws IOException {
-        byte b = headByte;
-        if (b == REQUIRE_TO_READ_HEAD_BYTE) {
-            b = headByte = in.readByte();
-            if (b == HEAD_BYTE_NEVER_USED_TYPE) {
-                throw new MessageMalformedFormatException("Invalid format byte: " + b);
-            }
-        }
-        return b;
-    }
-
-    //private byte readHeadByte() throws IOException {
-    //    if (headByte == REQUIRE_TO_READ_HEAD_BYTE) {
-    //        return in.readByte();
-    //    }
-    //    final byte b = in.readByte();
-    //    headByte = REQUIRE_TO_READ_HEAD_BYTE;
-    //    return b;
-    //}
 
     private static ValueType getTypeFromHeadByte(final byte b) throws MessageMalformedFormatException {
         if ((b & 0x80) == 0) { // positive fixint
@@ -110,410 +109,523 @@ public class MessageUnpacker /*implements Unpacker */{
             return ValueType.MAP;
         }
         switch (b & 0xff) {
-        case 0xc0: // nil
-            return ValueType.NIL;
-        case 0xc2: // false
-        case 0xc3: // true
-            return ValueType.BOOLEAN;
-        case 0xc4: // bin 8
-        case 0xc5: // bin 16
-        case 0xc6: // bin 32
-            return ValueType.BINARY;
-        case 0xc7: // ext 8
-        case 0xc8: // ext 16
-        case 0xc9: // ext 32
-            return ValueType.EXTENDED;
-        case 0xca: // float 32
-        case 0xcb: // float 64
-            return ValueType.FLOAT;
-        case 0xcc: // unsigned int 8
-        case 0xcd: // unsigned int 16
-        case 0xce: // unsigned int 32
-        case 0xcf: // unsigned int 64
-        case 0xd0: // signed int 8
-        case 0xd1: // signed int 16
-        case 0xd2: // signed int 32
-        case 0xd3: // signed int 64
-            return ValueType.INTEGER;
-        case 0xd4: // fixext 1
-        case 0xd5: // fixext 2
-        case 0xd6: // fixext 4
-        case 0xd7: // fixext 8
-        case 0xd8: // fixext 16
-            return ValueType.EXTENDED;
-        case 0xd9: // str 8
-        case 0xda: // str 16
-        case 0xdb: // str 32
-            return ValueType.STRING;
-        case 0xdc: // array 16
-        case 0xdd: // array 32
-            return ValueType.ARRAY;
-        case 0xde: // map 16
-        case 0xdf: // map 32
-            return ValueType.MAP;
-        default:
-            throw new MessageMalformedFormatException("Invalid format byte: " + b);
+            case 0xc0: // nil
+                return ValueType.NIL;
+            case 0xc2: // false
+            case 0xc3: // true
+                return ValueType.BOOLEAN;
+            case 0xc4: // bin 8
+            case 0xc5: // bin 16
+            case 0xc6: // bin 32
+                return ValueType.BINARY;
+            case 0xc7: // ext 8
+            case 0xc8: // ext 16
+            case 0xc9: // ext 32
+                return ValueType.EXTENDED;
+            case 0xca: // float 32
+            case 0xcb: // float 64
+                return ValueType.FLOAT;
+            case 0xcc: // unsigned int 8
+            case 0xcd: // unsigned int 16
+            case 0xce: // unsigned int 32
+            case 0xcf: // unsigned int 64
+            case 0xd0: // signed int 8
+            case 0xd1: // signed int 16
+            case 0xd2: // signed int 32
+            case 0xd3: // signed int 64
+                return ValueType.INTEGER;
+            case 0xd4: // fixext 1
+            case 0xd5: // fixext 2
+            case 0xd6: // fixext 4
+            case 0xd7: // fixext 8
+            case 0xd8: // fixext 16
+                return ValueType.EXTENDED;
+            case 0xd9: // str 8
+            case 0xda: // str 16
+            case 0xdb: // str 32
+                return ValueType.STRING;
+            case 0xdc: // array 16
+            case 0xdd: // array 32
+                return ValueType.ARRAY;
+            case 0xde: // map 16
+            case 0xdf: // map 32
+                return ValueType.MAP;
+            default:
+                throw new MessageMalformedFormatException("Invalid format byte: " + b);
         }
     }
 
     public ValueType getNextType() throws IOException {
-        return getTypeFromHeadByte(getHeadByte());
+        return getTypeFromHeadByte(head);
+            }
+
+    public MessageFormat getNextFormat() throws IOException {
+        return null;
+    }
+
+    private byte getHeadByte() throws IOException {
+        byte b = head;
+        if (b == REQUIRE_TO_READ_HEAD_BYTE) {
+            //b = head = in.readByte();
+            if (b == HEAD_BYTE_NEVER_USED_TYPE) {
+                throw new MessageMalformedFormatException("Invalid format byte: " + b);
+            }
+        }
+        return b;
+    }
+
+    public void skipToken() throws IOException {
+
     }
 
     public boolean trySkipNil() throws IOException {
         final byte b = getHeadByte();
         if ((b & 0xff) == 0xc0) {
-            headByte = REQUIRE_TO_READ_HEAD_BYTE;
+            head = REQUIRE_TO_READ_HEAD_BYTE;
             return true;
         }
         return false;
     }
 
-    public void readNil() throws IOException {
+    private static MessageTypeCastException unexpectedHeadByte(final String expectedTypeName, final byte b)
+            throws MessageMalformedFormatException {
+        ValueType type = getTypeFromHeadByte(b);
+        String name = type.name();
+        return new MessageTypeCastException(
+                "Expected " + expectedTypeName + " type but got " +
+                        name.substring(0, 1) + name.substring(1).toLowerCase() + " type");
+    }
+
+    public void unpackNil() throws IOException {
         final byte b = getHeadByte();
         if ((b & 0xff) == 0xc0) {
-            headByte = REQUIRE_TO_READ_HEAD_BYTE;
+            head = REQUIRE_TO_READ_HEAD_BYTE;
             return;
         }
         throw unexpectedHeadByte("Nil", b);
     }
 
-    private static MessageTypeCastException unexpectedHeadByte(final String expectedTypeName, final byte b)
-                throws MessageMalformedFormatException {
-        ValueType type = getTypeFromHeadByte(b);
-        String name = type.name();
-        return new MessageTypeCastException(
-                "Expected " + expectedTypeName + " type but got " +
-                name.substring(0, 1) + name.substring(1).toLowerCase() + " type");
-    }
 
     private final byte readByteAndResetHeadByte() throws IOException {
-        byte v = in.readByte();
-        headByte = REQUIRE_TO_READ_HEAD_BYTE;
+        byte v = in.readByte(position++);
+        head = REQUIRE_TO_READ_HEAD_BYTE;
         return v;
     }
 
     private final short readShortAndResetHeadByte() throws IOException {
-        short v = in.readShort();
-        headByte = REQUIRE_TO_READ_HEAD_BYTE;
+        short v = in.readShort(position++);
+        head = REQUIRE_TO_READ_HEAD_BYTE;
         return v;
     }
 
     private final int readIntAndResetHeadByte() throws IOException {
-        int v = in.readInt();
-        headByte = REQUIRE_TO_READ_HEAD_BYTE;
+        int v = in.readInt(position++);
+        head = REQUIRE_TO_READ_HEAD_BYTE;
         return v;
     }
 
     private final long readLongAndResetHeadByte() throws IOException {
-        long v = in.readLong();
-        headByte = REQUIRE_TO_READ_HEAD_BYTE;
+        long v = in.readLong(position++);
+        head = REQUIRE_TO_READ_HEAD_BYTE;
         return v;
     }
 
     private final float readFloatAndResetHeadByte() throws IOException {
-        float v = in.readFloat();
-        headByte = REQUIRE_TO_READ_HEAD_BYTE;
+        float v = in.readFloat(position++);
+        head = REQUIRE_TO_READ_HEAD_BYTE;
         return v;
     }
 
     private final double readDoubleAndResetHeadByte() throws IOException {
-        double v = in.readDouble();
-        headByte = REQUIRE_TO_READ_HEAD_BYTE;
+        double v = in.readDouble(position++);
+        head = REQUIRE_TO_READ_HEAD_BYTE;
         return v;
     }
 
-    public byte readByte() throws IOException {
+    public boolean unpackBoolean() throws IOException {
+
+    }
+
+    public byte unpackByte() throws IOException {
         final byte b = getHeadByte();
         if ((b & 0x80) == 0) {
             // positive fixint
-            headByte = REQUIRE_TO_READ_HEAD_BYTE;
+            head = REQUIRE_TO_READ_HEAD_BYTE;
             return b;
         }
         if ((b & 0xe0) == 0xe0) {
             // negative fixint
-            headByte = REQUIRE_TO_READ_HEAD_BYTE;
+            head = REQUIRE_TO_READ_HEAD_BYTE;
             return b;
         }
         switch (b & 0xff) {
-        case 0xcc: // unsigned int 8
-            byte u8 = readByteAndResetHeadByte();
-            if (u8 < (byte) 0) {
-                throw overflowU8(u8);
-            }
-            return u8;
-        case 0xcd: // unsigned int 16
-            short u16 = readShortAndResetHeadByte();
-            if (u16 < (short) 0 || u16 > (short) Byte.MAX_VALUE) {
-                throw overflowU16(u16);
-            }
-            return (byte) u16;
-        case 0xce: // unsigned int 32
-            int u32 = readIntAndResetHeadByte();
-            if (u32 < 0 || u32 > (int) Byte.MAX_VALUE) {
-                throw overflowU32(u32);
-            }
-            return (byte) u32;
-        case 0xcf: // unsigned int 64
-            long u64 = readLongAndResetHeadByte();
-            if (u64 < 0L || u64 > (long) Byte.MAX_VALUE) {
-                throw overflowU64(u64);
-            }
-            return (byte) u64;
-        case 0xd0: // signed int 8
-            byte i8 = readByteAndResetHeadByte();
-            return i8;
-        case 0xd1: // signed int 16
-            short i16 = readShortAndResetHeadByte();
-            if (i16 < (short) Byte.MIN_VALUE || i16 > (short) Byte.MAX_VALUE) {
-                throw overflowI16(i16);
-            }
-            return (byte) i16;
-        case 0xd2: // signed int 32
-            int i32 = readIntAndResetHeadByte();
-            if (i32 < (int) Byte.MIN_VALUE || i32 > (int) Byte.MAX_VALUE) {
-                throw overflowI32(i32);
-            }
-            return (byte) i32;
-        case 0xd3: // signed int 64
-            long i64 = readLongAndResetHeadByte();
-            if (i64 < (long) Byte.MIN_VALUE || i64 > (long) Byte.MAX_VALUE) {
-                throw overflowI64(i64);
-            }
-            return (byte) i64;
+            case 0xcc: // unsigned int 8
+                byte u8 = readByteAndResetHeadByte();
+                if (u8 < (byte) 0) {
+                    throw overflowU8(u8);
+                }
+                return u8;
+            case 0xcd: // unsigned int 16
+                short u16 = readShortAndResetHeadByte();
+                if (u16 < (short) 0 || u16 > (short) Byte.MAX_VALUE) {
+                    throw overflowU16(u16);
+                }
+                return (byte) u16;
+            case 0xce: // unsigned int 32
+                int u32 = readIntAndResetHeadByte();
+                if (u32 < 0 || u32 > (int) Byte.MAX_VALUE) {
+                    throw overflowU32(u32);
+                }
+                return (byte) u32;
+            case 0xcf: // unsigned int 64
+                long u64 = readLongAndResetHeadByte();
+                if (u64 < 0L || u64 > (long) Byte.MAX_VALUE) {
+                    throw overflowU64(u64);
+                }
+                return (byte) u64;
+            case 0xd0: // signed int 8
+                byte i8 = readByteAndResetHeadByte();
+                return i8;
+            case 0xd1: // signed int 16
+                short i16 = readShortAndResetHeadByte();
+                if (i16 < (short) Byte.MIN_VALUE || i16 > (short) Byte.MAX_VALUE) {
+                    throw overflowI16(i16);
+                }
+                return (byte) i16;
+            case 0xd2: // signed int 32
+                int i32 = readIntAndResetHeadByte();
+                if (i32 < (int) Byte.MIN_VALUE || i32 > (int) Byte.MAX_VALUE) {
+                    throw overflowI32(i32);
+                }
+                return (byte) i32;
+            case 0xd3: // signed int 64
+                long i64 = readLongAndResetHeadByte();
+                if (i64 < (long) Byte.MIN_VALUE || i64 > (long) Byte.MAX_VALUE) {
+                    throw overflowI64(i64);
+                }
+                return (byte) i64;
         }
         throw unexpectedHeadByte("Integer", b);
+
     }
 
-    public short readShort() throws IOException {
+    public short unpackShort() throws IOException {
         final byte b = getHeadByte();
         if ((b & 0x80) == 0) {
             // positive fixint
-            headByte = REQUIRE_TO_READ_HEAD_BYTE;
+            head = REQUIRE_TO_READ_HEAD_BYTE;
             return (short) b;
         }
         if ((b & 0xe0) == 0xe0) {
             // negative fixint
-            headByte = REQUIRE_TO_READ_HEAD_BYTE;
+            head = REQUIRE_TO_READ_HEAD_BYTE;
             return (short) b;
         }
         switch (b & 0xff) {
-        case 0xcc: // unsigned int 8
-            byte u8 = readByteAndResetHeadByte();
-            return (short) (u8 & 0xff);
-        case 0xcd: // unsigned int 16
-            short u16 = readShortAndResetHeadByte();
-            if (u16 < (short) 0) {
-                throw overflowU16(u16);
-            }
-            return u16;
-        case 0xce: // unsigned int 32
-            int u32 = readIntAndResetHeadByte();
-            if (u32 < 0 || u32 > (int) Short.MAX_VALUE) {
-                throw overflowU32(u32);
-            }
-            return (short) u32;
-        case 0xcf: // unsigned int 64
-            long u64 = readLongAndResetHeadByte();
-            if (u64 < 0L || u64 > (long) Short.MAX_VALUE) {
-                throw overflowU64(u64);
-            }
-            return (short) u64;
-        case 0xd0: // signed int 8
-            byte i8 = readByteAndResetHeadByte();
-            return (short) i8;
-        case 0xd1: // signed int 16
-            short i16 = readShortAndResetHeadByte();
-            return i16;
-        case 0xd2: // signed int 32
-            int i32 = readIntAndResetHeadByte();
-            if (i32 < (int) Short.MIN_VALUE || i32 > (int) Short.MAX_VALUE) {
-                throw overflowI32(i32);
-            }
-            return (short) i32;
-        case 0xd3: // signed int 64
-            long i64 = readLongAndResetHeadByte();
-            if (i64 < (long) Short.MIN_VALUE || i64 > (long) Short.MAX_VALUE) {
-                throw overflowI64(i64);
-            }
-            return (short) i64;
+            case 0xcc: // unsigned int 8
+                byte u8 = readByteAndResetHeadByte();
+                return (short) (u8 & 0xff);
+            case 0xcd: // unsigned int 16
+                short u16 = readShortAndResetHeadByte();
+                if (u16 < (short) 0) {
+                    throw overflowU16(u16);
+                }
+                return u16;
+            case 0xce: // unsigned int 32
+                int u32 = readIntAndResetHeadByte();
+                if (u32 < 0 || u32 > (int) Short.MAX_VALUE) {
+                    throw overflowU32(u32);
+                }
+                return (short) u32;
+            case 0xcf: // unsigned int 64
+                long u64 = readLongAndResetHeadByte();
+                if (u64 < 0L || u64 > (long) Short.MAX_VALUE) {
+                    throw overflowU64(u64);
+                }
+                return (short) u64;
+            case 0xd0: // signed int 8
+                byte i8 = readByteAndResetHeadByte();
+                return (short) i8;
+            case 0xd1: // signed int 16
+                short i16 = readShortAndResetHeadByte();
+                return i16;
+            case 0xd2: // signed int 32
+                int i32 = readIntAndResetHeadByte();
+                if (i32 < (int) Short.MIN_VALUE || i32 > (int) Short.MAX_VALUE) {
+                    throw overflowI32(i32);
+                }
+                return (short) i32;
+            case 0xd3: // signed int 64
+                long i64 = readLongAndResetHeadByte();
+                if (i64 < (long) Short.MIN_VALUE || i64 > (long) Short.MAX_VALUE) {
+                    throw overflowI64(i64);
+                }
+                return (short) i64;
         }
         throw unexpectedHeadByte("Integer", b);
+
     }
 
-    public int readInt() throws IOException {
+    public int unpackInt() throws IOException {
         final byte b = getHeadByte();
         if ((b & 0x80) == 0) {
             // positive fixint
-            headByte = REQUIRE_TO_READ_HEAD_BYTE;
+            head = REQUIRE_TO_READ_HEAD_BYTE;
             return (int) b;
         }
         if ((b & 0xe0) == 0xe0) {
             // negative fixint
-            headByte = REQUIRE_TO_READ_HEAD_BYTE;
+            head = REQUIRE_TO_READ_HEAD_BYTE;
             return (int) b;
         }
         switch (b & 0xff) {
-        case 0xcc: // unsigned int 8
-            byte u8 = readByteAndResetHeadByte();
-            return u8 & 0xff;
-        case 0xcd: // unsigned int 16
-            short u16 = readShortAndResetHeadByte();
-            return u16 & 0xffff;
-        case 0xce: // unsigned int 32
-            int u32 = readIntAndResetHeadByte();
-            if (u32 < 0) {
-                throw overflowU32(u32);
-            }
-            return u32;
-        case 0xcf: // unsigned int 64
-            long u64 = readLongAndResetHeadByte();
-            if (u64 < 0L || u64 > (long) Integer.MAX_VALUE) {
-                throw overflowU64(u64);
-            }
-            return (int) u64;
-        case 0xd0: // signed int 8
-            byte i8 = readByteAndResetHeadByte();
-            return i8;
-        case 0xd1: // signed int 16
-            short i16 = readShortAndResetHeadByte();
-            return i16;
-        case 0xd2: // signed int 32
-            int i32 = readIntAndResetHeadByte();
-            return i32;
-        case 0xd3: // signed int 64
-            long i64 = readLongAndResetHeadByte();
-            if (i64 < (long) Integer.MIN_VALUE || i64 > (long) Integer.MAX_VALUE) {
-                throw overflowI64(i64);
-            }
-            return (int) i64;
+            case 0xcc: // unsigned int 8
+                byte u8 = readByteAndResetHeadByte();
+                return u8 & 0xff;
+            case 0xcd: // unsigned int 16
+                short u16 = readShortAndResetHeadByte();
+                return u16 & 0xffff;
+            case 0xce: // unsigned int 32
+                int u32 = readIntAndResetHeadByte();
+                if (u32 < 0) {
+                    throw overflowU32(u32);
+                }
+                return u32;
+            case 0xcf: // unsigned int 64
+                long u64 = readLongAndResetHeadByte();
+                if (u64 < 0L || u64 > (long) Integer.MAX_VALUE) {
+                    throw overflowU64(u64);
+                }
+                return (int) u64;
+            case 0xd0: // signed int 8
+                byte i8 = readByteAndResetHeadByte();
+                return i8;
+            case 0xd1: // signed int 16
+                short i16 = readShortAndResetHeadByte();
+                return i16;
+            case 0xd2: // signed int 32
+                int i32 = readIntAndResetHeadByte();
+                return i32;
+            case 0xd3: // signed int 64
+                long i64 = readLongAndResetHeadByte();
+                if (i64 < (long) Integer.MIN_VALUE || i64 > (long) Integer.MAX_VALUE) {
+                    throw overflowI64(i64);
+                }
+                return (int) i64;
         }
         throw unexpectedHeadByte("Integer", b);
+
     }
 
-    public long readLong() throws IOException {
+    public long unpackLong() throws IOException {
         final byte b = getHeadByte();
         if ((b & 0x80) == 0) {
             // positive fixint
-            headByte = REQUIRE_TO_READ_HEAD_BYTE;
+            head = REQUIRE_TO_READ_HEAD_BYTE;
             return (long) b;
         }
         if ((b & 0xe0) == 0xe0) {
             // negative fixint
-            headByte = REQUIRE_TO_READ_HEAD_BYTE;
+            head = REQUIRE_TO_READ_HEAD_BYTE;
             return (long) b;
         }
         switch (b & 0xff) {
-        case 0xcc: // unsigned int 8
-            byte u8 = readByteAndResetHeadByte();
-            return (long) (u8 & 0xff);
-        case 0xcd: // unsigned int 16
-            short u16 = readShortAndResetHeadByte();
-            return (long) (u16 & 0xffff);
-        case 0xce: // unsigned int 32
-            int u32 = readIntAndResetHeadByte();
-            if (u32 < 0) {
-                return (long) (u32 & 0x7fffffff) + 0x80000000L;
-            } else {
-                return (long) u32;
-            }
-        case 0xcf: // unsigned int 64
-            long u64 = readLongAndResetHeadByte();
-            if (u64 < 0L) {
-                throw overflowU64(u64);
-            }
-            return u64;
-        case 0xd0: // signed int 8
-            byte i8 = readByteAndResetHeadByte();
-            return (long) i8;
-        case 0xd1: // signed int 16
-            short i16 = readShortAndResetHeadByte();
-            return (long) i16;
-        case 0xd2: // signed int 32
-            int i32 = readIntAndResetHeadByte();
-            return (long) i32;
-        case 0xd3: // signed int 64
-            long i64 = readLongAndResetHeadByte();
-            return i64;
+            case 0xcc: // unsigned int 8
+                byte u8 = readByteAndResetHeadByte();
+                return (long) (u8 & 0xff);
+            case 0xcd: // unsigned int 16
+                short u16 = readShortAndResetHeadByte();
+                return (long) (u16 & 0xffff);
+            case 0xce: // unsigned int 32
+                int u32 = readIntAndResetHeadByte();
+                if (u32 < 0) {
+                    return (long) (u32 & 0x7fffffff) + 0x80000000L;
+                } else {
+                    return (long) u32;
+                }
+            case 0xcf: // unsigned int 64
+                long u64 = readLongAndResetHeadByte();
+                if (u64 < 0L) {
+                    throw overflowU64(u64);
+                }
+                return u64;
+            case 0xd0: // signed int 8
+                byte i8 = readByteAndResetHeadByte();
+                return (long) i8;
+            case 0xd1: // signed int 16
+                short i16 = readShortAndResetHeadByte();
+                return (long) i16;
+            case 0xd2: // signed int 32
+                int i32 = readIntAndResetHeadByte();
+                return (long) i32;
+            case 0xd3: // signed int 64
+                long i64 = readLongAndResetHeadByte();
+                return i64;
         }
         throw unexpectedHeadByte("Integer", b);
+
     }
 
-    public BigInteger readBigInteger() throws IOException {
+    public BigInteger unpackBigInteger() throws IOException {
         final byte b = getHeadByte();
         if ((b & 0x80) == 0) {
             // positive fixint
-            headByte = REQUIRE_TO_READ_HEAD_BYTE;
+            head = REQUIRE_TO_READ_HEAD_BYTE;
             return BigInteger.valueOf((long) b);
         }
         if ((b & 0xe0) == 0xe0) {
             // negative fixint
-            headByte = REQUIRE_TO_READ_HEAD_BYTE;
+            head = REQUIRE_TO_READ_HEAD_BYTE;
             return BigInteger.valueOf((long) b);
         }
         switch (b & 0xff) {
-        case 0xcc: // unsigned int 8
-            byte u8 = readByteAndResetHeadByte();
-            return BigInteger.valueOf((long) (u8 & 0xff));
-        case 0xcd: // unsigned int 16
-            short u16 = readShortAndResetHeadByte();
-            return BigInteger.valueOf((long) (u16 & 0xffff));
-        case 0xce: // unsigned int 32
-            int u32 = readIntAndResetHeadByte();
-            if (u32 < 0) {
-                return BigInteger.valueOf((long) (u32 & 0x7fffffff) + 0x80000000L);
-            } else {
-                return BigInteger.valueOf((long) u32);
-            }
-        case 0xcf: // unsigned int 64
-            long u64 = readLongAndResetHeadByte();
-            if (u64 < 0L) {
-                BigInteger bi = BigInteger.valueOf(u64 + Long.MAX_VALUE + 1L).setBit(63);
-                return bi;
-            } else {
-                return BigInteger.valueOf(u64);
-            }
-        case 0xd0: // signed int 8
-            byte i8 = readByteAndResetHeadByte();
-            return BigInteger.valueOf((long) i8);
-        case 0xd1: // signed int 16
-            short i16 = readShortAndResetHeadByte();
-            return BigInteger.valueOf((long) i16);
-        case 0xd2: // signed int 32
-            int i32 = readIntAndResetHeadByte();
-            return BigInteger.valueOf((long) i32);
-        case 0xd3: // signed int 64
-            long i64 = readLongAndResetHeadByte();
-            return BigInteger.valueOf(i64);
+            case 0xcc: // unsigned int 8
+                byte u8 = readByteAndResetHeadByte();
+                return BigInteger.valueOf((long) (u8 & 0xff));
+            case 0xcd: // unsigned int 16
+                short u16 = readShortAndResetHeadByte();
+                return BigInteger.valueOf((long) (u16 & 0xffff));
+            case 0xce: // unsigned int 32
+                int u32 = readIntAndResetHeadByte();
+                if (u32 < 0) {
+                    return BigInteger.valueOf((long) (u32 & 0x7fffffff) + 0x80000000L);
+                } else {
+                    return BigInteger.valueOf((long) u32);
+                }
+            case 0xcf: // unsigned int 64
+                long u64 = readLongAndResetHeadByte();
+                if (u64 < 0L) {
+                    BigInteger bi = BigInteger.valueOf(u64 + Long.MAX_VALUE + 1L).setBit(63);
+                    return bi;
+                } else {
+                    return BigInteger.valueOf(u64);
+                }
+            case 0xd0: // signed int 8
+                byte i8 = readByteAndResetHeadByte();
+                return BigInteger.valueOf((long) i8);
+            case 0xd1: // signed int 16
+                short i16 = readShortAndResetHeadByte();
+                return BigInteger.valueOf((long) i16);
+            case 0xd2: // signed int 32
+                int i32 = readIntAndResetHeadByte();
+                return BigInteger.valueOf((long) i32);
+            case 0xd3: // signed int 64
+                long i64 = readLongAndResetHeadByte();
+                return BigInteger.valueOf(i64);
         }
         throw unexpectedHeadByte("Integer", b);
     }
 
-    public float readFloat() throws IOException {
+    public float unpackFloat() throws IOException {
         final byte b = getHeadByte();
         switch (b & 0xff) {
-        case 0xca: // float
-            float fv = readFloatAndResetHeadByte();
-            return fv;
-        case 0xcb: // double
-            double dv = readFloatAndResetHeadByte();
-            return (float) dv;
+            case 0xca: // float
+                float fv = readFloatAndResetHeadByte();
+                return fv;
+            case 0xcb: // double
+                double dv = readFloatAndResetHeadByte();
+                return (float) dv;
+        }
+        throw unexpectedHeadByte("Float", b);
+
+    }
+
+    public double unpackDouble() throws IOException {
+        final byte b = getHeadByte();
+        switch (b & 0xff) {
+            case 0xca: // float
+                float fv = readFloatAndResetHeadByte();
+                return (double) fv;
+            case 0xcb: // double
+                double dv = readFloatAndResetHeadByte();
+                return dv;
         }
         throw unexpectedHeadByte("Float", b);
     }
 
-    public double readDouble() throws IOException {
+    public String unpackString() throws IOException {
+        // unpackRawStringHeader
+        // ..
+
+        // TODO cache CharacterBuffer
+        ByteBuffer bb = readRawString();
+        return getCharsetDecoder().decode(bb).toString();
+    }
+
+
+    public int unpackArrayHeader() throws IOException {
+        final byte b = getHeadByte();
+        if ((b & 0xf0) == 0x90) { // fixarray
+            head = REQUIRE_TO_READ_HEAD_BYTE;
+            return b & 0x0f;
+        }
+        switch (b & 0xff) {
+            case 0xdc: // array 16
+                return getNextLength16();
+            case 0xdd: // array 32
+                return getNextLength32();
+        }
+        throw unexpectedHeadByte("Array", b);
+    }
+
+    public int unpackMapHeader() throws IOException {
+        final byte ab = getHeadByte();
+        if ((b & 0xf0) == 0x80) { // fixmap
+            head = REQUIRE_TO_READ_HEAD_BYTE;
+            return b & 0x0f;
+        }
+        switch (b & 0xff) {
+            case 0xde: // map 16
+                return getNextLength16();
+            case 0xdf: // map 32
+                return getNextLength32();
+        }
+        throw unexpectedHeadByte("Map", b);
+    }
+
+    public ExtendedTypeHeader unpackExtendedTypeHeader() throws IOException {
+
+    }
+
+    public int unpackRawStringHeader() throws IOException {
+        final byte b = getHeadByte();
+        if ((b & 0xe0) == 0xa0) { // FixRaw
+            return b & 0x1f;
+        }
+        switch (b & 0xff) {
+            case 0xd9: // str 8
+                return getNextLength8();
+            case 0xda: // str 16
+                return getNextLength16();
+            case 0xdb: // str 32
+                return getNextLength32();
+        }
+        throw unexpectedHeadByte("String", b);
+    }
+    public int unpackBinaryHeader() throws IOException {
+        // TODO option to allow str format family
         final byte b = getHeadByte();
         switch (b & 0xff) {
-        case 0xca: // float
-            float fv = readFloatAndResetHeadByte();
-            return (double) fv;
-        case 0xcb: // double
-            double dv = readFloatAndResetHeadByte();
-            return dv;
+            case 0xc4: // bin 8
+                return getNextLength8();
+            case 0xc5: // bin 16
+                return getNextLength16();
+            case 0xc6: // bin 32
+                return getNextLength32();
         }
-        throw unexpectedHeadByte("Float", b);
+        throw unexpectedHeadByte("Binary", b);
     }
+
+    public void readPayload(ByteBuffer dst) throws IOException {
+
+    }
+
+    public void readPayload(byte[] dst, int off, int len) throws IOException {
+
+    }
+
+    // TODO returns a buffer reference to the payload (zero-copy)
+    // public long readPayload(...)
 
 
     private static MessageTypeIntegerOverflowException overflowU8(final byte u8) {
@@ -551,9 +663,9 @@ public class MessageUnpacker /*implements Unpacker */{
         return new MessageTypeIntegerOverflowException(bi);
     }
 
-    private static MessageTypeSizeOverflowException overflowU32Size(final int u32) {
+    private static MessageSizeLimitException overflowU32Size(final int u32) {
         final long lv = (long) (u32 & 0x7fffffff) + 0x80000000L;
-        return new MessageTypeSizeOverflowException(lv);
+        return new MessageSizeLimitException(lv);
     }
 
 
@@ -584,107 +696,8 @@ public class MessageUnpacker /*implements Unpacker */{
         return nextSize = u32;
     }
 
-    private int getRawStringLength() throws IOException {
-        final byte b = getHeadByte();
-        if ((b & 0xe0) == 0xa0) { // FixRaw
-            return b & 0x1f;
-        }
-        switch (b & 0xff) {
-        case 0xd9: // str 8
-            return getNextLength8();
-        case 0xda: // str 16
-            return getNextLength16();
-        case 0xdb: // str 32
-            return getNextLength32();
-        }
-        throw unexpectedHeadByte("String", b);
-    }
-
-    public int readRawStringLength() throws IOException {
-        int size = getRawStringLength();
-        nextSize = REQUIRE_TO_READ_SIZE;
-        return size;
-    }
-
-    private int getBinaryLength() throws IOException {
-        // TODO option to allow str format family
-        final byte b = getHeadByte();
-        switch (b & 0xff) {
-        case 0xc4: // bin 8
-            return getNextLength8();
-        case 0xc5: // bin 16
-            return getNextLength16();
-        case 0xc6: // bin 32
-            return getNextLength32();
-        }
-        throw unexpectedHeadByte("Binary", b);
-    }
-
-    public int readBinaryLength() throws IOException {
-        int size = getBinaryLength();
-        nextSize = REQUIRE_TO_READ_SIZE;
-        return size;
-    }
-
-    private int getArrayHeader() throws IOException {
-        final byte b = getHeadByte();
-        if ((b & 0xf0) == 0x90) { // fixarray
-            headByte = REQUIRE_TO_READ_HEAD_BYTE;
-            return b & 0x0f;
-        }
-        switch (b & 0xff) {
-        case 0xdc: // array 16
-            return getNextLength16();
-        case 0xdd: // array 32
-            return getNextLength32();
-        }
-        throw unexpectedHeadByte("Array", b);
-    }
-
-    public int readArrayHeader() throws IOException {
-        int size = getArrayHeader();
-        nextSize = REQUIRE_TO_READ_SIZE;
-        return size;
-    }
-
-    private int getMapHeader() throws IOException {
-        final byte b = getHeadByte();
-        if ((b & 0xf0) == 0x80) { // fixmap
-            headByte = REQUIRE_TO_READ_HEAD_BYTE;
-            return b & 0x0f;
-        }
-        switch (b & 0xff) {
-        case 0xde: // map 16
-            return getNextLength16();
-        case 0xdf: // map 32
-            return getNextLength32();
-        }
-        throw unexpectedHeadByte("Map", b);
-    }
-
-    public int readMapHeader() throws IOException {
-        int size = getMapHeader();
-        nextSize = REQUIRE_TO_READ_SIZE;
-        return size;
-    }
-
-    public String readString() throws IOException {
-        // TODO cache CharacterBuffer
-        ByteBuffer bb = readRawString();
-        return getCharsetDecoder().decode(bb).toString();
-    }
-
-    public ByteBuffer readRawString() throws IOException {
-        final int size = getRawStringLength();
-        ByteBuffer bb =  in.readAll(size);
-        nextSize = REQUIRE_TO_READ_SIZE;
-        return bb;
-    }
-
-    public ByteBuffer readBinary() throws IOException {
-        final int size = getBinaryLength();
-        ByteBuffer bb = in.readAll(size);
-        nextSize = REQUIRE_TO_READ_SIZE;
-        return bb;
+    @Override
+    public void close() throws IOException {
+        // TODO
     }
 }

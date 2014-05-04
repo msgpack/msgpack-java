@@ -15,6 +15,9 @@
 //
 package org.msgpack.core;
 
+/**
+ * Represents an failure when wrong unpacking call
+ */
 public class MessageTypeException extends MessageException {
     public MessageTypeException() {
         super();

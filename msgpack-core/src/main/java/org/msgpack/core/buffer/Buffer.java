@@ -147,10 +147,6 @@ public class Buffer {
         return unsafe.getShort(base, address + index);
     }
 
-    public char getChar(int index){
-        return unsafe.getChar(base, address + index);
-    }
-
     public int getInt(int index) {
         return unsafe.getInt(base, address + index);
     }

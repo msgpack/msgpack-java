@@ -17,7 +17,7 @@ package org.msgpack.core;
 
 import java.math.BigInteger;
 
-public class MessageTypeIntegerOverflowException extends MessageTypeConvertException {
+public class MessageTypeIntegerOverflowException extends MessageTypeException {
     private final BigInteger bigInteger;
 
     public MessageTypeIntegerOverflowException(BigInteger bigInteger) {

@@ -17,14 +17,21 @@ package org.msgpack.core;
 
 import java.nio.charset.CharacterCodingException;
 
-public class MessageTypeStringCodingException extends MessageTypeConvertException {
-    public MessageTypeStringCodingException(String message, Throwable cause) {
+/**
+ *
+ */
+public class MessageStringCodingException extends MessageException {
+    public MessageStringCodingException(String message, CharacterCodingException cause) {
         super(message, cause);
     }
 
-    public MessageTypeStringCodingException(Throwable cause) {
+    public MessageStringCodingException(CharacterCodingException cause) {
         super(cause);
     }
 
-    // TODO override getCause() to return CharacterCodingException
+    @Override
+    public CharacterCodingException getCause() {
+        return (CharacterCodingException) super.getCause();
+    }
+
 }
