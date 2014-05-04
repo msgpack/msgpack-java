@@ -1,8 +1,8 @@
 package org.msgpack.core;
 
-import org.msgpack.annotation.Message;
+//import org.msgpack.annotation.Message;
 
-@Message
+//@Message
 public class Person {
     public int id;
     public String name;
