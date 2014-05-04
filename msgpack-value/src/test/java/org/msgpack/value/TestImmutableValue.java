@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 
 public final class TestImmutableValue {
-    EnumSet<ValueType> valueTypes = EnumSet.allOf(ValueType.class);
 
     @Test
     public void testNilValue() {
@@ -87,22 +86,25 @@ public final class TestImmutableValue {
         Assert.assertTrue(v.isMapValue());
     }
 
+    // TODO: Add test after implementing ExtendedValue
     //@Test
     //public void testExtendedValue() {
     //    Value v = ValueFactory.createExtendedValue();
-    //    assertValueType(ValueType.MAP, v.getType());
+    //    assertValueType(ValueType.EXTENDED, v.getType());
     //}
 
     public void assertValueType(ValueType expected, ValueType actual) {
-        for (ValueType type: valueTypes) {
-            if (expected.equals(type)) {
-                Assert.assertEquals("getType should return " + expected,
-                        expected, actual);
-            } else {
-                Assert.assertNotSame("getType should not return " + expected,
-                        type, actual);
-            }
-        }
+        Assert.assertEquals("getType should return " + expected,
+                expected, actual);
+
+        Assert.assertEquals(expected.isBooleanType(), actual.isBooleanType());
+        Assert.assertEquals(expected.isIntegerType(), actual.isIntegerType());
+        Assert.assertEquals(expected.isFloatType(), actual.isFloatType());
+        Assert.assertEquals(expected.isStringType(), actual.isStringType());
+        Assert.assertEquals(expected.isBinaryType(), actual.isBinaryType());
+        Assert.assertEquals(expected.isArrayType(), actual.isArrayType());
+        Assert.assertEquals(expected.isMapType(), actual.isMapType());
+        Assert.assertEquals(expected.isExtendedType(), actual.isExtendedType());
     }
 
 }
