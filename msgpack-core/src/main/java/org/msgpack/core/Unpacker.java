@@ -20,48 +20,68 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
 
+class ExtendedTypeHeader {
+    private final int type;
+    private final int length;
+    ExtendedTypeHeader(int type, int length) {
+        this.type = type;
+        this.length = length;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public int getLength() {
+        return length;
+    }
+}
+
 public interface Unpacker extends Closeable {
+
     public ValueType getNextType() throws IOException;
+
+    public MessageFormat getNextFormat() throws IOException;
+
 
     public void skipToken() throws IOException;
 
     public boolean trySkipNil() throws IOException;
 
-    public void readNil() throws IOException;
+    public void unpackNil() throws IOException;
 
-    public boolean readBoolean() throws IOException;
+    public boolean unpackBoolean() throws IOException;
 
-    public byte readByte() throws IOException;
+    public byte unpackByte() throws IOException;
 
-    public short readShort() throws IOException;
+    public short unpackShort() throws IOException;
 
-    public int readInt() throws IOException;
+    public int unpackInt() throws IOException;
 
-    public long readLong() throws IOException;
+    public long unpackLong() throws IOException;
 
-    public BigInteger readBigInteger() throws IOException;
+    public BigInteger unpackBigInteger() throws IOException;
 
-    public float readFloat() throws IOException;
+    public float unpackFloat() throws IOException;
 
-    public double readDouble() throws IOException;
+    public double unpackDouble() throws IOException;
 
-    public String readString() throws IOException;
+    public String unpackString() throws IOException;
 
-    public ByteBuffer readRawString() throws IOException;
 
-    public ByteBuffer readBinary() throws IOException;
+    public int unpackArrayHeader() throws IOException;
 
-    public int readArrayHeader() throws IOException;
+    public int unpackMapHeader() throws IOException;
 
-    public int readMapHeader() throws IOException;
+    public ExtendedTypeHeader unpackExtendedTypeHeader() throws IOException;
 
-    // TODO ext type
+    public int unpackRawStringHeader() throws  IOException;
+    public int unpackBinaryHeader() throws IOException;
 
-    public int readRawStringLength() throws IOException;
+    public void readPayload(ByteBuffer dst) throws IOException;
+    public void readPayload(byte[] dst, int off, int len) throws IOException;
 
-    public int readBinaryLength() throws IOException;
+    // returns a buffer reference to the payload (zero-copy)
+    // public long readPayload(...)
 
-    public void rawRead(ByteBuffer dst) throws IOException;
-
-    public void rawRead(byte[] b, int off, int len) throws IOException;
 }
