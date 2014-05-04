@@ -7,6 +7,7 @@ branches:
   only:
     - master
     - develop
+    - v07
 notifications:
   email:
     - muga.nishizawa@gmail.com
