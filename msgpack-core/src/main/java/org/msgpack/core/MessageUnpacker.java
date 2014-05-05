@@ -22,22 +22,6 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
-class ExtendedTypeHeader {
-    private final int type;
-    private final int length;
-    ExtendedTypeHeader(int type, int length) {
-        this.type = type;
-        this.length = length;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public int getLength() {
-        return length;
-    }
-}
 
 // TODO impl
 public class MessageUnpacker implements Closeable {
@@ -66,7 +50,7 @@ public class MessageUnpacker implements Closeable {
     private int nextSize;
 
     // For storing data at the buffer boundary (except in unpackString)
-    private MessageBuffer extraBuffer;
+    private OldMessageBuffer extraBuffer;
     private int extraPosition;
 
     // For decoding String in unpackString
@@ -207,43 +191,49 @@ public class MessageUnpacker implements Closeable {
 
 
     private final byte readByteAndResetHeadByte() throws IOException {
-        byte v = in.readByte(position++);
+        byte v = buffer.getByte(position++);
         head = REQUIRE_TO_READ_HEAD_BYTE;
         return v;
     }
 
     private final short readShortAndResetHeadByte() throws IOException {
-        short v = in.readShort(position++);
+        short v = buffer.getShort(position++);
         head = REQUIRE_TO_READ_HEAD_BYTE;
         return v;
     }
 
     private final int readIntAndResetHeadByte() throws IOException {
-        int v = in.readInt(position++);
+        int v = buffer.getInt(position++);
         head = REQUIRE_TO_READ_HEAD_BYTE;
         return v;
     }
 
     private final long readLongAndResetHeadByte() throws IOException {
-        long v = in.readLong(position++);
+        long v = buffer.getLong(position++);
         head = REQUIRE_TO_READ_HEAD_BYTE;
         return v;
     }
 
     private final float readFloatAndResetHeadByte() throws IOException {
-        float v = in.readFloat(position++);
+        float v = buffer.getFloat(position++);
         head = REQUIRE_TO_READ_HEAD_BYTE;
         return v;
     }
 
     private final double readDoubleAndResetHeadByte() throws IOException {
-        double v = in.readDouble(position++);
+        double v = buffer.getDouble(position++);
         head = REQUIRE_TO_READ_HEAD_BYTE;
         return v;
     }
 
     public boolean unpackBoolean() throws IOException {
+        final byte b = getHeadByte();
+        if(b == 0xc2)
+            return false;
+        else if(b == 0xc3)
+            return true;
 
+        throw unexpectedHeadByte("boolean", b);
     }
 
     public byte unpackByte() throws IOException {
@@ -548,8 +538,9 @@ public class MessageUnpacker implements Closeable {
         // ..
 
         // TODO cache CharacterBuffer
-        ByteBuffer bb = readRawString();
-        return getCharsetDecoder().decode(bb).toString();
+        //ByteBuffer bb = readRawString();
+        //return getCharsetDecoder().decode(bb).toString();
+        return null;
     }
 
 
@@ -569,7 +560,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     public int unpackMapHeader() throws IOException {
-        final byte ab = getHeadByte();
+        final byte b = getHeadByte();
         if ((b & 0xf0) == 0x80) { // fixmap
             head = REQUIRE_TO_READ_HEAD_BYTE;
             return b & 0x0f;
@@ -583,8 +574,9 @@ public class MessageUnpacker implements Closeable {
         throw unexpectedHeadByte("Map", b);
     }
 
-    public ExtendedTypeHeader unpackExtendedTypeHeader() throws IOException {
-
+    public MessagePack.ExtendedTypeHeader unpackExtendedTypeHeader() throws IOException {
+        // TODO
+        return null;
     }
 
     public int unpackRawStringHeader() throws IOException {

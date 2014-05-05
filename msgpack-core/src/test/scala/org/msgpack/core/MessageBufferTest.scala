@@ -1,6 +1,5 @@
-package org.msgpack.core.buffer
+package org.msgpack.core
 
-import org.msgpack.core.MessagePackSpec
 import java.nio.ByteBuffer
 import xerial.core.log.LogLevel
 import scala.util.Random
@@ -9,24 +8,24 @@ object Test {
   val b = ByteBuffer.allocate(10)
   b.getInt(0)
 
-  val m = Buffer.newBuffer(10)
+  val m = MessageBuffer.newBuffer(10)
   m.getInt(0)
 }
 
 /**
  * Created on 2014/05/01.
  */
-class BufferTest extends MessagePackSpec {
+class MessageBufferTest extends MessagePackSpec {
 
   "Buffer" should {
     "getInt" in {
 
-      val N = 100000000
+      val N = 10000000
       val M = 64 * 1024 * 1024
 
-      val ubb = Buffer.newBuffer(M)
-      val udb = Buffer.newDirectBuffer(M)
-      val bb = ByteBuffer.allocate(M)
+      val ub = MessageBuffer.newBuffer(M)
+      val ud = MessageBuffer.newDirectBuffer(M)
+      val hb = ByteBuffer.allocate(M)
       val db = ByteBuffer.allocateDirect(M)
 
       def bench(f: Int => Unit) {
@@ -52,20 +51,15 @@ class BufferTest extends MessagePackSpec {
       info(f"Reading buffers (of size:${M}%,d) ${N}%,d x $rep times")
       time("sequential getInt", repeat = rep, logLevel = LogLevel.INFO) {
         block("unsafe array") {
-          var i = 0
-          while(i < N) {
-            ubb.getInt((i * 4) % M)
-            i += 1
-          }
-
+          bench(ub getInt _)
         }
 
         block("unsafe direct") {
-          bench(udb getInt _)
+          bench(ud getInt _)
         }
 
         block("allocate") {
-          bench(bb getInt _)
+          bench(hb getInt _)
         }
 
         block("allocateDirect") {
@@ -75,15 +69,15 @@ class BufferTest extends MessagePackSpec {
 
       time("random getInt", repeat = rep, logLevel = LogLevel.INFO) {
         block("unsafe array") {
-          randomBench(ubb getInt _)
+          randomBench(ub getInt _)
         }
 
         block("unsafe direct") {
-          randomBench(udb getInt _)
+          randomBench(ud getInt _)
         }
 
         block("allocate") {
-          randomBench(bb getInt _)
+          randomBench(hb getInt _)
         }
 
         block("allocateDirect") {

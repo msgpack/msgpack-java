@@ -1,735 +1,232 @@
-//
-// MessagePack for Java
-//
-//    Licensed under the Apache License, Version 2.0 (the "License");
-//    you may not use this file except in compliance with the License.
-//    You may obtain a copy of the License at
-//
-//        http://www.apache.org/licenses/LICENSE-2.0
-//
-//    Unless required by applicable law or agreed to in writing, software
-//    distributed under the License is distributed on an "AS IS" BASIS,
-//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//    See the License for the specific language governing permissions and
-//    limitations under the License.
-//
 package org.msgpack.core;
 
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Iterator;
-import java.math.BigInteger;
-import java.io.IOException;
-import java.io.EOFException;
+import sun.misc.Unsafe;
+import sun.nio.ch.DirectBuffer;
+
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static sun.misc.Unsafe.ARRAY_BYTE_BASE_OFFSET;
+import static sun.misc.Unsafe.ARRAY_BYTE_INDEX_SCALE;
 
 /**
  *
- *   <table>
- *     <tr>
- *       <th>Category</th><th>Producer</th><th>Consumer</th>
- *     </tr>
- *
- *     <tr>
- *       <th rowspan="1">At-most bulk IO</th>
- *       <td>write(src)</td><td>read(dst)</td>
- *     </tr>
- *
- *     <tr>
- *       <th rowspan="2">All bulk IO</th>
- *       <td>writeAll(src)</td><td>readAll(dst)</td>
- *     </tr>
- *     <tr><td>writeAll(b, off, len)</td><td>readAll(size)</td></tr>
- *
- *     <tr>
- *       <th rowspan="1">Direct transfer bulk IO</th>
- *       <td>transferFrom(size, channel)</td><td>transferTo(size, channel)</td>
- *     </tr>
- *     <td></td><td>transferAllTo(size, channel)</td>
- *
- *     <tr>
- *       <th rowspan="6">Composite primitive type IO</th>
- *       <td>writeByte(v)</td><td>readByte()</td>
- *     </tr>
- *     <tr><td>writeShort(v)</td><td>readShort()</td></tr>
- *     <tr><td>writeInt(v)</td><td>readInt()</td></tr>
- *     <tr><td>writeLong(v)</td><td>readLong()</td></tr>
- *     <tr><td>writeFloat(v)</td><td>readFloat()</td></tr>
- *     <tr><td>writeDouble(v)</td><td>readDouble()</td></tr>
- *
- *     <tr>
- *       <th rowspan="6">Primitive type IO</th>
- *       <td>writeByteAndByte(v)</td><td>
- *     </tr>
- *     <tr><td>writeByteAndShort(v)</td><td></tr>
- *     <tr><td>writeByteAndInt(v)</td><td></tr>
- *     <tr><td>writeByteAndLong(v)</td><td></tr>
- *     <tr><td>writeByteAndFloat(v)</td><td></tr>
- *     <tr><td>writeByteAndDouble(v)</td><td></tr>
- *
- *     <tr>
- *       <th rowspan="2">Zero-copy IO</th>
- *       <td rowspan="2">add(bb)</td><td>get()</td>
- *     </tr>
- *     <tr><td>remove()</td></tr>
- *   </table>
- *
  */
-public class MessageBuffer implements MessagePackerChannel, MessageUnpackerChannel {
-    public static class Builder {
-        private ReadableByteChannel inputChannel = null;
-        private WritableByteChannel outputChannel = null;
-        private int writeBufferChunkSize = 1024;
-        private int readReferenceThreshold = 1024;
+public class MessageBuffer {
 
-        public MessageBuffer build() {
-            return new MessageBuffer(this);
-        }
+    static final Unsafe unsafe;
+    static final MethodHandle newByteBuffer;
 
-        public ReadableByteChannel getInputChannel() {
-            return inputChannel;
-        }
-
-        public void setInputChannel(ReadableByteChannel channel) {
-            this.inputChannel = channel;
-        }
-
-        public Builder withInputChannel(ReadableByteChannel channel) {
-            setInputChannel(channel);
-            return this;
-        }
-
-        public WritableByteChannel getOutputChannel() {
-            return outputChannel;
-        }
-
-        public void setOutputChannel(WritableByteChannel channel) {
-            this.outputChannel = channel;
-        }
-
-        public Builder withOutputChannel(WritableByteChannel channel) {
-            setOutputChannel(channel);
-            return this;
-        }
-
-        public int getReadReferenceThreshold() {
-            return readReferenceThreshold;
-        }
-
-        public void setReadReferenceThreshold(int size) {
-            this.readReferenceThreshold = size;
-        }
-
-        public Builder withReadReferenceThreshold(int size) {
-            setReadReferenceThreshold(size);
-            return this;
-        }
-
-        public int getWriteBufferChunkSize() {
-            return writeBufferChunkSize;
-        }
-
-        public void setWriteBufferChunkSize(int size) {
-            this.writeBufferChunkSize = size;
-        }
-
-        public Builder withWriteBufferChunkSize(int size) {
-            setWriteBufferChunkSize(size);
-            return this;
-        }
-    }
-
-    private static final class Chunk {
-        ByteBuffer bb;
-        boolean reusable;
-
-        Chunk(ByteBuffer bb, boolean reusable) {
-            this.bb = bb;
-            this.reusable = reusable;
-        }
-    }
-
-    private final LinkedList<Chunk> list = new LinkedList<Chunk>();
-    private ByteBuffer lastWritableBuffer = null;
-    private int lastWritableBufferReadPosition = 0;
-
-    private final byte[] castBuffer = new byte[8];
-    private final ByteBuffer castByteBuffer = ByteBuffer.wrap(castBuffer);
-
-    protected ReadableByteChannel inputChannel;
-    protected WritableByteChannel outputChannel;
-
-    private int writeBufferChunkSize;
-    private int readReferenceThreshold;
-
-    // TODO configurable buffer allocator
-
-    public MessageBuffer() {
-        this(new Builder());
-    }
-
-    MessageBuffer(Builder builder) {
-        this.inputChannel = builder.getInputChannel();
-        this.outputChannel = builder.getOutputChannel();
-        this.writeBufferChunkSize = builder.getWriteBufferChunkSize();
-        this.readReferenceThreshold = builder.getReadReferenceThreshold();
-    }
-
-    public void close() throws IOException {
-        if (inputChannel != null) {
-            inputChannel.close();
-        }
-        if (outputChannel != null) {
-            if (outputChannel.isOpen()) {
-                flush();
+    static {
+        try {
+            // Fetch theUnsafe object for Orackle JDK and OpenJDK
+            Field field = Unsafe.class.getDeclaredField("theUnsafe");
+            field.setAccessible(true);
+            unsafe = (Unsafe) field.get(null);
+            if (unsafe == null) {
+                throw new RuntimeException("Unsafe is unavailable");
             }
-            outputChannel.close();
-        }
-    }
+            // TODO Finding Unsafe instance for Android JVM
 
-    public boolean isOpen() {
-        if (inputChannel != null && !inputChannel.isOpen()) {
-            return false;
-        }
-        if (outputChannel != null && !outputChannel.isOpen()) {
-            return false;
-        }
-        return true;
-    }
-
-    private static int transferByteBuffer(ByteBuffer src, ByteBuffer dst) {
-        int pos = dst.position();
-
-        int srcrem = src.remaining();
-        int dstrem = dst.remaining();
-        if (dstrem < srcrem) {
-            int lim = src.limit();
-            try {
-                src.limit(src.position() + dstrem);
-                dst.put(src);
-            } finally {
-                src.limit(lim);
+            // Make sure the VM thinks bytes are only one byte wide
+            if (sun.misc.Unsafe.ARRAY_BYTE_INDEX_SCALE != 1) {
+                throw new IllegalStateException("Byte array index scale must be 1, but is " + ARRAY_BYTE_INDEX_SCALE);
             }
+
+            // Fetch a method handle for the hidden constructor for DirectByteBuffer
+            Class<?> directByteBufferClass = ClassLoader.getSystemClassLoader().loadClass("java.nio.DirectByteBuffer");
+            Constructor<?> constructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
+            constructor.setAccessible(true);
+            newByteBuffer = MethodHandles.lookup().unreflectConstructor(constructor).asType(MethodType.methodType(ByteBuffer.class, long.class, int.class, Object.class));
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     * Base object for resolving the relative address of the raw byte array.
+     * If base == null, the address value is a raw memory address
+     */
+    private final Object base;
+
+    /**
+     * Head address of the underlying memory. If base is null, the address is a direct memory address, and if not,
+     * it is the relative address within an array object (base)
+     */
+    private final long address;
+
+    /**
+     * Size of the underlying memory
+     */
+    private final int size;
+
+    /**
+     * Reference is used to hold a reference to an object that holds the underlying memory so that it cannot be
+     * released by the garbage collector.
+     */
+    private final ByteBuffer reference;
+
+    private AtomicInteger referenceCounter;
+
+
+    static MessageBuffer newOffHeapBuffer(int length) {
+        long address = unsafe.allocateMemory(length);
+        return new MessageBuffer(address, length);
+    }
+
+    public static MessageBuffer newDirectBuffer(int length) {
+        return new MessageBuffer(ByteBuffer.allocateDirect(length));
+    }
+
+    public static MessageBuffer newBuffer(int length) {
+        return new MessageBuffer(ByteBuffer.allocate(length));
+    }
+
+    public static void releaseBuffer(MessageBuffer buffer) {
+        if(buffer.base instanceof byte[]) {
+            // We have nothing to do. Wait until the garbage-collector collects this array object
+        }
+        else {
+            unsafe.freeMemory(buffer.address);
+        }
+    }
+
+
+    MessageBuffer(long address, int length) {
+        this.base = null;
+        this.address = address;
+        this.size = length;
+        this.reference = null;
+    }
+
+    public MessageBuffer(ByteBuffer bb) {
+        if(bb.isDirect()) {
+            // Direct buffer or off-heap memory
+            DirectBuffer db = DirectBuffer.class.cast(bb);
+            this.base = null;
+            this.address = db.address();
+            this.size = bb.capacity();
+            this.reference = bb;
+        }
+        else if(bb.hasArray()) {
+            this.base = bb.array();
+            this.address = ARRAY_BYTE_BASE_OFFSET;
+            this.size = bb.array().length;
+            this.reference = null;
         } else {
-            dst.put(src);
-        }
-
-        return dst.position() - pos;
-    }
-
-    private void consumedFirstChunk() {
-        Chunk c = list.removeFirst();
-        if (c.reusable) {
-            if (lastWritableBuffer == null) {
-                lastWritableBuffer = c.bb;
-                lastWritableBuffer.position(0);
-                lastWritableBuffer.limit(lastWritableBuffer.capacity());
-                lastWritableBufferReadPosition = 0;
-            }
+            throw new IllegalArgumentException("Only the array-backed ByteBuffer or DirectBuffer are supported");
         }
     }
 
-    public void add(ByteBuffer bb) throws IOException {
-        list.addLast(new Chunk(bb, true));
+    public MessageBuffer(byte[] arr) {
+        this.base = arr;
+        this.address = ARRAY_BYTE_BASE_OFFSET;
+        this.size = arr.length;
+        this.reference = null;
     }
 
-    public ByteBuffer get() throws IOException {
-        if (list.isEmpty() && !tryReadMore()) {
-            return null;
-        }
-        return list.getFirst().bb;
+    public int size() { return size; }
+
+
+    public byte getByte(int index) {
+        return unsafe.getByte(base, address + index);
     }
 
-    public ByteBuffer remove() throws IOException {
-        if (list.isEmpty() && !tryReadMore()) {
-            return null;
-        }
-        Chunk c = list.getFirst();
-        c.reusable = false;
-        consumedFirstChunk();
-        return c.bb;
+    public boolean getBoolean(int index) {
+        return unsafe.getBoolean(base, address + index);
     }
 
-    private void producedLastChunk() throws IOException {
-        lastWritableBuffer.limit(lastWritableBuffer.position());
-        lastWritableBuffer.position(lastWritableBufferReadPosition);
-        list.addLast(new Chunk(lastWritableBuffer, true));
-        lastWritableBuffer = null;
-        tryFlush();
+    public short getShort(int index) {
+        return unsafe.getShort(base, address + index);
     }
 
-    private ByteBuffer allocateLastWritableBuffer(int minSize) throws IOException {
-        if (lastWritableBuffer != null) {
-            producedLastChunk();
-            if (lastWritableBuffer != null && lastWritableBuffer.remaining() >= minSize) {
-                return lastWritableBuffer;
-            }
-        }
-        int size = writeBufferChunkSize;
-        while (size < minSize) {
-            size *= 2;
-        }
-        final ByteBuffer bb = allocateBuffer(size);
-        lastWritableBuffer = bb;
-        lastWritableBufferReadPosition = 0;
-        return bb;
+    /**
+     * Read a big-endian value in the memory
+     * @param index
+     * @return
+     */
+    public int getInt(int index) {
+        // Reading little-endian value
+        int i = unsafe.getInt(base, address + index);
+        // Reversing the endian
+        return ((i >>> 24)           ) |
+                ((i >>   8) &   0xFF00) |
+                ((i <<   8) & 0xFF0000) |
+                ((i << 24));
     }
 
-    private ByteBuffer allocateBuffer(int size) {
-        return ByteBuffer.allocate(size);
+    public float getFloat(int index) {
+        return unsafe.getFloat(base, address + index);
     }
 
-    private boolean tryReadMore() throws IOException {
-        if (inputChannel != null && (lastWritableBuffer == null || lastWritableBuffer.position() == 0)) {
-            final ByteBuffer bb = allocateBuffer(writeBufferChunkSize);
-            lastWritableBuffer = bb;
-            lastWritableBufferReadPosition = 0;
-            if (inputChannel.read(bb) == 0) {
-                // read == 0 doesn't mean EOF
-                list.addLast(new Chunk(ByteBuffer.allocate(0), false));
-                return true;
-            }
-        }
-
-        if (lastWritableBuffer != null) {
-            final int pos = lastWritableBuffer.position();
-            if (pos > lastWritableBufferReadPosition) {
-                // TODO optimize to call producedLastChunk if almost fully filled
-                lastWritableBuffer.position(lastWritableBufferReadPosition);
-                lastWritableBuffer.limit(pos);
-                final ByteBuffer bb = lastWritableBuffer.slice();
-                final Chunk c = new Chunk(bb, false);
-                lastWritableBufferReadPosition = pos;
-                lastWritableBuffer.position(pos);
-                lastWritableBuffer.limit(lastWritableBuffer.capacity());
-                list.addLast(c);
-                return true;
-            }
-        }
-
-        return false;
+    public long getLong(int index) {
+        return unsafe.getLong(base, address + index);
     }
 
-    public int read(ByteBuffer dst) throws IOException {
-        if (list.isEmpty() && !tryReadMore()) {
-            return -1;
-        }
-
-        Chunk c = list.getFirst();
-        int n = transferByteBuffer(c.bb, dst);
-        if (!c.bb.hasRemaining()) {
-            consumedFirstChunk();
-        }
-        return n;
+    public double getDouble(int index) {
+        return unsafe.getDouble(base, address + index);
     }
 
-    public int skip(int maxSize) throws IOException {
-        if (list.isEmpty() && !tryReadMore()) {
-            return 0;
-        }
-
-        int size = maxSize;
-        Iterator<Chunk> ite = list.iterator();
-        while (ite.hasNext()) {
-            Chunk c = ite.next();
-            int rem = c.bb.remaining();
-            if (rem < size) {
-                // skip all data from this chunk
-                size -= rem;
-                ite.remove();
-            } else if (rem == size) {
-                // skip all data from this chunk
-                // & end of iteration
-                ite.remove();
-                return maxSize;
-            } else {
-                // skip partial data from this chunk
-                // & end of iteration
-                c.bb.position(c.bb.position() + size);
-                return maxSize;
-            }
-        }
-        return maxSize - size;
+    public void getBytes(int index, byte[] dst, int dstIndex, int length) {
+        unsafe.copyMemory(base, address+index, dst, ARRAY_BYTE_BASE_OFFSET + dstIndex, length);
     }
 
-    private Chunk readIteratorNext(Iterator<Chunk> ite) throws IOException {
-        if (ite.hasNext()) {
-            return ite.next();
-        } else if (tryReadMore()) {
-            return list.getLast();
-        } else {
-            return null;
+    public void putByte(int index, byte v) {
+        unsafe.putByte(base, address + index, v);
+    }
+
+    public void putBoolean(int index, boolean v) {
+        unsafe.putBoolean(base, address + index, v);
+    }
+
+    public void putShort(int index, short v) {
+        unsafe.putShort(base, address + index, v);
+    }
+
+    /**
+     * Write big-endian integer to the memory
+     * @param index
+     * @param v
+     */
+    public void putInt(int index, int v){
+        // Reversing the endian
+        v = ((v >>> 24)           ) |
+                ((v >>   8) &   0xFF00) |
+                ((v <<   8) & 0xFF0000) |
+                ((v << 24));
+        unsafe.putInt(base, address + index, v);
+    }
+
+    public void putFloat(int index, float v) {
+        unsafe.putFloat(base, address + index, v);
+    }
+
+    public void putLong(int index, long v) {
+        unsafe.putLong(base, address + index, v);
+    }
+
+    public void putDouble(int index, double v) {
+        unsafe.putDouble(base, address + index, v);
+    }
+
+    public ByteBuffer toByteBuffer(int index, int length) {
+        if(base instanceof byte[]) {
+            return ByteBuffer.wrap((byte[]) base, (int) ((address-ARRAY_BYTE_BASE_OFFSET) + index), length);
+        }
+        try {
+            return (ByteBuffer) newByteBuffer.invokeExact(address + index, length, reference);
+        } catch(Throwable e) {
+            // Convert checked exception to unchecked exception
+            throw new RuntimeException(e);
         }
     }
 
-    private ByteBuffer allocateReadResultBuffer(int size) {
-        return ByteBuffer.allocate(size);
-    }
 
-    private ByteBuffer sliceBuffer(Chunk c, int size) {
-        if (size >= readReferenceThreshold) {
-            // zero-copy reference
-            int lim = c.bb.limit();
-            try {
-                c.bb.limit(c.bb.position() + size);
-                c.reusable = false;
-                return c.bb.slice();
-            } finally {
-                c.bb.limit(lim);
-            }
-
-        } else {
-            // copy
-            ByteBuffer bb = allocateReadResultBuffer(size);
-            transferByteBuffer(c.bb, bb);
-            bb.position(0);
-            return bb;
-        }
-    }
-
-    public ByteBuffer readAll(int size) throws IOException {
-        final int totalSize = size;
-        int chunkCount = 0;
-        Iterator<Chunk> ite = list.iterator();
-        Chunk c;
-        while ((c = readIteratorNext(ite)) != null) {
-            int rem = c.bb.remaining();
-            if (rem < size) {
-                // read all data from this chunk
-                size -= rem;
-                chunkCount++;
-            } else {
-                // read all or partial data from this chunk
-                // & end of iteration
-                final ByteBuffer bb;
-                if (chunkCount == 0) {
-                    // all data is in a single buffer chunk.
-                    // try zero-copy slicing.
-                    bb = sliceBuffer(c, totalSize);
-                } else {
-                    // copy data from multiple chunks
-                    bb = allocateReadResultBuffer(totalSize);
-                    for (int i=0; i < chunkCount; i++) {
-                        bb.put(list.getFirst().bb);
-                        consumedFirstChunk();
-                    }
-                    transferByteBuffer(c.bb, bb);
-                }
-                if (rem == size) {
-                    // read all data from this chunk
-                    consumedFirstChunk();
-                }
-                return bb;
-            }
-        }
-        throw new EOFException();
-    }
-
-    public void skipAll(int size) throws IOException {
-        final int totalSize = size;
-        int chunkCount = 0;
-        Iterator<Chunk> ite = list.iterator();
-        Chunk c;
-        while ((c = readIteratorNext(ite)) != null) {
-            int rem = c.bb.remaining();
-            if (rem < size) {
-                // skip all data from this chunk
-                size -= rem;
-                chunkCount++;
-            } else {
-                // skip all or partial data from this chunk
-                // & end of iteration
-                for (int i=0; i < chunkCount; i++) {
-                    consumedFirstChunk();
-                }
-                if (rem == size) {
-                    // skip all data from this chunk
-                    consumedFirstChunk();
-                } else {
-                    c.bb.position(c.bb.position() + size);
-                }
-                return;
-            }
-        }
-        throw new EOFException();
-    }
-
-    public int size() {
-        int total = 0;
-        for (Chunk c : list) {
-            total += c.bb.remaining();
-        }
-        if (lastWritableBuffer != null) {
-            total += lastWritableBuffer.position();
-        }
-        return total;
-    }
-
-    public byte[] toByteArray() {
-        byte[] result = new byte[size()];
-        int off = 0;
-        for (Chunk c : list) {
-            ByteBuffer bb = c.bb;
-            int pos = bb.position();
-            try {
-                int rem = bb.remaining();
-                bb.get(result, off, rem);
-                off += rem;
-            } finally {
-                bb.position(pos);
-            }
-        }
-        if (lastWritableBuffer != null) {
-            ByteBuffer bb = lastWritableBuffer;
-            int pos = bb.position();
-            bb.position(0);
-            try {
-                bb.get(result, off, pos);
-                off += pos;
-            } finally {
-                bb.position(pos);
-            }
-        }
-        return result;
-    }
-
-    //public int transferFrom(int size, ReadableByteChannel out) throws IOException {
-    //  TODO
-    //}
-
-    //public int transferTo(int size, WritableByteChannel out) throws IOException {
-    //  TODO
-    //}
-
-    //public int transferAllTo(int size, WritableByteChannel out) throws IOException {
-    //  TODO
-    //}
-
-    private void tryFlush() throws IOException {
-        if (outputChannel == null) {
-            return;
-        }
-
-        while (!list.isEmpty()) {
-            ByteBuffer bb = list.getFirst().bb;
-            while (bb.hasRemaining()) {
-                outputChannel.write(bb);
-            }
-            consumedFirstChunk();
-        }
-    }
-
-    public void flush() throws IOException {
-        if (lastWritableBuffer != null) {
-            producedLastChunk();
-        }
-        tryFlush();
-    }
-
-    private ByteBuffer prepareForRead(int size) throws IOException {
-        if (list.isEmpty() && !tryReadMore()) {
-            throw new EOFException();
-        }
-        final ByteBuffer bb = list.getFirst().bb;
-        if (bb.remaining() > size) {
-            return bb;
-        }
-        return fillCastBuffer(size);
-    }
-
-    private ByteBuffer fillCastBuffer(int size) throws IOException {
-        // collect data from multiple chunks
-        final int totalSize = size;
-        int chunkCount = 0;
-        Iterator<Chunk> ite = list.iterator();
-        Chunk c;
-        while ((c = readIteratorNext(ite)) != null) {
-            int rem = c.bb.remaining();
-            if (rem < size) {
-                // read all data from this chunk
-                size -= rem;
-                chunkCount++;
-            } else {
-                // read all or partial data from this chunk
-                // & end of iteration
-                castByteBuffer.position(0);
-                castByteBuffer.limit(totalSize);
-                for (int i=0; i < chunkCount; i++) {
-                    castByteBuffer.put(list.getFirst().bb);
-                    consumedFirstChunk();
-                }
-                transferByteBuffer(c.bb, castByteBuffer);
-                if (rem == size) {
-                    // read all data from this chunk
-                    consumedFirstChunk();
-                }
-                return castByteBuffer;
-            }
-        }
-        throw new EOFException();
-    }
-
-    public byte readByte() throws IOException {
-        return prepareForRead(1).get();
-    }
-
-    public short readShort() throws IOException {
-        return prepareForRead(2).getShort();
-    }
-
-    public int readInt() throws IOException {
-        return prepareForRead(4).getInt();
-    }
-
-    public long readLong() throws IOException {
-        return prepareForRead(8).getLong();
-    }
-
-    public float readFloat() throws IOException {
-        return prepareForRead(4).getFloat();
-    }
-
-    public double readDouble() throws IOException {
-        return prepareForRead(8).getDouble();
-    }
-
-    public int write(ByteBuffer src) throws IOException {
-        if (!src.hasRemaining()) {
-            return 0;
-        }
-
-        ByteBuffer wb = lastWritableBuffer;
-        if (wb == null) {
-            wb = allocateLastWritableBuffer(src.remaining());
-        }
-        int n = transferByteBuffer(wb, src);
-
-        if (!wb.hasRemaining()) {
-            producedLastChunk();
-        }
-        return n;
-    }
-
-    public void writeAll(byte[] b, int off, int len) throws IOException {
-        if (len == 0) {
-            return;
-        }
-
-        ByteBuffer wb = lastWritableBuffer;
-        if (wb != null) {
-            final int rem = wb.remaining();
-            if (len <= rem) {
-                // this single buffer can contain all data
-                wb.put(b, off, len);
-                if (len == rem) {
-                    producedLastChunk();
-                }
-                return;
-            }
-            // this buffer can contain partial data
-            wb.put(b, off, rem);
-            producedLastChunk();
-            off += rem;
-            len -= rem;
-        }
-
-        wb = allocateLastWritableBuffer(len);
-        wb.put(b, off, len);
-        if (!wb.hasRemaining()) {
-            producedLastChunk();
-        }
-    }
-
-    public void writeAll(ByteBuffer src) throws IOException {
-        if (!src.hasRemaining()) {
-            return;
-        }
-
-        ByteBuffer wb = lastWritableBuffer;
-        if (wb != null) {
-            transferByteBuffer(src, wb);
-            if (!wb.hasRemaining()) {
-                producedLastChunk();
-            }
-            if (!src.hasRemaining()) {
-                return;
-            }
-        }
-
-        wb = allocateLastWritableBuffer(src.remaining());
-        wb.put(src);
-        if (!wb.hasRemaining()) {
-            producedLastChunk();
-        }
-    }
-
-    private ByteBuffer prepareForWrite(int size) throws IOException {
-        ByteBuffer wb = lastWritableBuffer;
-        if (wb != null && wb.remaining() >= size) {
-            return wb;
-        }
-        return allocateLastWritableBuffer(size);
-    }
-
-    public void writeByte(byte v) throws IOException {
-        prepareForWrite(1).put(v);
-    }
-
-    public void writeShort(short v) throws IOException {
-        prepareForWrite(2).putShort(v);
-    }
-
-    public void writeInt(int v) throws IOException {
-        prepareForWrite(4).putInt(v);
-    }
-
-    public void writeLong(long v) throws IOException {
-        prepareForWrite(8).putLong(v);
-    }
-
-    public void writeFloat(float v) throws IOException {
-        prepareForWrite(4).putFloat(v);
-    }
-
-    public void writeDouble(double v) throws IOException {
-        prepareForWrite(8).putDouble(v);
-    }
-
-    public void writeByteAndByte(byte b, byte v) throws IOException {
-        ByteBuffer bb = prepareForWrite(2);
-        bb.put(b);
-        bb.put(v);
-    }
-
-    public void writeByteAndShort(byte b, short v) throws IOException {
-        ByteBuffer bb = prepareForWrite(3);
-        bb.put(b);
-        bb.putShort(v);
-    }
-
-    public void writeByteAndInt(byte b, int v) throws IOException {
-        ByteBuffer bb = prepareForWrite(5);
-        bb.put(b);
-        bb.putInt(v);
-    }
-
-    public void writeByteAndLong(byte b, long v) throws IOException {
-        ByteBuffer bb = prepareForWrite(9);
-        bb.put(b);
-        bb.putLong(v);
-    }
-
-    public void writeByteAndFloat(byte b, float v) throws IOException {
-        ByteBuffer bb = prepareForWrite(5);
-        bb.put(b);
-        bb.putFloat(v);
-    }
-
-    public void writeByteAndDouble(byte b, double v) throws IOException {
-        ByteBuffer bb = prepareForWrite(9);
-        bb.put(b);
-        bb.putDouble(v);
-    }
 }
