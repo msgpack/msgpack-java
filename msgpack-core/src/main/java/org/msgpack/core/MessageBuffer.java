@@ -9,6 +9,7 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static sun.misc.Unsafe.ARRAY_BYTE_BASE_OFFSET;
@@ -47,25 +48,42 @@ public class MessageBuffer {
         catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+        // Check the endian of this CPU
+        long a = unsafe.allocateMemory(8);
+        try {
+            unsafe.putLong(a, 0x0102030405060708L);
+            byte b = unsafe.getByte(a);
+            switch (b) {
+                case 0x01: isLittleEndian = false; ; break;
+                case 0x08: isLittleEndian = true; break;
+                default:
+                    isLittleEndian = true;
+                    assert false;
+            }
+        } finally {
+            unsafe.freeMemory(a);
+        }
     }
 
+    private static final boolean isLittleEndian;
 
     /**
      * Base object for resolving the relative address of the raw byte array.
      * If base == null, the address value is a raw memory address
      */
-    private final Object base;
+    protected final Object base;
 
     /**
      * Head address of the underlying memory. If base is null, the address is a direct memory address, and if not,
      * it is the relative address within an array object (base)
      */
-    private final long address;
+    protected final long address;
 
     /**
      * Size of the underlying memory
      */
-    private final int size;
+    protected final int size;
 
     /**
      * Reference is used to hold a reference to an object that holds the underlying memory so that it cannot be
@@ -82,12 +100,30 @@ public class MessageBuffer {
     }
 
     public static MessageBuffer newDirectBuffer(int length) {
-        return new MessageBuffer(ByteBuffer.allocateDirect(length));
+        ByteBuffer m = ByteBuffer.allocateDirect(length);
+        //return isLittleEndian ? new MessageBuffer(m) : new MessageBufferBE(m);
+        return newMessageBuffer(m);
     }
 
     public static MessageBuffer newBuffer(int length) {
-        return new MessageBuffer(ByteBuffer.allocate(length));
+        ByteBuffer m = ByteBuffer.allocate(length);
+        //return isLittleEndian ? new MessageBuffer(m) : new MessageBufferBE(m);
+        //return new MessageBuffer(m);
+        return newMessageBuffer(m);
     }
+
+    private static MessageBuffer newMessageBuffer(ByteBuffer bb) {
+       String className = isLittleEndian ? "org.msgpack.core.MessageBuffer" : "org.msgpack.core.MessageBufferBE";
+       try {
+           Class<?> cl = Class.forName(className);
+           Constructor<?> constructor = cl.getDeclaredConstructor(ByteBuffer.class);
+           return (MessageBuffer) constructor.newInstance(bb);
+       }
+       catch(Exception e) {
+           throw new IllegalStateException(e);
+       }
+    }
+
 
     public static void releaseBuffer(MessageBuffer buffer) {
         if(buffer.base instanceof byte[]) {
@@ -106,7 +142,7 @@ public class MessageBuffer {
         this.reference = null;
     }
 
-    public MessageBuffer(ByteBuffer bb) {
+    MessageBuffer(ByteBuffer bb) {
         if(bb.isDirect()) {
             // Direct buffer or off-heap memory
             DirectBuffer db = DirectBuffer.class.cast(bb);

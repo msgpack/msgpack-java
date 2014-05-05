@@ -20,7 +20,7 @@ class MessageBufferTest extends MessagePackSpec {
   "Buffer" should {
     "getInt" in {
 
-      val N = 10000000
+      val N = 100000000
       val M = 64 * 1024 * 1024
 
       val ub = MessageBuffer.newBuffer(M)
@@ -47,41 +47,75 @@ class MessageBufferTest extends MessagePackSpec {
         }
       }
 
+      Thread.sleep(1000)
+
       val rep = 3
       info(f"Reading buffers (of size:${M}%,d) ${N}%,d x $rep times")
       time("sequential getInt", repeat = rep, logLevel = LogLevel.INFO) {
         block("unsafe array") {
-          bench(ub getInt _)
+          var i = 0
+          while(i < N) {
+            ub.getInt((i * 4) % M)
+            i += 1
+          }
         }
 
         block("unsafe direct") {
-          bench(ud getInt _)
+          var i = 0
+          while(i < N) {
+            ud.getInt((i * 4) % M)
+            i += 1
+          }
         }
 
         block("allocate") {
-          bench(hb getInt _)
+          var i = 0
+          while(i < N) {
+            hb.getInt((i * 4) % M)
+            i += 1
+          }
         }
 
         block("allocateDirect") {
-          bench(db getInt _)
+          var i = 0
+          while(i < N) {
+            db.getInt((i * 4) % M)
+            i += 1
+          }
         }
       }
 
       time("random getInt", repeat = rep, logLevel = LogLevel.INFO) {
         block("unsafe array") {
-          randomBench(ub getInt _)
+          var i = 0
+          while(i < N) {
+            ub.getInt((rs(i) * 4) % M)
+            i += 1
+          }
         }
 
         block("unsafe direct") {
-          randomBench(ud getInt _)
+          var i = 0
+          while(i < N) {
+            ud.getInt((rs(i) * 4) % M)
+            i += 1
+          }
         }
 
         block("allocate") {
-          randomBench(hb getInt _)
+          var i = 0
+          while(i < N) {
+            hb.getInt((rs(i) * 4) % M)
+            i += 1
+          }
         }
 
         block("allocateDirect") {
-          randomBench(db getInt _)
+          var i = 0
+          while(i < N) {
+            db.getInt((rs(i) * 4) % M)
+            i += 1
+          }
         }
       }
 
