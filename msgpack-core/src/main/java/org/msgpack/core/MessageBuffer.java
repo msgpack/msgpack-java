@@ -8,10 +8,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static sun.misc.Unsafe.ARRAY_BYTE_BASE_OFFSET;
@@ -20,6 +17,10 @@ import static sun.misc.Unsafe.ARRAY_BYTE_INDEX_SCALE;
 /**
  * MessageBuffer class is an abstraction of memory for reading/writing message pac data.
  * This MessageBuffers ensures integers (31-bit singed) are written to the memory in big-endian order.
+ *
+ * This class is optimized for fast memory access, so many methods are
+ * implemented without using any interface method that produces invokeinterface call in JVM, which is generally
+ * 30% slower than invokevirtual, because invokeinterface needs to look up a function from the function table.
  *
  */
 public class MessageBuffer {
@@ -69,8 +70,6 @@ public class MessageBuffer {
                 unsafe.freeMemory(a);
             }
 
-            // We need to use reflection to create MessageBuffer instances in order to prevent TypeProfile generation for getInt method. TypeProfile will be
-            // generated to resolve one of the method references when two or more classes overrides the method.
             String bufferClsName = isLittleEndian ? "org.msgpack.core.MessageBuffer" : "org.msgpack.core.MessageBufferBE";
             msgBufferClass = Class.forName(bufferClsName);
         }
@@ -79,6 +78,10 @@ public class MessageBuffer {
         }
     }
 
+
+    /**
+     * MessageBuffer class to use. If this machine is big-endian, it uses MessageBufferBE, which overrides some methods in this class that translate endians. If not, uses MessageBuffer.
+     */
     private final static Class<?> msgBufferClass;
 
     /**
@@ -138,6 +141,8 @@ public class MessageBuffer {
      */
     private static MessageBuffer newMessageBuffer(ByteBuffer bb) {
        try {
+           // We need to use reflection to create MessageBuffer instances in order to prevent TypeProfile generation for getInt method. TypeProfile will be
+           // generated to resolve one of the method references when two or more classes overrides the method.
            Constructor<?> constructor = msgBufferClass.getDeclaredConstructor(ByteBuffer.class);
            return (MessageBuffer) constructor.newInstance(bb);
        }
@@ -315,6 +320,7 @@ public class MessageBuffer {
     }
 
     public void putLong(int index, long l) {
+        // Reversing the endian
         l = (l & 0x00ff00ff00ff00ffL) << 8 | (l>>> 8) & 0x00ff00ff00ff00ffL;
         l = (l << 48) |
                 ((l & 0xffff0000L) << 16) |
