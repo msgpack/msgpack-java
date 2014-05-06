@@ -87,13 +87,16 @@ public class MessagePack {
     }
 
     public static MessagePacker newPacker(OutputStream out) {
-        // TODO
-        return null;
+        if(out instanceof FileOutputStream) {
+            return newPacker(((FileOutputStream) out).getChannel());
+        }
+        else {
+            return new MessagePacker(new MessageBufferOutputStream(out));
+        }
     }
 
     public static MessagePacker newPacker(WritableByteChannel out) {
-        // TODO
-        return null;
+        return new MessagePacker(new MessageBufferOutputChannel(out));
     }
 
     /**
