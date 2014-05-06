@@ -14,11 +14,16 @@ public interface MessageBufferOutput {
      */
     public MessageBuffer next() throws IOException;
 
+
+    public void flush(MessageBuffer buf, int offset, int len);
+
     /**
      * Flush and close this buffer.
      * @throws IOException
      */
     public void close() throws IOException;
+
+
 
 
 }
