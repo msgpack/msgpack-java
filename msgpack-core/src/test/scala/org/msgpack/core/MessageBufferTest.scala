@@ -112,7 +112,7 @@ class MessageBufferTest extends MessagePackSpec {
 
         block("allocateDirect") {
           var i = 0
-          while(i < N) {
+           while(i < N) {
             db.getInt((rs(i) * 4) % M)
             i += 1
           }

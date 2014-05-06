@@ -8,14 +8,18 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static sun.misc.Unsafe.ARRAY_BYTE_BASE_OFFSET;
 import static sun.misc.Unsafe.ARRAY_BYTE_INDEX_SCALE;
 
 /**
+ * MessageBuffer class is an abstraction of memory for reading/writing message pac data.
+ * This MessageBuffers ensures integers (31-bit singed) are written to the memory in big-endian order.
  *
  */
 public class MessageBuffer {
@@ -44,29 +48,38 @@ public class MessageBuffer {
             Constructor<?> constructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
             constructor.setAccessible(true);
             newByteBuffer = MethodHandles.lookup().unreflectConstructor(constructor).asType(MethodType.methodType(ByteBuffer.class, long.class, int.class, Object.class));
+
+            // Check the endian of this CPU
+            boolean isLittleEndian = true;
+            long a = unsafe.allocateMemory(8);
+            try {
+                unsafe.putLong(a, 0x0102030405060708L);
+                byte b = unsafe.getByte(a);
+                switch (b) {
+                    case 0x01:
+                        isLittleEndian = false;
+                        break;
+                    case 0x08:
+                        isLittleEndian = true;
+                        break;
+                    default:
+                        assert false;
+                }
+            } finally {
+                unsafe.freeMemory(a);
+            }
+
+            // We need to use reflection to create MessageBuffer instances in order to prevent TypeProfile generation for getInt method. TypeProfile will be
+            // generated to resolve one of the method references when two or more classes overrides the method.
+            String bufferClsName = isLittleEndian ? "org.msgpack.core.MessageBuffer" : "org.msgpack.core.MessageBufferBE";
+            msgBufferClass = Class.forName(bufferClsName);
         }
         catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        // Check the endian of this CPU
-        long a = unsafe.allocateMemory(8);
-        try {
-            unsafe.putLong(a, 0x0102030405060708L);
-            byte b = unsafe.getByte(a);
-            switch (b) {
-                case 0x01: isLittleEndian = false; ; break;
-                case 0x08: isLittleEndian = true; break;
-                default:
-                    isLittleEndian = true;
-                    assert false;
-            }
-        } finally {
-            unsafe.freeMemory(a);
-        }
     }
 
-    private static final boolean isLittleEndian;
+    private final static Class<?> msgBufferClass;
 
     /**
      * Base object for resolving the relative address of the raw byte array.
@@ -91,6 +104,7 @@ public class MessageBuffer {
      */
     private final ByteBuffer reference;
 
+
     private AtomicInteger referenceCounter;
 
 
@@ -101,27 +115,55 @@ public class MessageBuffer {
 
     public static MessageBuffer newDirectBuffer(int length) {
         ByteBuffer m = ByteBuffer.allocateDirect(length);
-        //return isLittleEndian ? new MessageBuffer(m) : new MessageBufferBE(m);
         return newMessageBuffer(m);
     }
 
     public static MessageBuffer newBuffer(int length) {
         ByteBuffer m = ByteBuffer.allocate(length);
-        //return isLittleEndian ? new MessageBuffer(m) : new MessageBufferBE(m);
-        //return new MessageBuffer(m);
         return newMessageBuffer(m);
     }
 
+    public static MessageBuffer wrap(byte[] array) {
+        return newMessageBuffer(array);
+    }
+
+    public static MessageBuffer wrap(ByteBuffer bb) {
+        return newMessageBuffer(bb);
+    }
+
+    /**
+     * Creates a new MessageBuffer instance bakeed by ByteBuffer
+     * @param bb
+     * @return
+     */
     private static MessageBuffer newMessageBuffer(ByteBuffer bb) {
-       String className = isLittleEndian ? "org.msgpack.core.MessageBuffer" : "org.msgpack.core.MessageBufferBE";
        try {
-           Class<?> cl = Class.forName(className);
-           Constructor<?> constructor = cl.getDeclaredConstructor(ByteBuffer.class);
+           Constructor<?> constructor = msgBufferClass.getDeclaredConstructor(ByteBuffer.class);
            return (MessageBuffer) constructor.newInstance(bb);
        }
-       catch(Exception e) {
+       catch(NoSuchMethodException e) {
            throw new IllegalStateException(e);
        }
+       catch(Exception e) {
+           throw new RuntimeException(e);
+       }
+    }
+
+    /**
+     * Creates a new MessageBuffer instance backed by a java heap array
+     * @param arr
+     * @return
+     */
+    private static MessageBuffer newMessageBuffer(byte[] arr) {
+        try {
+            Constructor<?> constructor = msgBufferClass.getDeclaredConstructor(byte[].class);
+            return (MessageBuffer) constructor.newInstance(arr);
+        }
+        catch(NoSuchMethodException e) {
+            throw new IllegalStateException(e);
+        } catch(Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -129,12 +171,20 @@ public class MessageBuffer {
         if(buffer.base instanceof byte[]) {
             // We have nothing to do. Wait until the garbage-collector collects this array object
         }
+        else if(buffer.base instanceof DirectBuffer) {
+            ((DirectBuffer) buffer.base).cleaner().clean();
+        }
         else {
             unsafe.freeMemory(buffer.address);
         }
     }
 
 
+    /**
+     * Create a MessageBuffer instance from a given memory address and length
+     * @param address
+     * @param length
+     */
     MessageBuffer(long address, int length) {
         this.base = null;
         this.address = address;
@@ -142,6 +192,10 @@ public class MessageBuffer {
         this.reference = null;
     }
 
+    /**
+     * Create a MessageBuffer instance from a given ByteBuffer instance
+     * @param bb
+     */
     MessageBuffer(ByteBuffer bb) {
         if(bb.isDirect()) {
             // Direct buffer or off-heap memory
@@ -161,13 +215,22 @@ public class MessageBuffer {
         }
     }
 
-    public MessageBuffer(byte[] arr) {
+
+    /**
+     * Create a MessageBuffer instance from an java heap array
+     * @param arr
+     */
+    MessageBuffer(byte[] arr) {
         this.base = arr;
         this.address = ARRAY_BYTE_BASE_OFFSET;
         this.size = arr.length;
         this.reference = null;
     }
 
+    /**
+     * byte size of the buffer
+     * @return
+     */
     public int size() { return size; }
 
 
@@ -180,11 +243,12 @@ public class MessageBuffer {
     }
 
     public short getShort(int index) {
-        return unsafe.getShort(base, address + index);
+        short v = unsafe.getShort(base, address + index);
+        return (short) (((v & 0xFF00) >> 8) | (v << 8));
     }
 
     /**
-     * Read a big-endian value in the memory
+     * Read a big-endian int value at the specified index
      * @param index
      * @return
      */
@@ -199,15 +263,20 @@ public class MessageBuffer {
     }
 
     public float getFloat(int index) {
-        return unsafe.getFloat(base, address + index);
+        return Float.intBitsToFloat(getInt(index));
     }
 
     public long getLong(int index) {
-        return unsafe.getLong(base, address + index);
+        long l = unsafe.getLong(base, address + index);
+        l = (l & 0x00ff00ff00ff00ffL) << 8 | (l>>> 8) & 0x00ff00ff00ff00ffL;
+        return (l << 48) |
+                ((l & 0xffff0000L) << 16) |
+                ((l >>> 16) & 0xffff0000L) |
+                (l >>> 48);
     }
 
     public double getDouble(int index) {
-        return unsafe.getDouble(base, address + index);
+        return Double.longBitsToDouble(getLong(index));
     }
 
     public void getBytes(int index, byte[] dst, int dstIndex, int length) {
@@ -223,11 +292,12 @@ public class MessageBuffer {
     }
 
     public void putShort(int index, short v) {
+        v = (short) (((v & 0xFF00) >> 8) | (v << 8));
         unsafe.putShort(base, address + index, v);
     }
 
     /**
-     * Write big-endian integer to the memory
+     * Write a big-endian integer value to the memory
      * @param index
      * @param v
      */
@@ -241,15 +311,20 @@ public class MessageBuffer {
     }
 
     public void putFloat(int index, float v) {
-        unsafe.putFloat(base, address + index, v);
+        putInt(index, Float.floatToRawIntBits(v));
     }
 
-    public void putLong(int index, long v) {
-        unsafe.putLong(base, address + index, v);
+    public void putLong(int index, long l) {
+        l = (l & 0x00ff00ff00ff00ffL) << 8 | (l>>> 8) & 0x00ff00ff00ff00ffL;
+        l = (l << 48) |
+                ((l & 0xffff0000L) << 16) |
+                ((l >>> 16) & 0xffff0000L) |
+                (l >>> 48);
+        unsafe.putLong(base, address + index, l);
     }
 
     public void putDouble(int index, double v) {
-        unsafe.putDouble(base, address + index, v);
+        putLong(index, Double.doubleToRawLongBits(v));
     }
 
     public ByteBuffer toByteBuffer(int index, int length) {
