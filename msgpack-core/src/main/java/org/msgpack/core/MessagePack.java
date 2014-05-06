@@ -13,6 +13,9 @@ public class MessagePack {
 
     public static Charset UTF8 = Charset.forName("UTF-8");
 
+    /**
+     * Message pack code set. See also https://github.com/msgpack/msgpack/blob/master/spec.md
+     */
     public static class Code {
         public static final byte FIXMAP_PREFIX = (byte) 0x80;
         public static final byte FIXARRAY_PREFIX = (byte) 0x00;

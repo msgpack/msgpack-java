@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import java.nio.charset.CharsetDecoder;
-
+import static org.msgpack.core.MessagePack.Code.*;
 
 // TODO impl
 public class MessageUnpacker implements Closeable {
@@ -35,11 +35,8 @@ public class MessageUnpacker implements Closeable {
     }
 
     //
-    private static final byte HEAD_BYTE_NEVER_USED_TYPE = MessagePack.Code.NEVER_USED;
-
-    private static final byte REQUIRE_TO_READ_HEAD_BYTE = HEAD_BYTE_NEVER_USED_TYPE;
+    private static final byte READ_NEXT = NEVER_USED;
     private static final int REQUIRE_TO_READ_SIZE = -1;
-
 
     private final MessageBufferInput in;
 
@@ -55,14 +52,27 @@ public class MessageUnpacker implements Closeable {
     private CharsetDecoder decoder;
     private int stringLength;
 
-    // internal states
-    private byte head;
-
+    // internal state
+    private byte head = READ_NEXT;
 
 
     public MessageUnpacker(MessageBufferInput in) {
         this.in = in;
     }
+
+    private void ensure(int readSize) {
+        if(position + readSize < buffer.size)
+            return;
+
+
+    }
+
+
+    private byte readByte() {
+        ensure(1);
+        return buffer.getByte(position++);
+    }
+
 
     private CharsetDecoder getCharsetDecoder() {
         // TODO options
@@ -83,21 +93,20 @@ public class MessageUnpacker implements Closeable {
 
     public ValueType getNextType() throws IOException {
         return getTypeFromHeadByte(head);
-            }
+    }
 
     public MessageFormat getNextFormat() throws IOException {
         return null;
     }
 
-    private byte getHeadByte() throws IOException {
-        byte b = head;
-        if (b == REQUIRE_TO_READ_HEAD_BYTE) {
-            //b = head = in.readByte();
-            if (b == HEAD_BYTE_NEVER_USED_TYPE) {
-                throw new MessageMalformedFormatException("Invalid format byte: " + b);
+    private byte getHead() throws IOException {
+        if (head == READ_NEXT) {
+            head = readByte();
+            if (head == READ_NEXT) {
+                throw new MessageMalformedFormatException("Invalid format byte: " + head);
             }
         }
-        return b;
+        return head;
     }
 
     public void skipToken() throws IOException {
@@ -105,9 +114,9 @@ public class MessageUnpacker implements Closeable {
     }
 
     public boolean trySkipNil() throws IOException {
-        final byte b = getHeadByte();
+        final byte b = getHead();
         if ((b & 0xff) == 0xc0) {
-            head = REQUIRE_TO_READ_HEAD_BYTE;
+            head = READ_NEXT;
             return true;
         }
         return false;
@@ -123,9 +132,9 @@ public class MessageUnpacker implements Closeable {
     }
 
     public void unpackNil() throws IOException {
-        final byte b = getHeadByte();
+        final byte b = getHead();
         if ((b & 0xff) == 0xc0) {
-            head = REQUIRE_TO_READ_HEAD_BYTE;
+            head = READ_NEXT;
             return;
         }
         throw unexpectedHeadByte("Nil", b);
@@ -134,42 +143,42 @@ public class MessageUnpacker implements Closeable {
 
     private final byte readByteAndResetHeadByte() throws IOException {
         byte v = buffer.getByte(position++);
-        head = REQUIRE_TO_READ_HEAD_BYTE;
+        head = READ_NEXT;
         return v;
     }
 
     private final short readShortAndResetHeadByte() throws IOException {
         short v = buffer.getShort(position++);
-        head = REQUIRE_TO_READ_HEAD_BYTE;
+        head = READ_NEXT;
         return v;
     }
 
     private final int readIntAndResetHeadByte() throws IOException {
         int v = buffer.getInt(position++);
-        head = REQUIRE_TO_READ_HEAD_BYTE;
+        head = READ_NEXT;
         return v;
     }
 
     private final long readLongAndResetHeadByte() throws IOException {
         long v = buffer.getLong(position++);
-        head = REQUIRE_TO_READ_HEAD_BYTE;
+        head = READ_NEXT;
         return v;
     }
 
     private final float readFloatAndResetHeadByte() throws IOException {
         float v = buffer.getFloat(position++);
-        head = REQUIRE_TO_READ_HEAD_BYTE;
+        head = READ_NEXT;
         return v;
     }
 
     private final double readDoubleAndResetHeadByte() throws IOException {
         double v = buffer.getDouble(position++);
-        head = REQUIRE_TO_READ_HEAD_BYTE;
+        head = READ_NEXT;
         return v;
     }
 
     public boolean unpackBoolean() throws IOException {
-        final byte b = getHeadByte();
+        final byte b = getHead();
         if(b == 0xc2)
             return false;
         else if(b == 0xc3)
@@ -179,15 +188,15 @@ public class MessageUnpacker implements Closeable {
     }
 
     public byte unpackByte() throws IOException {
-        final byte b = getHeadByte();
+        final byte b = getHead();
         if ((b & 0x80) == 0) {
             // positive fixint
-            head = REQUIRE_TO_READ_HEAD_BYTE;
+            head = READ_NEXT;
             return b;
         }
         if ((b & 0xe0) == 0xe0) {
             // negative fixint
-            head = REQUIRE_TO_READ_HEAD_BYTE;
+            head = READ_NEXT;
             return b;
         }
         switch (b & 0xff) {
@@ -242,15 +251,15 @@ public class MessageUnpacker implements Closeable {
     }
 
     public short unpackShort() throws IOException {
-        final byte b = getHeadByte();
+        final byte b = getHead();
         if ((b & 0x80) == 0) {
             // positive fixint
-            head = REQUIRE_TO_READ_HEAD_BYTE;
+            head = READ_NEXT;
             return (short) b;
         }
         if ((b & 0xe0) == 0xe0) {
             // negative fixint
-            head = REQUIRE_TO_READ_HEAD_BYTE;
+            head = READ_NEXT;
             return (short) b;
         }
         switch (b & 0xff) {
@@ -299,15 +308,15 @@ public class MessageUnpacker implements Closeable {
     }
 
     public int unpackInt() throws IOException {
-        final byte b = getHeadByte();
+        final byte b = getHead();
         if ((b & 0x80) == 0) {
             // positive fixint
-            head = REQUIRE_TO_READ_HEAD_BYTE;
+            head = READ_NEXT;
             return (int) b;
         }
         if ((b & 0xe0) == 0xe0) {
             // negative fixint
-            head = REQUIRE_TO_READ_HEAD_BYTE;
+            head = READ_NEXT;
             return (int) b;
         }
         switch (b & 0xff) {
@@ -350,15 +359,15 @@ public class MessageUnpacker implements Closeable {
     }
 
     public long unpackLong() throws IOException {
-        final byte b = getHeadByte();
+        final byte b = getHead();
         if ((b & 0x80) == 0) {
             // positive fixint
-            head = REQUIRE_TO_READ_HEAD_BYTE;
+            head = READ_NEXT;
             return (long) b;
         }
         if ((b & 0xe0) == 0xe0) {
             // negative fixint
-            head = REQUIRE_TO_READ_HEAD_BYTE;
+            head = READ_NEXT;
             return (long) b;
         }
         switch (b & 0xff) {
@@ -399,15 +408,15 @@ public class MessageUnpacker implements Closeable {
     }
 
     public BigInteger unpackBigInteger() throws IOException {
-        final byte b = getHeadByte();
+        final byte b = getHead();
         if ((b & 0x80) == 0) {
             // positive fixint
-            head = REQUIRE_TO_READ_HEAD_BYTE;
+            head = READ_NEXT;
             return BigInteger.valueOf((long) b);
         }
         if ((b & 0xe0) == 0xe0) {
             // negative fixint
-            head = REQUIRE_TO_READ_HEAD_BYTE;
+            head = READ_NEXT;
             return BigInteger.valueOf((long) b);
         }
         switch (b & 0xff) {
@@ -449,7 +458,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     public float unpackFloat() throws IOException {
-        final byte b = getHeadByte();
+        final byte b = getHead();
         switch (b & 0xff) {
             case 0xca: // float
                 float fv = readFloatAndResetHeadByte();
@@ -463,7 +472,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     public double unpackDouble() throws IOException {
-        final byte b = getHeadByte();
+        final byte b = getHead();
         switch (b & 0xff) {
             case 0xca: // float
                 float fv = readFloatAndResetHeadByte();
@@ -487,9 +496,9 @@ public class MessageUnpacker implements Closeable {
 
 
     public int unpackArrayHeader() throws IOException {
-        final byte b = getHeadByte();
+        final byte b = getHead();
         if ((b & 0xf0) == 0x90) { // fixarray
-            head = REQUIRE_TO_READ_HEAD_BYTE;
+            head = READ_NEXT;
             return b & 0x0f;
         }
         switch (b & 0xff) {
@@ -502,9 +511,9 @@ public class MessageUnpacker implements Closeable {
     }
 
     public int unpackMapHeader() throws IOException {
-        final byte b = getHeadByte();
+        final byte b = getHead();
         if ((b & 0xf0) == 0x80) { // fixmap
-            head = REQUIRE_TO_READ_HEAD_BYTE;
+            head = READ_NEXT;
             return b & 0x0f;
         }
         switch (b & 0xff) {
@@ -522,7 +531,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     public int unpackRawStringHeader() throws IOException {
-        final byte b = getHeadByte();
+        final byte b = getHead();
         if ((b & 0xe0) == 0xa0) { // FixRaw
             return b & 0x1f;
         }
@@ -538,7 +547,7 @@ public class MessageUnpacker implements Closeable {
     }
     public int unpackBinaryHeader() throws IOException {
         // TODO option to allow str format family
-        final byte b = getHeadByte();
+        final byte b = getHead();
         switch (b & 0xff) {
             case 0xc4: // bin 8
                 return getNextLength8();

@@ -148,13 +148,14 @@ public enum ValueType {
     private static ValueType[] symbolTable = ValueType.values();
     static {
         // Preparing symbol table (byte value -> ValueType ordinal)
-        for(byte b = -127; b < 127; ++b) {
-            table[b & 0xFF] = (byte) toValueType(b).ordinal();
+        for(int b = 0; b < 0xFF; ++b) {
+            table[b] = (byte) toValueType((byte) b).ordinal();
         }
     }
 
     public static ValueType lookUp(final byte b) {
         return symbolTable[table[b & 0xFF]];
     }
+
 
 }
