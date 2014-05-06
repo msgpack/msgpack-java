@@ -19,7 +19,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
-import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
 
@@ -36,7 +35,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     //
-    private static final byte HEAD_BYTE_NEVER_USED_TYPE = (byte) 0xc1;
+    private static final byte HEAD_BYTE_NEVER_USED_TYPE = MessagePack.Code.NEVER_USED;
 
     private static final byte REQUIRE_TO_READ_HEAD_BYTE = HEAD_BYTE_NEVER_USED_TYPE;
     private static final int REQUIRE_TO_READ_SIZE = -1;
@@ -49,7 +48,7 @@ public class MessageUnpacker implements Closeable {
     private int nextSize;
 
     // For storing data at the buffer boundary (except in unpackString)
-    private OldMessageBuffer extraBuffer;
+    private MessageBuffer extraBuffer;
     private int extraPosition;
 
     // For decoding String in unpackString
@@ -76,66 +75,10 @@ public class MessageUnpacker implements Closeable {
 
 
     private static ValueType getTypeFromHeadByte(final byte b) throws MessageMalformedFormatException {
-        if ((b & 0x80) == 0) { // positive fixint
-            return ValueType.INTEGER;
-        }
-        if ((b & 0xe0) == 0xe0) { // negative fixint
-            return ValueType.INTEGER;
-        }
-        if ((b & 0xe0) == 0xa0) { // fixstr
-            return ValueType.STRING;
-        }
-        if ((b & 0xf0) == 0x90) { // fixarray
-            return ValueType.ARRAY;
-        }
-        if ((b & 0xf0) == 0x80) { // fixmap
-            return ValueType.MAP;
-        }
-        switch (b & 0xff) {
-            case 0xc0: // nil
-                return ValueType.NIL;
-            case 0xc2: // false
-            case 0xc3: // true
-                return ValueType.BOOLEAN;
-            case 0xc4: // bin 8
-            case 0xc5: // bin 16
-            case 0xc6: // bin 32
-                return ValueType.BINARY;
-            case 0xc7: // ext 8
-            case 0xc8: // ext 16
-            case 0xc9: // ext 32
-                return ValueType.EXTENDED;
-            case 0xca: // float 32
-            case 0xcb: // float 64
-                return ValueType.FLOAT;
-            case 0xcc: // unsigned int 8
-            case 0xcd: // unsigned int 16
-            case 0xce: // unsigned int 32
-            case 0xcf: // unsigned int 64
-            case 0xd0: // signed int 8
-            case 0xd1: // signed int 16
-            case 0xd2: // signed int 32
-            case 0xd3: // signed int 64
-                return ValueType.INTEGER;
-            case 0xd4: // fixext 1
-            case 0xd5: // fixext 2
-            case 0xd6: // fixext 4
-            case 0xd7: // fixext 8
-            case 0xd8: // fixext 16
-                return ValueType.EXTENDED;
-            case 0xd9: // str 8
-            case 0xda: // str 16
-            case 0xdb: // str 32
-                return ValueType.STRING;
-            case 0xdc: // array 16
-            case 0xdd: // array 32
-                return ValueType.ARRAY;
-            case 0xde: // map 16
-            case 0xdf: // map 32
-                return ValueType.MAP;
-            default:
-                throw new MessageMalformedFormatException("Invalid format byte: " + b);
-        }
+        ValueType vt = ValueType.lookUp(b);
+        if(vt == ValueType.UNKNOWN)
+            throw new MessageMalformedFormatException(String.format("Invalid format code: %02x", b));
+        return vt;
     }
 
     public ValueType getNextType() throws IOException {

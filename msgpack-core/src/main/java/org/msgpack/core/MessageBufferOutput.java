@@ -45,18 +45,10 @@ class MessageBufferOutputStream implements MessageBufferOutput {
     public void flush(MessageBuffer buf, int offset, int len) throws IOException {
         assert(offset + len < buf.size());
 
-        if(out instanceof FileOutputStream) {
-            FileOutputStream fos = (FileOutputStream) out;
-            FileChannel channel = fos.getChannel();
-            ByteBuffer bb = buf.toByteBuffer(offset, len);
-            channel.write(bb);
-        }
-        else {
-            // TODO reuse the allocated buffer
-            byte[] in = new byte[len];
-            buf.getBytes(offset, in, 0, len);
-            out.write(in, 0, len);
-        }
+        // TODO reuse the allocated buffer
+        byte[] in = new byte[len];
+        buf.getBytes(offset, in, 0, len);
+        out.write(in, 0, len);
     }
 
     @Override

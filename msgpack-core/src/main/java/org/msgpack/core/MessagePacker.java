@@ -18,7 +18,7 @@ package org.msgpack.core;
 import java.math.BigInteger;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import static org.msgpack.core.MessagePack.Prefix.*;
+import static org.msgpack.core.MessagePack.Code.*;
 
 /**
  *
