@@ -41,7 +41,6 @@ public class MessageUnpacker implements Closeable {
     private static final byte REQUIRE_TO_READ_HEAD_BYTE = HEAD_BYTE_NEVER_USED_TYPE;
     private static final int REQUIRE_TO_READ_SIZE = -1;
 
-    private static Charset UTF_8 = Charset.forName("UTF-8");
 
     private final MessageBufferInput in;
 
@@ -70,7 +69,7 @@ public class MessageUnpacker implements Closeable {
         // TODO options
         CharsetDecoder d = decoder;
         if (d == null) {
-            d = decoder = UTF_8.newDecoder();
+            d = decoder = MessagePack.UTF8.newDecoder();
         }
         return d;
     }
