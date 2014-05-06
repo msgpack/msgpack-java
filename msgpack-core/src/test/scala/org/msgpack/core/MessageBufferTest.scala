@@ -4,13 +4,6 @@ import java.nio.ByteBuffer
 import xerial.core.log.LogLevel
 import scala.util.Random
 
-object Test {
-  val b = ByteBuffer.allocate(10)
-  b.getInt(0)
-
-  val m = MessageBuffer.newBuffer(10)
-  m.getInt(0)
-}
 
 /**
  * Created on 2014/05/01.
