@@ -7,12 +7,12 @@ import java.io.IOException;
  */
 public interface MessageBufferOutput {
 
-    /**
-     * Retrieves the next buffer for writing message packed data
-     * @return
-     * @throws IOException
-     */
-    public MessageBuffer next() throws IOException;
+//    /**
+//     * Retrieves the next buffer for writing message packed data
+//     * @return
+//     * @throws IOException
+//     */
+//    public MessageBuffer next() throws IOException;
 
 
     public void flush(MessageBuffer buf, int offset, int len);

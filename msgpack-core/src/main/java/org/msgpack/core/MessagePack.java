@@ -3,6 +3,7 @@ package org.msgpack.core;
 import java.io.*;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 
 /**
@@ -10,8 +11,9 @@ import java.nio.file.Path;
  */
 public class MessagePack {
 
-    public static class Prefix {
+    public static Charset UTF8 = Charset.forName("UTF-8");
 
+    public static class Prefix {
         public static final byte FIXMAP_PREFIX = (byte) 0x80;
         public static final byte FIXARRAY_PREFIX = (byte) 0x00;
         public static final byte FIXSTR_PREFIX = (byte) 0xa0;

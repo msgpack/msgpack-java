@@ -26,16 +26,22 @@ import static org.msgpack.core.MessagePack.Prefix.*;
 public class MessagePacker {
 
     private final MessageBufferOutput out;
-    private MessageBuffer currentBuffer;
+    private final MessageBuffer buffer;
     private int position;
 
     public MessagePacker(MessageBufferOutput out) {
+        this(out, 8 * 1024);
+    }
+
+    public MessagePacker(MessageBufferOutput out, int bufferSize) {
         assert(out != null);
         this.out = out;
+        this.buffer = MessageBuffer.newDirectBuffer(bufferSize);
+        this.position = 0;
     }
 
     public void flush() throws IOException {
-        out.flush(currentBuffer, 0, position);
+        out.flush(buffer, 0, position);
         position = 0;
     }
 
@@ -48,51 +54,76 @@ public class MessagePacker {
         }
     }
 
-    private boolean ensureCapacity(int numBytesToWrite) throws IOException {
-        if(position + numBytesToWrite < currentBuffer.size())
-            return true;
+    private void ensureCapacity(int numBytesToWrite) throws IOException {
+        if(position + numBytesToWrite < buffer.size())
+            return;
 
         flush();
-        return numBytesToWrite > currentBuffer.size();
     }
 
 
     private void writeByte(byte b) throws IOException {
         ensureCapacity(1);
-        currentBuffer.putByte(position++, b);
+        buffer.putByte(position++, b);
     }
 
 
     private void writeByteAndByte(byte b, byte v) throws IOException {
         ensureCapacity(2);
-        currentBuffer.putByte(position++, b);
-        currentBuffer.putByte(position++, v);
+        buffer.putByte(position++, b);
+        buffer.putByte(position++, v);
     }
 
     private void writeByteAndShort(byte b, short v) throws IOException {
         ensureCapacity(3);
-        currentBuffer.putByte(position++, b);
-        currentBuffer.putShort(position, v);
+        buffer.putByte(position++, b);
+        buffer.putShort(position, v);
         position += 2;
     }
 
     private void writeByteAndInt(byte b, int v) throws IOException {
         ensureCapacity(5);
-        currentBuffer.putByte(position++, b);
-        currentBuffer.putInt(position, v);
+        buffer.putByte(position++, b);
+        buffer.putInt(position, v);
         position += 4;
+    }
+
+    private void writeByteAndFloat(byte b, float v) throws IOException {
+        ensureCapacity(5);
+        buffer.putByte(position++, b);
+        buffer.putFloat(position, v);
+        position += 4;
+    }
+
+    private void writeByteAndDouble(byte b, double v) throws IOException {
+        ensureCapacity(9);
+        buffer.putByte(position++, b);
+        buffer.putDouble(position, v);
+        position += 8;
     }
 
     private void writeByteAndLong(byte b, long v) throws IOException {
         ensureCapacity(9);
-        currentBuffer.putByte(position++, b);
-        currentBuffer.putLong(position, v);
+        buffer.putByte(position++, b);
+        buffer.putLong(position, v);
         position += 8;
+    }
+
+    private void writeShort(short v) throws IOException {
+        ensureCapacity(2);
+        buffer.putShort(position, v);
+        position += 2;
+    }
+
+    private void writeInt(int v) throws IOException {
+        ensureCapacity(4);
+        buffer.putInt(position, v);
+        position += 4;
     }
 
     private void writeLong(long v) throws IOException {
         ensureCapacity(8);
-        currentBuffer.putLong(position, v);
+        buffer.putLong(position, v);
         position += 8;
     }
 
@@ -199,52 +230,126 @@ public class MessagePacker {
             throw new IllegalArgumentException("Messagepack cannot serialize BigInteger larger than 2^64-1");
         }
     }
-
-    public void packFloat(float o) throws IOException {
-
+    
+    public void packFloat(float v) throws IOException {
+        writeByteAndFloat(FLOAT32, v);
     }
-
-    public void packDouble(double o) throws IOException {
-
+ 
+    public void packDouble(double v) throws IOException {
+        writeByteAndDouble(FLOAT64, v);
     }
 
     /**
-     * pack the input String in UTF-8 encoding
+     * Pack the input String in UTF-8 encoding
      *
-     * @param o
+     * @param s
      * @return
      * @throws IOException
      */
-    public void packString(String o) throws IOException {
-
+    public void packString(String s) throws IOException {
+        byte[] utf8 = s.getBytes(MessagePack.UTF8);
+        packRawStringHeader(utf8.length);
+        writePayload(utf8, 0, utf8.length);
     }
 
-    public void packArrayHeader(int size) throws IOException {
+    public void packArrayHeader(int arraySize) throws IOException {
+        if(arraySize < 0)
+            throw new IllegalArgumentException("array size must be >= 0");
 
+        if(arraySize < (1 << 5)) {
+            writeByte((byte) (FIXARRAY_PREFIX | arraySize));
+        } else if(arraySize < (1 << 16)) {
+            writeByteAndShort(ARRAY16, (short) arraySize);
+        } else {
+            writeByteAndInt(ARRAY32, arraySize);
+        }
     }
 
-    public void packMapHeader(int size) throws IOException {
+    public void packMapHeader(int mapSize) throws IOException {
+        if(mapSize < 0)
+            throw new IllegalArgumentException("map size must be >= 0");
 
+        if(mapSize < (1 << 5)) {
+            writeByte((byte) (FIXMAP_PREFIX | mapSize));
+        } else if(mapSize < (1 << 16)) {
+            writeByteAndShort(MAP16, (short) mapSize);
+        } else {
+            writeByteAndInt(MAP32, mapSize);
+        }
     }
 
-    public void packExtendedTypeHeader(int type, int dataLen) throws IOException {
+    public void packExtendedTypeHeader(int extType, int dataLen) throws IOException {
+        if(dataLen < (1 << 8)) {
+            if(dataLen > 0 && (dataLen & (dataLen - 1)) == 0) { // check whether dataLen == 2^x
+                if(dataLen == 1) {
+                    writeByteAndByte(FIXEXT1, (byte) extType);
+                } else if(dataLen == 2){
+                    writeByteAndByte(FIXEXT2, (byte) extType);
+                } else if(dataLen == 4) {
+                    writeByteAndByte(FIXEXT4, (byte) extType);
+                } else if(dataLen == 8) {
+                    writeByteAndByte(FIXEXT8, (byte) extType);
+                } else {
+                    writeByteAndByte(FIXEXT16, (byte) extType);
+                }
+            } else {
+                writeByteAndByte(EXT8, (byte) dataLen);
+                writeByte((byte) extType);
+            }
+        } else if(dataLen < (1 << 16)) {
+            writeByteAndShort(EXT16, (short) dataLen);
+            writeByte((byte) extType);
+        } else {
+            writeByteAndInt(EXT32, dataLen);
+            writeByte((byte) extType);
 
+            // TODO support dataLen > 2^31 - 1
+        }
     }
 
     public void packRawStringHeader(int len) throws IOException {
-
+        if(len < (1 << 8)) {
+            writeByteAndByte(BIN8, (byte) len);
+        } else if(len < (1 << 16)) {
+            writeByteAndShort(BIN16, (short) len);
+        } else {
+            writeByteAndInt(BIN32, len);
+        }
     }
 
     public void packBinaryHeader(int len) throws IOException {
-
+        if(len < (1 << 5)) {
+            writeByte((byte) (FIXSTR_PREFIX | len));
+        } else if(len < (1 << 8)) {
+            writeByteAndByte(STR8, (byte) len);
+        } else if(len < (1 << 16)) {
+            writeByteAndShort(STR16, (short) len);
+        } else {
+            writeByteAndInt(STR32, len);
+        }
     }
 
     public void writePayload(ByteBuffer bb) throws IOException {
-
+        while(bb.remaining() > 0) {
+            if(position >= buffer.size())
+                flush();
+            int writeLen = Math.min(buffer.size() - position, bb.remaining());
+            buffer.putByteBuffer(position, bb, writeLen);
+            position += writeLen;
+            bb.position(bb.position() + writeLen);
+        }
     }
 
     public void writePayload(byte[] o, int off, int len) throws IOException {
-
+        int cursor = 0;
+        while(cursor < len) {
+            if(position >= buffer.size())
+                flush();
+            int writeLen = Math.min(buffer.size() - position, len - cursor);
+            buffer.putBytes(position, o, off + cursor, writeLen);
+            position += writeLen;
+            cursor += writeLen;
+        }
     }
 
 

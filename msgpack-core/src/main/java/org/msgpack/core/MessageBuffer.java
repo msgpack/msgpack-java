@@ -284,8 +284,8 @@ public class MessageBuffer {
         return Double.longBitsToDouble(getLong(index));
     }
 
-    public void getBytes(int index, byte[] dst, int dstIndex, int length) {
-        unsafe.copyMemory(base, address+index, dst, ARRAY_BYTE_BASE_OFFSET + dstIndex, length);
+    public void getBytes(int index, byte[] dst, int dstOffset, int length) {
+        unsafe.copyMemory(base, address+index, dst, ARRAY_BYTE_BASE_OFFSET + dstOffset, length);
     }
 
     public void putByte(int index, byte v) {
@@ -332,6 +332,26 @@ public class MessageBuffer {
     public void putDouble(int index, double v) {
         putLong(index, Double.doubleToRawLongBits(v));
     }
+
+    public void putBytes(int index, byte[] src, int srcOffset, int length) {
+        unsafe.copyMemory(src, ARRAY_BYTE_BASE_OFFSET + srcOffset, base, address+index, length);
+    }
+
+    public void putByteBuffer(int index, ByteBuffer src, int len) {
+        assert(len <= src.remaining());
+
+        if(src.isDirect()) {
+            DirectBuffer db = (DirectBuffer) src;
+            unsafe.copyMemory(null, db.address() + src.position(), base, address+index, len);
+        } else if(src.hasArray()) {
+            byte[] srcArray = src.array();
+            unsafe.copyMemory(srcArray, ARRAY_BYTE_BASE_OFFSET + src.position(), base, address+index, len);
+        } else {
+            throw new IllegalArgumentException("Only the array-backed ByteBuffer or DirectBuffer are supported");
+        }
+        src.position(src.position() + len);
+    }
+
 
     public ByteBuffer toByteBuffer(int index, int length) {
         if(base instanceof byte[]) {
