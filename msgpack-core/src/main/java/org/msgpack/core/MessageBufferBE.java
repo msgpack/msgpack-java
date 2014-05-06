@@ -31,7 +31,10 @@ public class MessageBufferBE extends MessageBuffer {
         return unsafe.getFloat(base, address + index);
     }
 
-
+    @Override
+    public double getDouble(int index) {
+        return unsafe.getDouble(base, address + index);
+    }
 
     @Override
     public void putShort(int index, short v) {
@@ -43,8 +46,14 @@ public class MessageBufferBE extends MessageBuffer {
         unsafe.putInt(base, address + index, v);
     }
 
-    public void putLong(int index, int v) {
+    @Override
+    public void putLong(int index, long v) {
         unsafe.putLong(base, address + index, v);
+    }
+
+    @Override
+    public void putDouble(int index, double v) {
+        unsafe.putDouble(base, address + index, v);
     }
 
 

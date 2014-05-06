@@ -16,7 +16,7 @@
 package org.msgpack.core;
 
 /**
- * Represents an failure when wrong unpacking call
+ * Representing type mismatch errors
  */
 public class MessageTypeException extends MessageException {
     public MessageTypeException() {

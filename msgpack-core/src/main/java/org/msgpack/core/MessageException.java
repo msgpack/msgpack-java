@@ -16,7 +16,9 @@
 package org.msgpack.core;
 
 
-
+/**
+ * A base class of the exceptions used in msgpack
+ */
 public class MessageException extends RuntimeException {
     public MessageException() {
         super();
