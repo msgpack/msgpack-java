@@ -15,12 +15,22 @@
 //
 package org.msgpack.core;
 
-public class MessageMalformedFormatException extends MessageException {
-    public MessageMalformedFormatException(String message) {
-        super(message);
+import java.math.BigInteger;
+
+public class IntegerOverflowException extends MessageTypeException {
+    private final BigInteger bigInteger;
+
+    public IntegerOverflowException(BigInteger bigInteger) {
+        super();
+        this.bigInteger = bigInteger;
     }
 
-    public MessageMalformedFormatException(String message, Throwable cause) {
-        super(message, cause);
+    public IntegerOverflowException(String message, BigInteger bigInteger) {
+        super(message);
+        this.bigInteger = bigInteger;
+    }
+
+    public BigInteger getBigInteger() {
+        return bigInteger;
     }
 }

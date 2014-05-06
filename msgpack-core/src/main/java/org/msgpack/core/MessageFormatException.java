@@ -15,22 +15,15 @@
 //
 package org.msgpack.core;
 
-import java.math.BigInteger;
-
-public class MessageTypeIntegerOverflowException extends MessageTypeException {
-    private final BigInteger bigInteger;
-
-    public MessageTypeIntegerOverflowException(BigInteger bigInteger) {
-        super();
-        this.bigInteger = bigInteger;
-    }
-
-    public MessageTypeIntegerOverflowException(String message, BigInteger bigInteger) {
+/**
+ * When the message pack format is invalid
+ */
+public class MessageFormatException extends MessageException {
+    public MessageFormatException(String message) {
         super(message);
-        this.bigInteger = bigInteger;
     }
 
-    public BigInteger getBigInteger() {
-        return bigInteger;
+    public MessageFormatException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

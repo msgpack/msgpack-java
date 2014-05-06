@@ -84,10 +84,10 @@ public class MessageUnpacker implements Closeable {
     }
 
 
-    private static ValueType getTypeFromHeadByte(final byte b) throws MessageMalformedFormatException {
+    private static ValueType getTypeFromHeadByte(final byte b) throws MessageFormatException {
         ValueType vt = ValueType.lookUp(b);
         if(vt == ValueType.UNKNOWN)
-            throw new MessageMalformedFormatException(String.format("Invalid format code: %02x", b));
+            throw new MessageFormatException(String.format("Invalid format code: %02x", b));
         return vt;
     }
 
@@ -103,7 +103,7 @@ public class MessageUnpacker implements Closeable {
         if (head == READ_NEXT) {
             head = readByte();
             if (head == READ_NEXT) {
-                throw new MessageMalformedFormatException("Invalid format byte: " + head);
+                throw new MessageFormatException("Invalid format byte: " + head);
             }
         }
         return head;
@@ -123,7 +123,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     private static MessageTypeCastException unexpectedHeadByte(final String expectedTypeName, final byte b)
-            throws MessageMalformedFormatException {
+            throws MessageFormatException {
         ValueType type = getTypeFromHeadByte(b);
         String name = type.name();
         return new MessageTypeCastException(
@@ -571,39 +571,39 @@ public class MessageUnpacker implements Closeable {
     // public long readPayload(...)
 
 
-    private static MessageTypeIntegerOverflowException overflowU8(final byte u8) {
+    private static IntegerOverflowException overflowU8(final byte u8) {
         final BigInteger bi = BigInteger.valueOf((long) (u8 & 0xff));
-        return new MessageTypeIntegerOverflowException(bi);
+        return new IntegerOverflowException(bi);
     }
 
-    private static MessageTypeIntegerOverflowException overflowU16(final short u16) {
+    private static IntegerOverflowException overflowU16(final short u16) {
         final BigInteger bi = BigInteger.valueOf((long) (u16 & 0xffff));
-        return new MessageTypeIntegerOverflowException(bi);
+        return new IntegerOverflowException(bi);
     }
 
-    private static MessageTypeIntegerOverflowException overflowU32(final int u32) {
+    private static IntegerOverflowException overflowU32(final int u32) {
         final BigInteger bi = BigInteger.valueOf((long) (u32 & 0x7fffffff) + 0x80000000L);
-        return new MessageTypeIntegerOverflowException(bi);
+        return new IntegerOverflowException(bi);
     }
 
-    private static MessageTypeIntegerOverflowException overflowU64(final long u64) {
+    private static IntegerOverflowException overflowU64(final long u64) {
         final BigInteger bi = BigInteger.valueOf(u64 + Long.MAX_VALUE + 1L).setBit(63);
-        return new MessageTypeIntegerOverflowException(bi);
+        return new IntegerOverflowException(bi);
     }
 
-    private static MessageTypeIntegerOverflowException overflowI16(final short i16) {
+    private static IntegerOverflowException overflowI16(final short i16) {
         final BigInteger bi = BigInteger.valueOf((long) i16);
-        return new MessageTypeIntegerOverflowException(bi);
+        return new IntegerOverflowException(bi);
     }
 
-    private static MessageTypeIntegerOverflowException overflowI32(final int i32) {
+    private static IntegerOverflowException overflowI32(final int i32) {
         final BigInteger bi = BigInteger.valueOf((long) i32);
-        return new MessageTypeIntegerOverflowException(bi);
+        return new IntegerOverflowException(bi);
     }
 
-    private static MessageTypeIntegerOverflowException overflowI64(final long i64) {
+    private static IntegerOverflowException overflowI64(final long i64) {
         final BigInteger bi = BigInteger.valueOf(i64);
-        return new MessageTypeIntegerOverflowException(bi);
+        return new IntegerOverflowException(bi);
     }
 
     private static MessageSizeLimitException overflowU32Size(final int u32) {

@@ -507,7 +507,7 @@ class AbstractUnionMutableValue
     // resetToBinaryValue() uses union.setByteBuffer
     // encodeString() uses union.setByteBuffer
     //
-    // union.getType() == STRING && decodedStringCache != null never happens
+    // union.getValueType() == STRING && decodedStringCache != null never happens
     // because it sets decodedStringCache when it calls union.setString
     //
 

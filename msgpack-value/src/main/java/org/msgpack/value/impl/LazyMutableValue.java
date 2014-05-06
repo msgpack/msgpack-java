@@ -65,7 +65,7 @@ public class LazyMutableValue
     }
 
     @Override
-    public ValueType getType() {
+    public ValueType getValueType() {
         if (!isSet()) {
             try {
                 lazyRead();
@@ -73,7 +73,7 @@ public class LazyMutableValue
                 throw new RuntimeException(ex);  // TODO RuntimeIOException
             }
         }
-        return super.getType();
+        return super.getValueType();
     }
 
     public void advance() {

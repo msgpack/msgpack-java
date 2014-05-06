@@ -17,8 +17,10 @@ public class MessagePack {
      * Message pack code set. See also https://github.com/msgpack/msgpack/blob/master/spec.md
      */
     public static class Code {
+        public static final byte POSFIXINT_MASK = (byte) 0x80;
+
         public static final byte FIXMAP_PREFIX = (byte) 0x80;
-        public static final byte FIXARRAY_PREFIX = (byte) 0x00;
+        public static final byte FIXARRAY_PREFIX = (byte) 0x90;
         public static final byte FIXSTR_PREFIX = (byte) 0xa0;
         public static final byte NIL = (byte) 0xc0;
         public static final byte NEVER_USED = (byte) 0xc1;
