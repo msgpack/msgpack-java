@@ -68,6 +68,20 @@ public enum MessageFormat {
         return valueType;
     }
 
+    private final static MessageFormat[] formatTable = MessageFormat.values();
+    private final static byte[] table = new byte[256];
+
+    static {
+        for(int b = 0; b < 0xFF; ++b) {
+            table[b] = (byte) toMessageFormat((byte) b).ordinal();
+        }
+    }
+
+    public static MessageFormat lookUp(final byte b) {
+        return formatTable[table[b & 0xFF]];
+    }
+
+
     static MessageFormat toMessageFormat(final byte b) {
         if ((b & Code.POSFIXINT_MASK) == 0) { // positive fixint
             return FIXINT;
