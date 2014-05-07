@@ -72,7 +72,7 @@ public enum MessageFormat {
     private final static byte[] table = new byte[256];
 
     static {
-        for(int b = 0; b < 0xFF; ++b) {
+        for(int b = 0; b <= 0xFF; ++b) {
             table[b] = (byte) toMessageFormat((byte) b).ordinal();
         }
     }
@@ -83,19 +83,19 @@ public enum MessageFormat {
 
 
     static MessageFormat toMessageFormat(final byte b) {
-        if ((b & Code.POSFIXINT_MASK) == 0) { // positive fixint
+        if ((b & Code.POSFIXINT_MASK) == 0) {
             return FIXINT;
         }
-        if ((b & Code.NEGFIXINT_PREFIX) == Code.NEGFIXINT_PREFIX) { // negative fixint
+        if ((b & Code.NEGFIXINT_PREFIX) == Code.NEGFIXINT_PREFIX) {
             return NEGFIXINT;
         }
-        if ((b & 0xe0) == Code.FIXSTR_PREFIX) { // fixstr
+        if ((b & 0xe0) == Code.FIXSTR_PREFIX) {
             return FIXSTR;
         }
-        if ((b & 0xf0) == Code.FIXARRAY_PREFIX) { // fixarray
+        if ((b & 0xf0) == Code.FIXARRAY_PREFIX) {
             return FIXARRAY;
         }
-        if ((b & 0xf0) == Code.FIXMAP_PREFIX) { // fixmap
+        if ((b & 0xf0) == Code.FIXMAP_PREFIX) {
             return FIXMAP;
         }
         switch (b & 0xff) {

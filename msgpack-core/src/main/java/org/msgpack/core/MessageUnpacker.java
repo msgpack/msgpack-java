@@ -64,7 +64,12 @@ public class MessageUnpacker implements Closeable {
         if(position + readSize < buffer.size)
             return;
 
+        if(readSize < buffer.size) {
+            // relocate the buffer contents
 
+
+
+        }
     }
 
 

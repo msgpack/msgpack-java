@@ -148,7 +148,7 @@ public enum ValueType {
     private static ValueType[] symbolTable = ValueType.values();
     static {
         // Preparing symbol table (byte value -> ValueType ordinal)
-        for(int b = 0; b < 0xFF; ++b) {
+        for(int b = 0; b <= 0xFF; ++b) {
             table[b] = (byte) toValueType((byte) b).ordinal();
         }
     }

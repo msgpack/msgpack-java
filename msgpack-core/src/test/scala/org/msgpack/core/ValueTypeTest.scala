@@ -58,11 +58,11 @@ class ValueTypeTest extends MessagePackSpec {
 
     "lookup table" in {
 
-      val N = 10000000
+      val N = 1000000
       val idx = {
         val b = Array.newBuilder[Byte]
         for(i <- 0 until N)
-          b += (Random.nextInt(256) - 127).toByte
+          b += (Random.nextInt(256)).toByte
         b.result()
       }
 
