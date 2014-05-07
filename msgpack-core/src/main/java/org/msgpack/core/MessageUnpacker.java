@@ -223,10 +223,6 @@ public class MessageUnpacker implements Closeable {
             consumeByte();
             return b;
         }
-        if (Code.isNegFixInt(b)) {
-            consumeByte();
-            return b;
-        }
         switch (b) {
             case Code.UINT8: // unsigned int 8
                 byte u8 = readByte();
@@ -283,10 +279,6 @@ public class MessageUnpacker implements Closeable {
             consumeByte();
             return (short) b;
         }
-        if (Code.isNegFixInt(b)) {
-            consumeByte();
-            return (short) b;
-        }
         switch (b) {
             case Code.UINT8: // unsigned int 8
                 byte u8 = readByte();
@@ -334,11 +326,7 @@ public class MessageUnpacker implements Closeable {
 
     public int unpackInt() throws IOException {
         final byte b = getHead();
-        if ((b & 0x80) == 0) {
-            consumeByte();
-            return (int) b;
-        }
-        if ((b & 0xe0) == 0xe0) {
+        if (Code.isFixInt(b)) {
             consumeByte();
             return (int) b;
         }
@@ -387,11 +375,7 @@ public class MessageUnpacker implements Closeable {
             consumeByte();
             return (long) b;
         }
-        if (Code.isNegFixInt(b)) {
-            consumeByte();
-            return (long) b;
-        }
-        switch (b & 0xff) {
+        switch (b) {
             case Code.UINT8: // unsigned int 8
                 byte u8 = readByte();
                 return (long) (u8 & 0xff);
@@ -430,13 +414,7 @@ public class MessageUnpacker implements Closeable {
 
     public BigInteger unpackBigInteger() throws IOException {
         final byte b = getHead();
-        if ((b & 0x80) == 0) {
-            // positive fixint
-            head = READ_NEXT;
-            return BigInteger.valueOf((long) b);
-        }
-        if ((b & 0xe0) == 0xe0) {
-            // negative fixint
+        if (Code.isFixInt(b)) {
             head = READ_NEXT;
             return BigInteger.valueOf((long) b);
         }
@@ -518,14 +496,14 @@ public class MessageUnpacker implements Closeable {
 
     public int unpackArrayHeader() throws IOException {
         final byte b = getHead();
-        if ((b & 0xf0) == 0x90) { // fixarray
-            head = READ_NEXT;
+        if (Code.isFixedArray(b)) { // fixarray
+            consumeByte();
             return b & 0x0f;
         }
-        switch (b & 0xff) {
-            case 0xdc: // array 16
+        switch (b) {
+            case Code.ARRAY16: // array 16
                 return getNextLength16();
-            case 0xdd: // array 32
+            case Code.ARRAY32: // array 32
                 return getNextLength32();
         }
         throw unexpectedHeadByte("Array", b);
@@ -533,14 +511,14 @@ public class MessageUnpacker implements Closeable {
 
     public int unpackMapHeader() throws IOException {
         final byte b = getHead();
-        if ((b & 0xf0) == 0x80) { // fixmap
-            head = READ_NEXT;
+        if (Code.isFixedMap(b)) { // fixmap
+            consumeByte();
             return b & 0x0f;
         }
-        switch (b & 0xff) {
-            case 0xde: // map 16
+        switch (b) {
+            case Code.MAP16: // map 16
                 return getNextLength16();
-            case 0xdf: // map 32
+            case Code.MAP32: // map 32
                 return getNextLength32();
         }
         throw unexpectedHeadByte("Map", b);

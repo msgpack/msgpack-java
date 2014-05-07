@@ -84,7 +84,7 @@ public enum ValueType {
 
 
     static ValueType toValueType(final byte b) {
-        if (Code.isFixInt(b)) { // positive fixint
+        if (Code.isPosFixInt(b)) { // positive fixint
             return ValueType.INTEGER;
         }
         if (Code.isNegFixInt(b)) { // negative fixint

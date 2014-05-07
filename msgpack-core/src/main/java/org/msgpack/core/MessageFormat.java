@@ -82,7 +82,7 @@ public enum MessageFormat {
 
 
     static MessageFormat toMessageFormat(final byte b) {
-        if (Code.isFixInt(b)) {
+        if (Code.isPosFixInt(b)) {
             return FIXINT;
         }
         if (Code.isNegFixInt(b)) {

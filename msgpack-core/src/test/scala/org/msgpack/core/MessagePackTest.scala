@@ -13,11 +13,11 @@ class MessagePackTest extends MessagePackSpec {
     "detect fixint values" in {
 
       for (i <- 0 until 0x79) {
-        Code.isFixInt(i.toByte) shouldBe true
+        Code.isPosFixInt(i.toByte) shouldBe true
       }
 
       for (i <- 0x80 until 0xFF) {
-        Code.isFixInt(i.toByte) shouldBe false
+        Code.isPosFixInt(i.toByte) shouldBe false
       }
     }
 
@@ -43,7 +43,7 @@ class MessagePackTest extends MessagePackSpec {
           var i = 0
           var count = 0
           while (i < N) {
-            if (Code.isFixInt(idx(i))) {
+            if (Code.isPosFixInt(idx(i))) {
               count += 1
             }
             i += 1
