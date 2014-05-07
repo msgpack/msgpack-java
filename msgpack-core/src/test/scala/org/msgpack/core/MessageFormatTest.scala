@@ -4,6 +4,8 @@ import org.scalatest.FunSuite
 import org.msgpack.core.MessagePack.Code._
 import org.scalatest.exceptions.TestFailedException
 import org.msgpack.core.MessagePack.Code
+import scala.util.Random
+import xerial.core.log.LogLevel
 
 /**
  * Created on 2014/05/07.
@@ -84,6 +86,35 @@ class MessageFormatTest extends MessagePackSpec {
 
       for(i <- 0xe0 until 0xff)
         check(i.toByte, ValueType.INTEGER, MessageFormat.NEGFIXINT)
+
+    }
+
+    "improve the lookUp performance" in {
+
+      val N = 1000000
+      val idx = (0 until N).map(x => Random.nextInt(256).toByte).toArray[Byte]
+
+      // Initialize
+      MessageFormat.lookUp(0)
+
+      time("lookup", repeat = 100, logLevel = LogLevel.INFO) {
+        block("switch") {
+          var i = 0
+          while(i < N) {
+            MessageFormat.toMessageFormat(idx(i))
+            i += 1
+          }
+        }
+
+        block("table") {
+          var i = 0
+          while(i < N) {
+            MessageFormat.lookUp(idx(i))
+            i += 1
+          }
+        }
+
+      }
 
     }
 
