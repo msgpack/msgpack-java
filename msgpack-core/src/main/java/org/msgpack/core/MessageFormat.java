@@ -82,19 +82,19 @@ public enum MessageFormat {
 
 
     static MessageFormat toMessageFormat(final byte b) {
-        if ((b & Code.POSFIXINT_MASK) == 0) {
+        if (Code.isFixInt(b)) {
             return FIXINT;
         }
-        if ((b & Code.NEGFIXINT_PREFIX) == Code.NEGFIXINT_PREFIX) {
+        if (Code.isNegFixInt(b)) {
             return NEGFIXINT;
         }
-        if ((b & 0xe0) == Code.FIXSTR_PREFIX) {
+        if (Code.isFixStr(b)) {
             return FIXSTR;
         }
-        if ((b & 0xf0) == Code.FIXARRAY_PREFIX) {
+        if (Code.isFixedArray(b)) {
             return FIXARRAY;
         }
-        if ((b & 0xf0) == Code.FIXMAP_PREFIX) {
+        if (Code.isFixedMap(b)) {
             return FIXMAP;
         }
         switch (b) {

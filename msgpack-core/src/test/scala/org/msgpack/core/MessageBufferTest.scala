@@ -13,7 +13,7 @@ class MessageBufferTest extends MessagePackSpec {
   "Buffer" should {
     "getInt" in {
 
-      val N = 100000000
+      val N = 10000000
       val M = 64 * 1024 * 1024
 
       val ub = MessageBuffer.newBuffer(M)

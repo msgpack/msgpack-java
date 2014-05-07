@@ -20,7 +20,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import java.nio.charset.CharsetDecoder;
-import static org.msgpack.core.MessagePack.Code.*;
+import org.msgpack.core.MessagePack.Code;
+
 
 // TODO impl
 public class MessageUnpacker implements Closeable {
@@ -34,9 +35,8 @@ public class MessageUnpacker implements Closeable {
         // unpackString size limit // default: Integer.MAX_VALUE
     }
 
-    //
-    private static final byte READ_NEXT = NEVER_USED;
-    private static final int REQUIRE_TO_READ_SIZE = -1;
+    private static final byte READ_NEXT = Code.NEVER_USED;
+
 
     private final MessageBufferInput in;
 
@@ -54,29 +54,22 @@ public class MessageUnpacker implements Closeable {
 
     // internal state
     private byte head = READ_NEXT;
-
+    private static final int READ_SIZE = -1;
 
     public MessageUnpacker(MessageBufferInput in) {
         this.in = in;
     }
 
-    private void ensure(int readSize) {
+    private void ensure(int readSize) throws IOException {
         if(position + readSize < buffer.size)
             return;
 
         if(readSize < buffer.size) {
             // relocate the buffer contents
 
-
-
         }
     }
 
-
-    private byte readByte() {
-        ensure(1);
-        return buffer.getByte(position++);
-    }
 
 
     private CharsetDecoder getCharsetDecoder() {
@@ -97,13 +90,18 @@ public class MessageUnpacker implements Closeable {
     }
 
     public ValueType getNextType() throws IOException {
-        return getTypeFromHeadByte(head);
+        return ValueType.lookUp(getHead());
     }
 
     public MessageFormat getNextFormat() throws IOException {
-        return null;
+        return MessageFormat.lookUp(getHead());
     }
 
+    /**
+     *
+     * @return
+     * @throws IOException
+     */
     private byte getHead() throws IOException {
         if (head == READ_NEXT) {
             head = readByte();
@@ -113,6 +111,69 @@ public class MessageUnpacker implements Closeable {
         }
         return head;
     }
+
+
+    private byte lookAheadByte() throws IOException {
+        if (head == READ_NEXT) {
+            ensure(1);
+            head = buffer.getByte(position);
+        }
+        return head;
+    }
+
+    private void consumeByte() {
+        head = READ_NEXT;
+        position++;
+    }
+
+    /**
+     * Read a byte value at the cursor and proceed the cursor.
+     * It also rests the head value to READ_NEXT.
+     * @return
+     * @throws IOException
+     */
+    private byte readByte() throws IOException {
+        ensure(1);
+        byte b = buffer.getByte(position++);
+        head = READ_NEXT;
+        return b;
+    }
+
+    private short readShort() throws IOException {
+        ensure(2);
+        short s = buffer.getShort(position);
+        position += 2;
+        return s;
+    }
+
+    private int readInt() throws IOException {
+        ensure(4);
+        int i = buffer.getInt(position);
+        position += 4;
+        return i;
+    }
+
+    private float readFloat() throws IOException {
+        ensure(4);
+        float f = buffer.getFloat(position);
+        position += 4;
+        return f;
+    }
+
+    private long readLong() throws IOException {
+        ensure(8);
+        long l = buffer.getLong(position);
+        position += 8;
+        return l;
+    }
+
+    private double readDouble() throws IOException {
+        ensure(8);
+        double d = buffer.getDouble(position);
+        position += 8;
+        return d;
+    }
+
 
     public void skipToken() throws IOException {
 
@@ -146,42 +207,6 @@ public class MessageUnpacker implements Closeable {
     }
 
 
-    private final byte readByteAndResetHeadByte() throws IOException {
-        byte v = buffer.getByte(position++);
-        head = READ_NEXT;
-        return v;
-    }
-
-    private final short readShortAndResetHeadByte() throws IOException {
-        short v = buffer.getShort(position++);
-        head = READ_NEXT;
-        return v;
-    }
-
-    private final int readIntAndResetHeadByte() throws IOException {
-        int v = buffer.getInt(position++);
-        head = READ_NEXT;
-        return v;
-    }
-
-    private final long readLongAndResetHeadByte() throws IOException {
-        long v = buffer.getLong(position++);
-        head = READ_NEXT;
-        return v;
-    }
-
-    private final float readFloatAndResetHeadByte() throws IOException {
-        float v = buffer.getFloat(position++);
-        head = READ_NEXT;
-        return v;
-    }
-
-    private final double readDoubleAndResetHeadByte() throws IOException {
-        double v = buffer.getDouble(position++);
-        head = READ_NEXT;
-        return v;
-    }
-
     public boolean unpackBoolean() throws IOException {
         final byte b = getHead();
         if(b == 0xc2)
@@ -194,116 +219,111 @@ public class MessageUnpacker implements Closeable {
 
     public byte unpackByte() throws IOException {
         final byte b = getHead();
-        if ((b & 0x80) == 0) {
-            // positive fixint
-            head = READ_NEXT;
+        if (Code.isFixInt(b)) {
+            consumeByte();
             return b;
         }
-        if ((b & 0xe0) == 0xe0) {
-            // negative fixint
-            head = READ_NEXT;
+        if (Code.isNegFixInt(b)) {
+            consumeByte();
             return b;
         }
-        switch (b & 0xff) {
-            case 0xcc: // unsigned int 8
-                byte u8 = readByteAndResetHeadByte();
+        switch (b) {
+            case Code.UINT8: // unsigned int 8
+                byte u8 = readByte();
                 if (u8 < (byte) 0) {
                     throw overflowU8(u8);
                 }
                 return u8;
-            case 0xcd: // unsigned int 16
-                short u16 = readShortAndResetHeadByte();
-                if (u16 < (short) 0 || u16 > (short) Byte.MAX_VALUE) {
+            case Code.UINT16: // unsigned int 16
+                short u16 = readShort();
+                if (u16 < 0 || u16 > Byte.MAX_VALUE) {
                     throw overflowU16(u16);
                 }
                 return (byte) u16;
-            case 0xce: // unsigned int 32
-                int u32 = readIntAndResetHeadByte();
-                if (u32 < 0 || u32 > (int) Byte.MAX_VALUE) {
+            case Code.UINT32: // unsigned int 32
+                int u32 = readInt();
+                if (u32 < 0 || u32 > Byte.MAX_VALUE) {
                     throw overflowU32(u32);
                 }
                 return (byte) u32;
-            case 0xcf: // unsigned int 64
-                long u64 = readLongAndResetHeadByte();
-                if (u64 < 0L || u64 > (long) Byte.MAX_VALUE) {
+            case Code.UINT64: // unsigned int 64
+                long u64 = readLong();
+                if (u64 < 0L || u64 > Byte.MAX_VALUE) {
                     throw overflowU64(u64);
                 }
                 return (byte) u64;
-            case 0xd0: // signed int 8
-                byte i8 = readByteAndResetHeadByte();
+            case Code.INT8: // signed int 8
+                byte i8 = readByte();
                 return i8;
-            case 0xd1: // signed int 16
-                short i16 = readShortAndResetHeadByte();
-                if (i16 < (short) Byte.MIN_VALUE || i16 > (short) Byte.MAX_VALUE) {
+            case Code.INT16: // signed int 16
+                short i16 = readShort();
+                if (i16 < Byte.MIN_VALUE || i16 > Byte.MAX_VALUE) {
                     throw overflowI16(i16);
                 }
                 return (byte) i16;
-            case 0xd2: // signed int 32
-                int i32 = readIntAndResetHeadByte();
-                if (i32 < (int) Byte.MIN_VALUE || i32 > (int) Byte.MAX_VALUE) {
+            case Code.INT32: // signed int 32
+                int i32 = readInt();
+                if (i32 < Byte.MIN_VALUE || i32 > Byte.MAX_VALUE) {
                     throw overflowI32(i32);
                 }
                 return (byte) i32;
-            case 0xd3: // signed int 64
-                long i64 = readLongAndResetHeadByte();
-                if (i64 < (long) Byte.MIN_VALUE || i64 > (long) Byte.MAX_VALUE) {
+            case Code.INT64: // signed int 64
+                long i64 = readLong();
+                if (i64 < Byte.MIN_VALUE || i64 > Byte.MAX_VALUE) {
                     throw overflowI64(i64);
                 }
                 return (byte) i64;
         }
         throw unexpectedHeadByte("Integer", b);
-
     }
 
     public short unpackShort() throws IOException {
         final byte b = getHead();
-        if ((b & 0x80) == 0) {
-            // positive fixint
-            head = READ_NEXT;
+        if (Code.isFixInt(b)) {
+            consumeByte();
             return (short) b;
         }
-        if ((b & 0xe0) == 0xe0) {
-            // negative fixint
-            head = READ_NEXT;
+        if (Code.isNegFixInt(b)) {
+            consumeByte();
             return (short) b;
         }
-        switch (b & 0xff) {
-            case 0xcc: // unsigned int 8
-                byte u8 = readByteAndResetHeadByte();
+        switch (b) {
+            case Code.UINT8: // unsigned int 8
+                byte u8 = readByte();
                 return (short) (u8 & 0xff);
-            case 0xcd: // unsigned int 16
-                short u16 = readShortAndResetHeadByte();
+            case Code.UINT16: // unsigned int 16
+                short u16 = readShort();
                 if (u16 < (short) 0) {
                     throw overflowU16(u16);
                 }
                 return u16;
-            case 0xce: // unsigned int 32
-                int u32 = readIntAndResetHeadByte();
-                if (u32 < 0 || u32 > (int) Short.MAX_VALUE) {
+            case Code.UINT32: // unsigned int 32
+                int u32 = readInt();
+                if (u32 < 0 || u32 >  Short.MAX_VALUE) {
                     throw overflowU32(u32);
                 }
                 return (short) u32;
-            case 0xcf: // unsigned int 64
-                long u64 = readLongAndResetHeadByte();
-                if (u64 < 0L || u64 > (long) Short.MAX_VALUE) {
+            case Code.UINT64: // unsigned int 64
+                long u64 = readLong();
+                if (u64 < 0L || u64 > Short.MAX_VALUE) {
                     throw overflowU64(u64);
                 }
                 return (short) u64;
-            case 0xd0: // signed int 8
-                byte i8 = readByteAndResetHeadByte();
+            case Code.INT8: // signed int 8
+                byte i8 = readByte();
                 return (short) i8;
-            case 0xd1: // signed int 16
-                short i16 = readShortAndResetHeadByte();
+            case Code.INT16: // signed int 16
+                short i16 = readShort();
                 return i16;
-            case 0xd2: // signed int 32
-                int i32 = readIntAndResetHeadByte();
-                if (i32 < (int) Short.MIN_VALUE || i32 > (int) Short.MAX_VALUE) {
+            case Code.INT32: // signed int 32
+                int i32 = readInt();
+                if (i32 < Short.MIN_VALUE || i32 > Short.MAX_VALUE) {
                     throw overflowI32(i32);
                 }
                 return (short) i32;
-            case 0xd3: // signed int 64
-                long i64 = readLongAndResetHeadByte();
-                if (i64 < (long) Short.MIN_VALUE || i64 > (long) Short.MAX_VALUE) {
+            case Code.INT64: // signed int 64
+                long i64 = readLong();
+                if (i64 < Short.MIN_VALUE || i64 > Short.MAX_VALUE) {
                     throw overflowI64(i64);
                 }
                 return (short) i64;
@@ -315,45 +335,43 @@ public class MessageUnpacker implements Closeable {
     public int unpackInt() throws IOException {
         final byte b = getHead();
         if ((b & 0x80) == 0) {
-            // positive fixint
-            head = READ_NEXT;
+            consumeByte();
             return (int) b;
         }
         if ((b & 0xe0) == 0xe0) {
-            // negative fixint
-            head = READ_NEXT;
+            consumeByte();
             return (int) b;
         }
-        switch (b & 0xff) {
-            case 0xcc: // unsigned int 8
-                byte u8 = readByteAndResetHeadByte();
+        switch (b) {
+            case Code.UINT8: // unsigned int 8
+                byte u8 = readByte();
                 return u8 & 0xff;
-            case 0xcd: // unsigned int 16
-                short u16 = readShortAndResetHeadByte();
+            case Code.UINT16: // unsigned int 16
+                short u16 = readShort();
                 return u16 & 0xffff;
-            case 0xce: // unsigned int 32
-                int u32 = readIntAndResetHeadByte();
+            case Code.UINT32: // unsigned int 32
+                int u32 = readInt();
                 if (u32 < 0) {
                     throw overflowU32(u32);
                 }
                 return u32;
-            case 0xcf: // unsigned int 64
-                long u64 = readLongAndResetHeadByte();
+            case Code.UINT64: // unsigned int 64
+                long u64 = readLong();
                 if (u64 < 0L || u64 > (long) Integer.MAX_VALUE) {
                     throw overflowU64(u64);
                 }
                 return (int) u64;
-            case 0xd0: // signed int 8
-                byte i8 = readByteAndResetHeadByte();
+            case Code.INT8: // signed int 8
+                byte i8 = readByte();
                 return i8;
-            case 0xd1: // signed int 16
-                short i16 = readShortAndResetHeadByte();
+            case Code.INT16: // signed int 16
+                short i16 = readShort();
                 return i16;
-            case 0xd2: // signed int 32
-                int i32 = readIntAndResetHeadByte();
+            case Code.INT32: // signed int 32
+                int i32 = readInt();
                 return i32;
-            case 0xd3: // signed int 64
-                long i64 = readLongAndResetHeadByte();
+            case Code.INT64: // signed int 64
+                long i64 = readLong();
                 if (i64 < (long) Integer.MIN_VALUE || i64 > (long) Integer.MAX_VALUE) {
                     throw overflowI64(i64);
                 }
@@ -365,47 +383,45 @@ public class MessageUnpacker implements Closeable {
 
     public long unpackLong() throws IOException {
         final byte b = getHead();
-        if ((b & 0x80) == 0) {
-            // positive fixint
-            head = READ_NEXT;
+        if (Code.isFixInt(b)) {
+            consumeByte();
             return (long) b;
         }
-        if ((b & 0xe0) == 0xe0) {
-            // negative fixint
-            head = READ_NEXT;
+        if (Code.isNegFixInt(b)) {
+            consumeByte();
             return (long) b;
         }
         switch (b & 0xff) {
-            case 0xcc: // unsigned int 8
-                byte u8 = readByteAndResetHeadByte();
+            case Code.UINT8: // unsigned int 8
+                byte u8 = readByte();
                 return (long) (u8 & 0xff);
-            case 0xcd: // unsigned int 16
-                short u16 = readShortAndResetHeadByte();
+            case Code.UINT16: // unsigned int 16
+                short u16 = readShort();
                 return (long) (u16 & 0xffff);
-            case 0xce: // unsigned int 32
-                int u32 = readIntAndResetHeadByte();
+            case Code.UINT32: // unsigned int 32
+                int u32 = readInt();
                 if (u32 < 0) {
                     return (long) (u32 & 0x7fffffff) + 0x80000000L;
                 } else {
                     return (long) u32;
                 }
-            case 0xcf: // unsigned int 64
-                long u64 = readLongAndResetHeadByte();
+            case Code.UINT64: // unsigned int 64
+                long u64 = readLong();
                 if (u64 < 0L) {
                     throw overflowU64(u64);
                 }
                 return u64;
-            case 0xd0: // signed int 8
-                byte i8 = readByteAndResetHeadByte();
+            case Code.INT8: // signed int 8
+                byte i8 = readByte();
                 return (long) i8;
-            case 0xd1: // signed int 16
-                short i16 = readShortAndResetHeadByte();
+            case Code.INT16: // signed int 16
+                short i16 = readShort();
                 return (long) i16;
-            case 0xd2: // signed int 32
-                int i32 = readIntAndResetHeadByte();
+            case Code.INT32: // signed int 32
+                int i32 = readInt();
                 return (long) i32;
-            case 0xd3: // signed int 64
-                long i64 = readLongAndResetHeadByte();
+            case Code.INT64: // signed int 64
+                long i64 = readLong();
                 return i64;
         }
         throw unexpectedHeadByte("Integer", b);
@@ -424,39 +440,39 @@ public class MessageUnpacker implements Closeable {
             head = READ_NEXT;
             return BigInteger.valueOf((long) b);
         }
-        switch (b & 0xff) {
-            case 0xcc: // unsigned int 8
-                byte u8 = readByteAndResetHeadByte();
+        switch (b) {
+            case Code.UINT8: // unsigned int 8
+                byte u8 = readByte();
                 return BigInteger.valueOf((long) (u8 & 0xff));
-            case 0xcd: // unsigned int 16
-                short u16 = readShortAndResetHeadByte();
+            case Code.UINT16: // unsigned int 16
+                short u16 = readShort();
                 return BigInteger.valueOf((long) (u16 & 0xffff));
-            case 0xce: // unsigned int 32
-                int u32 = readIntAndResetHeadByte();
+            case Code.UINT32: // unsigned int 32
+                int u32 = readInt();
                 if (u32 < 0) {
                     return BigInteger.valueOf((long) (u32 & 0x7fffffff) + 0x80000000L);
                 } else {
                     return BigInteger.valueOf((long) u32);
                 }
-            case 0xcf: // unsigned int 64
-                long u64 = readLongAndResetHeadByte();
+            case Code.UINT64: // unsigned int 64
+                long u64 = readLong();
                 if (u64 < 0L) {
                     BigInteger bi = BigInteger.valueOf(u64 + Long.MAX_VALUE + 1L).setBit(63);
                     return bi;
                 } else {
                     return BigInteger.valueOf(u64);
                 }
-            case 0xd0: // signed int 8
-                byte i8 = readByteAndResetHeadByte();
+            case Code.INT8: // signed int 8
+                byte i8 = readByte();
                 return BigInteger.valueOf((long) i8);
-            case 0xd1: // signed int 16
-                short i16 = readShortAndResetHeadByte();
+            case Code.INT16: // signed int 16
+                short i16 = readShort();
                 return BigInteger.valueOf((long) i16);
-            case 0xd2: // signed int 32
-                int i32 = readIntAndResetHeadByte();
+            case Code.INT32: // signed int 32
+                int i32 = readInt();
                 return BigInteger.valueOf((long) i32);
-            case 0xd3: // signed int 64
-                long i64 = readLongAndResetHeadByte();
+            case Code.INT64: // signed int 64
+                long i64 = readLong();
                 return BigInteger.valueOf(i64);
         }
         throw unexpectedHeadByte("Integer", b);
@@ -464,12 +480,12 @@ public class MessageUnpacker implements Closeable {
 
     public float unpackFloat() throws IOException {
         final byte b = getHead();
-        switch (b & 0xff) {
-            case 0xca: // float
-                float fv = readFloatAndResetHeadByte();
+        switch (b) {
+            case Code.FLOAT32: // float
+                float fv = readFloat();
                 return fv;
-            case 0xcb: // double
-                double dv = readFloatAndResetHeadByte();
+            case Code.FLOAT64: // double
+                double dv = readFloat();
                 return (float) dv;
         }
         throw unexpectedHeadByte("Float", b);
@@ -478,12 +494,12 @@ public class MessageUnpacker implements Closeable {
 
     public double unpackDouble() throws IOException {
         final byte b = getHead();
-        switch (b & 0xff) {
-            case 0xca: // float
-                float fv = readFloatAndResetHeadByte();
+        switch (b) {
+            case Code.FLOAT32: // float
+                float fv = readFloat();
                 return (double) fv;
-            case 0xcb: // double
-                double dv = readFloatAndResetHeadByte();
+            case Code.FLOAT64: // double
+                double dv = readFloat();
                 return dv;
         }
         throw unexpectedHeadByte("Float", b);
@@ -537,15 +553,15 @@ public class MessageUnpacker implements Closeable {
 
     public int unpackRawStringHeader() throws IOException {
         final byte b = getHead();
-        if ((b & 0xe0) == 0xa0) { // FixRaw
+        if (Code.isFixedRaw(b)) { // FixRaw
             return b & 0x1f;
         }
-        switch (b & 0xff) {
-            case 0xd9: // str 8
+        switch (b) {
+            case Code.STR8: // str 8
                 return getNextLength8();
-            case 0xda: // str 16
+            case Code.STR16: // str 16
                 return getNextLength16();
-            case 0xdb: // str 32
+            case Code.STR32: // str 32
                 return getNextLength32();
         }
         throw unexpectedHeadByte("String", b);
@@ -553,12 +569,12 @@ public class MessageUnpacker implements Closeable {
     public int unpackBinaryHeader() throws IOException {
         // TODO option to allow str format family
         final byte b = getHead();
-        switch (b & 0xff) {
-            case 0xc4: // bin 8
+        switch (b) {
+            case Code.BIN8: // bin 8
                 return getNextLength8();
-            case 0xc5: // bin 16
+            case Code.BIN16: // bin 16
                 return getNextLength16();
-            case 0xc6: // bin 32
+            case Code.BIN32: // bin 32
                 return getNextLength32();
         }
         throw unexpectedHeadByte("Binary", b);
@@ -576,6 +592,39 @@ public class MessageUnpacker implements Closeable {
     // public long readPayload(...)
 
 
+
+    private int getNextLength8() throws IOException {
+        if (nextSize >= 0) {
+            return nextSize;
+        }
+        byte u8 = readByte();
+        return nextSize = u8 & 0xff;
+    }
+
+    private int getNextLength16() throws IOException {
+        if (nextSize >= 0) {
+            return nextSize;
+        }
+        short u16 = readShort();
+        return nextSize = u16 & 0xff;
+    }
+
+    private int getNextLength32() throws IOException {
+        if (nextSize >= 0) {
+            return nextSize;
+        }
+        int u32 = readInt();
+        if (u32 < 0) {
+            throw overflowU32Size(u32);
+        }
+        return nextSize = u32;
+    }
+
+    @Override
+    public void close() throws IOException {
+        // TODO
+    }
+
     private static IntegerOverflowException overflowU8(final byte u8) {
         final BigInteger bi = BigInteger.valueOf((long) (u8 & 0xff));
         return new IntegerOverflowException(bi);
@@ -585,7 +634,6 @@ public class MessageUnpacker implements Closeable {
         final BigInteger bi = BigInteger.valueOf((long) (u16 & 0xffff));
         return new IntegerOverflowException(bi);
     }
-
     private static IntegerOverflowException overflowU32(final int u32) {
         final BigInteger bi = BigInteger.valueOf((long) (u32 & 0x7fffffff) + 0x80000000L);
         return new IntegerOverflowException(bi);
@@ -617,35 +665,4 @@ public class MessageUnpacker implements Closeable {
     }
 
 
-    private int getNextLength8() throws IOException {
-        if (nextSize >= 0) {
-            return nextSize;
-        }
-        byte u8 = readByteAndResetHeadByte();
-        return nextSize = u8 & 0xff;
-    }
-
-    private int getNextLength16() throws IOException {
-        if (nextSize >= 0) {
-            return nextSize;
-        }
-        short u16 = readShortAndResetHeadByte();
-        return nextSize = u16 & 0xff;
-    }
-
-    private int getNextLength32() throws IOException {
-        if (nextSize >= 0) {
-            return nextSize;
-        }
-        int u32 = readIntAndResetHeadByte();
-        if (u32 < 0) {
-            throw overflowU32Size(u32);
-        }
-        return nextSize = u32;
-    }
-
-    @Override
-    public void close() throws IOException {
-        // TODO
-    }
 }

@@ -15,6 +15,8 @@
 //
 package org.msgpack.core;
 
+import org.msgpack.core.MessagePack.Code;
+
 public enum ValueType {
 
     UNKNOWN(false, false),
@@ -82,62 +84,62 @@ public enum ValueType {
 
 
     static ValueType toValueType(final byte b) {
-        if ((b & 0x80) == 0) { // positive fixint
+        if (Code.isFixInt(b)) { // positive fixint
             return ValueType.INTEGER;
         }
-        if ((b & 0xe0) == 0xe0) { // negative fixint
+        if (Code.isNegFixInt(b)) { // negative fixint
             return ValueType.INTEGER;
         }
-        if ((b & 0xe0) == 0xa0) { // fixstr
+        if (Code.isFixStr(b)) { // fixstr
             return ValueType.STRING;
         }
-        if ((b & 0xf0) == 0x90) { // fixarray
+        if (Code.isFixedArray(b)) { // fixarray
             return ValueType.ARRAY;
         }
-        if ((b & 0xf0) == 0x80) { // fixmap
+        if (Code.isFixedMap(b)) { // fixmap
             return ValueType.MAP;
         }
-        switch (b & 0xff) {
-            case 0xc0: // nil
+        switch (b) {
+            case Code.NIL: // nil
                 return ValueType.NIL;
-            case 0xc2: // false
-            case 0xc3: // true
+            case Code.FALSE: // false
+            case Code.TRUE: // true
                 return ValueType.BOOLEAN;
-            case 0xc4: // bin 8
-            case 0xc5: // bin 16
-            case 0xc6: // bin 32
+            case Code.BIN8: // bin 8
+            case Code.BIN16: // bin 16
+            case Code.BIN32: // bin 32
                 return ValueType.BINARY;
-            case 0xc7: // ext 8
-            case 0xc8: // ext 16
-            case 0xc9: // ext 32
+            case Code.EXT8: // ext 8
+            case Code.EXT16: // ext 16
+            case Code.EXT32: // ext 32
                 return ValueType.EXTENDED;
-            case 0xca: // float 32
-            case 0xcb: // float 64
+            case Code.FLOAT32: // float 32
+            case Code.FLOAT64: // float 64
                 return ValueType.FLOAT;
-            case 0xcc: // unsigned int 8
-            case 0xcd: // unsigned int 16
-            case 0xce: // unsigned int 32
-            case 0xcf: // unsigned int 64
-            case 0xd0: // signed int 8
-            case 0xd1: // signed int 16
-            case 0xd2: // signed int 32
-            case 0xd3: // signed int 64
+            case Code.UINT8: // unsigned int 8
+            case Code.UINT16: // unsigned int 16
+            case Code.UINT32: // unsigned int 32
+            case Code.UINT64: // unsigned int 64
+            case Code.INT8: // signed int 8
+            case Code.INT16: // signed int 16
+            case Code.INT32: // signed int 32
+            case Code.INT64: // signed int 64
                 return ValueType.INTEGER;
-            case 0xd4: // fixext 1
-            case 0xd5: // fixext 2
-            case 0xd6: // fixext 4
-            case 0xd7: // fixext 8
-            case 0xd8: // fixext 16
+            case Code.FIXEXT1: // fixext 1
+            case Code.FIXEXT2: // fixext 2
+            case Code.FIXEXT4: // fixext 4
+            case Code.FIXEXT8: // fixext 8
+            case Code.FIXEXT16: // fixext 16
                 return ValueType.EXTENDED;
-            case 0xd9: // str 8
-            case 0xda: // str 16
-            case 0xdb: // str 32
+            case Code.STR8: // str 8
+            case Code.STR16: // str 16
+            case Code.STR32: // str 32
                 return ValueType.STRING;
-            case 0xdc: // array 16
-            case 0xdd: // array 32
+            case Code.ARRAY16: // array 16
+            case Code.ARRAY32: // array 32
                 return ValueType.ARRAY;
-            case 0xde: // map 16
-            case 0xdf: // map 32
+            case Code.MAP16: // map 16
+            case Code.MAP32: // map 32
                 return ValueType.MAP;
             default:
                 return ValueType.UNKNOWN;
