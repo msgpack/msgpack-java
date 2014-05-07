@@ -17,11 +17,13 @@ public class MessagePack {
      * The code set of MessagePack. See also https://github.com/msgpack/msgpack/blob/master/spec.md for details.
      */
     public static class Code {
-        public static final byte POSFIXINT_MASK = (byte) 0x80;
+        // These masks must be int type, because bit-wise AND/OR operations are performed on integer values.
+        public static final int POSFIXINT_MASK = 0x80;
 
-        public static final byte FIXMAP_PREFIX = (byte) 0x80;
-        public static final byte FIXARRAY_PREFIX = (byte) 0x90;
-        public static final byte FIXSTR_PREFIX = (byte) 0xa0;
+        public static final int FIXMAP_PREFIX = 0x80;
+        public static final int FIXARRAY_PREFIX = 0x90;
+        public static final int FIXSTR_PREFIX = 0xa0;
+
         public static final byte NIL = (byte) 0xc0;
         public static final byte NEVER_USED = (byte) 0xc1;
         public static final byte FALSE = (byte) 0xc2;
@@ -60,7 +62,7 @@ public class MessagePack {
         public static final byte MAP16 = (byte) 0xde;
         public static final byte MAP32 = (byte) 0xdf;
 
-        public static final byte NEGFIXINT_PREFIX = (byte) 0xe0;
+        public static final int NEGFIXINT_PREFIX = 0xe0;
     }
 
 

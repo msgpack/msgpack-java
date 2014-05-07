@@ -72,7 +72,7 @@ public enum MessageFormat {
     private final static byte[] table = new byte[256];
 
     static {
-        for(int b = 0; b <= 0xFF; ++b) {
+        for(int b = 0; b < 0xFF; ++b) {
             table[b] = (byte) toMessageFormat((byte) b).ordinal();
         }
     }
@@ -98,7 +98,7 @@ public enum MessageFormat {
         if ((b & 0xf0) == Code.FIXMAP_PREFIX) {
             return FIXMAP;
         }
-        switch (b & 0xff) {
+        switch (b) {
             case Code.NIL:
                 return NIL;
             case Code.FALSE:
