@@ -13,7 +13,7 @@ class MessageFormatTest extends MessagePackSpec {
   "MessageFormat" should {
     "cover all byte codes" in {
 
-      def check(b:Byte, tpe:ValueType) {
+      def checkV(b:Byte, tpe:ValueType) {
         try
           MessageFormat.lookUp(b).getValueType shouldBe tpe
         catch {
@@ -23,48 +23,69 @@ class MessageFormatTest extends MessagePackSpec {
         }
       }
 
+      def checkF(b:Byte, f:MessageFormat) {
+        MessageFormat.lookUp(b) shouldBe f
+      }
+
+      def check(b:Byte, tpe:ValueType, f:MessageFormat) {
+        checkV(b, tpe)
+        checkF(b, f)
+      }
+
       for(i <- 0 until 0x7f)
-        check(i.toByte, ValueType.INTEGER)
+        check(i.toByte, ValueType.INTEGER, MessageFormat.FIXINT)
 
       for(i <- 0x80 until 0x8f)
-        check(i.toByte, ValueType.MAP)
+        check(i.toByte, ValueType.MAP, MessageFormat.FIXMAP)
 
       for(i <- 0x90 until 0x9f)
-        check(i.toByte, ValueType.ARRAY)
+        check(i.toByte, ValueType.ARRAY, MessageFormat.FIXARRAY)
 
-      check(NIL, ValueType.NIL)
-      check(NEVER_USED, ValueType.UNKNOWN)
-      check(TRUE, ValueType.BOOLEAN)
-      check(FALSE, ValueType.BOOLEAN)
+      check(Code.NIL, ValueType.NIL, MessageFormat.NIL)
 
-      for(t <- Seq(BIN8, BIN16, BIN32))
-        check(t, ValueType.BINARY)
+      check(Code.NEVER_USED, ValueType.UNKNOWN, MessageFormat.UNKNOWN)
 
-      for(t <- Seq(FIXEXT1, FIXEXT2, FIXEXT4, FIXEXT8, FIXEXT16, EXT8, EXT16, EXT32))
-        check(t, ValueType.EXTENDED)
+      for(i <- Seq(Code.TRUE, Code.FALSE))
+        check(i, ValueType.BOOLEAN, MessageFormat.BOOLEAN)
 
-      for(t <- Seq(INT8, INT16, INT32, INT64, UINT8, UINT16, UINT32, UINT64))
-        check(t, ValueType.INTEGER)
+      check(Code.BIN8, ValueType.BINARY, MessageFormat.BIN8)
+      check(Code.BIN16, ValueType.BINARY, MessageFormat.BIN16)
+      check(Code.BIN32, ValueType.BINARY, MessageFormat.BIN32)
 
-      for(t <- Seq(STR8, STR16, STR32))
-        check(t, ValueType.STRING)
+      check(Code.FIXEXT1, ValueType.EXTENDED, MessageFormat.FIXEXT1)
+      check(Code.FIXEXT2, ValueType.EXTENDED, MessageFormat.FIXEXT2)
+      check(Code.FIXEXT4, ValueType.EXTENDED, MessageFormat.FIXEXT4)
+      check(Code.FIXEXT8, ValueType.EXTENDED, MessageFormat.FIXEXT8)
+      check(Code.FIXEXT16, ValueType.EXTENDED, MessageFormat.FIXEXT16)
+      check(Code.EXT8, ValueType.EXTENDED, MessageFormat.EXT8)
+      check(Code.EXT16, ValueType.EXTENDED, MessageFormat.EXT16)
+      check(Code.EXT32, ValueType.EXTENDED, MessageFormat.EXT32)
 
-      for(t <- Seq(FLOAT32, FLOAT64))
-        check(t, ValueType.FLOAT)
 
-      for(t <- Seq(ARRAY16, ARRAY32))
-        check(t, ValueType.ARRAY)
+      check(Code.INT8, ValueType.INTEGER, MessageFormat.INT8)
+      check(Code.INT16, ValueType.INTEGER, MessageFormat.INT16)
+      check(Code.INT32, ValueType.INTEGER, MessageFormat.INT32)
+      check(Code.INT64, ValueType.INTEGER, MessageFormat.INT64)
+      check(Code.UINT8, ValueType.INTEGER, MessageFormat.UINT8)
+      check(Code.UINT16, ValueType.INTEGER, MessageFormat.UINT16)
+      check(Code.UINT32, ValueType.INTEGER, MessageFormat.UINT32)
+      check(Code.UINT64, ValueType.INTEGER, MessageFormat.UINT64)
+
+      check(Code.STR8, ValueType.STRING, MessageFormat.STR8)
+      check(Code.STR16, ValueType.STRING, MessageFormat.STR16)
+      check(Code.STR32, ValueType.STRING, MessageFormat.STR32)
+
+
+      check(Code.FLOAT32, ValueType.FLOAT, MessageFormat.FLOAT32)
+      check(Code.FLOAT64, ValueType.FLOAT, MessageFormat.FLOAT64)
+
+      check(Code.ARRAY16, ValueType.ARRAY, MessageFormat.ARRAY16)
+      check(Code.ARRAY32, ValueType.ARRAY, MessageFormat.ARRAY32)
 
       for(i <- 0xe0 until 0xff)
-        check(i.toByte, ValueType.INTEGER)
+        check(i.toByte, ValueType.INTEGER, MessageFormat.NEGFIXINT)
 
     }
-
-    "report detailed format type" in {
-
-
-    }
-
 
   }
 

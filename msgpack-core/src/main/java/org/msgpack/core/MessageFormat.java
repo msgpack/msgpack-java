@@ -7,15 +7,14 @@ import org.msgpack.core.MessagePack.Code;
  */
 public enum MessageFormat {
 
-    FIXINT(ValueType.INTEGER),
-    FIXMAP(ValueType.MAP),
-    FIXARRAY(ValueType.ARRAY),
-    FIXSTR(ValueType.STRING),
+    FIXINT(ValueType.INTEGER), // INT4
+    FIXMAP(ValueType.MAP),     // MAP4
+    FIXARRAY(ValueType.ARRAY), // ARRAY4
+    FIXSTR(ValueType.STRING),  // STR5
 
     NIL(ValueType.NIL),
     UNKNOWN(ValueType.UNKNOWN),
-    FALSE(ValueType.BOOLEAN),
-    TRUE(ValueType.BOOLEAN),
+    BOOLEAN(ValueType.BOOLEAN),
 
     BIN8(ValueType.BINARY),
     BIN16(ValueType.BINARY),
@@ -102,9 +101,8 @@ public enum MessageFormat {
             case Code.NIL:
                 return NIL;
             case Code.FALSE:
-                return FALSE;
             case Code.TRUE:
-                return TRUE;
+                return BOOLEAN;
             case Code.BIN8:
                 return BIN8;
             case Code.BIN16:
