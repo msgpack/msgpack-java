@@ -25,7 +25,7 @@ class MessageUnpackerTest extends MessagePackSpec {
     packer.close()
 
     val arr = out.toByteArray
-    info(s"packed: ${toHex(arr)}")
+    debug(s"packed: ${toHex(arr)}")
 
     return arr
   }
@@ -59,9 +59,19 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
       }
       while (f != MessageFormat.EOF)
-
-
     }
+
+    "skip reading values" in {
+
+      val unpacker = MessagePack.newUnpacker(testData)
+      var skipCount = 0
+      while(unpacker.skipValue()) {
+        skipCount += 1
+      }
+
+      skipCount shouldBe 2
+    }
+
 
   }
 

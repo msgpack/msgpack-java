@@ -62,8 +62,7 @@ public enum MessageFormat {
     UNKNOWN(ValueType.UNKNOWN) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
-            unpacker.consume();
-            return 0;
+            throw new MessageFormatException(String.format("unknown code: %02x is found", unpacker.lookAhead()));
         }
     },
     BOOLEAN(ValueType.BOOLEAN) {

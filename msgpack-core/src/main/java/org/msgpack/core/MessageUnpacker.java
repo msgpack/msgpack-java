@@ -197,12 +197,21 @@ public class MessageUnpacker implements Closeable {
         return d;
     }
 
-    public void skipValue() throws IOException {
+    /**
+     * Skip reading a value
+     * @return true if there are remaining values to read, false if no more values to skip
+     * @throws IOException
+     */
+    public boolean skipValue() throws IOException {
         int remainingValues = 1;
         while(remainingValues > 0) {
             MessageFormat f = getNextFormat();
+            if(f == MessageFormat.EOF)
+                return false;
             remainingValues += f.skip(this);
+            remainingValues--;
         }
+        return true;
     }
 
     public void skipValueWithSwitch() throws IOException {
@@ -214,6 +223,8 @@ public class MessageUnpacker implements Closeable {
             consume();
             // TODO Proceeds the cursor in MessageFormat values
             switch(f) {
+                case EOF:
+                    return;
                 case POSFIXINT:
                 case NEGFIXINT:
                 case BOOLEAN:
