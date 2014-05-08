@@ -7,7 +7,7 @@ import org.msgpack.core.MessagePack.Code;
  */
 public enum MessageFormat {
 
-    FIXINT(ValueType.INTEGER), // INT4
+    POSFIXINT(ValueType.INTEGER), // INT4
     FIXMAP(ValueType.MAP),     // MAP4
     FIXARRAY(ValueType.ARRAY), // ARRAY4
     FIXSTR(ValueType.STRING),  // STR5
@@ -80,10 +80,9 @@ public enum MessageFormat {
         return formatTable[table[b & 0xFF]];
     }
 
-
     static MessageFormat toMessageFormat(final byte b) {
         if (Code.isPosFixInt(b)) {
-            return FIXINT;
+            return POSFIXINT;
         }
         if (Code.isNegFixInt(b)) {
             return NEGFIXINT;

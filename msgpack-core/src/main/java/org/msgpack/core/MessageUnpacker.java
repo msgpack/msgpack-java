@@ -61,6 +61,12 @@ public class MessageUnpacker implements Closeable {
     }
 
     private void ensure(int readSize) throws IOException {
+        if(buffer == null) {
+            buffer = in.next();
+        }
+
+        assert(buffer != null);
+
         if(position + readSize < buffer.size)
             return;
 
@@ -126,6 +132,11 @@ public class MessageUnpacker implements Closeable {
         position++;
     }
 
+    private void consume(int numBytes) {
+        head = READ_NEXT;
+        position += numBytes;
+    }
+
     /**
      * Read a byte value at the cursor and proceed the cursor.
      * It also rests the head value to READ_NEXT.
@@ -175,8 +186,110 @@ public class MessageUnpacker implements Closeable {
     }
 
 
-    public void skipToken() throws IOException {
+    public void skipValue() throws IOException {
+        // NOTE: This implementation must be as efficient as possible
+        int remainingValues = 1;
+        while(remainingValues > 0) {
+            MessageFormat f = getNextFormat();
+            byte b = head;
+            consumeByte();
+            switch(f) {
+                case POSFIXINT:
+                case NEGFIXINT:
+                case BOOLEAN:
+                case NIL:
+                    break;
+                case FIXMAP: {
+                    int mapLen = b & 0x0f;
+                    remainingValues += mapLen;
+                    break;
+                }
+                case FIXARRAY: {
+                    int arrayLen = b & 0x0f;
+                    remainingValues += arrayLen;
+                    break;
+                }
+                case FIXSTR: {
+                    int strLen = b & 0x1f;
+                    consume(strLen);
+                    break;
+                }
+                case INT8:
+                case UINT8:
+                    consume(1);
+                    break;
+                case INT16:
+                case UINT16:
+                    consume(2);
+                    break;
+                case INT32:
+                case UINT32:
+                case FLOAT32:
+                    consume(4);
+                    break;
+                case INT64:
+                case UINT64:
+                case FLOAT64:
+                    consume(8);
+                    break;
+                case BIN8:
+                case STR8:
+                    consume(getNextLength8());
+                    break;
+                case BIN16:
+                case STR16:
+                    consume(getNextLength16());
+                    break;
+                case BIN32:
+                case STR32:
+                    consume(getNextLength32());
+                    break;
+                case FIXEXT1:
+                    consume(2);
+                    break;
+                case FIXEXT2:
+                    consume(3);
+                    break;
+                case FIXEXT4:
+                    consume(5);
+                    break;
+                case FIXEXT8:
+                    consume(9);
+                    break;
+                case FIXEXT16:
+                    consume(17);
+                    break;
+                case EXT8:
+                    consume(getNextLength8() + 1);
+                    break;
+                case EXT16:
+                    consume(getNextLength16() + 1);
+                    break;
+                case EXT32:
+                    consume(getNextLength32() + 1);
+                    break;
+                case ARRAY16:
+                    remainingValues += getNextLength16();
+                    consume(2);
+                    break;
+                case ARRAY32:
+                    remainingValues += getNextLength32();
+                    consume(4);
+                    break;
+                case MAP16:
+                    remainingValues += getNextLength16() * 2;
+                    consume(2);
+                    break;
+                case MAP32:
+                    remainingValues += getNextLength32() * 2; // TODO check int overflow
+                    consume(2);
+                    break;
+                case UNKNOWN:
+                    throw new MessageFormatException(String.format("unknown code: %02x is found", b));
+            }
 
+            remainingValues--;
+        }
     }
 
     public boolean trySkipNil() throws IOException {
