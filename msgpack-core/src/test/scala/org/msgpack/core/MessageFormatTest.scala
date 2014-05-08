@@ -35,7 +35,7 @@ class MessageFormatTest extends MessagePackSpec {
       }
 
       for(i <- 0 until 0x7f)
-        check(i.toByte, ValueType.INTEGER, MessageFormat.FIXINT)
+        check(i.toByte, ValueType.INTEGER, MessageFormat.POSFIXINT)
 
       for(i <- 0x80 until 0x8f)
         check(i.toByte, ValueType.MAP, MessageFormat.FIXMAP)
