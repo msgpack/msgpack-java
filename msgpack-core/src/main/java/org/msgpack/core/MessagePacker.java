@@ -127,24 +127,27 @@ public class MessagePacker {
         position += 8;
     }
 
-    public void packNil() throws IOException {
+    public MessagePacker packNil() throws IOException {
         writeByte(NIL);
+        return this;
     }
 
-    public void packBoolean(boolean b) throws IOException {
+    public MessagePacker packBoolean(boolean b) throws IOException {
         writeByte(b ? TRUE : FALSE);
+        return this;
     }
 
 
-    public void packByte(byte b) throws IOException {
+    public MessagePacker packByte(byte b) throws IOException {
         if(b < -(1 << 5)) {
             writeByteAndByte(INT8, b);
         } else {
             writeByte(b);
         }
+        return this;
     }
 
-    public void packShort(short v) throws IOException {
+    public MessagePacker packShort(short v) throws IOException {
         if(v < -(1 << 5)) {
             if(v < -(1 << 7)) {
                 writeByteAndShort(INT16, v);
@@ -161,9 +164,10 @@ public class MessagePacker {
                 writeByteAndShort(UINT16, v);
             }
         }
+        return this;
     }
 
-    public void packInt(int r) throws IOException {
+    public MessagePacker packInt(int r) throws IOException {
         if (r < -(1 << 5)) {
             if (r < -(1 << 15)) {
                 writeByteAndInt(INT32, r);
@@ -184,9 +188,10 @@ public class MessagePacker {
                 writeByteAndInt(UINT32, r);
             }
         }
+        return this;
     }
 
-    public void packLong(long v) throws IOException {
+    public MessagePacker packLong(long v) throws IOException {
         if (v < -(1L << 5)) {
             if (v < -(1L << 15)) {
                 if (v < -(1L << 31)) {
@@ -219,9 +224,10 @@ public class MessagePacker {
                 }
             }
         }
+        return this;
     }
 
-    public void packBigInteger(BigInteger bi) throws IOException {
+    public MessagePacker packBigInteger(BigInteger bi) throws IOException {
         if(bi.bitLength() <= 63) {
             writeLong(bi.longValue());
         } else if(bi.bitLength() == 64 && bi.signum() == 1) {
@@ -229,14 +235,17 @@ public class MessagePacker {
         } else {
             throw new IllegalArgumentException("Messagepack cannot serialize BigInteger larger than 2^64-1");
         }
+        return this;
     }
     
-    public void packFloat(float v) throws IOException {
+    public MessagePacker packFloat(float v) throws IOException {
         writeByteAndFloat(FLOAT32, v);
+        return this;
     }
  
-    public void packDouble(double v) throws IOException {
+    public MessagePacker packDouble(double v) throws IOException {
         writeByteAndDouble(FLOAT64, v);
+        return this;
     }
 
     /**
@@ -246,13 +255,14 @@ public class MessagePacker {
      * @return
      * @throws IOException
      */
-    public void packString(String s) throws IOException {
+    public MessagePacker packString(String s) throws IOException {
         byte[] utf8 = s.getBytes(MessagePack.UTF8);
         packRawStringHeader(utf8.length);
         writePayload(utf8, 0, utf8.length);
+        return this;
     }
 
-    public void packArrayHeader(int arraySize) throws IOException {
+    public MessagePacker packArrayHeader(int arraySize) throws IOException {
         if(arraySize < 0)
             throw new IllegalArgumentException("array size must be >= 0");
 
@@ -263,9 +273,10 @@ public class MessagePacker {
         } else {
             writeByteAndInt(ARRAY32, arraySize);
         }
+        return this;
     }
 
-    public void packMapHeader(int mapSize) throws IOException {
+    public MessagePacker packMapHeader(int mapSize) throws IOException {
         if(mapSize < 0)
             throw new IllegalArgumentException("map size must be >= 0");
 
@@ -276,9 +287,10 @@ public class MessagePacker {
         } else {
             writeByteAndInt(MAP32, mapSize);
         }
+        return this;
     }
 
-    public void packExtendedTypeHeader(int extType, int dataLen) throws IOException {
+    public MessagePacker packExtendedTypeHeader(int extType, int dataLen) throws IOException {
         if(dataLen < (1 << 8)) {
             if(dataLen > 0 && (dataLen & (dataLen - 1)) == 0) { // check whether dataLen == 2^x
                 if(dataLen == 1) {
@@ -305,9 +317,10 @@ public class MessagePacker {
 
             // TODO support dataLen > 2^31 - 1
         }
+        return this;
     }
 
-    public void packRawStringHeader(int len) throws IOException {
+    public MessagePacker packRawStringHeader(int len) throws IOException {
         if(len < (1 << 8)) {
             writeByteAndByte(BIN8, (byte) len);
         } else if(len < (1 << 16)) {
@@ -315,9 +328,10 @@ public class MessagePacker {
         } else {
             writeByteAndInt(BIN32, len);
         }
+        return this;
     }
 
-    public void packBinaryHeader(int len) throws IOException {
+    public MessagePacker packBinaryHeader(int len) throws IOException {
         if(len < (1 << 5)) {
             writeByte((byte) (FIXSTR_PREFIX | len));
         } else if(len < (1 << 8)) {
@@ -327,9 +341,10 @@ public class MessagePacker {
         } else {
             writeByteAndInt(STR32, len);
         }
+        return this;
     }
 
-    public void writePayload(ByteBuffer bb) throws IOException {
+    public MessagePacker writePayload(ByteBuffer bb) throws IOException {
         while(bb.remaining() > 0) {
             if(position >= buffer.size())
                 flush();
@@ -338,9 +353,10 @@ public class MessagePacker {
             position += writeLen;
             bb.position(bb.position() + writeLen);
         }
+        return this;
     }
 
-    public void writePayload(byte[] o, int off, int len) throws IOException {
+    public MessagePacker writePayload(byte[] o, int off, int len) throws IOException {
         int cursor = 0;
         while(cursor < len) {
             if(position >= buffer.size())
@@ -350,6 +366,7 @@ public class MessagePacker {
             position += writeLen;
             cursor += writeLen;
         }
+        return this;
     }
 
 
