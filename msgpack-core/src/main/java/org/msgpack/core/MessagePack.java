@@ -1,6 +1,8 @@
 package org.msgpack.core;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
@@ -130,6 +132,10 @@ public class MessagePack {
         return new MessagePacker(new MessageBufferOutputChannel(out));
     }
 
+    public static MessageUnpacker newUnpacker(byte[] arr) {
+        return new MessageUnpacker(new ArrayMessageBufferInput(arr));
+    }
+
     /**
      * Create a new MessageUnpacker that decodes the message packed data in a file
      * @param inputFile
@@ -137,17 +143,21 @@ public class MessagePack {
      * @throws IOException if the input file is not found
      */
     public static MessageUnpacker newUnpacker(File inputFile) throws IOException {
-        return newUnpacker(new FileInputStream(inputFile));
+        FileInputStream fin = new FileInputStream(inputFile);
+        return newUnpacker(fin.getChannel());
     }
 
     public static MessageUnpacker newUnpacker(InputStream in) {
-        // TODO
-        return null;
+        if(in instanceof FileInputStream) {
+            return newUnpacker(((FileInputStream) in).getChannel());
+        }
+        else {
+            return new MessageUnpacker(new MessageBufferInputStream(in));
+        }
     }
 
     public static MessageUnpacker newUnpacker(ReadableByteChannel in) {
-        // TODO
-        return null;
+        return new MessageUnpacker(new MessageBufferInputChannel(in));
     }
 
 

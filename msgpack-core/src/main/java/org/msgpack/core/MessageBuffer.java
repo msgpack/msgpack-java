@@ -102,6 +102,11 @@ public class MessageBuffer {
     protected final int size;
 
     /**
+     * The limit index of the end of the data contained in this buffer
+     */
+    private int limit;
+
+    /**
      * Reference is used to hold a reference to an object that holds the underlying memory so that it cannot be
      * released by the garbage collector.
      */
@@ -194,6 +199,7 @@ public class MessageBuffer {
         this.base = null;
         this.address = address;
         this.size = length;
+        this.limit = length;
         this.reference = null;
     }
 
@@ -208,12 +214,14 @@ public class MessageBuffer {
             this.base = null;
             this.address = db.address();
             this.size = bb.capacity();
+            this.limit = this.size;
             this.reference = bb;
         }
         else if(bb.hasArray()) {
             this.base = bb.array();
             this.address = ARRAY_BYTE_BASE_OFFSET;
             this.size = bb.array().length;
+            this.limit = this.size;
             this.reference = null;
         } else {
             throw new IllegalArgumentException("Only the array-backed ByteBuffer or DirectBuffer are supported");
@@ -230,6 +238,7 @@ public class MessageBuffer {
         this.address = ARRAY_BYTE_BASE_OFFSET;
         this.size = arr.length;
         this.reference = null;
+        this.limit = this.size;
     }
 
     /**
@@ -238,6 +247,12 @@ public class MessageBuffer {
      */
     public int size() { return size; }
 
+    public int limit() { return limit; }
+
+    public void setLimit(int limit) {
+        assert(limit < size);
+        this.limit = limit;
+    }
 
     public byte getByte(int index) {
         return unsafe.getByte(base, address + index);
