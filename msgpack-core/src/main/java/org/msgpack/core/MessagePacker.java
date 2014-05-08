@@ -320,7 +320,7 @@ public class MessagePacker {
         return this;
     }
 
-    public MessagePacker packRawStringHeader(int len) throws IOException {
+    public MessagePacker packBinaryHeader(int len) throws IOException {
         if(len < (1 << 8)) {
             writeByteAndByte(BIN8, (byte) len);
         } else if(len < (1 << 16)) {
@@ -331,7 +331,7 @@ public class MessagePacker {
         return this;
     }
 
-    public MessagePacker packBinaryHeader(int len) throws IOException {
+    public MessagePacker packRawStringHeader(int len) throws IOException {
         if(len < (1 << 5)) {
             writeByte((byte) (FIXSTR_PREFIX | len));
         } else if(len < (1 << 8)) {

@@ -2,59 +2,296 @@ package org.msgpack.core;
 
 import org.msgpack.core.MessagePack.Code;
 
+import java.io.IOException;
+
 /**
  * Created on 2014/05/04.
  */
 public enum MessageFormat {
 
-    POSFIXINT(ValueType.INTEGER), // INT4
-    FIXMAP(ValueType.MAP),     // MAP4
-    FIXARRAY(ValueType.ARRAY), // ARRAY4
-    FIXSTR(ValueType.STRING),  // STR5
+    // End of file
+    EOF(ValueType.EOF) {
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            // do nothing
+            return 0;
+        }
+    },
+    // INT7
+    POSFIXINT(ValueType.INTEGER) {
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException {
+            unpacker.consume();
+            return 0;
+        }
+    },
+    // MAP4
+    FIXMAP(ValueType.MAP) {
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException {
+            int mapLen = unpacker.lookAhead() & 0x0f;
+            unpacker.consume();
+            return mapLen * 2;
+        }
+    },
+    // ARRAY4
+    FIXARRAY(ValueType.ARRAY) {
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException {
+            int arrLen = unpacker.lookAhead() & 0x0f;
+            unpacker.consume();
+            return arrLen;
+        }
+    },
+    // STR5
+    FIXSTR(ValueType.STRING) {
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException {
+            int strLen = unpacker.lookAhead() & 0x1f;
+            unpacker.consume(1 + strLen);
+            return 0;
+        }
+    },
+    NIL(ValueType.NIL) {
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume();
+            return 0;
+        }
+    },
+    UNKNOWN(ValueType.UNKNOWN) {
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume();
+            return 0;
+        }
+    },
+    BOOLEAN(ValueType.BOOLEAN) {
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume();
+            return 0;
+        }
+    },
+    BIN8(ValueType.BINARY) {
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume();
+            unpacker.consume(unpacker.readNextLength8());
+            return 0;
+        }
+    },
+    BIN16(ValueType.BINARY) {
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume();
+            unpacker.consume(unpacker.readNextLength16());
+            return 0;
+        }
+    },
+    BIN32(ValueType.BINARY) {
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume();
+            unpacker.consume(unpacker.readNextLength32());
+            return 0;
+        }
+    },
+    EXT8(ValueType.EXTENDED) {
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume();
+            unpacker.consume(unpacker.readNextLength8() + 1);
+            return 0;
+        }
+    },
+    EXT16(ValueType.EXTENDED){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume();
+            unpacker.consume(unpacker.readNextLength16() + 1);
+            return 0;
+        }
+    },
+    EXT32(ValueType.EXTENDED) {
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume(unpacker.readNextLength32() + 1);
+            return 0;
+        }
+    },
 
-    NIL(ValueType.NIL),
-    UNKNOWN(ValueType.UNKNOWN),
-    BOOLEAN(ValueType.BOOLEAN),
+    FLOAT32(ValueType.FLOAT) {
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume(5);
+            return 0;
+        }
+    },
+    FLOAT64(ValueType.FLOAT){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume(9);
+            return 0;
+        }
+    },
 
-    BIN8(ValueType.BINARY),
-    BIN16(ValueType.BINARY),
-    BIN32(ValueType.BINARY),
+    UINT8(ValueType.INTEGER){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume(2);
+            return 0;
+        }
+    },
+    UINT16(ValueType.INTEGER){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume(3);
+            return 0;
+        }
+    },
+    UINT32(ValueType.INTEGER){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume(5);
+            return 0;
+        }
+    },
+    UINT64(ValueType.INTEGER){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume(9);
+            return 0;
+        }
+    },
 
-    EXT8(ValueType.EXTENDED),
-    EXT16(ValueType.EXTENDED),
-    EXT32(ValueType.EXTENDED),
+    INT8(ValueType.INTEGER){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume(2);
+            return 0;
+        }
+    },
+    INT16(ValueType.INTEGER){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume(3);
+            return 0;
+        }
+    },
+    INT32(ValueType.INTEGER){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume(5);
+            return 0;
+        }
+    },
+    INT64(ValueType.INTEGER){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume(9);
+            return 0;
+        }
+    },
+    FIXEXT1(ValueType.EXTENDED){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume(2);
+            return 0;
+        }
+    },
+    FIXEXT2(ValueType.EXTENDED){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume(3);
+            return 0;
+        }
+    },
+    FIXEXT4(ValueType.EXTENDED){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume(5);
+            return 0;
+        }
+    },
+    FIXEXT8(ValueType.EXTENDED){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume(9);
+            return 0;
+        }
+    },
+    FIXEXT16(ValueType.EXTENDED){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume(17);
+            return 0;
+        }
+    },
 
-    FLOAT32(ValueType.FLOAT),
-    FLOAT64(ValueType.FLOAT),
-
-    UINT8(ValueType.INTEGER),
-    UINT16(ValueType.INTEGER),
-    UINT32(ValueType.INTEGER),
-    UINT64(ValueType.INTEGER),
-
-    INT8(ValueType.INTEGER),
-    INT16(ValueType.INTEGER),
-    INT32(ValueType.INTEGER),
-    INT64(ValueType.INTEGER),
-
-
-    FIXEXT1(ValueType.EXTENDED),
-    FIXEXT2(ValueType.EXTENDED),
-    FIXEXT4(ValueType.EXTENDED),
-    FIXEXT8(ValueType.EXTENDED),
-    FIXEXT16(ValueType.EXTENDED),
-
-    STR8(ValueType.STRING),
-    STR16(ValueType.STRING),
-    STR32(ValueType.STRING),
-
-    ARRAY16(ValueType.ARRAY),
-    ARRAY32(ValueType.ARRAY),
-
-    MAP16(ValueType.MAP),
-    MAP32(ValueType.MAP),
-
-    NEGFIXINT(ValueType.INTEGER)
+    STR8(ValueType.STRING){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume();
+            unpacker.consume(unpacker.readNextLength8());
+            return 0;
+        }
+    },
+    STR16(ValueType.STRING){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume();
+            unpacker.consume(unpacker.readNextLength16());
+            return 0;
+        }
+    },
+    STR32(ValueType.STRING){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume();
+            unpacker.consume(unpacker.readNextLength32());
+            return 0;
+        }
+    },
+    ARRAY16(ValueType.ARRAY){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume();
+            int arrLen = unpacker.readNextLength16();
+            return arrLen;
+        }
+    },
+    ARRAY32(ValueType.ARRAY){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume();
+            int arrLen = unpacker.readNextLength32();
+            return arrLen;
+        }
+    },
+    MAP16(ValueType.MAP){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume();
+            int mapLen = unpacker.readNextLength16();
+            return mapLen * 2;
+        }
+    },
+    MAP32(ValueType.MAP){
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume();
+            int mapLen = unpacker.readNextLength32();
+            return mapLen * 2;
+        }
+    },
+    NEGFIXINT(ValueType.INTEGER) {
+        @Override
+        int skip(MessageUnpacker unpacker) throws IOException{
+            unpacker.consume();
+            return 0;
+        }
+    }
     ;
 
     private final ValueType valueType;
@@ -66,6 +303,14 @@ public enum MessageFormat {
     public ValueType getValueType() {
         return valueType;
     }
+
+    /**
+     * Skip reading a value object of this MessageFormat type
+     * @param unpacker
+     * @return the number of value object that further need to be skipped
+     * @throws IOException
+     */
+    abstract int skip(MessageUnpacker unpacker) throws IOException;
 
     private final static MessageFormat[] formatTable = MessageFormat.values();
     private final static byte[] table = new byte[256];

@@ -53,30 +53,30 @@ public class MessageUnpacker implements Closeable {
     private int stringLength;
 
     // internal state
-    private byte head = READ_NEXT;
+    private byte head = Code.NEVER_USED;
     private static final int READ_SIZE = -1;
 
     public MessageUnpacker(MessageBufferInput in) {
         this.in = in;
     }
 
-    private void ensure(int readSize) throws IOException {
+    private boolean ensure(int readSize) throws IOException {
         if(buffer == null) {
             buffer = in.next();
         }
 
         assert(buffer != null);
 
-        if(position + readSize < buffer.size)
-            return;
+        if(position + readSize < buffer.limit())
+            return true;
 
-        if(readSize < buffer.size) {
-            // relocate the buffer contents
+        if(readSize < buffer.limit()) {
+            // TODO need to relocate the buffer contents
 
         }
+        // Reached an EOF
+        return false;
     }
-
-
 
     private CharsetDecoder getCharsetDecoder() {
         // TODO options
@@ -96,45 +96,45 @@ public class MessageUnpacker implements Closeable {
     }
 
     public ValueType getNextType() throws IOException {
-        return ValueType.lookUp(getHead());
+        return ValueType.lookUp(lookAhead());
     }
 
     public MessageFormat getNextFormat() throws IOException {
-        return MessageFormat.lookUp(getHead());
+        byte h = lookAhead();
+        if(h == READ_NEXT)
+            return MessageFormat.EOF;
+        else
+            return MessageFormat.lookUp(h);
     }
 
     /**
-     *
+     * Look-ahead the byte value at the current cursor position.
+     * This method does not proceed the cursor
      * @return
      * @throws IOException
      */
-    private byte getHead() throws IOException {
-        if (head == READ_NEXT) {
-            head = readByte();
-            if (head == READ_NEXT) {
-                throw new MessageFormatException("Invalid format byte: " + head);
-            }
+    byte lookAhead() throws IOException {
+        if(head == READ_NEXT) {
+            if(ensure(1))
+                head = buffer.getByte(position);
         }
         return head;
     }
 
-
-    private byte lookAheadByte() throws IOException {
-        if (head == READ_NEXT) {
-            ensure(1);
-            head = buffer.getByte(position);
-        }
-        return head;
-    }
-
-    private void consumeByte() {
-        head = READ_NEXT;
+    /**
+     * Proceeds the cursor by 1
+     */
+    void consume() {
         position++;
+        head = READ_NEXT;
     }
 
-    private void consume(int numBytes) {
-        head = READ_NEXT;
+    /**
+     * Proceeds the cursor by the specified bytes
+     */
+    void consume(int numBytes) {
         position += numBytes;
+        head = READ_NEXT;
     }
 
     /**
@@ -144,55 +144,75 @@ public class MessageUnpacker implements Closeable {
      * @throws IOException
      */
     private byte readByte() throws IOException {
-        ensure(1);
+        if(!ensure(1)) {
+            throw new MessageFormatException("insufficient data length for reading byte value");
+        }
         byte b = buffer.getByte(position++);
-        head = READ_NEXT;
+        consume();
         return b;
     }
 
     private short readShort() throws IOException {
-        ensure(2);
+        if(!ensure(2)) {
+            throw new MessageFormatException("insufficient data length for reading short value");
+        }
         short s = buffer.getShort(position);
-        position += 2;
+        consume(2);
         return s;
     }
 
     private int readInt() throws IOException {
-        ensure(4);
+        if(!ensure(4)) {
+            throw new MessageFormatException("insufficient data length for reading int value");
+        }
         int i = buffer.getInt(position);
-        position += 4;
+        consume(4);
         return i;
     }
 
     private float readFloat() throws IOException {
-        ensure(4);
+        if(!ensure(4)) {
+            throw new MessageFormatException("insufficient data length for reading float value");
+        }
         float f = buffer.getFloat(position);
-        position += 4;
+        consume(4);
         return f;
     }
 
     private long readLong() throws IOException {
-        ensure(8);
+        if(!ensure(8)) {
+            throw new MessageFormatException("insufficient data length for reading long value");
+        }
         long l = buffer.getLong(position);
-        position += 8;
+        consume(8);
         return l;
     }
 
     private double readDouble() throws IOException {
-        ensure(8);
+        if(!ensure(8)) {
+            throw new MessageFormatException("insufficient data length for reading double value");
+        }
         double d = buffer.getDouble(position);
-        position += 8;
+        consume(8);
         return d;
     }
 
-
     public void skipValue() throws IOException {
+        int remainingValues = 1;
+        while(remainingValues > 0) {
+            MessageFormat f = getNextFormat();
+            remainingValues += f.skip(this);
+        }
+    }
+
+    public void skipValueWithSwitch() throws IOException {
         // NOTE: This implementation must be as efficient as possible
         int remainingValues = 1;
         while(remainingValues > 0) {
             MessageFormat f = getNextFormat();
-            byte b = head;
-            consumeByte();
+            byte b = lookAhead();
+            consume();
+            // TODO Proceeds the cursor in MessageFormat values
             switch(f) {
                 case POSFIXINT:
                 case NEGFIXINT:
@@ -201,7 +221,7 @@ public class MessageUnpacker implements Closeable {
                     break;
                 case FIXMAP: {
                     int mapLen = b & 0x0f;
-                    remainingValues += mapLen;
+                    remainingValues += mapLen * 2;
                     break;
                 }
                 case FIXARRAY: {
@@ -292,15 +312,6 @@ public class MessageUnpacker implements Closeable {
         }
     }
 
-    public boolean trySkipNil() throws IOException {
-        final byte b = getHead();
-        if ((b & 0xff) == 0xc0) {
-            head = READ_NEXT;
-            return true;
-        }
-        return false;
-    }
-
     private static MessageTypeCastException unexpectedHeadByte(final String expectedTypeName, final byte b)
             throws MessageFormatException {
         ValueType type = getTypeFromHeadByte(b);
@@ -311,9 +322,9 @@ public class MessageUnpacker implements Closeable {
     }
 
     public void unpackNil() throws IOException {
-        final byte b = getHead();
-        if ((b & 0xff) == 0xc0) {
-            head = READ_NEXT;
+        final byte b = lookAhead();
+        if (b == Code.NIL) {
+            consume();
             return;
         }
         throw unexpectedHeadByte("Nil", b);
@@ -321,19 +332,23 @@ public class MessageUnpacker implements Closeable {
 
 
     public boolean unpackBoolean() throws IOException {
-        final byte b = getHead();
-        if(b == 0xc2)
+        final byte b = lookAhead();
+        if(b == Code.FALSE) {
+            consume();
             return false;
-        else if(b == 0xc3)
+        }
+        else if(b == Code.TRUE) {
+            consume();
             return true;
+        }
 
         throw unexpectedHeadByte("boolean", b);
     }
 
     public byte unpackByte() throws IOException {
-        final byte b = getHead();
+        final byte b = lookAhead();
         if (Code.isFixInt(b)) {
-            consumeByte();
+            consume();
             return b;
         }
         switch (b) {
@@ -387,9 +402,9 @@ public class MessageUnpacker implements Closeable {
     }
 
     public short unpackShort() throws IOException {
-        final byte b = getHead();
+        final byte b = lookAhead();
         if (Code.isFixInt(b)) {
-            consumeByte();
+            consume();
             return (short) b;
         }
         switch (b) {
@@ -438,9 +453,9 @@ public class MessageUnpacker implements Closeable {
     }
 
     public int unpackInt() throws IOException {
-        final byte b = getHead();
+        final byte b = lookAhead();
         if (Code.isFixInt(b)) {
-            consumeByte();
+            consume();
             return (int) b;
         }
         switch (b) {
@@ -483,9 +498,9 @@ public class MessageUnpacker implements Closeable {
     }
 
     public long unpackLong() throws IOException {
-        final byte b = getHead();
+        final byte b = lookAhead();
         if (Code.isFixInt(b)) {
-            consumeByte();
+            consume();
             return (long) b;
         }
         switch (b) {
@@ -526,9 +541,9 @@ public class MessageUnpacker implements Closeable {
     }
 
     public BigInteger unpackBigInteger() throws IOException {
-        final byte b = getHead();
+        final byte b = lookAhead();
         if (Code.isFixInt(b)) {
-            head = READ_NEXT;
+            consume();
             return BigInteger.valueOf((long) b);
         }
         switch (b) {
@@ -570,13 +585,13 @@ public class MessageUnpacker implements Closeable {
     }
 
     public float unpackFloat() throws IOException {
-        final byte b = getHead();
+        final byte b = lookAhead();
         switch (b) {
             case Code.FLOAT32: // float
                 float fv = readFloat();
                 return fv;
             case Code.FLOAT64: // double
-                xzdouble dv = readDouble();
+                double dv = readDouble();
                 return (float) dv;
         }
         throw unexpectedHeadByte("Float", b);
@@ -584,7 +599,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     public double unpackDouble() throws IOException {
-        final byte b = getHead();
+        final byte b = lookAhead();
         switch (b) {
             case Code.FLOAT32: // float
                 float fv = readFloat();
@@ -597,20 +612,18 @@ public class MessageUnpacker implements Closeable {
     }
 
     public String unpackString() throws IOException {
-        // unpackRawStringHeader
-        // ..
-
-        // TODO cache CharacterBuffer
-        //ByteBuffer bb = readRawString();
-        //return getCharsetDecoder().decode(bb).toString();
-        return null;
+        int strLen = unpackRawStringHeader();
+        ensure(strLen);
+        ByteBuffer bb = buffer.toByteBuffer(position, strLen);
+        consume(strLen);
+        return getCharsetDecoder().decode(bb).toString();
     }
 
 
     public int unpackArrayHeader() throws IOException {
-        final byte b = getHead();
+        final byte b = lookAhead();
         if (Code.isFixedArray(b)) { // fixarray
-            consumeByte();
+            consume();
             return b & 0x0f;
         }
         switch (b) {
@@ -623,9 +636,9 @@ public class MessageUnpacker implements Closeable {
     }
 
     public int unpackMapHeader() throws IOException {
-        final byte b = getHead();
+        final byte b = lookAhead();
         if (Code.isFixedMap(b)) { // fixmap
-            consumeByte();
+            consume();
             return b & 0x0f;
         }
         switch (b) {
@@ -643,7 +656,8 @@ public class MessageUnpacker implements Closeable {
     }
 
     public int unpackRawStringHeader() throws IOException {
-        final byte b = getHead();
+        final byte b = lookAhead();
+        consume();
         if (Code.isFixedRaw(b)) { // FixRaw
             return b & 0x1f;
         }
@@ -659,7 +673,7 @@ public class MessageUnpacker implements Closeable {
     }
     public int unpackBinaryHeader() throws IOException {
         // TODO option to allow str format family
-        final byte b = getHead();
+        final byte b = lookAhead();
         switch (b) {
             case Code.BIN8: // bin 8
                 return readNextLength8();
@@ -684,7 +698,7 @@ public class MessageUnpacker implements Closeable {
 
 
 
-    private int readNextLength8() throws IOException {
+    int readNextLength8() throws IOException {
         if (nextSize >= 0) {
             return nextSize;
         }
@@ -692,7 +706,7 @@ public class MessageUnpacker implements Closeable {
         return nextSize = u8 & 0xff;
     }
 
-    private int readNextLength16() throws IOException {
+    int readNextLength16() throws IOException {
         if (nextSize >= 0) {
             return nextSize;
         }
@@ -700,7 +714,7 @@ public class MessageUnpacker implements Closeable {
         return nextSize = u16 & 0xff;
     }
 
-    private int readNextLength32() throws IOException {
+    int readNextLength32() throws IOException {
         if (nextSize >= 0) {
             return nextSize;
         }
