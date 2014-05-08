@@ -234,15 +234,15 @@ public class MessageUnpacker implements Closeable {
                     break;
                 case BIN8:
                 case STR8:
-                    consume(getNextLength8());
+                    consume(readNextLength8());
                     break;
                 case BIN16:
                 case STR16:
-                    consume(getNextLength16());
+                    consume(readNextLength16());
                     break;
                 case BIN32:
                 case STR32:
-                    consume(getNextLength32());
+                    consume(readNextLength32());
                     break;
                 case FIXEXT1:
                     consume(2);
@@ -260,28 +260,28 @@ public class MessageUnpacker implements Closeable {
                     consume(17);
                     break;
                 case EXT8:
-                    consume(getNextLength8() + 1);
+                    consume(readNextLength8() + 1);
                     break;
                 case EXT16:
-                    consume(getNextLength16() + 1);
+                    consume(readNextLength16() + 1);
                     break;
                 case EXT32:
-                    consume(getNextLength32() + 1);
+                    consume(readNextLength32() + 1);
                     break;
                 case ARRAY16:
-                    remainingValues += getNextLength16();
+                    remainingValues += readNextLength16();
                     consume(2);
                     break;
                 case ARRAY32:
-                    remainingValues += getNextLength32();
+                    remainingValues += readNextLength32();
                     consume(4);
                     break;
                 case MAP16:
-                    remainingValues += getNextLength16() * 2;
+                    remainingValues += readNextLength16() * 2;
                     consume(2);
                     break;
                 case MAP32:
-                    remainingValues += getNextLength32() * 2; // TODO check int overflow
+                    remainingValues += readNextLength32() * 2; // TODO check int overflow
                     consume(2);
                     break;
                 case UNKNOWN:
@@ -576,7 +576,7 @@ public class MessageUnpacker implements Closeable {
                 float fv = readFloat();
                 return fv;
             case Code.FLOAT64: // double
-                double dv = readFloat();
+                xzdouble dv = readDouble();
                 return (float) dv;
         }
         throw unexpectedHeadByte("Float", b);
@@ -590,7 +590,7 @@ public class MessageUnpacker implements Closeable {
                 float fv = readFloat();
                 return (double) fv;
             case Code.FLOAT64: // double
-                double dv = readFloat();
+                double dv = readDouble();
                 return dv;
         }
         throw unexpectedHeadByte("Float", b);
@@ -615,9 +615,9 @@ public class MessageUnpacker implements Closeable {
         }
         switch (b) {
             case Code.ARRAY16: // array 16
-                return getNextLength16();
+                return readNextLength16();
             case Code.ARRAY32: // array 32
-                return getNextLength32();
+                return readNextLength32();
         }
         throw unexpectedHeadByte("Array", b);
     }
@@ -630,9 +630,9 @@ public class MessageUnpacker implements Closeable {
         }
         switch (b) {
             case Code.MAP16: // map 16
-                return getNextLength16();
+                return readNextLength16();
             case Code.MAP32: // map 32
-                return getNextLength32();
+                return readNextLength32();
         }
         throw unexpectedHeadByte("Map", b);
     }
@@ -649,11 +649,11 @@ public class MessageUnpacker implements Closeable {
         }
         switch (b) {
             case Code.STR8: // str 8
-                return getNextLength8();
+                return readNextLength8();
             case Code.STR16: // str 16
-                return getNextLength16();
+                return readNextLength16();
             case Code.STR32: // str 32
-                return getNextLength32();
+                return readNextLength32();
         }
         throw unexpectedHeadByte("String", b);
     }
@@ -662,11 +662,11 @@ public class MessageUnpacker implements Closeable {
         final byte b = getHead();
         switch (b) {
             case Code.BIN8: // bin 8
-                return getNextLength8();
+                return readNextLength8();
             case Code.BIN16: // bin 16
-                return getNextLength16();
+                return readNextLength16();
             case Code.BIN32: // bin 32
-                return getNextLength32();
+                return readNextLength32();
         }
         throw unexpectedHeadByte("Binary", b);
     }
@@ -684,7 +684,7 @@ public class MessageUnpacker implements Closeable {
 
 
 
-    private int getNextLength8() throws IOException {
+    private int readNextLength8() throws IOException {
         if (nextSize >= 0) {
             return nextSize;
         }
@@ -692,7 +692,7 @@ public class MessageUnpacker implements Closeable {
         return nextSize = u8 & 0xff;
     }
 
-    private int getNextLength16() throws IOException {
+    private int readNextLength16() throws IOException {
         if (nextSize >= 0) {
             return nextSize;
         }
@@ -700,7 +700,7 @@ public class MessageUnpacker implements Closeable {
         return nextSize = u16 & 0xff;
     }
 
-    private int getNextLength32() throws IOException {
+    private int readNextLength32() throws IOException {
         if (nextSize >= 0) {
             return nextSize;
         }
