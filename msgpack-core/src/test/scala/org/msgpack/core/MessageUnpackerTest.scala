@@ -95,7 +95,7 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     "parse int data" in {
 
-      info(intSeq.mkString(", "))
+      debug(intSeq.mkString(", "))
 
       val ib = Seq.newBuilder[Int]
 
@@ -106,11 +106,11 @@ class MessageUnpackerTest extends MessagePackSpec {
         f.getValueType match {
           case ValueType.INTEGER =>
             val i = unpacker.unpackInt()
-            debug(f"read int: $i%,d")
+            trace(f"read int: $i%,d")
             ib += i
           case ValueType.BOOLEAN =>
             val b = unpacker.unpackBoolean()
-            debug(s"read boolean: $b")
+            trace(s"read boolean: $b")
           case ValueType.EOF =>
           case other =>
             unpacker.skipValue()

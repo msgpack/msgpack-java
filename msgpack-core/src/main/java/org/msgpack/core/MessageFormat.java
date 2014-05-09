@@ -29,8 +29,7 @@ public enum MessageFormat {
     FIXMAP(ValueType.MAP) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException {
-            int mapLen = unpacker.lookAhead() & 0x0f;
-            unpacker.consume();
+            int mapLen = unpacker.consume() & 0x0f;
             return mapLen * 2;
         }
     },
@@ -38,8 +37,7 @@ public enum MessageFormat {
     FIXARRAY(ValueType.ARRAY) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException {
-            int arrLen = unpacker.lookAhead() & 0x0f;
-            unpacker.consume();
+            int arrLen = unpacker.consume() & 0x0f;
             return arrLen;
         }
     },
@@ -47,8 +45,8 @@ public enum MessageFormat {
     FIXSTR(ValueType.STRING) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException {
-            int strLen = unpacker.lookAhead() & 0x1f;
-            unpacker.consume(1 + strLen);
+            int strLen = unpacker.consume() & 0x1f;
+            unpacker.consume(strLen);
             return 0;
         }
     },
