@@ -27,7 +27,7 @@ import org.msgpack.value.Value;
 import org.msgpack.value.ImmutableRawValue;
 import org.msgpack.value.MessageTypeStringCodingException;
 import org.msgpack.core.ValueType;
-import org.msgpack.core.Packer;
+import org.msgpack.core.MessagePacker;
 
 abstract class AbstractImmutableRawValue
         extends AbstractImmutableValue implements ImmutableRawValue {

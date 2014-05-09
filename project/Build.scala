@@ -38,6 +38,7 @@ object Build extends Build {
     incOptions := incOptions.value.withNameHashing(true),
     //resolvers += Resolver.mavenLocal,
     scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-target:jvm-1.6", "-feature"),
+    javacOptions in (Compile, compile) ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.6", "-target", "1.6"),
     pomExtra := {
       <url>http://msgpack.org/</url>
         <licenses>

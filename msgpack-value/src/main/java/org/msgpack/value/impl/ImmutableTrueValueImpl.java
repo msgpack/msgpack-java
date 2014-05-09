@@ -20,7 +20,7 @@ import java.io.IOException;
 import org.msgpack.value.Value;
 import org.msgpack.value.ImmutableBooleanValue;
 import org.msgpack.core.ValueType;
-import org.msgpack.core.Packer;
+import org.msgpack.core.MessagePacker;
 
 public class ImmutableTrueValueImpl
             extends AbstractImmutableValue implements ImmutableBooleanValue {
@@ -49,8 +49,8 @@ public class ImmutableTrueValueImpl
     }
 
     @Override
-    public void writeTo(Packer pk) throws IOException {
-        pk.writeBoolean(true);
+    public void writeTo(MessagePacker pk) throws IOException {
+        pk.packBoolean(true);
     }
 
     @Override

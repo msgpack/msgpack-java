@@ -20,7 +20,7 @@ import java.io.IOException;
 import org.msgpack.value.Value;
 import org.msgpack.value.ImmutableBooleanValue;
 import org.msgpack.core.ValueType;
-import org.msgpack.core.Packer;
+import org.msgpack.core.MessagePacker;
 
 public class ImmutableFalseValueImpl
         extends AbstractImmutableValue implements ImmutableBooleanValue {
@@ -50,8 +50,8 @@ public class ImmutableFalseValueImpl
     }
 
     @Override
-    public void writeTo(Packer pk) throws IOException {
-        pk.writeBoolean(false);
+    public void writeTo(MessagePacker pk) throws IOException {
+        pk.packBoolean(false);
     }
 
     @Override

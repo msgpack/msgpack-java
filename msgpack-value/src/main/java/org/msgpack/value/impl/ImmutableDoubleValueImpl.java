@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 import org.msgpack.value.Value;
 import org.msgpack.value.ImmutableFloatValue;
 import org.msgpack.core.ValueType;
-import org.msgpack.core.Packer;
+import org.msgpack.core.MessagePacker;
 
 public class ImmutableDoubleValueImpl
         extends AbstractImmutableValue implements ImmutableFloatValue {
@@ -88,8 +88,8 @@ public class ImmutableDoubleValueImpl
     }
 
     @Override
-    public void writeTo(Packer pk) throws IOException {
-        pk.writeDouble(value);
+    public void writeTo(MessagePacker pk) throws IOException {
+        pk.packDouble(value);
     }
 
     @Override

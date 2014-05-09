@@ -24,7 +24,7 @@ import org.msgpack.value.Value;
 import org.msgpack.value.ImmutableStringValue;
 import org.msgpack.value.MessageTypeStringCodingException;
 import org.msgpack.core.ValueType;
-import org.msgpack.core.Packer;
+import org.msgpack.core.MessagePacker;
 
 public class ImmutableStringValueImpl
         extends AbstractImmutableValue implements ImmutableStringValue {
@@ -88,8 +88,8 @@ public class ImmutableStringValueImpl
     }
 
     @Override
-    public void writeTo(Packer pk) throws IOException {
-        pk.writeString(string);
+    public void writeTo(MessagePacker pk) throws IOException {
+        pk.packString(string);
     }
 
     @Override

@@ -23,7 +23,7 @@ import org.msgpack.value.IntegerValue;
 import org.msgpack.value.ImmutableIntegerValue;
 import org.msgpack.value.MessageTypeIntegerOverflowException;
 import org.msgpack.core.ValueType;
-import org.msgpack.core.Packer;
+import org.msgpack.core.MessagePacker;
 
 public class ImmutableIntValueImpl
         extends AbstractImmutableValue implements ImmutableIntegerValue {
@@ -136,8 +136,8 @@ public class ImmutableIntValueImpl
     }
 
     @Override
-    public void writeTo(Packer pk) throws IOException {
-        pk.writeInt(value);
+    public void writeTo(MessagePacker pk) throws IOException {
+        pk.packInt(value);
     }
 
     @Override

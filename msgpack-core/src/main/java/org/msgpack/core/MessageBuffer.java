@@ -13,12 +13,12 @@ import static sun.misc.Unsafe.ARRAY_BYTE_BASE_OFFSET;
 import static sun.misc.Unsafe.ARRAY_BYTE_INDEX_SCALE;
 
 /**
- * MessageBuffer class is an abstraction of memory for reading/writing message pac data.
- * This MessageBuffers ensures integers (31-bit singed) are written to the memory in big-endian order.
+ * MessageBuffer class is an abstraction of memory for reading/writing message packed data.
+ * This MessageBuffers ensures integers (31-bit singed) are written in the big-endian order.
  *
  * This class is optimized for fast memory access, so many methods are
- * implemented without using any interface method that produces invokeinterface call in JVM, which is generally
- * 30% slower than invokevirtual, because invokeinterface needs to look up a function from the function table.
+ * implemented without using any interface method that produces invokeinterface call in JVM.
+ * Compared to invokevirtual, invokeinterface is 30% slower in general because it needs to find a target function from the table.
  *
  */
 public class MessageBuffer {
