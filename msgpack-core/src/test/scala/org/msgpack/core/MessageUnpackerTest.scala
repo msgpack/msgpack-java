@@ -76,6 +76,7 @@ class MessageUnpackerTest extends MessagePackSpec {
           case ValueType.EOF =>
             debug(s"reached EOF")
           case other =>
+            unpacker.skipValue();
             debug(s"unknown type: $f")
         }
       }
