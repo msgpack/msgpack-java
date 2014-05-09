@@ -33,4 +33,9 @@ public class IntegerOverflowException extends MessageTypeException {
     public BigInteger getBigInteger() {
         return bigInteger;
     }
+
+    @Override
+    public String getMessage() {
+        return bigInteger.toString();
+    }
 }

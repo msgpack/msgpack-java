@@ -530,8 +530,8 @@ public class MessageUnpacker implements Closeable {
 
     public int unpackInt() throws IOException {
         final byte b = lookAhead();
+        consume();
         if (Code.isFixInt(b)) {
-            consume();
             return (int) b;
         }
         switch (b) {

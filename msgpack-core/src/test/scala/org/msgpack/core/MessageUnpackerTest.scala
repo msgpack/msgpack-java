@@ -1,6 +1,7 @@
 package org.msgpack.core
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import scala.util.Random
 
 /**
  * Created on 2014/05/07.
@@ -27,9 +28,27 @@ class MessageUnpackerTest extends MessagePackSpec {
     val arr = out.toByteArray
     debug(s"packed: ${toHex(arr)}")
 
-    return arr
+    arr
   }
 
+  val intSeq = (for(i <- 0 until 100) yield Random.nextInt()).toArray[Int]
+
+  def testData2 : Array[Byte] = {
+
+    val out = new ByteArrayOutputStream()
+    val packer = MessagePack.newPacker(out)
+
+    packer
+      .packBoolean(true)
+      .packBoolean(false)
+
+    intSeq.foreach(packer.packInt)
+    packer.close()
+
+    val arr = out.toByteArray
+    debug(s"packed: ${toHex(arr)}")
+    arr
+  }
 
   "MessageUnpacker" should {
 
@@ -73,6 +92,35 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       skipCount shouldBe 2
     }
+
+    "parse int data" in {
+
+      info(intSeq.mkString(", "))
+
+      val ib = Seq.newBuilder[Int]
+
+      val unpacker = MessagePack.newUnpacker(testData2)
+      var f : MessageFormat = null
+      do {
+        f = unpacker.getNextFormat
+        f.getValueType match {
+          case ValueType.INTEGER =>
+            val i = unpacker.unpackInt()
+            debug(f"read int: $i%,d")
+            ib += i
+          case ValueType.BOOLEAN =>
+            val b = unpacker.unpackBoolean()
+            debug(s"read boolean: $b")
+          case ValueType.EOF =>
+          case other =>
+            unpacker.skipValue()
+        }
+      } while(f != MessageFormat.EOF)
+
+      ib.result shouldBe intSeq
+
+    }
+
 
 
   }
