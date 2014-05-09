@@ -3,11 +3,9 @@ package org.msgpack.core;
 import sun.misc.Unsafe;
 import sun.nio.ch.DirectBuffer;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -26,7 +24,7 @@ import static sun.misc.Unsafe.ARRAY_BYTE_INDEX_SCALE;
 public class MessageBuffer {
 
     static final Unsafe unsafe;
-    static final MethodHandle newByteBuffer;
+    static final Constructor byteBufferCC;
 
     static {
         try {
@@ -44,11 +42,10 @@ public class MessageBuffer {
                 throw new IllegalStateException("Byte array index scale must be 1, but is " + ARRAY_BYTE_INDEX_SCALE);
             }
 
-            // Fetch a method handle for the hidden constructor for DirectByteBuffer
+            // Find the hidden constructor for DirectByteBuffer
             Class<?> directByteBufferClass = ClassLoader.getSystemClassLoader().loadClass("java.nio.DirectByteBuffer");
-            Constructor<?> constructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
-            constructor.setAccessible(true);
-            newByteBuffer = MethodHandles.lookup().unreflectConstructor(constructor).asType(MethodType.methodType(ByteBuffer.class, long.class, int.class, Object.class));
+            byteBufferCC = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
+            byteBufferCC.setAccessible(true);
 
             // Check the endian of this CPU
             boolean isLittleEndian = true;
@@ -249,6 +246,7 @@ public class MessageBuffer {
 
     public int limit() { return limit; }
 
+
     public void setLimit(int limit) {
         assert(limit < size);
         this.limit = limit;
@@ -373,7 +371,7 @@ public class MessageBuffer {
             return ByteBuffer.wrap((byte[]) base, (int) ((address-ARRAY_BYTE_BASE_OFFSET) + index), length);
         }
         try {
-            return (ByteBuffer) newByteBuffer.invokeExact(address + index, length, reference);
+            return (ByteBuffer) byteBufferCC.newInstance(address + index, length, reference);
         } catch(Throwable e) {
             // Convert checked exception to unchecked exception
             throw new RuntimeException(e);
