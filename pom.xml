@@ -62,11 +62,6 @@
                 <version>1.9.5</version>
             </dependency>
 
-            <dependency>
-              <groupId>com.google.caliper</groupId>
-              <artifactId>caliper</artifactId>
-              <version>1.0-beta-1</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -81,6 +76,7 @@
                     <encoding>UTF-8</encoding>
                     <compilerArgs>
                         <arg>-Xlint:unchecked</arg>
+                        <arg>-Xlint:deprecation</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>
