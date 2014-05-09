@@ -16,14 +16,17 @@
 package org.msgpack.core;
 
 import java.io.Closeable;
+import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import java.nio.charset.CharsetDecoder;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.msgpack.core.MessagePack.Code;
 
 
-// TODO impl
 public class MessageUnpacker implements Closeable {
 
     public static class Options {
@@ -41,12 +44,15 @@ public class MessageUnpacker implements Closeable {
     private final MessageBufferInput in;
 
     private MessageBuffer buffer;
+    /**
+     * Cursor position in the buffer
+     */
     private int position;
     private int nextSize;
 
     // For storing data at the buffer boundary (except in unpackString)
-    private MessageBuffer extraBuffer;
-    private int extraPosition;
+    //private MessageBuffer extraBuffer;
+    //private int extraPosition;
 
     // For decoding String in unpackString
     private CharsetDecoder decoder;
@@ -60,22 +66,75 @@ public class MessageUnpacker implements Closeable {
         this.in = in;
     }
 
-    private boolean ensure(int readSize) throws IOException {
+
+    /**
+     * Relocate the cursor position so that it points to the actual buffer
+     * @return the current buffer, or null if there is no more buffer to read
+     * @throws IOException when failed to retrieve next buffer
+     */
+    private void ensureBuffer() throws IOException {
         if(buffer == null) {
             buffer = in.next();
         }
 
         assert(buffer != null);
 
+        while(position >= buffer.limit()) {
+            // Fetch the next buffer
+            int remaining = position - buffer.limit();
+            buffer = in.next();
+            if(buffer == null)
+                return;
+            position = remaining;
+        }
+    }
+
+    /**
+     * Ensure the buffer has the data of at least the specified size.
+     * @param readSize the size to read
+     * @return if the buffer has the data of the specified size returns true, if the input reached EOF, it returns false.
+     * @throws IOException
+     */
+    private boolean ensure(int readSize) throws IOException {
+        ensureBuffer();
+        if(buffer == null) {
+            return false; // no buffer to read
+        }
+
+        // The buffer contains the data
         if(position + readSize < buffer.limit())
             return true;
+        else {
+            // When the data is at the boundary of the buffer.
 
-        if(readSize < buffer.limit()) {
-            // TODO need to relocate the buffer contents
+            int remaining = buffer.limit() - position;
+            int bufferTotal = remaining;
+            // Read next buffers
+            ArrayList<MessageBuffer> bufferList = new ArrayList<MessageBuffer>();
+            while(bufferTotal < readSize) {
+                MessageBuffer next = in.next();
+                if(next == null)
+                    throw new EOFException();
+                bufferTotal += next.limit();
+                bufferList.add(next);
+            }
 
+            // create a new buffer that is large enough to hold all entries
+            MessageBuffer newBuffer = MessageBuffer.newBuffer(bufferTotal);
+
+            // Copy the buffer contents to the new buffer
+            int p = 0;
+            buffer.copyTo(position, newBuffer, p, remaining);
+            p += remaining;
+            for(MessageBuffer m : bufferList) {
+                m.copyTo(0, newBuffer, p, m.limit());
+                p += m.limit();
+            }
+
+            buffer = newBuffer;
+            position = 0;
+            return true;
         }
-        // Reached an EOF
-        return false;
     }
 
     private CharsetDecoder getCharsetDecoder() {
@@ -108,8 +167,8 @@ public class MessageUnpacker implements Closeable {
     }
 
     /**
-     * Look-ahead the byte value at the current cursor position.
-     * This method does not proceed the cursor
+     * Look-ahead a byte value at the current cursor position.
+     * This method does not proceed the cursor.
      * @return
      * @throws IOException
      */
@@ -124,15 +183,20 @@ public class MessageUnpacker implements Closeable {
     /**
      * Proceeds the cursor by 1
      */
-    void consume() {
-        position++;
-        head = READ_NEXT;
+    void consume() throws IOException {
+        consume(1);
     }
 
     /**
-     * Proceeds the cursor by the specified bytes
+     * Proceeds the cursor by the specified byte length
      */
-    void consume(int numBytes) {
+    void consume(int numBytes) throws IOException {
+        assert(numBytes >= 0);
+
+        // TODO Check overflow from Integer.MAX_VALUE
+        if(position + numBytes < 0) {
+            //
+        }
         position += numBytes;
         head = READ_NEXT;
     }
@@ -203,6 +267,7 @@ public class MessageUnpacker implements Closeable {
      * @throws IOException
      */
     public boolean skipValue() throws IOException {
+        // NOTE: This implementation must be as efficient as possible
         int remainingValues = 1;
         while(remainingValues > 0) {
             MessageFormat f = getNextFormat();
@@ -214,8 +279,8 @@ public class MessageUnpacker implements Closeable {
         return true;
     }
 
-    public void skipValueWithSwitch() throws IOException {
-        // NOTE: This implementation must be as efficient as possible
+    protected void skipValueWithSwitch() throws IOException {
+        // This method is for comparing the performance
         int remainingValues = 1;
         while(remainingValues > 0) {
             MessageFormat f = getNextFormat();
@@ -662,8 +727,37 @@ public class MessageUnpacker implements Closeable {
     }
 
     public MessagePack.ExtendedTypeHeader unpackExtendedTypeHeader() throws IOException {
-        // TODO
-        return null;
+        byte b = lookAhead();
+        consume();
+        switch(b) {
+            case Code.FIXEXT1:
+                return new MessagePack.ExtendedTypeHeader(readByte(), 1);
+            case Code.FIXEXT2:
+                return new MessagePack.ExtendedTypeHeader(readByte(), 2);
+            case Code.FIXEXT4:
+                return new MessagePack.ExtendedTypeHeader(readByte(), 4);
+            case Code.FIXEXT8:
+                return new MessagePack.ExtendedTypeHeader(readByte(), 8);
+            case Code.FIXEXT16:
+                return new MessagePack.ExtendedTypeHeader(readByte(), 16);
+            case Code.EXT8: {
+                int len = readNextLength8();
+                int t = readByte();
+                return new MessagePack.ExtendedTypeHeader(len, t);
+            }
+            case Code.EXT16: {
+                int len = readNextLength16();
+                int t = readByte();
+                return new MessagePack.ExtendedTypeHeader(len, t);
+            }
+            case Code.EXT32: {
+                int len = readNextLength32();
+                int t = readByte();
+                return new MessagePack.ExtendedTypeHeader(len, t);
+            }
+        }
+
+        throw unexpectedHeadByte("Ext", b);
     }
 
     public int unpackRawStringHeader() throws IOException {
@@ -696,17 +790,32 @@ public class MessageUnpacker implements Closeable {
         throw unexpectedHeadByte("Binary", b);
     }
 
-    public void readPayload(ByteBuffer dst) throws IOException {
+    // TODO returns a buffer reference to the payload (zero-copy)
 
+
+    public void readPayload(ByteBuffer dst) throws IOException {
+        while(dst.remaining() > 0) {
+            ensureBuffer();
+            if(buffer == null)
+                throw new EOFException();
+            int l = Math.min(buffer.limit() - position, dst.remaining());
+            buffer.getBytes(position, l, dst);
+            consume(l);
+        }
     }
 
     public void readPayload(byte[] dst, int off, int len) throws IOException {
-
+        int writtenLen = 0;
+        while(writtenLen < len) {
+            ensureBuffer();
+            if(buffer == null)
+                throw new EOFException();
+            int l = Math.min(buffer.limit() - position, len - writtenLen);
+            buffer.getBytes(position, dst, off + writtenLen, l);
+            consume(position);
+            writtenLen += l;
+        }
     }
-
-    // TODO returns a buffer reference to the payload (zero-copy)
-    // public long readPayload(...)
-
 
 
     int readNextLength8() throws IOException {
@@ -738,7 +847,7 @@ public class MessageUnpacker implements Closeable {
 
     @Override
     public void close() throws IOException {
-        // TODO
+        in.close();
     }
 
     private static IntegerOverflowException overflowU8(final byte u8) {

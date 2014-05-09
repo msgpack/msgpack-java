@@ -5,7 +5,7 @@ import org.msgpack.core.MessagePack.Code;
 import java.io.IOException;
 
 /**
- * Created on 2014/05/04.
+ * MessageFormat represents a detailed type of message pack values
  */
 public enum MessageFormat {
 

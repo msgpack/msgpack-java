@@ -301,6 +301,14 @@ public class MessageBuffer {
         unsafe.copyMemory(base, address+index, dst, ARRAY_BYTE_BASE_OFFSET + dstOffset, length);
     }
 
+    public void getBytes(int index, int len, ByteBuffer dst) {
+        if(dst.remaining() > len)
+            throw new BufferOverflowException();
+        ByteBuffer src = toByteBuffer(index, len);
+        dst.put(src);
+    }
+
+
     public void putByte(int index, byte v) {
         unsafe.putByte(base, address + index, v);
     }
@@ -378,7 +386,13 @@ public class MessageBuffer {
         }
     }
 
+    public void relocate(int offset, int length, int dst) {
+        unsafe.copyMemory(base, address + offset, base, address+dst, length);
+    }
 
+    public void copyTo(int index, MessageBuffer dst, int offset, int length) {
+        unsafe.copyMemory(base, address + index, dst.base, dst.address + offset, length);
+    }
 
 
 }

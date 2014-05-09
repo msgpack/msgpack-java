@@ -54,6 +54,8 @@ class MessageUnpackerTest extends MessagePackSpec {
           case ValueType.STRING =>
             val s = unpacker.unpackString()
             debug(s"str value: $s")
+          case ValueType.EOF =>
+            debug(s"reached EOF")
           case other =>
             debug(s"unknown type: $f")
         }
