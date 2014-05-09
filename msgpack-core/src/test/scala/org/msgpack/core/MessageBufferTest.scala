@@ -10,8 +10,22 @@ import scala.util.Random
  */
 class MessageBufferTest extends MessagePackSpec {
 
-  "Buffer" should {
-    "getInt" in {
+  "MessageBuffer" should {
+
+    "get and put values" in {
+
+      val b = MessageBuffer.newBuffer(8192)
+
+      // Write int test
+      //b.putInt()
+
+
+
+
+    }
+
+
+    "have better performance than ByteBuffer" in {
 
       val N = 10000000
       val M = 64 * 1024 * 1024

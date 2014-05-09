@@ -3,7 +3,8 @@ package org.msgpack.core;
 import java.nio.ByteBuffer;
 
 /**
- * MessageBuffer class tailored to the big-endian machine. Message pack specification demands writing short/int/float/long/double values in big-endian format.
+ * MessageBufferBE is a {@link MessageBuffer} implementation tailored to big-endian machines.
+ * The specification of Message Pack demands writing short/int/float/long/double values in the big-endian format.
  * In the big-endian machine, we do not need to swap the byte order.
  */
 public class MessageBufferBE extends MessageBuffer {

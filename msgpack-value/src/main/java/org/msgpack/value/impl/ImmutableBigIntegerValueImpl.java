@@ -18,11 +18,11 @@ package org.msgpack.value.impl;
 import java.io.IOException;
 import java.math.BigInteger;
 
+import org.msgpack.core.MessageTypeFamily;
 import org.msgpack.value.Value;
 import org.msgpack.value.IntegerValue;
 import org.msgpack.value.ImmutableIntegerValue;
 import org.msgpack.value.MessageTypeIntegerOverflowException;
-import org.msgpack.core.ValueType;
 import org.msgpack.core.MessagePacker;
 
 public class ImmutableBigIntegerValueImpl
@@ -45,8 +45,8 @@ public class ImmutableBigIntegerValueImpl
     private static final BigInteger LONG_MAX = BigInteger.valueOf((long) Long.MAX_VALUE);
 
     @Override
-    public ValueType getType() {
-        return ValueType.INTEGER;
+    public MessageTypeFamily getType() {
+        return MessageTypeFamily.INTEGER;
     }
 
     @Override

@@ -15,15 +15,18 @@
 //
 package org.msgpack.core;
 
-public class MessageSizeLimitException extends MessageException {
+/**
+ * Thrown to indicate too large message size (e.g, larger than 2^31-1).
+ */
+public class MessageSizeException extends MessagePackException {
     private final long size;
 
-    public MessageSizeLimitException(long size) {
+    public MessageSizeException(long size) {
         super();
         this.size = size;
     }
 
-    public MessageSizeLimitException(String message, long size) {
+    public MessageSizeException(String message, long size) {
         super(message);
         this.size = size;
     }

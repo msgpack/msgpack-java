@@ -16,9 +16,9 @@
 package org.msgpack.core;
 
 /**
- * Representing type mismatch errors
+ * Thrown when a type mismatch error occurs
  */
-public class MessageTypeException extends MessageException {
+public class MessageTypeException extends MessagePackException {
     public MessageTypeException() {
         super();
     }

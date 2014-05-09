@@ -22,11 +22,17 @@ import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.msgpack.core.MessagePack.Code;
 
-
+/**
+ * Reader of message-packed values.
+ *
+ * To read the data MessageUnpacker provides two types of methods: getNextType() and unpackXXX(). Users first check
+ * the next type with getNextType(), then read the actual value using an appropriate unpackXXX() method.
+ * If there is no more data to read, getNextType() returns EOF.
+ *
+ */
 public class MessageUnpacker implements Closeable {
 
     public static class Options {
@@ -151,27 +157,27 @@ public class MessageUnpacker implements Closeable {
     }
 
 
-    private static ValueType getTypeFromHeadByte(final byte b) throws MessageFormatException {
-        ValueType vt = ValueType.lookUp(b);
-        if(vt == ValueType.UNKNOWN)
+    private static MessageTypeFamily getTypeFromHead(final byte b) throws MessageFormatException {
+        MessageTypeFamily vt = MessageTypeFamily.lookUp(b);
+        if(vt == MessageTypeFamily.UNKNOWN)
             throw new MessageFormatException(String.format("Invalid format code: %02x", b));
         return vt;
     }
 
-    public ValueType getNextType() throws IOException {
+    public MessageTypeFamily getNextType() throws IOException {
         byte b = lookAhead();
         if(reachedEOF)
-            return ValueType.EOF;
+            return MessageTypeFamily.EOF;
         else
-            return ValueType.lookUp(b);
+            return MessageTypeFamily.lookUp(b);
     }
 
-    public MessageFormat getNextFormat() throws IOException {
+    public MessageType getNextFormat() throws IOException {
         byte b = lookAhead();
         if(b == READ_NEXT || reachedEOF)
-            return MessageFormat.EOF;
+            return MessageType.EOF;
         else
-            return MessageFormat.lookUp(b);
+            return MessageType.lookUp(b);
     }
 
     /**
@@ -281,8 +287,8 @@ public class MessageUnpacker implements Closeable {
         // NOTE: This implementation must be as efficient as possible
         int remainingValues = 1;
         while(remainingValues > 0) {
-            MessageFormat f = getNextFormat();
-            if(f == MessageFormat.EOF)
+            MessageType f = getNextFormat();
+            if(f == MessageType.EOF)
                 return false;
             remainingValues += f.skip(this);
             remainingValues--;
@@ -294,7 +300,7 @@ public class MessageUnpacker implements Closeable {
         // This method is left here for comparing the performance with skipValue()
         int remainingValues = 1;
         while(remainingValues > 0) {
-            MessageFormat f = getNextFormat();
+            MessageType f = getNextFormat();
             byte b = lookAhead();
             consume();
             switch(f) {
@@ -398,11 +404,18 @@ public class MessageUnpacker implements Closeable {
         }
     }
 
-    private static MessageTypeCastException unexpectedHeadByte(final String expectedTypeName, final byte b)
+    /**
+     * An exception when an unexpected byte value is read
+     * @param expectedTypeName
+     * @param b
+     * @return
+     * @throws MessageFormatException
+     */
+    private static MessageTypeException unexpected(final String expectedTypeName, final byte b)
             throws MessageFormatException {
-        ValueType type = getTypeFromHeadByte(b);
+        MessageTypeFamily type = getTypeFromHead(b);
         String name = type.name();
-        return new MessageTypeCastException(
+        return new MessageTypeException(
                 "Expected " + expectedTypeName + " type but got " +
                         name.substring(0, 1) + name.substring(1).toLowerCase() + " type");
     }
@@ -413,7 +426,7 @@ public class MessageUnpacker implements Closeable {
             consume();
             return;
         }
-        throw unexpectedHeadByte("Nil", b);
+        throw unexpected("Nil", b);
     }
 
 
@@ -428,7 +441,7 @@ public class MessageUnpacker implements Closeable {
             return true;
         }
 
-        throw unexpectedHeadByte("boolean", b);
+        throw unexpected("boolean", b);
     }
 
     public byte unpackByte() throws IOException {
@@ -483,7 +496,7 @@ public class MessageUnpacker implements Closeable {
                 }
                 return (byte) i64;
         }
-        throw unexpectedHeadByte("Integer", b);
+        throw unexpected("Integer", b);
     }
 
     public short unpackShort() throws IOException {
@@ -532,7 +545,7 @@ public class MessageUnpacker implements Closeable {
                 }
                 return (short) i64;
         }
-        throw unexpectedHeadByte("Integer", b);
+        throw unexpected("Integer", b);
 
     }
 
@@ -576,7 +589,7 @@ public class MessageUnpacker implements Closeable {
                 }
                 return (int) i64;
         }
-        throw unexpectedHeadByte("Integer", b);
+        throw unexpected("Integer", b);
 
     }
 
@@ -618,7 +631,7 @@ public class MessageUnpacker implements Closeable {
                 long i64 = readLong();
                 return i64;
         }
-        throw unexpectedHeadByte("Integer", b);
+        throw unexpected("Integer", b);
 
     }
 
@@ -662,7 +675,7 @@ public class MessageUnpacker implements Closeable {
                 long i64 = readLong();
                 return BigInteger.valueOf(i64);
         }
-        throw unexpectedHeadByte("Integer", b);
+        throw unexpected("Integer", b);
     }
 
     public float unpackFloat() throws IOException {
@@ -675,7 +688,7 @@ public class MessageUnpacker implements Closeable {
                 double dv = readDouble();
                 return (float) dv;
         }
-        throw unexpectedHeadByte("Float", b);
+        throw unexpected("Float", b);
     }
 
     public double unpackDouble() throws IOException {
@@ -688,7 +701,7 @@ public class MessageUnpacker implements Closeable {
                 double dv = readDouble();
                 return dv;
         }
-        throw unexpectedHeadByte("Float", b);
+        throw unexpected("Float", b);
     }
 
     public String unpackString() throws IOException {
@@ -711,7 +724,7 @@ public class MessageUnpacker implements Closeable {
             case Code.ARRAY32: // array 32
                 return readNextLength32();
         }
-        throw unexpectedHeadByte("Array", b);
+        throw unexpected("Array", b);
     }
 
     public int unpackMapHeader() throws IOException {
@@ -725,7 +738,7 @@ public class MessageUnpacker implements Closeable {
             case Code.MAP32: // map 32
                 return readNextLength32();
         }
-        throw unexpectedHeadByte("Map", b);
+        throw unexpected("Map", b);
     }
 
     public MessagePack.ExtendedTypeHeader unpackExtendedTypeHeader() throws IOException {
@@ -758,7 +771,7 @@ public class MessageUnpacker implements Closeable {
             }
         }
 
-        throw unexpectedHeadByte("Ext", b);
+        throw unexpected("Ext", b);
     }
 
     public int unpackRawStringHeader() throws IOException {
@@ -774,7 +787,7 @@ public class MessageUnpacker implements Closeable {
             case Code.STR32: // str 32
                 return readNextLength32();
         }
-        throw unexpectedHeadByte("String", b);
+        throw unexpected("String", b);
     }
     public int unpackBinaryHeader() throws IOException {
         // TODO option to allow str format family
@@ -787,7 +800,7 @@ public class MessageUnpacker implements Closeable {
             case Code.BIN32: // bin 32
                 return readNextLength32();
         }
-        throw unexpectedHeadByte("Binary", b);
+        throw unexpected("Binary", b);
     }
 
     // TODO returns a buffer reference to the payload (zero-copy)
@@ -848,45 +861,46 @@ public class MessageUnpacker implements Closeable {
     @Override
     public void close() throws IOException {
         in.close();
+        // TODO buffer management
     }
 
-    private static IntegerOverflowException overflowU8(final byte u8) {
+    private static MessageIntegerOverflowException overflowU8(final byte u8) {
         final BigInteger bi = BigInteger.valueOf((long) (u8 & 0xff));
-        return new IntegerOverflowException(bi);
+        return new MessageIntegerOverflowException(bi);
     }
 
-    private static IntegerOverflowException overflowU16(final short u16) {
+    private static MessageIntegerOverflowException overflowU16(final short u16) {
         final BigInteger bi = BigInteger.valueOf((long) (u16 & 0xffff));
-        return new IntegerOverflowException(bi);
+        return new MessageIntegerOverflowException(bi);
     }
-    private static IntegerOverflowException overflowU32(final int u32) {
+    private static MessageIntegerOverflowException overflowU32(final int u32) {
         final BigInteger bi = BigInteger.valueOf((long) (u32 & 0x7fffffff) + 0x80000000L);
-        return new IntegerOverflowException(bi);
+        return new MessageIntegerOverflowException(bi);
     }
 
-    private static IntegerOverflowException overflowU64(final long u64) {
+    private static MessageIntegerOverflowException overflowU64(final long u64) {
         final BigInteger bi = BigInteger.valueOf(u64 + Long.MAX_VALUE + 1L).setBit(63);
-        return new IntegerOverflowException(bi);
+        return new MessageIntegerOverflowException(bi);
     }
 
-    private static IntegerOverflowException overflowI16(final short i16) {
+    private static MessageIntegerOverflowException overflowI16(final short i16) {
         final BigInteger bi = BigInteger.valueOf((long) i16);
-        return new IntegerOverflowException(bi);
+        return new MessageIntegerOverflowException(bi);
     }
 
-    private static IntegerOverflowException overflowI32(final int i32) {
+    private static MessageIntegerOverflowException overflowI32(final int i32) {
         final BigInteger bi = BigInteger.valueOf((long) i32);
-        return new IntegerOverflowException(bi);
+        return new MessageIntegerOverflowException(bi);
     }
 
-    private static IntegerOverflowException overflowI64(final long i64) {
+    private static MessageIntegerOverflowException overflowI64(final long i64) {
         final BigInteger bi = BigInteger.valueOf(i64);
-        return new IntegerOverflowException(bi);
+        return new MessageIntegerOverflowException(bi);
     }
 
-    private static MessageSizeLimitException overflowU32Size(final int u32) {
+    private static MessageSizeException overflowU32Size(final int u32) {
         final long lv = (long) (u32 & 0x7fffffff) + 0x80000000L;
-        return new MessageSizeLimitException(lv);
+        return new MessageSizeException(lv);
     }
 
 

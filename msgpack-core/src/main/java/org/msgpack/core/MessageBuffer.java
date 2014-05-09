@@ -14,7 +14,7 @@ import static sun.misc.Unsafe.ARRAY_BYTE_INDEX_SCALE;
 
 /**
  * MessageBuffer class is an abstraction of memory for reading/writing message packed data.
- * This MessageBuffers ensures integers (31-bit singed) are written in the big-endian order.
+ * This MessageBuffers ensures short/int/float/long/double values are written in the big-endian order.
  *
  * This class is optimized for fast memory access, so many methods are
  * implemented without using any interface method that produces invokeinterface call in JVM.
@@ -24,7 +24,7 @@ import static sun.misc.Unsafe.ARRAY_BYTE_INDEX_SCALE;
 public class MessageBuffer {
 
     static final Unsafe unsafe;
-    static final Constructor byteBufferCC;
+    static final Constructor byteBufferConstructor;
 
     static {
         try {
@@ -44,8 +44,8 @@ public class MessageBuffer {
 
             // Find the hidden constructor for DirectByteBuffer
             Class<?> directByteBufferClass = ClassLoader.getSystemClassLoader().loadClass("java.nio.DirectByteBuffer");
-            byteBufferCC = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
-            byteBufferCC.setAccessible(true);
+            byteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
+            byteBufferConstructor.setAccessible(true);
 
             // Check the endian of this CPU
             boolean isLittleEndian = true;
@@ -375,12 +375,18 @@ public class MessageBuffer {
     }
 
 
+    /**
+     * Create a ByteBuffer view of the range [index, index+length) of this memory
+     * @param index
+     * @param length
+     * @return
+     */
     public ByteBuffer toByteBuffer(int index, int length) {
         if(base instanceof byte[]) {
             return ByteBuffer.wrap((byte[]) base, (int) ((address-ARRAY_BYTE_BASE_OFFSET) + index), length);
         }
         try {
-            return (ByteBuffer) byteBufferCC.newInstance(address + index, length, reference);
+            return (ByteBuffer) byteBufferConstructor.newInstance(address + index, length, reference);
         } catch(Throwable e) {
             // Convert checked exception to unchecked exception
             throw new RuntimeException(e);
@@ -391,6 +397,13 @@ public class MessageBuffer {
         unsafe.copyMemory(base, address + offset, base, address+dst, length);
     }
 
+    /**
+     * Copy this buffer contents to another MessageBuffer
+     * @param index
+     * @param dst
+     * @param offset
+     * @param length
+     */
     public void copyTo(int index, MessageBuffer dst, int offset, int length) {
         unsafe.copyMemory(base, address + index, dst.base, dst.address + offset, length);
     }

@@ -9,16 +9,17 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 
 /**
- * Entry point for creating MessagePacker and MessageUnpacker
+ * Entry point for creating MessagePacker (newPacker) and MessageUnpacker (newUnpacker).
+ *
  */
 public class MessagePack {
 
     public static Charset UTF8 = Charset.forName("UTF-8");
 
     /**
-     * The code set of MessagePack. See also https://github.com/msgpack/msgpack/blob/master/spec.md for details.
+     * The prefix code set of MessagePack. See also https://github.com/msgpack/msgpack/blob/master/spec.md for details.
      */
-    public static class Code {
+    public static final class Code {
 
         public static final boolean isFixInt(byte b) {
             return isPosFixInt(b) || isNegFixInt(b);
@@ -92,6 +93,9 @@ public class MessagePack {
     }
 
 
+    /**
+     * Header of extended type
+     */
     public static class ExtendedTypeHeader {
         private final int type;
         private final int length;
@@ -132,6 +136,11 @@ public class MessagePack {
         return new MessagePacker(new MessageBufferOutputChannel(out));
     }
 
+    /**
+     * Create a new MessageUnpacker that reads the data from a given array
+     * @param arr
+     * @return
+     */
     public static MessageUnpacker newUnpacker(byte[] arr) {
         return new MessageUnpacker(new ArrayMessageBufferInput(arr));
     }
@@ -149,6 +158,7 @@ public class MessagePack {
 
     public static MessageUnpacker newUnpacker(InputStream in) {
         if(in instanceof FileInputStream) {
+            // When the input is FileInputStream, we can use file channel that can directly read the data from a file to an off-heap buffer
             return newUnpacker(((FileInputStream) in).getChannel());
         }
         else {

@@ -17,15 +17,11 @@ package org.msgpack.value.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CodingErrorAction;
-import java.nio.charset.CharacterCodingException;
 
+import org.msgpack.core.MessageTypeFamily;
 import org.msgpack.value.Value;
 import org.msgpack.value.BinaryValue;
 import org.msgpack.value.ImmutableBinaryValue;
-import org.msgpack.core.ValueType;
 import org.msgpack.core.MessagePacker;
 
 public class ImmutableBinaryValueImpl
@@ -35,8 +31,8 @@ public class ImmutableBinaryValueImpl
     }
 
     @Override
-    public ValueType getType() {
-        return ValueType.BINARY;
+    public MessageTypeFamily getType() {
+        return MessageTypeFamily.BINARY;
     }
 
     @Override

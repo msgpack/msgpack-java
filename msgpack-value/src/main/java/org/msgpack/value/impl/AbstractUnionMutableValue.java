@@ -16,14 +16,8 @@
 package org.msgpack.value.impl;
 
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Arrays;
 import java.math.BigInteger;
 import java.math.BigDecimal;
 import java.io.IOException;
@@ -36,25 +30,19 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.UnsupportedCharsetException;
 
 import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageTypeFamily;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueFactory;
 import org.msgpack.value.ImmutableValue;
-import org.msgpack.value.MutableValue;
 import org.msgpack.value.MutableNilValue;
 import org.msgpack.value.MutableBooleanValue;
-import org.msgpack.value.MutableNumberValue;
 import org.msgpack.value.MutableIntegerValue;
 import org.msgpack.value.MutableFloatValue;
-import org.msgpack.value.MutableRawValue;
 import org.msgpack.value.MutableBinaryValue;
 import org.msgpack.value.MutableStringValue;
-import org.msgpack.value.MutableArrayValue;
-import org.msgpack.value.MutableMapValue;
-import org.msgpack.value.MutableExtendedValue;
 import org.msgpack.value.MessageTypeCastException;
 import org.msgpack.value.MessageTypeIntegerOverflowException;
 import org.msgpack.value.MessageTypeStringCodingException;
-import org.msgpack.core.ValueType;
 
 class AbstractUnionMutableValue
         extends AbstractMutableValue
@@ -65,14 +53,14 @@ class AbstractUnionMutableValue
         //    MutableArrayValue, MutableMapValue {
         {
 
-    protected ValueType type;
+    protected MessageTypeFamily type;
     protected ValueUnion union;
 
     private String decodedStringCache;
     private MessageTypeStringCodingException codingException;
 
     public AbstractUnionMutableValue() {
-        this.type = ValueType.NIL;
+        this.type = MessageTypeFamily.NIL;
         this.union = new ValueUnion();
     }
 
@@ -85,63 +73,63 @@ class AbstractUnionMutableValue
     }
 
     protected void resetToNilValue() {
-        type = ValueType.NIL;
+        type = MessageTypeFamily.NIL;
         union.reset();
     }
 
     protected void resetToBooleanValue(boolean value) {
-        type = ValueType.BOOLEAN;
+        type = MessageTypeFamily.BOOLEAN;
         union.setBoolean(value);
     }
 
     protected void resetToIntegerValue(long value) {
-        type = ValueType.INTEGER;
+        type = MessageTypeFamily.INTEGER;
         union.setLong(value);
     }
 
     protected void resetToIntegerValue(BigInteger value) {
-        type = ValueType.INTEGER;
+        type = MessageTypeFamily.INTEGER;
         union.setBigInteger(value);
     }
 
     protected void resetToFloatValue(double value) {
-        type = ValueType.FLOAT;
+        type = MessageTypeFamily.FLOAT;
         union.setDouble(value);
     }
 
     protected void resetToBinaryValue(ByteBuffer value) {
-        type = ValueType.BINARY;
+        type = MessageTypeFamily.BINARY;
         union.setByteBuffer(value);
         decodedStringCache = null;
         codingException = null;
     }
 
     protected void resetToStringValue(String value) {
-        type = ValueType.STRING;
+        type = MessageTypeFamily.STRING;
         union.setString(value);
         decodedStringCache = value;
         codingException = null;
     }
 
     protected void resetToStringValue(ByteBuffer value) {
-        type = ValueType.STRING;
+        type = MessageTypeFamily.STRING;
         union.setByteBuffer(value);
         decodedStringCache = null;
         codingException = null;
     }
 
     protected void resetToArrayValue(List<Value> value) {
-        type = ValueType.ARRAY;
+        type = MessageTypeFamily.ARRAY;
         union.setList(value);
     }
 
     protected void resetToMapValue(Map<Value, Value> value) {
-        type = ValueType.MAP;
+        type = MessageTypeFamily.MAP;
         union.setMap(value);
     }
 
     @Override
-    public ValueType getType() {
+    public MessageTypeFamily getType() {
         return type;
     }
 
@@ -266,7 +254,7 @@ class AbstractUnionMutableValue
 
     @Override
     public boolean booleanValue() {
-        assertType(getType() == ValueType.BOOLEAN);
+        assertType(getType() == MessageTypeFamily.BOOLEAN);
         return union.getBoolean();
     }
 
@@ -397,7 +385,7 @@ class AbstractUnionMutableValue
 
     @Override
     public boolean isInByteRange() {
-        assertType(getType() == ValueType.INTEGER);
+        assertType(getType() == MessageTypeFamily.INTEGER);
         if (union.getType() == ValueUnion.Type.LONG) {
             long value = union.getLong();
             return L_BYTE_MIN <= value && value <= L_BYTE_MAX;
@@ -409,7 +397,7 @@ class AbstractUnionMutableValue
 
     @Override
     public boolean isInShortRange() {
-        assertType(getType() == ValueType.INTEGER);
+        assertType(getType() == MessageTypeFamily.INTEGER);
         if (union.getType() == ValueUnion.Type.LONG) {
             long value = union.getLong();
             return L_SHORT_MIN <= value && value <= L_SHORT_MAX;
@@ -421,7 +409,7 @@ class AbstractUnionMutableValue
 
     @Override
     public boolean isInIntRange() {
-        assertType(getType() == ValueType.INTEGER);
+        assertType(getType() == MessageTypeFamily.INTEGER);
         if (union.getType() == ValueUnion.Type.LONG) {
             long value = union.getLong();
             return L_INT_MIN <= value && value <= L_INT_MAX;
@@ -433,7 +421,7 @@ class AbstractUnionMutableValue
 
     @Override
     public boolean isInLongRange() {
-        assertType(getType() == ValueType.INTEGER);
+        assertType(getType() == MessageTypeFamily.INTEGER);
         if (union.getType() == ValueUnion.Type.LONG) {
             long value = union.getLong();
             return true;
@@ -493,7 +481,7 @@ class AbstractUnionMutableValue
 
     @Override
     public BigInteger getBigInteger() throws MessageTypeIntegerOverflowException {
-        assertType(getType() == ValueType.INTEGER);
+        assertType(getType() == MessageTypeFamily.INTEGER);
         if (union.getType() == ValueUnion.Type.LONG) {
             return BigInteger.valueOf(union.getLong());
         } else {
@@ -507,7 +495,7 @@ class AbstractUnionMutableValue
     // resetToBinaryValue() uses union.setByteBuffer
     // encodeString() uses union.setByteBuffer
     //
-    // union.getValueType() == STRING && decodedStringCache != null never happens
+    // union.getTypeFamily() == STRING && decodedStringCache != null never happens
     // because it sets decodedStringCache when it calls union.setString
     //
 

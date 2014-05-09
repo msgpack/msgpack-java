@@ -26,6 +26,7 @@ import java.util.NoSuchElementException;
 import java.util.Arrays;
 import java.io.IOException;
 
+import org.msgpack.core.MessageTypeFamily;
 import org.msgpack.value.Value;
 import org.msgpack.value.MapValue;
 import org.msgpack.value.ImmutableValue;
@@ -41,7 +42,6 @@ import org.msgpack.value.ImmutableArrayValue;
 import org.msgpack.value.ImmutableMapValue;
 import org.msgpack.value.ImmutableExtendedValue;
 import org.msgpack.value.MessageTypeCastException;
-import org.msgpack.core.ValueType;
 import org.msgpack.core.MessagePacker;
 
 public class ImmutableArrayMapValueImpl
@@ -59,8 +59,8 @@ public class ImmutableArrayMapValueImpl
     }
 
     @Override
-    public ValueType getType() {
-        return ValueType.MAP;
+    public MessageTypeFamily getType() {
+        return MessageTypeFamily.MAP;
     }
 
     @Override

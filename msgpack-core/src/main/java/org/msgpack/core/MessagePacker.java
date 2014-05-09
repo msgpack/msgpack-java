@@ -21,6 +21,21 @@ import java.nio.ByteBuffer;
 import static org.msgpack.core.MessagePack.Code.*;
 
 /**
+ * Writer of message packed data.
+ *
+ * <p>
+ * MessagePacker provides packXXX methods for writing values in the message pack format.
+ * To write raw string or binary data, first use packRawStringHeader or packBinaryHeader to specify the data length,
+ * then call writePayload(...) method.
+ * </p>
+ *
+ * <p>
+ * MessagePacker class has no guarantee to produce the correct message-pack format data if it is not used correctly:
+ * packXXX methods of primitive values always produce the correct format, but
+ * packXXXHeader (e.g. array, map, ext) must be followed by correct number of array/map/ext type values.
+ * packRawStringHeader(length) and packBinaryHeader(length) must be followed by writePayload( ... length) to supply
+ * the binary data of the specified length in the header.
+ * </p>
  *
  */
 public class MessagePacker {

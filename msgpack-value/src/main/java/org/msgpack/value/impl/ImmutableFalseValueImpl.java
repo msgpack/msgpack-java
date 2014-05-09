@@ -17,9 +17,9 @@ package org.msgpack.value.impl;
 
 import java.io.IOException;
 
+import org.msgpack.core.MessageTypeFamily;
 import org.msgpack.value.Value;
 import org.msgpack.value.ImmutableBooleanValue;
-import org.msgpack.core.ValueType;
 import org.msgpack.core.MessagePacker;
 
 public class ImmutableFalseValueImpl
@@ -35,8 +35,8 @@ public class ImmutableFalseValueImpl
     }
 
     @Override
-    public ValueType getType() {
-        return ValueType.BOOLEAN;
+    public MessageTypeFamily getType() {
+        return MessageTypeFamily.BOOLEAN;
     }
 
     @Override

@@ -18,12 +18,11 @@ package org.msgpack.value.impl;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.nio.charset.CharacterCodingException;
 
+import org.msgpack.core.MessageTypeFamily;
 import org.msgpack.value.Value;
 import org.msgpack.value.ImmutableStringValue;
 import org.msgpack.value.MessageTypeStringCodingException;
-import org.msgpack.core.ValueType;
 import org.msgpack.core.MessagePacker;
 
 public class ImmutableStringValueImpl
@@ -44,8 +43,8 @@ public class ImmutableStringValueImpl
     }
 
     @Override
-    public ValueType getType() {
-        return ValueType.STRING;
+    public MessageTypeFamily getType() {
+        return MessageTypeFamily.STRING;
     }
 
     @Override

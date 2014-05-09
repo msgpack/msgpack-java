@@ -57,30 +57,30 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       val unpacker = MessagePack.newUnpacker(arr)
 
-      var f : MessageFormat = null
+      var f : MessageType = null
       do {
         f = unpacker.getNextFormat()
-        f.getValueType match {
-          case ValueType.ARRAY =>
+        f.getTypeFamily match {
+          case MessageTypeFamily.ARRAY =>
             val arrLen = unpacker.unpackArrayHeader()
             debug(s"arr size: $arrLen")
-          case ValueType.MAP =>
+          case MessageTypeFamily.MAP =>
             val mapLen = unpacker.unpackMapHeader()
             debug(s"map size: $mapLen")
-          case ValueType.INTEGER =>
+          case MessageTypeFamily.INTEGER =>
             val i = unpacker.unpackInt()
             debug(s"int value: $i")
-          case ValueType.STRING =>
+          case MessageTypeFamily.STRING =>
             val s = unpacker.unpackString()
             debug(s"str value: $s")
-          case ValueType.EOF =>
+          case MessageTypeFamily.EOF =>
             debug(s"reached EOF")
           case other =>
             unpacker.skipValue();
             debug(s"unknown type: $f")
         }
       }
-      while (f != MessageFormat.EOF)
+      while (f != MessageType.EOF)
     }
 
     "skip reading values" in {
@@ -101,21 +101,21 @@ class MessageUnpackerTest extends MessagePackSpec {
       val ib = Seq.newBuilder[Int]
 
       val unpacker = MessagePack.newUnpacker(testData2)
-      var f : MessageFormat = null
+      var f : MessageType = null
       do {
         f = unpacker.getNextFormat
-        f.getValueType match {
-          case ValueType.INTEGER =>
+        f.getTypeFamily match {
+          case MessageTypeFamily.INTEGER =>
             val i = unpacker.unpackInt()
             trace(f"read int: $i%,d")
             ib += i
-          case ValueType.BOOLEAN =>
+          case MessageTypeFamily.BOOLEAN =>
             val b = unpacker.unpackBoolean()
             trace(s"read boolean: $b")
           case other =>
             unpacker.skipValue()
         }
-      } while(f != MessageFormat.EOF)
+      } while(f != MessageType.EOF)
 
       ib.result shouldBe intSeq
 

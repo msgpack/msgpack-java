@@ -18,9 +18,9 @@ package org.msgpack.core;
 import java.nio.charset.CharacterCodingException;
 
 /**
- *
+ * Thrown to indicate an error when encoding/decoding a String value
  */
-public class MessageStringCodingException extends MessageException {
+public class MessageStringCodingException extends MessagePackException {
     public MessageStringCodingException(String message, CharacterCodingException cause) {
         super(message, cause);
     }

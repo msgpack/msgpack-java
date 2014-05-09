@@ -17,22 +17,22 @@ package org.msgpack.core;
 
 
 /**
- * A base class of the exceptions used in msgpack
+ * A base class of all of the message pack exceptions.
  */
-public class MessageException extends RuntimeException {
-    public MessageException() {
+public class MessagePackException extends RuntimeException {
+    public MessagePackException() {
         super();
     }
 
-    public MessageException(String message) {
+    public MessagePackException(String message) {
         super(message);
     }
 
-    public MessageException(String message, Throwable cause) {
+    public MessagePackException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public MessageException(Throwable cause) {
+    public MessagePackException(Throwable cause) {
         super(cause);
     }
 }

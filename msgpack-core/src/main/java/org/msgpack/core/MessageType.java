@@ -5,12 +5,12 @@ import org.msgpack.core.MessagePack.Code;
 import java.io.IOException;
 
 /**
- * MessageFormat represents a detailed type of message pack values
+ * Detailed type information of message pack values
  */
-public enum MessageFormat {
+public enum MessageType {
 
     // End of file
-    EOF(ValueType.EOF) {
+    EOF(MessageTypeFamily.EOF) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             // do nothing
@@ -18,7 +18,7 @@ public enum MessageFormat {
         }
     },
     // INT7
-    POSFIXINT(ValueType.INTEGER) {
+    POSFIXINT(MessageTypeFamily.INTEGER) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException {
             unpacker.consume();
@@ -26,7 +26,7 @@ public enum MessageFormat {
         }
     },
     // MAP4
-    FIXMAP(ValueType.MAP) {
+    FIXMAP(MessageTypeFamily.MAP) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException {
             int mapLen = unpacker.consume() & 0x0f;
@@ -34,7 +34,7 @@ public enum MessageFormat {
         }
     },
     // ARRAY4
-    FIXARRAY(ValueType.ARRAY) {
+    FIXARRAY(MessageTypeFamily.ARRAY) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException {
             int arrLen = unpacker.consume() & 0x0f;
@@ -42,7 +42,7 @@ public enum MessageFormat {
         }
     },
     // STR5
-    FIXSTR(ValueType.STRING) {
+    FIXSTR(MessageTypeFamily.STRING) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException {
             int strLen = unpacker.consume() & 0x1f;
@@ -50,27 +50,27 @@ public enum MessageFormat {
             return 0;
         }
     },
-    NIL(ValueType.NIL) {
+    NIL(MessageTypeFamily.NIL) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume();
             return 0;
         }
     },
-    UNKNOWN(ValueType.UNKNOWN) {
+    UNKNOWN(MessageTypeFamily.UNKNOWN) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             throw new MessageFormatException(String.format("unknown code: %02x is found", unpacker.lookAhead()));
         }
     },
-    BOOLEAN(ValueType.BOOLEAN) {
+    BOOLEAN(MessageTypeFamily.BOOLEAN) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume();
             return 0;
         }
     },
-    BIN8(ValueType.BINARY) {
+    BIN8(MessageTypeFamily.BINARY) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume();
@@ -78,7 +78,7 @@ public enum MessageFormat {
             return 0;
         }
     },
-    BIN16(ValueType.BINARY) {
+    BIN16(MessageTypeFamily.BINARY) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume();
@@ -86,7 +86,7 @@ public enum MessageFormat {
             return 0;
         }
     },
-    BIN32(ValueType.BINARY) {
+    BIN32(MessageTypeFamily.BINARY) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume();
@@ -94,7 +94,7 @@ public enum MessageFormat {
             return 0;
         }
     },
-    EXT8(ValueType.EXTENDED) {
+    EXT8(MessageTypeFamily.EXTENDED) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume();
@@ -102,7 +102,7 @@ public enum MessageFormat {
             return 0;
         }
     },
-    EXT16(ValueType.EXTENDED){
+    EXT16(MessageTypeFamily.EXTENDED){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume();
@@ -110,7 +110,7 @@ public enum MessageFormat {
             return 0;
         }
     },
-    EXT32(ValueType.EXTENDED) {
+    EXT32(MessageTypeFamily.EXTENDED) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume(unpacker.readNextLength32() + 1);
@@ -118,14 +118,14 @@ public enum MessageFormat {
         }
     },
 
-    FLOAT32(ValueType.FLOAT) {
+    FLOAT32(MessageTypeFamily.FLOAT) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume(5);
             return 0;
         }
     },
-    FLOAT64(ValueType.FLOAT){
+    FLOAT64(MessageTypeFamily.FLOAT){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume(9);
@@ -133,28 +133,28 @@ public enum MessageFormat {
         }
     },
 
-    UINT8(ValueType.INTEGER){
+    UINT8(MessageTypeFamily.INTEGER){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume(2);
             return 0;
         }
     },
-    UINT16(ValueType.INTEGER){
+    UINT16(MessageTypeFamily.INTEGER){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume(3);
             return 0;
         }
     },
-    UINT32(ValueType.INTEGER){
+    UINT32(MessageTypeFamily.INTEGER){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume(5);
             return 0;
         }
     },
-    UINT64(ValueType.INTEGER){
+    UINT64(MessageTypeFamily.INTEGER){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume(9);
@@ -162,63 +162,63 @@ public enum MessageFormat {
         }
     },
 
-    INT8(ValueType.INTEGER){
+    INT8(MessageTypeFamily.INTEGER){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume(2);
             return 0;
         }
     },
-    INT16(ValueType.INTEGER){
+    INT16(MessageTypeFamily.INTEGER){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume(3);
             return 0;
         }
     },
-    INT32(ValueType.INTEGER){
+    INT32(MessageTypeFamily.INTEGER){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume(5);
             return 0;
         }
     },
-    INT64(ValueType.INTEGER){
+    INT64(MessageTypeFamily.INTEGER){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume(9);
             return 0;
         }
     },
-    FIXEXT1(ValueType.EXTENDED){
+    FIXEXT1(MessageTypeFamily.EXTENDED){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume(2);
             return 0;
         }
     },
-    FIXEXT2(ValueType.EXTENDED){
+    FIXEXT2(MessageTypeFamily.EXTENDED){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume(3);
             return 0;
         }
     },
-    FIXEXT4(ValueType.EXTENDED){
+    FIXEXT4(MessageTypeFamily.EXTENDED){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume(5);
             return 0;
         }
     },
-    FIXEXT8(ValueType.EXTENDED){
+    FIXEXT8(MessageTypeFamily.EXTENDED){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume(9);
             return 0;
         }
     },
-    FIXEXT16(ValueType.EXTENDED){
+    FIXEXT16(MessageTypeFamily.EXTENDED){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume(17);
@@ -226,7 +226,7 @@ public enum MessageFormat {
         }
     },
 
-    STR8(ValueType.STRING){
+    STR8(MessageTypeFamily.STRING){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume();
@@ -234,7 +234,7 @@ public enum MessageFormat {
             return 0;
         }
     },
-    STR16(ValueType.STRING){
+    STR16(MessageTypeFamily.STRING){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume();
@@ -242,7 +242,7 @@ public enum MessageFormat {
             return 0;
         }
     },
-    STR32(ValueType.STRING){
+    STR32(MessageTypeFamily.STRING){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume();
@@ -250,7 +250,7 @@ public enum MessageFormat {
             return 0;
         }
     },
-    ARRAY16(ValueType.ARRAY){
+    ARRAY16(MessageTypeFamily.ARRAY){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume();
@@ -258,7 +258,7 @@ public enum MessageFormat {
             return arrLen;
         }
     },
-    ARRAY32(ValueType.ARRAY){
+    ARRAY32(MessageTypeFamily.ARRAY){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume();
@@ -266,7 +266,7 @@ public enum MessageFormat {
             return arrLen;
         }
     },
-    MAP16(ValueType.MAP){
+    MAP16(MessageTypeFamily.MAP){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume();
@@ -274,7 +274,7 @@ public enum MessageFormat {
             return mapLen * 2;
         }
     },
-    MAP32(ValueType.MAP){
+    MAP32(MessageTypeFamily.MAP){
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume();
@@ -282,7 +282,7 @@ public enum MessageFormat {
             return mapLen * 2;
         }
     },
-    NEGFIXINT(ValueType.INTEGER) {
+    NEGFIXINT(MessageTypeFamily.INTEGER) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             unpacker.consume();
@@ -291,14 +291,14 @@ public enum MessageFormat {
     }
     ;
 
-    private final ValueType valueType;
+    private final MessageTypeFamily family;
 
-    private MessageFormat(ValueType valueType) {
-        this.valueType = valueType;
+    private MessageType(MessageTypeFamily family) {
+        this.family = family;
     }
 
-    public ValueType getValueType() {
-        return valueType;
+    public MessageTypeFamily getTypeFamily() {
+        return family;
     }
 
     /**
@@ -309,7 +309,7 @@ public enum MessageFormat {
      */
     abstract int skip(MessageUnpacker unpacker) throws IOException;
 
-    private final static MessageFormat[] formatTable = MessageFormat.values();
+    private final static MessageType[] formatTable = MessageType.values();
     private final static byte[] table = new byte[256];
 
     static {
@@ -318,11 +318,11 @@ public enum MessageFormat {
         }
     }
 
-    public static MessageFormat lookUp(final byte b) {
+    public static MessageType lookUp(final byte b) {
         return formatTable[table[b & 0xFF]];
     }
 
-    static MessageFormat toMessageFormat(final byte b) {
+    static MessageType toMessageFormat(final byte b) {
         if (Code.isPosFixInt(b)) {
             return POSFIXINT;
         }

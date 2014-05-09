@@ -16,9 +16,9 @@
 package org.msgpack.core;
 
 /**
- * When the message pack format is invalid
+ * Thrown when the input message pack format is invalid
  */
-public class MessageFormatException extends MessageException {
+public class MessageFormatException extends MessagePackException {
     public MessageFormatException(String message) {
         super(message);
     }

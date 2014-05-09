@@ -8,51 +8,51 @@ import xerial.core.log.LogLevel
 /**
  * Created on 2014/05/06.
  */
-class ValueTypeTest extends MessagePackSpec {
+class MessageTypeFamilyTest extends MessagePackSpec {
 
   "ValueType" should {
 
     "lookup ValueType from a byte value" taggedAs("code") in {
 
-      def check(b:Byte, tpe:ValueType) {
-        ValueType.lookUp(b) shouldBe tpe
-        ValueType.toValueType(b) shouldBe tpe
+      def check(b:Byte, tpe:MessageTypeFamily) {
+        MessageTypeFamily.lookUp(b) shouldBe tpe
+        MessageTypeFamily.toTypeFamily(b) shouldBe tpe
       }
 
       for(i <- 0 until 0x7f)
-        check(i.toByte, ValueType.INTEGER)
+        check(i.toByte, MessageTypeFamily.INTEGER)
 
       for(i <- 0x80 until 0x8f)
-        check(i.toByte, ValueType.MAP)
+        check(i.toByte, MessageTypeFamily.MAP)
 
       for(i <- 0x90 until 0x9f)
-        check(i.toByte, ValueType.ARRAY)
+        check(i.toByte, MessageTypeFamily.ARRAY)
 
-      check(NIL, ValueType.NIL)
-      check(NEVER_USED, ValueType.UNKNOWN)
-      check(TRUE, ValueType.BOOLEAN)
-      check(FALSE, ValueType.BOOLEAN)
+      check(NIL, MessageTypeFamily.NIL)
+      check(NEVER_USED, MessageTypeFamily.UNKNOWN)
+      check(TRUE, MessageTypeFamily.BOOLEAN)
+      check(FALSE, MessageTypeFamily.BOOLEAN)
 
       for(t <- Seq(BIN8, BIN16, BIN32))
-        check(t, ValueType.BINARY)
+        check(t, MessageTypeFamily.BINARY)
 
       for(t <- Seq(FIXEXT1, FIXEXT2, FIXEXT4, FIXEXT8, FIXEXT16, EXT8, EXT16, EXT32))
-        check(t, ValueType.EXTENDED)
+        check(t, MessageTypeFamily.EXTENDED)
 
       for(t <- Seq(INT8, INT16, INT32, INT64, UINT8, UINT16, UINT32, UINT64))
-        check(t, ValueType.INTEGER)
+        check(t, MessageTypeFamily.INTEGER)
 
       for(t <- Seq(STR8, STR16, STR32))
-        check(t, ValueType.STRING)
+        check(t, MessageTypeFamily.STRING)
 
       for(t <- Seq(FLOAT32, FLOAT64))
-        check(t, ValueType.FLOAT)
+        check(t, MessageTypeFamily.FLOAT)
 
       for(t <- Seq(ARRAY16, ARRAY32))
-        check(t, ValueType.ARRAY)
+        check(t, MessageTypeFamily.ARRAY)
 
       for(i <- 0xe0 until 0xff)
-        check(i.toByte, ValueType.INTEGER)
+        check(i.toByte, MessageTypeFamily.INTEGER)
 
     }
 
@@ -70,7 +70,7 @@ class ValueTypeTest extends MessagePackSpec {
         block("switch") {
           var i = 0
           while(i < N) {
-            ValueType.toValueType(idx(i))
+            MessageTypeFamily.toTypeFamily(idx(i))
             i += 1
           }
         }
@@ -78,7 +78,7 @@ class ValueTypeTest extends MessagePackSpec {
         block("table") {
           var i = 0
           while(i < N) {
-            ValueType.lookUp(idx(i))
+            MessageTypeFamily.lookUp(idx(i))
             i += 1
           }
         }
