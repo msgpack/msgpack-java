@@ -35,6 +35,7 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.UnsupportedCharsetException;
 
+import org.msgpack.core.MessagePacker;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueFactory;
 import org.msgpack.value.ImmutableValue;
@@ -54,7 +55,6 @@ import org.msgpack.value.MessageTypeCastException;
 import org.msgpack.value.MessageTypeIntegerOverflowException;
 import org.msgpack.value.MessageTypeStringCodingException;
 import org.msgpack.core.ValueType;
-import org.msgpack.core.Packer;
 
 class AbstractUnionMutableValue
         extends AbstractMutableValue
@@ -230,7 +230,7 @@ class AbstractUnionMutableValue
     }
 
     @Override
-    public void writeTo(Packer pk) throws IOException {
+    public void writeTo(MessagePacker pk) throws IOException {
         // TODO optimize
         immutableCopy(false).writeTo(pk);
     }
