@@ -111,7 +111,6 @@ class MessageUnpackerTest extends MessagePackSpec {
           case ValueType.BOOLEAN =>
             val b = unpacker.unpackBoolean()
             trace(s"read boolean: $b")
-          case ValueType.EOF =>
           case other =>
             unpacker.skipValue()
         }

@@ -61,6 +61,7 @@ public class MessageUnpacker implements Closeable {
     // internal state
     private byte head = Code.NEVER_USED;
     private static final int READ_SIZE = -1;
+    private boolean reachedEOF = false;
 
     public MessageUnpacker(MessageBufferInput in) {
         this.in = in;
@@ -82,9 +83,12 @@ public class MessageUnpacker implements Closeable {
         while(position >= buffer.limit()) {
             // Fetch the next buffer
             int remaining = position - buffer.limit();
-            buffer = in.next();
-            if(buffer == null)
+            MessageBuffer nextBuffer = in.next();
+            if(nextBuffer == null) {
+                reachedEOF = true;
                 return;
+            }
+            buffer = nextBuffer;
             position = remaining;
         }
     }
@@ -97,7 +101,7 @@ public class MessageUnpacker implements Closeable {
      */
     private boolean ensure(int readSize) throws IOException {
         requireBuffer();
-        if(buffer == null) {
+        if(reachedEOF) {
             return false; // no buffer to read
         }
 
@@ -155,15 +159,19 @@ public class MessageUnpacker implements Closeable {
     }
 
     public ValueType getNextType() throws IOException {
-        return ValueType.lookUp(lookAhead());
+        byte b = lookAhead();
+        if(reachedEOF)
+            return ValueType.EOF;
+        else
+            return ValueType.lookUp(b);
     }
 
     public MessageFormat getNextFormat() throws IOException {
-        byte h = lookAhead();
-        if(h == READ_NEXT)
+        byte b = lookAhead();
+        if(b == READ_NEXT || reachedEOF)
             return MessageFormat.EOF;
         else
-            return MessageFormat.lookUp(h);
+            return MessageFormat.lookUp(b);
     }
 
     /**

@@ -182,6 +182,7 @@ public class MessageBuffer {
             ((DirectBuffer) buffer.base).cleaner().clean();
         }
         else {
+            // Maybe cannot reach here
             unsafe.freeMemory(buffer.address);
         }
     }
