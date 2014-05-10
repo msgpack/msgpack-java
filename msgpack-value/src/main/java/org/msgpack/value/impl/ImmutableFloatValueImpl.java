@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.math.BigDecimal;
 
-import org.msgpack.core.MessageTypeFamily;
+import org.msgpack.core.ValueType;
 import org.msgpack.value.Value;
 import org.msgpack.value.ImmutableFloatValue;
 import org.msgpack.core.MessagePacker;
@@ -33,8 +33,8 @@ public class ImmutableFloatValueImpl
     }
 
     @Override
-    public MessageTypeFamily getType() {
-        return MessageTypeFamily.FLOAT;
+    public ValueType getType() {
+        return ValueType.FLOAT;
     }
 
     @Override

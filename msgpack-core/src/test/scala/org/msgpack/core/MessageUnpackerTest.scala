@@ -57,30 +57,30 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       val unpacker = MessagePack.newUnpacker(arr)
 
-      var f : MessageType = null
+      var f : MessageFormat = null
       do {
         f = unpacker.getNextFormat()
         f.getTypeFamily match {
-          case MessageTypeFamily.ARRAY =>
+          case ValueType.ARRAY =>
             val arrLen = unpacker.unpackArrayHeader()
             debug(s"arr size: $arrLen")
-          case MessageTypeFamily.MAP =>
+          case ValueType.MAP =>
             val mapLen = unpacker.unpackMapHeader()
             debug(s"map size: $mapLen")
-          case MessageTypeFamily.INTEGER =>
+          case ValueType.INTEGER =>
             val i = unpacker.unpackInt()
             debug(s"int value: $i")
-          case MessageTypeFamily.STRING =>
+          case ValueType.STRING =>
             val s = unpacker.unpackString()
             debug(s"str value: $s")
-          case MessageTypeFamily.EOF =>
+          case ValueType.EOF =>
             debug(s"reached EOF")
           case other =>
             unpacker.skipValue();
             debug(s"unknown type: $f")
         }
       }
-      while (f != MessageType.EOF)
+      while (f != MessageFormat.EOF)
     }
 
     "skip reading values" in {
@@ -101,21 +101,21 @@ class MessageUnpackerTest extends MessagePackSpec {
       val ib = Seq.newBuilder[Int]
 
       val unpacker = MessagePack.newUnpacker(testData2)
-      var f : MessageType = null
+      var f : MessageFormat = null
       do {
         f = unpacker.getNextFormat
         f.getTypeFamily match {
-          case MessageTypeFamily.INTEGER =>
+          case ValueType.INTEGER =>
             val i = unpacker.unpackInt()
             trace(f"read int: $i%,d")
             ib += i
-          case MessageTypeFamily.BOOLEAN =>
+          case ValueType.BOOLEAN =>
             val b = unpacker.unpackBoolean()
             trace(s"read boolean: $b")
           case other =>
             unpacker.skipValue()
         }
-      } while(f != MessageType.EOF)
+      } while(f != MessageFormat.EOF)
 
       ib.result shouldBe intSeq
 

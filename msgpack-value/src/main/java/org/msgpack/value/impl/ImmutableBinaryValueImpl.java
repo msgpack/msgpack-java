@@ -18,7 +18,7 @@ package org.msgpack.value.impl;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.msgpack.core.MessageTypeFamily;
+import org.msgpack.core.ValueType;
 import org.msgpack.value.Value;
 import org.msgpack.value.BinaryValue;
 import org.msgpack.value.ImmutableBinaryValue;
@@ -31,8 +31,8 @@ public class ImmutableBinaryValueImpl
     }
 
     @Override
-    public MessageTypeFamily getType() {
-        return MessageTypeFamily.BINARY;
+    public ValueType getType() {
+        return ValueType.BINARY;
     }
 
     @Override

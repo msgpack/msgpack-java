@@ -17,11 +17,11 @@ package org.msgpack.value;
 
 import java.io.IOException;
 
-import org.msgpack.core.MessageTypeFamily;
+import org.msgpack.core.ValueType;
 import org.msgpack.core.MessagePacker;
 
 public interface Value {
-    public MessageTypeFamily getType();
+    public ValueType getType();
 
     public ImmutableValue immutableValue();
 

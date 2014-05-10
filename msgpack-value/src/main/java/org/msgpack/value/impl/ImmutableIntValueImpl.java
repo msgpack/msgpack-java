@@ -18,7 +18,7 @@ package org.msgpack.value.impl;
 import java.io.IOException;
 import java.math.BigInteger;
 
-import org.msgpack.core.MessageTypeFamily;
+import org.msgpack.core.ValueType;
 import org.msgpack.value.Value;
 import org.msgpack.value.IntegerValue;
 import org.msgpack.value.ImmutableIntegerValue;
@@ -40,8 +40,8 @@ public class ImmutableIntValueImpl
     private static int SHORT_MAX = (int) Short.MAX_VALUE;
 
     @Override
-    public MessageTypeFamily getType() {
-        return MessageTypeFamily.INTEGER;
+    public ValueType getType() {
+        return ValueType.INTEGER;
     }
 
     @Override

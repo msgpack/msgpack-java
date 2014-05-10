@@ -19,7 +19,7 @@ import java.util.Iterator;
 import java.util.AbstractList;
 import java.io.IOException;
 
-import org.msgpack.core.MessageTypeFamily;
+import org.msgpack.core.ValueType;
 import org.msgpack.value.Value;
 import org.msgpack.value.ImmutableValue;
 import org.msgpack.value.ImmutableNilValue;
@@ -51,8 +51,8 @@ public class ImmutableArrayValueImpl
     }
 
     @Override
-    public MessageTypeFamily getType() {
-        return MessageTypeFamily.ARRAY;
+    public ValueType getType() {
+        return ValueType.ARRAY;
     }
 
     @Override

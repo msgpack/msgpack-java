@@ -157,27 +157,27 @@ public class MessageUnpacker implements Closeable {
     }
 
 
-    private static MessageTypeFamily getTypeFromHead(final byte b) throws MessageFormatException {
-        MessageTypeFamily vt = MessageTypeFamily.lookUp(b);
-        if(vt == MessageTypeFamily.UNKNOWN)
+    private static ValueType getTypeFromHead(final byte b) throws MessageFormatException {
+        ValueType vt = ValueType.lookUp(b);
+        if(vt == ValueType.UNKNOWN)
             throw new MessageFormatException(String.format("Invalid format code: %02x", b));
         return vt;
     }
 
-    public MessageTypeFamily getNextType() throws IOException {
+    public ValueType getNextType() throws IOException {
         byte b = lookAhead();
         if(reachedEOF)
-            return MessageTypeFamily.EOF;
+            return ValueType.EOF;
         else
-            return MessageTypeFamily.lookUp(b);
+            return ValueType.lookUp(b);
     }
 
-    public MessageType getNextFormat() throws IOException {
+    public MessageFormat getNextFormat() throws IOException {
         byte b = lookAhead();
         if(b == READ_NEXT || reachedEOF)
-            return MessageType.EOF;
+            return MessageFormat.EOF;
         else
-            return MessageType.lookUp(b);
+            return MessageFormat.lookUp(b);
     }
 
     /**
@@ -287,8 +287,8 @@ public class MessageUnpacker implements Closeable {
         // NOTE: This implementation must be as efficient as possible
         int remainingValues = 1;
         while(remainingValues > 0) {
-            MessageType f = getNextFormat();
-            if(f == MessageType.EOF)
+            MessageFormat f = getNextFormat();
+            if(f == MessageFormat.EOF)
                 return false;
             remainingValues += f.skip(this);
             remainingValues--;
@@ -300,7 +300,7 @@ public class MessageUnpacker implements Closeable {
         // This method is left here for comparing the performance with skipValue()
         int remainingValues = 1;
         while(remainingValues > 0) {
-            MessageType f = getNextFormat();
+            MessageFormat f = getNextFormat();
             byte b = lookAhead();
             consume();
             switch(f) {
@@ -413,7 +413,7 @@ public class MessageUnpacker implements Closeable {
      */
     private static MessageTypeException unexpected(final String expectedTypeName, final byte b)
             throws MessageFormatException {
-        MessageTypeFamily type = getTypeFromHead(b);
+        ValueType type = getTypeFromHead(b);
         String name = type.name();
         return new MessageTypeException(
                 "Expected " + expectedTypeName + " type but got " +

@@ -17,7 +17,7 @@ package org.msgpack.value.impl;
 
 import java.io.IOException;
 
-import org.msgpack.core.MessageTypeFamily;
+import org.msgpack.core.ValueType;
 import org.msgpack.value.Value;
 import org.msgpack.value.ImmutableNilValue;
 import org.msgpack.core.MessagePacker;
@@ -35,8 +35,8 @@ public class ImmutableNilValueImpl
     }
 
     @Override
-    public MessageTypeFamily getType() {
-        return MessageTypeFamily.NIL;
+    public ValueType getType() {
+        return ValueType.NIL;
     }
 
     @Override
