@@ -25,12 +25,12 @@ public interface MessageBufferInput {
 
 }
 
-class ArrayMessageBufferInput implements MessageBufferInput {
+class MessageBufferInputArray implements MessageBufferInput {
 
     private MessageBuffer buffer;
     private boolean isRead = false;
 
-    ArrayMessageBufferInput(byte[] arr) {
+    MessageBufferInputArray(byte[] arr) {
         this.buffer = MessageBuffer.wrap(arr);
     }
 

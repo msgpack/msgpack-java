@@ -1,12 +1,9 @@
 package org.msgpack.core;
 
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
 
 /**
  * Entry point for creating MessagePacker (newPacker) and MessageUnpacker (newUnpacker).
@@ -142,7 +139,7 @@ public class MessagePack {
      * @return
      */
     public static MessageUnpacker newUnpacker(byte[] arr) {
-        return new MessageUnpacker(new ArrayMessageBufferInput(arr));
+        return new MessageUnpacker(new MessageBufferInputArray(arr));
     }
 
     /**
