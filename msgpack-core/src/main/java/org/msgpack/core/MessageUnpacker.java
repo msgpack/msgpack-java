@@ -54,6 +54,8 @@ public class MessageUnpacker implements Closeable {
      * Cursor position in the buffer
      */
     private int position;
+
+    // TODO to be used for event-driven I/O
     private int nextSize;
 
     // For storing data at the buffer boundary (except in unpackString)
@@ -62,11 +64,16 @@ public class MessageUnpacker implements Closeable {
 
     // For decoding String in unpackString
     private CharsetDecoder decoder;
+
+    // TODO to be used for event-driven I/O
     private int stringLength;
 
     // internal state
     private byte head = Code.NEVER_USED;
+
+    // TODO to be used for event-driven I/O
     private static final int READ_SIZE = -1;
+
     private boolean reachedEOF = false;
 
     public MessageUnpacker(MessageBufferInput in) {
