@@ -359,27 +359,58 @@ public class MessagePacker {
         return this;
     }
 
-    public MessagePacker writePayload(ByteBuffer bb) throws IOException {
-        while(bb.remaining() > 0) {
-            if(position >= buffer.size())
-                flush();
-            int writeLen = Math.min(buffer.size() - position, bb.remaining());
-            buffer.putByteBuffer(position, bb, writeLen);
-            position += writeLen;
-            bb.position(bb.position() + writeLen);
+    private final int FLUSH_THRESHOLD = 512;
+
+    public MessagePacker writePayload(ByteBuffer src) throws IOException {
+        if(src.remaining() >= FLUSH_THRESHOLD) {
+            // Use the source ByteBuffet directly to avoid memory copy
+
+            // First, flush the current buffer contents
+            out.flush(buffer, 0, position);
+            position = 0;
+
+            // Wrap the input source as a MessageBuffer
+            MessageBuffer wrapped = MessageBuffer.wrap(src);
+            // Then, dump the source data to the output
+            out.flush(wrapped, 0, wrapped.limit());
+        }
+        else {
+            // If the input source is small, simply copy the contents to the buffer
+            while(src.remaining() > 0) {
+                if(position >= buffer.size())
+                    flush();
+                int writeLen = Math.min(buffer.size() - position, src.remaining());
+                buffer.putByteBuffer(position, src, writeLen);
+                position += writeLen;
+                src.position(src.position() + writeLen);
+            }
         }
         return this;
     }
 
-    public MessagePacker writePayload(byte[] o, int off, int len) throws IOException {
-        int cursor = 0;
-        while(cursor < len) {
-            if(position >= buffer.size())
-                flush();
-            int writeLen = Math.min(buffer.size() - position, len - cursor);
-            buffer.putBytes(position, o, off + cursor, writeLen);
-            position += writeLen;
-            cursor += writeLen;
+    public MessagePacker writePayload(byte[] src, int off, int len) throws IOException {
+        if(len >= FLUSH_THRESHOLD) {
+            // Use the input array directory to avoid memory copy
+
+            // Flush the current buffer contents
+            out.flush(buffer, 0, position);
+            position = 0;
+
+            // Wrap the input array as a MessageBuffer
+            MessageBuffer wrapped = MessageBuffer.wrap(src);
+            // Dump the source data to the output
+            out.flush(wrapped, off, len);
+        }
+        else {
+            int cursor = 0;
+            while(cursor < len) {
+                if(position >= buffer.size())
+                    flush();
+                int writeLen = Math.min(buffer.size() - position, len - cursor);
+                buffer.putBytes(position, src, off + cursor, writeLen);
+                position += writeLen;
+                cursor += writeLen;
+            }
         }
         return this;
     }
