@@ -372,7 +372,7 @@ public class MessagePacker {
             // Wrap the input source as a MessageBuffer
             MessageBuffer wrapped = MessageBuffer.wrap(src);
             // Then, dump the source data to the output
-            out.flush(wrapped, 0, wrapped.limit());
+            out.flush(wrapped, src.position(), src.remaining());
         }
         else {
             // If the input source is small, simply copy the contents to the buffer
