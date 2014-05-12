@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
+import static org.msgpack.core.Preconditions.*;
+
 
 /**
  * Provides a sequence of MessageBuffers that contains message packed data.
@@ -31,7 +33,7 @@ class ArrayMessageBufferInput implements MessageBufferInput {
     private boolean isRead = false;
 
     ArrayMessageBufferInput(byte[] arr) {
-        this.buffer = MessageBuffer.wrap(arr);
+        this.buffer = MessageBuffer.wrap(checkNotNull(arr, "input array is null"));
     }
 
     @Override
@@ -56,9 +58,7 @@ class MessageBufferInputStream implements MessageBufferInput {
     private byte[] buffer = new byte[8192];
 
     MessageBufferInputStream(InputStream in) {
-        if(in == null)
-            throw new NullPointerException("MessageBufferInputStream: input is null");
-        this.in = in;
+        this.in = checkNotNull(in, "input is null");
     }
 
     @Override
@@ -81,8 +81,12 @@ class MessageBufferInputStream implements MessageBufferInput {
 
     @Override
     public void close() throws IOException {
-        in.close();
-        buffer = null;
+        try {
+            in.close();
+        }
+        finally {
+            buffer = null;
+        }
     }
 }
 
@@ -91,8 +95,7 @@ class MessageBufferInputChannel implements MessageBufferInput {
     private final ReadableByteChannel channel;
 
     MessageBufferInputChannel(ReadableByteChannel channel) {
-        assert(channel != null);
-        this.channel = channel;
+        this.channel = checkNotNull(channel, "input channel is null");
     }
 
     @Override

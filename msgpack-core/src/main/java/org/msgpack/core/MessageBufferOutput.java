@@ -1,12 +1,10 @@
 package org.msgpack.core;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
+import static org.msgpack.core.Preconditions.*;
 
 /**
  * Provides a sequence of MessageBuffers for packing the input data
@@ -38,7 +36,7 @@ class MessageBufferOutputStream implements MessageBufferOutput {
     private final OutputStream out;
 
     MessageBufferOutputStream(OutputStream out) {
-        this.out = out;
+        this.out = checkNotNull(out, "output is null");
     }
 
     @Override
@@ -68,7 +66,7 @@ class MessageBufferOutputChannel implements MessageBufferOutput {
     private final WritableByteChannel channel;
 
     MessageBufferOutputChannel(WritableByteChannel channel) {
-        this.channel = channel;
+        this.channel = checkNotNull(channel, "output channel is null");
     }
 
     @Override
