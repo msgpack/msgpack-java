@@ -1,9 +1,6 @@
 package org.msgpack.core;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
@@ -11,7 +8,7 @@ import java.nio.channels.WritableByteChannel;
 /**
  * Provides a sequence of MessageBuffers for packing the input data
  */
-public interface MessageBufferOutput {
+public interface MessageBufferOutput extends Closeable {
 
 //    /**
 //     * Retrieves the next buffer for writing message packed data
