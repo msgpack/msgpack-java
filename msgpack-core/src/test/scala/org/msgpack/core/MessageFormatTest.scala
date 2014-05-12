@@ -17,7 +17,7 @@ class MessageFormatTest extends MessagePackSpec {
 
       def checkV(b:Byte, tpe:ValueType) {
         try
-          MessageFormat.lookUp(b).getTypeFamily shouldBe tpe
+          MessageFormat.valueOf(b).getValueType shouldBe tpe
         catch {
           case e:TestFailedException =>
             error(f"Failure when looking at byte ${b}%02x")
@@ -26,7 +26,7 @@ class MessageFormatTest extends MessagePackSpec {
       }
 
       def checkF(b:Byte, f:MessageFormat) {
-        MessageFormat.lookUp(b) shouldBe f
+        MessageFormat.valueOf(b) shouldBe f
       }
 
       def check(b:Byte, tpe:ValueType, f:MessageFormat) {
@@ -89,13 +89,13 @@ class MessageFormatTest extends MessagePackSpec {
 
     }
 
-    "improve the lookUp performance" in {
+    "improve the valueOf performance" in {
 
       val N = 1000000
       val idx = (0 until N).map(x => Random.nextInt(256).toByte).toArray[Byte]
 
       // Initialize
-      MessageFormat.lookUp(0)
+      MessageFormat.valueOf(0.toByte)
 
       time("lookup", repeat = 100, logLevel = LogLevel.INFO) {
         block("switch") {
@@ -109,7 +109,7 @@ class MessageFormatTest extends MessagePackSpec {
         block("table") {
           var i = 0
           while(i < N) {
-            MessageFormat.lookUp(idx(i))
+            MessageFormat.valueOf(idx(i))
             i += 1
           }
         }

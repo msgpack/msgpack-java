@@ -291,14 +291,14 @@ public enum MessageFormat {
     }
     ;
 
-    private final ValueType family;
+    private final ValueType valueType;
 
     private MessageFormat(ValueType family) {
-        this.family = family;
+        this.valueType = family;
     }
 
-    public ValueType getTypeFamily() {
-        return family;
+    public ValueType getValueType() {
+        return valueType;
     }
 
     /**
@@ -318,9 +318,10 @@ public enum MessageFormat {
         }
     }
 
-    public static MessageFormat lookUp(final byte b) {
+    public static MessageFormat valueOf(final byte b) {
         return formatTable[table[b & 0xFF]];
     }
+
 
     static MessageFormat toMessageFormat(final byte b) {
         if (Code.isPosFixInt(b)) {

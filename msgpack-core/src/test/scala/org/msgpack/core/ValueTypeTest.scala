@@ -15,8 +15,7 @@ class ValueTypeTest extends MessagePackSpec {
     "lookup ValueType from a byte value" taggedAs("code") in {
 
       def check(b:Byte, tpe:ValueType) {
-        ValueType.lookUp(b) shouldBe tpe
-        ValueType.toValueType(b) shouldBe tpe
+        ValueType.valueOf(b) shouldBe tpe
       }
 
       for(i <- 0 until 0x7f)
@@ -70,7 +69,7 @@ class ValueTypeTest extends MessagePackSpec {
         block("switch") {
           var i = 0
           while(i < N) {
-            ValueType.toValueType(idx(i))
+            MessageFormat.toMessageFormat(idx(i)).getValueType()
             i += 1
           }
         }
@@ -78,7 +77,7 @@ class ValueTypeTest extends MessagePackSpec {
         block("table") {
           var i = 0
           while(i < N) {
-            ValueType.lookUp(idx(i))
+            ValueType.valueOf(idx(i))
             i += 1
           }
         }

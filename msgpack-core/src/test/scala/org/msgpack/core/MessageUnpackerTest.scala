@@ -60,7 +60,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       var f : MessageFormat = null
       do {
         f = unpacker.getNextFormat()
-        f.getTypeFamily match {
+        f.getValueType match {
           case ValueType.ARRAY =>
             val arrLen = unpacker.unpackArrayHeader()
             debug(s"arr size: $arrLen")
@@ -104,7 +104,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       var f : MessageFormat = null
       do {
         f = unpacker.getNextFormat
-        f.getTypeFamily match {
+        f.getValueType match {
           case ValueType.INTEGER =>
             val i = unpacker.unpackInt()
             trace(f"read int: $i%,d")
