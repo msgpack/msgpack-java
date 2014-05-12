@@ -309,17 +309,17 @@ public enum MessageFormat {
      */
     abstract int skip(MessageUnpacker unpacker) throws IOException;
 
-    private final static MessageFormat[] formatTable = MessageFormat.values();
-    private final static byte[] table = new byte[256];
+    private final static MessageFormat[] formatTable = new MessageFormat[256];
 
     static {
-        for(int b = 0; b < 0xFF; ++b) {
-            table[b] = (byte) toMessageFormat((byte) b).ordinal();
+        for(int b = 0; b <= 0xFF; ++b) {
+            MessageFormat mf = toMessageFormat((byte) b);
+            formatTable[b] = mf;
         }
     }
 
     public static MessageFormat valueOf(final byte b) {
-        return formatTable[table[b & 0xFF]];
+        return formatTable[b & 0xFF];
     }
 
 
