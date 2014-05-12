@@ -130,8 +130,10 @@ public class MessageUnpacker implements Closeable {
             ArrayList<MessageBuffer> bufferList = new ArrayList<MessageBuffer>();
             while(bufferTotal < readSize) {
                 MessageBuffer next = in.next();
-                if(next == null)
+                if(next == null) {
+                    reachedEOF = true;
                     throw new EOFException();
+                }
                 bufferTotal += next.limit();
                 bufferList.add(next);
             }
@@ -171,20 +173,29 @@ public class MessageUnpacker implements Closeable {
         return vt;
     }
 
-    public ValueType getNextType() throws IOException {
-        byte b = lookAhead();
-        if(reachedEOF)
-            return ValueType.EOF;
-        else
-            return ValueType.valueOf(b);
+    /**
+     * Returns true true if this unpacker has more elements. If true, {@link #getNextFormat()} returns an
+     * MessageFormat instead of throwing an exception.
+     *
+     * @return true if this unpacker has more elements to read
+     */
+    public boolean hasNext() throws IOException {
+        if(ensure(1)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+
+    public ValueType getNextValueType() throws IOException {
+        return getNextFormat().getValueType();
     }
 
     public MessageFormat getNextFormat() throws IOException {
         byte b = lookAhead();
-        if(b == READ_NEXT || reachedEOF)
-            return MessageFormat.EOF;
-        else
-            return MessageFormat.valueOf(b);
+        return MessageFormat.valueOf(b);
     }
 
     /**
@@ -197,6 +208,8 @@ public class MessageUnpacker implements Closeable {
         if(head == READ_NEXT) {
             if(ensure(1))
                 head = buffer.getByte(position);
+            else
+                throw new EOFException();
         }
         return head;
     }
@@ -295,8 +308,6 @@ public class MessageUnpacker implements Closeable {
         int remainingValues = 1;
         while(remainingValues > 0) {
             MessageFormat f = getNextFormat();
-            if(f == MessageFormat.EOF)
-                return false;
             remainingValues += f.skip(this);
             remainingValues--;
         }
@@ -311,8 +322,6 @@ public class MessageUnpacker implements Closeable {
             byte b = lookAhead();
             consume();
             switch(f) {
-                case EOF:
-                    return;
                 case POSFIXINT:
                 case NEGFIXINT:
                 case BOOLEAN:

@@ -9,14 +9,6 @@ import java.io.IOException;
  */
 public enum MessageFormat {
 
-    // End of file
-    EOF(ValueType.EOF) {
-        @Override
-        int skip(MessageUnpacker unpacker) throws IOException{
-            // do nothing
-            return 0;
-        }
-    },
     // INT7
     POSFIXINT(ValueType.INTEGER) {
         @Override

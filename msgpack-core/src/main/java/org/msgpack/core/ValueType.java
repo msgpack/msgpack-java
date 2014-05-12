@@ -22,7 +22,6 @@ import org.msgpack.core.MessagePack.Code;
  */
 public enum ValueType {
 
-    EOF(false, false),
     UNKNOWN(false, false),
     NIL(false, false),
     BOOLEAN(false, false),
