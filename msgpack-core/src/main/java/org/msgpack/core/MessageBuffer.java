@@ -245,6 +245,12 @@ public class MessageBuffer {
      */
     public int size() { return size; }
 
+    public MessageBuffer slice(int offset, int length) {
+        // TODO
+        return null;
+    }
+
+
     public int limit() { return limit; }
 
 
