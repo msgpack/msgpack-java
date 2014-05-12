@@ -14,7 +14,7 @@ import java.nio.file.Path;
  */
 public class MessagePack {
 
-    public static Charset UTF8 = Charset.forName("UTF-8");
+    public static final Charset UTF8 = Charset.forName("UTF-8");
 
     /**
      * The prefix code set of MessagePack. See also https://github.com/msgpack/msgpack/blob/master/spec.md for details.
