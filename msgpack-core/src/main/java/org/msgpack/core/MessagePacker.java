@@ -366,13 +366,14 @@ public class MessagePacker {
             // Use the source ByteBuffet directly to avoid memory copy
 
             // First, flush the current buffer contents
-            out.flush(buffer, 0, position);
-            position = 0;
+            flush();
 
             // Wrap the input source as a MessageBuffer
+            // TODO Create MessageBuffer.wrap(ByteBuffer, offset, length);
             MessageBuffer wrapped = MessageBuffer.wrap(src);
             // Then, dump the source data to the output
             out.flush(wrapped, src.position(), src.remaining());
+            src.position(src.limit());
         }
         else {
             // If the input source is small, simply copy the contents to the buffer
@@ -393,8 +394,7 @@ public class MessagePacker {
             // Use the input array directory to avoid memory copy
 
             // Flush the current buffer contents
-            out.flush(buffer, 0, position);
-            position = 0;
+            flush();
 
             // Wrap the input array as a MessageBuffer
             MessageBuffer wrapped = MessageBuffer.wrap(src);
