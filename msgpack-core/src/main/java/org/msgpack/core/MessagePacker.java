@@ -363,7 +363,7 @@ public class MessagePacker {
 
     public MessagePacker writePayload(ByteBuffer src) throws IOException {
         if(src.remaining() >= FLUSH_THRESHOLD) {
-            // Use the source ByteBuffet directly to avoid memory copy
+            // Use the source ByteBuffer directly to avoid memory copy
 
             // First, flush the current buffer contents
             flush();
