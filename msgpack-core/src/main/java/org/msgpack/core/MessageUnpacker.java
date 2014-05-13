@@ -24,6 +24,9 @@ import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 
 import org.msgpack.core.MessagePack.Code;
+import org.msgpack.core.buffer.ArrayBufferInput;
+import org.msgpack.core.buffer.MessageBuffer;
+import org.msgpack.core.buffer.MessageBufferInput;
 
 /**
  * Reader of message-packed values.
@@ -75,6 +78,10 @@ public class MessageUnpacker implements Closeable {
     private static final int READ_SIZE = -1;
 
     private boolean reachedEOF = false;
+
+    public MessageUnpacker(byte[] arr) {
+        this(new ArrayBufferInput(arr));
+    }
 
     public MessageUnpacker(MessageBufferInput in) {
         this.in = in;

@@ -1,4 +1,4 @@
-package org.msgpack.core;
+package org.msgpack.core.buffer;
 
 import java.nio.ByteBuffer;
 

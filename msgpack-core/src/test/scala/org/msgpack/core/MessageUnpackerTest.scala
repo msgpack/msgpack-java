@@ -2,6 +2,7 @@ package org.msgpack.core
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import scala.util.Random
+import org.msgpack.core.buffer.{OutputStreamBufferOutput, ArrayBufferInput}
 
 /**
  * Created on 2014/05/07.
@@ -13,7 +14,7 @@ class MessageUnpackerTest extends MessagePackSpec {
 
   def testData : Array[Byte] = {
     val out = new ByteArrayOutputStream()
-    val packer = MessagePack.newPacker(out)
+    val packer = new MessagePacker(out)
 
     packer
       .packArrayHeader(2)
@@ -36,7 +37,7 @@ class MessageUnpackerTest extends MessagePackSpec {
   def testData2 : Array[Byte] = {
 
     val out = new ByteArrayOutputStream()
-    val packer = MessagePack.newPacker(out)
+    val packer = new MessagePacker(out);
 
     packer
       .packBoolean(true)
@@ -55,7 +56,7 @@ class MessageUnpackerTest extends MessagePackSpec {
     "parse message packed data" in {
       val arr = testData
 
-      val unpacker = MessagePack.newUnpacker(arr)
+      val unpacker = new MessageUnpacker(arr);
 
       var f : MessageFormat = null
       do {
@@ -85,7 +86,7 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     "skip reading values" in {
 
-      val unpacker = MessagePack.newUnpacker(testData)
+      val unpacker = new MessageUnpacker(testData)
       var skipCount = 0
       while(unpacker.skipValue()) {
         skipCount += 1
@@ -100,7 +101,7 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       val ib = Seq.newBuilder[Int]
 
-      val unpacker = MessagePack.newUnpacker(testData2)
+      val unpacker = new MessageUnpacker(testData2)
       var f : MessageFormat = null
       do {
         f = unpacker.getNextFormat
