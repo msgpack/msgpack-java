@@ -56,6 +56,8 @@ public class MessageUnpacker implements Closeable {
      * Cursor position in the buffer
      */
     private int position;
+
+    // TODO to be used for event-driven I/O
     private int nextSize;
 
     // For storing data at the buffer boundary (except in unpackString)
@@ -64,11 +66,16 @@ public class MessageUnpacker implements Closeable {
 
     // For decoding String in unpackString
     private CharsetDecoder decoder;
+
+    // TODO to be used for event-driven I/O
     private int stringLength;
 
     // internal state
     private byte head = Code.NEVER_USED;
+
+    // TODO to be used for event-driven I/O
     private static final int READ_SIZE = -1;
+
     private boolean reachedEOF = false;
 
     public MessageUnpacker(MessageBufferInput in) {
@@ -125,8 +132,10 @@ public class MessageUnpacker implements Closeable {
             ArrayList<MessageBuffer> bufferList = new ArrayList<MessageBuffer>();
             while(bufferTotal < readSize) {
                 MessageBuffer next = in.next();
-                if(next == null)
+                if(next == null) {
+                    reachedEOF = true;
                     throw new EOFException();
+                }
                 bufferTotal += next.limit();
                 bufferList.add(next);
             }
@@ -160,26 +169,34 @@ public class MessageUnpacker implements Closeable {
 
 
     private static ValueType getTypeFromHead(final byte b) throws MessageFormatException {
+        MessageFormat mf = MessageFormat.valueOf(b);
         ValueType vt = MessageFormat.valueOf(b).getValueType();
-        if(vt == ValueType.UNKNOWN)
-            throw new MessageFormatException(String.format("Invalid format code: %02x", b));
         return vt;
     }
 
-    public ValueType getNextType() throws IOException {
+    /**
+     * Returns true true if this unpacker has more elements. If true, {@link #getNextFormat()} returns an
+     * MessageFormat instead of throwing an exception.
+     *
+     * @return true if this unpacker has more elements to read
+     */
+    public boolean hasNext() throws IOException {
+        if(ensure(1)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public ValueType getNextValueType() throws IOException {
         byte b = lookAhead();
-        if(reachedEOF)
-            return ValueType.EOF;
-        else
-            return ValueType.valueOf(b);
+        return getTypeFromHead(b);
     }
 
     public MessageFormat getNextFormat() throws IOException {
         byte b = lookAhead();
-        if(b == READ_NEXT || reachedEOF)
-            return MessageFormat.EOF;
-        else
-            return MessageFormat.valueOf(b);
+        return MessageFormat.valueOf(b);
     }
 
     /**
@@ -192,6 +209,8 @@ public class MessageUnpacker implements Closeable {
         if(head == READ_NEXT) {
             if(ensure(1))
                 head = buffer.getByte(position);
+            else
+                throw new EOFException();
         }
         return head;
     }
@@ -290,8 +309,6 @@ public class MessageUnpacker implements Closeable {
         int remainingValues = 1;
         while(remainingValues > 0) {
             MessageFormat f = getNextFormat();
-            if(f == MessageFormat.EOF)
-                return false;
             remainingValues += f.skip(this);
             remainingValues--;
         }
@@ -306,8 +323,6 @@ public class MessageUnpacker implements Closeable {
             byte b = lookAhead();
             consume();
             switch(f) {
-                case EOF:
-                    return;
                 case POSFIXINT:
                 case NEGFIXINT:
                 case BOOLEAN:
@@ -398,7 +413,7 @@ public class MessageUnpacker implements Closeable {
                     remainingValues += readNextLength32() * 2; // TODO check int overflow
                     consume(2);
                     break;
-                case UNKNOWN:
+                case NEVER_USED:
                     throw new MessageFormatException(String.format("unknown code: %02x is found", b));
             }
 
@@ -743,33 +758,33 @@ public class MessageUnpacker implements Closeable {
         throw unexpected("Map", b);
     }
 
-    public MessagePack.ExtendedTypeHeader unpackExtendedTypeHeader() throws IOException {
+    public ExtendedTypeHeader unpackExtendedTypeHeader() throws IOException {
         byte b = consume();
         switch(b) {
             case Code.FIXEXT1:
-                return new MessagePack.ExtendedTypeHeader(readByte(), 1);
+                return new ExtendedTypeHeader(readByte(), 1);
             case Code.FIXEXT2:
-                return new MessagePack.ExtendedTypeHeader(readByte(), 2);
+                return new ExtendedTypeHeader(readByte(), 2);
             case Code.FIXEXT4:
-                return new MessagePack.ExtendedTypeHeader(readByte(), 4);
+                return new ExtendedTypeHeader(readByte(), 4);
             case Code.FIXEXT8:
-                return new MessagePack.ExtendedTypeHeader(readByte(), 8);
+                return new ExtendedTypeHeader(readByte(), 8);
             case Code.FIXEXT16:
-                return new MessagePack.ExtendedTypeHeader(readByte(), 16);
+                return new ExtendedTypeHeader(readByte(), 16);
             case Code.EXT8: {
                 int len = readNextLength8();
                 int t = readByte();
-                return new MessagePack.ExtendedTypeHeader(len, t);
+                return new ExtendedTypeHeader(len, t);
             }
             case Code.EXT16: {
                 int len = readNextLength16();
                 int t = readByte();
-                return new MessagePack.ExtendedTypeHeader(len, t);
+                return new ExtendedTypeHeader(len, t);
             }
             case Code.EXT32: {
                 int len = readNextLength32();
                 int t = readByte();
-                return new MessagePack.ExtendedTypeHeader(len, t);
+                return new ExtendedTypeHeader(len, t);
             }
         }
 

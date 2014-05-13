@@ -1,5 +1,6 @@
 package org.msgpack.core;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -9,7 +10,7 @@ import static org.msgpack.core.Preconditions.*;
 /**
  * Provides a sequence of MessageBuffers for packing the input data
  */
-public interface MessageBufferOutput {
+public interface MessageBufferOutput extends Closeable {
 
 //    /**
 //     * Retrieves the next buffer for writing message packed data
@@ -54,7 +55,7 @@ class MessageBufferOutputStream implements MessageBufferOutput {
         try {
             out.flush();
         }
-        finally {
+        finally {e
             out.close();
         }
     }

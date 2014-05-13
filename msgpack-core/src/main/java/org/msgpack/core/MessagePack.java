@@ -1,12 +1,9 @@
 package org.msgpack.core;
 
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
 
 /**
  * Entry point for creating MessagePacker (newPacker) and MessageUnpacker (newUnpacker).
@@ -14,7 +11,7 @@ import java.nio.file.Path;
  */
 public class MessagePack {
 
-    public static Charset UTF8 = Charset.forName("UTF-8");
+    public static final Charset UTF8 = Charset.forName("UTF-8");
 
     /**
      * The prefix code set of MessagePack. See also https://github.com/msgpack/msgpack/blob/master/spec.md for details.
@@ -94,26 +91,6 @@ public class MessagePack {
 
 
     /**
-     * Header of extended type
-     */
-    public static class ExtendedTypeHeader {
-        private final int type;
-        private final int length;
-        ExtendedTypeHeader(int type, int length) {
-            this.type = type;
-            this.length = length;
-        }
-
-        public int getType() {
-            return type;
-        }
-
-        public int getLength() {
-            return length;
-        }
-    }
-
-    /**
      * Create a new MessagePacker that writes the message packed data to a file
      * @param outputFile
      * @return MessagePacker
@@ -142,7 +119,7 @@ public class MessagePack {
      * @return
      */
     public static MessageUnpacker newUnpacker(byte[] arr) {
-        return new MessageUnpacker(new ArrayMessageBufferInput(arr));
+        return new MessageUnpacker(new MessageBufferInputArray(arr));
     }
 
     /**

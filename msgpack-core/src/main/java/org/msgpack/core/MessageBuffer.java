@@ -266,7 +266,7 @@ public class MessageBuffer {
 
     public short getShort(int index) {
         short v = unsafe.getShort(base, address + index);
-        return (short) (((v & 0xFF00) >> 8) | (v << 8));
+        return Short.reverseBytes(v);
     }
 
     /**
@@ -278,10 +278,7 @@ public class MessageBuffer {
         // Reading little-endian value
         int i = unsafe.getInt(base, address + index);
         // Reversing the endian
-        return ((i >>> 24)           ) |
-                ((i >>   8) &   0xFF00) |
-                ((i <<   8) & 0xFF0000) |
-                ((i << 24));
+        return Integer.reverseBytes(i);
     }
 
     public float getFloat(int index) {
@@ -290,11 +287,7 @@ public class MessageBuffer {
 
     public long getLong(int index) {
         long l = unsafe.getLong(base, address + index);
-        l = (l & 0x00ff00ff00ff00ffL) << 8 | (l>>> 8) & 0x00ff00ff00ff00ffL;
-        return (l << 48) |
-                ((l & 0xffff0000L) << 16) |
-                ((l >>> 16) & 0xffff0000L) |
-                (l >>> 48);
+        return Long.reverseBytes(l);
     }
 
     public double getDouble(int index) {
@@ -322,7 +315,7 @@ public class MessageBuffer {
     }
 
     public void putShort(int index, short v) {
-        v = (short) (((v & 0xFF00) >> 8) | (v << 8));
+        v = Short.reverseBytes(v);
         unsafe.putShort(base, address + index, v);
     }
 
@@ -333,10 +326,7 @@ public class MessageBuffer {
      */
     public void putInt(int index, int v){
         // Reversing the endian
-        v = ((v >>> 24)           ) |
-                ((v >>   8) &   0xFF00) |
-                ((v <<   8) & 0xFF0000) |
-                ((v << 24));
+        v = Integer.reverseBytes(v);
         unsafe.putInt(base, address + index, v);
     }
 
@@ -346,11 +336,7 @@ public class MessageBuffer {
 
     public void putLong(int index, long l) {
         // Reversing the endian
-        l = (l & 0x00ff00ff00ff00ffL) << 8 | (l>>> 8) & 0x00ff00ff00ff00ffL;
-        l = (l << 48) |
-                ((l & 0xffff0000L) << 16) |
-                ((l >>> 16) & 0xffff0000L) |
-                (l >>> 48);
+        l = Long.reverseBytes(l);
         unsafe.putLong(base, address + index, l);
     }
 

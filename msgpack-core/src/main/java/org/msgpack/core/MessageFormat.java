@@ -10,14 +10,6 @@ import java.io.IOException;
  */
 public enum MessageFormat {
 
-    // End of file
-    EOF(ValueType.EOF) {
-        @Override
-        int skip(MessageUnpacker unpacker) throws IOException{
-            // do nothing
-            return 0;
-        }
-    },
     // INT7
     POSFIXINT(ValueType.INTEGER) {
         @Override
@@ -58,7 +50,7 @@ public enum MessageFormat {
             return 0;
         }
     },
-    UNKNOWN(ValueType.UNKNOWN) {
+    NEVER_USED(null) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             throw new MessageFormatException(String.format("unknown code: %02x is found", unpacker.lookAhead()));
@@ -294,11 +286,18 @@ public enum MessageFormat {
 
     private final ValueType valueType;
 
-    private MessageFormat(ValueType family) {
-        this.valueType = family;
+    private MessageFormat(ValueType valueType) {
+        this.valueType = valueType;
     }
 
-    public ValueType getValueType() {
+    /**
+     *
+     * @return
+     * @throws MessageFormatException if this == NEVER_USED type
+     */
+    public ValueType getValueType() throws MessageFormatException {
+        if(this == NEVER_USED)
+            throw new MessageFormatException("Cannot convert NEVER_USED to ValueType");
         return valueType;
     }
 
@@ -403,7 +402,7 @@ public enum MessageFormat {
             case Code.MAP32:
                 return MAP32;
             default:
-                return UNKNOWN;
+                return NEVER_USED;
         }
     }
 
