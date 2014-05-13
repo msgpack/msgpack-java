@@ -748,33 +748,33 @@ public class MessageUnpacker implements Closeable {
         throw unexpected("Map", b);
     }
 
-    public MessagePack.ExtendedTypeHeader unpackExtendedTypeHeader() throws IOException {
+    public ExtendedTypeHeader unpackExtendedTypeHeader() throws IOException {
         byte b = consume();
         switch(b) {
             case Code.FIXEXT1:
-                return new MessagePack.ExtendedTypeHeader(readByte(), 1);
+                return new ExtendedTypeHeader(readByte(), 1);
             case Code.FIXEXT2:
-                return new MessagePack.ExtendedTypeHeader(readByte(), 2);
+                return new ExtendedTypeHeader(readByte(), 2);
             case Code.FIXEXT4:
-                return new MessagePack.ExtendedTypeHeader(readByte(), 4);
+                return new ExtendedTypeHeader(readByte(), 4);
             case Code.FIXEXT8:
-                return new MessagePack.ExtendedTypeHeader(readByte(), 8);
+                return new ExtendedTypeHeader(readByte(), 8);
             case Code.FIXEXT16:
-                return new MessagePack.ExtendedTypeHeader(readByte(), 16);
+                return new ExtendedTypeHeader(readByte(), 16);
             case Code.EXT8: {
                 int len = readNextLength8();
                 int t = readByte();
-                return new MessagePack.ExtendedTypeHeader(len, t);
+                return new ExtendedTypeHeader(len, t);
             }
             case Code.EXT16: {
                 int len = readNextLength16();
                 int t = readByte();
-                return new MessagePack.ExtendedTypeHeader(len, t);
+                return new ExtendedTypeHeader(len, t);
             }
             case Code.EXT32: {
                 int len = readNextLength32();
                 int t = readByte();
-                return new MessagePack.ExtendedTypeHeader(len, t);
+                return new ExtendedTypeHeader(len, t);
             }
         }
 

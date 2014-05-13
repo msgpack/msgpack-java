@@ -91,26 +91,6 @@ public class MessagePack {
 
 
     /**
-     * Header of extended type
-     */
-    public static class ExtendedTypeHeader {
-        private final int type;
-        private final int length;
-        ExtendedTypeHeader(int type, int length) {
-            this.type = type;
-            this.length = length;
-        }
-
-        public int getType() {
-            return type;
-        }
-
-        public int getLength() {
-            return length;
-        }
-    }
-
-    /**
      * Create a new MessagePacker that writes the message packed data to a file
      * @param outputFile
      * @return MessagePacker
