@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 
+import static org.msgpack.core.Preconditions.checkNotNull;
+
 /**
  * {@link MessageBufferOutput} adapter for {@link java.nio.channels.WritableByteChannel}
  */
@@ -12,7 +14,7 @@ public class ChannelBufferOutput implements MessageBufferOutput {
     private final WritableByteChannel channel;
 
     public ChannelBufferOutput(WritableByteChannel channel) {
-        this.channel = channel;
+        this.channel = checkNotNull(channel, "output channel is null");
     }
 
     @Override

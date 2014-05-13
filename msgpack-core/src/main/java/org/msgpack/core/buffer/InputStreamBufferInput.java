@@ -3,6 +3,8 @@ package org.msgpack.core.buffer;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static org.msgpack.core.Preconditions.checkNotNull;
+
 /**
  * {@link MessageBufferInput} adapter for {@link InputStream}
  */
@@ -12,9 +14,7 @@ public class InputStreamBufferInput implements MessageBufferInput {
     private byte[] buffer = new byte[8192];
 
     public InputStreamBufferInput(InputStream in) {
-        if(in == null)
-            throw new NullPointerException("MessageBufferInputStream: input is null");
-        this.in = in;
+        this.in = checkNotNull(in, "input is null");
     }
 
     @Override
@@ -37,7 +37,11 @@ public class InputStreamBufferInput implements MessageBufferInput {
 
     @Override
     public void close() throws IOException {
-        in.close();
-        buffer = null;
+        try {
+            in.close();
+        }
+        finally {
+            buffer = null;
+        }
     }
 }

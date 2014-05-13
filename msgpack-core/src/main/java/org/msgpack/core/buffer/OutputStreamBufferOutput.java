@@ -3,6 +3,8 @@ package org.msgpack.core.buffer;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import static org.msgpack.core.Preconditions.checkNotNull;
+
 /**
  * MessageBufferOutput adapter for {@link java.io.OutputStream}.
  */
@@ -11,7 +13,7 @@ public class OutputStreamBufferOutput implements MessageBufferOutput {
     private final OutputStream out;
 
     public OutputStreamBufferOutput(OutputStream out) {
-        this.out = out;
+        this.out = checkNotNull(out, "output is null");
     }
 
     @Override

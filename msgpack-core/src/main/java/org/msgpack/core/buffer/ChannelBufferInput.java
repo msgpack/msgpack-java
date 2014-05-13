@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 
+import static org.msgpack.core.Preconditions.checkNotNull;
+
 /**
  * {@link MessageBufferInput} adapter for {@link java.nio.channels.ReadableByteChannel}
  */
@@ -12,8 +14,7 @@ public class ChannelBufferInput implements MessageBufferInput {
     private final ReadableByteChannel channel;
 
     public ChannelBufferInput(ReadableByteChannel channel) {
-        assert(channel != null);
-        this.channel = channel;
+        this.channel = checkNotNull(channel, "input channel is null");
     }
 
     @Override

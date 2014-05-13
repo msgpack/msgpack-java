@@ -1,6 +1,7 @@
 package org.msgpack.core.buffer;
 
 import java.io.IOException;
+import static org.msgpack.core.Preconditions.*;
 
 /**
  * MessageBufferInput adapter for byte arrays
@@ -11,7 +12,7 @@ public class ArrayBufferInput implements MessageBufferInput {
     private boolean isRead = false;
 
     public ArrayBufferInput(byte[] arr) {
-        this.buffer = MessageBuffer.wrap(arr);
+        this.buffer = MessageBuffer.wrap(checkNotNull(arr, "input array is null"));
     }
 
     @Override

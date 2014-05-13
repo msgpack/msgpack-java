@@ -1,14 +1,12 @@
 package org.msgpack.core.buffer;
 
+import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
 
 /**
  * Provides a sequence of MessageBuffers that contains message packed data.
  */
-public interface MessageBufferInput {
+public interface MessageBufferInput extends Closeable {
 
     /**
      * Get a next buffer to read
@@ -17,11 +15,6 @@ public interface MessageBufferInput {
      */
     public MessageBuffer next() throws IOException;
 
-    /**
-     * Close this buffer input
-     * @throws IOException
-     */
-    public void close() throws IOException;
 
 }
 

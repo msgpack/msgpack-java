@@ -53,14 +53,13 @@ class MessageUnpackerTest extends MessagePackSpec {
 
   "MessageUnpacker" should {
 
-    "parse message packed data" in {
+    "parse message packed data" taggedAs("unpack") in {
       val arr = testData
 
       val unpacker = new MessageUnpacker(arr);
 
-      var f : MessageFormat = null
-      do {
-        f = unpacker.getNextFormat()
+      while(unpacker.hasNext) {
+        val f = unpacker.getNextFormat()
         f.getValueType match {
           case ValueType.ARRAY =>
             val arrLen = unpacker.unpackArrayHeader()
@@ -74,21 +73,19 @@ class MessageUnpackerTest extends MessagePackSpec {
           case ValueType.STRING =>
             val s = unpacker.unpackString()
             debug(s"str value: $s")
-          case ValueType.EOF =>
-            debug(s"reached EOF")
           case other =>
-            unpacker.skipValue();
+            unpacker.skipValue()
             debug(s"unknown type: $f")
         }
       }
-      while (f != MessageFormat.EOF)
     }
 
     "skip reading values" in {
 
       val unpacker = new MessageUnpacker(testData)
       var skipCount = 0
-      while(unpacker.skipValue()) {
+      while(unpacker.hasNext) {
+        unpacker.skipValue()
         skipCount += 1
       }
 
@@ -102,9 +99,8 @@ class MessageUnpackerTest extends MessagePackSpec {
       val ib = Seq.newBuilder[Int]
 
       val unpacker = new MessageUnpacker(testData2)
-      var f : MessageFormat = null
-      do {
-        f = unpacker.getNextFormat
+      while(unpacker.hasNext) {
+        val f = unpacker.getNextFormat
         f.getValueType match {
           case ValueType.INTEGER =>
             val i = unpacker.unpackInt()
@@ -116,7 +112,7 @@ class MessageUnpackerTest extends MessagePackSpec {
           case other =>
             unpacker.skipValue()
         }
-      } while(f != MessageFormat.EOF)
+      }
 
       ib.result shouldBe intSeq
 

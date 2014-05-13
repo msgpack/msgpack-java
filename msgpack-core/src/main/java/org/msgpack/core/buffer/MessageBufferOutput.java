@@ -1,8 +1,8 @@
 package org.msgpack.core.buffer;
 
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
+
+import java.io.Closeable;
+import java.io.IOException;
 
 /**
  * Provides a sequence of MessageBuffers for packing the input data
@@ -19,11 +19,6 @@ public interface MessageBufferOutput extends Closeable {
 
     public void flush(MessageBuffer buf, int offset, int len) throws IOException;
 
-    /**
-     * Flush and close this buffer.
-     * @throws IOException
-     */
-    public void close() throws IOException;
 
 }
 

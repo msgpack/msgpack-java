@@ -86,26 +86,4 @@ public class MessagePack {
         public static final byte NEGFIXINT_PREFIX = (byte) 0xe0;
     }
 
-
-    /**
-     * Header of extended type
-     */
-    public static class ExtendedTypeHeader {
-        private final int type;
-        private final int length;
-        ExtendedTypeHeader(int type, int length) {
-            this.type = type;
-            this.length = length;
-        }
-
-        public int getType() {
-            return type;
-        }
-
-        public int getLength() {
-            return length;
-        }
-    }
-
-
 }
