@@ -3,6 +3,7 @@ package org.msgpack.core
 import MessagePack.Code._
 import scala.util.Random
 import xerial.core.log.LogLevel
+import org.msgpack.core.MessagePack.Code
 
 
 /**
@@ -28,7 +29,16 @@ class ValueTypeTest extends MessagePackSpec {
         check(i.toByte, ValueType.ARRAY)
 
       check(NIL, ValueType.NIL)
-      check(NEVER_USED, ValueType.UNKNOWN)
+
+      try {
+        ValueType.valueOf(NEVER_USED)
+        fail("NEVER_USED type should not have ValueType")
+      }
+      catch {
+        case e:MessageFormatException =>
+          // OK
+      }
+
       check(TRUE, ValueType.BOOLEAN)
       check(FALSE, ValueType.BOOLEAN)
 
@@ -60,8 +70,10 @@ class ValueTypeTest extends MessagePackSpec {
       val N = 1000000
       val idx = {
         val b = Array.newBuilder[Byte]
-        for(i <- 0 until N)
-          b += (Random.nextInt(256)).toByte
+        for(i <- 0 until N) {
+          val r = Iterator.continually(Random.nextInt(256)).find(_.toByte != Code.NEVER_USED).get
+          b += r.toByte
+        }
         b.result()
       }
 
