@@ -19,6 +19,7 @@ import java.math.BigInteger;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import static org.msgpack.core.MessagePack.Code.*;
+import static org.msgpack.core.Preconditions.*;
 
 /**
  * Writer of message packed data.
@@ -49,7 +50,7 @@ public class MessagePacker {
     }
 
     public MessagePacker(MessageBufferOutput out, int bufferSize) {
-        assert(out != null);
+        checkNotNull(out, "MessageBufferOutput is null");
         this.out = out;
         this.buffer = MessageBuffer.newDirectBuffer(bufferSize);
         this.position = 0;

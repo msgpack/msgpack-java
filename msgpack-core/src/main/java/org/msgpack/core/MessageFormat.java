@@ -1,6 +1,7 @@
 package org.msgpack.core;
 
 import org.msgpack.core.MessagePack.Code;
+import org.msgpack.core.annotations.VisibleForTesting;
 
 import java.io.IOException;
 
@@ -321,7 +322,7 @@ public enum MessageFormat {
         return formatTable[table[b & 0xFF]];
     }
 
-
+    @VisibleForTesting
     static MessageFormat toMessageFormat(final byte b) {
         if (Code.isPosFixInt(b)) {
             return POSFIXINT;
