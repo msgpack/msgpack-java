@@ -167,9 +167,8 @@ public class MessageUnpacker implements Closeable {
 
 
     private static ValueType getTypeFromHead(final byte b) throws MessageFormatException {
+        MessageFormat mf = MessageFormat.valueOf(b);
         ValueType vt = MessageFormat.valueOf(b).getValueType();
-        if(vt == ValueType.UNKNOWN)
-            throw new MessageFormatException(String.format("Invalid format code: %02x", b));
         return vt;
     }
 
@@ -188,9 +187,9 @@ public class MessageUnpacker implements Closeable {
         }
     }
 
-
     public ValueType getNextValueType() throws IOException {
-        return getNextFormat().getValueType();
+        byte b = lookAhead();
+        return getTypeFromHead(b);
     }
 
     public MessageFormat getNextFormat() throws IOException {
@@ -412,7 +411,7 @@ public class MessageUnpacker implements Closeable {
                     remainingValues += readNextLength32() * 2; // TODO check int overflow
                     consume(2);
                     break;
-                case UNKNOWN:
+                case NEVER_USED:
                     throw new MessageFormatException(String.format("unknown code: %02x is found", b));
             }
 

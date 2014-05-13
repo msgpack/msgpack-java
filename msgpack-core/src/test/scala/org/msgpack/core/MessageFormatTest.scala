@@ -45,7 +45,7 @@ class MessageFormatTest extends MessagePackSpec {
 
       check(Code.NIL, ValueType.NIL, MessageFormat.NIL)
 
-      check(Code.NEVER_USED, ValueType.UNKNOWN, MessageFormat.UNKNOWN)
+      MessageFormat.valueOf(Code.NEVER_USED) shouldBe MessageFormat.NEVER_USED
 
       for(i <- Seq(Code.TRUE, Code.FALSE))
         check(i, ValueType.BOOLEAN, MessageFormat.BOOLEAN)

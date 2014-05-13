@@ -22,7 +22,6 @@ import org.msgpack.core.MessagePack.Code;
  */
 public enum ValueType {
 
-    UNKNOWN(false, false),
     NIL(false, false),
     BOOLEAN(false, false),
     INTEGER(true, false),
@@ -85,9 +84,8 @@ public enum ValueType {
         return this == EXTENDED;
     }
 
-    public static ValueType valueOf(final byte b) {
+    public static ValueType valueOf(byte b) {
         return MessageFormat.valueOf(b).getValueType();
     }
-
 
 }
