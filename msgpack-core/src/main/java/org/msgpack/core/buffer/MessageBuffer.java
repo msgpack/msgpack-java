@@ -1,4 +1,4 @@
-package org.msgpack.core;
+package org.msgpack.core.buffer;
 
 import sun.misc.Unsafe;
 import sun.nio.ch.DirectBuffer;
@@ -67,7 +67,7 @@ public class MessageBuffer {
                 unsafe.freeMemory(a);
             }
 
-            String bufferClsName = isLittleEndian ? "org.msgpack.core.MessageBuffer" : "org.msgpack.core.MessageBufferBE";
+            String bufferClsName = isLittleEndian ? "org.msgpack.core.buffer.MessageBuffer" : "org.msgpack.core.buffer.MessageBufferBE";
             msgBufferClass = Class.forName(bufferClsName);
         }
         catch (Exception e) {
