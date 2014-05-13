@@ -55,7 +55,7 @@ class MessageBufferOutputStream implements MessageBufferOutput {
         try {
             out.flush();
         }
-        finally {e
+        finally {
             out.close();
         }
     }
