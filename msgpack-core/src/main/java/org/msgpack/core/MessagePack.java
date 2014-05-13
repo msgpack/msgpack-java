@@ -1,8 +1,5 @@
 package org.msgpack.core;
 
-import java.io.*;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 
 /**
@@ -88,64 +85,5 @@ public class MessagePack {
 
         public static final byte NEGFIXINT_PREFIX = (byte) 0xe0;
     }
-
-
-    /**
-     * Create a new MessagePacker that writes the message packed data to a file
-     * @param outputFile
-     * @return MessagePacker
-     * @throws IOException if the target file cannot be created or opened
-     */
-    public static MessagePacker newPacker(File outputFile) throws IOException {
-        return newPacker(new FileOutputStream(outputFile));
-    }
-
-    public static MessagePacker newPacker(OutputStream out) {
-        if(out instanceof FileOutputStream) {
-            return newPacker(((FileOutputStream) out).getChannel());
-        }
-        else {
-            return new MessagePacker(new MessageBufferOutputStream(out));
-        }
-    }
-
-    public static MessagePacker newPacker(WritableByteChannel out) {
-        return new MessagePacker(new MessageBufferOutputChannel(out));
-    }
-
-    /**
-     * Create a new MessageUnpacker that reads the data from a given array
-     * @param arr
-     * @return
-     */
-    public static MessageUnpacker newUnpacker(byte[] arr) {
-        return new MessageUnpacker(new MessageBufferInputArray(arr));
-    }
-
-    /**
-     * Create a new MessageUnpacker that decodes the message packed data in a file
-     * @param inputFile
-     * @return MessageUnpacker
-     * @throws IOException if the input file is not found
-     */
-    public static MessageUnpacker newUnpacker(File inputFile) throws IOException {
-        FileInputStream fin = new FileInputStream(inputFile);
-        return newUnpacker(fin.getChannel());
-    }
-
-    public static MessageUnpacker newUnpacker(InputStream in) {
-        if(in instanceof FileInputStream) {
-            // When the input is FileInputStream, we can use file channel that can directly read the data from a file to an off-heap buffer
-            return newUnpacker(((FileInputStream) in).getChannel());
-        }
-        else {
-            return new MessageUnpacker(new MessageBufferInputStream(in));
-        }
-    }
-
-    public static MessageUnpacker newUnpacker(ReadableByteChannel in) {
-        return new MessageUnpacker(new MessageBufferInputChannel(in));
-    }
-
 
 }

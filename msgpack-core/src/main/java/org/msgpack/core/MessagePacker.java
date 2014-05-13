@@ -15,6 +15,11 @@
 //
 package org.msgpack.core;
 
+import org.msgpack.core.buffer.MessageBuffer;
+import org.msgpack.core.buffer.MessageBufferOutput;
+import org.msgpack.core.buffer.OutputStreamBufferOutput;
+
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -44,6 +49,11 @@ public class MessagePacker {
     private final MessageBufferOutput out;
     private final MessageBuffer buffer;
     private int position;
+
+    public MessagePacker(OutputStream out) {
+        this(new OutputStreamBufferOutput(out));
+    }
+
 
     public MessagePacker(MessageBufferOutput out) {
         this(out, 8 * 1024);
