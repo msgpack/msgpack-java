@@ -61,6 +61,7 @@
                 <artifactId>mockito-core</artifactId>
                 <version>1.9.5</version>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -75,6 +76,7 @@
                     <encoding>UTF-8</encoding>
                     <compilerArgs>
                         <arg>-Xlint:unchecked</arg>
+                        <arg>-Xlint:deprecation</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>

@@ -15,20 +15,23 @@
 //
 package org.msgpack.core;
 
-public class MessageException extends RuntimeException {
-    public MessageException() {
-        super();
-    }
+import java.nio.charset.CharacterCodingException;
 
-    public MessageException(String message) {
-        super(message);
-    }
-
-    public MessageException(String message, Throwable cause) {
+/**
+ * Thrown to indicate an error when encoding/decoding a String value
+ */
+public class MessageStringCodingException extends MessagePackException {
+    public MessageStringCodingException(String message, CharacterCodingException cause) {
         super(message, cause);
     }
 
-    public MessageException(Throwable cause) {
+    public MessageStringCodingException(CharacterCodingException cause) {
         super(cause);
     }
+
+    @Override
+    public CharacterCodingException getCause() {
+        return (CharacterCodingException) super.getCause();
+    }
+
 }

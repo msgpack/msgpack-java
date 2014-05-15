@@ -15,7 +15,13 @@
 //
 package org.msgpack.core;
 
+import org.msgpack.core.MessagePack.Code;
+
+/**
+ * MessageTypeFamily is a group of {@link MessageFormat}s
+ */
 public enum ValueType {
+
     NIL(false, false),
     BOOLEAN(false, false),
     INTEGER(true, false),
@@ -77,4 +83,9 @@ public enum ValueType {
     public boolean isExtendedType() {
         return this == EXTENDED;
     }
+
+    public static ValueType valueOf(byte b) {
+        return MessageFormat.valueOf(b).getValueType();
+    }
+
 }

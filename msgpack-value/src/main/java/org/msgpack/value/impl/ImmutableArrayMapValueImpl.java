@@ -26,6 +26,7 @@ import java.util.NoSuchElementException;
 import java.util.Arrays;
 import java.io.IOException;
 
+import org.msgpack.core.ValueType;
 import org.msgpack.value.Value;
 import org.msgpack.value.MapValue;
 import org.msgpack.value.ImmutableValue;
@@ -41,8 +42,7 @@ import org.msgpack.value.ImmutableArrayValue;
 import org.msgpack.value.ImmutableMapValue;
 import org.msgpack.value.ImmutableExtendedValue;
 import org.msgpack.value.MessageTypeCastException;
-import org.msgpack.core.ValueType;
-import org.msgpack.core.Packer;
+import org.msgpack.core.MessagePacker;
 
 public class ImmutableArrayMapValueImpl
         extends AbstractMap<Value, Value> implements ImmutableMapValue {
@@ -213,8 +213,8 @@ public class ImmutableArrayMapValueImpl
     }
 
     @Override
-    public void writeTo(Packer pk) throws IOException {
-        pk.writeMapHeader(array.length / 2);
+    public void writeTo(MessagePacker pk) throws IOException {
+        pk.packMapHeader(array.length / 2);
         for (int i = 0; i < array.length; i++) {
             array[i].writeTo(pk);
         }

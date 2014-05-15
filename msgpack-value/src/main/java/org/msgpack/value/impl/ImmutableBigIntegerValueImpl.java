@@ -18,12 +18,12 @@ package org.msgpack.value.impl;
 import java.io.IOException;
 import java.math.BigInteger;
 
+import org.msgpack.core.ValueType;
 import org.msgpack.value.Value;
 import org.msgpack.value.IntegerValue;
 import org.msgpack.value.ImmutableIntegerValue;
 import org.msgpack.value.MessageTypeIntegerOverflowException;
-import org.msgpack.core.ValueType;
-import org.msgpack.core.Packer;
+import org.msgpack.core.MessagePacker;
 
 public class ImmutableBigIntegerValueImpl
         extends AbstractImmutableValue implements ImmutableIntegerValue {
@@ -147,8 +147,8 @@ public class ImmutableBigIntegerValueImpl
     }
 
     @Override
-    public void writeTo(Packer pk) throws IOException {
-        pk.writeBigInteger(value);
+    public void writeTo(MessagePacker pk) throws IOException {
+        pk.packBigInteger(value);
     }
 
     @Override

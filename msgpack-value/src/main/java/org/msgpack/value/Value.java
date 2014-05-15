@@ -16,8 +16,9 @@
 package org.msgpack.value;
 
 import java.io.IOException;
+
 import org.msgpack.core.ValueType;
-import org.msgpack.core.Packer;
+import org.msgpack.core.MessagePacker;
 
 public interface Value {
     public ValueType getType();
@@ -68,7 +69,7 @@ public interface Value {
 
     public ExtendedValue asExtendedValue();
 
-    public void writeTo(Packer pk) throws IOException;
+    public void writeTo(MessagePacker pk) throws IOException;
 
     //public void accept(ValueVisitor visitor);
 }

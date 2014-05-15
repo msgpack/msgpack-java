@@ -38,6 +38,7 @@ object Build extends Build {
     incOptions := incOptions.value.withNameHashing(true),
     //resolvers += Resolver.mavenLocal,
     scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-target:jvm-1.6", "-feature"),
+    javacOptions in (Compile, compile) ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.6", "-target", "1.6"),
     pomExtra := {
       <url>http://msgpack.org/</url>
         <licenses>
@@ -93,7 +94,8 @@ object Build extends Build {
       "org.scalatest" % "scalatest_2.10" % "2.1.0-RC2" % "test",
       "org.scalacheck" % "scalacheck_2.10" % "1.11.3" % "test",
       "org.xerial" % "xerial-core" % "3.2.3" % "test",
-      "org.msgpack" % "msgpack" % "0.6.9" % "test"
+      "org.msgpack" % "msgpack" % "0.6.9" % "test",
+      "com.novocode" % "junit-interface" % "0.10" % "test"
     )
   }
 

@@ -16,14 +16,8 @@
 package org.msgpack.value.impl;
 
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Arrays;
 import java.math.BigInteger;
 import java.math.BigDecimal;
 import java.io.IOException;
@@ -35,26 +29,20 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.UnsupportedCharsetException;
 
+import org.msgpack.core.MessagePacker;
+import org.msgpack.core.ValueType;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueFactory;
 import org.msgpack.value.ImmutableValue;
-import org.msgpack.value.MutableValue;
 import org.msgpack.value.MutableNilValue;
 import org.msgpack.value.MutableBooleanValue;
-import org.msgpack.value.MutableNumberValue;
 import org.msgpack.value.MutableIntegerValue;
 import org.msgpack.value.MutableFloatValue;
-import org.msgpack.value.MutableRawValue;
 import org.msgpack.value.MutableBinaryValue;
 import org.msgpack.value.MutableStringValue;
-import org.msgpack.value.MutableArrayValue;
-import org.msgpack.value.MutableMapValue;
-import org.msgpack.value.MutableExtendedValue;
 import org.msgpack.value.MessageTypeCastException;
 import org.msgpack.value.MessageTypeIntegerOverflowException;
 import org.msgpack.value.MessageTypeStringCodingException;
-import org.msgpack.core.ValueType;
-import org.msgpack.core.Packer;
 
 class AbstractUnionMutableValue
         extends AbstractMutableValue
@@ -230,7 +218,7 @@ class AbstractUnionMutableValue
     }
 
     @Override
-    public void writeTo(Packer pk) throws IOException {
+    public void writeTo(MessagePacker pk) throws IOException {
         // TODO optimize
         immutableCopy(false).writeTo(pk);
     }
@@ -507,7 +495,7 @@ class AbstractUnionMutableValue
     // resetToBinaryValue() uses union.setByteBuffer
     // encodeString() uses union.setByteBuffer
     //
-    // union.getType() == STRING && decodedStringCache != null never happens
+    // union.getValueType() == STRING && decodedStringCache != null never happens
     // because it sets decodedStringCache when it calls union.setString
     //
 

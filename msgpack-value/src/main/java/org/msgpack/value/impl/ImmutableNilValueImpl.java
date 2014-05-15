@@ -17,10 +17,10 @@ package org.msgpack.value.impl;
 
 import java.io.IOException;
 
+import org.msgpack.core.ValueType;
 import org.msgpack.value.Value;
 import org.msgpack.value.ImmutableNilValue;
-import org.msgpack.core.ValueType;
-import org.msgpack.core.Packer;
+import org.msgpack.core.MessagePacker;
 
 public class ImmutableNilValueImpl
         extends AbstractImmutableValue implements ImmutableNilValue {
@@ -45,8 +45,8 @@ public class ImmutableNilValueImpl
     }
 
     @Override
-    public void writeTo(Packer pk) throws IOException {
-        pk.writeNil();
+    public void writeTo(MessagePacker pk) throws IOException {
+        pk.packNil();
     }
 
     @Override

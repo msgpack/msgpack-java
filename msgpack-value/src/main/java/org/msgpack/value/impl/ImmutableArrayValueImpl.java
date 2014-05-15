@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.AbstractList;
 import java.io.IOException;
 
+import org.msgpack.core.ValueType;
 import org.msgpack.value.Value;
 import org.msgpack.value.ImmutableValue;
 import org.msgpack.value.ImmutableNilValue;
@@ -33,8 +34,7 @@ import org.msgpack.value.ImmutableArrayValue;
 import org.msgpack.value.ImmutableMapValue;
 import org.msgpack.value.ImmutableExtendedValue;
 import org.msgpack.value.MessageTypeCastException;
-import org.msgpack.core.ValueType;
-import org.msgpack.core.Packer;
+import org.msgpack.core.MessagePacker;
 
 public class ImmutableArrayValueImpl
         extends AbstractList<Value> implements ImmutableArrayValue {
@@ -56,8 +56,8 @@ public class ImmutableArrayValueImpl
     }
 
     @Override
-    public void writeTo(Packer pk) throws IOException {
-        pk.writeArrayHeader(array.length);
+    public void writeTo(MessagePacker pk) throws IOException {
+        pk.packArrayHeader(array.length);
         for (int i = 0; i < array.length; i++) {
             array[i].writeTo(pk);
         }

@@ -15,7 +15,6 @@
 //
 package org.msgpack.value.impl;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
@@ -23,11 +22,8 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.UnsupportedCharsetException;
 
-import org.msgpack.value.Value;
 import org.msgpack.value.ImmutableRawValue;
 import org.msgpack.value.MessageTypeStringCodingException;
-import org.msgpack.core.ValueType;
-import org.msgpack.core.Packer;
 
 abstract class AbstractImmutableRawValue
         extends AbstractImmutableValue implements ImmutableRawValue {

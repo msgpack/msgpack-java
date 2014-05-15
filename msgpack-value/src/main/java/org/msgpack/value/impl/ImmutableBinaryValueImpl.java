@@ -17,16 +17,12 @@ package org.msgpack.value.impl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CodingErrorAction;
-import java.nio.charset.CharacterCodingException;
 
+import org.msgpack.core.ValueType;
 import org.msgpack.value.Value;
 import org.msgpack.value.BinaryValue;
 import org.msgpack.value.ImmutableBinaryValue;
-import org.msgpack.core.ValueType;
-import org.msgpack.core.Packer;
+import org.msgpack.core.MessagePacker;
 
 public class ImmutableBinaryValueImpl
         extends AbstractImmutableRawValue implements ImmutableBinaryValue {
@@ -40,9 +36,9 @@ public class ImmutableBinaryValueImpl
     }
 
     @Override
-    public void writeTo(Packer pk) throws IOException {
-        pk.writeBinaryLength(byteBuffer.remaining());
-        pk.rawWrite(byteBuffer.asReadOnlyBuffer());
+    public void writeTo(MessagePacker pk) throws IOException {
+        pk.packBinaryHeader(byteBuffer.remaining());
+        pk.writePayload(byteBuffer.asReadOnlyBuffer());
     }
 
     @Override

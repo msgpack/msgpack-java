@@ -15,22 +15,15 @@
 //
 package org.msgpack.core;
 
-import java.io.IOException;
-
-public class MessageUnpackerException extends IOException {
-    public MessageUnpackerException() {
-        super();
-    }
-
-    public MessageUnpackerException(String message) {
+/**
+ * Thrown when the input message pack format is invalid
+ */
+public class MessageFormatException extends MessagePackException {
+    public MessageFormatException(String message) {
         super(message);
     }
 
-    public MessageUnpackerException(String message, Throwable cause) {
+    public MessageFormatException(String message, Throwable cause) {
         super(message, cause);
-    }
-
-    public MessageUnpackerException(Throwable cause) {
-        super(cause);
     }
 }

@@ -15,282 +15,416 @@
 //
 package org.msgpack.core;
 
+import org.msgpack.core.buffer.MessageBuffer;
+import org.msgpack.core.buffer.MessageBufferOutput;
+import org.msgpack.core.buffer.OutputStreamBufferOutput;
+
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import static org.msgpack.core.MessagePack.Code.*;
+import static org.msgpack.core.Preconditions.*;
 
-public class MessagePacker implements Packer {
-    public static class Options {
+/**
+ * Writer of message packed data.
+ *
+ * <p>
+ * MessagePacker provides packXXX methods for writing values in the message pack format.
+ * To write raw string or binary data, first use packRawStringHeader or packBinaryHeader to specify the data length,
+ * then call writePayload(...) method.
+ * </p>
+ *
+ * <p>
+ * MessagePacker class has no guarantee to produce the correct message-pack format data if it is not used correctly:
+ * packXXX methods of primitive values always produce the correct format, but
+ * packXXXHeader (e.g. array, map, ext) must be followed by correct number of array/map/ext type values.
+ * packRawStringHeader(length) and packBinaryHeader(length) must be followed by writePayload( ... length) to supply
+ * the binary data of the specified length in the header.
+ * </p>
+ *
+ */
+public class MessagePacker {
+
+    private final MessageBufferOutput out;
+    private final MessageBuffer buffer;
+    private int position;
+
+    public MessagePacker(OutputStream out) {
+        this(new OutputStreamBufferOutput(out));
     }
 
-    private MessagePackerChannel out;
 
-    public MessagePacker(MessagePackerChannel out) {
+    public MessagePacker(MessageBufferOutput out) {
+        this(out, 8 * 1024);
+    }
+
+    public MessagePacker(MessageBufferOutput out, int bufferSize) {
+        checkNotNull(out, "MessageBufferOutput is null");
         this.out = out;
-    }
-
-    public Packer writeNil() throws IOException {
-        out.writeByte((byte) 0xc0);
-        return this;
-    }
-
-    public Packer writeBoolean(boolean d) throws IOException {
-        if (d) {
-            // true
-            out.writeByte((byte) 0xc3);
-        } else {
-            // false
-            out.writeByte((byte) 0xc2);
-        }
-        return this;
-    }
-
-    public Packer writeByte(byte d) throws IOException {
-        if (d < -(1 << 5)) {
-            out.writeByteAndByte((byte) 0xd0, d);
-        } else {
-            out.writeByte(d);
-        }
-        return this;
-    }
-
-    public Packer writeShort(short d) throws IOException {
-        if (d < -(1 << 5)) {
-            if (d < -(1 << 7)) {
-                // signed 16
-                out.writeByteAndShort((byte) 0xd1, d);
-            } else {
-                // signed 8
-                out.writeByteAndByte((byte) 0xd0, (byte) d);
-            }
-        } else if (d < (1 << 7)) {
-            // fixnum
-            out.writeByte((byte) d);
-        } else {
-            if (d < (1 << 8)) {
-                // unsigned 8
-                out.writeByteAndByte((byte) 0xcc, (byte) d);
-            } else {
-                // unsigned 16
-                out.writeByteAndShort((byte) 0xcd, d);
-            }
-        }
-        return this;
-    }
-
-    public Packer writeInt(int d) throws IOException {
-        if (d < -(1 << 5)) {
-            if (d < -(1 << 15)) {
-                // signed 32
-                out.writeByteAndInt((byte) 0xd2, d);
-            } else if (d < -(1 << 7)) {
-                // signed 16
-                out.writeByteAndShort((byte) 0xd1, (short) d);
-            } else {
-                // signed 8
-                out.writeByteAndByte((byte) 0xd0, (byte) d);
-            }
-        } else if (d < (1 << 7)) {
-            // fixnum
-            out.writeByte((byte) d);
-        } else {
-            if (d < (1 << 8)) {
-                // unsigned 8
-                out.writeByteAndByte((byte) 0xcc, (byte) d);
-            } else if (d < (1 << 16)) {
-                // unsigned 16
-                out.writeByteAndShort((byte) 0xcd, (short) d);
-            } else {
-                // unsigned 32
-                out.writeByteAndInt((byte) 0xce, d);
-            }
-        }
-        return this;
-    }
-
-    public Packer writeLong(long d) throws IOException {
-        if (d < -(1L << 5)) {
-            if (d < -(1L << 15)) {
-                if (d < -(1L << 31)) {
-                    // signed 64
-                    out.writeByteAndLong((byte) 0xd3, d);
-                } else {
-                    // signed 32
-                    out.writeByteAndInt((byte) 0xd2, (int) d);
-                }
-            } else {
-                if (d < -(1 << 7)) {
-                    // signed 16
-                    out.writeByteAndShort((byte) 0xd1, (short) d);
-                } else {
-                    // signed 8
-                    out.writeByteAndByte((byte) 0xd0, (byte) d);
-                }
-            }
-        } else if (d < (1 << 7)) {
-            // fixnum
-            out.writeByte((byte) d);
-        } else {
-            if (d < (1L << 16)) {
-                if (d < (1 << 8)) {
-                    // unsigned 8
-                    out.writeByteAndByte((byte) 0xcc, (byte) d);
-                } else {
-                    // unsigned 16
-                    out.writeByteAndShort((byte) 0xcd, (short) d);
-                }
-            } else {
-                if (d < (1L << 32)) {
-                    // unsigned 32
-                    out.writeByteAndInt((byte) 0xce, (int) d);
-                } else {
-                    // unsigned 64
-                    out.writeByteAndLong((byte) 0xcf, d);
-                }
-            }
-        }
-        return this;
-    }
-
-    public Packer writeBigInteger(BigInteger d) throws IOException {
-        if (d.bitLength() <= 63) {
-            writeLong(d.longValue());
-        } else if (d.bitLength() == 64 && d.signum() == 1) {
-            // unsigned 64
-            out.writeByteAndLong((byte) 0xcf, d.longValue());
-        } else {
-            throw new IllegalArgumentException(
-                    "MessagePack can't serialize BigInteger larger than (2^64)-1");
-        }
-        return this;
-    }
-
-    public Packer writeFloat(float d) throws IOException {
-        out.writeByteAndFloat((byte) 0xca, d);
-        return this;
-    }
-
-    public Packer writeDouble(double d) throws IOException {
-        out.writeByteAndDouble((byte) 0xcb, d);
-        return this;
-    }
-
-    public Packer writeString(String o) throws IOException {
-        // TODO not implemented yet
-        return this;
-    }
-
-    public Packer writeBinary(ByteBuffer o) throws IOException {
-        // TODO not implemented yet
-        return this;
-    }
-
-    public Packer writeRawStringLength(int len) throws IOException {
-        // TODO not implemented yet
-        return this;
-    }
-
-    public Packer writeBinaryLength(int len) throws IOException {
-        // TODO not implemented yet
-        return this;
-    }
-
-    public Packer rawWrite(ByteBuffer o) throws IOException {
-        // TODO not implemented yet
-        return this;
-    }
-
-    public Packer rawWrite(byte[] o, int off, int len) throws IOException {
-        // TODO not implemented yet
-        return this;
-    }
-
-    @Override
-    public Packer writePayloadByByteBuffer(ByteBuffer bb) throws IOException {
-        // TODO
-        return null;
-    }
-
-    /*
-    public Packer writeByteArray(byte[] o) throws IOException {
-        return writeByteArray(o, 0, o.length);
-    }
-
-    public Packer writeByteArray(byte[] b, int off, int len)
-            throws IOException {
-        if (len < 32) {
-            out.writeByte((byte) (0xa0 | len));
-        } else if (len < 65536) {
-            out.writeByteAndShort((byte) 0xda, (short) len);
-        } else {
-            out.writeByteAndInt((byte) 0xdb, len);
-        }
-        out.write(b, off, len);
-        return this;
-    }
-
-    public Packer writeByteBuffer(ByteBuffer bb) throws IOException {
-        int len = bb.remaining();
-        if (len < 32) {
-            out.writeByte((byte) (0xa0 | len));
-        } else if (len < 65536) {
-            out.writeByteAndShort((byte) 0xda, (short) len);
-        } else {
-            out.writeByteAndInt((byte) 0xdb, len);
-        }
-        int pos = bb.position();
-        try {
-            out.write(bb);
-        } finally {
-            bb.position(pos);
-        }
-        return this;
-    }
-
-    public Packer writeString(String s) throws IOException {
-        byte[] b;
-        try {
-            // TODO encoding error?
-            b = s.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException ex) {
-            throw new MessageTypeException(ex);
-        }
-        return writeByteArray(b, 0, b.length);
-    }
-    */
-
-    public Packer writeArrayHeader(int size) throws IOException {
-        // TODO check size < 0?
-        if (size < 16) {
-            // FixArray
-            out.writeByte((byte) (0x90 | size));
-        } else if (size < 65536) {
-            out.writeByteAndShort((byte) 0xdc, (short) size);
-        } else {
-            out.writeByteAndInt((byte) 0xdd, size);
-        }
-        return this;
-    }
-
-    public Packer writeMapHeader(int size) throws IOException {
-        // TODO check size < 0?
-        if (size < 16) {
-            // FixMap
-            out.writeByte((byte) (0x80 | size));
-        } else if (size < 65536) {
-            out.writeByteAndShort((byte) 0xde, (short) size);
-        } else {
-            out.writeByteAndInt((byte) 0xdf, size);
-        }
-        return this;
+        this.buffer = MessageBuffer.newDirectBuffer(bufferSize);
+        this.position = 0;
     }
 
     public void flush() throws IOException {
-        out.flush();
+        out.flush(buffer, 0, position);
+        position = 0;
     }
 
     public void close() throws IOException {
-        out.close();
+        try {
+            flush();
+        }
+        finally {
+            out.close();
+        }
     }
+
+    private void ensureCapacity(int numBytesToWrite) throws IOException {
+        if(position + numBytesToWrite < buffer.size())
+            return;
+
+        flush();
+    }
+
+
+    private void writeByte(byte b) throws IOException {
+        ensureCapacity(1);
+        buffer.putByte(position++, b);
+    }
+
+
+    private void writeByteAndByte(byte b, byte v) throws IOException {
+        ensureCapacity(2);
+        buffer.putByte(position++, b);
+        buffer.putByte(position++, v);
+    }
+
+    private void writeByteAndShort(byte b, short v) throws IOException {
+        ensureCapacity(3);
+        buffer.putByte(position++, b);
+        buffer.putShort(position, v);
+        position += 2;
+    }
+
+    private void writeByteAndInt(byte b, int v) throws IOException {
+        ensureCapacity(5);
+        buffer.putByte(position++, b);
+        buffer.putInt(position, v);
+        position += 4;
+    }
+
+    private void writeByteAndFloat(byte b, float v) throws IOException {
+        ensureCapacity(5);
+        buffer.putByte(position++, b);
+        buffer.putFloat(position, v);
+        position += 4;
+    }
+
+    private void writeByteAndDouble(byte b, double v) throws IOException {
+        ensureCapacity(9);
+        buffer.putByte(position++, b);
+        buffer.putDouble(position, v);
+        position += 8;
+    }
+
+    private void writeByteAndLong(byte b, long v) throws IOException {
+        ensureCapacity(9);
+        buffer.putByte(position++, b);
+        buffer.putLong(position, v);
+        position += 8;
+    }
+
+    private void writeShort(short v) throws IOException {
+        ensureCapacity(2);
+        buffer.putShort(position, v);
+        position += 2;
+    }
+
+    private void writeInt(int v) throws IOException {
+        ensureCapacity(4);
+        buffer.putInt(position, v);
+        position += 4;
+    }
+
+    private void writeLong(long v) throws IOException {
+        ensureCapacity(8);
+        buffer.putLong(position, v);
+        position += 8;
+    }
+
+    public MessagePacker packNil() throws IOException {
+        writeByte(NIL);
+        return this;
+    }
+
+    public MessagePacker packBoolean(boolean b) throws IOException {
+        writeByte(b ? TRUE : FALSE);
+        return this;
+    }
+
+
+    public MessagePacker packByte(byte b) throws IOException {
+        if(b < -(1 << 5)) {
+            writeByteAndByte(INT8, b);
+        } else {
+            writeByte(b);
+        }
+        return this;
+    }
+
+    public MessagePacker packShort(short v) throws IOException {
+        if(v < -(1 << 5)) {
+            if(v < -(1 << 7)) {
+                writeByteAndShort(INT16, v);
+            } else {
+                writeByteAndByte(INT8, (byte) v);
+            }
+        } else if(v < (1 << 7)) {
+            writeByte((byte) v);
+        } else {
+            if(v < (1 << 8)) {
+                writeByteAndByte(UINT8, (byte) v);
+            }
+            else {
+                writeByteAndShort(UINT16, v);
+            }
+        }
+        return this;
+    }
+
+    public MessagePacker packInt(int r) throws IOException {
+        if (r < -(1 << 5)) {
+            if (r < -(1 << 15)) {
+                writeByteAndInt(INT32, r);
+            } else if (r < -(1 << 7)) {
+                writeByteAndShort(INT16, (short) r);
+            } else {
+                writeByteAndByte(INT8, (byte) r);
+            }
+        } else if (r < (1 << 7)) {
+            writeByte((byte) r);
+        } else {
+            if (r < (1 << 8)) {
+                writeByteAndByte(UINT8, (byte) r);
+            } else if (r < (1 << 16)) {
+                writeByteAndShort(UINT16, (short) r);
+            } else {
+                // unsigned 32
+                writeByteAndInt(UINT32, r);
+            }
+        }
+        return this;
+    }
+
+    public MessagePacker packLong(long v) throws IOException {
+        if (v < -(1L << 5)) {
+            if (v < -(1L << 15)) {
+                if (v < -(1L << 31)) {
+                    writeByteAndLong(INT64, v);
+                } else {
+                    writeByteAndInt(INT32, (int) v);
+                }
+            } else {
+                if (v < -(1 << 7)) {
+                    writeByteAndShort(INT16, (short) v);
+                } else {
+                    writeByteAndByte(INT8, (byte) v);
+                }
+            }
+        } else if (v < (1 << 7)) {
+            // fixnum
+            writeByte((byte) v);
+        } else {
+            if (v < (1L << 16)) {
+                if (v < (1 << 8)) {
+                    writeByteAndByte(UINT8, (byte) v);
+                } else {
+                    writeByteAndShort(UINT16, (short) v);
+                }
+            } else {
+                if (v < (1L << 32)) {
+                    writeByteAndInt(UINT32, (int) v);
+                } else {
+                    writeByteAndLong(UINT64, v);
+                }
+            }
+        }
+        return this;
+    }
+
+    public MessagePacker packBigInteger(BigInteger bi) throws IOException {
+        if(bi.bitLength() <= 63) {
+            writeLong(bi.longValue());
+        } else if(bi.bitLength() == 64 && bi.signum() == 1) {
+            writeByteAndLong(UINT64, bi.longValue());
+        } else {
+            throw new IllegalArgumentException("Messagepack cannot serialize BigInteger larger than 2^64-1");
+        }
+        return this;
+    }
+    
+    public MessagePacker packFloat(float v) throws IOException {
+        writeByteAndFloat(FLOAT32, v);
+        return this;
+    }
+ 
+    public MessagePacker packDouble(double v) throws IOException {
+        writeByteAndDouble(FLOAT64, v);
+        return this;
+    }
+
+    /**
+     * Pack the input String in UTF-8 encoding
+     *
+     * @param s
+     * @return
+     * @throws IOException
+     */
+    public MessagePacker packString(String s) throws IOException {
+        byte[] utf8 = s.getBytes(MessagePack.UTF8);
+        packRawStringHeader(utf8.length);
+        writePayload(utf8, 0, utf8.length);
+        return this;
+    }
+
+    public MessagePacker packArrayHeader(int arraySize) throws IOException {
+        if(arraySize < 0)
+            throw new IllegalArgumentException("array size must be >= 0");
+
+        if(arraySize < (1 << 5)) {
+            writeByte((byte) (FIXARRAY_PREFIX | arraySize));
+        } else if(arraySize < (1 << 16)) {
+            writeByteAndShort(ARRAY16, (short) arraySize);
+        } else {
+            writeByteAndInt(ARRAY32, arraySize);
+        }
+        return this;
+    }
+
+    public MessagePacker packMapHeader(int mapSize) throws IOException {
+        if(mapSize < 0)
+            throw new IllegalArgumentException("map size must be >= 0");
+
+        if(mapSize < (1 << 5)) {
+            writeByte((byte) (FIXMAP_PREFIX | mapSize));
+        } else if(mapSize < (1 << 16)) {
+            writeByteAndShort(MAP16, (short) mapSize);
+        } else {
+            writeByteAndInt(MAP32, mapSize);
+        }
+        return this;
+    }
+
+    public MessagePacker packExtendedTypeHeader(int extType, int dataLen) throws IOException {
+        if(dataLen < (1 << 8)) {
+            if(dataLen > 0 && (dataLen & (dataLen - 1)) == 0) { // check whether dataLen == 2^x
+                if(dataLen == 1) {
+                    writeByteAndByte(FIXEXT1, (byte) extType);
+                } else if(dataLen == 2){
+                    writeByteAndByte(FIXEXT2, (byte) extType);
+                } else if(dataLen == 4) {
+                    writeByteAndByte(FIXEXT4, (byte) extType);
+                } else if(dataLen == 8) {
+                    writeByteAndByte(FIXEXT8, (byte) extType);
+                } else {
+                    writeByteAndByte(FIXEXT16, (byte) extType);
+                }
+            } else {
+                writeByteAndByte(EXT8, (byte) dataLen);
+                writeByte((byte) extType);
+            }
+        } else if(dataLen < (1 << 16)) {
+            writeByteAndShort(EXT16, (short) dataLen);
+            writeByte((byte) extType);
+        } else {
+            writeByteAndInt(EXT32, dataLen);
+            writeByte((byte) extType);
+
+            // TODO support dataLen > 2^31 - 1
+        }
+        return this;
+    }
+
+    public MessagePacker packBinaryHeader(int len) throws IOException {
+        if(len < (1 << 8)) {
+            writeByteAndByte(BIN8, (byte) len);
+        } else if(len < (1 << 16)) {
+            writeByteAndShort(BIN16, (short) len);
+        } else {
+            writeByteAndInt(BIN32, len);
+        }
+        return this;
+    }
+
+    public MessagePacker packRawStringHeader(int len) throws IOException {
+        if(len < (1 << 5)) {
+            writeByte((byte) (FIXSTR_PREFIX | len));
+        } else if(len < (1 << 8)) {
+            writeByteAndByte(STR8, (byte) len);
+        } else if(len < (1 << 16)) {
+            writeByteAndShort(STR16, (short) len);
+        } else {
+            writeByteAndInt(STR32, len);
+        }
+        return this;
+    }
+
+    private final int FLUSH_THRESHOLD = 512;
+
+    public MessagePacker writePayload(ByteBuffer src) throws IOException {
+        if(src.remaining() >= FLUSH_THRESHOLD) {
+            // Use the source ByteBuffer directly to avoid memory copy
+
+            // First, flush the current buffer contents
+            flush();
+
+            // Wrap the input source as a MessageBuffer
+            // TODO Create MessageBuffer.wrap(ByteBuffer, offset, length);
+            MessageBuffer wrapped = MessageBuffer.wrap(src);
+            // Then, dump the source data to the output
+            out.flush(wrapped, src.position(), src.remaining());
+            src.position(src.limit());
+        }
+        else {
+            // If the input source is small, simply copy the contents to the buffer
+            while(src.remaining() > 0) {
+                if(position >= buffer.size())
+                    flush();
+                int writeLen = Math.min(buffer.size() - position, src.remaining());
+                buffer.putByteBuffer(position, src, writeLen);
+                position += writeLen;
+                src.position(src.position() + writeLen);
+            }
+        }
+        return this;
+    }
+
+    public MessagePacker writePayload(byte[] src, int off, int len) throws IOException {
+        if(len >= FLUSH_THRESHOLD) {
+            // Use the input array directory to avoid memory copy
+
+            // Flush the current buffer contents
+            flush();
+
+            // Wrap the input array as a MessageBuffer
+            MessageBuffer wrapped = MessageBuffer.wrap(src);
+            // Dump the source data to the output
+            out.flush(wrapped, off, len);
+        }
+        else {
+            int cursor = 0;
+            while(cursor < len) {
+                if(position >= buffer.size())
+                    flush();
+                int writeLen = Math.min(buffer.size() - position, len - cursor);
+                buffer.putBytes(position, src, off + cursor, writeLen);
+                position += writeLen;
+                cursor += writeLen;
+            }
+        }
+        return this;
+    }
+
 
 }
