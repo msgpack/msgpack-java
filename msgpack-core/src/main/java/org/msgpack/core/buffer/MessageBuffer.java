@@ -10,9 +10,6 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 import static org.msgpack.core.Preconditions.*;
 
-import static sun.misc.Unsafe.ARRAY_BYTE_BASE_OFFSET;
-import static sun.misc.Unsafe.ARRAY_BYTE_INDEX_SCALE;
-
 /**
  * MessageBuffer class is an abstraction of memory for reading/writing message packed data.
  * This MessageBuffers ensures short/int/float/long/double values are written in the big-endian order.
@@ -26,6 +23,8 @@ public class MessageBuffer {
 
     static final Unsafe unsafe;
     static final Constructor byteBufferConstructor;
+    static final int ARRAY_BYTE_BASE_OFFSET;
+    static final int ARRAY_BYTE_INDEX_SCALE;
 
     static {
         try {
@@ -38,8 +37,11 @@ public class MessageBuffer {
             }
             // TODO Finding Unsafe instance for Android JVM
 
+            ARRAY_BYTE_BASE_OFFSET = unsafe.arrayBaseOffset(byte[].class);
+            ARRAY_BYTE_INDEX_SCALE = unsafe.arrayIndexScale(byte[].class);
+
             // Make sure the VM thinks bytes are only one byte wide
-            if (sun.misc.Unsafe.ARRAY_BYTE_INDEX_SCALE != 1) {
+            if (ARRAY_BYTE_INDEX_SCALE != 1) {
                 throw new IllegalStateException("Byte array index scale must be 1, but is " + ARRAY_BYTE_INDEX_SCALE);
             }
 
