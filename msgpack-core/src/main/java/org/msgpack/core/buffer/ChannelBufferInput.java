@@ -22,10 +22,12 @@ public class ChannelBufferInput implements MessageBufferInput {
         MessageBuffer m = MessageBuffer.newBuffer(8192);
         ByteBuffer b = m.toByteBuffer(0, m.size);
         for(int ret = 0; (ret = channel.read(b)) != -1; ) {
-            b.flip();
-            m.setLimit(b.remaining());
         }
-        return m;
+        b.flip();
+        if(b.remaining() < m.size)
+            return m.slice(0, b.remaining());
+        else
+            return m;
     }
 
     @Override

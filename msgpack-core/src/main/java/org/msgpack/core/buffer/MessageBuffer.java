@@ -102,17 +102,12 @@ public class MessageBuffer {
     protected final int size;
 
     /**
-     * The limit index of the end of the data contained in this buffer
-     */
-    private int limit;
-
-    /**
      * Reference is used to hold a reference to an object that holds the underlying memory so that it cannot be
      * released by the garbage collector.
      */
     private final ByteBuffer reference;
 
-
+    // TODO life-time managment of this buffer
     private AtomicInteger referenceCounter;
 
 
@@ -202,7 +197,6 @@ public class MessageBuffer {
         this.base = null;
         this.address = address;
         this.size = length;
-        this.limit = length;
         this.reference = null;
     }
 
@@ -217,14 +211,12 @@ public class MessageBuffer {
             this.base = null;
             this.address = db.address();
             this.size = bb.capacity();
-            this.limit = this.size;
             this.reference = bb;
         }
         else if(bb.hasArray()) {
             this.base = bb.array();
             this.address = ARRAY_BYTE_BASE_OFFSET;
             this.size = bb.array().length;
-            this.limit = this.size;
             this.reference = null;
         } else {
             throw new IllegalArgumentException("Only the array-backed ByteBuffer or DirectBuffer are supported");
@@ -241,7 +233,13 @@ public class MessageBuffer {
         this.address = ARRAY_BYTE_BASE_OFFSET;
         this.size = arr.length;
         this.reference = null;
-        this.limit = this.size;
+    }
+
+    private MessageBuffer(Object base, long address, int length, ByteBuffer reference) {
+        this.base = base;
+        this.address = address;
+        this.size = length;
+        this.reference = reference;
     }
 
     /**
@@ -251,17 +249,8 @@ public class MessageBuffer {
     public int size() { return size; }
 
     public MessageBuffer slice(int offset, int length) {
-        // TODO
-        return null;
-    }
-
-
-    public int limit() { return limit; }
-
-
-    public void setLimit(int limit) {
-        assert(limit < size);
-        this.limit = limit;
+        // TODO ensure deleting this slice does not collapse this MessageBuffer
+        return new MessageBuffer(base, address + offset, length, reference);
     }
 
     public byte getByte(int index) {

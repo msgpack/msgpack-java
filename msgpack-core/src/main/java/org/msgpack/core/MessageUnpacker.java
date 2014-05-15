@@ -102,9 +102,9 @@ public class MessageUnpacker implements Closeable {
 
         assert(buffer != null);
 
-        while(position >= buffer.limit()) {
+        while(position >= buffer.size()) {
             // Fetch the next buffer
-            int remaining = position - buffer.limit();
+            int remaining = position - buffer.size();
             MessageBuffer nextBuffer = in.next();
             if(nextBuffer == null) {
                 reachedEOF = true;
@@ -128,12 +128,12 @@ public class MessageUnpacker implements Closeable {
         }
 
         // The buffer contains the data
-        if(position + readSize < buffer.limit())
+        if(position + readSize < buffer.size())
             return true;
         else {
             // When the data is at the boundary of the buffer.
 
-            int remaining = buffer.limit() - position;
+            int remaining = buffer.size() - position;
             int bufferTotal = remaining;
             // Read next buffers
             ArrayList<MessageBuffer> bufferList = new ArrayList<MessageBuffer>();
@@ -143,7 +143,7 @@ public class MessageUnpacker implements Closeable {
                     reachedEOF = true;
                     throw new EOFException();
                 }
-                bufferTotal += next.limit();
+                bufferTotal += next.size();
                 bufferList.add(next);
             }
 
@@ -155,8 +155,8 @@ public class MessageUnpacker implements Closeable {
             buffer.copyTo(position, newBuffer, p, remaining);
             p += remaining;
             for(MessageBuffer m : bufferList) {
-                m.copyTo(0, newBuffer, p, m.limit());
-                p += m.limit();
+                m.copyTo(0, newBuffer, p, m.size());
+                p += m.size();
             }
 
             buffer = newBuffer;
@@ -835,7 +835,7 @@ public class MessageUnpacker implements Closeable {
             requireBuffer();
             if(buffer == null)
                 throw new EOFException();
-            int l = Math.min(buffer.limit() - position, dst.remaining());
+            int l = Math.min(buffer.size() - position, dst.remaining());
             buffer.getBytes(position, l, dst);
             consume(l);
         }
@@ -847,7 +847,7 @@ public class MessageUnpacker implements Closeable {
             requireBuffer();
             if(buffer == null)
                 throw new EOFException();
-            int l = Math.min(buffer.limit() - position, len - writtenLen);
+            int l = Math.min(buffer.size() - position, len - writtenLen);
             buffer.getBytes(position, dst, off + writtenLen, l);
             consume(position);
             writtenLen += l;
