@@ -1,8 +1,9 @@
-package org.msgpack.core
+package org.msgpack.core.buffer
 
 import java.nio.ByteBuffer
 import xerial.core.log.LogLevel
 import scala.util.Random
+import org.msgpack.core.MessagePackSpec
 
 
 /**

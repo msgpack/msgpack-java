@@ -1,4 +1,4 @@
-package org.msgpack.core;
+package org.msgpack.core.buffer;
 
 import sun.misc.Unsafe;
 import sun.nio.ch.DirectBuffer;
@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
+import static org.msgpack.core.Preconditions.*;
 
 import static sun.misc.Unsafe.ARRAY_BYTE_BASE_OFFSET;
 import static sun.misc.Unsafe.ARRAY_BYTE_INDEX_SCALE;
@@ -67,7 +68,7 @@ public class MessageBuffer {
                 unsafe.freeMemory(a);
             }
 
-            String bufferClsName = isLittleEndian ? "org.msgpack.core.MessageBuffer" : "org.msgpack.core.MessageBufferBE";
+            String bufferClsName = isLittleEndian ? "org.msgpack.core.buffer.MessageBuffer" : "org.msgpack.core.buffer.MessageBufferBE";
             msgBufferClass = Class.forName(bufferClsName);
         }
         catch (Exception e) {
@@ -137,11 +138,12 @@ public class MessageBuffer {
     }
 
     /**
-     * Creates a new MessageBuffer instance bakeed by ByteBuffer
+     * Creates a new MessageBuffer instance backed by ByteBuffer
      * @param bb
      * @return
      */
     private static MessageBuffer newMessageBuffer(ByteBuffer bb) {
+       checkNotNull(bb);
        try {
            // We need to use reflection to create MessageBuffer instances in order to prevent TypeProfile generation for getInt method. TypeProfile will be
            // generated to resolve one of the method references when two or more classes overrides the method.
@@ -162,6 +164,7 @@ public class MessageBuffer {
      * @return
      */
     private static MessageBuffer newMessageBuffer(byte[] arr) {
+        checkNotNull(arr);
         try {
             Constructor<?> constructor = msgBufferClass.getDeclaredConstructor(byte[].class);
             return (MessageBuffer) constructor.newInstance(arr);

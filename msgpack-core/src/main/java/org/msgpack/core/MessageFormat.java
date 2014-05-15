@@ -1,6 +1,7 @@
 package org.msgpack.core;
 
 import org.msgpack.core.MessagePack.Code;
+import org.msgpack.core.annotations.VisibleForTesting;
 
 import java.io.IOException;
 
@@ -9,14 +10,6 @@ import java.io.IOException;
  */
 public enum MessageFormat {
 
-    // End of file
-    EOF(ValueType.EOF) {
-        @Override
-        int skip(MessageUnpacker unpacker) throws IOException{
-            // do nothing
-            return 0;
-        }
-    },
     // INT7
     POSFIXINT(ValueType.INTEGER) {
         @Override
@@ -57,7 +50,7 @@ public enum MessageFormat {
             return 0;
         }
     },
-    UNKNOWN(ValueType.UNKNOWN) {
+    NEVER_USED(null) {
         @Override
         int skip(MessageUnpacker unpacker) throws IOException{
             throw new MessageFormatException(String.format("unknown code: %02x is found", unpacker.lookAhead()));
@@ -293,11 +286,18 @@ public enum MessageFormat {
 
     private final ValueType valueType;
 
-    private MessageFormat(ValueType family) {
-        this.valueType = family;
+    private MessageFormat(ValueType valueType) {
+        this.valueType = valueType;
     }
 
-    public ValueType getValueType() {
+    /**
+     *
+     * @return
+     * @throws MessageFormatException if this == NEVER_USED type
+     */
+    public ValueType getValueType() throws MessageFormatException {
+        if(this == NEVER_USED)
+            throw new MessageFormatException("Cannot convert NEVER_USED to ValueType");
         return valueType;
     }
 
@@ -309,20 +309,20 @@ public enum MessageFormat {
      */
     abstract int skip(MessageUnpacker unpacker) throws IOException;
 
-    private final static MessageFormat[] formatTable = MessageFormat.values();
-    private final static byte[] table = new byte[256];
+    private final static MessageFormat[] formatTable = new MessageFormat[256];
 
     static {
-        for(int b = 0; b < 0xFF; ++b) {
-            table[b] = (byte) toMessageFormat((byte) b).ordinal();
+        for(int b = 0; b <= 0xFF; ++b) {
+            MessageFormat mf = toMessageFormat((byte) b);
+            formatTable[b] = mf;
         }
     }
 
     public static MessageFormat valueOf(final byte b) {
-        return formatTable[table[b & 0xFF]];
+        return formatTable[b & 0xFF];
     }
 
-
+    @VisibleForTesting
     static MessageFormat toMessageFormat(final byte b) {
         if (Code.isPosFixInt(b)) {
             return POSFIXINT;
@@ -402,7 +402,7 @@ public enum MessageFormat {
             case Code.MAP32:
                 return MAP32;
             default:
-                return UNKNOWN;
+                return NEVER_USED;
         }
     }
 

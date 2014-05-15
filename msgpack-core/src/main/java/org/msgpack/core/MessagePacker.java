@@ -15,10 +15,16 @@
 //
 package org.msgpack.core;
 
+import org.msgpack.core.buffer.MessageBuffer;
+import org.msgpack.core.buffer.MessageBufferOutput;
+import org.msgpack.core.buffer.OutputStreamBufferOutput;
+
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import static org.msgpack.core.MessagePack.Code.*;
+import static org.msgpack.core.Preconditions.*;
 
 /**
  * Writer of message packed data.
@@ -44,12 +50,17 @@ public class MessagePacker {
     private final MessageBuffer buffer;
     private int position;
 
+    public MessagePacker(OutputStream out) {
+        this(new OutputStreamBufferOutput(out));
+    }
+
+
     public MessagePacker(MessageBufferOutput out) {
         this(out, 8 * 1024);
     }
 
     public MessagePacker(MessageBufferOutput out, int bufferSize) {
-        assert(out != null);
+        checkNotNull(out, "MessageBufferOutput is null");
         this.out = out;
         this.buffer = MessageBuffer.newDirectBuffer(bufferSize);
         this.position = 0;
@@ -359,27 +370,58 @@ public class MessagePacker {
         return this;
     }
 
-    public MessagePacker writePayload(ByteBuffer bb) throws IOException {
-        while(bb.remaining() > 0) {
-            if(position >= buffer.size())
-                flush();
-            int writeLen = Math.min(buffer.size() - position, bb.remaining());
-            buffer.putByteBuffer(position, bb, writeLen);
-            position += writeLen;
-            bb.position(bb.position() + writeLen);
+    private final int FLUSH_THRESHOLD = 512;
+
+    public MessagePacker writePayload(ByteBuffer src) throws IOException {
+        if(src.remaining() >= FLUSH_THRESHOLD) {
+            // Use the source ByteBuffer directly to avoid memory copy
+
+            // First, flush the current buffer contents
+            flush();
+
+            // Wrap the input source as a MessageBuffer
+            // TODO Create MessageBuffer.wrap(ByteBuffer, offset, length);
+            MessageBuffer wrapped = MessageBuffer.wrap(src);
+            // Then, dump the source data to the output
+            out.flush(wrapped, src.position(), src.remaining());
+            src.position(src.limit());
+        }
+        else {
+            // If the input source is small, simply copy the contents to the buffer
+            while(src.remaining() > 0) {
+                if(position >= buffer.size())
+                    flush();
+                int writeLen = Math.min(buffer.size() - position, src.remaining());
+                buffer.putByteBuffer(position, src, writeLen);
+                position += writeLen;
+                src.position(src.position() + writeLen);
+            }
         }
         return this;
     }
 
-    public MessagePacker writePayload(byte[] o, int off, int len) throws IOException {
-        int cursor = 0;
-        while(cursor < len) {
-            if(position >= buffer.size())
-                flush();
-            int writeLen = Math.min(buffer.size() - position, len - cursor);
-            buffer.putBytes(position, o, off + cursor, writeLen);
-            position += writeLen;
-            cursor += writeLen;
+    public MessagePacker writePayload(byte[] src, int off, int len) throws IOException {
+        if(len >= FLUSH_THRESHOLD) {
+            // Use the input array directory to avoid memory copy
+
+            // Flush the current buffer contents
+            flush();
+
+            // Wrap the input array as a MessageBuffer
+            MessageBuffer wrapped = MessageBuffer.wrap(src);
+            // Dump the source data to the output
+            out.flush(wrapped, off, len);
+        }
+        else {
+            int cursor = 0;
+            while(cursor < len) {
+                if(position >= buffer.size())
+                    flush();
+                int writeLen = Math.min(buffer.size() - position, len - cursor);
+                buffer.putBytes(position, src, off + cursor, writeLen);
+                position += writeLen;
+                cursor += writeLen;
+            }
         }
         return this;
     }

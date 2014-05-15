@@ -2,6 +2,7 @@ package org.msgpack.core
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import scala.util.Random
+import org.msgpack.core.buffer.{OutputStreamBufferOutput, ArrayBufferInput}
 
 /**
  * Created on 2014/05/07.
@@ -13,7 +14,7 @@ class MessageUnpackerTest extends MessagePackSpec {
 
   def testData : Array[Byte] = {
     val out = new ByteArrayOutputStream()
-    val packer = MessagePack.newPacker(out)
+    val packer = new MessagePacker(out)
 
     packer
       .packArrayHeader(2)
@@ -36,7 +37,7 @@ class MessageUnpackerTest extends MessagePackSpec {
   def testData2 : Array[Byte] = {
 
     val out = new ByteArrayOutputStream()
-    val packer = MessagePack.newPacker(out)
+    val packer = new MessagePacker(out);
 
     packer
       .packBoolean(true)
@@ -52,14 +53,13 @@ class MessageUnpackerTest extends MessagePackSpec {
 
   "MessageUnpacker" should {
 
-    "parse message packed data" in {
+    "parse message packed data" taggedAs("unpack") in {
       val arr = testData
 
-      val unpacker = MessagePack.newUnpacker(arr)
+      val unpacker = new MessageUnpacker(arr);
 
-      var f : MessageFormat = null
-      do {
-        f = unpacker.getNextFormat()
+      while(unpacker.hasNext) {
+        val f = unpacker.getNextFormat()
         f.getValueType match {
           case ValueType.ARRAY =>
             val arrLen = unpacker.unpackArrayHeader()
@@ -73,21 +73,19 @@ class MessageUnpackerTest extends MessagePackSpec {
           case ValueType.STRING =>
             val s = unpacker.unpackString()
             debug(s"str value: $s")
-          case ValueType.EOF =>
-            debug(s"reached EOF")
           case other =>
-            unpacker.skipValue();
+            unpacker.skipValue()
             debug(s"unknown type: $f")
         }
       }
-      while (f != MessageFormat.EOF)
     }
 
     "skip reading values" in {
 
-      val unpacker = MessagePack.newUnpacker(testData)
+      val unpacker = new MessageUnpacker(testData)
       var skipCount = 0
-      while(unpacker.skipValue()) {
+      while(unpacker.hasNext) {
+        unpacker.skipValue()
         skipCount += 1
       }
 
@@ -100,10 +98,9 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       val ib = Seq.newBuilder[Int]
 
-      val unpacker = MessagePack.newUnpacker(testData2)
-      var f : MessageFormat = null
-      do {
-        f = unpacker.getNextFormat
+      val unpacker = new MessageUnpacker(testData2)
+      while(unpacker.hasNext) {
+        val f = unpacker.getNextFormat
         f.getValueType match {
           case ValueType.INTEGER =>
             val i = unpacker.unpackInt()
@@ -115,7 +112,7 @@ class MessageUnpackerTest extends MessagePackSpec {
           case other =>
             unpacker.skipValue()
         }
-      } while(f != MessageFormat.EOF)
+      }
 
       ib.result shouldBe intSeq
 

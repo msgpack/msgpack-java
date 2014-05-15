@@ -45,7 +45,7 @@ class MessageFormatTest extends MessagePackSpec {
 
       check(Code.NIL, ValueType.NIL, MessageFormat.NIL)
 
-      check(Code.NEVER_USED, ValueType.UNKNOWN, MessageFormat.UNKNOWN)
+      MessageFormat.valueOf(Code.NEVER_USED) shouldBe MessageFormat.NEVER_USED
 
       for(i <- Seq(Code.TRUE, Code.FALSE))
         check(i, ValueType.BOOLEAN, MessageFormat.BOOLEAN)
@@ -84,7 +84,7 @@ class MessageFormatTest extends MessagePackSpec {
       check(Code.ARRAY16, ValueType.ARRAY, MessageFormat.ARRAY16)
       check(Code.ARRAY32, ValueType.ARRAY, MessageFormat.ARRAY32)
 
-      for(i <- 0xe0 until 0xff)
+      for(i <- 0xe0 to 0xff)
         check(i.toByte, ValueType.INTEGER, MessageFormat.NEGFIXINT)
 
     }
