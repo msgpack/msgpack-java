@@ -15,49 +15,54 @@
  */
 
 
+import de.johoop.findbugs4sbt.ReportType
 import sbt._
 import Keys._
 import xerial.sbt.Sonatype._
+import de.johoop.findbugs4sbt.FindBugs._
 
 object Build extends Build {
 
   val SCALA_VERSION = "2.10.3"
 
-  lazy val buildSettings = Defaults.defaultSettings ++ Seq[Setting[_]](
-    organization := "org.msgpack",
-    organizationName := "MessagePack",
-    organizationHomepage := Some(new URL("http://msgpack.org/")),
-    description := "MessagePack for Java",
-    scalaVersion in Global := SCALA_VERSION,
-    sbtVersion in Global := "0.13.2-M1",
-    logBuffered in Test := false,
-    //parallelExecution in Test := false,
-    autoScalaLibrary := false,
-    crossPaths := false,
-    // Since sbt-0.13.2
-    incOptions := incOptions.value.withNameHashing(true),
-    //resolvers += Resolver.mavenLocal,
-    scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-target:jvm-1.6", "-feature"),
-    javacOptions in (Compile, compile) ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.6", "-target", "1.6"),
-    pomExtra := {
-      <url>http://msgpack.org/</url>
-        <licenses>
-          <license>
-            <name>Apache 2</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-          </license>
-        </licenses>
-        <scm>
-          <connection>scm:git:github.com/msgpack/msgpack-java.git</connection>
-          <developerConnection>scm:git:git@github.com:msgpack/msgpack-java.git</developerConnection>
-          <url>github.com/msgpack/msgpack-java.git</url>
-        </scm>
-        <properties>
-          <scala.version>{SCALA_VERSION}</scala.version>
-          <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        </properties>
-    }
-  )
+  lazy val buildSettings = Defaults.defaultSettings ++ findbugsSettings ++
+    Seq[Setting[_]](
+      organization := "org.msgpack",
+      organizationName := "MessagePack",
+      organizationHomepage := Some(new URL("http://msgpack.org/")),
+      description := "MessagePack for Java",
+      scalaVersion in Global := SCALA_VERSION,
+      sbtVersion in Global := "0.13.2-M1",
+      logBuffered in Test := false,
+      //parallelExecution in Test := false,
+      autoScalaLibrary := false,
+      crossPaths := false,
+      // Since sbt-0.13.2
+      incOptions := incOptions.value.withNameHashing(true),
+      //resolvers += Resolver.mavenLocal,
+      scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-target:jvm-1.6", "-feature"),
+      javacOptions in (Compile, compile) ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.6", "-target", "1.6"),
+      pomExtra := {
+        <url>http://msgpack.org/</url>
+          <licenses>
+            <license>
+              <name>Apache 2</name>
+              <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            </license>
+          </licenses>
+          <scm>
+            <connection>scm:git:github.com/msgpack/msgpack-java.git</connection>
+            <developerConnection>scm:git:git@github.com:msgpack/msgpack-java.git</developerConnection>
+            <url>github.com/msgpack/msgpack-java.git</url>
+          </scm>
+          <properties>
+            <scala.version>{SCALA_VERSION}</scala.version>
+            <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+          </properties>
+      },
+      findbugsReportType := Some(ReportType.FancyHtml),
+      findbugsReportPath := Some(crossTarget.value / "findbugs" / "report.html")
+    )
 
   import Dependencies._
 
@@ -65,7 +70,11 @@ object Build extends Build {
   lazy val root = Project(
     id = "msgpack-java",
     base = file("."),
-    settings = buildSettings ++ sonatypeSettings
+    settings = buildSettings ++ sonatypeSettings ++ Seq(
+      findbugs := {
+        // do not run findbugs for the root project
+      }
+    )
   ) aggregate(msgpackCore, msgpackValue)
 
 
