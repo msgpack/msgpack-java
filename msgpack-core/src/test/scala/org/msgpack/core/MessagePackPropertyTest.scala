@@ -4,6 +4,7 @@ import org.scalatest.prop.PropertyChecks
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 import scala.util.Random
+import java.nio.charset.CharsetEncoder
 
 /**
  * Created on 2014/05/20.
@@ -54,17 +55,9 @@ class MessagePackPropertyTest extends MessagePackSpec with PropertyChecks
 
     "pack/unpack strings" taggedAs("string") in {
 
-      def isValidUTF8(s:String) = {
-        try {
-          val b = MessagePack.UTF8.encode(s)
-          MessagePack.UTF8.decode(b)
-          true
-        }
-        catch {
-          case e:Exception =>
-            false
-        }
-      }
+      def isValidUTF8(s:String) =
+        MessagePack.UTF8.newEncoder().canEncode(s)
+
 
       forAll { (v:String) =>
         whenever(isValidUTF8(v)) {

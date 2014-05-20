@@ -311,7 +311,6 @@ public class MessageUnpacker implements Closeable {
      * @throws IOException
      */
     public boolean skipValue() throws IOException {
-        // This method is left here for comparing the performance with skipValue()
         try {
             int remainingValues = 1;
             while(!reachedEOF && remainingValues > 0) {
