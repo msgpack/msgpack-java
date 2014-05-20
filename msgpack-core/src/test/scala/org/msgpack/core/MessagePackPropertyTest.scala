@@ -17,6 +17,7 @@ class MessagePackPropertyTest extends MessagePackSpec with PropertyChecks
       val packer = new MessagePacker(bs)
       pack(packer)
       packer.close()
+
       val b = bs.toByteArray
       debug(s"pack: ${toHex(b)}")
 

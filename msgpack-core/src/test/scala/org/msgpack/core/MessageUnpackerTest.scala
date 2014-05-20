@@ -28,7 +28,7 @@ class MessageUnpackerTest extends MessagePackSpec {
     packer.close()
 
     val arr = out.toByteArray
-    debug(s"packed: ${toHex(arr)}")
+    debug(s"packed: ${toHex(arr)}, size:${arr.length}")
 
     arr
   }
@@ -74,10 +74,12 @@ class MessageUnpackerTest extends MessagePackSpec {
         debug(s"string $v")
         packer.packString(v)
       case ValueType.BINARY =>
-        val b = r.nextString(r.nextInt(100)).getBytes(MessagePack.UTF8)
+        val len = r.nextInt(100)
+        val b = new Array[Byte](len)
+        r.nextBytes(b)
         debug(s"binary: ${toHex(b)}")
         packer.packBinaryHeader(b.length)
-        packer.writePayload(b, 0, b.length)
+        packer.writePayload(b)
       case ValueType.ARRAY =>
         val len = r.nextInt(5)
         debug(s"array len: $len")
@@ -110,11 +112,12 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     val r = new Random(0)
 
-    (0 until 40).foreach { i => write(packer, r) }
+    (0 until 10000).foreach { i => write(packer, r) }
 
     packer.close()
     val arr = out.toByteArray
-    debug(s"packed: ${toHex(arr)}")
+    trace(s"packed: ${toHex(arr)}")
+    debug(s"size:${arr.length}")
     arr
   }
 
@@ -163,8 +166,8 @@ class MessageUnpackerTest extends MessagePackSpec {
     "compare skip performance" taggedAs("skip") in {
       val data = testData3
 
-      time("skip performance", repeat = 10, logLevel = LogLevel.INFO) {
-        block("table") {
+      time("skip performance", repeat = 1000, logLevel = LogLevel.INFO) {
+        block("poly") {
           val unpacker = new MessageUnpacker(data)
           var skipCount = 0
           while(unpacker.hasNext) {
