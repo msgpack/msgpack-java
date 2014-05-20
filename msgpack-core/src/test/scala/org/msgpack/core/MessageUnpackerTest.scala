@@ -105,14 +105,14 @@ class MessageUnpackerTest extends MessagePackSpec {
     }
   }
 
-  def testData3 : Array[Byte] = {
+  def testData3(N:Int) : Array[Byte] = {
 
     val out = new ByteArrayOutputStream()
     val packer = new MessagePacker(out)
 
     val r = new Random(0)
 
-    (0 until 10000).foreach { i => write(packer, r) }
+    (0 until N).foreach { i => write(packer, r) }
 
     packer.close()
     val arr = out.toByteArray
@@ -164,25 +164,18 @@ class MessageUnpackerTest extends MessagePackSpec {
     }
 
     "compare skip performance" taggedAs("skip") in {
-      val data = testData3
+      val N = 10000
+      val data = testData3(N)
 
       time("skip performance", repeat = 1000, logLevel = LogLevel.INFO) {
-        block("poly") {
+        block("switch") {
           val unpacker = new MessageUnpacker(data)
           var skipCount = 0
           while(unpacker.hasNext) {
             unpacker.skipValue()
             skipCount += 1
           }
-        }
-
-        block("switch") {
-          val unpacker = new MessageUnpacker(data)
-          var skipCount = 0
-          while(unpacker.hasNext) {
-            unpacker.skipValueWithSwitch()
-            skipCount += 1
-          }
+          skipCount shouldBe N
         }
       }
 
