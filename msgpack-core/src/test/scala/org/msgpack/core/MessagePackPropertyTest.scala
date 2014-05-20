@@ -42,6 +42,7 @@ class MessagePackPropertyTest extends MessagePackSpec with PropertyChecks
       forAll { (v: Float) => check(v, _.packFloat(v), _.unpackFloat)}
       forAll { (v: Long) => check(v, _.packLong(v), _.unpackLong)}
       forAll { (v: Double) => check(v, _.packDouble(v), _.unpackDouble)}
+      check(null, _.packNil, _.unpackNil())
     }
 
     "pack/unpack BigInteger" in {
