@@ -19,6 +19,7 @@ import org.msgpack.core.buffer.MessageBuffer;
 import org.msgpack.core.buffer.MessageBufferOutput;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
+import java.io.Closeable;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.io.IOException;
@@ -46,7 +47,7 @@ import static org.msgpack.core.Preconditions.*;
  * </p>
  *
  */
-public class MessagePacker {
+public class MessagePacker implements Closeable {
 
     private final MessageBufferOutput out;
     private final MessageBuffer buffer;
