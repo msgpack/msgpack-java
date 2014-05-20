@@ -59,30 +59,30 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       case ValueType.INTEGER =>
         val v = r.nextInt(Int.MaxValue)
-        debug(s"int: $v")
+        trace(s"int: $v")
         packer.packInt(v)
       case ValueType.FLOAT =>
         val v = r.nextFloat()
-        debug(s"float $v")
+        trace(s"float $v")
         packer.packFloat(v)
       case ValueType.BOOLEAN =>
         val v = r.nextBoolean()
-        debug(s"boolean $v")
+        trace(s"boolean $v")
         packer.packBoolean(v)
       case ValueType.STRING =>
         val v = r.alphanumeric.take(r.nextInt(100)).mkString
-        debug(s"string $v")
+        trace(s"string $v")
         packer.packString(v)
       case ValueType.BINARY =>
         val len = r.nextInt(100)
         val b = new Array[Byte](len)
         r.nextBytes(b)
-        debug(s"binary: ${toHex(b)}")
+        trace(s"binary: ${toHex(b)}")
         packer.packBinaryHeader(b.length)
         packer.writePayload(b)
       case ValueType.ARRAY =>
         val len = r.nextInt(5)
-        debug(s"array len: $len")
+        trace(s"array len: $len")
         packer.packArrayHeader(len)
         var i = 0
         while(i < len) {
@@ -92,7 +92,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       case ValueType.MAP =>
         val len = r.nextInt(5) + 1
         packer.packMapHeader(len)
-        debug(s"map len: ${len}")
+        trace(s"map len: ${len}")
         var i = 0
         while(i < len * 2) {
           write(packer, r)
@@ -100,7 +100,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
       case _ =>
         val v = r.nextInt(Int.MaxValue)
-        debug(s"int: $v")
+        trace(s"int: $v")
         packer.packInt(v)
     }
   }
