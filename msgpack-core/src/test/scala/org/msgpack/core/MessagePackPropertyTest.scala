@@ -13,14 +13,14 @@ class MessagePackPropertyTest extends MessagePackSpec with PropertyChecks
 {
 
   def check[A](v:A, pack:MessagePacker => Unit, unpack:MessageUnpacker => A) {
+    var b : Array[Byte] = null
     try {
       val bs = new ByteArrayOutputStream()
       val packer = new MessagePacker(bs)
       pack(packer)
       packer.close()
 
-      val b = bs.toByteArray
-      debug(s"pack: ${toHex(b)}")
+      b = bs.toByteArray
 
       val unpacker = new MessageUnpacker(b)
       val ret = unpack(unpacker)
@@ -29,6 +29,8 @@ class MessagePackPropertyTest extends MessagePackSpec with PropertyChecks
     catch {
       case e:Exception =>
         warn(e.getMessage)
+        if(b != null)
+          debug(s"packed data (size:${b.length}): ${toHex(b)}")
         throw e
     }
   }
@@ -55,8 +57,9 @@ class MessagePackPropertyTest extends MessagePackSpec with PropertyChecks
 
     "pack/unpack strings" taggedAs("string") in {
 
-      def isValidUTF8(s:String) =
+      def isValidUTF8(s:String) = {
         MessagePack.UTF8.newEncoder().canEncode(s)
+      }
 
 
       forAll { (v:String) =>

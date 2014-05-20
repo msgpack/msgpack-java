@@ -3,7 +3,7 @@ package org.msgpack.core;
 import java.nio.charset.Charset;
 
 /**
- * Entry point for creating MessagePacker (newPacker) and MessageUnpacker (newUnpacker).
+ * Includes MessagePack codes
  *
  */
 public class MessagePack {

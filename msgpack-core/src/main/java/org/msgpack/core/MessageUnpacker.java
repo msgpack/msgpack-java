@@ -861,7 +861,7 @@ public class MessageUnpacker implements Closeable {
 
     int readNextLength16() throws IOException {
         short u16 = readShort();
-        return u16 & 0xff;
+        return u16 & 0xffff;
     }
 
     int readNextLength32() throws IOException {
