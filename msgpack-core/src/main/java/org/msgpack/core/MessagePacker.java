@@ -300,7 +300,7 @@ public class MessagePacker {
         if(arraySize < 0)
             throw new IllegalArgumentException("array size must be >= 0");
 
-        if(arraySize < (1 << 5)) {
+        if(arraySize < (1 << 4)) {
             writeByte((byte) (FIXARRAY_PREFIX | arraySize));
         } else if(arraySize < (1 << 16)) {
             writeByteAndShort(ARRAY16, (short) arraySize);
@@ -314,7 +314,7 @@ public class MessagePacker {
         if(mapSize < 0)
             throw new IllegalArgumentException("map size must be >= 0");
 
-        if(mapSize < (1 << 5)) {
+        if(mapSize < (1 << 4)) {
             writeByte((byte) (FIXMAP_PREFIX | mapSize));
         } else if(mapSize < (1 << 16)) {
             writeByteAndShort(MAP16, (short) mapSize);
