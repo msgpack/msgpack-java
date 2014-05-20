@@ -437,11 +437,11 @@ public class MessageUnpacker implements Closeable {
                         name.substring(0, 1) + name.substring(1).toLowerCase() + " type");
     }
 
-    public void unpackNil() throws IOException {
+    public Object unpackNil() throws IOException {
         final byte b = lookAhead();
         if (b == Code.NIL) {
             consume();
-            return;
+            return null;
         }
         throw unexpected("Nil", b);
     }

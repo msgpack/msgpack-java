@@ -258,7 +258,7 @@ public class MessagePacker implements Closeable {
 
     public MessagePacker packBigInteger(BigInteger bi) throws IOException {
         if(bi.bitLength() <= 63) {
-            writeLong(bi.longValue());
+            packLong(bi.longValue());
         } else if(bi.bitLength() == 64 && bi.signum() == 1) {
             writeByteAndLong(UINT64, bi.longValue());
         } else {
