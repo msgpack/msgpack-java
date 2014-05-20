@@ -60,25 +60,12 @@ public class MessageUnpacker implements Closeable {
      */
     private int position;
 
-    // TODO to be used for event-driven I/O
-    private int nextSize;
-
     // For storing data at the buffer boundary (except in unpackString)
-    //private MessageBuffer extraBuffer;
-    //private int extraPosition;
+    private MessageBuffer extraBuffer = MessageBuffer.wrap(new byte[8]);
+    private int positionInExtraBuffer;
 
     // For decoding String in unpackString
     private CharsetDecoder decoder;
-
-    // TODO to be used for event-driven I/O
-    private int stringLength;
-
-    // internal state
-    private byte head = Code.NEVER_USED;
-
-    // TODO to be used for event-driven I/O
-    private static final int READ_SIZE = -1;
-
     private boolean reachedEOF = false;
 
     public MessageUnpacker(byte[] arr) {
@@ -97,22 +84,26 @@ public class MessageUnpacker implements Closeable {
      */
     private void requireBuffer() throws IOException {
         if(buffer == null) {
-            buffer = in.next();
+            buffer = takeNextBuffer();
         }
 
         assert(buffer != null);
 
-        while(position >= buffer.size()) {
+        while(buffer != null && position >= buffer.size()) {
             // Fetch the next buffer
             int remaining = position - buffer.size();
-            MessageBuffer nextBuffer = in.next();
-            if(nextBuffer == null) {
-                reachedEOF = true;
-                return;
-            }
+            MessageBuffer nextBuffer = takeNextBuffer();
             buffer = nextBuffer;
             position = remaining;
         }
+    }
+
+    private MessageBuffer takeNextBuffer() throws IOException {
+        MessageBuffer nextBuffer = in.next();
+        if(nextBuffer == null) {
+            reachedEOF = true;
+        }
+        return nextBuffer;
     }
 
     /**
@@ -130,19 +121,35 @@ public class MessageUnpacker implements Closeable {
         // The buffer contains the data
         if(position + readSize < buffer.size())
             return true;
+        else if(readSize <= 8) {
+            // The data is at the boundary
+            // We can use the extra buffer
+            int firstHalf = buffer.size() - position;
+            buffer.copyTo(position, extraBuffer, 0, firstHalf);
+
+            int remaining = readSize - firstHalf;
+            while(remaining > 0) {
+                MessageBuffer next = takeNextBuffer();
+                if(next == null)
+                    return false;
+                int copyLen = Math.min(readSize - firstHalf, next.size());
+                next.copyTo(0, extraBuffer, firstHalf, readSize - firstHalf);
+                remaining -= copyLen;
+            }
+
+            return true;
+        }
         else {
             // When the data is at the boundary of the buffer.
-
             int remaining = buffer.size() - position;
             int bufferTotal = remaining;
             // Read next buffers
             ArrayList<MessageBuffer> bufferList = new ArrayList<MessageBuffer>();
             while(bufferTotal < readSize) {
-                MessageBuffer next = in.next();
-                if(next == null) {
-                    reachedEOF = true;
-                    throw new EOFException();
-                }
+                MessageBuffer next = takeNextBuffer();
+                if(next == null)
+                    return false;
+
                 bufferTotal += next.size();
                 bufferList.add(next);
             }
@@ -188,12 +195,7 @@ public class MessageUnpacker implements Closeable {
      * @return true if this unpacker has more elements to read
      */
     public boolean hasNext() throws IOException {
-        if(ensure(1)) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return ensure(1);
     }
 
     public ValueType getNextValueType() throws IOException {
@@ -213,13 +215,10 @@ public class MessageUnpacker implements Closeable {
      * @throws IOException
      */
     byte lookAhead() throws IOException {
-        if(head == READ_NEXT) {
-            if(ensure(1))
-                head = buffer.getByte(position);
-            else
-                throw new EOFException();
-        }
-        return head;
+        if(ensure(1))
+            return buffer.getByte(position);
+        else
+            throw new EOFException();
     }
 
 
@@ -243,7 +242,6 @@ public class MessageUnpacker implements Closeable {
             requireBuffer();
         }
         position += numBytes;
-        head = READ_NEXT;
     }
 
     /**
@@ -728,12 +726,18 @@ public class MessageUnpacker implements Closeable {
         throw unexpected("Float", b);
     }
 
+    private static String EMPTY_STRING = "";
+
     public String unpackString() throws IOException {
         int strLen = unpackRawStringHeader();
-        ensure(strLen);
-        ByteBuffer bb = buffer.toByteBuffer(position, strLen);
-        consume(strLen);
-        return getCharsetDecoder().decode(bb).toString();
+        if(strLen > 0) {
+            ensure(strLen);
+            ByteBuffer bb = buffer.toByteBuffer(position, strLen);
+            consume(strLen);
+            return getCharsetDecoder().decode(bb).toString();
+        }
+        else
+            return EMPTY_STRING;
     }
 
 
@@ -856,30 +860,21 @@ public class MessageUnpacker implements Closeable {
 
 
     int readNextLength8() throws IOException {
-        if (nextSize >= 0) {
-            return nextSize;
-        }
         byte u8 = readByte();
-        return nextSize = u8 & 0xff;
+        return u8 & 0xff;
     }
 
     int readNextLength16() throws IOException {
-        if (nextSize >= 0) {
-            return nextSize;
-        }
         short u16 = readShort();
-        return nextSize = u16 & 0xff;
+        return u16 & 0xff;
     }
 
     int readNextLength32() throws IOException {
-        if (nextSize >= 0) {
-            return nextSize;
-        }
         int u32 = readInt();
         if (u32 < 0) {
             throw overflowU32Size(u32);
         }
-        return nextSize = u32;
+        return u32;
     }
 
     @Override

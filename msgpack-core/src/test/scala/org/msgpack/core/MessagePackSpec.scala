@@ -9,4 +9,6 @@ trait MessagePackSpec extends WordSpec with Matchers with GivenWhenThen with Opt
 
   implicit def toTag(s:String) : Tag = Tag(s)
 
+  def toHex(arr:Array[Byte]) = arr.map(x => f"$x%02x").mkString(" ")
+
 }

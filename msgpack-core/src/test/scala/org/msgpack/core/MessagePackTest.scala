@@ -3,11 +3,13 @@ package org.msgpack.core
 import xerial.core.log.LogLevel
 import scala.util.Random
 import MessagePack.Code
+import org.scalatest.prop.PropertyChecks
+import java.io.ByteArrayOutputStream
 
 /**
  * Created on 2014/05/07.
  */
-class MessagePackTest extends MessagePackSpec {
+class MessagePackTest extends MessagePackSpec with PropertyChecks {
 
   "MessagePack" should {
     "detect fixint values" in {
@@ -77,6 +79,8 @@ class MessagePackTest extends MessagePackSpec {
       }
 
     }
+
+
 
 
   }

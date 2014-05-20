@@ -3,13 +3,14 @@ package org.msgpack.core
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import scala.util.Random
 import org.msgpack.core.buffer.{OutputStreamBufferOutput, ArrayBufferInput}
+import xerial.core.log.LogLevel
+import scala.annotation.tailrec
 
 /**
  * Created on 2014/05/07.
  */
 class MessageUnpackerTest extends MessagePackSpec {
 
-  def toHex(arr:Array[Byte]) = arr.map(x => f"$x%02x").mkString(" ")
 
 
   def testData : Array[Byte] = {
@@ -50,6 +51,73 @@ class MessageUnpackerTest extends MessagePackSpec {
     debug(s"packed: ${toHex(arr)}")
     arr
   }
+
+  def write(packer:MessagePacker, r:Random) {
+    val tpeIndex = Iterator.continually(r.nextInt(MessageFormat.values().length)).find(_ != MessageFormat.NEVER_USED.ordinal()).get
+    val tpe = MessageFormat.values()(tpeIndex)
+    tpe.getValueType match {
+
+      case ValueType.INTEGER =>
+        val v = r.nextInt(Int.MaxValue)
+        debug(s"int: $v")
+        packer.packInt(v)
+      case ValueType.FLOAT =>
+        val v = r.nextFloat()
+        debug(s"float $v")
+        packer.packFloat(v)
+      case ValueType.BOOLEAN =>
+        val v = r.nextBoolean()
+        debug(s"boolean $v")
+        packer.packBoolean(v)
+      case ValueType.STRING =>
+        val v = r.alphanumeric.take(r.nextInt(100)).mkString
+        debug(s"string $v")
+        packer.packString(v)
+      case ValueType.BINARY =>
+        val b = r.nextString(r.nextInt(100)).getBytes(MessagePack.UTF8)
+        debug(s"binary: ${toHex(b)}")
+        packer.packBinaryHeader(b.length)
+        packer.writePayload(b, 0, b.length)
+      case ValueType.ARRAY =>
+        val len = r.nextInt(5)
+        debug(s"array len: $len")
+        packer.packArrayHeader(len)
+        var i = 0
+        while(i < len) {
+          write(packer, r)
+          i += 1
+        }
+      case ValueType.MAP =>
+        val len = r.nextInt(5) + 1
+        packer.packMapHeader(len)
+        debug(s"map len: ${len}")
+        var i = 0
+        while(i < len * 2) {
+          write(packer, r)
+          i += 1
+        }
+      case _ =>
+        val v = r.nextInt(Int.MaxValue)
+        debug(s"int: $v")
+        packer.packInt(v)
+    }
+  }
+
+  def testData3 : Array[Byte] = {
+
+    val out = new ByteArrayOutputStream()
+    val packer = new MessagePacker(out)
+
+    val r = new Random(0)
+
+    (0 until 40).foreach { i => write(packer, r) }
+
+    packer.close()
+    val arr = out.toByteArray
+    debug(s"packed: ${toHex(arr)}")
+    arr
+  }
+
 
   "MessageUnpacker" should {
 
@@ -92,6 +160,31 @@ class MessageUnpackerTest extends MessagePackSpec {
       skipCount shouldBe 2
     }
 
+    "compare skip performance" taggedAs("skip") in {
+      val data = testData3
+
+      time("skip performance", repeat = 10, logLevel = LogLevel.INFO) {
+        block("table") {
+          val unpacker = new MessageUnpacker(data)
+          var skipCount = 0
+          while(unpacker.hasNext) {
+            unpacker.skipValue()
+            skipCount += 1
+          }
+        }
+
+        block("switch") {
+          val unpacker = new MessageUnpacker(data)
+          var skipCount = 0
+          while(unpacker.hasNext) {
+            unpacker.skipValueWithSwitch()
+            skipCount += 1
+          }
+        }
+      }
+
+    }
+
     "parse int data" in {
 
       debug(intSeq.mkString(", "))
@@ -117,6 +210,8 @@ class MessageUnpackerTest extends MessagePackSpec {
       ib.result shouldBe intSeq
 
     }
+
+
 
 
 

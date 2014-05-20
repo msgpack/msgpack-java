@@ -23,6 +23,8 @@ import java.io.OutputStream;
 import java.math.BigInteger;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.CharsetEncoder;
+
 import static org.msgpack.core.MessagePack.Code.*;
 import static org.msgpack.core.Preconditions.*;
 
@@ -282,9 +284,15 @@ public class MessagePacker {
      * @throws IOException
      */
     public MessagePacker packString(String s) throws IOException {
-        byte[] utf8 = s.getBytes(MessagePack.UTF8);
-        packRawStringHeader(utf8.length);
-        writePayload(utf8, 0, utf8.length);
+        if(s.length() > 0) {
+            ByteBuffer bb = MessagePack.UTF8.encode(s);
+            //byte[] utf8 = s.getBytes(MessagePack.UTF8);
+            packRawStringHeader(bb.remaining());
+            writePayload(bb);
+        }
+        else {
+            packRawStringHeader(0);
+        }
         return this;
     }
 
@@ -394,10 +402,13 @@ public class MessagePacker {
                 int writeLen = Math.min(buffer.size() - position, src.remaining());
                 buffer.putByteBuffer(position, src, writeLen);
                 position += writeLen;
-                src.position(src.position() + writeLen);
             }
         }
         return this;
+    }
+
+    public MessagePacker writePayload(byte[] src) throws IOException {
+        return writePayload(src, 0, src.length);
     }
 
     public MessagePacker writePayload(byte[] src, int off, int len) throws IOException {
