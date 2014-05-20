@@ -103,6 +103,32 @@ class MessagePackPropertyTest extends MessagePackSpec with PropertyChecks
       }
     }
 
+    "pack/unpack maps" taggedAs("map") in {
+      forAll { (v: Array[Int]) =>
+
+        val m = v.map(i => (i, i.toString))
+
+        check(m,
+        { packer =>
+          packer.packMapHeader(v.length)
+          m.map { case (k:Int, v:String) =>
+            packer.packInt(k)
+            packer.packString(v)
+          }
+        },
+        { unpacker =>
+          val len = unpacker.unpackMapHeader()
+          val b = Seq.newBuilder[(Int, String)]
+          for(i <- 0 until len)
+            b += ((unpacker.unpackInt, unpacker.unpackString))
+          b.result
+        }
+        )
+      }
+    }
+
+
+
 
 
   }
