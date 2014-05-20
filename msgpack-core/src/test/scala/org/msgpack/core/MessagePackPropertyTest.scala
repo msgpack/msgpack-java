@@ -74,9 +74,9 @@ class MessagePackPropertyTest extends MessagePackSpec with PropertyChecks
     "pack/unpack binary" taggedAs("binary") in {
       forAll { (v: Array[Byte]) =>
         check(v,
-        { packer => packer.packArrayHeader(v.length); packer.writePayload(v) },
+        { packer => packer.packBinaryHeader(v.length); packer.writePayload(v) },
         { unpacker =>
-          val len = unpacker.unpackArrayHeader()
+          val len = unpacker.unpackBinaryHeader()
           val out = new Array[Byte](len)
           unpacker.readPayload(out, 0, len)
           out
@@ -85,12 +85,23 @@ class MessagePackPropertyTest extends MessagePackSpec with PropertyChecks
       }
     }
 
-    "pack/unpack arrays" in {
-
-
+    "pack/unpack arrays" taggedAs("array") in {
+      forAll { (v: Array[Int]) =>
+        check(v,
+        { packer =>
+          packer.packArrayHeader(v.length)
+          v.map(packer.packInt(_))
+        },
+        { unpacker =>
+          val len = unpacker.unpackArrayHeader()
+          val out = new Array[Int](len)
+          for(i <- 0 until v.length)
+            out(i) = unpacker.unpackInt
+          out
+        }
+        )
+      }
     }
-
-
 
 
 
