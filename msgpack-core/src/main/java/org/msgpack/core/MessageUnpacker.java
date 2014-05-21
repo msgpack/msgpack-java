@@ -152,7 +152,6 @@ public class MessageUnpacker implements Closeable {
             return true;
         }
 
-        //System.out.println(String.format("ensure(%d), position:%d, useExtra:%s, offsetToSecondary:%d", readSize, position, usingExtraBuffer, offsetToSecondaryBuffer));
 
         if(usingExtraBuffer) {
             /*
@@ -167,7 +166,7 @@ public class MessageUnpacker implements Closeable {
             if(position < offsetToSecondaryBuffer) {
                 if(readSize <= extraBuffer.size()) {
                     /*
-                      Relocate the contents in the extra buffer as follows:
+                      Shift the contents in the extra buffer so that position will be 0
 
                     | position
                     V
@@ -200,7 +199,6 @@ public class MessageUnpacker implements Closeable {
                 // Switch to the secondary buffer
                 buffer = secondaryBuffer;
                 position = position - offsetToSecondaryBuffer;
-                //System.out.println(String.format("switch to secondary. position %d", position));
                 secondaryBuffer = null;
                 usingExtraBuffer = false;
                 return ensure(readSize);
@@ -235,8 +233,6 @@ public class MessageUnpacker implements Closeable {
                 remaining -= copyLen;
             }
             // Switch to the extra buffer
-            //System.out.println(String.format("extra: %s, offsetToSecondary:%d", extraBuffer.toHexString(0, dataLen), offsetToSecondaryBuffer));
-            //System.out.println(String.format("secondary: %s", secondaryBuffer.toHexString(0, secondaryBuffer.size())));
             if(dataLen < extraBuffer.size())
                 buffer = extraBuffer.slice(0, dataLen);
             else
