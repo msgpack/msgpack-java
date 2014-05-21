@@ -1,7 +1,7 @@
 package org.msgpack.core;
 
 /**
- * Header of extended type
+ * Header of the extended types
  */
 public class ExtendedTypeHeader {
     private final int type;

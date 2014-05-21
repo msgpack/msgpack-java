@@ -31,11 +31,8 @@ import static org.msgpack.core.Preconditions.*;
 
 
 /**
- * Reader of message-packed values.
- *
- * To read the data MessageUnpacker provides two types of methods: getNextType() and unpackXXX(). Users first check
- * the next type with getNextType(), then read the actual value using an appropriate unpackXXX() method.
- * If there is no more data to read, getNextType() returns EOF.
+ * MessageUnpacker lets an application read message-packed values from a data stream.
+ * The application needs to call {@link #getNextFormat()} then call an appropriate unpackXXX method.
  *
  */
 public class MessageUnpacker implements Closeable {
@@ -48,12 +45,11 @@ public class MessageUnpacker implements Closeable {
 
         // unpackString size limit // default: Integer.MAX_VALUE
     }
-
-    private static final byte READ_NEXT = Code.NEVER_USED;
-
-
     private final MessageBufferInput in;
 
+    /**
+     * Points to the current buffer to read
+     */
     private MessageBuffer buffer;
     /**
      * Cursor position in the buffer
@@ -64,14 +60,23 @@ public class MessageUnpacker implements Closeable {
     private MessageBuffer extraBuffer = MessageBuffer.wrap(new byte[8]);
     private int positionInExtraBuffer;
 
-    // For decoding String in unpackString
-    private CharsetDecoder decoder;
     private boolean reachedEOF = false;
 
+    // For decoding String in unpackString
+    private CharsetDecoder decoder;
+
+    /**
+     * Create an MesssageUnpacker that reads data from the given byte array
+     * @param arr
+     */
     public MessageUnpacker(byte[] arr) {
         this(new ArrayBufferInput(arr));
     }
 
+    /**
+     * Create an MessageUnpacker that reads data from the given MessageBufferInput
+     * @param in
+     */
     public MessageUnpacker(MessageBufferInput in) {
         this.in = checkNotNull(in, "MessageBufferInput");
     }

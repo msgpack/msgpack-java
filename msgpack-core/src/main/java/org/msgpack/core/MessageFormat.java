@@ -3,10 +3,9 @@ package org.msgpack.core;
 import org.msgpack.core.MessagePack.Code;
 import org.msgpack.core.annotations.VisibleForTesting;
 
-import java.io.IOException;
 
 /**
- * Defines the list of the message format in the specification
+ * Describes the list of the message format types defined in the MessagePack specification.
  */
 public enum MessageFormat {
 
@@ -60,7 +59,7 @@ public enum MessageFormat {
     }
 
     /**
-     *
+     * Retruns the ValueType corresponding to this MessageFormat
      * @return
      * @throws MessageFormatException if this == NEVER_USED type
      */
@@ -73,12 +72,18 @@ public enum MessageFormat {
     private final static MessageFormat[] formatTable = new MessageFormat[256];
 
     static {
+        // Preparing a look up table for converting byte values into MessageFormat types
         for(int b = 0; b <= 0xFF; ++b) {
             MessageFormat mf = toMessageFormat((byte) b);
             formatTable[b] = mf;
         }
     }
 
+    /**
+     * Returns a MessageFormat type of the specified byte value
+     * @param b
+     * @return
+     */
     public static MessageFormat valueOf(final byte b) {
         return formatTable[b & 0xFF];
     }
