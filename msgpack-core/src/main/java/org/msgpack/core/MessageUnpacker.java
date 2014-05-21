@@ -56,9 +56,14 @@ public class MessageUnpacker implements Closeable {
      */
     private int position;
 
-    // For storing data at the buffer boundary (except in unpackString)
-    private MessageBuffer extraBuffer = MessageBuffer.wrap(new byte[8]);
-    private int positionInExtraBuffer;
+    // For preserving the next buffer to use
+    private MessageBuffer secondaryBuffer = null;
+
+    // For storing data at the boundary
+    private final MessageBuffer extraBuffer = MessageBuffer.wrap(new byte[8]);
+
+    private boolean usingExtraBuffer = false;
+
 
     private boolean reachedEOF = false;
 
@@ -111,6 +116,9 @@ public class MessageUnpacker implements Closeable {
         return nextBuffer;
     }
 
+
+
+
     /**
      * Ensure the buffer has the data of at least the specified size.
      * @param readSize the size to read
@@ -127,7 +135,7 @@ public class MessageUnpacker implements Closeable {
         if(position + readSize < buffer.size())
             return true;
         else if(readSize <= 8) {
-            // The data is at the boundary
+            // The data is at the boundary and fits within the extra buffer
             // We can use the extra buffer
             int firstHalf = buffer.size() - position;
             buffer.copyTo(position, extraBuffer, 0, firstHalf);

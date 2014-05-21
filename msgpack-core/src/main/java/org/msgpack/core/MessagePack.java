@@ -20,10 +20,10 @@ public class MessagePack {
         }
 
         public static final boolean isPosFixInt(byte b) {
-            return (b & (byte) POSFIXINT_MASK) == (byte) 0;
+            return (b & POSFIXINT_MASK) == (byte) 0;
         }
         public static final boolean isNegFixInt(byte b) {
-            return (b & (byte) NEGFIXINT_PREFIX) == (byte) NEGFIXINT_PREFIX;
+            return (b & NEGFIXINT_PREFIX) == NEGFIXINT_PREFIX;
         }
         public static final boolean isFixStr(byte b) {
             return (b & (byte) 0xe0) == Code.FIXSTR_PREFIX;
