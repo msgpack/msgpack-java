@@ -99,7 +99,7 @@ class MessagePackTest extends MessagePackSpec with PropertyChecks {
         case e: Exception =>
           warn(e.getMessage)
           if (b != null)
-            debug(s"packed data (size:${b.length}): ${toHex(b)}")
+            warn(s"packed data (size:${b.length}): ${toHex(b)}")
           throw e
       }
     }
@@ -187,5 +187,17 @@ class MessagePackTest extends MessagePackSpec with PropertyChecks {
         )
       }
     }
+
+    "pack/unpack extended types" taggedAs("ext") in {
+      forAll { (dataLen: Int, tpe: Int) =>
+        val l = Math.abs(dataLen)
+        val t = Math.abs(tpe) % 128
+        whenever(l >= 0) {
+          val ext = new ExtendedTypeHeader(l, t)
+          check(ext, _.packExtendedTypeHeader(ext.getType, ext.getLength), _.unpackExtendedTypeHeader())
+        }
+      }
+    }
+
   }
 }

@@ -855,15 +855,15 @@ public class MessageUnpacker implements Closeable {
         byte b = consume();
         switch(b) {
             case Code.FIXEXT1:
-                return new ExtendedTypeHeader(readByte(), 1);
+                return new ExtendedTypeHeader(1, readByte());
             case Code.FIXEXT2:
-                return new ExtendedTypeHeader(readByte(), 2);
+                return new ExtendedTypeHeader(2, readByte());
             case Code.FIXEXT4:
-                return new ExtendedTypeHeader(readByte(), 4);
+                return new ExtendedTypeHeader(4, readByte());
             case Code.FIXEXT8:
-                return new ExtendedTypeHeader(readByte(), 8);
+                return new ExtendedTypeHeader(8, readByte());
             case Code.FIXEXT16:
-                return new ExtendedTypeHeader(readByte(), 16);
+                return new ExtendedTypeHeader(16, readByte());
             case Code.EXT8: {
                 int len = readNextLength8();
                 int t = readByte();
@@ -899,6 +899,8 @@ public class MessageUnpacker implements Closeable {
         }
         throw unexpected("String", b);
     }
+
+
     public int unpackBinaryHeader() throws IOException {
         // TODO option to allow str format family
         final byte b = consume();
@@ -927,6 +929,13 @@ public class MessageUnpacker implements Closeable {
         }
     }
 
+    /**
+     * Read up to len bytes of data into the destination array
+     * @param dst the buffer into which the data is read
+     * @param off the offset in the dst array
+     * @param len the number of bytes to read
+     * @throws IOException
+     */
     public void readPayload(byte[] dst, int off, int len) throws IOException {
         int writtenLen = 0;
         while(writtenLen < len) {

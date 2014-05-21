@@ -122,8 +122,7 @@ public class MessageBuffer {
     }
 
     public static MessageBuffer newBuffer(int length) {
-        ByteBuffer m = ByteBuffer.allocate(length);
-        return newMessageBuffer(m);
+        return newMessageBuffer(new byte[length]);
     }
 
     public static MessageBuffer wrap(byte[] array) {
