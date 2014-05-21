@@ -56,11 +56,15 @@ public class MessageUnpacker implements Closeable {
      */
     private int position;
 
-    // For preserving the next buffer to use
+    /**
+     * For preserving the next buffer to use
+     */
     private MessageBuffer secondaryBuffer = null;
+    private int offsetToSecondaryBuffer;
 
     // For storing data at the boundary
     private final MessageBuffer extraBuffer = MessageBuffer.wrap(new byte[8]);
+
 
     private boolean usingExtraBuffer = false;
 
@@ -93,9 +97,8 @@ public class MessageUnpacker implements Closeable {
      * @throws IOException when failed to retrieve next buffer
      */
     private void requireBuffer() throws IOException {
-        if(buffer == null) {
-            buffer = in.next();
-        }
+        if(buffer == null)
+            buffer = takeNextBuffer();
 
         assert(buffer != null);
 
@@ -117,8 +120,6 @@ public class MessageUnpacker implements Closeable {
     }
 
 
-
-
     /**
      * Ensure the buffer has the data of at least the specified size.
      * @param readSize the size to read
@@ -127,33 +128,106 @@ public class MessageUnpacker implements Closeable {
      */
     private boolean ensure(int readSize) throws IOException {
         requireBuffer();
-        if(reachedEOF) {
-            return false; // no buffer to read
-        }
 
         // The buffer contains the data
-        if(position + readSize < buffer.size())
+        if(position + readSize < buffer.size()) {
+            // OK
             return true;
-        else if(readSize <= 8) {
-            // The data is at the boundary and fits within the extra buffer
-            // We can use the extra buffer
-            int firstHalf = buffer.size() - position;
-            buffer.copyTo(position, extraBuffer, 0, firstHalf);
+        }
+        else if(reachedEOF) {
+            // No more buffer to read
+            return false;
+        }
+        else if(usingExtraBuffer) {
+            /*
+                       | position
+                       V
+             |--------------- extra buffer -------------|
+                              |---------- secondary buffer -------------------|
+                              ^
+                              | offsetToSecondaryBuffer
+             */
 
-            int remaining = readSize - firstHalf;
+            if(position < offsetToSecondaryBuffer) {
+                if(readSize <= extraBuffer.size()) {
+                    /*
+                      Relocate the contents in the extra buffer as follows:
+
+                    | position
+                    V
+                    |--------------- extra buffer -------------|
+                            |---------- secondary buffer -------------------|
+                            ^
+                            | offsetToSecondaryBuffer
+                    */
+                    buffer.relocate(position, buffer.size() - position, 0);
+                    offsetToSecondaryBuffer -= position;
+                    position = 0;
+                    secondaryBuffer.copyTo(0, extraBuffer, offsetToSecondaryBuffer, extraBuffer.size() - offsetToSecondaryBuffer);
+                    return ensure(readSize);
+                }
+                else {
+                    checkNotNull(secondaryBuffer);
+
+                    // Create a new buffer that concatenates extra buffer and the secondary buffer
+                    int firstHalfSize = offsetToSecondaryBuffer - position;
+                    MessageBuffer b = MessageBuffer.newBuffer(secondaryBuffer.size() + firstHalfSize);
+                    extraBuffer.copyTo(position, b, 0, firstHalfSize);
+                    secondaryBuffer.copyTo(0, b, firstHalfSize, secondaryBuffer.size());
+
+                    secondaryBuffer = null;
+                    usingExtraBuffer = false;
+                    position = 0;
+                    buffer = b;
+                    return ensure(readSize);
+                }
+            }
+            else {
+                // Switch to the secondary buffer
+                buffer = secondaryBuffer;
+                position = position - offsetToSecondaryBuffer;
+                secondaryBuffer = null;
+                usingExtraBuffer = false;
+                return ensure(readSize);
+            }
+        }
+        else if(readSize <= extraBuffer.size()) {
+            // When the data is at the boundary and can be fit within the extra buffer, use the extra buffer
+            /*
+             -- buffer --|
+
+             |--------------- extra buffer -------------|
+                         |---------- secondary buffer -------------------|
+                         ^
+                         | offsetToSecondaryBuffer
+             */
+
+
+            // Copy the remaining buffer contents to the extra buffer
+            int firstHalfSize = buffer.size() - position;
+            buffer.copyTo(position, extraBuffer, 0, firstHalfSize);
+
+            // Read the last half contents from the next buffers
+            int remaining = readSize - firstHalfSize;
+            int offset = firstHalfSize;
             while(remaining > 0) {
-                MessageBuffer next = takeNextBuffer();
-                if(next == null)
-                    return false;
-                int copyLen = Math.min(readSize - firstHalf, next.size());
-                next.copyTo(0, extraBuffer, firstHalf, readSize - firstHalf);
+                offsetToSecondaryBuffer = offset;
+                secondaryBuffer = takeNextBuffer();
+                if(secondaryBuffer == null)
+                    return false; // No more buffer to read
+                int copyLen = Math.min(remaining, secondaryBuffer.size());
+                secondaryBuffer.copyTo(0, extraBuffer, offsetToSecondaryBuffer, copyLen);
+                offset += copyLen;
                 remaining -= copyLen;
             }
-
+            // Switch to the extra buffer
+            buffer = extraBuffer;
+            usingExtraBuffer = true;
+            position = 0;
             return true;
         }
         else {
-            // When the data is at the boundary of the buffer.
+            // When the data at the boundary exceeds the size of the extra buffer
             int remaining = buffer.size() - position;
             int bufferTotal = remaining;
             // Read next buffers
