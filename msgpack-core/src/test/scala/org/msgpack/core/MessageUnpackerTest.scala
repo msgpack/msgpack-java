@@ -22,7 +22,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       .packInt(1)
       .packString("leo")
       .packArrayHeader(2)
-      .packInt(2)
+      .packInt(5)
       .packString("aina")
 
     packer.close()
@@ -127,9 +127,11 @@ class MessageUnpackerTest extends MessagePackSpec {
     "parse message packed data" taggedAs("unpack") in {
       val arr = testData
 
-      val unpacker = new MessageUnpacker(arr);
+      val unpacker = new MessageUnpacker(arr)
 
+      var count = 0
       while(unpacker.hasNext) {
+        count += 1
         val f = unpacker.getNextFormat()
         f.getValueType match {
           case ValueType.ARRAY =>
@@ -149,6 +151,7 @@ class MessageUnpackerTest extends MessagePackSpec {
             debug(s"unknown type: $f")
         }
       }
+      count shouldBe 6
     }
 
     "skip reading values" in {
@@ -208,6 +211,11 @@ class MessageUnpackerTest extends MessagePackSpec {
     }
 
 
+    "read data at the buffer boundary" taggedAs("boundary") in {
+
+
+
+    }
 
 
 
