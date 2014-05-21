@@ -394,4 +394,14 @@ public class MessageBuffer {
     }
 
 
+    public String toHexString(int offset, int length) {
+        StringBuilder s = new StringBuilder();
+        for(int i=offset; i<length; ++i) {
+            if(i != offset)
+              s.append(" ");
+            s.append(String.format("%02x", getByte(i)));
+        }
+        return s.toString();
+    }
+
 }

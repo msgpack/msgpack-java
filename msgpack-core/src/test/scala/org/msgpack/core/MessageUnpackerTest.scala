@@ -235,7 +235,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       val data = testData
 
       for(splitPoint <- 1 until data.length - 1) {
-        info(s"split at $splitPoint")
+        debug(s"split at $splitPoint")
         val (h, t) = data.splitAt(splitPoint)
         val bin = new SplitMessageBufferInput(Array(h, t))
         val unpacker = new MessageUnpacker(bin)

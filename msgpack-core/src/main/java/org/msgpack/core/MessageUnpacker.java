@@ -107,9 +107,17 @@ public class MessageUnpacker implements Closeable {
         while(buffer != null && position >= buffer.size()) {
             // Fetch the next buffer
             int remaining = position - buffer.size();
-            MessageBuffer nextBuffer = takeNextBuffer();
-            buffer = nextBuffer;
-            position = remaining;
+            if(usingExtraBuffer) {
+                buffer = secondaryBuffer;
+                secondaryBuffer = null;
+                position -= offsetToSecondaryBuffer;
+                usingExtraBuffer = false;
+            }
+            else {
+                MessageBuffer nextBuffer = takeNextBuffer();
+                buffer = nextBuffer;
+                position = remaining;
+            }
         }
         return buffer != null;
     }
@@ -137,11 +145,14 @@ public class MessageUnpacker implements Closeable {
         if(!adjustCursorPosition())
             return false;
 
+
         // The buffer contains the data
         if(position + readSize <= buffer.size()) {
             // OK
             return true;
         }
+
+        //System.out.println(String.format("ensure(%d), position:%d, useExtra:%s, offsetToSecondary:%d", readSize, position, usingExtraBuffer, offsetToSecondaryBuffer));
 
         if(usingExtraBuffer) {
             /*
@@ -189,6 +200,7 @@ public class MessageUnpacker implements Closeable {
                 // Switch to the secondary buffer
                 buffer = secondaryBuffer;
                 position = position - offsetToSecondaryBuffer;
+                //System.out.println(String.format("switch to secondary. position %d", position));
                 secondaryBuffer = null;
                 usingExtraBuffer = false;
                 return ensure(readSize);
@@ -211,19 +223,24 @@ public class MessageUnpacker implements Closeable {
 
             // Read the last half contents from the next buffers
             int remaining = readSize - firstHalfSize;
-            int offset = firstHalfSize;
+            int dataLen = firstHalfSize;
             while(remaining > 0) {
-                offsetToSecondaryBuffer = offset;
+                offsetToSecondaryBuffer = dataLen;
                 secondaryBuffer = takeNextBuffer();
                 if(secondaryBuffer == null)
                     return false; // No more buffer to read
                 int copyLen = Math.min(remaining, secondaryBuffer.size());
                 secondaryBuffer.copyTo(0, extraBuffer, offsetToSecondaryBuffer, copyLen);
-                offset += copyLen;
+                dataLen += copyLen;
                 remaining -= copyLen;
             }
             // Switch to the extra buffer
-            buffer = extraBuffer;
+            //System.out.println(String.format("extra: %s, offsetToSecondary:%d", extraBuffer.toHexString(0, dataLen), offsetToSecondaryBuffer));
+            //System.out.println(String.format("secondary: %s", secondaryBuffer.toHexString(0, secondaryBuffer.size())));
+            if(dataLen < extraBuffer.size())
+                buffer = extraBuffer.slice(0, dataLen);
+            else
+                buffer = extraBuffer;
             usingExtraBuffer = true;
             position = 0;
             return true;
