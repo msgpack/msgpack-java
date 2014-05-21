@@ -232,21 +232,39 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     "read data at the buffer boundary" taggedAs("boundary") in {
 
-      val data = testData
 
-      for(splitPoint <- 1 until data.length - 1) {
-        debug(s"split at $splitPoint")
-        val (h, t) = data.splitAt(splitPoint)
-        val bin = new SplitMessageBufferInput(Array(h, t))
-        val unpacker = new MessageUnpacker(bin)
-        var count = 0
-        while(unpacker.hasNext) {
-          count += 1
-          val f = unpacker.getNextFormat
-          readValue(unpacker)
+
+      trait SplitTest {
+        val data : Array[Byte]
+        def run {
+          val unpacker = new MessageUnpacker(data)
+          val numElems = {
+            var c = 0
+            while (unpacker.hasNext) {
+              readValue(unpacker)
+              c += 1
+            }
+            c
+          }
+
+          for (splitPoint <- 1 until data.length - 1) {
+            debug(s"split at $splitPoint")
+            val (h, t) = data.splitAt(splitPoint)
+            val bin = new SplitMessageBufferInput(Array(h, t))
+            val unpacker = new MessageUnpacker(bin)
+            var count = 0
+            while (unpacker.hasNext) {
+              count += 1
+              val f = unpacker.getNextFormat
+              readValue(unpacker)
+            }
+            count shouldBe numElems
+          }
         }
-        count shouldBe 6
       }
+
+      new SplitTest { val data = testData }.run
+      new SplitTest { val data = testData3(30) }.run
 
     }
 
