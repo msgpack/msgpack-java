@@ -2,7 +2,7 @@ package org.msgpack.core
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import scala.util.Random
-import org.msgpack.core.buffer.{OutputStreamBufferOutput, ArrayBufferInput}
+import org.msgpack.core.buffer.{MessageBuffer, MessageBufferInput, OutputStreamBufferOutput, ArrayBufferInput}
 import xerial.core.log.LogLevel
 import scala.annotation.tailrec
 
@@ -122,6 +122,28 @@ class MessageUnpackerTest extends MessagePackSpec {
   }
 
 
+  def readValue(unpacker:MessageUnpacker) {
+    val f = unpacker.getNextFormat()
+    f.getValueType match {
+      case ValueType.ARRAY =>
+        val arrLen = unpacker.unpackArrayHeader()
+        debug(s"arr size: $arrLen")
+      case ValueType.MAP =>
+        val mapLen = unpacker.unpackMapHeader()
+        debug(s"map size: $mapLen")
+      case ValueType.INTEGER =>
+        val i = unpacker.unpackInt()
+        debug(s"int value: $i")
+      case ValueType.STRING =>
+        val s = unpacker.unpackString()
+        debug(s"str value: $s")
+      case other =>
+        unpacker.skipValue()
+        debug(s"unknown type: $f")
+    }
+  }
+
+
   "MessageUnpacker" should {
 
     "parse message packed data" taggedAs("unpack") in {
@@ -132,24 +154,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       var count = 0
       while(unpacker.hasNext) {
         count += 1
-        val f = unpacker.getNextFormat()
-        f.getValueType match {
-          case ValueType.ARRAY =>
-            val arrLen = unpacker.unpackArrayHeader()
-            debug(s"arr size: $arrLen")
-          case ValueType.MAP =>
-            val mapLen = unpacker.unpackMapHeader()
-            debug(s"map size: $mapLen")
-          case ValueType.INTEGER =>
-            val i = unpacker.unpackInt()
-            debug(s"int value: $i")
-          case ValueType.STRING =>
-            val s = unpacker.unpackString()
-            debug(s"str value: $s")
-          case other =>
-            unpacker.skipValue()
-            debug(s"unknown type: $f")
-        }
+        readValue(unpacker)
       }
       count shouldBe 6
     }
@@ -210,10 +215,38 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     }
 
+    class SplitMessageBufferInput(array:Array[Array[Byte]]) extends MessageBufferInput {
+      var cursor = 0
+      override def next(): MessageBuffer = {
+        if (cursor < array.length) {
+          val a = array(cursor)
+          cursor += 1
+          MessageBuffer.wrap(a)
+        }
+        else
+          null
+      }
+
+      override def close(): Unit = {}
+    }
 
     "read data at the buffer boundary" taggedAs("boundary") in {
 
+      val data = testData
 
+      for(splitPoint <- 1 until data.length - 1) {
+        info(s"split at $splitPoint")
+        val (h, t) = data.splitAt(splitPoint)
+        val bin = new SplitMessageBufferInput(Array(h, t))
+        val unpacker = new MessageUnpacker(bin)
+        var count = 0
+        while(unpacker.hasNext) {
+          count += 1
+          val f = unpacker.getNextFormat
+          readValue(unpacker)
+        }
+        count shouldBe 6
+      }
 
     }
 
