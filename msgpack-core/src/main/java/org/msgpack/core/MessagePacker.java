@@ -317,6 +317,11 @@ public class MessagePacker implements Closeable {
             while(in.hasRemaining()) {
                 try {
                     CoderResult cr = encoder.encode(in, encodeBuffer, true);
+
+                    if(cr.isUnderflow()) {
+                        cr = encoder.flush(encodeBuffer);
+                    }
+
                     if(cr.isOverflow()) {
                         // Allocate a larger buffer
                         int estimatedRemainingSize = Math.max(1, (int) (in.remaining() * encoder.averageBytesPerChar()));
