@@ -22,7 +22,9 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
 import java.util.ArrayList;
 
 import org.msgpack.core.MessagePack.Code;
@@ -38,14 +40,30 @@ import static org.msgpack.core.Preconditions.*;
  */
 public class MessageUnpacker implements Closeable {
 
-    public static class Options {
+    /**
+     * MessageUnpacker configuration object
+     */
+    public static class Config {
+
         // allow unpackBinaryHeader to read str format family  // default:true
+        public boolean READ_STR_FORMAT_FAMILY_IN_UNPACK_BINARY_HEADER = true;
+
         // allow unpackRawStringHeader and unpackString to read bin format family // default: true
-        // string decode malformed input action  // default:report
-        // string decode unmappable character action  // default:report
+        public boolean READ_BIN_FORMAT_FAMILY_IN_UNPACK_RAW_STRING_HEADER = true;
+
+        // Action when encountered a malformed input
+        public CodingErrorAction MALFORMED_INPUT_ACTION = CodingErrorAction.REPORT;
+
+        // Action when a unmappable character is found
+        public CodingErrorAction UNMAPPABLE_CHARACTER_ACTION = CodingErrorAction.REPORT;
 
         // unpackString size limit // default: Integer.MAX_VALUE
+        public int MAX_SIZE_UNPACK_STRING = Integer.MAX_VALUE;
     }
+
+    public static final Config DEFAULT_CONFIG = new Config();
+
+    private final Config config;
 
     private final MessageBufferInput in;
 
@@ -77,7 +95,7 @@ public class MessageUnpacker implements Closeable {
      * For decoding String in unpackString.
      * TODO enable options for handling malformed input and unmappable characters
      */
-    private final CharsetDecoder decoder = MessagePack.UTF8.newDecoder();
+    private final CharsetDecoder decoder;
 
     /**
      * Create an MessageUnpacker that reads data from the given byte array.
@@ -110,9 +128,23 @@ public class MessageUnpacker implements Closeable {
      * @param in
      */
     public MessageUnpacker(MessageBufferInput in) {
-        this.in = checkNotNull(in, "MessageBufferInput");
+        this(in, DEFAULT_CONFIG);
     }
 
+
+    /**
+     * Create an MessageUnpacker
+     * @param in
+     * @param config configuration
+     */
+    public MessageUnpacker(MessageBufferInput in, Config config) {
+        // Root constructor. All of the constructors must call this constructor.
+        this.in = checkNotNull(in, "MessageBufferInput");
+        this.config = checkNotNull(config, "Config");
+        this.decoder = MessagePack.UTF8.newDecoder()
+                .onMalformedInput(config.MALFORMED_INPUT_ACTION)
+                .onUnmappableCharacter(config.UNMAPPABLE_CHARACTER_ACTION);
+    }
 
     /**
      * Relocate the cursor position so that it points to the real buffer
@@ -250,6 +282,15 @@ public class MessageUnpacker implements Closeable {
         return ensure(1);
     }
 
+    /**
+     * Returns the next MessageFormat type. This method should be called after {@link #hasNext()} returns true.
+     * If {@link #hasNext()} returns false, calling this method throws {@link java.io.EOFException}.
+     *
+     * This method does not proceed the internal cursor.
+     * @return the next MessageFormat
+     * @throws IOException when failed to read the input data.
+     * @throws EOFException when the end of file reached, i.e. {@link #hasNext()} == false.
+     */
     public MessageFormat getNextFormat() throws IOException {
         byte b = lookAhead();
         return MessageFormat.valueOf(b);
@@ -306,7 +347,7 @@ public class MessageUnpacker implements Closeable {
             throw new MessageFormatException("insufficient data length for reading byte value");
         }
         byte b = buffer.getByte(position);
-        consume();
+        consume(1);
         return b;
     }
 
@@ -366,8 +407,7 @@ public class MessageUnpacker implements Closeable {
             int remainingValues = 1;
             while(!reachedEOF && remainingValues > 0) {
                 MessageFormat f = getNextFormat();
-                byte b = lookAhead();
-                consume();
+                byte b = consume();
                 switch(f) {
                     case POSFIXINT:
                     case NEGFIXINT:
@@ -486,9 +526,8 @@ public class MessageUnpacker implements Closeable {
     }
 
     public Object unpackNil() throws IOException {
-        final byte b = lookAhead();
+        final byte b = consume();
         if(b == Code.NIL) {
-            consume();
             return null;
         }
         throw unexpected("Nil", b);
@@ -496,12 +535,10 @@ public class MessageUnpacker implements Closeable {
 
 
     public boolean unpackBoolean() throws IOException {
-        final byte b = lookAhead();
+        final byte b = consume();
         if(b == Code.FALSE) {
-            consume();
             return false;
         } else if(b == Code.TRUE) {
-            consume();
             return true;
         }
 
@@ -773,11 +810,19 @@ public class MessageUnpacker implements Closeable {
     public String unpackString() throws IOException {
         int strLen = unpackRawStringHeader();
         if(strLen > 0) {
+            if(strLen > config.MAX_SIZE_UNPACK_STRING)
+                throw new MessageSizeException(String.format("cannot unpackString of size larger than %,d", config.MAX_SIZE_UNPACK_STRING), config.MAX_SIZE_UNPACK_STRING);
+
             ensure(strLen);
             ByteBuffer bb = buffer.toByteBuffer(position, strLen);
-            String ret = decoder.decode(bb).toString();
-            consume(strLen);
-            return ret;
+            try {
+                String ret = decoder.decode(bb).toString();
+                consume(strLen);
+                return ret;
+            }
+            catch(CharacterCodingException e) {
+                throw new MessageStringCodingException(e);
+            }
         } else
             return EMPTY_STRING;
     }
@@ -844,11 +889,7 @@ public class MessageUnpacker implements Closeable {
         throw unexpected("Ext", b);
     }
 
-    public int unpackRawStringHeader() throws IOException {
-        final byte b = consume();
-        if(Code.isFixedRaw(b)) { // FixRaw
-            return b & 0x1f;
-        }
+    private int readStringHeader(byte b) throws IOException {
         switch(b) {
             case Code.STR8: // str 8
                 return readNextLength8();
@@ -856,14 +897,12 @@ public class MessageUnpacker implements Closeable {
                 return readNextLength16();
             case Code.STR32: // str 32
                 return readNextLength32();
+            default:
+                return -1;
         }
-        throw unexpected("String", b);
     }
 
-
-    public int unpackBinaryHeader() throws IOException {
-        // TODO option to allow str format family
-        final byte b = consume();
+    private int readBinaryHeader(byte b) throws IOException {
         switch(b) {
             case Code.BIN8: // bin 8
                 return readNextLength8();
@@ -871,6 +910,41 @@ public class MessageUnpacker implements Closeable {
                 return readNextLength16();
             case Code.BIN32: // bin 32
                 return readNextLength32();
+            default:
+                return -1;
+        }
+    }
+
+
+    public int unpackRawStringHeader() throws IOException {
+        final byte b = consume();
+        if(Code.isFixedRaw(b)) { // FixRaw
+            return b & 0x1f;
+        }
+        int len = readStringHeader(b);
+        if(len >= 0)
+            return len;
+
+        if(config.READ_BIN_FORMAT_FAMILY_IN_UNPACK_RAW_STRING_HEADER) {
+            len = readBinaryHeader(b);
+            if(len >= 0)
+                return len;
+        }
+        throw unexpected("String", b);
+    }
+
+
+    public int unpackBinaryHeader() throws IOException {
+        final byte b = consume();
+
+        int len = readBinaryHeader(b);
+        if(len >= 0)
+            return len;
+
+        if(config.READ_STR_FORMAT_FAMILY_IN_UNPACK_BINARY_HEADER) {
+            len = readStringHeader(b);
+            if(len >= 0)
+                return len;
         }
         throw unexpected("Binary", b);
     }
