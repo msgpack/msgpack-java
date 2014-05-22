@@ -1,6 +1,6 @@
 package org.msgpack.core
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import java.io.{EOFException, ByteArrayInputStream, ByteArrayOutputStream}
 import scala.util.Random
 import org.msgpack.core.buffer.{MessageBuffer, MessageBufferInput, OutputStreamBufferOutput, ArrayBufferInput}
 import xerial.core.log.LogLevel
@@ -10,7 +10,6 @@ import scala.annotation.tailrec
  * Created on 2014/05/07.
  */
 class MessageUnpackerTest extends MessagePackSpec {
-
 
 
   def testData : Array[Byte] = {
@@ -232,8 +231,6 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     "read data at the buffer boundary" taggedAs("boundary") in {
 
-
-
       trait SplitTest {
         val data : Array[Byte]
         def run {
@@ -265,6 +262,48 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       new SplitTest { val data = testData }.run
       new SplitTest { val data = testData3(30) }.run
+
+    }
+
+    "be faster then msgpack-v6" taggedAs("v6") in {
+
+      val data = testData3(10000)
+
+      val v6 = new org.msgpack.MessagePack()
+
+      val N = 100
+      time("unpack performance", logLevel=LogLevel.INFO, repeat=N) {
+        block("v6") {
+          import org.msgpack.`type`.{ValueType=>ValueTypeV6}
+          val unpacker = new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(data))
+          var count = 0
+          try {
+            while(true) {
+              unpacker.skip()
+              count += 1
+            }
+          }
+          catch {
+            case e:EOFException =>
+          }
+          finally
+            unpacker.close()
+        }
+
+        block("v7") {
+          val unpacker = new MessageUnpacker(data)
+          var count = 0
+          try {
+            while (unpacker.hasNext) {
+              unpacker.skipValue()
+              count += 1
+            }
+          }
+          finally
+            unpacker.close()
+        }
+      }
+
 
     }
 
