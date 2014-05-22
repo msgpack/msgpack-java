@@ -1,6 +1,7 @@
 package org.msgpack.core;
 
 import java.nio.charset.Charset;
+import java.nio.charset.CodingErrorAction;
 
 /**
  * Includes MessagePack codes
@@ -9,6 +10,39 @@ import java.nio.charset.Charset;
 public class MessagePack {
 
     public static final Charset UTF8 = Charset.forName("UTF-8");
+
+    /**
+     * Message packer/unpacker configuration object
+     */
+    public static class Config {
+
+        // allow unpackBinaryHeader to read str format family  // default:true
+        public boolean READ_STR_FORMAT_FAMILY_IN_UNPACK_BINARY_HEADER = true;
+
+        // allow unpackRawStringHeader and unpackString to read bin format family // default: true
+        public boolean READ_BIN_FORMAT_FAMILY_IN_UNPACK_RAW_STRING_HEADER = true;
+
+        // Action when encountered a malformed input
+        public CodingErrorAction MALFORMED_INPUT_ACTION = CodingErrorAction.REPORT;
+
+        // Action when a unmappable character is found
+        public CodingErrorAction UNMAPPABLE_CHARACTER_ACTION = CodingErrorAction.REPORT;
+
+        // unpackString size limit // default: Integer.MAX_VALUE
+        public int MAX_SIZE_UNPACK_STRING = Integer.MAX_VALUE;
+
+        public int STRING_ENCODER_BUFFER_SIZE = 8192;
+
+        public int STRING_DECODER_BUFFER_SIZE = 8192;
+
+        public int PACKER_BUFFER_SIZE = 8192;
+    }
+
+    /**
+     * Default configuration, which is visible only from classes in the core package.
+     */
+    static final Config DEFAULT_CONFIG = new Config();
+
 
     /**
      * The prefix code set of MessagePack. See also https://github.com/msgpack/msgpack/blob/master/spec.md for details.

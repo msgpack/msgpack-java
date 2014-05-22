@@ -42,30 +42,7 @@ import static org.msgpack.core.Preconditions.*;
  */
 public class MessageUnpacker implements Closeable {
 
-    /**
-     * MessageUnpacker configuration object
-     */
-    public static class Config {
-
-        // allow unpackBinaryHeader to read str format family  // default:true
-        public boolean READ_STR_FORMAT_FAMILY_IN_UNPACK_BINARY_HEADER = true;
-
-        // allow unpackRawStringHeader and unpackString to read bin format family // default: true
-        public boolean READ_BIN_FORMAT_FAMILY_IN_UNPACK_RAW_STRING_HEADER = true;
-
-        // Action when encountered a malformed input
-        public CodingErrorAction MALFORMED_INPUT_ACTION = CodingErrorAction.REPORT;
-
-        // Action when a unmappable character is found
-        public CodingErrorAction UNMAPPABLE_CHARACTER_ACTION = CodingErrorAction.REPORT;
-
-        // unpackString size limit // default: Integer.MAX_VALUE
-        public int MAX_SIZE_UNPACK_STRING = Integer.MAX_VALUE;
-    }
-
-    public static final Config DEFAULT_CONFIG = new Config();
-
-    private final Config config;
+    private final MessagePack.Config config;
 
     private final MessageBufferInput in;
 
@@ -95,14 +72,13 @@ public class MessageUnpacker implements Closeable {
 
     /**
      * For decoding String in unpackString.
-     * TODO enable options for handling malformed input and unmappable characters
      */
     private final CharsetDecoder decoder;
 
     /**
      * Buffer for decoding strings
      */
-    private final CharBuffer cb = CharBuffer.allocate(8192);
+    private final CharBuffer cb;
 
     /**
      * Create an MessageUnpacker that reads data from the given byte array.
@@ -135,7 +111,7 @@ public class MessageUnpacker implements Closeable {
      * @param in
      */
     public MessageUnpacker(MessageBufferInput in) {
-        this(in, DEFAULT_CONFIG);
+        this(in, MessagePack.DEFAULT_CONFIG);
     }
 
 
@@ -144,10 +120,11 @@ public class MessageUnpacker implements Closeable {
      * @param in
      * @param config configuration
      */
-    public MessageUnpacker(MessageBufferInput in, Config config) {
+    public MessageUnpacker(MessageBufferInput in, MessagePack.Config config) {
         // Root constructor. All of the constructors must call this constructor.
         this.in = checkNotNull(in, "MessageBufferInput");
         this.config = checkNotNull(config, "Config");
+        this.cb = CharBuffer.allocate(config.STRING_DECODER_BUFFER_SIZE);
         this.decoder = MessagePack.UTF8.newDecoder()
                 .onMalformedInput(config.MALFORMED_INPUT_ACTION)
                 .onUnmappableCharacter(config.UNMAPPABLE_CHARACTER_ACTION);

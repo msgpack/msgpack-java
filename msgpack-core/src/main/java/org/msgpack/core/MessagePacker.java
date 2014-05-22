@@ -24,7 +24,11 @@ import java.io.OutputStream;
 import java.math.BigInteger;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CoderResult;
+import java.nio.charset.CodingErrorAction;
 
 import static org.msgpack.core.MessagePack.Code.*;
 import static org.msgpack.core.Preconditions.*;
@@ -49,9 +53,24 @@ import static org.msgpack.core.Preconditions.*;
  */
 public class MessagePacker implements Closeable {
 
+    private final MessagePack.Config config;
+
     private final MessageBufferOutput out;
     private final MessageBuffer buffer;
     private int position;
+
+
+    /**
+     * Buffer for encoding UTF8 strings
+     */
+    private ByteBuffer encodeBuffer;
+
+    private final ByteBuffer defaultEncodeBuffer;
+
+    /**
+     * String encoder
+     */
+    private final CharsetEncoder encoder;
 
     public MessagePacker(OutputStream out) {
         this(new OutputStreamBufferOutput(out));
@@ -59,15 +78,21 @@ public class MessagePacker implements Closeable {
 
 
     public MessagePacker(MessageBufferOutput out) {
-        this(out, 8 * 1024);
+        this(out, MessagePack.DEFAULT_CONFIG);
     }
 
-    public MessagePacker(MessageBufferOutput out, int bufferSize) {
-        checkNotNull(out, "MessageBufferOutput is null");
-        this.out = out;
-        this.buffer = MessageBuffer.newDirectBuffer(bufferSize);
+    public MessagePacker(MessageBufferOutput out, MessagePack.Config config) {
+        this.config = checkNotNull(config, "config is null");
+        checkArgument(config.PACKER_BUFFER_SIZE > 0, "packer buffer size must be larger than 0: " + config.PACKER_BUFFER_SIZE);
+        checkArgument(config.STRING_ENCODER_BUFFER_SIZE > 0, "string encoder buffer size must be larger than 0: " + config.STRING_ENCODER_BUFFER_SIZE);
+        this.out = checkNotNull(out, "MessageBufferOutput is null");
+        this.buffer = MessageBuffer.newDirectBuffer(config.PACKER_BUFFER_SIZE);
         this.position = 0;
+        this.defaultEncodeBuffer = ByteBuffer.allocate(config.STRING_ENCODER_BUFFER_SIZE);
+        this.encodeBuffer = this.defaultEncodeBuffer;
+        this.encoder = MessagePack.UTF8.newEncoder().onMalformedInput(config.MALFORMED_INPUT_ACTION).onUnmappableCharacter(config.UNMAPPABLE_CHARACTER_ACTION);
     }
+
 
     public void flush() throws IOException {
         out.flush(buffer, 0, position);
@@ -286,14 +311,41 @@ public class MessagePacker implements Closeable {
      */
     public MessagePacker packString(String s) throws IOException {
         if(s.length() > 0) {
-            ByteBuffer bb = MessagePack.UTF8.encode(s);
-            //byte[] utf8 = s.getBytes(MessagePack.UTF8);
-            packRawStringHeader(bb.remaining());
-            writePayload(bb);
+            CharBuffer in = CharBuffer.wrap(s);
+            encodeBuffer.clear();
+            while(in.hasRemaining()) {
+                try {
+                    CoderResult cr = encoder.encode(in, encodeBuffer, true);
+                    if(cr.isOverflow()) {
+                        // Allocate a larger buffer
+                        int estimatedRemainingSize = Math.max(1, (int) (in.remaining() * encoder.averageBytesPerChar()));
+                        encodeBuffer.flip();
+                        ByteBuffer newBuffer = ByteBuffer.allocate(encodeBuffer.remaining() + estimatedRemainingSize);
+                        newBuffer.put(encodeBuffer);
+                        encodeBuffer = newBuffer;
+                        continue;
+                    }
+
+                    if(cr.isError()) {
+                        if(cr.isMalformed() && config.MALFORMED_INPUT_ACTION == CodingErrorAction.REPORT) {
+                            cr.throwException();
+                        } else if(cr.isUnderflow() && config.MALFORMED_INPUT_ACTION == CodingErrorAction.REPORT) {
+                            cr.throwException();
+                        }
+                    }
+                }
+                catch(CharacterCodingException e) {
+                    throw new MessageStringCodingException(e);
+                }
+            }
+            encodeBuffer.flip();
+            packRawStringHeader(encodeBuffer.remaining());
+            writePayload(encodeBuffer);
         }
         else {
             packRawStringHeader(0);
         }
+        encodeBuffer = defaultEncodeBuffer;
         return this;
     }
 
