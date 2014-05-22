@@ -88,4 +88,8 @@ public enum ValueType {
         return MessageFormat.valueOf(b).getValueType();
     }
 
+    String toTypeName() {
+        return this.name().substring(0, 1) + this.name().substring(1).toLowerCase();
+    }
+
 }

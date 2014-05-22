@@ -33,7 +33,8 @@ import static org.msgpack.core.Preconditions.*;
 
 /**
  * MessageUnpacker lets an application read message-packed values from a data stream.
- * The application needs to call {@link #getNextFormat()} then call an appropriate unpackXXX method.
+ * The application needs to call {@link #getNextFormat()} then call an appropriate unpackXXX method according to the
+ * the returned format type.
  */
 public class MessageUnpacker implements Closeable {
 
@@ -238,13 +239,6 @@ public class MessageUnpacker implements Closeable {
         }
     }
 
-
-    private static ValueType getTypeFromHead(final byte b) throws MessageFormatException {
-        MessageFormat mf = MessageFormat.valueOf(b);
-        ValueType vt = MessageFormat.valueOf(b).getValueType();
-        return vt;
-    }
-
     /**
      * Returns true true if this unpacker has more elements.
      * When this returns true, subsequent call to {@link #getNextFormat()} returns an
@@ -254,10 +248,6 @@ public class MessageUnpacker implements Closeable {
      */
     public boolean hasNext() throws IOException {
         return ensure(1);
-    }
-
-    public ValueType getNextValueType() throws IOException {
-        return getNextFormat().getValueType();
     }
 
     public MessageFormat getNextFormat() throws IOException {
@@ -482,21 +472,17 @@ public class MessageUnpacker implements Closeable {
     }
 
     /**
-     * An exception when an unexpected byte value is read
+     * Create an exception for the case when an unexpected byte value is read
      *
-     * @param expectedTypeName
+     * @param expected
      * @param b
      * @return
      * @throws MessageFormatException
      */
-    private static MessageTypeException unexpected(final String expectedTypeName, final byte b)
+    private static MessageTypeException unexpected(String expected, final byte b)
             throws MessageFormatException {
-        ValueType type = getTypeFromHead(b);
-        String name = type.name();
-        return new MessageTypeException(
-                "Expected " + expectedTypeName + " type but got " +
-                        name.substring(0, 1) + name.substring(1).toLowerCase() + " type"
-        );
+        ValueType type = ValueType.valueOf(b);
+        return new MessageTypeException(String.format("Expected %s, but got %s (%02x)", expected, type.toTypeName(), b));
     }
 
     public Object unpackNil() throws IOException {
@@ -782,7 +768,7 @@ public class MessageUnpacker implements Closeable {
         throw unexpected("Float", b);
     }
 
-    private static String EMPTY_STRING = "";
+    private final static String EMPTY_STRING = "";
 
     public String unpackString() throws IOException {
         int strLen = unpackRawStringHeader();
