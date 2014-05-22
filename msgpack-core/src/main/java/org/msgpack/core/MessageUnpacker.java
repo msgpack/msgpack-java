@@ -172,9 +172,10 @@ public class MessageUnpacker implements Closeable {
         if(byteSizeToRead <= extraBuffer.size()) {
             // When the data is at the boundary and can fit to the extra buffer
             /*
+             |---(byte size to read) ----|
              -- current buffer --|
-             |------ extra buffer -----|
-                                 |-----|---------- secondary buffer (slice) ----------------|
+             |--- extra buffer (slice) --|----|
+                                 |-------|---------- secondary buffer (slice) ----------------|
 
              */
 
@@ -205,7 +206,7 @@ public class MessageUnpacker implements Closeable {
 
             return true;
         } else {
-            // When the data at the boundary exceeds the size of the extra buffer
+            // When the data is at the boundary and exceeds the size of the extra buffer, create a new buffer
             int remaining = buffer.size() - position;
             int bufferTotal = remaining;
             // Read next buffers
