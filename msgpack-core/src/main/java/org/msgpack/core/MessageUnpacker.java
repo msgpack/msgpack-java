@@ -61,9 +61,9 @@ public class MessageUnpacker implements Closeable {
     private MessageBuffer secondaryBuffer = null;
 
     /**
-     * Extra buffer for string data at the buffer boundary. For most of the case having 8 byte buffer is sufficient.
+     * Extra buffer for string data at the buffer boundary. Using 17-byte buffer (for FIXEXT16) is sufficient.
      */
-    private final MessageBuffer extraBuffer = MessageBuffer.wrap(new byte[8]);
+    private final MessageBuffer extraBuffer = MessageBuffer.wrap(new byte[24]);
 
     /**
      * True if no more data is available from the MessageBufferInput
@@ -185,9 +185,8 @@ public class MessageUnpacker implements Closeable {
             return true;
         }
 
-        if(byteSizeToRead <= extraBuffer.size()) {
-            // When the data is at the boundary and can fit to the extra buffer
-            /*
+        // When the data is at the boundary
+        /*
              |---(byte size to read) ----|
              -- current buffer --|
              |--- extra buffer (slice) --|----|
@@ -195,63 +194,35 @@ public class MessageUnpacker implements Closeable {
 
              */
 
-            // Copy the remaining buffer contents to the extra buffer
-            int firstHalfSize = buffer.size() - position;
-            if(firstHalfSize > 0)
-                buffer.copyTo(position, extraBuffer, 0, firstHalfSize);
+        // If the byte size to read fits within the extra buffer, use the extraBuffer
+        MessageBuffer newBuffer = byteSizeToRead <= extraBuffer.size() ? extraBuffer : MessageBuffer.newBuffer(byteSizeToRead);
 
-            // Read the last half contents from the next buffers
-            int cursor = firstHalfSize;
-            while(cursor < byteSizeToRead) {
-                secondaryBuffer = takeNextBuffer();
-                if(secondaryBuffer == null)
-                    return false; // No more buffer to read
+        // Copy the remaining buffer contents to the new buffer
+        int firstHalfSize = buffer.size() - position;
+        if(firstHalfSize > 0)
+            buffer.copyTo(position, newBuffer, 0, firstHalfSize);
 
-                // Copy the contents from the secondary buffer to the extra buffer
-                int copyLen = Math.min(byteSizeToRead - cursor, secondaryBuffer.size());
-                secondaryBuffer.copyTo(0, extraBuffer, cursor, copyLen);
+        // Read the last half contents from the next buffers
+        int cursor = firstHalfSize;
+        while(cursor < byteSizeToRead) {
+            secondaryBuffer = takeNextBuffer();
+            if(secondaryBuffer == null)
+                return false; // No more buffer to read
 
-                // Truncate the copied part from the secondaryBuffer
-                secondaryBuffer = copyLen == secondaryBuffer.size() ? null : secondaryBuffer.slice(copyLen, secondaryBuffer.size()-copyLen);
-                cursor += copyLen;
-            }
+            // Copy the contents from the secondary buffer to the new buffer
+            int copyLen = Math.min(byteSizeToRead - cursor, secondaryBuffer.size());
+            secondaryBuffer.copyTo(0, newBuffer, cursor, copyLen);
 
-            // Replace the current buffer to the extra buffer
-            buffer = byteSizeToRead == extraBuffer.size() ? extraBuffer : extraBuffer.slice(0, byteSizeToRead);
-            position = 0;
-
-            return true;
-        } else {
-            // When the data is at the boundary and exceeds the size of the extra buffer, create a new buffer
-            int remaining = buffer.size() - position;
-            int bufferTotal = remaining;
-            // Read next buffers
-            ArrayList<MessageBuffer> bufferList = new ArrayList<MessageBuffer>();
-            while(bufferTotal < byteSizeToRead) {
-                MessageBuffer next = takeNextBuffer();
-                if(next == null)
-                    return false;
-
-                bufferTotal += next.size();
-                bufferList.add(next);
-            }
-
-            // create a new buffer that is large enough to hold all entries
-            MessageBuffer newBuffer = MessageBuffer.newBuffer(bufferTotal);
-
-            // Copy the buffer contents to the new buffer
-            int p = 0;
-            buffer.copyTo(position, newBuffer, p, remaining);
-            p += remaining;
-            for(MessageBuffer m : bufferList) {
-                m.copyTo(0, newBuffer, p, m.size());
-                p += m.size();
-            }
-
-            buffer = newBuffer;
-            position = 0;
-            return true;
+            // Truncate the copied part from the secondaryBuffer
+            secondaryBuffer = copyLen == secondaryBuffer.size() ? null : secondaryBuffer.slice(copyLen, secondaryBuffer.size()-copyLen);
+            cursor += copyLen;
         }
+
+        // Replace the current buffer with the new buffer
+        buffer = byteSizeToRead == newBuffer.size() ? newBuffer : newBuffer.slice(0, byteSizeToRead);
+        position = 0;
+
+        return true;
     }
 
     /**
@@ -495,7 +466,7 @@ public class MessageUnpacker implements Closeable {
      * @return
      * @throws MessageFormatException
      */
-    private static MessageTypeException unexpected(String expected, final byte b)
+    private static MessageTypeException unexpected(String expected, byte b)
             throws MessageFormatException {
         ValueType type = ValueType.valueOf(b);
         return new MessageTypeException(String.format("Expected %s, but got %s (%02x)", expected, type.toTypeName(), b));
@@ -998,17 +969,17 @@ public class MessageUnpacker implements Closeable {
     }
 
 
-    int readNextLength8() throws IOException {
+    private int readNextLength8() throws IOException {
         byte u8 = readByte();
         return u8 & 0xff;
     }
 
-    int readNextLength16() throws IOException {
+    private int readNextLength16() throws IOException {
         short u16 = readShort();
         return u16 & 0xffff;
     }
 
-    int readNextLength32() throws IOException {
+    private int readNextLength32() throws IOException {
         int u32 = readInt();
         if(u32 < 0) {
             throw overflowU32Size(u32);
@@ -1021,43 +992,43 @@ public class MessageUnpacker implements Closeable {
         in.close();
     }
 
-    private static MessageIntegerOverflowException overflowU8(final byte u8) {
-        final BigInteger bi = BigInteger.valueOf((long) (u8 & 0xff));
+    private static MessageIntegerOverflowException overflowU8(byte u8) {
+        BigInteger bi = BigInteger.valueOf((long) (u8 & 0xff));
         return new MessageIntegerOverflowException(bi);
     }
 
-    private static MessageIntegerOverflowException overflowU16(final short u16) {
-        final BigInteger bi = BigInteger.valueOf((long) (u16 & 0xffff));
+    private static MessageIntegerOverflowException overflowU16(short u16) {
+        BigInteger bi = BigInteger.valueOf((long) (u16 & 0xffff));
         return new MessageIntegerOverflowException(bi);
     }
 
-    private static MessageIntegerOverflowException overflowU32(final int u32) {
-        final BigInteger bi = BigInteger.valueOf((long) (u32 & 0x7fffffff) + 0x80000000L);
+    private static MessageIntegerOverflowException overflowU32(int u32) {
+        BigInteger bi = BigInteger.valueOf((long) (u32 & 0x7fffffff) + 0x80000000L);
         return new MessageIntegerOverflowException(bi);
     }
 
-    private static MessageIntegerOverflowException overflowU64(final long u64) {
-        final BigInteger bi = BigInteger.valueOf(u64 + Long.MAX_VALUE + 1L).setBit(63);
+    private static MessageIntegerOverflowException overflowU64(long u64) {
+        BigInteger bi = BigInteger.valueOf(u64 + Long.MAX_VALUE + 1L).setBit(63);
         return new MessageIntegerOverflowException(bi);
     }
 
-    private static MessageIntegerOverflowException overflowI16(final short i16) {
-        final BigInteger bi = BigInteger.valueOf((long) i16);
+    private static MessageIntegerOverflowException overflowI16(short i16) {
+        BigInteger bi = BigInteger.valueOf((long) i16);
         return new MessageIntegerOverflowException(bi);
     }
 
-    private static MessageIntegerOverflowException overflowI32(final int i32) {
-        final BigInteger bi = BigInteger.valueOf((long) i32);
+    private static MessageIntegerOverflowException overflowI32(int i32) {
+        BigInteger bi = BigInteger.valueOf((long) i32);
         return new MessageIntegerOverflowException(bi);
     }
 
-    private static MessageIntegerOverflowException overflowI64(final long i64) {
-        final BigInteger bi = BigInteger.valueOf(i64);
+    private static MessageIntegerOverflowException overflowI64(long i64) {
+        BigInteger bi = BigInteger.valueOf(i64);
         return new MessageIntegerOverflowException(bi);
     }
 
-    private static MessageSizeException overflowU32Size(final int u32) {
-        final long lv = (long) (u32 & 0x7fffffff) + 0x80000000L;
+    private static MessageSizeException overflowU32Size(int u32) {
+        long lv = (long) (u32 & 0x7fffffff) + 0x80000000L;
         return new MessageSizeException(lv);
     }
 
