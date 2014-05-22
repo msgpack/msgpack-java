@@ -1002,7 +1002,7 @@ public class MessageUnpacker implements Closeable {
                 throw new EOFException();
             int l = Math.min(buffer.size() - position, len - writtenLen);
             buffer.getBytes(position, dst, off + writtenLen, l);
-            consume(position);
+            consume(l);
             writtenLen += l;
         }
     }

@@ -265,26 +265,25 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     }
 
-    "be faster then msgpack-v6" taggedAs("v6") in {
+    "be faster then msgpack-v6 skip" taggedAs("cmp-skip") in {
 
       val data = testData3(10000)
 
-      val v6 = new org.msgpack.MessagePack()
-
       val N = 100
-      time("unpack performance", logLevel=LogLevel.INFO, repeat=N) {
+      val t = time("skip performance", logLevel = LogLevel.INFO, repeat = N) {
         block("v6") {
-          import org.msgpack.`type`.{ValueType=>ValueTypeV6}
+          import org.msgpack.`type`.{ValueType => ValueTypeV6}
+          val v6 = new org.msgpack.MessagePack()
           val unpacker = new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(data))
           var count = 0
           try {
-            while(true) {
+            while (true) {
               unpacker.skip()
               count += 1
             }
           }
           catch {
-            case e:EOFException =>
+            case e: EOFException =>
           }
           finally
             unpacker.close()
@@ -304,6 +303,108 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
       }
 
+      t("v7") should be <= t("v6")
+    }
+
+
+    "be faster than msgpack-v6 read value" taggedAs("cmp-unpack") in {
+
+      import org.msgpack.`type`.{ValueType=>ValueTypeV6}
+
+      def readValueV6(unpacker:org.msgpack.unpacker.MessagePackUnpacker) {
+        val vt = unpacker.getNextType()
+        vt match {
+          case ValueTypeV6.ARRAY =>
+            val len = unpacker.readArrayBegin()
+            var i = 0
+            while(i < len) { readValueV6(unpacker); i += 1 }
+            unpacker.readArrayEnd()
+          case ValueTypeV6.MAP =>
+            val len = unpacker.readMapBegin()
+            var i = 0
+            while(i < len) { readValueV6(unpacker); readValueV6(unpacker); i += 1 }
+            unpacker.readMapEnd()
+          case ValueTypeV6.NIL =>
+            unpacker.readNil()
+          case ValueTypeV6.INTEGER =>
+            unpacker.readLong()
+          case ValueTypeV6.BOOLEAN =>
+            unpacker.readBoolean()
+          case ValueTypeV6.FLOAT =>
+            unpacker.readDouble()
+          case ValueTypeV6.RAW =>
+            unpacker.readByteArray()
+          case _ =>
+            unpacker.skip()
+        }
+      }
+
+      def readValue(unpacker:MessageUnpacker) {
+        val vt = unpacker.getNextFormat.getValueType
+        vt match {
+          case ValueType.ARRAY =>
+            val len = unpacker.unpackArrayHeader()
+            var i = 0
+            while(i < len) { readValue(unpacker); i += 1 }
+          case ValueType.MAP =>
+            val len = unpacker.unpackMapHeader()
+            var i = 0
+            while(i < len) { readValue(unpacker); readValue(unpacker); i += 1 }
+          case ValueType.NIL =>
+            unpacker.unpackNil()
+          case ValueType.INTEGER =>
+            unpacker.unpackLong()
+          case ValueType.BOOLEAN =>
+            unpacker.unpackBoolean()
+          case ValueType.FLOAT =>
+            unpacker.unpackDouble()
+          case ValueType.STRING =>
+            val len = unpacker.unpackRawStringHeader()
+            val b = new Array[Byte](len)
+            unpacker.readPayload(b, 0, len)
+          case ValueType.BINARY =>
+            val len = unpacker.unpackBinaryHeader()
+            val b = new Array[Byte](len)
+            unpacker.readPayload(b, 0, len)
+          case _ =>
+            unpacker.skipValue()
+        }
+      }
+
+      val data = testData3(100000)
+      val N = 10
+      time("unpack performance", logLevel=LogLevel.INFO, repeat=N) {
+        block("v6") {
+
+          val v6 = new org.msgpack.MessagePack()
+          val unpacker = new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(data))
+          var count = 0
+          try {
+            while(true) {
+              readValueV6(unpacker)
+              count += 1
+            }
+          }
+          catch {
+            case e:EOFException =>
+          }
+          finally
+            unpacker.close()
+        }
+
+        block("v7") {
+          val unpacker = new MessageUnpacker(data)
+          var count = 0
+          try {
+            while (unpacker.hasNext) {
+              readValue(unpacker)
+              count += 1
+            }
+          }
+          finally
+            unpacker.close()
+        }
+      }
 
     }
 
