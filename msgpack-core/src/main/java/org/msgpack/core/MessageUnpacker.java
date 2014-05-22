@@ -18,15 +18,15 @@ package org.msgpack.core;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 
 import org.msgpack.core.MessagePack.Code;
-import org.msgpack.core.buffer.ArrayBufferInput;
-import org.msgpack.core.buffer.MessageBuffer;
-import org.msgpack.core.buffer.MessageBufferInput;
+import org.msgpack.core.buffer.*;
 
 import static org.msgpack.core.Preconditions.*;
 
@@ -53,7 +53,7 @@ public class MessageUnpacker implements Closeable {
      */
     private MessageBuffer buffer;
     /**
-     * Cursor position in the buffer
+     * Cursor position in the current buffer
      */
     private int position;
 
@@ -67,18 +67,40 @@ public class MessageUnpacker implements Closeable {
      */
     private final MessageBuffer extraBuffer = MessageBuffer.wrap(new byte[8]);
 
+    /**
+     * True if no more data is available from the MessageBufferInput
+     */
     private boolean reachedEOF = false;
 
-    // For decoding String in unpackString. TODO enable options for handling malformed input and unmappable characters
+    /**
+     * For decoding String in unpackString.
+     * TODO enable options for handling malformed input and unmappable characters
+     */
     private final CharsetDecoder decoder = MessagePack.UTF8.newDecoder();
 
     /**
-     * Create an MesssageUnpacker that reads data from the given byte array
+     * Create an MessageUnpacker that reads data from the given byte array.
      *
      * @param arr
      */
     public MessageUnpacker(byte[] arr) {
         this(new ArrayBufferInput(arr));
+    }
+
+    /**
+     * Create an MessageUnpacker that reads data from the given InputStream.
+     * @param in
+     */
+    public MessageUnpacker(InputStream in) {
+        this(new InputStreamBufferInput(in));
+    }
+
+    /**
+     * Create an MessageUnpacker that reads data from the given ReadableByteChannel.
+     * @param in
+     */
+    public MessageUnpacker(ReadableByteChannel in) {
+        this(new ChannelBufferInput(in));
     }
 
     /**
@@ -273,7 +295,8 @@ public class MessageUnpacker implements Closeable {
     protected void consume(int numBytes) throws IOException {
         assert (numBytes >= 0);
 
-        // TODO Check overflow from Integer.MAX_VALUE
+        // If position + numBytes becomes negative, it indicates an overflow from Integer.MAX_VALUE.
+        // So we need to relocate the position
         if(position + numBytes < 0) {
             adjustCursorPosition();
         }
@@ -922,7 +945,6 @@ public class MessageUnpacker implements Closeable {
     @Override
     public void close() throws IOException {
         in.close();
-        // TODO buffer management
     }
 
     private static MessageIntegerOverflowException overflowU8(final byte u8) {
