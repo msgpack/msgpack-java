@@ -37,6 +37,9 @@ object Build extends Build {
       //parallelExecution in Test := false,
       autoScalaLibrary := false,
       crossPaths := false,
+      concurrentRestrictions in Global := Seq(
+        Tags.limit(Tags.Test, 1)
+      ),
       // Since sbt-0.13.2
       incOptions := incOptions.value.withNameHashing(true),
       //resolvers += Resolver.mavenLocal,

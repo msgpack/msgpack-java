@@ -20,9 +20,6 @@ class MessageBufferTest extends MessagePackSpec {
       // Write int test
       //b.putInt()
 
-
-
-
     }
 
 

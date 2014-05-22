@@ -24,7 +24,7 @@ class MessagePackTest extends MessagePackSpec with PropertyChecks {
       }
     }
 
-    "detect fixint fast" in {
+    "detect fixint quickly" in {
 
       val N = 1000000
       val idx = (0 until N).map(x => Random.nextInt(256).toByte).toArray[Byte]
