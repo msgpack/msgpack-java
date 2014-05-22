@@ -381,7 +381,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     /**
-     * Skip reading a value
+     * Skip the next value, then move the cursor at the end of that value
      *
      * @throws IOException
      */
