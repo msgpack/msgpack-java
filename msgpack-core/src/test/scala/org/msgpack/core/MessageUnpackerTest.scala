@@ -311,9 +311,9 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       import org.msgpack.`type`.{ValueType=>ValueTypeV6}
 
-      def readValueV6(unpacker:org.msgpack.unpacker.MessagePackUnpacker) {
+      def readValueV6(unpacker:org.msgpack.unpacker.MessagePackUnpacker) : Any = {
         val vt = unpacker.getNextType()
-        vt match {
+        val v = vt match {
           case ValueTypeV6.ARRAY =>
             val len = unpacker.readArrayBegin()
             var i = 0
@@ -337,15 +337,16 @@ class MessageUnpackerTest extends MessagePackSpec {
           case _ =>
             unpacker.skip()
         }
+        v
       }
 
       val buf = new Array[Byte](8192)
 
-      def readValue(unpacker:MessageUnpacker) {
+      def readValue(unpacker:MessageUnpacker) : Any = {
 
         val f = unpacker.getNextFormat
         val vt = f.getValueType
-        vt match {
+        val v = vt match {
           case ValueType.ARRAY =>
             val len = unpacker.unpackArrayHeader()
             var i = 0
@@ -371,13 +372,13 @@ class MessageUnpackerTest extends MessagePackSpec {
           case _ =>
             unpacker.skipValue()
         }
+        v
       }
 
       val data = testData3(10000)
       val N = 100
       val t = time("unpack performance", logLevel=LogLevel.INFO, repeat=N) {
         block("v6") {
-
           val v6 = new org.msgpack.MessagePack()
           val unpacker = new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(data))
           var count = 0
