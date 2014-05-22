@@ -21,9 +21,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
+import java.nio.CharBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.util.ArrayList;
 
@@ -96,6 +98,11 @@ public class MessageUnpacker implements Closeable {
      * TODO enable options for handling malformed input and unmappable characters
      */
     private final CharsetDecoder decoder;
+
+    /**
+     * Buffer for decoding strings
+     */
+    private final CharBuffer cb = CharBuffer.allocate(8192);
 
     /**
      * Create an MessageUnpacker that reads data from the given byte array.
@@ -813,12 +820,44 @@ public class MessageUnpacker implements Closeable {
             if(strLen > config.MAX_SIZE_UNPACK_STRING)
                 throw new MessageSizeException(String.format("cannot unpackString of size larger than %,d", config.MAX_SIZE_UNPACK_STRING), config.MAX_SIZE_UNPACK_STRING);
 
-            ensure(strLen);
-            ByteBuffer bb = buffer.toByteBuffer(position, strLen);
             try {
-                String ret = decoder.decode(bb).toString();
-                consume(strLen);
-                return ret;
+                int cursor = 0;
+                StringBuilder sb = new StringBuilder();
+                cb.clear();
+                while(cursor < strLen) {
+                    if(!adjustCursorPosition())
+                        throw new EOFException();
+
+                    if(buffer == null)
+                        throw new EOFException();
+
+                    int readLen = Math.min(buffer.size() - position, strLen-cursor);
+                    ByteBuffer bb = buffer.toByteBuffer(position, readLen);
+                    boolean endOfInput = cursor + readLen >= strLen;
+                    CoderResult cr = decoder.decode(bb, cb, endOfInput);
+
+                    if(cr.isOverflow()) {
+                        // There is insufficient space in the output CharBuffer.
+                        readLen = readLen - bb.remaining();
+                    }
+
+                    if(cr.isError()) {
+                        if(cr.isMalformed() && config.MALFORMED_INPUT_ACTION == CodingErrorAction.REPORT) {
+                            cr.throwException();
+                        } else if(cr.isUnmappable() && config.UNMAPPABLE_CHARACTER_ACTION == CodingErrorAction.REPORT) {
+                            cr.throwException();
+                        }
+                    }
+
+                    cb.flip();
+                    sb.append(cb);
+
+                    cb.clear();
+                    cursor += readLen;
+                    consume(readLen);
+                }
+
+                return sb.toString();
             }
             catch(CharacterCodingException e) {
                 throw new MessageStringCodingException(e);
@@ -936,7 +975,9 @@ public class MessageUnpacker implements Closeable {
 
     public int unpackBinaryHeader() throws IOException {
         final byte b = consume();
-
+        if(Code.isFixedRaw(b)) { // FixRaw
+            return b & 0x1f;
+        }
         int len = readBinaryHeader(b);
         if(len >= 0)
             return len;
