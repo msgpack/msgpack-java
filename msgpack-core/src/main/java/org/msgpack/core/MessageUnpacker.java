@@ -502,7 +502,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     public Object unpackNil() throws IOException {
-        final byte b = consume();
+        byte b = consume();
         if(b == Code.NIL) {
             return null;
         }
@@ -511,7 +511,7 @@ public class MessageUnpacker implements Closeable {
 
 
     public boolean unpackBoolean() throws IOException {
-        final byte b = consume();
+        byte b = consume();
         if(b == Code.FALSE) {
             return false;
         } else if(b == Code.TRUE) {
@@ -522,7 +522,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     public byte unpackByte() throws IOException {
-        final byte b = consume();
+        byte b = consume();
         if(Code.isFixInt(b)) {
             return b;
         }
@@ -577,7 +577,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     public short unpackShort() throws IOException {
-        final byte b = consume();
+        byte b = consume();
         if(Code.isFixInt(b)) {
             return (short) b;
         }
@@ -627,7 +627,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     public int unpackInt() throws IOException {
-        final byte b = consume();
+        byte b = consume();
         if(Code.isFixInt(b)) {
             return (int) b;
         }
@@ -671,7 +671,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     public long unpackLong() throws IOException {
-        final byte b = consume();
+        byte b = consume();
         if(Code.isFixInt(b)) {
             return (long) b;
         }
@@ -713,7 +713,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     public BigInteger unpackBigInteger() throws IOException {
-        final byte b = consume();
+        byte b = consume();
         if(Code.isFixInt(b)) {
             return BigInteger.valueOf((long) b);
         }
@@ -756,7 +756,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     public float unpackFloat() throws IOException {
-        final byte b = consume();
+        byte b = consume();
         switch(b) {
             case Code.FLOAT32: // float
                 float fv = readFloat();
@@ -769,7 +769,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     public double unpackDouble() throws IOException {
-        final byte b = consume();
+        byte b = consume();
         switch(b) {
             case Code.FLOAT32: // float
                 float fv = readFloat();
@@ -842,7 +842,7 @@ public class MessageUnpacker implements Closeable {
 
 
     public int unpackArrayHeader() throws IOException {
-        final byte b = consume();
+        byte b = consume();
         if(Code.isFixedArray(b)) { // fixarray
             return b & 0x0f;
         }
@@ -856,7 +856,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     public int unpackMapHeader() throws IOException {
-        final byte b = consume();
+        byte b = consume();
         if(Code.isFixedMap(b)) { // fixmap
             return b & 0x0f;
         }
@@ -930,7 +930,7 @@ public class MessageUnpacker implements Closeable {
 
 
     public int unpackRawStringHeader() throws IOException {
-        final byte b = consume();
+        byte b = consume();
         if(Code.isFixedRaw(b)) { // FixRaw
             return b & 0x1f;
         }
@@ -948,7 +948,7 @@ public class MessageUnpacker implements Closeable {
 
 
     public int unpackBinaryHeader() throws IOException {
-        final byte b = consume();
+        byte b = consume();
         if(Code.isFixedRaw(b)) { // FixRaw
             return b & 0x1f;
         }
