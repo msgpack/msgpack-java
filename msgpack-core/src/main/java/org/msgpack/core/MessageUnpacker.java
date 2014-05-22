@@ -136,7 +136,7 @@ public class MessageUnpacker implements Closeable {
      * @return true if it succeeds to move the cursor, or false if there is no more buffer to read
      * @throws IOException when failed to retrieve next buffer
      */
-    private boolean adjustCursorPosition() throws IOException {
+    private boolean ensureBuffer() throws IOException {
         if(buffer == null)
             buffer = takeNextBuffer();
 
@@ -176,9 +176,8 @@ public class MessageUnpacker implements Closeable {
      * @throws IOException
      */
     private boolean ensure(int byteSizeToRead) throws IOException {
-        if(!adjustCursorPosition())
+        if(!ensureBuffer())
             return false;
-
 
         // The buffer contains the data
         if(position + byteSizeToRead <= buffer.size()) {
@@ -287,37 +286,36 @@ public class MessageUnpacker implements Closeable {
      * @return
      * @throws IOException
      */
-    protected byte lookAhead() throws IOException {
+    private byte lookAhead() throws IOException {
         if(ensure(1))
             return buffer.getByte(position);
-        else {
+        else
             throw new EOFException();
-        }
     }
 
 
     /**
      * Get the head byte value and proceeds the cursor by 1
      */
-    protected byte consume() throws IOException {
+    private byte consume() throws IOException {
         byte b = lookAhead();
-        consume(1);
+        position += 1;
         return b;
     }
 
     /**
      * Proceeds the cursor by the specified byte length
      */
-    protected void consume(int numBytes) throws IOException {
+    private void consume(int numBytes) throws IOException {
         assert (numBytes >= 0);
 
-        // If position + numBytes becomes negative, it indicates an overflow from Integer.MAX_VALUE.
-        // So we need to relocate the position
-        if(position + numBytes < 0) {
-            adjustCursorPosition();
-        }
+//        // If position + numBytes becomes negative, it indicates an overflow from Integer.MAX_VALUE.
+//        // So we need to relocate the position
+//        if(position + numBytes < 0) {
+//            ensureBuffer();
+//        }
         position += numBytes;
-    }
+     }
 
     /**
      * Read a byte value at the cursor and proceed the cursor.
@@ -798,7 +796,7 @@ public class MessageUnpacker implements Closeable {
                 decodeBuffer.clear();
                 StringBuilder sb = new StringBuilder();
                 while(cursor < strLen) {
-                    if(!adjustCursorPosition())
+                    if(!ensureBuffer())
                         throw new EOFException();
 
                     int readLen = Math.min(buffer.size() - position, strLen-cursor);
@@ -971,8 +969,7 @@ public class MessageUnpacker implements Closeable {
 
     public void readPayload(ByteBuffer dst) throws IOException {
         while(dst.remaining() > 0) {
-            adjustCursorPosition();
-            if(buffer == null)
+            if(!ensureBuffer())
                 throw new EOFException();
             int l = Math.min(buffer.size() - position, dst.remaining());
             buffer.getBytes(position, l, dst);
@@ -991,8 +988,7 @@ public class MessageUnpacker implements Closeable {
     public void readPayload(byte[] dst, int off, int len) throws IOException {
         int writtenLen = 0;
         while(writtenLen < len) {
-            adjustCursorPosition();
-            if(buffer == null)
+            if(!ensureBuffer())
                 throw new EOFException();
             int l = Math.min(buffer.size() - position, len - writtenLen);
             buffer.getBytes(position, dst, off + writtenLen, l);

@@ -268,8 +268,8 @@ class MessageUnpackerTest extends MessagePackSpec {
     "be faster then msgpack-v6 skip" taggedAs("cmp-skip") in {
 
       val data = testData3(10000)
-
       val N = 100
+
       val t = time("skip performance", logLevel = LogLevel.INFO, repeat = N) {
         block("v6") {
           import org.msgpack.`type`.{ValueType => ValueTypeV6}
