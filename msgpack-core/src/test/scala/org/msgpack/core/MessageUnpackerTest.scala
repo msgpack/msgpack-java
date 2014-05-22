@@ -175,7 +175,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       val N = 10000
       val data = testData3(N)
 
-      time("skip performance", repeat = 1000, logLevel = LogLevel.INFO) {
+      time("skip performance", repeat = 100, logLevel = LogLevel.INFO) {
         block("switch") {
           val unpacker = new MessageUnpacker(data)
           var skipCount = 0

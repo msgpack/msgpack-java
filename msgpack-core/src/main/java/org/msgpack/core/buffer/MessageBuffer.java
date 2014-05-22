@@ -247,6 +247,7 @@ public class MessageBuffer {
      */
     public int size() { return size; }
 
+
     public MessageBuffer slice(int offset, int length) {
         // TODO ensure deleting this slice does not collapse this MessageBuffer
         return new MessageBuffer(base, address + offset, length, reference);

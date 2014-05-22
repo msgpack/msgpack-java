@@ -61,14 +61,11 @@ public class MessageUnpacker implements Closeable {
      * For preserving the next buffer to use
      */
     private MessageBuffer secondaryBuffer = null;
-    private int offsetToSecondaryBuffer;
 
-    // For storing data at the boundary
+    /**
+     * Extra buffer for string data at the buffer boundary. For most of the case having 8 byte buffer is sufficient.
+     */
     private final MessageBuffer extraBuffer = MessageBuffer.wrap(new byte[8]);
-
-
-    private boolean usingExtraBuffer = false;
-
 
     private boolean reachedEOF = false;
 
@@ -106,18 +103,8 @@ public class MessageUnpacker implements Closeable {
 
         while(buffer != null && position >= buffer.size()) {
             // Fetch the next buffer
-            int remaining = position - buffer.size();
-            if(usingExtraBuffer) {
-                buffer = secondaryBuffer;
-                secondaryBuffer = null;
-                position -= offsetToSecondaryBuffer;
-                usingExtraBuffer = false;
-            }
-            else {
-                MessageBuffer nextBuffer = takeNextBuffer();
-                buffer = nextBuffer;
-                position = remaining;
-            }
+            position -= buffer.size();
+            buffer = takeNextBuffer();
         }
         return buffer != null;
     }
@@ -126,7 +113,15 @@ public class MessageUnpacker implements Closeable {
         if(reachedEOF)
             return null;
 
-        MessageBuffer nextBuffer = in.next();
+        MessageBuffer nextBuffer = null;
+        if(secondaryBuffer == null) {
+            nextBuffer = in.next();
+        }
+        else {
+            nextBuffer = secondaryBuffer;
+            secondaryBuffer = null;
+        }
+
         if(nextBuffer == null) {
             reachedEOF = true;
         }
@@ -137,81 +132,28 @@ public class MessageUnpacker implements Closeable {
     /**
      * Ensure the buffer has the data of at least the specified size.
      *
-     * @param readSize the size to read
-     * @return if the buffer has the data of the specified size returns true, if the input reached EOF, it returns false.
+     * @param byteSizeToRead the data size to be read
+     * @return if the buffer can have the data of the specified size returns true, or if the input source reached an EOF, it returns false.
      * @throws IOException
      */
-    private boolean ensure(int readSize) throws IOException {
+    private boolean ensure(int byteSizeToRead) throws IOException {
         if(!adjustCursorPosition())
             return false;
 
 
         // The buffer contains the data
-        if(position + readSize <= buffer.size()) {
+        if(position + byteSizeToRead <= buffer.size()) {
             // OK
             return true;
         }
 
-
-        if(usingExtraBuffer) {
-            /*
-                       | position
-                       V
-             |--------------- extra buffer -------------|
-                              |---------- secondary buffer -------------------|
-                              ^
-                              | offsetToSecondaryBuffer
-             */
-
-            if(position < offsetToSecondaryBuffer) {
-                if(readSize <= extraBuffer.size()) {
-                    /*
-                      Shift the contents in the extra buffer so that position will be 0
-
-                    | position
-                    V
-                    |--------------- extra buffer -------------|
-                            |---------- secondary buffer -------------------|
-                            ^
-                            | offsetToSecondaryBuffer
-                    */
-                    buffer.relocate(position, buffer.size() - position, 0);
-                    offsetToSecondaryBuffer -= position;
-                    position = 0;
-                    secondaryBuffer.copyTo(0, extraBuffer, offsetToSecondaryBuffer, extraBuffer.size() - offsetToSecondaryBuffer);
-                    return ensure(readSize);
-                } else {
-                    checkNotNull(secondaryBuffer);
-
-                    // Create a new buffer that concatenates extra buffer and the secondary buffer
-                    int firstHalfSize = offsetToSecondaryBuffer - position;
-                    MessageBuffer b = MessageBuffer.newBuffer(secondaryBuffer.size() + firstHalfSize);
-                    extraBuffer.copyTo(position, b, 0, firstHalfSize);
-                    secondaryBuffer.copyTo(0, b, firstHalfSize, secondaryBuffer.size());
-
-                    secondaryBuffer = null;
-                    usingExtraBuffer = false;
-                    position = 0;
-                    buffer = b;
-                    return ensure(readSize);
-                }
-            } else {
-                // Switch to the secondary buffer
-                buffer = secondaryBuffer;
-                position = position - offsetToSecondaryBuffer;
-                secondaryBuffer = null;
-                usingExtraBuffer = false;
-                return ensure(readSize);
-            }
-        } else if(readSize <= extraBuffer.size()) {
+        if(byteSizeToRead <= extraBuffer.size()) {
             // When the data is at the boundary and can fit to the extra buffer
             /*
-             -- buffer --|
+             -- current buffer --|
+             |------ extra buffer -----|
+                                 |-----|---------- secondary buffer (slice) ----------------|
 
-             |--------------- extra buffer -------------|
-                         |---------- secondary buffer -------------------|
-                         ^
-                         | offsetToSecondaryBuffer
              */
 
             // Copy the remaining buffer contents to the extra buffer
@@ -220,25 +162,25 @@ public class MessageUnpacker implements Closeable {
                 buffer.copyTo(position, extraBuffer, 0, firstHalfSize);
 
             // Read the last half contents from the next buffers
-            int remaining = readSize - firstHalfSize;
-            int dataLen = firstHalfSize;
-            while(remaining > 0) {
-                offsetToSecondaryBuffer = dataLen;
+            int cursor = firstHalfSize;
+            while(cursor < byteSizeToRead) {
                 secondaryBuffer = takeNextBuffer();
                 if(secondaryBuffer == null)
                     return false; // No more buffer to read
-                int copyLen = Math.min(remaining, secondaryBuffer.size());
-                secondaryBuffer.copyTo(0, extraBuffer, offsetToSecondaryBuffer, copyLen);
-                dataLen += copyLen;
-                remaining -= copyLen;
+
+                // Copy the contents from the secondary buffer to the extra buffer
+                int copyLen = Math.min(byteSizeToRead - cursor, secondaryBuffer.size());
+                secondaryBuffer.copyTo(0, extraBuffer, cursor, copyLen);
+
+                // Truncate the copied part from the secondaryBuffer
+                secondaryBuffer = copyLen == secondaryBuffer.size() ? null : secondaryBuffer.slice(copyLen, secondaryBuffer.size()-copyLen);
+                cursor += copyLen;
             }
-            // Switch to the extra buffer
-            if(dataLen < extraBuffer.size())
-                buffer = extraBuffer.slice(0, dataLen);
-            else
-                buffer = extraBuffer;
-            usingExtraBuffer = true;
+
+            // Replace the current buffer to the extra buffer
+            buffer = byteSizeToRead == extraBuffer.size() ? extraBuffer : extraBuffer.slice(0, byteSizeToRead);
             position = 0;
+
             return true;
         } else {
             // When the data at the boundary exceeds the size of the extra buffer
@@ -246,7 +188,7 @@ public class MessageUnpacker implements Closeable {
             int bufferTotal = remaining;
             // Read next buffers
             ArrayList<MessageBuffer> bufferList = new ArrayList<MessageBuffer>();
-            while(bufferTotal < readSize) {
+            while(bufferTotal < byteSizeToRead) {
                 MessageBuffer next = takeNextBuffer();
                 if(next == null)
                     return false;
