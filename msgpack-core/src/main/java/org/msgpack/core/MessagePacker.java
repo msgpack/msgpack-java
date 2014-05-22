@@ -313,6 +313,7 @@ public class MessagePacker implements Closeable {
         if(s.length() > 0) {
             CharBuffer in = CharBuffer.wrap(s);
             encodeBuffer.clear();
+            encoder.reset();
             while(in.hasRemaining()) {
                 try {
                     CoderResult cr = encoder.encode(in, encodeBuffer, true);

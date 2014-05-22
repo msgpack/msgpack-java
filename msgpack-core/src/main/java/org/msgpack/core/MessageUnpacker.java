@@ -78,7 +78,7 @@ public class MessageUnpacker implements Closeable {
     /**
      * Buffer for decoding strings
      */
-    private final CharBuffer cb;
+    private final CharBuffer decodeBuffer;
 
     /**
      * Create an MessageUnpacker that reads data from the given byte array.
@@ -124,7 +124,7 @@ public class MessageUnpacker implements Closeable {
         // Root constructor. All of the constructors must call this constructor.
         this.in = checkNotNull(in, "MessageBufferInput");
         this.config = checkNotNull(config, "Config");
-        this.cb = CharBuffer.allocate(config.STRING_DECODER_BUFFER_SIZE);
+        this.decodeBuffer = CharBuffer.allocate(config.STRING_DECODER_BUFFER_SIZE);
         this.decoder = MessagePack.UTF8.newDecoder()
                 .onMalformedInput(config.MALFORMED_INPUT_ACTION)
                 .onUnmappableCharacter(config.UNMAPPABLE_CHARACTER_ACTION);
@@ -797,41 +797,46 @@ public class MessageUnpacker implements Closeable {
             if(strLen > config.MAX_SIZE_UNPACK_STRING)
                 throw new MessageSizeException(String.format("cannot unpackString of size larger than %,d", config.MAX_SIZE_UNPACK_STRING), config.MAX_SIZE_UNPACK_STRING);
 
+            decoder.reset();
+
             try {
                 int cursor = 0;
+                decodeBuffer.clear();
                 StringBuilder sb = new StringBuilder();
-                cb.clear();
                 while(cursor < strLen) {
                     if(!adjustCursorPosition())
                         throw new EOFException();
 
-                    if(buffer == null)
-                        throw new EOFException();
-
                     int readLen = Math.min(buffer.size() - position, strLen-cursor);
                     ByteBuffer bb = buffer.toByteBuffer(position, readLen);
-                    boolean endOfInput = cursor + readLen >= strLen;
-                    CoderResult cr = decoder.decode(bb, cb, endOfInput);
 
-                    if(cr.isOverflow()) {
-                        // There is insufficient space in the output CharBuffer.
-                        readLen = readLen - bb.remaining();
-                    }
+                    while(bb.hasRemaining()) {
+                        boolean endOfInput = (cursor + readLen) >= strLen;
+                        CoderResult cr = decoder.decode(bb, decodeBuffer, endOfInput);
 
-                    if(cr.isError()) {
-                        if(cr.isMalformed() && config.MALFORMED_INPUT_ACTION == CodingErrorAction.REPORT) {
-                            cr.throwException();
-                        } else if(cr.isUnmappable() && config.UNMAPPABLE_CHARACTER_ACTION == CodingErrorAction.REPORT) {
-                            cr.throwException();
+                        if(endOfInput && cr.isUnderflow())
+                            cr = decoder.flush(decodeBuffer);
+
+                        if(cr.isOverflow()) {
+                            // There is insufficient space in the output CharBuffer.
+                            readLen = bb.position() - bb.remaining();
                         }
+
+                        if(cr.isError()) {
+                            if(cr.isMalformed() && config.MALFORMED_INPUT_ACTION == CodingErrorAction.REPORT) {
+                                cr.throwException();
+                            } else if(cr.isUnmappable() && config.UNMAPPABLE_CHARACTER_ACTION == CodingErrorAction.REPORT) {
+                                cr.throwException();
+                            }
+                        }
+
+                        decodeBuffer.flip();
+                        sb.append(decodeBuffer);
+
+                        decodeBuffer.clear();
+                        cursor += readLen;
+                        consume(readLen);
                     }
-
-                    cb.flip();
-                    sb.append(cb);
-
-                    cb.clear();
-                    cursor += readLen;
-                    consume(readLen);
                 }
 
                 return sb.toString();
