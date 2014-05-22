@@ -303,7 +303,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
       }
 
-      t("v7") should be <= t("v6")
+      t("v7").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
     }
 
 
@@ -339,8 +339,12 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
       }
 
+      val buf = new Array[Byte](8192)
+
       def readValue(unpacker:MessageUnpacker) {
-        val vt = unpacker.getNextFormat.getValueType
+
+        val f = unpacker.getNextFormat
+        val vt = f.getValueType
         vt match {
           case ValueType.ARRAY =>
             val len = unpacker.unpackArrayHeader()
@@ -360,20 +364,18 @@ class MessageUnpackerTest extends MessagePackSpec {
             unpacker.unpackDouble()
           case ValueType.STRING =>
             val len = unpacker.unpackRawStringHeader()
-            val b = new Array[Byte](len)
-            unpacker.readPayload(b, 0, len)
+            unpacker.readPayload(buf, 0, len)
           case ValueType.BINARY =>
             val len = unpacker.unpackBinaryHeader()
-            val b = new Array[Byte](len)
-            unpacker.readPayload(b, 0, len)
+            unpacker.readPayload(buf, 0, len)
           case _ =>
             unpacker.skipValue()
         }
       }
 
-      val data = testData3(100000)
-      val N = 10
-      time("unpack performance", logLevel=LogLevel.INFO, repeat=N) {
+      val data = testData3(10000)
+      val N = 100
+      val t = time("unpack performance", logLevel=LogLevel.INFO, repeat=N) {
         block("v6") {
 
           val v6 = new org.msgpack.MessagePack()
@@ -405,6 +407,9 @@ class MessageUnpackerTest extends MessagePackSpec {
             unpacker.close()
         }
       }
+
+      t("v7").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
+
 
     }
 
