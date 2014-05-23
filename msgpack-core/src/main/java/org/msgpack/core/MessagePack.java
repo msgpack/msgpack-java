@@ -36,6 +36,8 @@ public class MessagePack {
         public int STRING_DECODER_BUFFER_SIZE = 8192;
 
         public int PACKER_BUFFER_SIZE = 8192;
+
+        public int PACKER_FLUSH_THRESHOLD = 512;
     }
 
     /**

@@ -19,7 +19,6 @@ public interface MessageBufferOutput extends Closeable {
 
     public void flush(MessageBuffer buf, int offset, int len) throws IOException;
 
-
 }
 
 

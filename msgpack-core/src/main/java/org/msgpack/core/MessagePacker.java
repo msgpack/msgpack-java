@@ -99,6 +99,10 @@ public class MessagePacker implements Closeable {
         position = 0;
     }
 
+    private void flushBuffer(MessageBuffer b) throws IOException {
+        out.flush(b, 0, b.size());
+    }
+
     public void close() throws IOException {
         try {
             flush();
@@ -437,20 +441,18 @@ public class MessagePacker implements Closeable {
         return this;
     }
 
-    private final int FLUSH_THRESHOLD = 512;
 
     public MessagePacker writePayload(ByteBuffer src) throws IOException {
-        if(src.remaining() >= FLUSH_THRESHOLD) {
+        if(src.remaining() >= config.PACKER_FLUSH_THRESHOLD) {
             // Use the source ByteBuffer directly to avoid memory copy
 
             // First, flush the current buffer contents
             flush();
 
             // Wrap the input source as a MessageBuffer
-            // TODO Create MessageBuffer.wrap(ByteBuffer, offset, length);
-            MessageBuffer wrapped = MessageBuffer.wrap(src);
+            MessageBuffer wrapped = MessageBuffer.wrap(src).slice(src.position(), src.remaining());
             // Then, dump the source data to the output
-            out.flush(wrapped, src.position(), src.remaining());
+            flushBuffer(wrapped);
             src.position(src.limit());
         }
         else {
@@ -471,16 +473,16 @@ public class MessagePacker implements Closeable {
     }
 
     public MessagePacker writePayload(byte[] src, int off, int len) throws IOException {
-        if(len >= FLUSH_THRESHOLD) {
+        if(len >= config.PACKER_FLUSH_THRESHOLD) {
             // Use the input array directory to avoid memory copy
 
             // Flush the current buffer contents
             flush();
 
             // Wrap the input array as a MessageBuffer
-            MessageBuffer wrapped = MessageBuffer.wrap(src);
+            MessageBuffer wrapped = MessageBuffer.wrap(src).slice(off, len);
             // Dump the source data to the output
-            out.flush(wrapped, off, len);
+            flushBuffer(wrapped);
         }
         else {
             int cursor = 0;
