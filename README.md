@@ -42,7 +42,8 @@ Then you can run
 > ~test-only *MessagePackTest -- -n prim   # Run the test tagged as "prim"
 > project msgpack-core                     # Focus on a specific project
 > package                                  # Create a jar file in the target folder of each project
-> findbugs                                 # Produce findbugs report
+> findbugs                                 # Produce findbugs report in target/findbugs
+> jacoco:cover                             # Report the code coverage of tests to target/jacoco folder
 ```
 
 ### Publishing
