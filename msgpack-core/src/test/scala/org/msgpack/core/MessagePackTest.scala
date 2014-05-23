@@ -106,7 +106,7 @@ class MessagePackTest extends MessagePackSpec with PropertyChecks {
 
 
 
-    "pack/unpack primitive values" in {
+    "pack/unpack primitive values" taggedAs("prim") in {
       forAll { (v: Boolean) => check(v, _.packBoolean(v), _.unpackBoolean)}
       forAll { (v: Byte) => check(v, _.packByte(v), _.unpackByte)}
       forAll { (v: Short) => check(v, _.packShort(v), _.unpackShort)}

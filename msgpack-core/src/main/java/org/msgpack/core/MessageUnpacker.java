@@ -169,7 +169,7 @@ public class MessageUnpacker implements Closeable {
 
 
     /**
-     * Ensure the buffer has the data of at least the specified size.
+     * Ensure that the buffer has the data of at least the specified size.
      *
      * @param byteSizeToRead the data size to be read
      * @return if the buffer can have the data of the specified size returns true, or if the input source reached an EOF, it returns false.
@@ -278,19 +278,15 @@ public class MessageUnpacker implements Closeable {
      * Proceeds the cursor by the specified byte length
      */
     private void consume(int numBytes) throws IOException {
-        assert (numBytes >= 0);
-
-//        // If position + numBytes becomes negative, it indicates an overflow from Integer.MAX_VALUE.
-//        // So we need to relocate the position
-//        if(position + numBytes < 0) {
-//            ensureBuffer();
-//        }
+        assert(numBytes >= 0);
+        // If position + numBytes becomes negative, it indicates an overflow from Integer.MAX_VALUE.
+        if(position + numBytes < 0)
+            ensureBuffer();
         position += numBytes;
      }
 
     /**
      * Read a byte value at the cursor and proceed the cursor.
-     * It also rests the head value to READ_NEXT.
      *
      * @return
      * @throws IOException
