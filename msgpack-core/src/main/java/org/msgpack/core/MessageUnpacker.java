@@ -375,7 +375,7 @@ public class MessageUnpacker implements Closeable {
 
     /**
      * Skip reading the specified number of bytes. Use this method only if you know skipping data is safe.
-     * For simply skip the next value, use {@link #skipValue()}.
+     * For simply skipping the next value, use {@link #skipValue()}.
      *
      * @param numBytes
      * @throws IOException
