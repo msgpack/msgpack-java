@@ -1,7 +1,7 @@
 package org.msgpack.core
 
 import org.scalatest._
-import xerial.core.log.Logger
+import xerial.core.log.{LogLevel, Logger}
 import xerial.core.util.{TimeReport, Timer}
 import scala.language.implicitConversions
 
@@ -17,6 +17,11 @@ trait MessagePackSpec extends WordSpec with Matchers with GivenWhenThen with Opt
 trait Benchmark extends Timer {
 
   val numWarmUpRuns = 10
+
+
+  override protected def time[A](blockName: String, logLevel: LogLevel, repeat: Int)(f: => A): TimeReport = {
+    super.time(blockName, logLevel=LogLevel.INFO, repeat)(f)
+  }
 
   override protected def block[A](name: String, repeat: Int)(f: => A): TimeReport = {
     var i = 0

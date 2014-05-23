@@ -174,7 +174,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       val N = 10000
       val data = testData3(N)
 
-      time("skip performance", repeat = 100, logLevel = LogLevel.INFO) {
+      time("skip performance", repeat = 100) {
         block("switch") {
           val unpacker = new MessageUnpacker(data)
           var skipCount = 0
@@ -270,7 +270,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       val data = testData3(10000)
       val N = 100
 
-      val t = time("skip performance", logLevel = LogLevel.INFO, repeat = N) {
+      val t = time("skip performance", repeat = N) {
         block("v6") {
           import org.msgpack.`type`.{ValueType => ValueTypeV6}
           val v6 = new org.msgpack.MessagePack()
@@ -374,7 +374,7 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       val data = testData3(10000)
       val N = 100
-      val t = time("unpack performance", logLevel=LogLevel.INFO, repeat=N) {
+      val t = time("unpack performance", repeat=N) {
         block("v6") {
           val v6 = new org.msgpack.MessagePack()
           val unpacker = new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(data))

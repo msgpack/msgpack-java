@@ -54,7 +54,7 @@ class MessageBufferTest extends MessagePackSpec {
 
       val rep = 3
       info(f"Reading buffers (of size:${M}%,d) ${N}%,d x $rep times")
-      time("sequential getInt", repeat = rep, logLevel = LogLevel.INFO) {
+      time("sequential getInt", repeat = rep) {
         block("unsafe array") {
           var i = 0
           while(i < N) {
@@ -88,7 +88,7 @@ class MessageBufferTest extends MessagePackSpec {
         }
       }
 
-      time("random getInt", repeat = rep, logLevel = LogLevel.INFO) {
+      time("random getInt", repeat = rep) {
         block("unsafe array") {
           var i = 0
           while(i < N) {

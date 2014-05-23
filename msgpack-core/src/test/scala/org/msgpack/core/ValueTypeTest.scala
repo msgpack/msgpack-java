@@ -77,7 +77,7 @@ class ValueTypeTest extends MessagePackSpec {
         b.result()
       }
 
-      time("lookup", repeat=100, logLevel = LogLevel.INFO) {
+      time("lookup", repeat=100) {
         block("switch") {
           var i = 0
           while(i < N) {
