@@ -2,7 +2,6 @@ package org.msgpack.core
 
 import MessagePack.Code._
 import scala.util.Random
-import xerial.core.log.LogLevel
 import org.msgpack.core.MessagePack.Code
 
 

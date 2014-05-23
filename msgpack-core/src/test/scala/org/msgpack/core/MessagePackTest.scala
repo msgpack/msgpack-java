@@ -1,6 +1,5 @@
 package org.msgpack.core
 
-import xerial.core.log.LogLevel
 import scala.util.Random
 import MessagePack.Code
 import org.scalatest.prop.PropertyChecks

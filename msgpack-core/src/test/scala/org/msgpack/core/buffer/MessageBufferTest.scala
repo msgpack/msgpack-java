@@ -1,7 +1,6 @@
 package org.msgpack.core.buffer
 
 import java.nio.ByteBuffer
-import xerial.core.log.LogLevel
 import scala.util.Random
 import org.msgpack.core.MessagePackSpec
 
@@ -12,14 +11,6 @@ import org.msgpack.core.MessagePackSpec
 class MessageBufferTest extends MessagePackSpec {
 
   "MessageBuffer" should {
-
-    "get and put values" in {
-
-      val b = MessageBuffer.newBuffer(8192)
-
-
-    }
-
 
     "have better performance than ByteBuffer" in {
 
@@ -49,8 +40,6 @@ class MessageBufferTest extends MessagePackSpec {
           i += 1
         }
       }
-
-      //Thread.sleep(1000)
 
       val rep = 3
       info(f"Reading buffers (of size:${M}%,d) ${N}%,d x $rep times")
