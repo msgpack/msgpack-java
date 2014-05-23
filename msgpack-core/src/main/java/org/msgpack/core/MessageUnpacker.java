@@ -36,8 +36,30 @@ import static org.msgpack.core.Preconditions.*;
 
 /**
  * MessageUnpacker lets an application read message-packed values from a data stream.
- * The application needs to call {@link #getNextFormat()} then call an appropriate unpackXXX method according to the
- * the returned format type.
+ * The application needs to call {@link #getNextFormat()} followed by an appropriate unpackXXX method according to the the returned format type.
+ *
+ * <pre>
+ * <code>
+ *     MessageUnpacker unpacker = new MessageUnpacker(...);
+ *     while(unpacker.hasNext()) {
+ *         MessageFormat f = unpacker.getNextFormat();
+ *         switch(f) {
+ *             case MessageFormat.POSFIXINT =>
+ *             case MessageFormat.INT8 =>
+ *             case MessageFormat.UINT8 => {
+ *                int v = unpacker.unpackInt();
+ *                break;
+ *             }
+ *             case MessageFormat.STRING => {
+ *                String v = unpacker.unpackString();
+ *                break;
+ *             }
+ *             // ...
+  *       }
+ *     }
+ *
+ * </code>
+ * </pre>
  */
 public class MessageUnpacker implements Closeable {
 
@@ -348,6 +370,19 @@ public class MessageUnpacker implements Closeable {
         double d = buffer.getDouble(position);
         consume(8);
         return d;
+    }
+
+
+    /**
+     * Skip reading the specified number of bytes. Use this method only if you know skipping data is safe.
+     * For simply skip the next value, use {@link #skipValue()}.
+     *
+     * @param numBytes
+     * @throws IOException
+     */
+    public void skipBytes(int numBytes) throws IOException {
+        checkArgument(numBytes >= 0, "skip length must be >= 0: " + numBytes);
+        consume(numBytes);
     }
 
     /**
