@@ -17,15 +17,13 @@ class MessageBufferTest extends MessagePackSpec {
 
       val b = MessageBuffer.newBuffer(8192)
 
-      // Write int test
-      //b.putInt()
 
     }
 
 
     "have better performance than ByteBuffer" in {
 
-      val N = 10000000
+      val N = 1000000
       val M = 64 * 1024 * 1024
 
       val ub = MessageBuffer.newBuffer(M)
@@ -52,7 +50,7 @@ class MessageBufferTest extends MessagePackSpec {
         }
       }
 
-      Thread.sleep(1000)
+      //Thread.sleep(1000)
 
       val rep = 3
       info(f"Reading buffers (of size:${M}%,d) ${N}%,d x $rep times")

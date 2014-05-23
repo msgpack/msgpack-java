@@ -26,10 +26,10 @@ class MessagePackTest extends MessagePackSpec with PropertyChecks {
 
     "detect fixint quickly" in {
 
-      val N = 1000000
+      val N = 10000000
       val idx = (0 until N).map(x => Random.nextInt(256).toByte).toArray[Byte]
 
-      time("check fixint", repeat = 10000, logLevel = LogLevel.INFO) {
+      time("check fixint", repeat = 100, logLevel = LogLevel.INFO) {
 
         block("mask") {
           var i = 0

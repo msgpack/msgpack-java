@@ -67,7 +67,7 @@ class ValueTypeTest extends MessagePackSpec {
 
     "lookup table" in {
 
-      val N = 1000000
+      val N = 100000
       val idx = {
         val b = Array.newBuilder[Byte]
         for(i <- 0 until N) {

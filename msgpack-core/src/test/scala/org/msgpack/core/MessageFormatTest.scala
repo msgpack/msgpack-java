@@ -97,7 +97,7 @@ class MessageFormatTest extends MessagePackSpec {
       // Initialize
       MessageFormat.valueOf(0.toByte)
 
-      time("lookup", repeat = 100, logLevel = LogLevel.INFO) {
+      time("lookup", repeat = 10, logLevel = LogLevel.INFO) {
         block("switch") {
           var i = 0
           while(i < N) {
