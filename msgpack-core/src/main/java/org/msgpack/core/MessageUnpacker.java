@@ -27,7 +27,6 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
-import java.util.ArrayList;
 
 import org.msgpack.core.MessagePack.Code;
 import org.msgpack.core.buffer.*;
@@ -73,12 +72,12 @@ public class MessageUnpacker implements Closeable {
     /**
      * For decoding String in unpackString.
      */
-    private final CharsetDecoder decoder;
+    private CharsetDecoder decoder;
 
     /**
      * Buffer for decoding strings
      */
-    private final CharBuffer decodeBuffer;
+    private CharBuffer decodeBuffer;
 
     /**
      * Create an MessageUnpacker that reads data from the given byte array.
@@ -124,11 +123,17 @@ public class MessageUnpacker implements Closeable {
         // Root constructor. All of the constructors must call this constructor.
         this.in = checkNotNull(in, "MessageBufferInput");
         this.config = checkNotNull(config, "Config");
-        this.decodeBuffer = CharBuffer.allocate(config.STRING_DECODER_BUFFER_SIZE);
-        this.decoder = MessagePack.UTF8.newDecoder()
-                .onMalformedInput(config.MALFORMED_INPUT_ACTION)
-                .onUnmappableCharacter(config.UNMAPPABLE_CHARACTER_ACTION);
     }
+
+    private void prepareDecoder() {
+        if(decoder == null) {
+            decodeBuffer = CharBuffer.allocate(config.STRING_DECODER_BUFFER_SIZE);
+            decoder = MessagePack.UTF8.newDecoder()
+                    .onMalformedInput(config.MALFORMED_INPUT_ACTION)
+                    .onUnmappableCharacter(config.UNMAPPABLE_CHARACTER_ACTION);
+        }
+    }
+
 
     /**
      * Relocate the cursor position so that it points to the real buffer
@@ -755,6 +760,9 @@ public class MessageUnpacker implements Closeable {
         if(strLen > 0) {
             if(strLen > config.MAX_SIZE_UNPACK_STRING)
                 throw new MessageSizeException(String.format("cannot unpackString of size larger than %,d", config.MAX_SIZE_UNPACK_STRING), config.MAX_SIZE_UNPACK_STRING);
+
+            prepareDecoder();
+            assert(decoder != null);
 
             decoder.reset();
 

@@ -65,12 +65,10 @@ public class MessagePacker implements Closeable {
      */
     private ByteBuffer encodeBuffer;
 
-    private final ByteBuffer defaultEncodeBuffer;
-
     /**
      * String encoder
      */
-    private final CharsetEncoder encoder;
+    private CharsetEncoder encoder;
 
     public MessagePacker(OutputStream out) {
         this(new OutputStreamBufferOutput(out));
@@ -88,11 +86,15 @@ public class MessagePacker implements Closeable {
         this.out = checkNotNull(out, "MessageBufferOutput is null");
         this.buffer = MessageBuffer.newDirectBuffer(config.PACKER_BUFFER_SIZE);
         this.position = 0;
-        this.defaultEncodeBuffer = ByteBuffer.allocate(config.STRING_ENCODER_BUFFER_SIZE);
-        this.encodeBuffer = this.defaultEncodeBuffer;
-        this.encoder = MessagePack.UTF8.newEncoder().onMalformedInput(config.MALFORMED_INPUT_ACTION).onUnmappableCharacter(config.UNMAPPABLE_CHARACTER_ACTION);
     }
 
+
+    private void prepareEncoder() {
+        if(encoder == null) {
+            this.encodeBuffer = ByteBuffer.allocate(config.STRING_ENCODER_BUFFER_SIZE);
+            this.encoder = MessagePack.UTF8.newEncoder().onMalformedInput(config.MALFORMED_INPUT_ACTION).onUnmappableCharacter(config.UNMAPPABLE_CHARACTER_ACTION);
+        }
+    }
 
     public void flush() throws IOException {
         out.flush(buffer, 0, position);
@@ -316,46 +318,53 @@ public class MessagePacker implements Closeable {
     public MessagePacker packString(String s) throws IOException {
         if(s.length() > 0) {
             CharBuffer in = CharBuffer.wrap(s);
+            prepareEncoder();
+
+            ByteBuffer preservedEncodeBuffer = encodeBuffer;
             encodeBuffer.clear();
             encoder.reset();
-            while(in.hasRemaining()) {
-                try {
-                    CoderResult cr = encoder.encode(in, encodeBuffer, true);
+            try {
+                while(in.hasRemaining()) {
+                    try {
+                        CoderResult cr = encoder.encode(in, encodeBuffer, true);
 
-                    if(cr.isUnderflow()) {
-                        cr = encoder.flush(encodeBuffer);
-                    }
-
-                    if(cr.isOverflow()) {
-                        // Allocate a larger buffer
-                        int estimatedRemainingSize = Math.max(1, (int) (in.remaining() * encoder.averageBytesPerChar()));
-                        encodeBuffer.flip();
-                        ByteBuffer newBuffer = ByteBuffer.allocate(encodeBuffer.remaining() + estimatedRemainingSize);
-                        newBuffer.put(encodeBuffer);
-                        encodeBuffer = newBuffer;
-                        continue;
-                    }
-
-                    if(cr.isError()) {
-                        if(cr.isMalformed() && config.MALFORMED_INPUT_ACTION == CodingErrorAction.REPORT) {
-                            cr.throwException();
-                        } else if(cr.isUnderflow() && config.MALFORMED_INPUT_ACTION == CodingErrorAction.REPORT) {
-                            cr.throwException();
+                        if(cr.isUnderflow()) {
+                            cr = encoder.flush(encodeBuffer);
                         }
+
+                        if(cr.isOverflow()) {
+                            // Allocate a larger buffer
+                            int estimatedRemainingSize = Math.max(1, (int) (in.remaining() * encoder.averageBytesPerChar()));
+                            encodeBuffer.flip();
+                            ByteBuffer newBuffer = ByteBuffer.allocate(encodeBuffer.remaining() + estimatedRemainingSize);
+                            newBuffer.put(encodeBuffer);
+                            encodeBuffer = newBuffer;
+                            continue;
+                        }
+
+                        if(cr.isError()) {
+                            if(cr.isMalformed() && config.MALFORMED_INPUT_ACTION == CodingErrorAction.REPORT) {
+                                cr.throwException();
+                            } else if(cr.isUnderflow() && config.MALFORMED_INPUT_ACTION == CodingErrorAction.REPORT) {
+                                cr.throwException();
+                            }
+                        }
+                    } catch(CharacterCodingException e) {
+                        throw new MessageStringCodingException(e);
                     }
                 }
-                catch(CharacterCodingException e) {
-                    throw new MessageStringCodingException(e);
-                }
+                encodeBuffer.flip();
+                packRawStringHeader(encodeBuffer.remaining());
+                writePayload(encodeBuffer);
             }
-            encodeBuffer.flip();
-            packRawStringHeader(encodeBuffer.remaining());
-            writePayload(encodeBuffer);
+            finally {
+                // Reset the encode buffer
+                encodeBuffer = preservedEncodeBuffer;
+            }
         }
         else {
             packRawStringHeader(0);
         }
-        encodeBuffer = defaultEncodeBuffer;
         return this;
     }
 
