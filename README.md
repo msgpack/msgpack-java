@@ -33,7 +33,7 @@ Enter the sbt console:
 $ ./sbt
 ```
 
-Then you can run
+Here is a list of sbt commands for daily development:
 ```
 > ~compile                                 # Compile source codes
 > ~test:compile                            # Compile both source and test codes
@@ -48,7 +48,7 @@ Then you can run
 
 ### Publishing
 
-``
+```
 > publishLocal            # Install to local .ivy2 repository
 > publishM2               # Install to local .m2 Maven repository
 > publishSigned           # Publish GPG signed artifacts to the Sonatype repository
