@@ -17,20 +17,19 @@
 //
 package org.msgpack.template.builder;
 
+import org.msgpack.template.TemplateRegistry;
+import org.msgpack.util.android.DalvikVmChecker;
+
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.msgpack.template.TemplateRegistry;
-import org.msgpack.util.android.DalvikVmChecker;
-
 public class TemplateBuilderChain {
-	private static final String JAVASSIST_TEMPLATE_BUILDER_CLASS_NAME =
-			"org.msgpack.template.builder.JavassistTemplateBuilder";
-	private static final String REFLECTION_TEMPLATE_BUILDER_CLASS_NAME =
-			"org.msgpack.template.builder.ReflectionTemplateBuilder";
+    private static final String JAVASSIST_TEMPLATE_BUILDER_CLASS_NAME =
+            "org.msgpack.template.builder.JavassistTemplateBuilder";
+    private static final String REFLECTION_TEMPLATE_BUILDER_CLASS_NAME =
+            "org.msgpack.template.builder.ReflectionTemplateBuilder";
 
     private static boolean enableDynamicCodeGeneration() {
         return !DalvikVmChecker.isDalvikVm();
@@ -71,18 +70,19 @@ public class TemplateBuilderChain {
         templateBuilders.add(new OrdinalEnumTemplateBuilder(registry));
         templateBuilders.add(builder);
         templateBuilders.add(new ReflectionBeansTemplateBuilder(registry));
+        templateBuilders.add(new ReflectionKVTemplateBuilder(registry));
     }
 
-	private static TemplateBuilder createForceTemplateBuilder(String className,
-			TemplateRegistry registry, ClassLoader cl) {
-		try {
-			Class<?> c = (Class<?>) Class.forName(className);
-			Constructor<?> cons = c.getConstructor(TemplateRegistry.class,
-					ClassLoader.class);
-			return (TemplateBuilder) cons.newInstance(registry, cl);
-		} catch (Exception e) {
-		    e.printStackTrace();
-		}
+    private static TemplateBuilder createForceTemplateBuilder(String className,
+                                                              TemplateRegistry registry, ClassLoader cl) {
+        try {
+            Class<?> c = (Class<?>) Class.forName(className);
+            Constructor<?> cons = c.getConstructor(TemplateRegistry.class,
+                    ClassLoader.class);
+            return (TemplateBuilder) cons.newInstance(registry, cl);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return new ReflectionTemplateBuilder(registry, cl);
     }
 

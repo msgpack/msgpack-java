@@ -234,7 +234,8 @@ public class MessagePackPacker extends AbstractPacker {
             throw new MessageTypeException(ex);
         }
         writeByteArray(b, 0, b.length);
-        stack.reduceCount();
+        // stack.reduceCount() will be called in writeByteArray(b, 0, b.length);
+//        stack.reduceCount();
     }
 
     @Override

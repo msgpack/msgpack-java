@@ -17,6 +17,26 @@
 //
 package org.msgpack.template.builder;
 
+import org.msgpack.annotation.Beans;
+import org.msgpack.annotation.Ignore;
+import org.msgpack.annotation.Index;
+import org.msgpack.annotation.Key;
+import org.msgpack.annotation.Message;
+import org.msgpack.annotation.MessageKV;
+import org.msgpack.annotation.MessagePackBeans;
+import org.msgpack.annotation.MessagePackMessage;
+import org.msgpack.annotation.MessagePackOrdinalEnum;
+import org.msgpack.annotation.NotNullKey;
+import org.msgpack.annotation.NotNullable;
+import org.msgpack.annotation.Optional;
+import org.msgpack.annotation.OrdinalEnum;
+import org.msgpack.template.FieldList;
+import org.msgpack.template.FieldOption;
+import org.msgpack.template.Template;
+import org.msgpack.template.TemplateRegistry;
+import org.msgpack.template.builder.beans.KVFieldEntry;
+import org.msgpack.util.android.TextUtils;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -25,22 +45,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.msgpack.annotation.Beans;
-import org.msgpack.annotation.Ignore;
-import org.msgpack.annotation.Index;
-import org.msgpack.annotation.Message;
-import org.msgpack.annotation.MessagePackBeans;
-import org.msgpack.annotation.MessagePackMessage;
-import org.msgpack.annotation.MessagePackOrdinalEnum;
-import org.msgpack.annotation.NotNullable;
-import org.msgpack.annotation.Optional;
-import org.msgpack.annotation.OrdinalEnum;
-import org.msgpack.template.FieldList;
-import org.msgpack.template.FieldOption;
-import org.msgpack.template.Template;
-import org.msgpack.template.TemplateRegistry;
-import org.msgpack.template.builder.TemplateBuildException;
 
 public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 
@@ -91,6 +95,11 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
     }
 
     protected FieldOption getFieldOption(Class<?> targetClass) {
+        MessageKV kv = targetClass.getAnnotation(MessageKV.class);
+        if (kv != null) {
+            return kv.value();
+        }
+
         Message m = targetClass.getAnnotation(Message.class);
         if (m == null) {
             return FieldOption.DEFAULT;
@@ -126,10 +135,17 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
 
     protected FieldEntry[] toFieldEntries(final Class<?> targetClass, final FieldOption from) {
         Field[] fields = getFields(targetClass);
+        if (from == FieldOption.KEY_VALUE) {
+            return toFiledEntriesByKV(fields, from);
+        } else {
+            return toFieldEntriesByIndex(fields, from);
+        }
+    }
 
+    protected FieldEntry[] toFieldEntriesByIndex(Field[] fields, final FieldOption from) {
         /*
          * index:
-         * 
+         *
          * @Index(0)
          * int field_a; // 0
          * int field_b; // 1
@@ -179,6 +195,40 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
         return entries;
     }
 
+    protected FieldEntry[] toFiledEntriesByKV(Field[] fields, final FieldOption from) {
+        // if field with Key annotation, then use key as key
+        // otherwise, use field name as key
+        List<FieldEntry> entries = new ArrayList<FieldEntry>();
+        int maxIndex = -1;
+        for (Field f : fields) {
+            if (from == FieldOption.IGNORE) {
+                continue;
+            }
+
+            String key = f.getName();
+
+            if (from == FieldOption.KEY_VALUE) {
+                Key k = f.getAnnotation(Key.class);
+                String annotationKey = k != null ? k.value() : null;
+                if (!TextUtils.isEmpty(annotationKey)) {
+                    key = annotationKey;
+                }
+            }
+
+            if (from == FieldOption.NOT_NULL_KEY) {
+                Key k = f.getAnnotation(Key.class);
+                String annotationKey = k != null ? k.value() : null;
+                if (!TextUtils.isEmpty(annotationKey)) {
+                    key = annotationKey;
+                }
+            }
+
+            FieldOption fieldOption = getFieldOption(f, from);
+            entries.add(new KVFieldEntry(f, fieldOption, key));
+        }
+        return entries.toArray(new FieldEntry[0]);
+    }
+
     private Field[] getFields(Class<?> targetClass) {
         // order: [fields of super class, ..., fields of this class]
         List<Field[]> succ = new ArrayList<Field[]>();
@@ -215,6 +265,10 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
             return FieldOption.OPTIONAL;
         } else if (isAnnotated(field, NotNullable.class)) {
             return FieldOption.NOTNULLABLE;
+        } else if (isAnnotated(field, Key.class) && from == FieldOption.KEY_VALUE) {
+            return FieldOption.KEY_VALUE;
+        } else if (isAnnotated(field, NotNullKey.class) && from == FieldOption.KEY_VALUE) {
+            return FieldOption.NOT_NULL_KEY;
         }
 
         if (from != FieldOption.DEFAULT) {
@@ -248,7 +302,7 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
     }
 
     public static boolean isAnnotated(Class<?> targetClass,
-            Class<? extends Annotation> with) {
+                                      Class<? extends Annotation> with) {
         return targetClass.getAnnotation(with) != null;
     }
 
@@ -270,6 +324,15 @@ public abstract class AbstractTemplateBuilder implements TemplateBuilder {
         if (hasAnnotation) {
             return AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, Beans.class)
                     || AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, MessagePackBeans.class);
+        } else {
+            return !targetClass.isEnum() || !targetClass.isInterface();
+        }
+    }
+
+    public static boolean matchAtKVClassTemplateBuilder(Type targetType, boolean hasAnnotation) {
+        Class<?> targetClass = (Class<?>) targetType;
+        if (hasAnnotation) {
+            return AbstractTemplateBuilder.isAnnotated((Class<?>) targetType, MessageKV.class);
         } else {
             return !targetClass.isEnum() || !targetClass.isInterface();
         }
