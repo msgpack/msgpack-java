@@ -29,13 +29,22 @@ public class MessageBuffer {
     static {
         try {
             // Fetch theUnsafe object for Orackle JDK and OpenJDK
-            Field field = Unsafe.class.getDeclaredField("theUnsafe");
-            field.setAccessible(true);
-            unsafe = (Unsafe) field.get(null);
+            Unsafe u;
+            try {
+                Field field = Unsafe.class.getDeclaredField("theUnsafe");
+                field.setAccessible(true);
+                u = (Unsafe) field.get(null);
+            }
+            catch(NoSuchFieldException e) {
+                // Workaround for Unsafe instance for Android
+                Constructor<Unsafe> unsafeConstructor = Unsafe.class.getDeclaredConstructor();
+                unsafeConstructor.setAccessible(true);
+                u = (Unsafe) unsafeConstructor.newInstance();
+            }
+            unsafe = u;
             if (unsafe == null) {
                 throw new RuntimeException("Unsafe is unavailable");
             }
-            // TODO Finding Unsafe instance for Android JVM
 
             ARRAY_BYTE_BASE_OFFSET = unsafe.arrayBaseOffset(byte[].class);
             ARRAY_BYTE_INDEX_SCALE = unsafe.arrayIndexScale(byte[].class);
