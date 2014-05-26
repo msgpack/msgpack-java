@@ -36,7 +36,7 @@ public class MessageBuffer {
                 u = (Unsafe) field.get(null);
             }
             catch(NoSuchFieldException e) {
-                // Workaround for Unsafe instance for Android
+                // Workaround for creating an Unsafe instance for Android OS
                 Constructor<Unsafe> unsafeConstructor = Unsafe.class.getDeclaredConstructor();
                 unsafeConstructor.setAccessible(true);
                 u = (Unsafe) unsafeConstructor.newInstance();
