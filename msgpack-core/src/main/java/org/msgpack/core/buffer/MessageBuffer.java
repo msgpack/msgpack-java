@@ -1,10 +1,11 @@
 package org.msgpack.core.buffer;
 
 import sun.misc.Unsafe;
-import sun.nio.ch.DirectBuffer;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,25 +24,29 @@ public class MessageBuffer {
 
     static final Unsafe unsafe;
     static final Constructor byteBufferConstructor;
-    static final int ARRAY_BYTE_BASE_OFFSET;
-    static final int ARRAY_BYTE_INDEX_SCALE;
+    static final Class<?> directByteBufferClass;
+    static final long ARRAY_BYTE_BASE_OFFSET;
+    static final long ARRAY_BYTE_INDEX_SCALE;
+    static final boolean isAndroid;
 
     static {
         try {
-            // Fetch theUnsafe object for Orackle JDK and OpenJDK
-            Unsafe u;
-            try {
+
+            // Detect android VM
+            isAndroid = System.getProperty("java.runtime.name", "").toLowerCase().contains("android");
+
+            if(!isAndroid) {
+                // Fetch theUnsafe object for Oracle JDK and OpenJDK
                 Field field = Unsafe.class.getDeclaredField("theUnsafe");
                 field.setAccessible(true);
-                u = (Unsafe) field.get(null);
+                unsafe = (Unsafe) field.get(null);
             }
-            catch(NoSuchFieldException e) {
+            else {
                 // Workaround for creating an Unsafe instance for Android OS
                 Constructor<Unsafe> unsafeConstructor = Unsafe.class.getDeclaredConstructor();
                 unsafeConstructor.setAccessible(true);
-                u = (Unsafe) unsafeConstructor.newInstance();
+                unsafe = unsafeConstructor.newInstance();
             }
-            unsafe = u;
             if (unsafe == null) {
                 throw new RuntimeException("Unsafe is unavailable");
             }
@@ -55,28 +60,35 @@ public class MessageBuffer {
             }
 
             // Find the hidden constructor for DirectByteBuffer
-            Class<?> directByteBufferClass = ClassLoader.getSystemClassLoader().loadClass("java.nio.DirectByteBuffer");
-            byteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
+            directByteBufferClass = ClassLoader.getSystemClassLoader().loadClass("java.nio.DirectByteBuffer");
+            if(!isAndroid) {
+                byteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
+            }
+            else {
+                // https://android.googlesource.com/platform/libcore/+/master/luni/src/main/java/java/nio/DirectByteBuffer.java
+                // DirectByteBuffer(long address, int capacity)
+                byteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class);
+            }
+            if(byteBufferConstructor == null)
+                throw new RuntimeException("Constructor of DirectByteBuffer is not found");
+
             byteBufferConstructor.setAccessible(true);
 
             // Check the endian of this CPU
             boolean isLittleEndian = true;
-            long a = unsafe.allocateMemory(8);
-            try {
-                unsafe.putLong(a, 0x0102030405060708L);
-                byte b = unsafe.getByte(a);
-                switch (b) {
-                    case 0x01:
-                        isLittleEndian = false;
-                        break;
-                    case 0x08:
-                        isLittleEndian = true;
-                        break;
-                    default:
-                        assert false;
-                }
-            } finally {
-                unsafe.freeMemory(a);
+            byte[] a = new byte[8];
+            unsafe.putLong(a, ARRAY_BYTE_BASE_OFFSET, 0x0102030405060708L);
+            // TODO  Unsafe.getByte is not available in Android
+            byte b = unsafe.getByte(a, ARRAY_BYTE_BASE_OFFSET);
+            switch (b) {
+                case 0x01:
+                    isLittleEndian = false;
+                    break;
+                case 0x08:
+                    isLittleEndian = true;
+                    break;
+                default:
+                    assert false;
             }
 
             String bufferClsName = isLittleEndian ? "org.msgpack.core.buffer.MessageBuffer" : "org.msgpack.core.buffer.MessageBufferBE";
@@ -86,6 +98,51 @@ public class MessageBuffer {
             throw new RuntimeException(e);
         }
     }
+
+    private static class MemoryAccess {
+        static Method mGetAddress;
+        static Method mCleaner;
+        static Method mClean;
+
+        static {
+            try {
+                mGetAddress = directByteBufferClass.getDeclaredMethod("address");
+                mGetAddress.setAccessible(true);
+
+                mCleaner = directByteBufferClass.getDeclaredMethod("cleaner");
+                mCleaner.setAccessible(true);
+
+                mClean = mCleaner.getReturnType().getDeclaredMethod("clean");
+                mClean.setAccessible(true);
+            }
+            catch(NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        static long getAddress(Object base) {
+            try {
+                return (Long) mGetAddress.invoke(base);
+            } catch(IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch(InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        static void clean(Object base) {
+            try {
+                Object cleaner = mCleaner.invoke(base);
+                mClean.invoke(cleaner);
+            }
+            catch(Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
+
+
 
 
     /**
@@ -121,6 +178,7 @@ public class MessageBuffer {
 
 
     static MessageBuffer newOffHeapBuffer(int length) {
+        // This method is not available in Android OS
         long address = unsafe.allocateMemory(length);
         return new MessageBuffer(address, length);
     }
@@ -186,8 +244,13 @@ public class MessageBuffer {
         if(buffer.base instanceof byte[]) {
             // We have nothing to do. Wait until the garbage-collector collects this array object
         }
-        else if(buffer.base instanceof DirectBuffer) {
-            ((DirectBuffer) buffer.base).cleaner().clean();
+        else if(directByteBufferClass.isInstance(buffer.base)) {
+            if(!isAndroid) {
+                MemoryAccess.clean(buffer.base);
+            }
+            else {
+                // TODO
+            }
         }
         else {
             // Maybe cannot reach here
@@ -215,9 +278,13 @@ public class MessageBuffer {
     MessageBuffer(ByteBuffer bb) {
         if(bb.isDirect()) {
             // Direct buffer or off-heap memory
-            DirectBuffer db = DirectBuffer.class.cast(bb);
             this.base = null;
-            this.address = db.address();
+            if(isAndroid) {
+                this.address = -1;
+            }
+            else {
+                this.address = MemoryAccess.getAddress(bb);
+            }
             this.size = bb.capacity();
             this.reference = bb;
         }
@@ -358,8 +425,12 @@ public class MessageBuffer {
         assert(len <= src.remaining());
 
         if(src.isDirect()) {
-            DirectBuffer db = (DirectBuffer) src;
-            unsafe.copyMemory(null, db.address() + src.position(), base, address+index, len);
+            if(!isAndroid) {
+                unsafe.copyMemory(null, MemoryAccess.getAddress(src) + src.position(), base, address + index, len);
+            }
+            else {
+                // TODO
+            }
         } else if(src.hasArray()) {
             byte[] srcArray = src.array();
             unsafe.copyMemory(srcArray, ARRAY_BYTE_BASE_OFFSET + src.position(), base, address+index, len);
@@ -381,7 +452,12 @@ public class MessageBuffer {
             return ByteBuffer.wrap((byte[]) base, (int) ((address-ARRAY_BYTE_BASE_OFFSET) + index), length);
         }
         try {
-            return (ByteBuffer) byteBufferConstructor.newInstance(address + index, length, reference);
+            if(!isAndroid)
+                return (ByteBuffer) byteBufferConstructor.newInstance(address + index, length, reference);
+            else {
+                // DirectByteBuffer(long address, int offset)
+                return (ByteBuffer) byteBufferConstructor.newInstance(address + index, length);
+            }
         } catch(Throwable e) {
             // Convert checked exception to unchecked exception
             throw new RuntimeException(e);
@@ -400,7 +476,12 @@ public class MessageBuffer {
      * @param length
      */
     public void copyTo(int index, MessageBuffer dst, int offset, int length) {
-        unsafe.copyMemory(base, address + index, dst.base, dst.address + offset, length);
+        if(!isAndroid)
+            unsafe.copyMemory(base, address + index, dst.base, dst.address + offset, length);
+        else {
+            // TODO
+
+        }
     }
 
 
