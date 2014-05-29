@@ -149,10 +149,10 @@ public class MessageUnpacker implements Closeable {
 
     private void prepareDecoder() {
         if(decoder == null) {
-            decodeBuffer = CharBuffer.allocate(config.STRING_DECODER_BUFFER_SIZE);
+            decodeBuffer = CharBuffer.allocate(config.getStringDecoderBufferSize());
             decoder = MessagePack.UTF8.newDecoder()
-                    .onMalformedInput(config.MALFORMED_INPUT_ACTION)
-                    .onUnmappableCharacter(config.UNMAPPABLE_CHARACTER_ACTION);
+                    .onMalformedInput(config.getActionOnMalFormedInput())
+                    .onUnmappableCharacter(config.getActionOnUnmappableCharacter());
         }
     }
 
@@ -793,8 +793,9 @@ public class MessageUnpacker implements Closeable {
     public String unpackString() throws IOException {
         int strLen = unpackRawStringHeader();
         if(strLen > 0) {
-            if(strLen > config.MAX_SIZE_UNPACK_STRING)
-                throw new MessageSizeException(String.format("cannot unpackString of size larger than %,d", config.MAX_SIZE_UNPACK_STRING), config.MAX_SIZE_UNPACK_STRING);
+            if(strLen > config.getMaxUnpackStringSize()) {
+                throw new MessageSizeException(String.format("cannot unpack a String of size larger than %,d: %,d", config.getMaxUnpackStringSize(), strLen), strLen);
+            }
 
             prepareDecoder();
             assert(decoder != null);
@@ -825,9 +826,9 @@ public class MessageUnpacker implements Closeable {
                         }
 
                         if(cr.isError()) {
-                            if(cr.isMalformed() && config.MALFORMED_INPUT_ACTION == CodingErrorAction.REPORT) {
+                            if(cr.isMalformed() && config.getActionOnMalFormedInput() == CodingErrorAction.REPORT) {
                                 cr.throwException();
-                            } else if(cr.isUnmappable() && config.UNMAPPABLE_CHARACTER_ACTION == CodingErrorAction.REPORT) {
+                            } else if(cr.isUnmappable() && config.getActionOnUnmappableCharacter() == CodingErrorAction.REPORT) {
                                 cr.throwException();
                             }
                         }
@@ -948,7 +949,7 @@ public class MessageUnpacker implements Closeable {
         if(len >= 0)
             return len;
 
-        if(config.READ_BIN_FORMAT_FAMILY_IN_UNPACK_RAW_STRING_HEADER) {
+        if(config.isReadBinaryAsString()){
             len = readBinaryHeader(b);
             if(len >= 0)
                 return len;
@@ -966,7 +967,7 @@ public class MessageUnpacker implements Closeable {
         if(len >= 0)
             return len;
 
-        if(config.READ_STR_FORMAT_FAMILY_IN_UNPACK_BINARY_HEADER) {
+        if(config.isReadStringAsBinary()) {
             len = readStringHeader(b);
             if(len >= 0)
                 return len;

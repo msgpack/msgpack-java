@@ -81,18 +81,16 @@ public class MessagePacker implements Closeable {
 
     public MessagePacker(MessageBufferOutput out, MessagePack.Config config) {
         this.config = checkNotNull(config, "config is null");
-        checkArgument(config.PACKER_BUFFER_SIZE > 0, "packer buffer size must be larger than 0: " + config.PACKER_BUFFER_SIZE);
-        checkArgument(config.STRING_ENCODER_BUFFER_SIZE > 0, "string encoder buffer size must be larger than 0: " + config.STRING_ENCODER_BUFFER_SIZE);
         this.out = checkNotNull(out, "MessageBufferOutput is null");
-        this.buffer = MessageBuffer.newDirectBuffer(config.PACKER_BUFFER_SIZE);
+        this.buffer = MessageBuffer.newDirectBuffer(config.getPackerBufferSize());
         this.position = 0;
     }
 
 
     private void prepareEncoder() {
         if(encoder == null) {
-            this.encodeBuffer = ByteBuffer.allocate(config.STRING_ENCODER_BUFFER_SIZE);
-            this.encoder = MessagePack.UTF8.newEncoder().onMalformedInput(config.MALFORMED_INPUT_ACTION).onUnmappableCharacter(config.UNMAPPABLE_CHARACTER_ACTION);
+            this.encodeBuffer = ByteBuffer.allocate(config.getStringEncoderBufferSize());
+            this.encoder = MessagePack.UTF8.newEncoder().onMalformedInput(config.getActionOnMalFormedInput()).onUnmappableCharacter(config.getActionOnMalFormedInput());
         }
     }
 
@@ -343,9 +341,9 @@ public class MessagePacker implements Closeable {
                         }
 
                         if(cr.isError()) {
-                            if(cr.isMalformed() && config.MALFORMED_INPUT_ACTION == CodingErrorAction.REPORT) {
+                            if(cr.isMalformed() && config.getActionOnMalFormedInput() == CodingErrorAction.REPORT) {
                                 cr.throwException();
-                            } else if(cr.isUnderflow() && config.MALFORMED_INPUT_ACTION == CodingErrorAction.REPORT) {
+                            } else if(cr.isUnderflow() && config.getActionOnUnmappableCharacter() == CodingErrorAction.REPORT) {
                                 cr.throwException();
                             }
                         }
@@ -452,7 +450,7 @@ public class MessagePacker implements Closeable {
 
 
     public MessagePacker writePayload(ByteBuffer src) throws IOException {
-        if(src.remaining() >= config.PACKER_FLUSH_THRESHOLD) {
+        if(src.remaining() >= config.getPackerRawDataCopyingThreshold()) {
             // Use the source ByteBuffer directly to avoid memory copy
 
             // First, flush the current buffer contents
@@ -482,7 +480,7 @@ public class MessagePacker implements Closeable {
     }
 
     public MessagePacker writePayload(byte[] src, int off, int len) throws IOException {
-        if(len >= config.PACKER_FLUSH_THRESHOLD) {
+        if(len >= config.getPackerRawDataCopyingThreshold()) {
             // Use the input array directory to avoid memory copy
 
             // Flush the current buffer contents

@@ -3,6 +3,8 @@ package org.msgpack.core;
 import java.nio.charset.Charset;
 import java.nio.charset.CodingErrorAction;
 
+import static org.msgpack.core.Preconditions.checkArgument;
+
 /**
  * Includes MessagePack codes
  *
@@ -15,35 +17,147 @@ public class MessagePack {
      * Message packer/unpacker configuration object
      */
     public static class Config {
+        private final boolean readStringAsBinary;
+        private final boolean readBinaryAsString;
+        private final CodingErrorAction onMalFormedInput;
+        private final CodingErrorAction onUnmappableCharacter;
+        private final int maxUnpackStringSize;
+        private final int stringEncoderBufferSize;
+        private final int stringDecoderBufferSize;
+        private final int packerBufferSize;
+        private final int packerRawDataCopyingThreshold;
 
-        // allow unpackBinaryHeader to read str format family  // default:true
-        public boolean READ_STR_FORMAT_FAMILY_IN_UNPACK_BINARY_HEADER = true;
+        public Config(
+                boolean readStringAsBinary,
+                boolean readBinaryAsString,
+                CodingErrorAction onMalFormedInput,
+                CodingErrorAction onUnmappableCharacter,
+                int maxUnpackStringSize,
+                int stringEncoderBufferSize,
+                int stringDecoderBufferSize,
+                int packerBufferSize,
+                int packerRawDataCopyingThreshold) {
 
-        // allow unpackRawStringHeader and unpackString to read bin format family // default: true
-        public boolean READ_BIN_FORMAT_FAMILY_IN_UNPACK_RAW_STRING_HEADER = true;
+            checkArgument(packerBufferSize > 0, "packer buffer size must be larger than 0: " + packerBufferSize);
+            checkArgument(stringEncoderBufferSize > 0, "string encoder buffer size must be larger than 0: " + stringEncoderBufferSize);
+            checkArgument(stringDecoderBufferSize > 0, "string decoder buffer size must be larger than 0: " + stringDecoderBufferSize);
 
-        // Action when encountered a malformed input
-        public CodingErrorAction MALFORMED_INPUT_ACTION = CodingErrorAction.REPORT;
+            this.readStringAsBinary = readStringAsBinary;
+            this.readBinaryAsString = readBinaryAsString;
+            this.onMalFormedInput = onMalFormedInput;
+            this.onUnmappableCharacter = onUnmappableCharacter;
+            this.maxUnpackStringSize = maxUnpackStringSize;
+            this.stringEncoderBufferSize = stringEncoderBufferSize;
+            this.stringDecoderBufferSize = stringDecoderBufferSize;
+            this.packerBufferSize = packerBufferSize;
+            this.packerRawDataCopyingThreshold = packerRawDataCopyingThreshold;
+        }
 
-        // Action when a unmappable character is found
-        public CodingErrorAction UNMAPPABLE_CHARACTER_ACTION = CodingErrorAction.REPORT;
+        /**
+         * allow unpackBinaryHeader to read str format family  (default:true)
+         */
+        public boolean isReadStringAsBinary() { return readStringAsBinary; }
 
-        // unpackString size limit // default: Integer.MAX_VALUE
-        public int MAX_SIZE_UNPACK_STRING = Integer.MAX_VALUE;
+        /**
+         * allow unpackRawStringHeader and unpackString to read bin format family (default: true)
+         */
+        public boolean isReadBinaryAsString() { return readBinaryAsString; }
+        /**
+         * Action when encountered a malformed input
+         */
+        public CodingErrorAction getActionOnMalFormedInput() { return onMalFormedInput; }
+        /**
+         * Action when an unmappable character is found
+         */
+        public CodingErrorAction getActionOnUnmappableCharacter() { return onUnmappableCharacter; }
 
-        public int STRING_ENCODER_BUFFER_SIZE = 8192;
+        /**
+         * unpackString size limit. (default: Integer.MAX_VALUE)
+         */
+        public int getMaxUnpackStringSize() { return maxUnpackStringSize; }
 
-        public int STRING_DECODER_BUFFER_SIZE = 8192;
+        public int getStringEncoderBufferSize() { return stringEncoderBufferSize; }
+        public int getStringDecoderBufferSize() { return stringDecoderBufferSize; }
 
-        public int PACKER_BUFFER_SIZE = 8192;
-
-        public int PACKER_FLUSH_THRESHOLD = 512;
+        public int getPackerBufferSize() { return packerBufferSize; }
+        public int getPackerRawDataCopyingThreshold() { return packerRawDataCopyingThreshold; }
     }
+
+    /**
+     * Builder of the configuration object
+     */
+    public static class ConfigBuilder {
+
+        private boolean readStringAsBinary = true;
+        private boolean readBinaryAsString = true;
+
+        private CodingErrorAction onMalFormedInput = CodingErrorAction.REPORT;
+        private CodingErrorAction onUnmappableCharacter = CodingErrorAction.REPORT;
+
+        private int maxUnpackStringSize = Integer.MAX_VALUE;
+        private int stringEncoderBufferSize = 8192;
+        private int stringDecoderBufferSize = 8192;
+        private int packerBufferSize = 8192;
+        private int packerRawDataCopyingThreshold = 512;
+
+        public Config build() {
+            return new Config(
+                    readStringAsBinary,
+                    readBinaryAsString,
+                    onMalFormedInput,
+                    onUnmappableCharacter,
+                    maxUnpackStringSize,
+                    stringEncoderBufferSize,
+                    stringDecoderBufferSize,
+                    packerBufferSize,
+                    packerRawDataCopyingThreshold
+            );
+        }
+
+        public ConfigBuilder readStringAsBinary(boolean enable) {
+            this.readStringAsBinary = enable;
+            return this;
+        }
+        public ConfigBuilder readBinaryAsString(boolean enable) {
+            this.readBinaryAsString = enable;
+            return this;
+        }
+        public ConfigBuilder onMalFormedInput(CodingErrorAction action) {
+            this.onMalFormedInput = action;
+            return this;
+        }
+        public ConfigBuilder onUnmappableCharacter(CodingErrorAction action) {
+            this.onUnmappableCharacter = action;
+            return this;
+        }
+        public ConfigBuilder maxUnpackStringSize(int size){
+            this.maxUnpackStringSize = size;
+            return this;
+        }
+        public ConfigBuilder stringEncoderBufferSize(int size) {
+            this.stringEncoderBufferSize = size;
+            return this;
+        }
+        public ConfigBuilder stringDecoderBufferSize(int size) {
+            this.stringDecoderBufferSize = size;
+            return this;
+        }
+        public ConfigBuilder packerBufferSize(int size) {
+            this.packerBufferSize = size;
+            return this;
+        }
+        public ConfigBuilder packerRawDataCopyingThreshold(int threshold) {
+            this.packerRawDataCopyingThreshold = threshold;
+            return this;
+        }
+    }
+
+
 
     /**
      * Default configuration, which is visible only from classes in the core package.
      */
-    static final Config DEFAULT_CONFIG = new Config();
+    static final Config DEFAULT_CONFIG = new ConfigBuilder().build();
 
 
     /**
