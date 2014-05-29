@@ -63,6 +63,8 @@ import static org.msgpack.core.Preconditions.*;
  */
 public class MessageUnpacker implements Closeable {
 
+    private final static MessageBuffer EMPTY_BUFFER = MessageBuffer.wrap(new byte[0]);
+
     private final MessagePack.Config config;
 
     private final MessageBufferInput in;
@@ -70,7 +72,7 @@ public class MessageUnpacker implements Closeable {
     /**
      * Points to the current buffer to read
      */
-    private MessageBuffer buffer;
+    private MessageBuffer buffer = EMPTY_BUFFER;
     /**
      * Cursor position in the current buffer
      */
@@ -164,9 +166,6 @@ public class MessageUnpacker implements Closeable {
      * @throws IOException when failed to retrieve next buffer
      */
     private boolean ensureBuffer() throws IOException {
-        if(buffer == null)
-            buffer = takeNextBuffer();
-
         while(buffer != null && position >= buffer.size()) {
             // Fetch the next buffer
             position -= buffer.size();
@@ -307,8 +306,9 @@ public class MessageUnpacker implements Closeable {
     private void consume(int numBytes) throws IOException {
         assert(numBytes >= 0);
         // If position + numBytes becomes negative, it indicates an overflow from Integer.MAX_VALUE.
-        if(position + numBytes < 0)
+        if(position + numBytes < 0) {
             ensureBuffer();
+        }
         position += numBytes;
      }
 

@@ -166,11 +166,12 @@ public class MessagePack {
     public static final class Code {
 
         public static final boolean isFixInt(byte b) {
-            return isPosFixInt(b) || isNegFixInt(b);
+            int v = b & 0xFF;
+            return v <= 0x7f || v >= 0xe0;
         }
 
         public static final boolean isPosFixInt(byte b) {
-            return (b & POSFIXINT_MASK) == (byte) 0;
+            return (b & POSFIXINT_MASK) == 0;
         }
         public static final boolean isNegFixInt(byte b) {
             return (b & NEGFIXINT_PREFIX) == NEGFIXINT_PREFIX;
