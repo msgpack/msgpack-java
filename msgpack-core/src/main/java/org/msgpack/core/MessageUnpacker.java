@@ -320,7 +320,7 @@ public class MessageUnpacker implements Closeable {
      */
     private byte readByte() throws IOException {
         if(!ensure(1)) {
-            throw new MessageFormatException("insufficient data length for reading byte value");
+            throw new EOFException("insufficient data length for reading byte value");
         }
         byte b = buffer.getByte(position);
         consume(1);
@@ -329,7 +329,7 @@ public class MessageUnpacker implements Closeable {
 
     private short readShort() throws IOException {
         if(!ensure(2)) {
-            throw new MessageFormatException("insufficient data length for reading short value");
+            throw new EOFException("insufficient data length for reading short value");
         }
         short s = buffer.getShort(position);
         consume(2);
@@ -338,7 +338,7 @@ public class MessageUnpacker implements Closeable {
 
     private int readInt() throws IOException {
         if(!ensure(4)) {
-            throw new MessageFormatException("insufficient data length for reading int value");
+            throw new EOFException("insufficient data length for reading int value");
         }
         int i = buffer.getInt(position);
         consume(4);
@@ -347,7 +347,7 @@ public class MessageUnpacker implements Closeable {
 
     private float readFloat() throws IOException {
         if(!ensure(4)) {
-            throw new MessageFormatException("insufficient data length for reading float value");
+            throw new EOFException("insufficient data length for reading float value");
         }
         float f = buffer.getFloat(position);
         consume(4);
@@ -356,7 +356,7 @@ public class MessageUnpacker implements Closeable {
 
     private long readLong() throws IOException {
         if(!ensure(8)) {
-            throw new MessageFormatException("insufficient data length for reading long value");
+            throw new EOFException("insufficient data length for reading long value");
         }
         long l = buffer.getLong(position);
         consume(8);
@@ -365,7 +365,7 @@ public class MessageUnpacker implements Closeable {
 
     private double readDouble() throws IOException {
         if(!ensure(8)) {
-            throw new MessageFormatException("insufficient data length for reading double value");
+            throw new EOFException("insufficient data length for reading double value");
         }
         double d = buffer.getDouble(position);
         consume(8);
@@ -386,13 +386,17 @@ public class MessageUnpacker implements Closeable {
     }
 
     /**
-     * Skip the next value, then move the cursor at the end of that value
+     * Skip the next value, then move the cursor at the end of the value
      *
      * @throws IOException
      */
     public void skipValue() throws IOException {
         int remainingValues = 1;
-        while(!reachedEOF && remainingValues > 0) {
+        while(remainingValues > 0) {
+            if(reachedEOF) {
+                throw new EOFException();
+            }
+
             MessageFormat f = getNextFormat();
             byte b = consume();
             switch(f) {
@@ -503,7 +507,7 @@ public class MessageUnpacker implements Closeable {
      * @throws MessageFormatException
      */
     private static MessageTypeException unexpected(String expected, byte b)
-            throws MessageFormatException {
+            throws MessageTypeException {
         ValueType type = ValueType.valueOf(b);
         return new MessageTypeException(String.format("Expected %s, but got %s (%02x)", expected, type.toTypeName(), b));
     }
