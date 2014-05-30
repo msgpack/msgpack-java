@@ -1,6 +1,7 @@
 package org.msgpack.core.buffer;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -50,6 +51,8 @@ public class InputStreamBufferInput implements MessageBufferInput {
             catch(Exception e) {
                 // Failed to retrieve the raw byte array
             }
+        } else if (in instanceof FileInputStream) {
+            return new ChannelBufferInput(((FileInputStream) in).getChannel());
         }
 
         return new InputStreamBufferInput(in);
