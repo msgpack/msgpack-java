@@ -61,7 +61,7 @@ public class InputStreamBufferInput implements MessageBufferInput {
 
     public InputStreamBufferInput(InputStream in, int bufferSize) {
         this.in = checkNotNull(in, "input is null");
-        this.bufferSize = 8192;
+        this.bufferSize = bufferSize;
     }
 
     @Override
