@@ -9,19 +9,33 @@ import static org.msgpack.core.Preconditions.*;
 public class ArrayBufferInput implements MessageBufferInput {
 
     private MessageBuffer buffer;
-    private boolean isRead = false;
+    private int cursor;
+    private final int length;
 
     public ArrayBufferInput(byte[] arr) {
-        this.buffer = MessageBuffer.wrap(checkNotNull(arr, "input array is null"));
+        this(arr, 0, arr.length);
     }
+
+    public ArrayBufferInput(byte[] arr, int offset, int length) {
+        this.buffer = MessageBuffer.wrap(checkNotNull(arr, "input array is null"));
+        this.cursor = offset;
+        checkArgument(length <= arr.length);
+        this.length = length;
+    }
+
 
     @Override
     public MessageBuffer next() throws IOException {
-        if(isRead) {
+        if(cursor < length) {
+            int c = cursor;
+            cursor = length;
+            if(c == 0 && length == buffer.size)
+                return buffer;
+            else
+                return buffer.slice(c, length);
+        }
+        else {
             return null;
-        } else {
-            isRead = true;
-            return buffer;
         }
     }
 
