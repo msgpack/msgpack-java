@@ -259,7 +259,10 @@ public class MessageBuffer {
 
     public MessageBuffer slice(int offset, int length) {
         // TODO ensure deleting this slice does not collapse this MessageBuffer
-        return new MessageBuffer(base, address + offset, length, reference);
+        if(offset == 0 && length == size())
+            return this;
+        else
+            return new MessageBuffer(base, address + offset, length, reference);
     }
 
     public byte getByte(int index) {
@@ -387,6 +390,17 @@ public class MessageBuffer {
             throw new RuntimeException(e);
         }
     }
+
+    public ByteBuffer toByteBuffer() {
+        return toByteBuffer(0, size());
+    }
+
+    public byte[] toByteArray() {
+        byte[] b = new byte[size()];
+        unsafe.copyMemory(base, address, b, ARRAY_BYTE_BASE_OFFSET, size());
+        return b;
+    }
+
 
     public void relocate(int offset, int length, int dst) {
         unsafe.copyMemory(base, address + offset, base, address+dst, length);

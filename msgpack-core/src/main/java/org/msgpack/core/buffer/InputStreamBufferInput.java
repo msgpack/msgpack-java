@@ -13,8 +13,6 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  */
 public class InputStreamBufferInput implements MessageBufferInput {
 
-    private final InputStream in;
-    private final int bufferSize;
 
     private static Field bufField;
     private static Field bufPosField;
@@ -37,6 +35,10 @@ public class InputStreamBufferInput implements MessageBufferInput {
         bufPosField = getField("pos");
         bufCountField = getField("count");
     }
+
+    private final InputStream in;
+    private final int bufferSize;
+    private boolean reachedEOF = false;
 
     public static MessageBufferInput newBufferInput(InputStream in) {
         if(in instanceof ByteArrayInputStream) {
@@ -69,23 +71,24 @@ public class InputStreamBufferInput implements MessageBufferInput {
 
     @Override
     public MessageBuffer next() throws IOException {
+        if(reachedEOF)
+            return null;
+
         byte[] buffer = null;
         int cursor = 0;
-        while(cursor < bufferSize) {
+        while(!reachedEOF && cursor < bufferSize) {
             if(buffer == null)
                 buffer = new byte[bufferSize];
+
             int readLen = in.read(buffer, cursor, bufferSize - cursor);
             if(readLen == -1) {
+                reachedEOF = true;
                 break;
             }
             cursor += readLen;
         }
-        if(buffer == null)
-            return null;
-        else {
-            MessageBuffer m = MessageBuffer.wrap(buffer);
-            return cursor == bufferSize ? m : m.slice(0, cursor);
-        }
+
+        return buffer == null ? null : MessageBuffer.wrap(buffer).slice(0, cursor);
     }
 
     @Override

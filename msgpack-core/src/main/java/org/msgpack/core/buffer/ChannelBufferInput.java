@@ -32,25 +32,15 @@ public class ChannelBufferInput implements MessageBufferInput {
             return null;
 
         MessageBuffer m = MessageBuffer.newBuffer(bufferSize);
-        ByteBuffer b = m.toByteBuffer(0, m.size);
-        while(b.remaining() > 0) {
-            int ret = 0;
-            ret = channel.read(b);
+        ByteBuffer b = m.toByteBuffer();
+        while(!reachedEOF && b.remaining() > 0) {
+            int ret = channel.read(b);
             if(ret == -1) {
                 reachedEOF = true;
-                break;
             }
         }
         b.flip();
-        if(b.remaining() == 0) {
-            return null;
-        }
-        else if(b.limit() < m.size) {
-            return m.slice(0, b.limit());
-        }
-        else {
-            return m;
-        }
+        return b.remaining() == 0 ? null : m.slice(0, b.limit());
     }
 
     @Override

@@ -9,7 +9,7 @@ import java.math.BigInteger
 /**
  * Created on 2014/05/07.
  */
-class MessagePackTest extends MessagePackSpec with PropertyChecks {
+class MessagePackTest extends MessagePackSpec  {
 
   "MessagePack" should {
     "detect fixint values" in {
