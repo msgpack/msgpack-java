@@ -9,7 +9,7 @@ import static org.msgpack.core.Preconditions.*;
 public class ArrayBufferInput implements MessageBufferInput {
 
     private MessageBuffer buffer;
-    private int cursor;
+    private boolean isRead = false;
     private final int length;
 
     public ArrayBufferInput(byte[] arr) {
@@ -17,8 +17,7 @@ public class ArrayBufferInput implements MessageBufferInput {
     }
 
     public ArrayBufferInput(byte[] arr, int offset, int length) {
-        this.buffer = MessageBuffer.wrap(checkNotNull(arr, "input array is null"));
-        this.cursor = offset;
+        this.buffer = MessageBuffer.wrap(checkNotNull(arr, "input array is null")).slice(offset, length);
         checkArgument(length <= arr.length);
         this.length = length;
     }
@@ -26,17 +25,10 @@ public class ArrayBufferInput implements MessageBufferInput {
 
     @Override
     public MessageBuffer next() throws IOException {
-        if(cursor < length) {
-            int c = cursor;
-            cursor = length;
-            if(c == 0 && length == buffer.size)
-                return buffer;
-            else
-                return buffer.slice(c, length);
-        }
-        else {
+        if(isRead)
             return null;
-        }
+        isRead = true;
+        return buffer;
     }
 
     @Override
