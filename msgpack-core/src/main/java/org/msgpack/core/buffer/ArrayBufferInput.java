@@ -18,7 +18,7 @@ public class ArrayBufferInput implements MessageBufferInput {
 
     public ArrayBufferInput(byte[] arr, int offset, int length) {
         this.buffer = MessageBuffer.wrap(checkNotNull(arr, "input array is null")).slice(offset, length);
-        checkArgument(length <= arr.length);
+        checkArgument(offset + length <= arr.length);
         this.length = length;
     }
 
