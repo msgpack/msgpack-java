@@ -5,6 +5,8 @@ import MessagePack.Code
 import org.scalatest.prop.PropertyChecks
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
+import xerial.core.io.IOUtil
+import java.nio.CharBuffer
 
 /**
  * Created on 2014/05/07.
@@ -145,6 +147,52 @@ class MessagePackTest extends MessagePackSpec with PropertyChecks {
         check(v, _.packString(v), _.unpackString)
       }
     }
+
+    "report errors when packing/unpacking malformed strings" taggedAs("malformed") in {
+      // Create 100 malformed UTF8 Strings
+      val r = new Random(0)
+      val malformedStrings = Iterator.continually{
+        val b = new Array[Byte](10)
+        r.nextBytes(b)
+        b
+      }
+        .filter(b => !isValidUTF8(new String(b))).take(100)
+
+      for(malformedBytes <- malformedStrings) {
+        // Pack tests
+        val malformed = new String(malformedBytes)
+        IOUtil.withResource(new MessagePacker(new ByteArrayOutputStream)) { packer =>
+          try {
+            packer.packString(malformed)
+            fail("should report error when malformed input string is found")
+          }
+          catch {
+            case e: MessageStringCodingException => // OK
+            case other: Exception => fail(other)
+          }
+        }
+        // Unpack tests
+        val b = new ByteArrayOutputStream()
+        val packer = new MessagePacker(b)
+        packer.packRawStringHeader(malformedBytes.length)
+        packer.writePayload(malformedBytes)
+        packer.close()
+        val packed = b.toByteArray
+
+        IOUtil.withResource(new MessageUnpacker(packed)) { unpacker =>
+          try {
+            unpacker.unpackString()
+            fail("Should report error when malformed input string is found")
+          }
+          catch {
+            case e: MessageStringCodingException => // OK
+            case other : Exception => fail(other)
+          }
+        }
+      }
+
+    }
+
 
     "pack/unpack binary" taggedAs ("binary") in {
       forAll { (v: Array[Byte]) =>
