@@ -827,6 +827,7 @@ public class MessageUnpacker implements Closeable {
                         if(cr.isOverflow()) {
                             // The output CharBuffer has insufficient space
                             readLen = bb.limit() - bb.remaining();
+                            decoder.reset();
                         }
 
                         if(cr.isError()) {

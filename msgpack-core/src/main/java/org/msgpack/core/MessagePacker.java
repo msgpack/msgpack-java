@@ -334,9 +334,10 @@ public class MessagePacker implements Closeable {
                             // Allocate a larger buffer
                             int estimatedRemainingSize = Math.max(1, (int) (in.remaining() * encoder.averageBytesPerChar()));
                             encodeBuffer.flip();
-                            ByteBuffer newBuffer = ByteBuffer.allocate(encodeBuffer.remaining() + estimatedRemainingSize);
+                            ByteBuffer newBuffer = ByteBuffer.allocate(Math.max((int) (encodeBuffer.capacity() * 1.5), encodeBuffer.remaining() + estimatedRemainingSize));
                             newBuffer.put(encodeBuffer);
                             encodeBuffer = newBuffer;
+                            encoder.reset();
                             continue;
                         }
 

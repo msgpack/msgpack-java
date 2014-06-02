@@ -11,6 +11,11 @@ import java.math.BigInteger
  */
 class MessagePackTest extends MessagePackSpec with PropertyChecks {
 
+  def isValidUTF8(s: String) = {
+    MessagePack.UTF8.newEncoder().canEncode(s)
+  }
+
+
   "MessagePack" should {
     "detect fixint values" in {
 
@@ -125,15 +130,19 @@ class MessagePackTest extends MessagePackSpec with PropertyChecks {
 
     "pack/unpack strings" taggedAs ("string") in {
 
-      def isValidUTF8(s: String) = {
-        MessagePack.UTF8.newEncoder().canEncode(s)
-      }
-
-
       forAll { (v: String) =>
         whenever(isValidUTF8(v)) {
           check(v, _.packString(v), _.unpackString)
         }
+      }
+    }
+
+    "pack/unpack large strings" taggedAs ("large-string") in {
+      // Large string
+      val strLen = Seq(1000, 2000, 10000, 50000, 100000, 500000)
+      for(l <- strLen) {
+        val v : String = Iterator.continually(Random.nextString(l * 10)).find(isValidUTF8).get
+        check(v, _.packString(v), _.unpackString)
       }
     }
 
