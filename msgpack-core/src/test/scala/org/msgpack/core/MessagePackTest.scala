@@ -5,8 +5,9 @@ import MessagePack.Code
 import org.scalatest.prop.PropertyChecks
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
-import xerial.core.io.IOUtil
-import java.nio.CharBuffer
+import xerial.core.io.{Resource, IOUtil}
+import java.nio.{ByteBuffer, CharBuffer}
+import java.nio.charset.{Charset, UnmappableCharacterException, CodingErrorAction}
 
 /**
  * Created on 2014/05/07.
@@ -15,6 +16,19 @@ class MessagePackTest extends MessagePackSpec with PropertyChecks {
 
   def isValidUTF8(s: String) = {
     MessagePack.UTF8.newEncoder().canEncode(s)
+  }
+
+  def containsUnmappableCharacter(s: String) : Boolean = {
+    try {
+      MessagePack.UTF8.newEncoder().onUnmappableCharacter(CodingErrorAction.REPORT).encode(CharBuffer.wrap(s))
+      false
+    }
+    catch {
+      case e:UnmappableCharacterException =>
+        true
+      case _ : Exception => false
+    }
+
   }
 
 
@@ -234,36 +248,53 @@ class MessagePackTest extends MessagePackSpec with PropertyChecks {
       for(malformedBytes <- malformedStrings) {
         // Pack tests
         val malformed = new String(malformedBytes)
-        IOUtil.withResource(new MessagePacker(new ByteArrayOutputStream)) { packer =>
-          try {
-            packer.packString(malformed)
-            fail("should report error when malformed input string is found")
-          }
-          catch {
-            case e: MessageStringCodingException => // OK
-            case other: Exception => fail(other)
-          }
+        try {
+          checkException(malformed, _.packString(malformed), _.unpackString())
         }
-        // Unpack tests
-        val b = new ByteArrayOutputStream()
-        val packer = new MessagePacker(b)
-        packer.packRawStringHeader(malformedBytes.length)
-        packer.writePayload(malformedBytes)
-        packer.close()
-        val packed = b.toByteArray
+        catch {
+          case e: MessageStringCodingException => // OK
+        }
 
-        IOUtil.withResource(new MessageUnpacker(packed)) { unpacker =>
-          try {
-            unpacker.unpackString()
-            fail("Should report error when malformed input string is found")
-          }
-          catch {
-            case e: MessageStringCodingException => // OK
-            case other : Exception => fail(other)
-          }
+        try {
+          checkException(malformed, { packer =>
+            packer.packRawStringHeader(malformedBytes.length)
+            packer.writePayload(malformedBytes)
+          },
+          _.unpackString())
+        }
+        catch {
+          case e: MessageStringCodingException => // OK
         }
       }
+    }
 
+    "report errors when packing/unpacking strings that contain unmappable characters" taggedAs("unmap") in {
+
+      val unmappable = Array[Byte](0xfc.toByte, 0x0a.toByte)
+      //val unmappableChar = Array[Char](new Character(0xfc0a).toChar)
+
+
+      for(bytes <- Seq(unmappable)) {
+        When("unpacking")
+        try {
+          checkException(bytes, { packer =>
+            packer.packRawStringHeader(bytes.length)
+            packer.writePayload(bytes)
+          }, _.unpackString())
+        }
+        catch {
+          case e:MessageStringCodingException => // OK
+        }
+
+//        When("packing")
+//        try {
+//          val s = new String(unmappableChar)
+//          checkException(s, _.packString(s), _.unpackString())
+//        }
+//        catch {
+//          case e:MessageStringCodingException => // OK
+//        }
+     }
     }
 
 
