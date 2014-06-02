@@ -110,6 +110,31 @@ class MessagePackTest extends MessagePackSpec with PropertyChecks {
       }
     }
 
+    def checkException[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A) {
+      var b: Array[Byte] = null
+      val bs = new ByteArrayOutputStream()
+      val packer = new MessagePacker(bs)
+      pack(packer)
+      packer.close()
+
+      b = bs.toByteArray
+
+      val unpacker = new MessageUnpacker(b)
+      val ret = unpack(unpacker)
+
+      fail("cannot not reach here")
+    }
+
+    def checkOverflow[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A) {
+      try {
+        checkException[A](v, pack, unpack)
+      }
+      catch {
+        case e:MessageIntegerOverflowException => // OK
+      }
+    }
+
+
 
 
     "pack/unpack primitive values" taggedAs("prim") in {
@@ -123,11 +148,59 @@ class MessagePackTest extends MessagePackSpec with PropertyChecks {
       check(null, _.packNil, _.unpackNil())
     }
 
-    "pack/unpack BigInteger" in {
+    "pack/unpack integer values" taggedAs("int") in {
+      val sampleData = Seq[Long](Int.MinValue.toLong - 10, -65535, -8191, -1024, -255, -127, -63, -31, -15, -7, -3, -1, 0, 2, 4, 8, 16, 32, 64, 128, 256, 1024, 8192, 65536, Int.MaxValue.toLong + 10)
+      for(v <- sampleData) {
+        check(v, _.packLong(v), _.unpackLong)
+
+        if(v.isValidInt) {
+          val vi = v.toInt
+          check(vi, _.packInt(vi), _.unpackInt)
+        }
+        else {
+          checkOverflow(v, _.packLong(v), _.unpackInt)
+        }
+
+        if(v.isValidShort) {
+          val vi = v.toShort
+          check(vi, _.packShort(vi), _.unpackShort)
+        }
+        else {
+          checkOverflow(v, _.packLong(v), _.unpackShort)
+        }
+
+        if(v.isValidByte) {
+          val vi = v.toByte
+          check(vi, _.packByte(vi), _.unpackByte)
+        }
+        else {
+          checkOverflow(v, _.packLong(v), _.unpackByte)
+        }
+
+      }
+
+    }
+
+    "pack/unpack BigInteger" taggedAs("bi") in {
       forAll { (a: Long) =>
         val v = BigInteger.valueOf(a)
         check(v, _.packBigInteger(v), _.unpackBigInteger)
       }
+
+      for(bi <- Seq(BigInteger.valueOf(Long.MaxValue).add(BigInteger.valueOf(1)))) {
+        check(bi, _.packBigInteger(bi), _.unpackBigInteger())
+      }
+
+      for(bi <- Seq(BigInteger.valueOf(Long.MaxValue).shiftLeft(10))) {
+        try {
+          checkException(bi, _.packBigInteger(bi), _.unpackBigInteger())
+          fail("cannot reach here")
+        }
+        catch {
+          case e:IllegalArgumentException => // OK
+        }
+      }
+
     }
 
     "pack/unpack strings" taggedAs ("string") in {
@@ -204,7 +277,23 @@ class MessagePackTest extends MessagePackSpec with PropertyChecks {
         }
         )
       }
+
+      val len = Seq(1000, 2000, 10000, 50000, 100000, 500000)
+      for(l <- len) {
+        val v = new Array[Byte](l)
+        Random.nextBytes(v)
+        check(v, { packer => packer.packBinaryHeader(v.length); packer.writePayload(v)}, { unpacker =>
+          val len = unpacker.unpackBinaryHeader()
+          val out = new Array[Byte](len)
+          unpacker.readPayload(out, 0, len)
+          out
+        }
+        )
+      }
     }
+
+    val testHeaderLength = Seq(1, 2, 4, 8, 16, 1000, 2000, 10000, 50000, 100000, 500000)
+
 
     "pack/unpack arrays" taggedAs ("array") in {
       forAll { (v: Array[Int]) =>
@@ -220,6 +309,18 @@ class MessagePackTest extends MessagePackSpec with PropertyChecks {
         }
         )
       }
+
+      for(l <- testHeaderLength) {
+        check(l, _.packArrayHeader(l), _.unpackArrayHeader())
+      }
+
+      try {
+        checkException(0, _.packArrayHeader(-1), _.unpackArrayHeader)
+      }
+      catch {
+        case e: IllegalArgumentException => // OK
+      }
+
     }
 
     "pack/unpack maps" taggedAs ("map") in {
@@ -242,6 +343,19 @@ class MessagePackTest extends MessagePackSpec with PropertyChecks {
         }
         )
       }
+
+      for(l <- testHeaderLength) {
+        check(l, _.packMapHeader(l), _.unpackMapHeader())
+      }
+
+      try {
+        checkException(0, _.packMapHeader(-1), _.unpackMapHeader)
+      }
+      catch {
+        case e: IllegalArgumentException => // OK
+      }
+
+
     }
 
     "pack/unpack extended types" taggedAs("ext") in {
@@ -254,8 +368,7 @@ class MessagePackTest extends MessagePackSpec with PropertyChecks {
         }
       }
 
-      val extLen = Seq(1, 2, 4, 8, 16, 1000, 2000, 10000, 50000, 100000, 500000)
-      for(l <- extLen) {
+      for(l <- testHeaderLength) {
         val ext = new ExtendedTypeHeader(l, Random.nextInt(128))
         check(ext, _.packExtendedTypeHeader(ext.getType, ext.getLength), _.unpackExtendedTypeHeader())
       }
