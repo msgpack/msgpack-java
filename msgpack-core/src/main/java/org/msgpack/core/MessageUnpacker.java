@@ -831,9 +831,8 @@ public class MessageUnpacker implements Closeable {
                         }
 
                         if(cr.isError()) {
-                            if(cr.isMalformed() && config.getActionOnMalFormedInput() == CodingErrorAction.REPORT) {
-                                cr.throwException();
-                            } else if(cr.isUnmappable() && config.getActionOnUnmappableCharacter() == CodingErrorAction.REPORT) {
+                            if((cr.isMalformed() && config.getActionOnMalFormedInput() == CodingErrorAction.REPORT) ||
+                               (cr.isUnmappable() && config.getActionOnUnmappableCharacter() == CodingErrorAction.REPORT)) {
                                 cr.throwException();
                             }
                         }

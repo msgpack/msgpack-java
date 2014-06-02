@@ -32,7 +32,7 @@ class MessagePackTest extends MessagePackSpec with PropertyChecks {
 
     "detect fixint quickly" in {
 
-      val N = 10000000
+      val N = 100000
       val idx = (0 until N).map(x => Random.nextInt(256).toByte).toArray[Byte]
 
       time("check fixint", repeat = 100) {
@@ -253,6 +253,13 @@ class MessagePackTest extends MessagePackSpec with PropertyChecks {
           check(ext, _.packExtendedTypeHeader(ext.getType, ext.getLength), _.unpackExtendedTypeHeader())
         }
       }
+
+      val extLen = Seq(1, 2, 4, 8, 16, 1000, 2000, 10000, 50000, 100000, 500000)
+      for(l <- extLen) {
+        val ext = new ExtendedTypeHeader(l, Random.nextInt(128))
+        check(ext, _.packExtendedTypeHeader(ext.getType, ext.getLength), _.unpackExtendedTypeHeader())
+      }
+
     }
 
   }
