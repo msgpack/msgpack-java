@@ -1,11 +1,8 @@
 package org.msgpack.core
 
-import org.scalatest.FunSuite
-import org.msgpack.core.MessagePack.Code._
 import org.scalatest.exceptions.TestFailedException
 import org.msgpack.core.MessagePack.Code
 import scala.util.Random
-import xerial.core.log.LogLevel
 
 /**
  * Created on 2014/05/07.
@@ -97,7 +94,7 @@ class MessageFormatTest extends MessagePackSpec {
       // Initialize
       MessageFormat.valueOf(0.toByte)
 
-      time("lookup", repeat = 100, logLevel = LogLevel.INFO) {
+      time("lookup", repeat = 10) {
         block("switch") {
           var i = 0
           while(i < N) {

@@ -2,7 +2,6 @@ package org.msgpack.core
 
 import MessagePack.Code._
 import scala.util.Random
-import xerial.core.log.LogLevel
 import org.msgpack.core.MessagePack.Code
 
 
@@ -67,7 +66,7 @@ class ValueTypeTest extends MessagePackSpec {
 
     "lookup table" in {
 
-      val N = 1000000
+      val N = 100000
       val idx = {
         val b = Array.newBuilder[Byte]
         for(i <- 0 until N) {
@@ -77,7 +76,7 @@ class ValueTypeTest extends MessagePackSpec {
         b.result()
       }
 
-      time("lookup", repeat=100, logLevel = LogLevel.INFO) {
+      time("lookup", repeat=100) {
         block("switch") {
           var i = 0
           while(i < N) {

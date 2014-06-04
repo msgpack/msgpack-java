@@ -29,13 +29,22 @@ public class MessageBuffer {
     static {
         try {
             // Fetch theUnsafe object for Orackle JDK and OpenJDK
-            Field field = Unsafe.class.getDeclaredField("theUnsafe");
-            field.setAccessible(true);
-            unsafe = (Unsafe) field.get(null);
+            Unsafe u;
+            try {
+                Field field = Unsafe.class.getDeclaredField("theUnsafe");
+                field.setAccessible(true);
+                u = (Unsafe) field.get(null);
+            }
+            catch(NoSuchFieldException e) {
+                // Workaround for creating an Unsafe instance for Android OS
+                Constructor<Unsafe> unsafeConstructor = Unsafe.class.getDeclaredConstructor();
+                unsafeConstructor.setAccessible(true);
+                u = (Unsafe) unsafeConstructor.newInstance();
+            }
+            unsafe = u;
             if (unsafe == null) {
                 throw new RuntimeException("Unsafe is unavailable");
             }
-            // TODO Finding Unsafe instance for Android JVM
 
             ARRAY_BYTE_BASE_OFFSET = unsafe.arrayBaseOffset(byte[].class);
             ARRAY_BYTE_INDEX_SCALE = unsafe.arrayIndexScale(byte[].class);
@@ -105,10 +114,10 @@ public class MessageBuffer {
      * Reference is used to hold a reference to an object that holds the underlying memory so that it cannot be
      * released by the garbage collector.
      */
-    private final ByteBuffer reference;
+    protected final ByteBuffer reference;
 
     // TODO life-time managment of this buffer
-    private AtomicInteger referenceCounter;
+    //private AtomicInteger referenceCounter;
 
 
     static MessageBuffer newOffHeapBuffer(int length) {
@@ -122,8 +131,7 @@ public class MessageBuffer {
     }
 
     public static MessageBuffer newBuffer(int length) {
-        ByteBuffer m = ByteBuffer.allocate(length);
-        return newMessageBuffer(m);
+        return newMessageBuffer(new byte[length]);
     }
 
     public static MessageBuffer wrap(byte[] array) {
@@ -235,7 +243,7 @@ public class MessageBuffer {
         this.reference = null;
     }
 
-    private MessageBuffer(Object base, long address, int length, ByteBuffer reference) {
+    protected MessageBuffer(Object base, long address, int length, ByteBuffer reference) {
         this.base = base;
         this.address = address;
         this.size = length;
@@ -248,9 +256,15 @@ public class MessageBuffer {
      */
     public int size() { return size; }
 
+
     public MessageBuffer slice(int offset, int length) {
         // TODO ensure deleting this slice does not collapse this MessageBuffer
-        return new MessageBuffer(base, address + offset, length, reference);
+        if(offset == 0 && length == size())
+            return this;
+        else {
+            checkArgument(offset + length <= size());
+            return new MessageBuffer(base, address + offset, length, reference);
+        }
     }
 
     public byte getByte(int index) {
@@ -379,6 +393,17 @@ public class MessageBuffer {
         }
     }
 
+    public ByteBuffer toByteBuffer() {
+        return toByteBuffer(0, size());
+    }
+
+    public byte[] toByteArray() {
+        byte[] b = new byte[size()];
+        unsafe.copyMemory(base, address, b, ARRAY_BYTE_BASE_OFFSET, size());
+        return b;
+    }
+
+
     public void relocate(int offset, int length, int dst) {
         unsafe.copyMemory(base, address + offset, base, address+dst, length);
     }
@@ -394,5 +419,15 @@ public class MessageBuffer {
         unsafe.copyMemory(base, address + index, dst.base, dst.address + offset, length);
     }
 
+
+    public String toHexString(int offset, int length) {
+        StringBuilder s = new StringBuilder();
+        for(int i=offset; i<length; ++i) {
+            if(i != offset)
+              s.append(" ");
+            s.append(String.format("%02x", getByte(i)));
+        }
+        return s.toString();
+    }
 
 }

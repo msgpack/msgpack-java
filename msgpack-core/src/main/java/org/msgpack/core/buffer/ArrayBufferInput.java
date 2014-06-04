@@ -12,17 +12,21 @@ public class ArrayBufferInput implements MessageBufferInput {
     private boolean isRead = false;
 
     public ArrayBufferInput(byte[] arr) {
-        this.buffer = MessageBuffer.wrap(checkNotNull(arr, "input array is null"));
+        this(arr, 0, arr.length);
     }
+
+    public ArrayBufferInput(byte[] arr, int offset, int length) {
+        checkArgument(offset + length <= arr.length);
+        this.buffer = MessageBuffer.wrap(checkNotNull(arr, "input array is null")).slice(offset, length);
+    }
+
 
     @Override
     public MessageBuffer next() throws IOException {
-        if(isRead) {
+        if(isRead)
             return null;
-        } else {
-            isRead = true;
-            return buffer;
-        }
+        isRead = true;
+        return buffer;
     }
 
     @Override

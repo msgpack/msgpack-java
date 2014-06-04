@@ -1,7 +1,6 @@
 package org.msgpack.core.buffer
 
 import java.nio.ByteBuffer
-import xerial.core.log.LogLevel
 import scala.util.Random
 import org.msgpack.core.MessagePackSpec
 
@@ -13,22 +12,9 @@ class MessageBufferTest extends MessagePackSpec {
 
   "MessageBuffer" should {
 
-    "get and put values" in {
-
-      val b = MessageBuffer.newBuffer(8192)
-
-      // Write int test
-      //b.putInt()
-
-
-
-
-    }
-
-
     "have better performance than ByteBuffer" in {
 
-      val N = 10000000
+      val N = 1000000
       val M = 64 * 1024 * 1024
 
       val ub = MessageBuffer.newBuffer(M)
@@ -55,11 +41,9 @@ class MessageBufferTest extends MessagePackSpec {
         }
       }
 
-      Thread.sleep(1000)
-
       val rep = 3
       info(f"Reading buffers (of size:${M}%,d) ${N}%,d x $rep times")
-      time("sequential getInt", repeat = rep, logLevel = LogLevel.INFO) {
+      time("sequential getInt", repeat = rep) {
         block("unsafe array") {
           var i = 0
           while(i < N) {
@@ -93,7 +77,7 @@ class MessageBufferTest extends MessagePackSpec {
         }
       }
 
-      time("random getInt", repeat = rep, logLevel = LogLevel.INFO) {
+      time("random getInt", repeat = rep) {
         block("unsafe array") {
           var i = 0
           while(i < N) {

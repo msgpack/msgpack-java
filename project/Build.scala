@@ -20,12 +20,14 @@ import sbt._
 import Keys._
 import xerial.sbt.Sonatype._
 import de.johoop.findbugs4sbt.FindBugs._
+import de.johoop.jacoco4sbt._
+import JacocoPlugin._
 
 object Build extends Build {
 
   val SCALA_VERSION = "2.10.3"
 
-  lazy val buildSettings = Defaults.defaultSettings ++ findbugsSettings ++
+  lazy val buildSettings = Defaults.defaultSettings ++ findbugsSettings ++ jacoco.settings ++
     Seq[Setting[_]](
       organization := "org.msgpack",
       organizationName := "MessagePack",
@@ -37,6 +39,10 @@ object Build extends Build {
       //parallelExecution in Test := false,
       autoScalaLibrary := false,
       crossPaths := false,
+      concurrentRestrictions in Global := Seq(
+        Tags.limit(Tags.Test, 1)
+      ),
+      parallelExecution in jacoco.Config := false,
       // Since sbt-0.13.2
       incOptions := incOptions.value.withNameHashing(true),
       //resolvers += Resolver.mavenLocal,

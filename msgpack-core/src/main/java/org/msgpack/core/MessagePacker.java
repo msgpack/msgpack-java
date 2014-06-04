@@ -19,10 +19,17 @@ import org.msgpack.core.buffer.MessageBuffer;
 import org.msgpack.core.buffer.MessageBufferOutput;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
+import java.io.Closeable;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CoderResult;
+import java.nio.charset.CodingErrorAction;
+
 import static org.msgpack.core.MessagePack.Code.*;
 import static org.msgpack.core.Preconditions.*;
 
@@ -44,11 +51,24 @@ import static org.msgpack.core.Preconditions.*;
  * </p>
  *
  */
-public class MessagePacker {
+public class MessagePacker implements Closeable {
+
+    private final MessagePack.Config config;
 
     private final MessageBufferOutput out;
     private final MessageBuffer buffer;
     private int position;
+
+
+    /**
+     * Buffer for encoding UTF8 strings
+     */
+    private ByteBuffer encodeBuffer;
+
+    /**
+     * String encoder
+     */
+    private CharsetEncoder encoder;
 
     public MessagePacker(OutputStream out) {
         this(new OutputStreamBufferOutput(out));
@@ -56,19 +76,31 @@ public class MessagePacker {
 
 
     public MessagePacker(MessageBufferOutput out) {
-        this(out, 8 * 1024);
+        this(out, MessagePack.DEFAULT_CONFIG);
     }
 
-    public MessagePacker(MessageBufferOutput out, int bufferSize) {
-        checkNotNull(out, "MessageBufferOutput is null");
-        this.out = out;
-        this.buffer = MessageBuffer.newDirectBuffer(bufferSize);
+    public MessagePacker(MessageBufferOutput out, MessagePack.Config config) {
+        this.config = checkNotNull(config, "config is null");
+        this.out = checkNotNull(out, "MessageBufferOutput is null");
+        this.buffer = MessageBuffer.newDirectBuffer(config.getPackerBufferSize());
         this.position = 0;
+    }
+
+
+    private void prepareEncoder() {
+        if(encoder == null) {
+            this.encodeBuffer = ByteBuffer.allocate(config.getStringEncoderBufferSize());
+            this.encoder = MessagePack.UTF8.newEncoder().onMalformedInput(config.getActionOnMalFormedInput()).onUnmappableCharacter(config.getActionOnMalFormedInput());
+        }
     }
 
     public void flush() throws IOException {
         out.flush(buffer, 0, position);
         position = 0;
+    }
+
+    private void flushBuffer(MessageBuffer b) throws IOException {
+        out.flush(b, 0, b.size());
     }
 
     public void close() throws IOException {
@@ -255,7 +287,7 @@ public class MessagePacker {
 
     public MessagePacker packBigInteger(BigInteger bi) throws IOException {
         if(bi.bitLength() <= 63) {
-            writeLong(bi.longValue());
+            packLong(bi.longValue());
         } else if(bi.bitLength() == 64 && bi.signum() == 1) {
             writeByteAndLong(UINT64, bi.longValue());
         } else {
@@ -282,9 +314,55 @@ public class MessagePacker {
      * @throws IOException
      */
     public MessagePacker packString(String s) throws IOException {
-        byte[] utf8 = s.getBytes(MessagePack.UTF8);
-        packRawStringHeader(utf8.length);
-        writePayload(utf8, 0, utf8.length);
+        if(s.length() > 0) {
+            CharBuffer in = CharBuffer.wrap(s);
+            prepareEncoder();
+
+            ByteBuffer preservedEncodeBuffer = encodeBuffer;
+            encodeBuffer.clear();
+            encoder.reset();
+            try {
+                while(in.hasRemaining()) {
+                    try {
+                        CoderResult cr = encoder.encode(in, encodeBuffer, true);
+
+                        if(cr.isUnderflow()) {
+                            cr = encoder.flush(encodeBuffer);
+                        }
+
+                        if(cr.isOverflow()) {
+                            // Allocate a larger buffer
+                            int estimatedRemainingSize = Math.max(1, (int) (in.remaining() * encoder.averageBytesPerChar()));
+                            encodeBuffer.flip();
+                            ByteBuffer newBuffer = ByteBuffer.allocate(Math.max((int) (encodeBuffer.capacity() * 1.5), encodeBuffer.remaining() + estimatedRemainingSize));
+                            newBuffer.put(encodeBuffer);
+                            encodeBuffer = newBuffer;
+                            encoder.reset();
+                            continue;
+                        }
+
+                        if(cr.isError()) {
+                            if((cr.isMalformed() && config.getActionOnMalFormedInput() == CodingErrorAction.REPORT) ||
+                               (cr.isUnmappable() && config.getActionOnUnmappableCharacter() == CodingErrorAction.REPORT)) {
+                                cr.throwException();
+                            }
+                        }
+                    } catch(CharacterCodingException e) {
+                        throw new MessageStringCodingException(e);
+                    }
+                }
+                encodeBuffer.flip();
+                packRawStringHeader(encodeBuffer.remaining());
+                writePayload(encodeBuffer);
+            }
+            finally {
+                // Reset the encode buffer
+                encodeBuffer = preservedEncodeBuffer;
+            }
+        }
+        else {
+            packRawStringHeader(0);
+        }
         return this;
     }
 
@@ -292,7 +370,7 @@ public class MessagePacker {
         if(arraySize < 0)
             throw new IllegalArgumentException("array size must be >= 0");
 
-        if(arraySize < (1 << 5)) {
+        if(arraySize < (1 << 4)) {
             writeByte((byte) (FIXARRAY_PREFIX | arraySize));
         } else if(arraySize < (1 << 16)) {
             writeByteAndShort(ARRAY16, (short) arraySize);
@@ -306,7 +384,7 @@ public class MessagePacker {
         if(mapSize < 0)
             throw new IllegalArgumentException("map size must be >= 0");
 
-        if(mapSize < (1 << 5)) {
+        if(mapSize < (1 << 4)) {
             writeByte((byte) (FIXMAP_PREFIX | mapSize));
         } else if(mapSize < (1 << 16)) {
             writeByteAndShort(MAP16, (short) mapSize);
@@ -370,20 +448,18 @@ public class MessagePacker {
         return this;
     }
 
-    private final int FLUSH_THRESHOLD = 512;
 
     public MessagePacker writePayload(ByteBuffer src) throws IOException {
-        if(src.remaining() >= FLUSH_THRESHOLD) {
+        if(src.remaining() >= config.getPackerRawDataCopyingThreshold()) {
             // Use the source ByteBuffer directly to avoid memory copy
 
             // First, flush the current buffer contents
             flush();
 
             // Wrap the input source as a MessageBuffer
-            // TODO Create MessageBuffer.wrap(ByteBuffer, offset, length);
-            MessageBuffer wrapped = MessageBuffer.wrap(src);
+            MessageBuffer wrapped = MessageBuffer.wrap(src).slice(src.position(), src.remaining());
             // Then, dump the source data to the output
-            out.flush(wrapped, src.position(), src.remaining());
+            flushBuffer(wrapped);
             src.position(src.limit());
         }
         else {
@@ -394,23 +470,26 @@ public class MessagePacker {
                 int writeLen = Math.min(buffer.size() - position, src.remaining());
                 buffer.putByteBuffer(position, src, writeLen);
                 position += writeLen;
-                src.position(src.position() + writeLen);
             }
         }
         return this;
     }
 
+    public MessagePacker writePayload(byte[] src) throws IOException {
+        return writePayload(src, 0, src.length);
+    }
+
     public MessagePacker writePayload(byte[] src, int off, int len) throws IOException {
-        if(len >= FLUSH_THRESHOLD) {
+        if(len >= config.getPackerRawDataCopyingThreshold()) {
             // Use the input array directory to avoid memory copy
 
             // Flush the current buffer contents
             flush();
 
             // Wrap the input array as a MessageBuffer
-            MessageBuffer wrapped = MessageBuffer.wrap(src);
+            MessageBuffer wrapped = MessageBuffer.wrap(src).slice(off, len);
             // Dump the source data to the output
-            out.flush(wrapped, off, len);
+            flushBuffer(wrapped);
         }
         else {
             int cursor = 0;

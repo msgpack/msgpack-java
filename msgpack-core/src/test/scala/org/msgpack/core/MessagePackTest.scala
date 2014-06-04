@@ -1,13 +1,36 @@
 package org.msgpack.core
 
-import xerial.core.log.LogLevel
 import scala.util.Random
 import MessagePack.Code
+import org.scalatest.prop.PropertyChecks
+import java.io.ByteArrayOutputStream
+import java.math.BigInteger
+import xerial.core.io.{Resource, IOUtil}
+import java.nio.{ByteBuffer, CharBuffer}
+import java.nio.charset.{Charset, UnmappableCharacterException, CodingErrorAction}
 
 /**
  * Created on 2014/05/07.
  */
-class MessagePackTest extends MessagePackSpec {
+class MessagePackTest extends MessagePackSpec  {
+
+  def isValidUTF8(s: String) = {
+    MessagePack.UTF8.newEncoder().canEncode(s)
+  }
+
+  def containsUnmappableCharacter(s: String) : Boolean = {
+    try {
+      MessagePack.UTF8.newEncoder().onUnmappableCharacter(CodingErrorAction.REPORT).encode(CharBuffer.wrap(s))
+      false
+    }
+    catch {
+      case e:UnmappableCharacterException =>
+        true
+      case _ : Exception => false
+    }
+
+  }
+
 
   "MessagePack" should {
     "detect fixint values" in {
@@ -21,12 +44,12 @@ class MessagePackTest extends MessagePackSpec {
       }
     }
 
-    "detect fixint fast" in {
+    "detect fixint quickly" in {
 
-      val N = 1000000
+      val N = 100000
       val idx = (0 until N).map(x => Random.nextInt(256).toByte).toArray[Byte]
 
-      time("check fixint", repeat = 1000, logLevel = LogLevel.INFO) {
+      time("check fixint", repeat = 100) {
 
         block("mask") {
           var i = 0
@@ -39,7 +62,7 @@ class MessagePackTest extends MessagePackSpec {
           }
         }
 
-        block("mask-f") {
+        block("mask in func") {
           var i = 0
           var count = 0
           while (i < N) {
@@ -50,7 +73,7 @@ class MessagePackTest extends MessagePackSpec {
           }
         }
 
-        block("shift") {
+        block("shift cmp") {
           var i = 0
           var count = 0
           while (i < N) {
@@ -78,6 +101,310 @@ class MessagePackTest extends MessagePackSpec {
 
     }
 
+    def check[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A) {
+      var b: Array[Byte] = null
+      try {
+        val bs = new ByteArrayOutputStream()
+        val packer = new MessagePacker(bs)
+        pack(packer)
+        packer.close()
+
+        b = bs.toByteArray
+
+        val unpacker = new MessageUnpacker(b)
+        val ret = unpack(unpacker)
+        ret shouldBe v
+      }
+      catch {
+        case e: Exception =>
+          warn(e.getMessage)
+          if (b != null)
+            warn(s"packed data (size:${b.length}): ${toHex(b)}")
+          throw e
+      }
+    }
+
+    def checkException[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A) {
+      var b: Array[Byte] = null
+      val bs = new ByteArrayOutputStream()
+      val packer = new MessagePacker(bs)
+      pack(packer)
+      packer.close()
+
+      b = bs.toByteArray
+
+      val unpacker = new MessageUnpacker(b)
+      val ret = unpack(unpacker)
+
+      fail("cannot not reach here")
+    }
+
+    def checkOverflow[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A) {
+      try {
+        checkException[A](v, pack, unpack)
+      }
+      catch {
+        case e:MessageIntegerOverflowException => // OK
+      }
+    }
+
+
+
+
+    "pack/unpack primitive values" taggedAs("prim") in {
+      forAll { (v: Boolean) => check(v, _.packBoolean(v), _.unpackBoolean)}
+      forAll { (v: Byte) => check(v, _.packByte(v), _.unpackByte)}
+      forAll { (v: Short) => check(v, _.packShort(v), _.unpackShort)}
+      forAll { (v: Int) => check(v, _.packInt(v), _.unpackInt)}
+      forAll { (v: Float) => check(v, _.packFloat(v), _.unpackFloat)}
+      forAll { (v: Long) => check(v, _.packLong(v), _.unpackLong)}
+      forAll { (v: Double) => check(v, _.packDouble(v), _.unpackDouble)}
+      check(null, _.packNil, _.unpackNil())
+    }
+
+    "pack/unpack integer values" taggedAs("int") in {
+      val sampleData = Seq[Long](Int.MinValue.toLong - 10, -65535, -8191, -1024, -255, -127, -63, -31, -15, -7, -3, -1, 0, 2, 4, 8, 16, 32, 64, 128, 256, 1024, 8192, 65536, Int.MaxValue.toLong + 10)
+      for(v <- sampleData) {
+        check(v, _.packLong(v), _.unpackLong)
+
+        if(v.isValidInt) {
+          val vi = v.toInt
+          check(vi, _.packInt(vi), _.unpackInt)
+        }
+        else {
+          checkOverflow(v, _.packLong(v), _.unpackInt)
+        }
+
+        if(v.isValidShort) {
+          val vi = v.toShort
+          check(vi, _.packShort(vi), _.unpackShort)
+        }
+        else {
+          checkOverflow(v, _.packLong(v), _.unpackShort)
+        }
+
+        if(v.isValidByte) {
+          val vi = v.toByte
+          check(vi, _.packByte(vi), _.unpackByte)
+        }
+        else {
+          checkOverflow(v, _.packLong(v), _.unpackByte)
+        }
+
+      }
+
+    }
+
+    "pack/unpack BigInteger" taggedAs("bi") in {
+      forAll { (a: Long) =>
+        val v = BigInteger.valueOf(a)
+        check(v, _.packBigInteger(v), _.unpackBigInteger)
+      }
+
+      for(bi <- Seq(BigInteger.valueOf(Long.MaxValue).add(BigInteger.valueOf(1)))) {
+        check(bi, _.packBigInteger(bi), _.unpackBigInteger())
+      }
+
+      for(bi <- Seq(BigInteger.valueOf(Long.MaxValue).shiftLeft(10))) {
+        try {
+          checkException(bi, _.packBigInteger(bi), _.unpackBigInteger())
+          fail("cannot reach here")
+        }
+        catch {
+          case e:IllegalArgumentException => // OK
+        }
+      }
+
+    }
+
+    "pack/unpack strings" taggedAs ("string") in {
+
+      forAll { (v: String) =>
+        whenever(isValidUTF8(v)) {
+          check(v, _.packString(v), _.unpackString)
+        }
+      }
+    }
+
+    "pack/unpack large strings" taggedAs ("large-string") in {
+      // Large string
+      val strLen = Seq(1000, 2000, 10000, 50000, 100000, 500000)
+      for(l <- strLen) {
+        val v : String = Iterator.continually(Random.nextString(l * 10)).find(isValidUTF8).get
+        check(v, _.packString(v), _.unpackString)
+      }
+    }
+
+    "report errors when packing/unpacking malformed strings" taggedAs("malformed") in {
+      // Create 100 malformed UTF8 Strings
+      val r = new Random(0)
+      val malformedStrings = Iterator.continually{
+        val b = new Array[Byte](10)
+        r.nextBytes(b)
+        b
+      }
+        .filter(b => !isValidUTF8(new String(b))).take(100)
+
+      for(malformedBytes <- malformedStrings) {
+        // Pack tests
+        val malformed = new String(malformedBytes)
+        try {
+          checkException(malformed, _.packString(malformed), _.unpackString())
+        }
+        catch {
+          case e: MessageStringCodingException => // OK
+        }
+
+        try {
+          checkException(malformed, { packer =>
+            packer.packRawStringHeader(malformedBytes.length)
+            packer.writePayload(malformedBytes)
+          },
+          _.unpackString())
+        }
+        catch {
+          case e: MessageStringCodingException => // OK
+        }
+      }
+    }
+
+    "report errors when packing/unpacking strings that contain unmappable characters" taggedAs("unmap") in {
+
+      val unmappable = Array[Byte](0xfc.toByte, 0x0a.toByte)
+      //val unmappableChar = Array[Char](new Character(0xfc0a).toChar)
+
+
+      for(bytes <- Seq(unmappable)) {
+        When("unpacking")
+        try {
+          checkException(bytes, { packer =>
+            packer.packRawStringHeader(bytes.length)
+            packer.writePayload(bytes)
+          }, _.unpackString())
+        }
+        catch {
+          case e:MessageStringCodingException => // OK
+        }
+
+//        When("packing")
+//        try {
+//          val s = new String(unmappableChar)
+//          checkException(s, _.packString(s), _.unpackString())
+//        }
+//        catch {
+//          case e:MessageStringCodingException => // OK
+//        }
+     }
+    }
+
+
+    "pack/unpack binary" taggedAs ("binary") in {
+      forAll { (v: Array[Byte]) =>
+        check(v, { packer => packer.packBinaryHeader(v.length); packer.writePayload(v)}, { unpacker =>
+          val len = unpacker.unpackBinaryHeader()
+          val out = new Array[Byte](len)
+          unpacker.readPayload(out, 0, len)
+          out
+        }
+        )
+      }
+
+      val len = Seq(1000, 2000, 10000, 50000, 100000, 500000)
+      for(l <- len) {
+        val v = new Array[Byte](l)
+        Random.nextBytes(v)
+        check(v, { packer => packer.packBinaryHeader(v.length); packer.writePayload(v)}, { unpacker =>
+          val len = unpacker.unpackBinaryHeader()
+          val out = new Array[Byte](len)
+          unpacker.readPayload(out, 0, len)
+          out
+        }
+        )
+      }
+    }
+
+    val testHeaderLength = Seq(1, 2, 4, 8, 16, 1000, 2000, 10000, 50000, 100000, 500000)
+
+
+    "pack/unpack arrays" taggedAs ("array") in {
+      forAll { (v: Array[Int]) =>
+        check(v, { packer =>
+          packer.packArrayHeader(v.length)
+          v.map(packer.packInt(_))
+        }, { unpacker =>
+          val len = unpacker.unpackArrayHeader()
+          val out = new Array[Int](len)
+          for (i <- 0 until v.length)
+            out(i) = unpacker.unpackInt
+          out
+        }
+        )
+      }
+
+      for(l <- testHeaderLength) {
+        check(l, _.packArrayHeader(l), _.unpackArrayHeader())
+      }
+
+      try {
+        checkException(0, _.packArrayHeader(-1), _.unpackArrayHeader)
+      }
+      catch {
+        case e: IllegalArgumentException => // OK
+      }
+
+    }
+
+    "pack/unpack maps" taggedAs ("map") in {
+      forAll { (v: Array[Int]) =>
+
+        val m = v.map(i => (i, i.toString))
+
+        check(m, { packer =>
+          packer.packMapHeader(v.length)
+          m.map { case (k: Int, v: String) =>
+            packer.packInt(k)
+            packer.packString(v)
+          }
+        }, { unpacker =>
+          val len = unpacker.unpackMapHeader()
+          val b = Seq.newBuilder[(Int, String)]
+          for (i <- 0 until len)
+            b += ((unpacker.unpackInt, unpacker.unpackString))
+          b.result
+        }
+        )
+      }
+
+      for(l <- testHeaderLength) {
+        check(l, _.packMapHeader(l), _.unpackMapHeader())
+      }
+
+      try {
+        checkException(0, _.packMapHeader(-1), _.unpackMapHeader)
+      }
+      catch {
+        case e: IllegalArgumentException => // OK
+      }
+
+
+    }
+
+    "pack/unpack extended types" taggedAs("ext") in {
+      forAll { (dataLen: Int, tpe: Int) =>
+        val l = Math.abs(dataLen)
+        val t = Math.abs(tpe) % 128
+        whenever(l >= 0) {
+          val ext = new ExtendedTypeHeader(l, t)
+          check(ext, _.packExtendedTypeHeader(ext.getType, ext.getLength), _.unpackExtendedTypeHeader())
+        }
+      }
+
+      for(l <- testHeaderLength) {
+        val ext = new ExtendedTypeHeader(l, Random.nextInt(128))
+        check(ext, _.packExtendedTypeHeader(ext.getType, ext.getLength), _.unpackExtendedTypeHeader())
+      }
+
+    }
 
   }
 }
