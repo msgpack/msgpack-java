@@ -26,7 +26,7 @@ import sbtrelease.ReleasePlugin._
 
 object Build extends Build {
 
-  val SCALA_VERSION = "2.10.3"
+  val SCALA_VERSION = "2.11.1"
 
   lazy val buildSettings = Defaults.defaultSettings ++
     releaseSettings ++
@@ -83,12 +83,12 @@ object Build extends Build {
     settings = buildSettings ++ sonatypeSettings ++ Seq(
       findbugs := {
         // do not run findbugs for the root project
-      }
-      // Do not publish root project
-      //publish := {},
-      //publishLocal := {}
+      },
+      // Do not publish the root project
+      publish := {},
+      publishLocal := {}
     )
-  ) aggregate(msgpackCore, msgpackValue)
+  ) aggregate(msgpackCore)
 
 
   lazy val msgpackCore = Project(
@@ -100,22 +100,12 @@ object Build extends Build {
     )
   )
 
-  lazy val msgpackValue = Project(
-    id = "msgpack-value",
-    base = file("msgpack-value"),
-    settings = buildSettings ++ Seq(
-      description := "Value reader/writer library of the MessagePack for Java",
-        libraryDependencies ++= testLib
-    )
-  ) dependsOn(msgpackCore)
-
-
   object Dependencies {
 
     val testLib = Seq(
-      "org.scalatest" % "scalatest_2.10" % "2.1.0-RC2" % "test",
-      "org.scalacheck" % "scalacheck_2.10" % "1.11.3" % "test",
-      "org.xerial" % "xerial-core" % "3.2.3" % "test",
+      "org.scalatest" % "scalatest_2.11" % "2.2.0" % "test",
+      "org.scalacheck" % "scalacheck_2.11" % "1.11.4" % "test",
+      "org.xerial" % "xerial-core" % "3.3.0" % "test",
       "org.msgpack" % "msgpack" % "0.6.9" % "test",
       "com.novocode" % "junit-interface" % "0.10" % "test"
     )

@@ -3,6 +3,7 @@ package org.msgpack.core
 import org.scalatest.exceptions.TestFailedException
 import org.msgpack.core.MessagePack.Code
 import scala.util.Random
+import org.msgpack.value.ValueType
 
 /**
  * Created on 2014/05/07.

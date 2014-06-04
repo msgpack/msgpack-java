@@ -2,6 +2,7 @@ package org.msgpack.core;
 
 import org.msgpack.core.MessagePack.Code;
 import org.msgpack.core.annotations.VisibleForTesting;
+import org.msgpack.value.ValueType;
 
 
 /**
@@ -88,8 +89,13 @@ public enum MessageFormat {
         return formatTable[b & 0xFF];
     }
 
+    /**
+     * Converting a byte value into MessageFormat. For faster performance, use {@link #valueOf}
+     * @param b
+     * @return
+     */
     @VisibleForTesting
-    static MessageFormat toMessageFormat(final byte b) {
+    public static MessageFormat toMessageFormat(final byte b) {
         if (Code.isPosFixInt(b)) {
             return POSFIXINT;
         }

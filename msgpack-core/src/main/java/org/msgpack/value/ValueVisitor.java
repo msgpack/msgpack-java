@@ -13,23 +13,22 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.core;
+package org.msgpack.value;
 
 /**
- * Thrown when the input message pack format is invalid
+ * Interface for implementing the visitor pattern on message-packed values
  */
-public class MessageFormatException extends MessagePackException {
+public interface ValueVisitor {
 
-    public MessageFormatException(Throwable e) {
-        super(e);
-    }
+    public void visitNil();
+    public void visitBoolean(boolean v);
+    public void visitInteger(IntegerValue v);
+    public void visitFloat(FloatValue v);
+    public void visitBinary(BinaryValue v);
+    public void visitString(StringValue v);
+    public void visitArray(ArrayValue v);
+    public void visitMap(MapValue v);
+    public void visitExtended(ExtendedValue v);
 
-
-    public MessageFormatException(String message) {
-        super(message);
-    }
-
-    public MessageFormatException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    public void onError(Exception e);
 }

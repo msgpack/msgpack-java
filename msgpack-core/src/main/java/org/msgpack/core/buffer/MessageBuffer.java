@@ -369,7 +369,14 @@ public class MessageBuffer {
             byte[] srcArray = src.array();
             unsafe.copyMemory(srcArray, ARRAY_BYTE_BASE_OFFSET + src.position(), base, address+index, len);
         } else {
-            throw new IllegalArgumentException("Only the array-backed ByteBuffer or DirectBuffer are supported");
+            if(base != null) {
+                src.get((byte []) base, index, len);
+            }
+            else {
+                for(int i=0; i<len; ++i) {
+                    unsafe.putByte(base, address + index, src.get());
+                }
+            }
         }
         src.position(src.position() + len);
     }

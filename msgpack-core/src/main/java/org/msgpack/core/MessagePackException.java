@@ -35,4 +35,11 @@ public class MessagePackException extends RuntimeException {
     public MessagePackException(Throwable cause) {
         super(cause);
     }
+
+
+    public static UnsupportedOperationException UNSUPPORTED(String operationName) {
+        return new UnsupportedOperationException(operationName);
+    }
+
+    public static IllegalStateException UNREACHABLE = new IllegalStateException("Cannot reach here");
 }

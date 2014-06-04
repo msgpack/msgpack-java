@@ -31,7 +31,6 @@ class MessagePackTest extends MessagePackSpec  {
 
   }
 
-
   "MessagePack" should {
     "detect fixint values" in {
 
@@ -234,6 +233,7 @@ class MessagePackTest extends MessagePackSpec  {
         check(v, _.packString(v), _.unpackString)
       }
     }
+
 
     "report errors when packing/unpacking malformed strings" taggedAs("malformed") in {
       // Create 100 malformed UTF8 Strings

@@ -13,23 +13,17 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.core;
+package org.msgpack.value;
+
+
+import org.msgpack.core.*;
 
 /**
- * Thrown when the input message pack format is invalid
+ * Value is a holder of a message-packed value.
  */
-public class MessageFormatException extends MessagePackException {
+public interface Value extends ValueRef {
 
-    public MessageFormatException(Throwable e) {
-        super(e);
-    }
+    public ArrayValue asArrayValue() throws MessageTypeException;
+    public MapValue asMapValue() throws MessageTypeException;
 
-
-    public MessageFormatException(String message) {
-        super(message);
-    }
-
-    public MessageFormatException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

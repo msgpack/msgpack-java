@@ -5,6 +5,7 @@ import xerial.core.log.{LogLevel, Logger}
 import xerial.core.util.{TimeReport, Timer}
 import scala.language.implicitConversions
 import org.scalatest.prop.PropertyChecks
+import java.io.ByteArrayOutputStream
 
 trait MessagePackSpec
   extends WordSpec
@@ -19,6 +20,18 @@ trait MessagePackSpec
   implicit def toTag(s:String) : Tag = Tag(s)
 
   def toHex(arr:Array[Byte]) = arr.map(x => f"$x%02x").mkString(" ")
+
+
+  def createMessagePackData(f: MessagePacker => Unit) : Array[Byte] = {
+    val b = new ByteArrayOutputStream()
+    val packer = new MessagePacker(b)
+    f(packer)
+    packer.close()
+    b.toByteArray
+  }
+
+
+
 
 }
 

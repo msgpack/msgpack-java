@@ -18,6 +18,7 @@ package org.msgpack.core;
 import org.msgpack.core.buffer.MessageBuffer;
 import org.msgpack.core.buffer.MessageBufferOutput;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
+import org.msgpack.value.Value;
 
 import java.io.Closeable;
 import java.io.OutputStream;
@@ -394,6 +395,23 @@ public class MessagePacker implements Closeable {
         return this;
     }
 
+    public MessagePacker pack(Value v) throws IOException {
+        v.writeTo(this);
+        return this;
+    }
+
+    public MessagePacker packExtendedType(int extType, byte[] src, int offset, int len) throws IOException {
+        return packExtendedTypeHeader(extType, len).writePayload(src, offset, len);
+    }
+
+    public MessagePacker packExtendedType(int extType, byte[] src) throws IOException {
+        return packExtendedType(extType, src, 0, src.length);
+    }
+
+    public MessagePacker packExtendedType(int extType, ByteBuffer src) throws IOException {
+        return packExtendedTypeHeader(extType, src.remaining()).writePayload(src);
+    }
+
     public MessagePacker packExtendedTypeHeader(int extType, int dataLen) throws IOException {
         if(dataLen < (1 << 8)) {
             if(dataLen > 0 && (dataLen & (dataLen - 1)) == 0) { // check whether dataLen == 2^x
@@ -424,6 +442,18 @@ public class MessagePacker implements Closeable {
         return this;
     }
 
+    public MessagePacker packBinary(byte[] src) throws IOException {
+        return packBinary(src, 0, src.length);
+    }
+
+    public MessagePacker packBinary(byte[] src, int offset, int len) throws IOException {
+        return packBinaryHeader(len).writePayload(src, offset, len);
+    }
+
+    public MessagePacker packBinary(ByteBuffer src) throws IOException {
+        return packBinaryHeader(src.remaining()).writePayload(src);
+    }
+
     public MessagePacker packBinaryHeader(int len) throws IOException {
         if(len < (1 << 8)) {
             writeByteAndByte(BIN8, (byte) len);
@@ -433,6 +463,10 @@ public class MessagePacker implements Closeable {
             writeByteAndInt(BIN32, len);
         }
         return this;
+    }
+
+    public MessagePacker packRawString(ByteBuffer src) throws IOException {
+        return packRawStringHeader(src.remaining()).writePayload(src);
     }
 
     public MessagePacker packRawStringHeader(int len) throws IOException {

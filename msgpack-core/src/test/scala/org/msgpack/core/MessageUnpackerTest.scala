@@ -3,6 +3,7 @@ package org.msgpack.core
 import java.io.{EOFException, ByteArrayInputStream, ByteArrayOutputStream}
 import scala.util.Random
 import org.msgpack.core.buffer.{MessageBuffer, MessageBufferInput, OutputStreamBufferOutput, ArrayBufferInput}
+import org.msgpack.value.ValueType
 
 /**
  * Created on 2014/05/07.
@@ -154,6 +155,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         readValue(unpacker)
       }
       count shouldBe 6
+      unpacker.getTotalReadBytes shouldBe arr.length
     }
 
     "skip reading values" in {
@@ -166,6 +168,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       }
 
       skipCount shouldBe 2
+      unpacker.getTotalReadBytes shouldBe testData.length
     }
 
     "compare skip performance" taggedAs("skip") in {
@@ -209,6 +212,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       }
 
       ib.result shouldBe intSeq
+      unpacker.getTotalReadBytes shouldBe testData2.length
 
     }
 
@@ -254,6 +258,7 @@ class MessageUnpackerTest extends MessagePackSpec {
               readValue(unpacker)
             }
             count shouldBe numElems
+            unpacker.getTotalReadBytes shouldBe data.length
           }
         }
       }
