@@ -13,7 +13,6 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  */
 public class InputStreamBufferInput implements MessageBufferInput {
 
-
     private static Field bufField;
     private static Field bufPosField;
     private static Field bufCountField;
@@ -41,7 +40,8 @@ public class InputStreamBufferInput implements MessageBufferInput {
     private boolean reachedEOF = false;
 
     public static MessageBufferInput newBufferInput(InputStream in) {
-        if(in instanceof ByteArrayInputStream) {
+        checkNotNull(in, "InputStream is null");
+        if(in.getClass() == ByteArrayInputStream.class) {
             ByteArrayInputStream b = (ByteArrayInputStream) in;
             try {
                 // Extract a raw byte array from the ByteArrayInputStream

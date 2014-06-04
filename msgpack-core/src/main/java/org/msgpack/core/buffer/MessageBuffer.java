@@ -114,10 +114,10 @@ public class MessageBuffer {
      * Reference is used to hold a reference to an object that holds the underlying memory so that it cannot be
      * released by the garbage collector.
      */
-    private final ByteBuffer reference;
+    protected final ByteBuffer reference;
 
     // TODO life-time managment of this buffer
-    private AtomicInteger referenceCounter;
+    //private AtomicInteger referenceCounter;
 
 
     static MessageBuffer newOffHeapBuffer(int length) {
@@ -243,7 +243,7 @@ public class MessageBuffer {
         this.reference = null;
     }
 
-    private MessageBuffer(Object base, long address, int length, ByteBuffer reference) {
+    protected MessageBuffer(Object base, long address, int length, ByteBuffer reference) {
         this.base = base;
         this.address = address;
         this.size = length;
@@ -261,8 +261,10 @@ public class MessageBuffer {
         // TODO ensure deleting this slice does not collapse this MessageBuffer
         if(offset == 0 && length == size())
             return this;
-        else
+        else {
+            checkArgument(offset + length <= size());
             return new MessageBuffer(base, address + offset, length, reference);
+        }
     }
 
     public byte getByte(int index) {
