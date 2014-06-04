@@ -11,7 +11,7 @@ import java.nio.CharBuffer
 /**
  * Created on 2014/05/07.
  */
-class MessagePackTest extends MessagePackSpec with PropertyChecks {
+class MessagePackTest extends MessagePackSpec  {
 
   def isValidUTF8(s: String) = {
     MessagePack.UTF8.newEncoder().canEncode(s)

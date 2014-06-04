@@ -304,10 +304,9 @@ class MessageUnpackerTest extends MessagePackSpec {
       t("v7").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
     }
 
+    import org.msgpack.`type`.{ValueType=>ValueTypeV6}
 
     "be faster than msgpack-v6 read value" taggedAs("cmp-unpack") in {
-
-      import org.msgpack.`type`.{ValueType=>ValueTypeV6}
 
       def readValueV6(unpacker:org.msgpack.unpacker.MessagePackUnpacker) {
         val vt = unpacker.getNextType()
@@ -406,6 +405,47 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       t("v7").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
 
+
+    }
+
+    "be faster for reading binary than v6" taggedAs("cmp-binary") in {
+
+      val bos = new ByteArrayOutputStream()
+      val packer = new MessagePacker(bos)
+      val L = 10000
+      val R = 100
+      (0 until R).foreach { i =>
+        packer.packBinaryHeader(L)
+        packer.writePayload(new Array[Byte](L))
+      }
+      packer.close()
+
+      val b = bos.toByteArray
+      time("unpackBinary", repeat=100) {
+        block("v6") {
+          val v6 = new org.msgpack.MessagePack()
+          val unpacker = new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(b))
+          var i = 0
+          while(i < R) {
+            val out = unpacker.readByteArray()
+            i += 1
+          }
+          unpacker.close()
+        }
+
+        block("v7") {
+          //val unpacker = new MessageUnpacker(b)
+          val unpacker = new MessageUnpacker(new ByteArrayInputStream(b))
+          var i = 0
+          while(i < R) {
+            val len = unpacker.unpackBinaryHeader()
+            val out = new Array[Byte](len)
+            unpacker.readPayload(out, 0, len)
+            i += 1
+          }
+          unpacker.close()
+        }
+      }
 
     }
 

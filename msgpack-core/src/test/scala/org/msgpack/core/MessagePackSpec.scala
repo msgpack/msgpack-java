@@ -4,8 +4,17 @@ import org.scalatest._
 import xerial.core.log.{LogLevel, Logger}
 import xerial.core.util.{TimeReport, Timer}
 import scala.language.implicitConversions
+import org.scalatest.prop.PropertyChecks
 
-trait MessagePackSpec extends WordSpec with Matchers with GivenWhenThen with OptionValues with BeforeAndAfter with Benchmark with Logger {
+trait MessagePackSpec
+  extends WordSpec
+  with Matchers
+  with GivenWhenThen
+  with OptionValues
+  with BeforeAndAfter
+  with PropertyChecks
+  with Benchmark
+  with Logger {
 
   implicit def toTag(s:String) : Tag = Tag(s)
 

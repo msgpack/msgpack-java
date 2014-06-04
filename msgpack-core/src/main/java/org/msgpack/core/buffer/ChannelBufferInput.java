@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 
-import static org.msgpack.core.Preconditions.checkNotNull;
+import static org.msgpack.core.Preconditions.*;
 
 /**
  * {@link MessageBufferInput} adapter for {@link java.nio.channels.ReadableByteChannel}
@@ -12,22 +12,35 @@ import static org.msgpack.core.Preconditions.checkNotNull;
 public class ChannelBufferInput implements MessageBufferInput {
 
     private final ReadableByteChannel channel;
+    private boolean reachedEOF = false;
+    private final int bufferSize;
 
     public ChannelBufferInput(ReadableByteChannel channel) {
+        this(channel, 8192);
+    }
+
+    public ChannelBufferInput(ReadableByteChannel channel, int bufferSize) {
         this.channel = checkNotNull(channel, "input channel is null");
+        checkArgument(bufferSize > 0, "buffer size must be > 0: " + bufferSize);
+        this.bufferSize = bufferSize;
     }
 
     @Override
     public MessageBuffer next() throws IOException {
-        MessageBuffer m = MessageBuffer.newBuffer(8192);
-        ByteBuffer b = m.toByteBuffer(0, m.size);
-        for(int ret = 0; (ret = channel.read(b)) != -1; ) {
+
+        if(reachedEOF)
+            return null;
+
+        MessageBuffer m = MessageBuffer.newBuffer(bufferSize);
+        ByteBuffer b = m.toByteBuffer();
+        while(!reachedEOF && b.remaining() > 0) {
+            int ret = channel.read(b);
+            if(ret == -1) {
+                reachedEOF = true;
+            }
         }
         b.flip();
-        if(b.remaining() < m.size)
-            return m.slice(0, b.remaining());
-        else
-            return m;
+        return b.remaining() == 0 ? null : m.slice(0, b.limit());
     }
 
     @Override

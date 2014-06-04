@@ -117,7 +117,7 @@ public class MessageUnpacker implements Closeable {
      * @param in
      */
     public MessageUnpacker(InputStream in) {
-        this(new InputStreamBufferInput(in));
+        this(InputStreamBufferInput.newBufferInput(in));
     }
 
     /**
@@ -990,6 +990,10 @@ public class MessageUnpacker implements Closeable {
             buffer.getBytes(position, l, dst);
             consume(l);
         }
+    }
+
+    public void readPayload(byte[] dst) throws IOException {
+        readPayload(dst, 0, dst.length);
     }
 
     /**
