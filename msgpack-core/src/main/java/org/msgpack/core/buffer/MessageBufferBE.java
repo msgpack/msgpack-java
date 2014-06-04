@@ -2,6 +2,8 @@ package org.msgpack.core.buffer;
 
 import java.nio.ByteBuffer;
 
+import static org.msgpack.core.Preconditions.checkArgument;
+
 /**
  * MessageBufferBE is a {@link MessageBuffer} implementation tailored to big-endian machines.
  * The specification of Message Pack demands writing short/int/float/long/double values in the big-endian format.
@@ -11,6 +13,20 @@ public class MessageBufferBE extends MessageBuffer {
 
     MessageBufferBE(ByteBuffer bb) {
         super(bb);
+    }
+
+    private MessageBufferBE(Object base, long address, int length, ByteBuffer reference) {
+        super(base, address, length, reference);
+    }
+
+    @Override
+    public MessageBufferBE slice(int offset, int length) {
+        if(offset == 0 && length == size())
+            return this;
+        else {
+            checkArgument(offset + length <= size());
+            return new MessageBufferBE(base, address + offset, length, reference);
+        }
     }
 
     @Override
