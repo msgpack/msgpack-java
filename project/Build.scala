@@ -22,19 +22,23 @@ import xerial.sbt.Sonatype._
 import de.johoop.findbugs4sbt.FindBugs._
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
+import sbtrelease.ReleasePlugin._
 
 object Build extends Build {
 
   val SCALA_VERSION = "2.10.3"
 
-  lazy val buildSettings = Defaults.defaultSettings ++ findbugsSettings ++ jacoco.settings ++
+  lazy val buildSettings = Defaults.defaultSettings ++
+    releaseSettings ++
+    findbugsSettings ++
+    jacoco.settings ++
+    sonatypeSettings ++
     Seq[Setting[_]](
       organization := "org.msgpack",
       organizationName := "MessagePack",
       organizationHomepage := Some(new URL("http://msgpack.org/")),
       description := "MessagePack for Java",
       scalaVersion in Global := SCALA_VERSION,
-      sbtVersion in Global := "0.13.2-M1",
       logBuffered in Test := false,
       //parallelExecution in Test := false,
       autoScalaLibrary := false,
@@ -80,6 +84,9 @@ object Build extends Build {
       findbugs := {
         // do not run findbugs for the root project
       }
+      // Do not publish root project
+      //publish := {},
+      //publishLocal := {}
     )
   ) aggregate(msgpackCore, msgpackValue)
 
