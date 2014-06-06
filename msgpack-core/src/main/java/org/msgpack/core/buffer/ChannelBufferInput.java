@@ -28,8 +28,9 @@ public class ChannelBufferInput implements MessageBufferInput {
     @Override
     public MessageBuffer next() throws IOException {
 
-        if(reachedEOF)
+        if(reachedEOF) {
             return null;
+        }
 
         MessageBuffer m = MessageBuffer.newBuffer(bufferSize);
         ByteBuffer b = m.toByteBuffer();
