@@ -445,11 +445,47 @@ class MessageUnpackerTest extends MessagePackSpec {
           }
           unpacker.close()
         }
+
+        block("v7-ref") {
+          val unpacker = new MessageUnpacker(new ByteArrayInputStream(b))
+          var i = 0
+          while(i < R) {
+            val len = unpacker.unpackBinaryHeader()
+            val out = unpacker.readPayloadAsReference(len)
+            i += 1
+          }
+          unpacker.close()
+        }
+      }
+    }
+
+    "read payload as a reference" taggedAs("ref") in {
+
+      val dataSizes = Seq(0, 1, 5, 8, 16, 32, 128, 256, 1024, 2000, 10000, 100000)
+
+      for(s <- dataSizes) {
+        When(f"data size is $s%,d")
+        val data = new Array[Byte](s)
+        Random.nextBytes(data)
+        val b = new ByteArrayOutputStream()
+        val packer = new MessagePacker(b)
+        packer.packBinaryHeader(s)
+        packer.writePayload(data)
+        packer.close()
+
+        val unpacker = new MessageUnpacker(b.toByteArray)
+        val len = unpacker.unpackBinaryHeader()
+        len shouldBe s
+        val ref = unpacker.readPayloadAsReference(len)
+        unpacker.close()
+        ref.size() shouldBe s
+        val stored = new Array[Byte](len)
+        ref.getBytes(0, stored, 0, len)
+
+        stored shouldBe data
       }
 
     }
-
-
 
   }
 
