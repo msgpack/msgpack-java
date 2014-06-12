@@ -202,6 +202,9 @@ public class MessageUnpacker implements Closeable {
      * @throws IOException
      */
     private boolean ensure(int byteSizeToRead) throws IOException {
+        if(byteSizeToRead == 0)
+            return true;
+
         if(!ensureBuffer())
             return false;
 
@@ -1014,6 +1017,16 @@ public class MessageUnpacker implements Closeable {
             consume(l);
             writtenLen += l;
         }
+    }
+
+    public MessageBuffer readPayloadAsReference(int length) throws IOException {
+        checkArgument(length >= 0);
+        if(!ensure(length))
+            throw new EOFException();
+
+        MessageBuffer ref = buffer.slice(position, length);
+        position += length;
+        return ref;
     }
 
 
