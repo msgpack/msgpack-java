@@ -12,6 +12,8 @@ import org.msgpack.MessageTypeException;
 import org.msgpack.testclasses.EnumTypeFieldsClass;
 import org.msgpack.testclasses.EnumTypeFieldsClassNotNullable;
 import org.msgpack.testclasses.FinalClass;
+import org.msgpack.testclasses.IndexedFieldsBeanClass;
+import org.msgpack.testclasses.IndexedFieldsBeanClassNotNullable;
 import org.msgpack.testclasses.InheritanceClass;
 import org.msgpack.testclasses.InheritanceClassNotNullable;
 import org.msgpack.testclasses.ListTypeFieldsClass;
@@ -432,6 +434,50 @@ public class TestSet {
     }
 
     public void testReferenceCycleTypeFieldsClassNotNullable(ReferenceCycleTypeFieldsClassNotNullable v) throws Exception {
+    }
+
+    public void testIndexedFieldsBeanClass() throws Exception {
+	testIndexedFieldsBeanClass(null);
+	testIndexedFieldsBeanClass(new IndexedFieldsBeanClass());
+	IndexedFieldsBeanClass v = new IndexedFieldsBeanClass();
+	v.f5 = "alpha";
+	v.f4 = "echo";
+	v.f3 = "bravo";
+	v.f2 = "delta";
+	v.f1 = "charlie";
+	testIndexedFieldsBeanClass(v);
+	testIndexedFieldsBeanClassFieldsUnpackedInOrder(v);
+    }
+
+    public void testIndexedFieldsBeanClass(IndexedFieldsBeanClass v) throws Exception {
+    }
+
+    public void testIndexedFieldsBeanClassFieldsUnpackedInOrder(IndexedFieldsBeanClass v) throws Exception {
+    }
+
+    public void testIndexedFieldsBeanClassNotNullable() throws Exception {
+	testIndexedFieldsBeanClassNotNullable(null);
+	try {
+	    testIndexedFieldsBeanClassNotNullable(new IndexedFieldsBeanClassNotNullable());
+	    Assert.fail();
+	} catch (Throwable t) {
+	    Assert.assertTrue(t instanceof MessageTypeException);
+	}
+
+	IndexedFieldsBeanClassNotNullable v = new IndexedFieldsBeanClassNotNullable();
+	v.f5 = "alpha";
+	v.f4 = "echo";
+	v.f3 = "bravo";
+	v.f2 = "delta";
+	v.f1 = "charlie";
+	testIndexedFieldsBeanClassNotNullable(v);
+	testIndexedFieldsBeanClassNotNullableFieldsUnpackedInOrder(v);
+    }
+
+    public void testIndexedFieldsBeanClassNotNullable(IndexedFieldsBeanClassNotNullable v) throws Exception {
+    }
+
+    public void testIndexedFieldsBeanClassNotNullableFieldsUnpackedInOrder(IndexedFieldsBeanClassNotNullable v) throws Exception {
     }
 
     public void testInheritanceClass() throws Exception {

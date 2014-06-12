@@ -131,7 +131,7 @@ public class ReflectionBeansTemplateBuilder extends ReflectionTemplateBuilder {
                     throw new TemplateBuildException("invalid index: " + index);
                 }
                 entries[index] = new BeansFieldEntry(p);
-                props[index] = null;
+                props[i] = null;
             }
         }
         int insertIndex = 0;

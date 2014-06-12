@@ -13,6 +13,8 @@ import org.msgpack.template.TemplateRegistry;
 import org.msgpack.template.Template;
 import org.msgpack.testclasses.AbstractClass;
 import org.msgpack.testclasses.FinalClass;
+import org.msgpack.testclasses.IndexedFieldsBeanClass;
+import org.msgpack.testclasses.IndexedFieldsBeanClassNotNullable;
 import org.msgpack.testclasses.InheritanceClass;
 import org.msgpack.testclasses.InheritanceClassNotNullable;
 import org.msgpack.testclasses.Interface;
@@ -403,6 +405,102 @@ public class TestReflectionBeansPackBufferUnpack extends TestSet {
 	unpacker.wrap(bytes);
 	ReferenceCycleTypeFieldsClassNotNullable ret = tmpl.read(unpacker, null);
 	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+
+    @Test @Override
+    public void testIndexedFieldsBeanClass() throws Exception {
+	super.testIndexedFieldsBeanClass();
+    }
+
+    @Override
+    public void testIndexedFieldsBeanClass(IndexedFieldsBeanClass v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	TemplateRegistry registry = new TemplateRegistry(null);
+	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
+	Template<IndexedFieldsBeanClass> tmpl = builder.buildTemplate(IndexedFieldsBeanClass.class);
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	tmpl.write(packer, v);
+	byte[] bytes = out.toByteArray();
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
+	unpacker.wrap(bytes);
+	IndexedFieldsBeanClass ret = tmpl.read(unpacker, null);
+	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+
+    @Override
+    public void testIndexedFieldsBeanClassFieldsUnpackedInOrder(IndexedFieldsBeanClass v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	TemplateRegistry registry = new TemplateRegistry(null);
+	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
+	Template<IndexedFieldsBeanClass> tmpl = builder.buildTemplate(IndexedFieldsBeanClass.class);
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	tmpl.write(packer, v);
+	byte[] bytes = out.toByteArray();
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
+	unpacker.wrap(bytes);
+
+	unpacker.readArrayBegin();
+	assertEquals("alpha", unpacker.readString());
+	assertEquals("bravo", unpacker.readString());
+	assertEquals("charlie", unpacker.readString());
+	assertEquals("delta", unpacker.readString());
+	assertEquals("echo", unpacker.readString());
+	unpacker.readArrayEnd();
+
+	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+
+    @Test @Override
+    public void testIndexedFieldsBeanClassNotNullable() throws Exception {
+	super.testIndexedFieldsBeanClassNotNullable();
+    }
+
+    @Override
+    public void testIndexedFieldsBeanClassNotNullable(IndexedFieldsBeanClassNotNullable v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	TemplateRegistry registry = new TemplateRegistry(null);
+	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
+	Template<IndexedFieldsBeanClassNotNullable> tmpl = builder.buildTemplate(IndexedFieldsBeanClassNotNullable.class);
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	tmpl.write(packer, v);
+	byte[] bytes = out.toByteArray();
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
+	unpacker.wrap(bytes);
+	IndexedFieldsBeanClassNotNullable ret = tmpl.read(unpacker, null);
+	assertEquals(v, ret);
+	assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+
+    @Override
+    public void testIndexedFieldsBeanClassNotNullableFieldsUnpackedInOrder(IndexedFieldsBeanClassNotNullable v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	TemplateRegistry registry = new TemplateRegistry(null);
+	ReflectionBeansTemplateBuilder builder = new ReflectionBeansTemplateBuilder(registry);
+	Template<IndexedFieldsBeanClassNotNullable> tmpl = builder.buildTemplate(IndexedFieldsBeanClassNotNullable.class);
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	tmpl.write(packer, v);
+	byte[] bytes = out.toByteArray();
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker();
+	unpacker.resetReadByteCount();
+	unpacker.wrap(bytes);
+
+	unpacker.readArrayBegin();
+	assertEquals("alpha", unpacker.readString());
+	assertEquals("bravo", unpacker.readString());
+	assertEquals("charlie", unpacker.readString());
+	assertEquals("delta", unpacker.readString());
+	assertEquals("echo", unpacker.readString());
+	unpacker.readArrayEnd();
+
 	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
 
