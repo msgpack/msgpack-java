@@ -3,14 +3,19 @@ package org.msgpack.jackson.dataformat.msgpack.msgpack;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.msgpack.core.MessageUnpacker;
 import org.msgpack.jackson.dataformat.msgpack.msgpack.MessagePackFactory;
 import org.msgpack.jackson.dataformat.msgpack.msgpack.MessagePackGenerator;
 import org.msgpack.jackson.dataformat.msgpack.msgpack.MessagePackParser;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -60,9 +65,8 @@ public class MessagePackFactoryTest {
         assertEquals(MessagePackParser.class, parser.getClass());
     }
 
-    /*
     @Test
-    public void test() throws IOException {
+    public void testGeneraterSimply() throws IOException {
         MessagePackFactory factory = new MessagePackFactory();
         factory.setCodec(new MessagePackCodec());
         ObjectMapper objectMapper = new ObjectMapper(factory);
@@ -73,9 +77,10 @@ public class MessagePackFactoryTest {
         MessageUnpacker messageUnpacker = new MessageUnpacker(bytes);
         assertEquals(2, messageUnpacker.unpackMapHeader());
 
+        /*
         Map<String, Object> result =
                 objectMapper.readValue(bytes, new TypeReference<Map<String, Object>>() {});
         assertEquals(hashMap, result);
+        */
     }
-    */
 }
