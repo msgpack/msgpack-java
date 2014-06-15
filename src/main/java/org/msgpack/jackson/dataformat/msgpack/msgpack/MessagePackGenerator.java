@@ -13,17 +13,24 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class MessagePackGenerator extends GeneratorBase {
     private MessagePacker messagePacker;
-    // TODO: manage these collection as a stack
-    private List<String> objectKeys;
-    private List<Object> objectValues;
+    private LinkedList<StackItem> stack;
+    private StackItem lastItem;
+
+    private static class StackItem {
+        List<String> objectKeys = new ArrayList<String>();
+        List<Object> objectValues = new ArrayList<Object>();
+    }
 
     public MessagePackGenerator(int features, ObjectCodec codec, OutputStream out) {
         super(features, codec);
         this.messagePacker = new MessagePacker(out);
+        this.stack = new LinkedList<StackItem>();
     }
 
     @Override
@@ -38,36 +45,46 @@ public class MessagePackGenerator extends GeneratorBase {
 
     @Override
     public void writeStartObject() throws IOException, JsonGenerationException {
-        _verifyValueWrite("start an object");
         _writeContext = _writeContext.createChildObjectContext();
-        if (objectKeys != null || objectValues != null) {
-            throw new IllegalStateException("objectKeys or objectValues is not null");
-        }
-        objectKeys = new ArrayList<String>();
-        objectValues = new ArrayList<Object>();
+        stack.push(new StackItem());
     }
 
     @Override
     public void writeEndObject() throws IOException, JsonGenerationException {
         if (!_writeContext.inObject()) {
-            _reportError("Current context not an object but "+_writeContext.getTypeDesc());
+            _reportError("Current context not an object but " + _writeContext.getTypeDesc());
         }
 
-        assertObjectKeysIsNotNull();
-        assertObjectValuesIsNotNull();
-
-        if (objectKeys.size() != objectValues.size()) {
+        if (getCurrentObjectKeys().size() != getCurrentObjectValues().size()) {
             throw new IllegalStateException(
                     String.format(
-                            "objectKeys.size() and objectValues.size() is not same: key=%d, value=%d",
-                            objectKeys.size(), objectValues.size()));
+                            "objectKeys.size() and objectValues.size() is not same: depth=%d, key=%d, value=%d",
+                            stack.size(), getCurrentObjectKeys().size(), getCurrentObjectValues().size()));
         }
-        int len = objectKeys.size();
-        
-        messagePacker.packMapHeader(len);
-        for (int i = 0; i < len; i++) {
-            messagePacker.packString(objectKeys.get(i));
-            Object v = objectValues.get(i);
+        _writeContext = _writeContext.getParent();
+        StackItem child = stack.pop();
+        if (stack.size() > 0) {
+            getCurrentObjectValues().add(child);
+        }
+        else {
+            if (lastItem != null) {
+                throw new IllegalStateException("lastItem is not null");
+            }
+            else {
+                lastItem = child;
+            }
+        }
+    }
+
+    private void packObject(StackItem stackItem) throws IOException {
+        List<String> keys = stackItem.objectKeys;
+        List<Object> values = stackItem.objectValues;
+
+        messagePacker.packMapHeader(keys.size());
+
+        for (int i = 0; i < keys.size(); i++) {
+            messagePacker.packString(keys.get(i));
+            Object v = values.get(i);
             if (v instanceof Integer) {
                 messagePacker.packInt((Integer) v);
             }
@@ -80,6 +97,10 @@ public class MessagePackGenerator extends GeneratorBase {
             else if (v instanceof Long) {
                 messagePacker.packLong((Long) v);
             }
+            else if (v instanceof StackItem) {
+                // TODO: for now, this is as a Object
+                packObject((StackItem) v);
+            }
             else if (v instanceof Double) {
                 messagePacker.packDouble((Double) v);
             }
@@ -90,143 +111,103 @@ public class MessagePackGenerator extends GeneratorBase {
                 // TODO
                 throw new NotImplementedException();
             }
-            // TODO: for Map and Array
+            // TODO: for Array
         }
-        
-        _writeContext = _writeContext.getParent();
     }
 
     @Override
     public void writeFieldName(String name) throws IOException, JsonGenerationException {
-        assertObjectKeysIsNotNull();
-
-        objectKeys.add(name);
+        getCurrentObjectKeys().add(name);
     }
 
     @Override
     public void writeString(String text) throws IOException, JsonGenerationException {
-        assertObjectValuesIsNotNull();
-
-        objectValues.add(text);
+        getCurrentObjectValues().add(text);
     }
 
     @Override
     public void writeString(char[] text, int offset, int len) throws IOException, JsonGenerationException {
-        assertObjectValuesIsNotNull();
-
-        objectValues.add(new String(text, offset, len));
+        getCurrentObjectValues().add(new String(text, offset, len));
     }
 
     @Override
     public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException, JsonGenerationException {
-        assertObjectValuesIsNotNull();
-
-        objectValues.add(new String(text, offset, length));
+        getCurrentObjectValues().add(new String(text, offset, length));
     }
 
     @Override
     public void writeUTF8String(byte[] text, int offset, int length) throws IOException, JsonGenerationException {
-        assertObjectValuesIsNotNull();
-
-        objectValues.add(new String(text, offset, length));
+        getCurrentObjectValues().add(new String(text, offset, length));
     }
 
     @Override
     public void writeRaw(String text) throws IOException, JsonGenerationException {
-        assertObjectValuesIsNotNull();
-
-        objectValues.add(text);
+        getCurrentObjectValues().add(text);
     }
 
     @Override
     public void writeRaw(String text, int offset, int len) throws IOException, JsonGenerationException {
-        assertObjectValuesIsNotNull();
-
-        objectValues.add(text.substring(0, len));
+        getCurrentObjectValues().add(text.substring(0, len));
     }
 
     @Override
     public void writeRaw(char[] text, int offset, int len) throws IOException, JsonGenerationException {
-        assertObjectValuesIsNotNull();
-
-        objectValues.add(new String(text, offset, len));
+        getCurrentObjectValues().add(new String(text, offset, len));
     }
 
     @Override
     public void writeRaw(char c) throws IOException, JsonGenerationException {
-        assertObjectValuesIsNotNull();
-
-        objectValues.add(String.valueOf(c));
+        getCurrentObjectValues().add(String.valueOf(c));
     }
 
     @Override
     public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len) throws IOException, JsonGenerationException {
-        assertObjectValuesIsNotNull();
-
         throw new NotImplementedException();
     }
 
     @Override
     public void writeNumber(int v) throws IOException, JsonGenerationException {
-        assertObjectValuesIsNotNull();
-
-        objectValues.add(Integer.valueOf(v));
+        getCurrentObjectValues().add(Integer.valueOf(v));
     }
 
     @Override
     public void writeNumber(long v) throws IOException, JsonGenerationException {
-        assertObjectValuesIsNotNull();
-
-        objectValues.add(Long.valueOf(v));
+        getCurrentObjectValues().add(Long.valueOf(v));
     }
 
     @Override
     public void writeNumber(BigInteger v) throws IOException, JsonGenerationException {
-        assertObjectValuesIsNotNull();
-
-        objectValues.add(v);
+        getCurrentObjectValues().add(v);
     }
 
     @Override
     public void writeNumber(double d) throws IOException, JsonGenerationException {
-        assertObjectValuesIsNotNull();
-
-        objectValues.add(Double.valueOf(d));
+        getCurrentObjectValues().add(Double.valueOf(d));
     }
 
     @Override
     public void writeNumber(float f) throws IOException, JsonGenerationException {
-        assertObjectValuesIsNotNull();
-
-        objectValues.add(Float.valueOf(f));
+        getCurrentObjectValues().add(Float.valueOf(f));
     }
 
     @Override
     public void writeNumber(BigDecimal dec) throws IOException, JsonGenerationException {
-        assertObjectValuesIsNotNull();
-
-        objectValues.add(dec);
+        getCurrentObjectValues().add(dec);
     }
 
     @Override
     public void writeNumber(String encodedValue) throws IOException, JsonGenerationException, UnsupportedOperationException {
-        assertObjectValuesIsNotNull();
-
         throw new NotImplementedException();
     }
 
     @Override
     public void writeBoolean(boolean state) throws IOException, JsonGenerationException {
-        assertObjectValuesIsNotNull();
-
-        objectValues.add(Boolean.valueOf(state));
+        getCurrentObjectValues().add(Boolean.valueOf(state));
     }
 
     @Override
     public void writeNull() throws IOException, JsonGenerationException {
-        assertObjectValuesIsNotNull();
-
-        objectValues.add(null);
+        getCurrentObjectValues().add(null);
     }
 
     @Override
@@ -236,7 +217,10 @@ public class MessagePackGenerator extends GeneratorBase {
 
     @Override
     public void flush() throws IOException {
-        messagePacker.flush();
+        if (lastItem != null) {
+            packObject(lastItem);
+            messagePacker.flush();
+        }
     }
 
     @Override
@@ -252,15 +236,18 @@ public class MessagePackGenerator extends GeneratorBase {
         }
     }
 
-    private void assertObjectKeysIsNotNull() {
-        if (objectKeys == null) {
-            throw new IllegalStateException("objectKeys is null");
+    private StackItem getCurrentStackItem() {
+        if (stack.isEmpty()) {
+            throw new IllegalStateException("The stack is empty");
         }
+        return stack.getFirst();
     }
 
-    private void assertObjectValuesIsNotNull() {
-        if (objectValues == null) {
-            throw new IllegalStateException("objectValues is null");
-        }
+    private List<String> getCurrentObjectKeys() {
+        return getCurrentStackItem().objectKeys;
+    }
+
+    private List<Object> getCurrentObjectValues() {
+        return getCurrentStackItem().objectValues;
     }
 }

@@ -14,7 +14,9 @@ import org.msgpack.jackson.dataformat.msgpack.msgpack.MessagePackGenerator;
 import org.msgpack.jackson.dataformat.msgpack.msgpack.MessagePackParser;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -66,16 +68,66 @@ public class MessagePackFactoryTest {
     }
 
     @Test
-    public void testGeneraterSimply() throws IOException {
+    public void testGeneratorSimply() throws IOException {
         MessagePackFactory factory = new MessagePackFactory();
         factory.setCodec(new MessagePackCodec());
         ObjectMapper objectMapper = new ObjectMapper(factory);
         Map<String, Object> hashMap = new HashMap<String, Object>();
-        hashMap.put("name", "komamitsu");
-        hashMap.put("age", 99);
+        hashMap.put("str", "komamitsu");
+        hashMap.put("int", Integer.MAX_VALUE);
+        hashMap.put("long", Long.MIN_VALUE);
+        hashMap.put("float", 3.14159f);
+        hashMap.put("double", 3.14159d);
+        Map<String, Object> childObj = new HashMap<String, Object>();
+        childObj.put("co_str", "child#0");
+        childObj.put("co_int", 12345);
+        hashMap.put("childObj", childObj);
+        /* TODO
+        List<Object> childArray = new ArrayList<Object>();
+        childArray.add("child#1");
+        childArray.add(1.23f);
+        hashMap.put("childArray", childArray);
+        */
+
         byte[] bytes = objectMapper.writeValueAsBytes(hashMap);
         MessageUnpacker messageUnpacker = new MessageUnpacker(bytes);
-        assertEquals(2, messageUnpacker.unpackMapHeader());
+        assertEquals(6, messageUnpacker.unpackMapHeader());
+        for (int i = 0; i < 6; i++) {
+            String key = messageUnpacker.unpackString();
+            if (key.equals("str")) {
+                assertEquals("komamitsu", messageUnpacker.unpackString());
+            }
+            else if (key.equals("int")) {
+                assertEquals(Integer.MAX_VALUE, messageUnpacker.unpackInt());
+            }
+            else if (key.equals("long")) {
+                assertEquals(Long.MIN_VALUE, messageUnpacker.unpackLong());
+            }
+            else if (key.equals("float")) {
+                assertEquals(3.14159f, messageUnpacker.unpackFloat(), 0.01f);
+            }
+            else if (key.equals("double")) {
+                assertEquals(3.14159d, messageUnpacker.unpackDouble(), 0.01f);
+            }
+            else if (key.equals("childObj")) {
+                assertEquals(2, messageUnpacker.unpackMapHeader());
+                for (int j = 0; j < 2; j++) {
+                    String childKey = messageUnpacker.unpackString();
+                    if (childKey.equals("co_str")) {
+                        assertEquals("child#0", messageUnpacker.unpackString());
+                    }
+                    else if (childKey.equals("co_int")) {
+                        assertEquals(12345, messageUnpacker.unpackInt());
+                    }
+                    else {
+                        assertTrue(false);
+                    }
+                }
+            }
+            else {
+                assertTrue(false);
+            }
+        }
 
         /*
         Map<String, Object> result =
