@@ -25,11 +25,19 @@ class CursorTest extends MessagePackSpec {
       packer.packInt(Random.nextInt(65536))
     }
   }
+  def binSeq(n:Int) = createMessagePackData { packer =>
+    (0 until n).foreach { i =>
+      val len = Random.nextInt(256)
+      val b = new Array[Byte](len)
+      Random.nextBytes(b)
+      packer.packBinary(b)
+    }
+  }
 
 
   "Cursor" should {
 
-    "has array cursor" taggedAs("array") in {
+    "have array cursor" taggedAs("array") in {
 
       val cursor = new MessageUnpacker(sampleData).getCursor
       // Traverse as references
@@ -40,6 +48,29 @@ class CursorTest extends MessagePackSpec {
       for(v <- arrCursor) {
         info(s"[${v.getValueType}]\t${v}")
       }
+    }
+
+    "traverse ValueRef faster than traversing Value" taggedAs("ref") in {
+      val N = 10000
+      val data = binSeq(N)
+
+      time("traversal", repeat=100) {
+        block("value") {
+          val cursor = new MessageUnpacker(data).getCursor
+          while(cursor.hasNext) {
+            cursor.next()
+          }
+          cursor.close()
+        }
+        block("value-ref") {
+          val cursor = new MessageUnpacker(data).getCursor
+          while(cursor.hasNext) {
+            cursor.nextRef()
+          }
+          cursor.close()
+        }
+      }
+
     }
 
     "have negligible overhead" taggedAs("perf") in {
