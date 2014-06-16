@@ -8,6 +8,8 @@ import java.io.ByteArrayOutputStream;
 import org.junit.Test;
 import org.msgpack.testclasses.EnumTypeFieldsClass;
 import org.msgpack.testclasses.EnumTypeFieldsClassNotNullable;
+import org.msgpack.testclasses.IndexedFieldsBeanClass;
+import org.msgpack.testclasses.IndexedFieldsBeanClassNotNullable;
 import org.msgpack.testclasses.InheritanceClass;
 import org.msgpack.testclasses.InheritanceClassNotNullable;
 import org.msgpack.testclasses.ListTypeFieldsClass;
@@ -2551,6 +2553,234 @@ public class TestMessagePack02 {
 	    MessagePack msgpack = new MessagePack();
 	    Value value = msgpack.unconvert(v);
 	    ReferenceCycleTypeFieldsClassNotNullable ret = msgpack.convert(value, ReferenceCycleTypeFieldsClassNotNullable.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestIndexedFieldsBeanClassBufferPackBufferUnpack extends org.msgpack.template.builder.TestSet {
+	@Test @Override
+	public void testIndexedFieldsBeanClass() throws Exception {
+	    super.testIndexedFieldsBeanClass();
+	}
+
+	@Override
+	public void testIndexedFieldsBeanClass(IndexedFieldsBeanClass v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    byte[] bytes = msgpack.write(v);
+	    IndexedFieldsBeanClass ret = msgpack.read(bytes, IndexedFieldsBeanClass.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestIndexedFieldsBeanClassBufferPackConvert extends org.msgpack.template.builder.TestSet {
+	@Test @Override
+	public void testIndexedFieldsBeanClass() throws Exception {
+	    super.testIndexedFieldsBeanClass();
+	}
+
+	@Override
+	public void testIndexedFieldsBeanClass(IndexedFieldsBeanClass v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    byte[] bytes = msgpack.write(v);
+	    Value value = msgpack.read(bytes);
+	    IndexedFieldsBeanClass ret = msgpack.convert(value, IndexedFieldsBeanClass.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestIndexedFieldsBeanClassBufferPackUnpack extends org.msgpack.template.builder.TestSet {
+	@Test @Override
+	public void testIndexedFieldsBeanClass() throws Exception {
+	    super.testIndexedFieldsBeanClass();
+	}
+
+	@Override
+	public void testIndexedFieldsBeanClass(IndexedFieldsBeanClass v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    byte[] bytes = msgpack.write(v);
+	    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+	    IndexedFieldsBeanClass ret = msgpack.read(in, IndexedFieldsBeanClass.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestIndexedFieldsBeanClassPackBufferUnpack extends org.msgpack.template.builder.TestSet {
+	@Test @Override
+	public void testIndexedFieldsBeanClass() throws Exception {
+	    super.testIndexedFieldsBeanClass();
+	}
+
+	@Override
+	public void testIndexedFieldsBeanClass(IndexedFieldsBeanClass v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    msgpack.write(out, v);
+	    byte[] bytes = out.toByteArray();
+	    IndexedFieldsBeanClass ret = msgpack.read(bytes, IndexedFieldsBeanClass.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestIndexedFieldsBeanClassPackConvert extends org.msgpack.template.builder.TestSet {
+	@Test @Override
+	public void testIndexedFieldsBeanClass() throws Exception {
+	    super.testIndexedFieldsBeanClass();
+	}
+
+	@Override
+	public void testIndexedFieldsBeanClass(IndexedFieldsBeanClass v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    msgpack.write(out, v);
+	    byte[] bytes = out.toByteArray();
+	    Value value = msgpack.read(bytes);
+	    IndexedFieldsBeanClass ret = msgpack.convert(value, IndexedFieldsBeanClass.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestIndexedFieldsBeanClassPackUnpack extends org.msgpack.template.builder.TestSet {
+	@Test @Override
+	public void testIndexedFieldsBeanClass() throws Exception {
+	    super.testIndexedFieldsBeanClass();
+	}
+
+	@Override
+	public void testIndexedFieldsBeanClass(IndexedFieldsBeanClass v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    msgpack.write(out, v);
+	    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+	    IndexedFieldsBeanClass ret = msgpack.read(in, IndexedFieldsBeanClass.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestIndexedFieldsBeanClassUnconvertConvert extends org.msgpack.template.builder.TestSet {
+	@Test @Override
+	public void testIndexedFieldsBeanClass() throws Exception {
+	    super.testIndexedFieldsBeanClass();
+	}
+
+	@Override
+	public void testIndexedFieldsBeanClass(IndexedFieldsBeanClass v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    Value value = msgpack.unconvert(v);
+	    IndexedFieldsBeanClass ret = msgpack.convert(value, IndexedFieldsBeanClass.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestIndexedFieldsBeanClassNotNullableBufferPackBufferUnpack extends org.msgpack.template.builder.TestSet {
+	@Test @Override
+	public void testIndexedFieldsBeanClassNotNullable() throws Exception {
+	    super.testIndexedFieldsBeanClassNotNullable();
+	}
+
+	@Override
+	public void testIndexedFieldsBeanClassNotNullable(IndexedFieldsBeanClassNotNullable v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    byte[] bytes = msgpack.write(v);
+	    IndexedFieldsBeanClassNotNullable ret = msgpack.read(bytes, IndexedFieldsBeanClassNotNullable.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestIndexedFieldsBeanClassNotNullableBufferPackConvert extends org.msgpack.template.builder.TestSet {
+	@Test @Override
+	public void testIndexedFieldsBeanClassNotNullable() throws Exception {
+	    super.testIndexedFieldsBeanClassNotNullable();
+	}
+
+	@Override
+	public void testIndexedFieldsBeanClassNotNullable(IndexedFieldsBeanClassNotNullable v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    byte[] bytes = msgpack.write(v);
+	    Value value = msgpack.read(bytes);
+	    IndexedFieldsBeanClassNotNullable ret = msgpack.convert(value, IndexedFieldsBeanClassNotNullable.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestIndexedFieldsBeanClassNotNullableBufferPackUnpack extends org.msgpack.template.builder.TestSet {
+	@Test @Override
+	public void testIndexedFieldsBeanClassNotNullable() throws Exception {
+	    super.testIndexedFieldsBeanClassNotNullable();
+	}
+
+	@Override
+	public void testIndexedFieldsBeanClassNotNullable(IndexedFieldsBeanClassNotNullable v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    byte[] bytes = msgpack.write(v);
+	    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+	    IndexedFieldsBeanClassNotNullable ret = msgpack.read(in, IndexedFieldsBeanClassNotNullable.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestIndexedFieldsBeanClassNotNullablePackBufferUnpack extends org.msgpack.template.builder.TestSet {
+	@Test @Override
+	public void testIndexedFieldsBeanClassNotNullable() throws Exception {
+	    super.testIndexedFieldsBeanClassNotNullable();
+	}
+
+	@Override
+	public void testIndexedFieldsBeanClassNotNullable(IndexedFieldsBeanClassNotNullable v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    msgpack.write(out, v);
+	    byte[] bytes = out.toByteArray();
+	    IndexedFieldsBeanClassNotNullable ret = msgpack.read(bytes, IndexedFieldsBeanClassNotNullable.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestIndexedFieldsBeanClassNotNullablePackConvert extends org.msgpack.template.builder.TestSet {
+	@Test @Override
+	public void testIndexedFieldsBeanClassNotNullable() throws Exception {
+	    super.testIndexedFieldsBeanClassNotNullable();
+	}
+
+	@Override
+	public void testIndexedFieldsBeanClassNotNullable(IndexedFieldsBeanClassNotNullable v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    msgpack.write(out, v);
+	    byte[] bytes = out.toByteArray();
+	    Value value = msgpack.read(bytes);
+	    IndexedFieldsBeanClassNotNullable ret = msgpack.convert(value, IndexedFieldsBeanClassNotNullable.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestIndexedFieldsBeanClassNotNullablePackUnpack extends org.msgpack.template.builder.TestSet {
+	@Test @Override
+	public void testIndexedFieldsBeanClassNotNullable() throws Exception {
+	    super.testIndexedFieldsBeanClassNotNullable();
+	}
+
+	@Override
+	public void testIndexedFieldsBeanClassNotNullable(IndexedFieldsBeanClassNotNullable v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    msgpack.write(out, v);
+	    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+	    IndexedFieldsBeanClassNotNullable ret = msgpack.read(in, IndexedFieldsBeanClassNotNullable.class);
+	    assertEquals(v, ret);
+	}
+    }
+
+    public static class TestIndexedFieldsBeanClassNotNullableUnconvertConvert extends org.msgpack.template.builder.TestSet {
+	@Test @Override
+	public void testIndexedFieldsBeanClassNotNullable() throws Exception {
+	    super.testIndexedFieldsBeanClassNotNullable();
+	}
+
+	@Override
+	public void testIndexedFieldsBeanClassNotNullable(IndexedFieldsBeanClassNotNullable v) throws Exception {
+	    MessagePack msgpack = new MessagePack();
+	    Value value = msgpack.unconvert(v);
+	    IndexedFieldsBeanClassNotNullable ret = msgpack.convert(value, IndexedFieldsBeanClassNotNullable.class);
 	    assertEquals(v, ret);
 	}
     }
