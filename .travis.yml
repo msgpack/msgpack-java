@@ -1,8 +1,12 @@
-language: java
+language: scala
+scala:
+   - 2.10.3
+
 jdk:
   - openjdk6
   - openjdk7
   - oraclejdk7
+
 branches:
   only:
     - master
