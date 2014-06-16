@@ -8,6 +8,9 @@ branches:
     - master
     - develop
     - v07
+
+script: sbt ++$TRAVIS_SCALA_VERSION test
+
 notifications:
   email:
     - muga.nishizawa@gmail.com
