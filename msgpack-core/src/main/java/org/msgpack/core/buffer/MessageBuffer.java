@@ -60,23 +60,21 @@ public class MessageBuffer {
             byteBufferConstructor.setAccessible(true);
 
             // Check the endian of this CPU
+
             boolean isLittleEndian = true;
-            long a = unsafe.allocateMemory(8);
-            try {
-                unsafe.putLong(a, 0x0102030405060708L);
-                byte b = unsafe.getByte(a);
-                switch (b) {
-                    case 0x01:
-                        isLittleEndian = false;
-                        break;
-                    case 0x08:
-                        isLittleEndian = true;
-                        break;
-                    default:
-                        assert false;
-                }
-            } finally {
-                unsafe.freeMemory(a);
+            byte[] a = new byte[8];
+            unsafe.putLong(a, ARRAY_BYTE_BASE_OFFSET, 0x0102030405060708L);
+            // TODO  Unsafe.getByte is not available in Android
+            byte b = unsafe.getByte(a, ARRAY_BYTE_BASE_OFFSET);
+            switch (b) {
+                case 0x01:
+                    isLittleEndian = false;
+                    break;
+                case 0x08:
+                    isLittleEndian = true;
+                    break;
+                default:
+                    assert false;
             }
 
             String bufferClsName = isLittleEndian ? "org.msgpack.core.buffer.MessageBuffer" : "org.msgpack.core.buffer.MessageBufferBE";
