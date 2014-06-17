@@ -38,7 +38,7 @@ public class ExtendedValueImpl extends RawValueImpl implements ExtendedValue {
     }
 
     @Override
-    public Value toValue() {
+    public ExtendedValue toValue() {
         return this;
     }
 

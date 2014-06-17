@@ -56,7 +56,7 @@ public class BooleanValueImpl extends AbstractValue implements BooleanValue {
         visitor.visitBoolean(value);
     }
     @Override
-    public Value toValue() {
+    public BooleanValue toValue() {
         return this;
     }
 

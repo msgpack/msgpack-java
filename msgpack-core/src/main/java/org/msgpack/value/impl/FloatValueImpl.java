@@ -142,7 +142,7 @@ public class FloatValueImpl extends AbstractValue implements FloatValue {
         visitor.visitFloat(this);
     }
     @Override
-    public Value toValue() {
+    public FloatValue toValue() {
         return this;
     }
 

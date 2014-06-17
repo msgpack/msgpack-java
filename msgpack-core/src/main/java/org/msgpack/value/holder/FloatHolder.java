@@ -132,7 +132,7 @@ public class FloatHolder extends AbstractValueRef implements FloatValue {
         visitor.visitFloat(this);
     }
     @Override
-    public Value toValue() {
+    public FloatValue toValue() {
         switch(tpe) {
             case FLOAT:
                 return ValueFactory.newFloat(toFloat());

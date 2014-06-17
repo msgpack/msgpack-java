@@ -54,7 +54,7 @@ public class NilValueImpl extends AbstractValue implements NilValue {
         visitor.visitNil();
     }
     @Override
-    public Value toValue() {
+    public NilValue toValue() {
         return instance;
     }
 }

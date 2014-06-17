@@ -32,6 +32,11 @@ public abstract class RawValueImpl extends AbstractValue implements RawValue {
     }
 
     @Override
+    public RawValue toValue() {
+        return this;
+    }
+
+    @Override
     public ByteBuffer toByteBuffer() {
         return byteBuffer.asReadOnlyBuffer();
     }

@@ -45,7 +45,7 @@ public class ExtHolder extends AbstractValueRef implements ExtendedValue {
         visitor.visitExtended(this);
     }
     @Override
-    public Value toValue() {
+    public ExtendedValue toValue() {
         // clone the buffer contents
         return ValueFactory.newExtendedValue(extType, buffer.toByteArray());
     }

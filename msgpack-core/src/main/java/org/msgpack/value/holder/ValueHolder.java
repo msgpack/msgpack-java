@@ -81,12 +81,13 @@ public class ValueHolder {
     public void setString(MessageBuffer rawString) {
         vt = ValueType.STRING;
         rawHolder.setString(rawString);
-        currentRef = rawHolder;
+        currentRef = rawHolder.asString();
     }
+
     public void setBinary(MessageBuffer b) {
         vt = ValueType.BINARY;
-        rawHolder.setBuffer(b);
-        currentRef = rawHolder;
+        rawHolder.setBinary(b);
+        currentRef = rawHolder.asBinary();
     }
 
     public void setToInteger() {

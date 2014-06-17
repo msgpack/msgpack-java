@@ -57,8 +57,8 @@ public class ArrayValueImpl extends AbstractValue implements ArrayValue {
         visitor.visitArray(this);
     }
     @Override
-    public Value toValue() {
-        return null;
+    public ArrayValue toValue() {
+        return this;
     }
 
     @Override

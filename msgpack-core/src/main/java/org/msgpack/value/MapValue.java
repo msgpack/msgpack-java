@@ -8,4 +8,6 @@ import java.util.Map;
 public interface MapValue extends Value, MapCursor {
     public Value[] toKeyValueSeq();
     public Map<Value, Value> toMap();
+
+    public MapValue toValue();
 }

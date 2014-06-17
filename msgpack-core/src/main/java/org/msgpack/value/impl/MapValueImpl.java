@@ -201,7 +201,7 @@ public class MapValueImpl extends AbstractValue implements MapValue {
     }
 
     @Override
-    public Value toValue() {
+    public MapValue toValue() {
         return ValueFactory.newMap(array);
     }
 

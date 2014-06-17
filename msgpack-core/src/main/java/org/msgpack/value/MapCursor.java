@@ -31,4 +31,5 @@ public interface MapCursor extends ValueRef {
      */
     public void skipAll();
 
+    MapValue toValue();
 }

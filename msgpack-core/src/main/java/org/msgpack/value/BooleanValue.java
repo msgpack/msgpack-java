@@ -5,4 +5,5 @@ package org.msgpack.value;
 */
 public interface BooleanValue extends Value {
     public boolean toBoolean();
+    public BooleanValue toValue();
 }

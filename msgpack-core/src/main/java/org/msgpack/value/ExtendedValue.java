@@ -5,4 +5,5 @@ package org.msgpack.value;
 */
 public interface ExtendedValue extends RawValue {
     public int getExtType();
+    public ExtendedValue toValue();
 }

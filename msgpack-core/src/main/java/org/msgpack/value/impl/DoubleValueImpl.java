@@ -127,7 +127,7 @@ public class DoubleValueImpl extends AbstractValue implements FloatValue {
     }
 
     @Override
-    public Value toValue() {
+    public FloatValue toValue() {
         return ValueFactory.newDouble(value);
     }
     @Override

@@ -18,4 +18,7 @@ public interface ArrayCursor extends ValueRef, Iterable<ValueRef> {
     public void skipAll();
 
     public Iterator<ValueRef> iterator();
+
+    public ArrayValue toValue();
+
 }

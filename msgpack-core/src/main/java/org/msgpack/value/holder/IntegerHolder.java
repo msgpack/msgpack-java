@@ -43,7 +43,7 @@ public class IntegerHolder extends AbstractValueRef implements IntegerValue {
     }
 
     @Override
-    public Value toValue() {
+    public IntegerValue toValue() {
         switch(tpe){
             case BYTE:
                 return ValueFactory.newByte(toByte());

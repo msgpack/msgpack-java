@@ -15,4 +15,6 @@ public interface RawValue extends Value {
 
     @Override
     public String toString();
+
+    public RawValue toValue();
 }

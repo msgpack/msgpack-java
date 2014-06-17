@@ -18,5 +18,6 @@ public interface ArrayValue extends Value, ArrayCursor {
     public Value get(int index);
     public Value apply(int index);
 
+    public ArrayValue toValue();
 
 }

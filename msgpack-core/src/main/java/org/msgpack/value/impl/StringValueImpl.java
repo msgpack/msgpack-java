@@ -55,7 +55,7 @@ public class StringValueImpl extends AbstractValue implements StringValue {
         visitor.visitString(this);
     }
     @Override
-    public Value toValue() {
+    public StringValue toValue() {
         return ValueFactory.newString(value);
     }
 
