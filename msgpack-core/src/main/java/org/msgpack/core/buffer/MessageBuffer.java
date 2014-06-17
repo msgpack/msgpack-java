@@ -23,6 +23,7 @@ public class MessageBuffer {
 
     static final Unsafe unsafe;
     static final Constructor byteBufferConstructor;
+    static final boolean isByteBufferConstructorTakesBufferReference;
     static final int ARRAY_BYTE_BASE_OFFSET;
     static final int ARRAY_BYTE_INDEX_SCALE;
 
@@ -56,7 +57,19 @@ public class MessageBuffer {
 
             // Find the hidden constructor for DirectByteBuffer
             Class<?> directByteBufferClass = ClassLoader.getSystemClassLoader().loadClass("java.nio.DirectByteBuffer");
-            byteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
+            Constructor directByteBufferConstructor = null;
+            boolean isAcceptReference = true;
+            try {
+                directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
+            }
+            catch(NoSuchMethodError e) {
+                directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class);
+                isAcceptReference = true;
+            }
+            byteBufferConstructor = directByteBufferConstructor;
+            isByteBufferConstructorTakesBufferReference = isAcceptReference;
+            if(byteBufferConstructor == null)
+                throw new RuntimeException("Constructor of DirectByteBuffer is not found");
             byteBufferConstructor.setAccessible(true);
 
             // Check the endian of this CPU
@@ -389,7 +402,10 @@ public class MessageBuffer {
             return ByteBuffer.wrap((byte[]) base, (int) ((address-ARRAY_BYTE_BASE_OFFSET) + index), length);
         }
         try {
-            return (ByteBuffer) byteBufferConstructor.newInstance(address + index, length, reference);
+            if(isByteBufferConstructorTakesBufferReference)
+                return (ByteBuffer) byteBufferConstructor.newInstance(address + index, length, reference);
+            else
+                return (ByteBuffer) byteBufferConstructor.newInstance(address + index, length);
         } catch(Throwable e) {
             // Convert checked exception to unchecked exception
             throw new RuntimeException(e);
