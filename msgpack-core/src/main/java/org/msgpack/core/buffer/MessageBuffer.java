@@ -7,7 +7,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicInteger;
 import static org.msgpack.core.Preconditions.*;
 
 /**
@@ -62,7 +61,7 @@ public class MessageBuffer {
             try {
                 directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
             }
-            catch(NoSuchMethodError e) {
+            catch(NoSuchMethodException e) {
                 directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class);
                 isAcceptReference = true;
             }
