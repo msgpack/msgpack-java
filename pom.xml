@@ -39,7 +39,6 @@
 
     <modules>
         <module>msgpack-core</module>
-        <module>msgpack-value</module>
     </modules>
 
     <dependencyManagement>

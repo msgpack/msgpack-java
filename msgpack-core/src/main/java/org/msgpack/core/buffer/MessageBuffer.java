@@ -60,13 +60,10 @@ public class MessageBuffer {
             byteBufferConstructor.setAccessible(true);
 
             // Check the endian of this CPU
-
             boolean isLittleEndian = true;
             byte[] a = new byte[8];
-            unsafe.putLong(a, ARRAY_BYTE_BASE_OFFSET, 0x0102030405060708L);
-            // TODO  Unsafe.getByte is not available in Android
-            byte b = unsafe.getByte(a, ARRAY_BYTE_BASE_OFFSET);
-            switch (b) {
+            unsafe.putLong(a, (long) ARRAY_BYTE_BASE_OFFSET, 0x0102030405060708L);
+            switch (a[0]) {
                 case 0x01:
                     isLittleEndian = false;
                     break;
@@ -81,6 +78,7 @@ public class MessageBuffer {
             msgBufferClass = Class.forName(bufferClsName);
         }
         catch (Exception e) {
+            e.printStackTrace(System.err);
             throw new RuntimeException(e);
         }
     }
