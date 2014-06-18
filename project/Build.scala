@@ -85,6 +85,11 @@ object Build extends Build {
               <url>https://github.com/oza</url>
             </developer>
             <developer>
+              <id>komamitsu</id>
+              <name>Mitsunori Komatsu</name>
+              <email>komamitsu@gmail.com</email>
+            </developer>
+            <developer>
               <id>xerial</id>
               <name>Taro L. Saito</name>
               <email>leo@xerial.org</email>
