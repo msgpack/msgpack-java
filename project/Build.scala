@@ -32,7 +32,6 @@ object Build extends Build {
     releaseSettings ++
     findbugsSettings ++
     jacoco.settings ++
-    sonatypeSettings ++
     Seq[Setting[_]](
       organization := "org.msgpack",
       organizationName := "MessagePack",
@@ -69,6 +68,28 @@ object Build extends Build {
             <scala.version>{SCALA_VERSION}</scala.version>
             <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
           </properties>
+          <developers>
+            <developer>
+              <id>frsyuki</id>
+              <name>Sadayuki Furuhashi</name>
+              <email>frsyuki@users.sourceforge.jp</email>
+            </developer>
+            <developer>
+              <id>muga</id>
+              <name>Muga Nishizawa</name>
+              <email>muga.nishizawa@gmail.com</email>
+            </developer>
+            <developer>
+              <id>oza</id>
+              <name>Tsuyoshi Ozawa</name>
+              <url>https://github.com/oza</url>
+            </developer>
+            <developer>
+              <id>xerial</id>
+              <name>Taro L. Saito</name>
+              <email>leo@xerial.org</email>
+            </developer>
+          </developers>
       },
       findbugsReportType := Some(ReportType.FancyHtml),
       findbugsReportPath := Some(crossTarget.value / "findbugs" / "report.html")
@@ -80,13 +101,12 @@ object Build extends Build {
   lazy val root = Project(
     id = "msgpack-java",
     base = file("."),
-    settings = buildSettings ++ sonatypeSettings ++ Seq(
+    settings = buildSettings ++ Seq(
       findbugs := {
         // do not run findbugs for the root project
       },
       // Do not publish the root project
-      publish := {},
-      publishLocal := {}
+      publishArtifact := false
     )
   ) aggregate(msgpackCore)
 
@@ -94,7 +114,7 @@ object Build extends Build {
   lazy val msgpackCore = Project(
     id = "msgpack-core",
     base = file("msgpack-core"),
-    settings = buildSettings ++ Seq(
+    settings = buildSettings ++ sonatypeSettings ++ Seq(
       description := "Core library of the MessagePack for Java",
       libraryDependencies ++= testLib
     )
