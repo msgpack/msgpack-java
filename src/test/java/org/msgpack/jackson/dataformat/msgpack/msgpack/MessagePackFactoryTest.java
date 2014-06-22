@@ -68,7 +68,7 @@ public class MessagePackFactoryTest {
     }
 
     @Test
-    public void testGeneratorSimply() throws IOException {
+    public void testGeneratorShouldWriteObject() throws IOException {
         MessagePackFactory factory = new MessagePackFactory();
         factory.setCodec(new MessagePackCodec());
         ObjectMapper objectMapper = new ObjectMapper(factory);
@@ -134,5 +134,27 @@ public class MessagePackFactoryTest {
                 objectMapper.readValue(bytes, new TypeReference<Map<String, Object>>() {});
         assertEquals(hashMap, result);
         */
+    }
+
+    @Test
+    public void testGeneratorShouldWriteArray() throws IOException {
+        MessagePackFactory factory = new MessagePackFactory();
+        factory.setCodec(new MessagePackCodec());
+        ObjectMapper objectMapper = new ObjectMapper(factory);
+        List<Object> array = new ArrayList<Object>();
+        array.add("komamitsu");
+        array.add(Integer.MAX_VALUE);
+        array.add(Long.MIN_VALUE);
+        array.add(3.14159f);
+        array.add(3.14159d);
+
+        byte[] bytes = objectMapper.writeValueAsBytes(array);
+        MessageUnpacker messageUnpacker = new MessageUnpacker(bytes);
+        assertEquals(5, messageUnpacker.unpackArrayHeader());
+        assertEquals("komamitsu", messageUnpacker.unpackString());
+        assertEquals(Integer.MAX_VALUE, messageUnpacker.unpackInt());
+        assertEquals(Long.MIN_VALUE, messageUnpacker.unpackLong());
+        assertEquals(3.14159f, messageUnpacker.unpackFloat(), 0.01f);
+        assertEquals(3.14159d, messageUnpacker.unpackDouble(), 0.01f);
     }
 }
