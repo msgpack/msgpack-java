@@ -135,19 +135,21 @@ class RawHolderImpl extends AbstractValueRef implements RawValue {
 public class RawHolder extends RawHolderImpl {
 
     private static class StringValueWrap extends RawHolderImpl implements StringValue {
+        @Override
         public StringValue toValue() {
             return ValueFactory.newRawString(buf.toByteArray());
         }
     }
 
     private static class BinaryValueWrap extends RawHolderImpl implements BinaryValue {
+        @Override
         public BinaryValue toValue() {
             return ValueFactory.newBinary(buf.toByteArray());
         }
     }
 
-    private StringValueWrap stringWrap = new StringValueWrap();
-    private BinaryValueWrap binaryWrap = new BinaryValueWrap();
+    private final StringValueWrap stringWrap = new StringValueWrap();
+    private final BinaryValueWrap binaryWrap = new BinaryValueWrap();
 
     @Override
     public void setString(MessageBuffer buf) {
@@ -180,6 +182,7 @@ public class RawHolder extends RawHolderImpl {
     public ByteBuffer toByteBuffer() {
         switch(tpe) {
             case STRING:
+            case BINARY:
                 return buf.toByteBuffer();
             default:
                 throw UNREACHABLE;
