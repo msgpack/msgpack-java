@@ -82,32 +82,37 @@ public class MessagePackFactoryTest {
         childObj.put("co_str", "child#0");
         childObj.put("co_int", 12345);
         hashMap.put("childObj", childObj);
-        /* TODO
+
         List<Object> childArray = new ArrayList<Object>();
         childArray.add("child#1");
         childArray.add(1.23f);
         hashMap.put("childArray", childArray);
-        */
 
+        long bitmap = 0;
         byte[] bytes = objectMapper.writeValueAsBytes(hashMap);
         MessageUnpacker messageUnpacker = new MessageUnpacker(bytes);
-        assertEquals(6, messageUnpacker.unpackMapHeader());
-        for (int i = 0; i < 6; i++) {
+        assertEquals(hashMap.size(), messageUnpacker.unpackMapHeader());
+        for (int i = 0; i < hashMap.size(); i++) {
             String key = messageUnpacker.unpackString();
             if (key.equals("str")) {
                 assertEquals("komamitsu", messageUnpacker.unpackString());
+                bitmap |= 0x1 << 0;
             }
             else if (key.equals("int")) {
                 assertEquals(Integer.MAX_VALUE, messageUnpacker.unpackInt());
+                bitmap |= 0x1 << 1;
             }
             else if (key.equals("long")) {
                 assertEquals(Long.MIN_VALUE, messageUnpacker.unpackLong());
+                bitmap |= 0x1 << 2;
             }
             else if (key.equals("float")) {
                 assertEquals(3.14159f, messageUnpacker.unpackFloat(), 0.01f);
+                bitmap |= 0x1 << 3;
             }
             else if (key.equals("double")) {
                 assertEquals(3.14159d, messageUnpacker.unpackDouble(), 0.01f);
+                bitmap |= 0x1 << 4;
             }
             else if (key.equals("childObj")) {
                 assertEquals(2, messageUnpacker.unpackMapHeader());
@@ -115,25 +120,28 @@ public class MessagePackFactoryTest {
                     String childKey = messageUnpacker.unpackString();
                     if (childKey.equals("co_str")) {
                         assertEquals("child#0", messageUnpacker.unpackString());
+                        bitmap |= 0x1 << 5;
                     }
                     else if (childKey.equals("co_int")) {
                         assertEquals(12345, messageUnpacker.unpackInt());
+                        bitmap |= 0x1 << 6;
                     }
                     else {
                         assertTrue(false);
                     }
                 }
             }
+            else if (key.equals("childArray")) {
+                assertEquals(2, messageUnpacker.unpackArrayHeader());
+                assertEquals("child#1", messageUnpacker.unpackString());
+                assertEquals(1.23f, messageUnpacker.unpackFloat(), 0.01f);
+                bitmap |= 0x1 << 6;
+            }
             else {
                 assertTrue(false);
             }
         }
-
-        /*
-        Map<String, Object> result =
-                objectMapper.readValue(bytes, new TypeReference<Map<String, Object>>() {});
-        assertEquals(hashMap, result);
-        */
+        assertEquals(0x7F, bitmap);
     }
 
     @Test
@@ -147,14 +155,35 @@ public class MessagePackFactoryTest {
         array.add(Long.MIN_VALUE);
         array.add(3.14159f);
         array.add(3.14159d);
+        Map<String, Object> childObject = new HashMap<String, Object>();
+        childObject.put("str", "foobar");
+        childObject.put("num", 123456);
+        array.add(childObject);
 
+        long bitmap = 0;
         byte[] bytes = objectMapper.writeValueAsBytes(array);
         MessageUnpacker messageUnpacker = new MessageUnpacker(bytes);
-        assertEquals(5, messageUnpacker.unpackArrayHeader());
+        assertEquals(array.size(), messageUnpacker.unpackArrayHeader());
         assertEquals("komamitsu", messageUnpacker.unpackString());
         assertEquals(Integer.MAX_VALUE, messageUnpacker.unpackInt());
         assertEquals(Long.MIN_VALUE, messageUnpacker.unpackLong());
         assertEquals(3.14159f, messageUnpacker.unpackFloat(), 0.01f);
         assertEquals(3.14159d, messageUnpacker.unpackDouble(), 0.01f);
+        assertEquals(2, messageUnpacker.unpackMapHeader());
+        for (int i = 0; i < childObject.size(); i++) {
+            String key = messageUnpacker.unpackString();
+            if (key.equals("str")) {
+                assertEquals("foobar", messageUnpacker.unpackString());
+                bitmap |= 0x1 << 0;
+            }
+            else if (key.equals("num")) {
+                assertEquals(123456, messageUnpacker.unpackInt());
+                bitmap |= 0x1 << 1;
+            }
+            else {
+                assertTrue(false);
+            }
+        }
+        assertEquals(0x3, bitmap);
     }
 }
