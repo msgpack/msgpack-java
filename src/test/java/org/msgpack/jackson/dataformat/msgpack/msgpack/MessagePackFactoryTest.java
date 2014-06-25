@@ -8,12 +8,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
-import org.msgpack.jackson.dataformat.msgpack.msgpack.MessagePackFactory;
-import org.msgpack.jackson.dataformat.msgpack.msgpack.MessagePackGenerator;
-import org.msgpack.jackson.dataformat.msgpack.msgpack.MessagePackParser;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,12 +23,15 @@ import static org.junit.Assert.assertTrue;
 
 public class MessagePackFactoryTest {
     MessagePackFactory factory;
-    private OutputStream out;
-    private InputStream in;
+    private ByteArrayOutputStream out;
+    private ByteArrayInputStream in;
+    private ObjectMapper objectMapper;
 
     @Before
     public void setup() {
         factory = new MessagePackFactory();
+        factory.setCodec(new MessagePackCodec());
+        objectMapper = new ObjectMapper(factory);
         out = new ByteArrayOutputStream();
         in = new ByteArrayInputStream(new byte[4096]);
     }
@@ -69,9 +71,6 @@ public class MessagePackFactoryTest {
 
     @Test
     public void testGeneratorShouldWriteObject() throws IOException {
-        MessagePackFactory factory = new MessagePackFactory();
-        factory.setCodec(new MessagePackCodec());
-        ObjectMapper objectMapper = new ObjectMapper(factory);
         Map<String, Object> hashMap = new HashMap<String, Object>();
         hashMap.put("str", "komamitsu");
         hashMap.put("int", Integer.MAX_VALUE);
@@ -146,9 +145,6 @@ public class MessagePackFactoryTest {
 
     @Test
     public void testGeneratorShouldWriteArray() throws IOException {
-        MessagePackFactory factory = new MessagePackFactory();
-        factory.setCodec(new MessagePackCodec());
-        ObjectMapper objectMapper = new ObjectMapper(factory);
         List<Object> array = new ArrayList<Object>();
         array.add("komamitsu");
         array.add(Integer.MAX_VALUE);
@@ -185,5 +181,30 @@ public class MessagePackFactoryTest {
             }
         }
         assertEquals(0x3, bitmap);
+    }
+
+    @Test
+    public void testParserShouldReadObject() throws IOException {
+        MessagePacker packer = new MessagePacker(out);
+        packer.packMapHeader(5);
+        packer.packString("str");
+        packer.packString("foobar");
+        packer.packString("int");
+        packer.packInt(Integer.MIN_VALUE);
+        packer.packString("double");
+        packer.packDouble(Double.MAX_VALUE);
+        packer.packString("long");
+        packer.packDouble(Long.MIN_VALUE);
+        packer.packString("bi");
+        BigInteger bigInteger = new BigInteger(Long.toString(Long.MAX_VALUE));
+        packer.packBigInteger(bigInteger.add(BigInteger.ONE));
+        packer.flush();
+
+        byte[] bytes = out.toByteArray();
+
+        JsonParser parser = factory.createParser(new ByteArrayInputStream(bytes));
+        TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>(){};
+        Map<String, Object> value = parser.readValueAs(typeReference);
+        assertEquals(5, value.keySet().size());
     }
 }

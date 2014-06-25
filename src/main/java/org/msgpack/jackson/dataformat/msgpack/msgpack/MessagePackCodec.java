@@ -10,19 +10,19 @@ import java.util.Iterator;
 public class MessagePackCodec extends ObjectCodec {
     @Override
     public <T> T readValue(JsonParser jp, Class<T> valueType) throws IOException, JsonProcessingException {
-        System.out.println("readValue#1");
+        System.out.println("readValue: jp=" + jp + ", valueType=" + valueType);
         return null;
     }
 
     @Override
     public <T> T readValue(JsonParser jp, TypeReference<?> valueTypeRef) throws IOException, JsonProcessingException {
-        System.out.println("readValue(JsonParser jp, Class<T> valueType)");
+        System.out.println("readValue: jp=" + jp + ", valueTypeRef=" + valueTypeRef);
         return null;
     }
 
     @Override
     public <T> T readValue(JsonParser jp, ResolvedType valueType) throws IOException, JsonProcessingException {
-        System.out.println("readValue(JsonParser jp, Class<T> valueType)");
+        System.out.println("readValue: jp=" + jp + ", valueType=" + valueType);
         return null;
     }
 
