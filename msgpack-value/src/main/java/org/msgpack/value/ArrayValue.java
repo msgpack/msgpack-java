@@ -17,6 +17,11 @@ package org.msgpack.value;
 
 import java.util.List;
 
-public interface ArrayValue
-        extends Value, List<Value> {
+public interface ArrayValue extends Value, BasicArrayValue, List<Value> {
+    public static interface Iterator
+            extends java.util.Iterator<Value>, BasicArrayValue.Iterator {
+    }
+
+    @Override
+    public Iterator iterator();
 }

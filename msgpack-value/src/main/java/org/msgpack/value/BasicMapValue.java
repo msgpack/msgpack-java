@@ -15,6 +15,31 @@
 //
 package org.msgpack.value;
 
-public interface ImmutableFloatValue
-        extends FloatValue, ImmutableNumberValue {
+public interface BasicMapValue extends BasicValue {
+    public static interface Entry {
+        public BasicValue getKey();
+
+        public BasicValue getValue();
+    }
+
+    public static interface EntryIterator {
+        public boolean hasNext();
+
+        public Entry next();
+    }
+
+    // note: BasicMapValue.EntrySequence is not iterable,
+    //       unlike MapValue.EntrySequence
+    public static interface EntrySequence {
+        public EntryIterator iterator();
+    }
+
+    /**
+     * Returns immutable sequence of key-value pairs.
+     */
+    public EntrySequence entrySequence();
+
+    public boolean isEmpty();
+
+    public int size();
 }

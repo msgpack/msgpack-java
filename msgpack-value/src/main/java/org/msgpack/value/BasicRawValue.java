@@ -15,6 +15,14 @@
 //
 package org.msgpack.value;
 
-public interface MutableIntegerValue
-        extends IntegerValue, MutableNumberValue {
+import java.nio.ByteBuffer;
+
+public interface BasicRawValue extends BasicValue {
+    public byte[] getByteArray();
+
+    public String getString() throws MessageTypeStringCodingException;
+
+    public ByteBuffer byteBufferValue();
+
+    public String stringValue();
 }

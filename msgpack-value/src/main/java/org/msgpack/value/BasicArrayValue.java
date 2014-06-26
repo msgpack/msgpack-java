@@ -15,6 +15,17 @@
 //
 package org.msgpack.value;
 
-public interface MutableStringValue
-        extends StringValue, MutableRawValue {
+public interface BasicArrayValue extends BasicValue {
+    // note: BasicArrayValue is not iterable, unlike ArrayValue
+    public static interface Iterator {
+        public boolean hasNext();
+
+        public BasicValue next();
+    }
+
+    public Iterator iterator();
+
+    public boolean isEmpty();
+
+    public int size();
 }

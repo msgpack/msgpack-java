@@ -15,6 +15,5 @@
 //
 package org.msgpack.value;
 
-public interface FloatValue
-        extends NumberValue {
+public interface FloatValue extends NumberValue, BasicFloatValue {
 }

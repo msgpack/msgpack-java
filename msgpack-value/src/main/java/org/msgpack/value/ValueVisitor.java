@@ -15,9 +15,8 @@
 //
 package org.msgpack.value;
 
-public interface ValueVisitor { }
-/*
 public interface ValueVisitor {
+/* TODO
     public void visitNil();
 
     public void visitBoolean(boolean v);
@@ -37,5 +36,5 @@ public interface ValueVisitor {
     public void visitMap(int size);
 
     public void visitArray(int size);
-}
 */
+}

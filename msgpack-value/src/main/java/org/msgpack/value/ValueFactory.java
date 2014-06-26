@@ -22,106 +22,93 @@ import java.math.BigInteger;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
-import org.msgpack.value.impl.ImmutableNilValueImpl;
-import org.msgpack.value.impl.ImmutableTrueValueImpl;
-import org.msgpack.value.impl.ImmutableFalseValueImpl;
-import org.msgpack.value.impl.ImmutableIntValueImpl;
-import org.msgpack.value.impl.ImmutableLongValueImpl;
-import org.msgpack.value.impl.ImmutableBigIntegerValueImpl;
-import org.msgpack.value.impl.ImmutableBinaryValueImpl;
-import org.msgpack.value.impl.ImmutableFloatValueImpl;
-import org.msgpack.value.impl.ImmutableDoubleValueImpl;
-import org.msgpack.value.impl.ImmutableRawStringValueImpl;
-import org.msgpack.value.impl.ImmutableStringValueImpl;
-import org.msgpack.value.impl.ImmutableArrayValueImpl;
-import org.msgpack.value.impl.ImmutableArrayMapValueImpl;
-
-public final class ValueFactory {
-    public static ImmutableNilValue createNilValue() {
-        return ImmutableNilValueImpl.getInstance();
+public class ValueFactory {
+/* TODO
+    public NilValue newNilValue() {
+        return NilValueImpl.getInstance();
     }
 
-    public static ImmutableBooleanValue createBooleanValue(boolean v) {
+    public BooleanValue newBooleanValue(boolean v) {
         if (v) {
-            return ImmutableTrueValueImpl.getInstance();
+            return TrueValueImpl.getInstance();
         } else {
-            return ImmutableFalseValueImpl.getInstance();
+            return FalseValueImpl.getInstance();
         }
     }
 
-    public static ImmutableIntegerValue createIntegerValue(byte v) {
-        return new ImmutableIntValueImpl((int) v);
+    public IntegerValue newIntegerValue(byte v) {
+        return new IntValueImpl((int) v);
     }
 
-    public static ImmutableIntegerValue createIntegerValue(short v) {
-        return new ImmutableIntValueImpl((int) v);
+    public IntegerValue newIntegerValue(short v) {
+        return new IntValueImpl((int) v);
     }
 
-    public static ImmutableIntegerValue createIntegerValue(int v) {
-        return new ImmutableIntValueImpl(v);
+    public IntegerValue newIntegerValue(int v) {
+        return new IntValueImpl(v);
     }
 
-    public static ImmutableIntegerValue createIntegerValue(long v) {
-        return new ImmutableLongValueImpl(v);
+    public IntegerValue newIntegerValue(long v) {
+        return new LongValueImpl(v);
     }
 
-    public static ImmutableIntegerValue createIntegerValue(BigInteger v) {
-        return new ImmutableBigIntegerValueImpl(v);
+    public IntegerValue newIntegerValue(BigInteger v) {
+        return new BigIntegerValueImpl(v);
     }
 
-    public static ImmutableFloatValue createFloatValue(float v) {
-        return new ImmutableFloatValueImpl(v);
+    public FloatValue newFloatValue(float v) {
+        return new FloatValueImpl(v);
     }
 
-    public static ImmutableFloatValue createFloatValue(double v) {
-        return new ImmutableDoubleValueImpl(v);
+    public FloatValue newFloatValue(double v) {
+        return new DoubleValueImpl(v);
     }
 
-    public static ImmutableBinaryValue createBinaryValue(byte[] b) {
-        return new ImmutableBinaryValueImpl(ByteBuffer.wrap(b));
+    public BinaryValue newBinaryValue(byte[] b) {
+        return new BinaryValueImpl(ByteBuffer.wrap(b));
     }
 
-    public static ImmutableBinaryValue createBinaryValue(byte[] b, int off, int len) {
-        return new ImmutableBinaryValueImpl(ByteBuffer.wrap(b, off, len));
+    public BinaryValue newBinaryValue(byte[] b, int off, int len) {
+        return new BinaryValueImpl(ByteBuffer.wrap(b, off, len));
     }
 
-    public static ImmutableBinaryValue createBinaryValue(ByteBuffer bb) {
-        return new ImmutableBinaryValueImpl(bb.duplicate());
+    public BinaryValue newBinaryValue(ByteBuffer bb) {
+        return new BinaryValueImpl(bb.duplicate());
     }
 
-    public static ImmutableStringValue createStringValue(String s) {
-        return new ImmutableStringValueImpl(s);
+    public StringValue newStringValue(String s) {
+        return new StringValueImpl(s);
     }
 
-    public static ImmutableStringValue createRawStringValue(byte[] b) {
-        return new ImmutableRawStringValueImpl(ByteBuffer.wrap(b));
+    public StringValue newRawStringValue(byte[] b) {
+        return new RawStringValueImpl(ByteBuffer.wrap(b));
     }
 
-    public static ImmutableStringValue createRawStringValue(byte[] b, int off, int len) {
-        return new ImmutableRawStringValueImpl(ByteBuffer.wrap(b, off, len));
+    public StringValue newRawStringValue(byte[] b, int off, int len) {
+        return new RawStringValueImpl(ByteBuffer.wrap(b, off, len));
     }
 
-    public static ImmutableStringValue createRawStringValue(ByteBuffer bb) {
-        return new ImmutableRawStringValueImpl(bb.duplicate());
+    public StringValue newRawStringValue(ByteBuffer bb) {
+        return new RawStringValueImpl(bb.duplicate());
     }
 
-    public static ImmutableArrayValue createArrayValue(List<? extends Value> list) {
+    public ArrayValue newArrayValue(List<? extends Value> list) {
         if (list.isEmpty()) {
-            return ImmutableArrayValueImpl.getEmptyArrayInstance();
+            return ArrayValueImpl.getEmptyArrayInstance();
         }
         Value[] array = list.toArray(new Value[list.size()]);
-        return new ImmutableArrayValueImpl(array);
+        return new ArrayValueImpl(array);
     }
 
-    public static ImmutableArrayValue createArrayValue(Value[] array) {
+    public ArrayValue newArrayValue(Value[] array) {
         if (array.length == 0) {
-            return ImmutableArrayValueImpl.getEmptyArrayInstance();
+            return ArrayValueImpl.getEmptyArrayInstance();
         }
-        return new ImmutableArrayValueImpl(array);
+        return new ArrayValueImpl(array);
     }
 
-    public static <K extends Value, V extends Value>
-            ImmutableMapValue createMapValue(Map<K, V> map) {
+    public <K extends Value, V extends Value>
+            MapValue newMapValue(Map<K, V> map) {
         Value[] kvs = new Value[map.size() * 2];
         Iterator<Map.Entry<K, V>> ite = map.entrySet().iterator();
         int index = 0;
@@ -132,16 +119,14 @@ public final class ValueFactory {
             kvs[index] = pair.getValue();
             index++;
         }
-        return createMapValue(kvs);
+        return newMapValue(kvs);
     }
 
-    public static ImmutableMapValue createMapValue(Value[] kvs) {
+    public MapValue newMapValue(Value[] kvs) {
         if (kvs.length == 0) {
-            return ImmutableArrayMapValueImpl.getEmptyMapInstance();
+            return ArrayMapValueImpl.getEmptyMapInstance();
         }
-        return new ImmutableArrayMapValueImpl(kvs);
+        return new ArrayMapValueImpl(kvs);
     }
-
-    private ValueFactory() {
-    }
+*/
 }

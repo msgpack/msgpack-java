@@ -15,7 +15,5 @@
 //
 package org.msgpack.value;
 
-public interface ExtendedValue
-        extends Value {
-    // TODO
+public interface ExtendedValue extends Value, BasicExtendedValue {
 }

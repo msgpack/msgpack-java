@@ -15,6 +15,6 @@
 //
 package org.msgpack.value;
 
-public interface MutableMapValue
-        extends MapValue, MutableValue {
+public interface BasicBooleanValue extends BasicValue {
+    public boolean booleanValue();
 }

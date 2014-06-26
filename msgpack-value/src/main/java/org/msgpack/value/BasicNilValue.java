@@ -15,6 +15,5 @@
 //
 package org.msgpack.value;
 
-public interface ImmutableBinaryValue
-        extends BinaryValue, ImmutableRawValue {
+public interface BasicNilValue extends BasicValue {
 }

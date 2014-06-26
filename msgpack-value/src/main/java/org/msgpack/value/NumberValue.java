@@ -17,19 +17,5 @@ package org.msgpack.value;
 
 import java.math.BigInteger;
 
-public interface NumberValue
-        extends Value {
-    public byte byteValue();
-
-    public short shortValue();
-
-    public int intValue();
-
-    public long longValue();
-
-    public BigInteger bigIntegerValue();
-
-    public float floatValue();
-
-    public double doubleValue();
+public interface NumberValue extends BasicNumberValue, Value {
 }

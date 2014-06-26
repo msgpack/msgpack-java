@@ -17,7 +17,23 @@ package org.msgpack.value;
 
 import java.util.Map;
 
-public interface MapValue
-        extends Value, Map<Value, Value> {
+public interface MapValue extends Value, BasicMapValue, Map<Value, Value> {
+    public static interface Entry
+            extends Map.Entry<Value, Value>, BasicMapValue.Entry {
+    }
+
+    public static interface EntryIterator
+            extends java.util.Iterator<Entry>, BasicMapValue.EntryIterator {
+    }
+
+    public static interface EntrySequence
+            extends java.lang.Iterable<Entry>, BasicMapValue.EntrySequence {
+        @Override
+        public EntryIterator iterator();
+    }
+
+    @Override
+    public EntrySequence entrySequence();
+
     public Value[] getKeyValueArray();
 }

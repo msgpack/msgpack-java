@@ -15,6 +15,20 @@
 //
 package org.msgpack.value;
 
-public interface MutableExtendedValue
-        extends ExtendedValue, MutableValue {
+import java.math.BigInteger;
+
+public interface BasicNumberValue extends BasicValue {
+    public byte byteValue();
+
+    public short shortValue();
+
+    public int intValue();
+
+    public long longValue();
+
+    public BigInteger bigIntegerValue();
+
+    public float floatValue();
+
+    public double doubleValue();
 }

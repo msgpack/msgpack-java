@@ -17,13 +17,5 @@ package org.msgpack.value;
 
 import java.nio.ByteBuffer;
 
-public interface RawValue
-        extends Value {
-    public byte[] getByteArray();
-
-    public String getString() throws MessageTypeStringCodingException;
-
-    public ByteBuffer byteBufferValue();
-
-    public String stringValue();
+public interface RawValue extends Value, BasicRawValue {
 }

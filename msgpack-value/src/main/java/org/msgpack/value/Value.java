@@ -15,37 +15,14 @@
 //
 package org.msgpack.value;
 
-import java.io.IOException;
-
 import org.msgpack.core.ValueType;
-import org.msgpack.core.MessagePacker;
 
-public interface Value {
-    public ValueType getType();
-
-    public ImmutableValue immutableValue();
-
-    public boolean isNilValue();
-
-    public boolean isBooleanValue();
-
-    public boolean isNumberValue();
-
-    public boolean isIntegerValue();
-
-    public boolean isFloatValue();
-
-    public boolean isRawValue();
-
-    public boolean isBinaryValue();
-
-    public boolean isStringValue();
-
-    public boolean isArrayValue();
-
-    public boolean isMapValue();
-
-    public boolean isExtendedValue();
+public interface Value extends BasicValue {
+    /**
+     * Returns this
+     */
+    @Override
+    public Value immutableValue();
 
     public NilValue asNilValue();
 
@@ -69,7 +46,6 @@ public interface Value {
 
     public ExtendedValue asExtendedValue();
 
-    public void writeTo(MessagePacker pk) throws IOException;
-
+    //// TODO
     //public void accept(ValueVisitor visitor);
 }

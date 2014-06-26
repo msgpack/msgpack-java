@@ -17,23 +17,5 @@ package org.msgpack.value;
 
 import java.math.BigInteger;
 
-public interface IntegerValue
-        extends NumberValue {
-    public boolean isInByteRange();
-
-    public boolean isInShortRange();
-
-    public boolean isInIntRange();
-
-    public boolean isInLongRange();
-
-    public byte getByte() throws MessageTypeIntegerOverflowException;
-
-    public short getShort() throws MessageTypeIntegerOverflowException;
-
-    public int getInt() throws MessageTypeIntegerOverflowException;
-
-    public long getLong() throws MessageTypeIntegerOverflowException;
-
-    public BigInteger getBigInteger() throws MessageTypeIntegerOverflowException;
+public interface IntegerValue extends NumberValue, BasicIntegerValue {
 }

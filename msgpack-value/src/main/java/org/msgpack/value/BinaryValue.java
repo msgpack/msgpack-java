@@ -15,6 +15,5 @@
 //
 package org.msgpack.value;
 
-public interface BinaryValue
-        extends RawValue {
+public interface BinaryValue extends RawValue, BasicBinaryValue {
 }

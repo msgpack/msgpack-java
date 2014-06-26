@@ -15,6 +15,5 @@
 //
 package org.msgpack.value;
 
-public interface StringValue
-        extends RawValue {
+public interface StringValue extends RawValue, BasicStringValue {
 }

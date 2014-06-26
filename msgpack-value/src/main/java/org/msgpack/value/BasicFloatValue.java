@@ -15,6 +15,5 @@
 //
 package org.msgpack.value;
 
-public interface MutableNumberValue
-        extends NumberValue, MutableValue {
+public interface BasicFloatValue extends BasicNumberValue {
 }

@@ -15,6 +15,6 @@
 //
 package org.msgpack.value;
 
-public interface ImmutableBooleanValue
-        extends BooleanValue, ImmutableValue {
+public interface BasicExtendedValue extends BasicValue {
+    // TODO
 }

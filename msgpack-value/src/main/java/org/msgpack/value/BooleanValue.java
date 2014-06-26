@@ -15,7 +15,5 @@
 //
 package org.msgpack.value;
 
-public interface BooleanValue
-        extends Value {
-    public boolean booleanValue();
+public interface BooleanValue extends Value, BasicBooleanValue {
 }
