@@ -3,6 +3,7 @@ package org.msgpack.jackson.dataformat.msgpack.msgpack;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,6 +19,12 @@ public class MessagePackFactory extends JsonFactory {
     }
 
     @Override
+    public JsonParser createParser(byte[] data) throws IOException, JsonParseException {
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        return createParser(in);
+    }
+
+    @Override
     public JsonParser createParser(InputStream in) throws IOException, JsonParseException {
         IOContext ioContext = _createContext(in, false);
         return _createParser(in, ioContext);
@@ -26,7 +33,7 @@ public class MessagePackFactory extends JsonFactory {
     @Override
     protected MessagePackParser _createParser(InputStream in, IOContext ctxt) throws IOException {
         MessagePackParser parser = new MessagePackParser(ctxt, messagePackParserFeature, in);
-        parser.setCodec(new MessagePackCodec());
+//        parser.setCodec(new MessagePackCodec());
         return parser;
     }
 

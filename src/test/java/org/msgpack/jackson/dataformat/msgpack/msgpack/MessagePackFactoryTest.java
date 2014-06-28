@@ -30,7 +30,6 @@ public class MessagePackFactoryTest {
     @Before
     public void setup() {
         factory = new MessagePackFactory();
-        factory.setCodec(new MessagePackCodec());
         objectMapper = new ObjectMapper(factory);
         out = new ByteArrayOutputStream();
         in = new ByteArrayInputStream(new byte[4096]);
@@ -202,9 +201,8 @@ public class MessagePackFactoryTest {
 
         byte[] bytes = out.toByteArray();
 
-        JsonParser parser = factory.createParser(new ByteArrayInputStream(bytes));
         TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>(){};
-        Map<String, Object> value = parser.readValueAs(typeReference);
+        Map<String, Object> value = objectMapper.readValue(bytes, typeReference);
         assertEquals(5, value.keySet().size());
     }
 }
