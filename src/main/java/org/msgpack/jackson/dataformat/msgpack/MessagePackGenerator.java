@@ -1,4 +1,4 @@
-package org.msgpack.jackson.dataformat.msgpack.msgpack;
+package org.msgpack.jackson.dataformat.msgpack;
 
 import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.core.JsonGenerationException;

@@ -1,4 +1,4 @@
-package org.msgpack.jackson.dataformat.msgpack.msgpack;
+package org.msgpack.jackson.dataformat.msgpack;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -185,15 +185,23 @@ public class MessagePackFactoryTest {
     @Test
     public void testParserShouldReadObject() throws IOException {
         MessagePacker packer = new MessagePacker(out);
-        packer.packMapHeader(5);
+        packer.packMapHeader(6);
         packer.packString("str");
         packer.packString("foobar");
         packer.packString("int");
         packer.packInt(Integer.MIN_VALUE);
+        packer.packString("map");
+        {
+            packer.packMapHeader(2);
+            packer.packString("child_str");
+            packer.packString("bla bla bla");
+            packer.packString("child_int");
+            packer.packInt(Integer.MAX_VALUE);
+        }
         packer.packString("double");
         packer.packDouble(Double.MAX_VALUE);
         packer.packString("long");
-        packer.packDouble(Long.MIN_VALUE);
+        packer.packLong(Long.MIN_VALUE);
         packer.packString("bi");
         BigInteger bigInteger = new BigInteger(Long.toString(Long.MAX_VALUE));
         packer.packBigInteger(bigInteger.add(BigInteger.ONE));
@@ -202,7 +210,58 @@ public class MessagePackFactoryTest {
         byte[] bytes = out.toByteArray();
 
         TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>(){};
-        Map<String, Object> value = objectMapper.readValue(bytes, typeReference);
-        assertEquals(5, value.keySet().size());
+        Map<String, Object> object = objectMapper.readValue(bytes, typeReference);
+        assertEquals(6, object.keySet().size());
+
+        int bitmap = 0;
+        for (Map.Entry<String, Object> entry : object.entrySet()) {
+            String k = entry.getKey();
+            Object v = entry.getValue();
+            if (k.equals("str")) {
+                bitmap |= 1 << 0;
+                assertEquals("foobar", v);
+            }
+            else if (k.equals("int")) {
+                bitmap |= 1 << 1;
+                // TODO
+                assertEquals((long)Integer.MIN_VALUE, v);
+            }
+            else if (k.equals("map")) {
+                bitmap |= 1 << 2;
+                Map<String, Object> child = (Map<String, Object>) v;
+                assertEquals(2, child.keySet().size());
+                for (Map.Entry<String, Object> childEntry : child.entrySet()) {
+                    System.out.println(childEntry);
+                    /* FIXME
+                        foobar=bla bla bla
+                        bla bla bla=2147483647
+                     */
+                    String ck = childEntry.getKey();
+                    Object cv = childEntry.getValue();
+                    if (ck.equals("child_str")) {
+                        bitmap |= 1 << 3;
+                        assertEquals("bla bla bla", cv);
+                    }
+                    else if (ck.equals("child_int")) {
+                        bitmap |= 1 << 4;
+                        assertEquals(Integer.MAX_VALUE, cv);
+                    }
+                }
+            }
+            else if (k.equals("double")) {
+                bitmap |= 1 << 5;
+                assertEquals(Double.MAX_VALUE, (Double) v, 0.0001f);
+            }
+            else if (k.equals("long")) {
+                bitmap |= 1 << 6;
+                assertEquals(Long.MIN_VALUE, v);
+            }
+            else if (k.equals("bi")) {
+                bitmap |= 1 << 7;
+                BigInteger bi = new BigInteger(Long.toString(Long.MAX_VALUE));
+                assertEquals(bi.add(BigInteger.ONE), v);
+            }
+        }
+        assertEquals(0xFF, bitmap);
     }
 }

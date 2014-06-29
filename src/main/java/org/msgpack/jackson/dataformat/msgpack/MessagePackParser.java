@@ -1,4 +1,4 @@
-package org.msgpack.jackson.dataformat.msgpack.msgpack;
+package org.msgpack.jackson.dataformat.msgpack;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserBase;
@@ -7,16 +7,51 @@ import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.value.ValueType;
 import org.msgpack.value.holder.IntegerHolder;
+import org.msgpack.value.holder.ValueHolder;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedList;
 
 public class MessagePackParser extends ParserBase {
     private final MessageUnpacker unpacker;
     private final IntegerHolder integerHolder = new IntegerHolder();
     private ObjectCodec codec;
-    private long mapHeaderNum = -1;
+    private final LinkedList<StackItem> stack = new LinkedList<StackItem>();
+
+    private String currentString;
+    private Number currentNumber;
+    private double currentDouble;
+
+
+    private static abstract class StackItem {
+        private long numOfElements;
+
+        protected StackItem(long numOfElements) {
+            this.numOfElements = numOfElements;
+        }
+
+        public void consume() {
+           numOfElements--;
+        }
+
+        public boolean isEmpty() {
+            return numOfElements == 0;
+        }
+    }
+
+    private static class StackItemForObject extends StackItem {
+        StackItemForObject(long numOfElements) {
+            super(numOfElements);
+        }
+    }
+
+    private static class StackItemForArray extends StackItem {
+        StackItemForArray(long numOfElements) {
+            super(numOfElements);
+        }
+    }
 
     public MessagePackParser(IOContext ctxt, int features, InputStream in) {
         super(ctxt, features);
@@ -58,8 +93,19 @@ public class MessagePackParser extends ParserBase {
             _currToken = null;
             _parsingContext = _parsingContext.getParent();
             _handleEOF();
+            unpacker.close();
             return null;
         }
+
+        if (_parsingContext.inObject()) {
+            if (stack.getFirst().isEmpty()) {
+                stack.pop();
+                _parsingContext = _parsingContext.getParent();
+                _currToken = JsonToken.END_OBJECT;
+                return _currToken;
+            }
+        }
+
         MessageFormat nextFormat = unpacker.getNextFormat();
         ValueType valueType = nextFormat.getValueType();
         switch (valueType) {
@@ -72,18 +118,22 @@ public class MessagePackParser extends ParserBase {
                 nextToken = b ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE;
                 break;
             case INTEGER:
+                unpacker.unpackInteger(integerHolder);
+                currentNumber = integerHolder.isBigInteger() ? integerHolder.toBigInteger() : integerHolder.toLong();
                 nextToken = JsonToken.VALUE_NUMBER_INT;
                 break;
             case FLOAT:
+                currentDouble = unpacker.unpackDouble();
                 nextToken = JsonToken.VALUE_NUMBER_FLOAT;
                 break;
             case STRING:
+                String str = unpacker.unpackString();
                 if (_parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
-                    String fieldName = unpacker.unpackString();
-                    _parsingContext.setCurrentName(fieldName);
+                    _parsingContext.setCurrentName(str);
                     nextToken = JsonToken.FIELD_NAME;
                 }
                 else {
+                    currentString = str;
                     nextToken = JsonToken.VALUE_STRING;
                 }
                 break;
@@ -95,7 +145,7 @@ public class MessagePackParser extends ParserBase {
                 break;
             case MAP:
                 nextToken = JsonToken.START_OBJECT;
-                mapHeaderNum = unpacker.unpackMapHeader();
+                stack.push(new StackItemForObject(unpacker.unpackMapHeader()));
                 _parsingContext = _parsingContext.createChildObjectContext(-1, -1);
                 break;
             case EXTENDED:
@@ -104,13 +154,18 @@ public class MessagePackParser extends ParserBase {
                 throw new IllegalStateException("Shouldn't reach here");
         }
         _currToken = nextToken;
+
+        if (_parsingContext.inObject() &&
+                (_currToken != JsonToken.START_OBJECT && _currToken != JsonToken.FIELD_NAME)) {
+            stack.getFirst().consume();
+        }
+
         return nextToken;
     }
 
     @Override
     public String getText() throws IOException, JsonParseException {
-        System.out.println("getText");
-        return unpacker.unpackString();
+        return currentString;
     }
 
     @Override
@@ -139,12 +194,11 @@ public class MessagePackParser extends ParserBase {
 
     @Override
     public Number getNumberValue() throws IOException, JsonParseException {
-        unpacker.unpackInteger(integerHolder);
-        return integerHolder.isBigInteger() ? integerHolder.toBigInteger() : integerHolder.toLong();
+        return currentNumber;
     }
 
     @Override
     public double getDoubleValue() throws IOException, JsonParseException {
-        return unpacker.unpackDouble();
+        return currentDouble;
     }
 }
