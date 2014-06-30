@@ -90,18 +90,26 @@ public class MessagePackParser extends ParserBase {
     public JsonToken nextToken() throws IOException, JsonParseException {
         JsonToken nextToken = null;
         if (!unpacker.hasNext()) {
-            _currToken = null;
+            if (_parsingContext.inObject()) {
+                nextToken = JsonToken.END_OBJECT;
+            } else if (_parsingContext.inArray()) {
+                nextToken = JsonToken.END_ARRAY;
+            }
+            else {
+                throw new IllegalStateException("Not in Object nor Array");
+            }
+            _currToken = nextToken;
             _parsingContext = _parsingContext.getParent();
             _handleEOF();
             unpacker.close();
-            return null;
+            return nextToken;
         }
 
-        if (_parsingContext.inObject()) {
+        if (_parsingContext.inObject() || _parsingContext.inArray()) {
             if (stack.getFirst().isEmpty()) {
                 stack.pop();
                 _parsingContext = _parsingContext.getParent();
-                _currToken = JsonToken.END_OBJECT;
+                _currToken = _parsingContext.inObject() ? JsonToken.END_OBJECT : JsonToken.END_ARRAY;
                 return _currToken;
             }
         }
@@ -142,6 +150,8 @@ public class MessagePackParser extends ParserBase {
                 break;
             case ARRAY:
                 nextToken = JsonToken.START_ARRAY;
+                stack.push(new StackItemForArray(unpacker.unpackMapHeader()));
+                _parsingContext = _parsingContext.createChildArrayContext(-1, -1);
                 break;
             case MAP:
                 nextToken = JsonToken.START_OBJECT;
@@ -155,8 +165,9 @@ public class MessagePackParser extends ParserBase {
         }
         _currToken = nextToken;
 
-        if (_parsingContext.inObject() &&
-                (_currToken != JsonToken.START_OBJECT && _currToken != JsonToken.FIELD_NAME)) {
+        if ((_parsingContext.inObject() &&
+                (_currToken != JsonToken.START_OBJECT && _currToken != JsonToken.FIELD_NAME)) ||
+            (_parsingContext.inArray() && _currToken != JsonToken.START_ARRAY)) {
             stack.getFirst().consume();
         }
 

@@ -260,4 +260,34 @@ public class MessagePackFactoryTest {
         }
         assertEquals(0xFF, bitmap);
     }
+
+    @Test
+    public void testParserShouldReadArray() throws IOException {
+        MessagePacker packer = new MessagePacker(out);
+        packer.packArrayHeader(6);
+        packer.packString("str");
+        packer.packInt(Integer.MAX_VALUE);
+        packer.packLong(Long.MIN_VALUE);
+        packer.packFloat(Float.MAX_VALUE);
+        packer.packDouble(Double.MIN_VALUE);
+        BigInteger bi = new BigInteger(Long.toString(Long.MAX_VALUE));
+        bi = bi.add(BigInteger.ONE);
+        packer.packBigInteger(bi);
+        packer.flush();
+
+        byte[] bytes = out.toByteArray();
+
+        TypeReference<List<Object>> typeReference = new TypeReference<List<Object>>(){};
+        List<Object> array = objectMapper.readValue(bytes, typeReference);
+        assertEquals(6, array.size());
+        int i = 0;
+        assertEquals("str", array.get(i++));
+        // TODO: should be able to handle the value as an integer?
+        assertEquals((long)Integer.MAX_VALUE, array.get(i++));
+        assertEquals(Long.MIN_VALUE, array.get(i++));
+        // TODO: should be able to handle the value as a float?
+        assertEquals(Float.MAX_VALUE, (Double)array.get(i++), 0.001f);
+        assertEquals(Double.MIN_VALUE, (Double)array.get(i++), 0.001f);
+        assertEquals(bi, array.get(i++));
+    }
 }
