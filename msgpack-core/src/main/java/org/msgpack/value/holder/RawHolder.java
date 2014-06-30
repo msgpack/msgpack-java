@@ -50,6 +50,7 @@ class RawHolderImpl extends AbstractValueRef implements RawValue {
     public ByteBuffer toByteBuffer() {
         switch(tpe) {
             case STRING:
+            case BINARY:
                 return buf.toByteBuffer();
             default:
                 throw UNREACHABLE;
