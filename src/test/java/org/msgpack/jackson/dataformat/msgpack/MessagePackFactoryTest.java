@@ -223,7 +223,7 @@ public class MessagePackFactoryTest {
             }
             else if (k.equals("int")) {
                 bitmap |= 1 << 1;
-                // TODO
+                // TODO: should be able to handle the value as an integer?
                 assertEquals((long)Integer.MIN_VALUE, v);
             }
             else if (k.equals("map")) {
@@ -231,11 +231,6 @@ public class MessagePackFactoryTest {
                 Map<String, Object> child = (Map<String, Object>) v;
                 assertEquals(2, child.keySet().size());
                 for (Map.Entry<String, Object> childEntry : child.entrySet()) {
-                    System.out.println(childEntry);
-                    /* FIXME
-                        foobar=bla bla bla
-                        bla bla bla=2147483647
-                     */
                     String ck = childEntry.getKey();
                     Object cv = childEntry.getValue();
                     if (ck.equals("child_str")) {
@@ -244,7 +239,8 @@ public class MessagePackFactoryTest {
                     }
                     else if (ck.equals("child_int")) {
                         bitmap |= 1 << 4;
-                        assertEquals(Integer.MAX_VALUE, cv);
+                        // TODO: should be able to handle the value as an integer?
+                        assertEquals((long)Integer.MAX_VALUE, cv);
                     }
                 }
             }

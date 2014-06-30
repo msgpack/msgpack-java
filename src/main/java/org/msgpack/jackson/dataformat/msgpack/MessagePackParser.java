@@ -129,6 +129,7 @@ public class MessagePackParser extends ParserBase {
             case STRING:
                 String str = unpacker.unpackString();
                 if (_parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
+                    currentString = str;
                     _parsingContext.setCurrentName(str);
                     nextToken = JsonToken.FIELD_NAME;
                 }
