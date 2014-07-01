@@ -60,58 +60,48 @@ public class MessagePackParser extends ParserBase {
 
     @Override
     protected boolean loadMore() throws IOException {
-        System.out.println("loadMore");
         return false;
     }
 
     @Override
     protected void _finishString() throws IOException, JsonParseException {
-        System.out.println("_finishString");
     }
 
     @Override
     protected void _closeInput() throws IOException {
-        System.out.println("_closeInput");
     }
 
     @Override
     public ObjectCodec getCodec() {
-        System.out.println("getCodec");
         return codec;
     }
 
     @Override
     public void setCodec(ObjectCodec c) {
-        System.out.println("setCodec");
         codec = c;
     }
 
     @Override
     public JsonToken nextToken() throws IOException, JsonParseException {
         JsonToken nextToken = null;
-        if (!unpacker.hasNext()) {
-            if (_parsingContext.inObject()) {
-                nextToken = JsonToken.END_OBJECT;
-            } else if (_parsingContext.inArray()) {
-                nextToken = JsonToken.END_ARRAY;
-            }
-            else {
-                throw new IllegalStateException("Not in Object nor Array");
-            }
-            _currToken = nextToken;
-            _parsingContext = _parsingContext.getParent();
-            _handleEOF();
-            unpacker.close();
-            return nextToken;
-        }
-
         if (_parsingContext.inObject() || _parsingContext.inArray()) {
             if (stack.getFirst().isEmpty()) {
                 stack.pop();
-                _parsingContext = _parsingContext.getParent();
                 _currToken = _parsingContext.inObject() ? JsonToken.END_OBJECT : JsonToken.END_ARRAY;
+                _parsingContext = _parsingContext.getParent();
                 return _currToken;
             }
+        }
+
+        if (!unpacker.hasNext()) {
+            if (!_parsingContext.inObject() && !_parsingContext.inArray()) {
+                throw new IllegalStateException("Not in Object nor Array");
+            }
+            _currToken = _parsingContext.inObject() ? JsonToken.END_OBJECT : JsonToken.END_ARRAY;
+            _parsingContext = _parsingContext.getParent();
+            unpacker.close();
+            _handleEOF();
+            return _currToken;
         }
 
         MessageFormat nextFormat = unpacker.getNextFormat();
@@ -181,25 +171,21 @@ public class MessagePackParser extends ParserBase {
 
     @Override
     public char[] getTextCharacters() throws IOException, JsonParseException {
-        System.out.println("getTextCharacters");
         return new char[0];
     }
 
     @Override
     public int getTextLength() throws IOException, JsonParseException {
-        System.out.println("getTextLength");
         return 0;
     }
 
     @Override
     public int getTextOffset() throws IOException, JsonParseException {
-        System.out.println("getTextOffset");
         return 0;
     }
 
     @Override
     public byte[] getBinaryValue(Base64Variant b64variant) throws IOException, JsonParseException {
-        System.out.println("getBinaryValue");
         return new byte[0];
     }
 

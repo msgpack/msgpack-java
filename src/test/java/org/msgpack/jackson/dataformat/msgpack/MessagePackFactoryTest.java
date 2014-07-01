@@ -13,10 +13,7 @@ import org.msgpack.core.MessageUnpacker;
 
 import java.io.*;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -185,7 +182,7 @@ public class MessagePackFactoryTest {
     @Test
     public void testParserShouldReadObject() throws IOException {
         MessagePacker packer = new MessagePacker(out);
-        packer.packMapHeader(6);
+        packer.packMapHeader(7);
         packer.packString("str");
         packer.packString("foobar");
         packer.packString("int");
@@ -205,13 +202,20 @@ public class MessagePackFactoryTest {
         packer.packString("bi");
         BigInteger bigInteger = new BigInteger(Long.toString(Long.MAX_VALUE));
         packer.packBigInteger(bigInteger.add(BigInteger.ONE));
+        packer.packString("array");
+        {
+            packer.packArrayHeader(3);
+            packer.packFloat(Float.MIN_VALUE);
+            packer.packNil();
+            packer.packString("array_child_str");
+        }
         packer.flush();
 
         byte[] bytes = out.toByteArray();
 
         TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>(){};
         Map<String, Object> object = objectMapper.readValue(bytes, typeReference);
-        assertEquals(6, object.keySet().size());
+        assertEquals(7, object.keySet().size());
 
         int bitmap = 0;
         for (Map.Entry<String, Object> entry : object.entrySet()) {
@@ -257,14 +261,25 @@ public class MessagePackFactoryTest {
                 BigInteger bi = new BigInteger(Long.toString(Long.MAX_VALUE));
                 assertEquals(bi.add(BigInteger.ONE), v);
             }
+            else if (k.equals("array")) {
+                bitmap |= 1 << 8;
+                List<? extends Serializable> expected = Arrays.asList((double)Float.MIN_VALUE, null, "array_child_str");
+                assertEquals(expected, v);
+            }
         }
-        assertEquals(0xFF, bitmap);
+        assertEquals(0x1FF, bitmap);
     }
 
     @Test
     public void testParserShouldReadArray() throws IOException {
         MessagePacker packer = new MessagePacker(out);
-        packer.packArrayHeader(6);
+        packer.packArrayHeader(8);
+        packer.packArrayHeader(3);
+        {
+            packer.packLong(Long.MAX_VALUE);
+            packer.packNil();
+            packer.packString("FOO BAR");
+        }
         packer.packString("str");
         packer.packInt(Integer.MAX_VALUE);
         packer.packLong(Long.MIN_VALUE);
@@ -273,14 +288,28 @@ public class MessagePackFactoryTest {
         BigInteger bi = new BigInteger(Long.toString(Long.MAX_VALUE));
         bi = bi.add(BigInteger.ONE);
         packer.packBigInteger(bi);
+        packer.packMapHeader(2);
+        {
+            packer.packString("child_map_name");
+            packer.packString("komamitsu");
+            packer.packString("child_map_age");
+            packer.packInt(42);
+        }
         packer.flush();
 
         byte[] bytes = out.toByteArray();
 
         TypeReference<List<Object>> typeReference = new TypeReference<List<Object>>(){};
         List<Object> array = objectMapper.readValue(bytes, typeReference);
-        assertEquals(6, array.size());
+        assertEquals(8, array.size());
         int i = 0;
+        List<Object> childArray = (List<Object>) array.get(i++);
+        {
+            int j = 0;
+            assertEquals(Long.MAX_VALUE, childArray.get(j++));
+            assertEquals(null, childArray.get(j++));
+            assertEquals("FOO BAR", childArray.get(j++));
+        }
         assertEquals("str", array.get(i++));
         // TODO: should be able to handle the value as an integer?
         assertEquals((long)Integer.MAX_VALUE, array.get(i++));
@@ -289,5 +318,19 @@ public class MessagePackFactoryTest {
         assertEquals(Float.MAX_VALUE, (Double)array.get(i++), 0.001f);
         assertEquals(Double.MIN_VALUE, (Double)array.get(i++), 0.001f);
         assertEquals(bi, array.get(i++));
+        Map<String, Object> childMap = (Map<String, Object>) array.get(i++);
+        {
+            assertEquals(2, childMap.keySet().size());
+            for (Map.Entry<String, Object> entry : childMap.entrySet()) {
+                String k = entry.getKey();
+                Object v = entry.getValue();
+                if (k.equals("child_map_name")) {
+                    assertEquals("komamitsu", v);
+                }
+                else if (k.equals("child_map_age")) {
+                    assertEquals((long)42, v);
+                }
+            }
+        }
     }
 }
