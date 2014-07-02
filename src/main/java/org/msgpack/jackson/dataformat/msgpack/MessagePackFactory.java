@@ -33,7 +33,6 @@ public class MessagePackFactory extends JsonFactory {
     @Override
     protected MessagePackParser _createParser(InputStream in, IOContext ctxt) throws IOException {
         MessagePackParser parser = new MessagePackParser(ctxt, messagePackParserFeature, in);
-//        parser.setCodec(new MessagePackCodec());
         return parser;
     }
 

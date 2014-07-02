@@ -1,8 +1,11 @@
 package org.msgpack.jackson.dataformat.msgpack;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
@@ -227,8 +230,7 @@ public class MessagePackFactoryTest {
             }
             else if (k.equals("int")) {
                 bitmap |= 1 << 1;
-                // TODO: should be able to handle the value as an integer?
-                assertEquals((long)Integer.MIN_VALUE, v);
+                assertEquals(Integer.MIN_VALUE, v);
             }
             else if (k.equals("map")) {
                 bitmap |= 1 << 2;
@@ -243,8 +245,7 @@ public class MessagePackFactoryTest {
                     }
                     else if (ck.equals("child_int")) {
                         bitmap |= 1 << 4;
-                        // TODO: should be able to handle the value as an integer?
-                        assertEquals((long)Integer.MAX_VALUE, cv);
+                        assertEquals(Integer.MAX_VALUE, cv);
                     }
                 }
             }
@@ -311,10 +312,8 @@ public class MessagePackFactoryTest {
             assertEquals("FOO BAR", childArray.get(j++));
         }
         assertEquals("str", array.get(i++));
-        // TODO: should be able to handle the value as an integer?
-        assertEquals((long)Integer.MAX_VALUE, array.get(i++));
+        assertEquals(Integer.MAX_VALUE, array.get(i++));
         assertEquals(Long.MIN_VALUE, array.get(i++));
-        // TODO: should be able to handle the value as a float?
         assertEquals(Float.MAX_VALUE, (Double)array.get(i++), 0.001f);
         assertEquals(Double.MIN_VALUE, (Double)array.get(i++), 0.001f);
         assertEquals(bi, array.get(i++));
@@ -328,9 +327,38 @@ public class MessagePackFactoryTest {
                     assertEquals("komamitsu", v);
                 }
                 else if (k.equals("child_map_age")) {
-                    assertEquals((long)42, v);
+                    assertEquals(42, v);
                 }
             }
+        }
+    }
+
+    @Test
+    public void testJsonProperty() throws IOException {
+        CtorBean bean = new CtorBean("komamitsu", 55);
+        byte[] bytes = objectMapper.writeValueAsBytes(bean);
+        CtorBean value = objectMapper.readValue(bytes, CtorBean.class);
+        assertEquals("komamitsu", value.name);
+        assertEquals(55, value.age);
+    }
+
+    public static class CtorBean
+    {
+        private final String name;
+        private final int age;
+
+        public CtorBean(@JsonProperty("name") String name, @JsonProperty("age") int age)
+        {
+            this.name = name;
+            this.age = age;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getAge() {
+            return age;
         }
     }
 }

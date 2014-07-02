@@ -12,6 +12,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.util.LinkedList;
 
 public class MessagePackParser extends ParserBase {
@@ -57,6 +58,8 @@ public class MessagePackParser extends ParserBase {
         super(ctxt, features);
         unpacker = new MessageUnpacker(in);
     }
+
+
 
     @Override
     protected boolean loadMore() throws IOException {
@@ -117,7 +120,15 @@ public class MessagePackParser extends ParserBase {
                 break;
             case INTEGER:
                 unpacker.unpackInteger(integerHolder);
-                currentNumber = integerHolder.isBigInteger() ? integerHolder.toBigInteger() : integerHolder.toLong();
+                if (integerHolder.isBigInteger()) {
+                    currentNumber = integerHolder.toBigInteger();
+                }
+                else if (integerHolder.isValidInt()) {
+                    currentNumber = integerHolder.toInt();
+                }
+                else {
+                    currentNumber = integerHolder.toLong();
+                }
                 nextToken = JsonToken.VALUE_NUMBER_INT;
                 break;
             case FLOAT:
@@ -192,6 +203,26 @@ public class MessagePackParser extends ParserBase {
     @Override
     public Number getNumberValue() throws IOException, JsonParseException {
         return currentNumber;
+    }
+
+    @Override
+    public int getIntValue() throws IOException, JsonParseException {
+        return currentNumber.intValue();
+    }
+
+    @Override
+    public long getLongValue() throws IOException, JsonParseException {
+        return currentNumber.longValue();
+    }
+
+    @Override
+    public BigInteger getBigIntegerValue() throws IOException, JsonParseException {
+        return (BigInteger) currentNumber;
+    }
+
+    @Override
+    public float getFloatValue() throws IOException, JsonParseException {
+        return (float)currentDouble;
     }
 
     @Override
