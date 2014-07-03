@@ -2,6 +2,7 @@ package org.msgpack.jackson.dataformat.msgpack;
 
 import org.junit.Test;
 import org.msgpack.core.MessageUnpacker;
+import org.msgpack.value.holder.ValueHolder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class MessagePackGeneratorTest extends MessagePackTestBase {
         hashMap.put("long", Long.MIN_VALUE);
         hashMap.put("float", 3.14159f);
         hashMap.put("double", 3.14159d);
+        hashMap.put("bin", new byte[]{0x00, 0x01, (byte)0xFE, (byte)0xFF});
         Map<String, Object> childObj = new HashMap<String, Object>();
         childObj.put("co_str", "child#0");
         childObj.put("co_int", 12345);
@@ -57,17 +59,25 @@ public class MessagePackGeneratorTest extends MessagePackTestBase {
                 assertEquals(3.14159d, messageUnpacker.unpackDouble(), 0.01f);
                 bitmap |= 0x1 << 4;
             }
+            else if (key.equals("bin")) {
+                assertEquals(4,  messageUnpacker.unpackBinaryHeader());
+                assertEquals((byte)0x00, messageUnpacker.unpackByte());
+                assertEquals((byte)0x01, messageUnpacker.unpackByte());
+                assertEquals((byte)0xFE, messageUnpacker.unpackByte());
+                assertEquals((byte)0xFF, messageUnpacker.unpackByte());
+                bitmap |= 0x1 << 5;
+            }
             else if (key.equals("childObj")) {
                 assertEquals(2, messageUnpacker.unpackMapHeader());
                 for (int j = 0; j < 2; j++) {
                     String childKey = messageUnpacker.unpackString();
                     if (childKey.equals("co_str")) {
                         assertEquals("child#0", messageUnpacker.unpackString());
-                        bitmap |= 0x1 << 5;
+                        bitmap |= 0x1 << 6;
                     }
                     else if (childKey.equals("co_int")) {
                         assertEquals(12345, messageUnpacker.unpackInt());
-                        bitmap |= 0x1 << 6;
+                        bitmap |= 0x1 << 7;
                     }
                     else {
                         assertTrue(false);
@@ -78,13 +88,13 @@ public class MessagePackGeneratorTest extends MessagePackTestBase {
                 assertEquals(2, messageUnpacker.unpackArrayHeader());
                 assertEquals("child#1", messageUnpacker.unpackString());
                 assertEquals(1.23f, messageUnpacker.unpackFloat(), 0.01f);
-                bitmap |= 0x1 << 6;
+                bitmap |= 0x1 << 8;
             }
             else {
                 assertTrue(false);
             }
         }
-        assertEquals(0x7F, bitmap);
+        assertEquals(0x01FF, bitmap);
     }
 
     @Test

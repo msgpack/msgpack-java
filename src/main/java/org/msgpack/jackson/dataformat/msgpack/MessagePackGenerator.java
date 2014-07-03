@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -116,6 +117,9 @@ public class MessagePackGenerator extends GeneratorBase {
         if (v instanceof Integer) {
             messagePacker.packInt((Integer) v);
         }
+        else if (v instanceof ByteBuffer) {
+            messagePacker.packBinary((ByteBuffer)v);
+        }
         else if (v instanceof String) {
             messagePacker.packString((String) v);
         }
@@ -217,7 +221,7 @@ public class MessagePackGenerator extends GeneratorBase {
 
     @Override
     public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len) throws IOException, JsonGenerationException {
-        throw new NotImplementedException();
+        addValueToStackTop(ByteBuffer.wrap(data, offset, len));
     }
 
     @Override

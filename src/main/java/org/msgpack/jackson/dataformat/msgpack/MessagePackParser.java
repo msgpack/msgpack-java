@@ -13,6 +13,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
 public class MessagePackParser extends ParserBase {
@@ -22,6 +23,7 @@ public class MessagePackParser extends ParserBase {
     private final LinkedList<StackItem> stack = new LinkedList<StackItem>();
 
     private String currentString;
+    private byte[] currentBytes;
     private Number currentNumber;
     private double currentDouble;
 
@@ -136,8 +138,10 @@ public class MessagePackParser extends ParserBase {
                 nextToken = JsonToken.VALUE_NUMBER_FLOAT;
                 break;
             case STRING:
+                // TODO: Replace these currentXxxxx with ValueHolder
                 String str = unpacker.unpackString();
                 currentString = str;
+                currentBytes = null;
                 if (_parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
                     _parsingContext.setCurrentName(str);
                     nextToken = JsonToken.FIELD_NAME;
@@ -147,6 +151,10 @@ public class MessagePackParser extends ParserBase {
                 }
                 break;
             case BINARY:
+                ValueHolder valueHolder = new ValueHolder();
+                unpacker.unpackValue(valueHolder);
+                currentBytes = valueHolder.get().asRaw().toByteArray();
+                currentString = null;
                 nextToken = JsonToken.VALUE_STRING;
                 break;
             case ARRAY:
@@ -177,7 +185,7 @@ public class MessagePackParser extends ParserBase {
 
     @Override
     public String getText() throws IOException, JsonParseException {
-        return currentString;
+        return currentString != null ? currentString : new String(currentBytes);
     }
 
     @Override
@@ -197,7 +205,7 @@ public class MessagePackParser extends ParserBase {
 
     @Override
     public byte[] getBinaryValue(Base64Variant b64variant) throws IOException, JsonParseException {
-        return new byte[0];
+        return currentBytes;
     }
 
     @Override
