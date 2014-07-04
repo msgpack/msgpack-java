@@ -151,14 +151,12 @@ public class MessagePackParserTest extends MessagePackTestBase {
         assertEquals(Float.MAX_VALUE, (Double)array.get(i++), 0.001f);
         assertEquals(Double.MIN_VALUE, (Double)array.get(i++), 0.001f);
         assertEquals(bi, array.get(i++));
-        byte[] bs = ((String)array.get(i++)).getBytes();
-        /* FIXME
+        byte[] bs = (byte[]) array.get(i++);
         assertEquals(4, bs.length);
-        assertEquals(0xFF, bs[0]);
-        assertEquals(0xFE, bs[1]);
-        assertEquals(0x01, bs[2]);
-        assertEquals(0x00, bs[3]);
-        */
+        assertEquals((byte)0xFF, bs[0]);
+        assertEquals((byte)0xFE, bs[1]);
+        assertEquals((byte)0x01, bs[2]);
+        assertEquals((byte)0x00, bs[3]);
         Map<String, Object> childMap = (Map<String, Object>) array.get(i++);
         {
             assertEquals(2, childMap.keySet().size());

@@ -141,7 +141,6 @@ public class MessagePackParser extends ParserBase {
                 // TODO: Replace these currentXxxxx with ValueHolder
                 String str = unpacker.unpackString();
                 currentString = str;
-                currentBytes = null;
                 if (_parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
                     _parsingContext.setCurrentName(str);
                     nextToken = JsonToken.FIELD_NAME;
@@ -154,8 +153,7 @@ public class MessagePackParser extends ParserBase {
                 ValueHolder valueHolder = new ValueHolder();
                 unpacker.unpackValue(valueHolder);
                 currentBytes = valueHolder.get().asRaw().toByteArray();
-                currentString = null;
-                nextToken = JsonToken.VALUE_STRING;
+                nextToken = JsonToken.VALUE_EMBEDDED_OBJECT;
                 break;
             case ARRAY:
                 nextToken = JsonToken.START_ARRAY;
@@ -236,5 +234,10 @@ public class MessagePackParser extends ParserBase {
     @Override
     public double getDoubleValue() throws IOException, JsonParseException {
         return currentDouble;
+    }
+
+    @Override
+    public Object getEmbeddedObject() throws IOException, JsonParseException {
+        return currentBytes;
     }
 }
