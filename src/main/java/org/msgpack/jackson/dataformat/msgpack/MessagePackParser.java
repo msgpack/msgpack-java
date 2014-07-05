@@ -142,7 +142,7 @@ public class MessagePackParser extends ParserBase {
                 String str = unpacker.unpackString();
                 currentString = str;
                 if (_parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
-                    _parsingContext.setCurrentName(str);
+                    _parsingContext.setCurrentName(str.intern());
                     nextToken = JsonToken.FIELD_NAME;
                 }
                 else {
@@ -183,7 +183,16 @@ public class MessagePackParser extends ParserBase {
 
     @Override
     public String getText() throws IOException, JsonParseException {
-        return currentString != null ? currentString : new String(currentBytes);
+        // TODO : Replace around here with ValueHolder
+        if (_currToken == JsonToken.FIELD_NAME || _currToken == JsonToken.VALUE_STRING) {
+            return currentString != null ? currentString : new String(currentBytes);
+        }
+        else if (_currToken == JsonToken.VALUE_NUMBER_INT) {
+            return String.valueOf(currentNumber);
+        }
+        else {
+            throw new IllegalStateException("Shouldn't reach here");
+        }
     }
 
     @Override
@@ -239,5 +248,18 @@ public class MessagePackParser extends ParserBase {
     @Override
     public Object getEmbeddedObject() throws IOException, JsonParseException {
         return currentBytes;
+    }
+
+    @Override
+    public NumberType getNumberType() throws IOException, JsonParseException {
+        if (currentNumber instanceof Integer) {
+            return NumberType.INT;
+        }
+        else if (currentNumber instanceof Long) {
+            return NumberType.LONG;
+        }
+        else {
+            return NumberType.BIG_INTEGER;
+        }
     }
 }

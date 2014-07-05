@@ -114,7 +114,10 @@ public class MessagePackGenerator extends GeneratorBase {
     }
 
     private void packValue(Object v) throws IOException {
-        if (v instanceof Integer) {
+        if (v == null) {
+            messagePacker.packNil();
+        }
+        else if (v instanceof Integer) {
             messagePacker.packInt((Integer) v);
         }
         else if (v instanceof ByteBuffer) {
