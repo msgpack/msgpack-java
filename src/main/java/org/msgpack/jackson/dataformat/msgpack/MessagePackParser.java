@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.io.IOContext;
 import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessageUnpacker;
+import org.msgpack.value.NumberValue;
 import org.msgpack.value.ValueType;
 import org.msgpack.value.holder.IntegerHolder;
 import org.msgpack.value.holder.ValueHolder;
@@ -18,15 +19,10 @@ import java.util.LinkedList;
 
 public class MessagePackParser extends ParserBase {
     private final MessageUnpacker unpacker;
-    private final IntegerHolder integerHolder = new IntegerHolder();
     private ObjectCodec codec;
     private final LinkedList<StackItem> stack = new LinkedList<StackItem>();
 
-    private String currentString;
-    private byte[] currentBytes;
-    private Number currentNumber;
-    private double currentDouble;
-
+    private ValueHolder valueHolder = new ValueHolder();
 
     private static abstract class StackItem {
         private long numOfElements;
@@ -60,8 +56,6 @@ public class MessagePackParser extends ParserBase {
         super(ctxt, features);
         unpacker = new MessageUnpacker(in);
     }
-
-
 
     @Override
     protected boolean loadMore() throws IOException {
@@ -121,28 +115,17 @@ public class MessagePackParser extends ParserBase {
                 nextToken = b ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE;
                 break;
             case INTEGER:
-                unpacker.unpackInteger(integerHolder);
-                if (integerHolder.isBigInteger()) {
-                    currentNumber = integerHolder.toBigInteger();
-                }
-                else if (integerHolder.isValidInt()) {
-                    currentNumber = integerHolder.toInt();
-                }
-                else {
-                    currentNumber = integerHolder.toLong();
-                }
+                unpacker.unpackValue(valueHolder);
                 nextToken = JsonToken.VALUE_NUMBER_INT;
                 break;
             case FLOAT:
-                currentDouble = unpacker.unpackDouble();
+                unpacker.unpackValue(valueHolder);
                 nextToken = JsonToken.VALUE_NUMBER_FLOAT;
                 break;
             case STRING:
-                // TODO: Replace these currentXxxxx with ValueHolder
-                String str = unpacker.unpackString();
-                currentString = str;
+                unpacker.unpackValue(valueHolder);
                 if (_parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
-                    _parsingContext.setCurrentName(str.intern());
+                    _parsingContext.setCurrentName(valueHolder.getRef().asRaw().toString());
                     nextToken = JsonToken.FIELD_NAME;
                 }
                 else {
@@ -150,9 +133,7 @@ public class MessagePackParser extends ParserBase {
                 }
                 break;
             case BINARY:
-                ValueHolder valueHolder = new ValueHolder();
                 unpacker.unpackValue(valueHolder);
-                currentBytes = valueHolder.get().asRaw().toByteArray();
                 nextToken = JsonToken.VALUE_EMBEDDED_OBJECT;
                 break;
             case ARRAY:
@@ -183,16 +164,8 @@ public class MessagePackParser extends ParserBase {
 
     @Override
     public String getText() throws IOException, JsonParseException {
-        // TODO : Replace around here with ValueHolder
-        if (_currToken == JsonToken.FIELD_NAME || _currToken == JsonToken.VALUE_STRING) {
-            return currentString != null ? currentString : new String(currentBytes);
-        }
-        else if (_currToken == JsonToken.VALUE_NUMBER_INT) {
-            return String.valueOf(currentNumber);
-        }
-        else {
-            throw new IllegalStateException("Shouldn't reach here");
-        }
+        // This method can be called for new BigInteger(text)
+        return valueHolder.getRef().toString();
     }
 
     @Override
@@ -212,50 +185,60 @@ public class MessagePackParser extends ParserBase {
 
     @Override
     public byte[] getBinaryValue(Base64Variant b64variant) throws IOException, JsonParseException {
-        return currentBytes;
+        return valueHolder.getRef().asBinary().toByteArray();
     }
 
     @Override
     public Number getNumberValue() throws IOException, JsonParseException {
-        return currentNumber;
+        NumberValue numberValue = valueHolder.getRef().asNumber();
+        if (numberValue.isValidInt()) {
+            return numberValue.toInt();
+        }
+        else if (numberValue.isValidLong()) {
+            return numberValue.toLong();
+        }
+        else {
+            return numberValue.toBigInteger();
+        }
     }
 
     @Override
     public int getIntValue() throws IOException, JsonParseException {
-        return currentNumber.intValue();
+        return valueHolder.getRef().asNumber().toInt();
     }
 
     @Override
     public long getLongValue() throws IOException, JsonParseException {
-        return currentNumber.longValue();
+        return valueHolder.getRef().asNumber().toLong();
     }
 
     @Override
     public BigInteger getBigIntegerValue() throws IOException, JsonParseException {
-        return (BigInteger) currentNumber;
+        return valueHolder.getRef().asNumber().toBigInteger();
     }
 
     @Override
     public float getFloatValue() throws IOException, JsonParseException {
-        return (float)currentDouble;
+        return valueHolder.getRef().asFloat().toFloat();
     }
 
     @Override
     public double getDoubleValue() throws IOException, JsonParseException {
-        return currentDouble;
+        return valueHolder.getRef().asFloat().toDouble();
     }
 
     @Override
     public Object getEmbeddedObject() throws IOException, JsonParseException {
-        return currentBytes;
+        return valueHolder.getRef().asBinary().toByteArray();
     }
 
     @Override
     public NumberType getNumberType() throws IOException, JsonParseException {
-        if (currentNumber instanceof Integer) {
+        NumberValue numberValue = valueHolder.getRef().asNumber();
+        if (numberValue.isValidInt()) {
             return NumberType.INT;
         }
-        else if (currentNumber instanceof Long) {
+        else if (numberValue.isValidLong()) {
             return NumberType.LONG;
         }
         else {
