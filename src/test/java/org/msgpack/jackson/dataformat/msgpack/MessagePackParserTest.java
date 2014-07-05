@@ -1,6 +1,5 @@
 package org.msgpack.jackson.dataformat.msgpack;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.Test;
 import org.msgpack.core.MessagePacker;
@@ -14,7 +13,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class MessagePackParserTest extends MessagePackTestBase {
+public class MessagePackParserTest extends MessagePackDataformatTestBase {
     @Test
     public void testParserShouldReadObject() throws IOException {
         MessagePacker packer = new MessagePacker(out);

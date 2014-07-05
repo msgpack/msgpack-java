@@ -8,7 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-public class MessagePackTestBase {
+public class MessagePackDataformatTestBase {
     protected MessagePackFactory factory;
     protected ByteArrayOutputStream out;
     protected ByteArrayInputStream in;

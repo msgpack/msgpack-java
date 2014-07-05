@@ -2,7 +2,6 @@ package org.msgpack.jackson.dataformat.msgpack;
 
 import org.junit.Test;
 import org.msgpack.core.MessageUnpacker;
-import org.msgpack.value.holder.ValueHolder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,7 +12,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class MessagePackGeneratorTest extends MessagePackTestBase {
+public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
     @Test
     public void testGeneratorShouldWriteObject() throws IOException {
         Map<String, Object> hashMap = new HashMap<String, Object>();

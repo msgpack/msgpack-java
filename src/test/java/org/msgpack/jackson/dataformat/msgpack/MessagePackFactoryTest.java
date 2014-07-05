@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
-public class MessagePackFactoryTest extends MessagePackTestBase {
+public class MessagePackFactoryTest extends MessagePackDataformatTestBase {
     @Test
     public void testCreateGenerator() throws IOException {
         JsonEncoding enc = JsonEncoding.UTF8;
