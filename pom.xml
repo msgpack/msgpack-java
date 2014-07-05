@@ -3,10 +3,29 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>jackson-dataformat-msgpack</groupId>
+    <groupId>org.komamitsu</groupId>
     <artifactId>jackson-dataformat-msgpack</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>9</version>
+    </parent>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:https://github.com/komamitsu/jackson-dataformat-msgpack.git</connection>
+        <developerConnection>scm:git:git@github.com:komamitsu/jackson-dataformat-msgpack.git</developerConnection>
+        <url>https://github.com/komamitsu/jackson-dataformat-msgpack</url>
+    </scm>
 
     <dependencies>
         <dependency>
@@ -20,6 +39,7 @@
             <artifactId>msgpack-core</artifactId>
             <version>0.7.0-M1</version>
         </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

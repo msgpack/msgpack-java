@@ -59,7 +59,7 @@ public class MessagePackParser extends ParserBase {
 
     @Override
     protected boolean loadMore() throws IOException {
-        return false;
+        return unpacker.hasNext();
     }
 
     @Override
@@ -170,12 +170,12 @@ public class MessagePackParser extends ParserBase {
 
     @Override
     public char[] getTextCharacters() throws IOException, JsonParseException {
-        return new char[0];
+        return getText().toCharArray();
     }
 
     @Override
     public int getTextLength() throws IOException, JsonParseException {
-        return 0;
+        return getText().length();
     }
 
     @Override
