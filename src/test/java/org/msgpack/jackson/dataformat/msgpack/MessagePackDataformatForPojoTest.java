@@ -15,24 +15,15 @@ import static org.junit.Assert.assertTrue;
 public class MessagePackDataformatForPojoTest extends MessagePackDataformatTestBase {
     @Test
     public void testNormal() throws IOException {
-        NormalPojo orig = new NormalPojo();
-        orig.setS("komamitsu");
-        orig.i = Integer.MAX_VALUE;
-        orig.l = Long.MIN_VALUE;
-        orig.f = Float.MIN_VALUE;
-        orig.d = Double.MAX_VALUE;
-        orig.b = new byte[] {0x01, 0x02, (byte) 0xFE, (byte) 0xFF};
-        orig.bi = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
-
-        byte[] bytes = objectMapper.writeValueAsBytes(orig);
+        byte[] bytes = objectMapper.writeValueAsBytes(normalPojo);
         NormalPojo value = objectMapper.readValue(bytes, NormalPojo.class);
-        assertEquals(orig.s, value.getS());
-        assertEquals(orig.i, value.i);
-        assertEquals(orig.l, value.l);
-        assertEquals(orig.f, value.f, 0.000001f);
-        assertEquals(orig.d, value.d, 0.000001f);
-        assertTrue(Arrays.equals(orig.b, value.b));
-        assertEquals(orig.bi, value.bi);
+        assertEquals(normalPojo.s, value.getS());
+        assertEquals(normalPojo.i, value.i);
+        assertEquals(normalPojo.l, value.l);
+        assertEquals(normalPojo.f, value.f, 0.000001f);
+        assertEquals(normalPojo.d, value.d, 0.000001f);
+        assertTrue(Arrays.equals(normalPojo.b, value.b));
+        assertEquals(normalPojo.bi, value.bi);
     }
 
     @Test
@@ -64,75 +55,6 @@ public class MessagePackDataformatForPojoTest extends MessagePackDataformatTestB
         byte[] bytes = objectMapper.writeValueAsBytes(orig);
         ChangingPropertyNamesPojo value = objectMapper.readValue(bytes, ChangingPropertyNamesPojo.class);
         assertEquals("komamitsu", value.getTheName());
-    }
-
-    public static class NormalPojo {
-        private String s;
-        public int i;
-        public long l;
-        public Float f;
-        public Double d;
-        public byte[] b;
-        public BigInteger bi;
-
-        public String getS() {
-            return s;
-        }
-
-        public void setS(String s) {
-            this.s = s;
-        }
-    }
-
-    public static class UsingCustomConstructorPojo
-    {
-        private final String name;
-        private final int age;
-
-        public UsingCustomConstructorPojo(@JsonProperty("name") String name, @JsonProperty("age") int age)
-        {
-            this.name = name;
-            this.age = age;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public int getAge() {
-            return age;
-        }
-    }
-
-    @JsonIgnoreProperties({ "foo", "bar" })
-    public static class IgnoringPropertiesPojo
-    {
-        private int _code;
-
-        // will not be written as JSON; nor assigned from JSON:
-        @JsonIgnore
-        public String internal;
-
-        // no annotation, public field is read/written normally
-        public String external;
-
-        @JsonIgnore
-        public void setCode(int c) { _code = c; }
-
-        // note: will also be ignored because setter has annotation!
-        public int getCode() { return _code; }
-    }
-
-    public static class ChangingPropertyNamesPojo {
-        private String _name;
-
-        // without annotation, we'd get "theName", but we want "name":
-        @JsonProperty("name")
-        public String getTheName() { return _name; }
-
-        // note: it is enough to add annotation on just getter OR setter;
-        // so we can omit it here
-        public void setTheName(String n) { _name = n; }
     }
 
 }
