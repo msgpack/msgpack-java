@@ -33,7 +33,8 @@ public class TemplateBuilderChain {
 			"org.msgpack.template.builder.ReflectionTemplateBuilder";
 
     private static boolean enableDynamicCodeGeneration() {
-        return !DalvikVmChecker.isDalvikVm();
+        return !DalvikVmChecker.isDalvikVm() &&
+            Boolean.parseBoolean(System.getProperties().getProperty("msgpack.dynamic-codegen.enabled", "true"));
     }
 
     protected List<TemplateBuilder> templateBuilders;
