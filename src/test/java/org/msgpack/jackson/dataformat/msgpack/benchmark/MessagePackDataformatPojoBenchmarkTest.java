@@ -1,16 +1,18 @@
-package org.msgpack.jackson.dataformat.msgpack;
+package org.msgpack.jackson.dataformat.msgpack.benchmark;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.msgpack.jackson.dataformat.msgpack.MessagePackDataformatTestBase;
+import org.msgpack.jackson.dataformat.msgpack.MessagePackFactory;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 @Ignore
-public class MessagePackDataformatBenchmarkTest extends MessagePackDataformatTestBase {
+public class MessagePackDataformatPojoBenchmarkTest extends MessagePackDataformatTestBase {
     private static final int LOOP_MAX = 100000;
     private static final List<NormalPojo> pojos = new ArrayList<NormalPojo>(LOOP_MAX);
     private static final List<byte[]> pojosSerWithOrig = new ArrayList<byte[]>(LOOP_MAX);
