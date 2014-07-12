@@ -7,6 +7,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
 
 public class MessagePackFactory extends JsonFactory {
     protected int messagePackGeneratorFeature = 0;
@@ -20,8 +23,8 @@ public class MessagePackFactory extends JsonFactory {
 
     @Override
     public JsonParser createParser(byte[] data) throws IOException, JsonParseException {
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
-        return createParser(in);
+        IOContext ioContext = _createContext(data, false);
+        return _createParser(data, 0, data.length, ioContext);
     }
 
     @Override
@@ -36,4 +39,12 @@ public class MessagePackFactory extends JsonFactory {
         return parser;
     }
 
+    @Override
+    protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt) throws IOException, JsonParseException {
+        if (offset != 0 || len != data.length) {
+            data = Arrays.copyOfRange(data, offset, offset + len);
+        }
+        MessagePackParser parser = new MessagePackParser(ctxt, messagePackParserFeature, data);
+        return parser;
+    }
 }

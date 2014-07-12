@@ -57,6 +57,11 @@ public class MessagePackParser extends ParserBase {
         unpacker = new MessageUnpacker(in);
     }
 
+    public MessagePackParser(IOContext ctxt, int features, byte[] bytes) {
+        super(ctxt, features);
+        unpacker = new MessageUnpacker(bytes);
+    }
+
     @Override
     protected boolean loadMore() throws IOException {
         return unpacker.hasNext();
