@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-@Ignore
 public class MessagePackDataformatPojoBenchmarkTest extends MessagePackDataformatTestBase {
     private static final int LOOP_MAX = 100000;
     private static final List<NormalPojo> pojos = new ArrayList<NormalPojo>(LOOP_MAX);
