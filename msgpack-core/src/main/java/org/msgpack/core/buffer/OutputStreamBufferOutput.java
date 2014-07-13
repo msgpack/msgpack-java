@@ -18,7 +18,7 @@ public class OutputStreamBufferOutput implements MessageBufferOutput {
 
     @Override
     public void flush(MessageBuffer buf, int offset, int len) throws IOException {
-        assert(offset + len < buf.size());
+        assert(offset + len <= buf.size());
 
         // TODO reuse the allocated buffer
         byte[] in = new byte[len];

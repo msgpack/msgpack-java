@@ -19,7 +19,7 @@ public class ChannelBufferOutput implements MessageBufferOutput {
 
     @Override
     public void flush(MessageBuffer buf, int offset, int len) throws IOException {
-        assert(offset + len < buf.size());
+        assert(offset + len <= buf.size());
         ByteBuffer bb = buf.toByteBuffer(offset, len);
         channel.write(bb);
     }
