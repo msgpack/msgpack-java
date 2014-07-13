@@ -143,7 +143,7 @@ public class MessagePackParser extends ParserBase {
                 break;
             case ARRAY:
                 nextToken = JsonToken.START_ARRAY;
-                stack.push(new StackItemForArray(unpacker.unpackMapHeader()));
+                stack.push(new StackItemForArray(unpacker.unpackArrayHeader()));
                 _parsingContext = _parsingContext.createChildArrayContext(-1, -1);
                 break;
             case MAP:
