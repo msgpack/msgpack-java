@@ -28,7 +28,7 @@ object Build extends Build {
 
   val SCALA_VERSION = "2.11.1"
 
-  lazy val buildSettings = Defaults.defaultSettings ++
+  lazy val buildSettings = Defaults.coreDefaultSettings ++
     releaseSettings ++
     findbugsSettings ++
     jacoco.settings ++
@@ -50,6 +50,7 @@ object Build extends Build {
       incOptions := incOptions.value.withNameHashing(true),
       //resolvers += Resolver.mavenLocal,
       scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-target:jvm-1.6", "-feature"),
+      javaOptions in Test ++= Seq("-ea"),
       javacOptions in (Compile, compile) ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.6", "-target", "1.6"),
       pomExtra := {
         <url>http://msgpack.org/</url>
