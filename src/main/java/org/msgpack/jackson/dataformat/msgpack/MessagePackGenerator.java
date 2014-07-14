@@ -13,11 +13,13 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class MessagePackGenerator extends GeneratorBase {
+    private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
     private MessagePacker messagePacker;
     private LinkedList<StackItem> stack;
     private StackItem rootStackItem;
@@ -81,7 +83,7 @@ public class MessagePackGenerator extends GeneratorBase {
             _reportError("Current context not an array but " + _writeContext.getTypeDesc());
         }
 
-        StackItemForArray stackTop = getStackTopForArray();
+        getStackTopForArray();
 
         _writeContext = _writeContext.getParent();
 
@@ -194,12 +196,12 @@ public class MessagePackGenerator extends GeneratorBase {
 
     @Override
     public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException, JsonGenerationException {
-        addValueToStackTop(new String(text, offset, length));
+        addValueToStackTop(new String(text, offset, length, DEFAULT_CHARSET));
     }
 
     @Override
     public void writeUTF8String(byte[] text, int offset, int length) throws IOException, JsonGenerationException {
-        addValueToStackTop(new String(text, offset, length));
+        addValueToStackTop(new String(text, offset, length, DEFAULT_CHARSET));
     }
 
     @Override

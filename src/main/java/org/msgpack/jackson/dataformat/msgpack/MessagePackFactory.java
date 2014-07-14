@@ -12,12 +12,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MessagePackFactory extends JsonFactory {
+    private static final long serialVersionUID = 2578263992015504347L;
     protected int messagePackGeneratorFeature = 0;
     protected int messagePackParserFeature = 0;
 
     @Override
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws IOException {
-        IOContext ioContext = _createContext(out, false);
         return new MessagePackGenerator(messagePackGeneratorFeature, _objectCodec, out);
     }
 

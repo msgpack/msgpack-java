@@ -53,7 +53,7 @@ public class MessagePackDataformatHugeDataBenchmarkTest extends MessagePackDataf
     public void testBenchmarkSerializeWithNormalObjectMapper() throws Exception {
         long currentTimeMillis = System.currentTimeMillis();
         String label = "normal object mapper: serialize(huge_data)";
-        byte[] bytes = origObjectMapper.writeValueAsBytes(value);
+        origObjectMapper.writeValueAsBytes(value);
         System.out.println(String.format("%s => %d", label, (System.currentTimeMillis() - currentTimeMillis)));
     }
 
@@ -61,7 +61,7 @@ public class MessagePackDataformatHugeDataBenchmarkTest extends MessagePackDataf
     public void testBenchmarkSerializeWithMessagePackObjectMapper() throws Exception {
         long currentTimeMillis = System.currentTimeMillis();
         String label = "msgpack object mapper: serialize(huge_data)";
-        byte[] bytes = msgpackObjectMapper.writeValueAsBytes(value);
+        msgpackObjectMapper.writeValueAsBytes(value);
         System.out.println(String.format("%s => %d", label, (System.currentTimeMillis() - currentTimeMillis)));
     }
 
@@ -69,7 +69,7 @@ public class MessagePackDataformatHugeDataBenchmarkTest extends MessagePackDataf
     public void testBenchmarkDeserializeWithNormalObjectMapper() throws Exception {
         long currentTimeMillis = System.currentTimeMillis();
         String label = "normal object mapper: deserialize(huge_data)";
-        List<Object> v = origObjectMapper.readValue(packedByOriginal, new TypeReference<List<Object>>() {});
+        origObjectMapper.readValue(packedByOriginal, new TypeReference<List<Object>>() {});
         System.out.println(String.format("%s => %d", label, (System.currentTimeMillis() - currentTimeMillis)));
     }
 
@@ -77,7 +77,7 @@ public class MessagePackDataformatHugeDataBenchmarkTest extends MessagePackDataf
     public void testBenchmarkDeserializeWithMessagePackObjectMapper() throws Exception {
         long currentTimeMillis = System.currentTimeMillis();
         String label = "msgpack object mapper: deserialize(huge_data)";
-        List<Object> v = msgpackObjectMapper.readValue(packedByMsgPack, new TypeReference<List<Object>>() {});
+        msgpackObjectMapper.readValue(packedByMsgPack, new TypeReference<List<Object>>() {});
         System.out.println(String.format("%s => %d", label, (System.currentTimeMillis() - currentTimeMillis)));
     }
 }
