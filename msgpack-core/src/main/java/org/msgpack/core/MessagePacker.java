@@ -83,7 +83,7 @@ public class MessagePacker implements Closeable {
     public MessagePacker(MessageBufferOutput out, MessagePack.Config config) {
         this.config = checkNotNull(config, "config is null");
         this.out = checkNotNull(out, "MessageBufferOutput is null");
-        this.buffer = MessageBuffer.newDirectBuffer(config.getPackerBufferSize());
+        this.buffer = MessageBuffer.newBuffer(config.getPackerBufferSize());
         this.position = 0;
     }
 
