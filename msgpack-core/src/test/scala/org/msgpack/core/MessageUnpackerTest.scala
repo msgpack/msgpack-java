@@ -492,6 +492,32 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     }
 
+
+    "reset the internal states" taggedAs("reset") in {
+
+      val data = intSeq
+      val b = createMessagePackData(packer => data foreach packer.packInt)
+      val unpacker = new MessageUnpacker(b)
+
+      val unpacked = Array.newBuilder[Int]
+      while(unpacker.hasNext) {
+        unpacked += unpacker.unpackInt()
+      }
+      unpacker.close
+      unpacked.result shouldBe data
+
+      val data2 = intSeq
+      val b2 = createMessagePackData(packer => data2 foreach packer.packInt)
+      unpacker.reset(new ArrayBufferInput(b2))
+      val unpacked2 = Array.newBuilder[Int]
+      while(unpacker.hasNext) {
+        unpacked2 += unpacker.unpackInt()
+      }
+      unpacker.close
+      unpacked2.result shouldBe data2
+
+    }
+
   }
 
 }

@@ -75,7 +75,7 @@ public class MessageUnpacker implements Closeable {
 
     private final MessagePack.Config config;
 
-    private final MessageBufferInput in;
+    private MessageBufferInput in;
 
     /**
      * Points to the current buffer to read
@@ -167,10 +167,23 @@ public class MessageUnpacker implements Closeable {
      */
     public MessageUnpacker(MessageBufferInput in, MessagePack.Config config) {
         // Root constructor. All of the constructors must call this constructor.
-        this.in = checkNotNull(in, "MessageBufferInput");
+        this.in = checkNotNull(in, "MessageBufferInput is null");
         this.config = checkNotNull(config, "Config");
     }
 
+    public void reset(MessageBufferInput in) throws IOException {
+        MessageBufferInput newIn = checkNotNull(in, "MessageBufferInput is null");
+
+        close();
+        this.in = newIn;
+        this.buffer = EMPTY_BUFFER;
+        this.position = 0;
+        this.totalReadBytes = 0;
+        this.secondaryBuffer = null;
+        this.reachedEOF = false;
+        // No need to initialize the already allocated string decoder here since we can reuse it.
+
+    }
 
     public long getTotalReadBytes() {
         return totalReadBytes + position;

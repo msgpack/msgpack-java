@@ -56,7 +56,7 @@ public class MessagePacker implements Closeable {
 
     private final MessagePack.Config config;
 
-    private final MessageBufferOutput out;
+    private MessageBufferOutput out;
     private final MessageBuffer buffer;
     private int position;
 
@@ -84,6 +84,15 @@ public class MessagePacker implements Closeable {
         this.config = checkNotNull(config, "config is null");
         this.out = checkNotNull(out, "MessageBufferOutput is null");
         this.buffer = MessageBuffer.newBuffer(config.getPackerBufferSize());
+        this.position = 0;
+    }
+
+    public void reset(MessageBufferOutput out) throws IOException {
+        // Validate the argument
+        MessageBufferOutput newOut = checkNotNull(out, "MessageBufferOutput is null");
+
+        close(); // Flush and close
+        this.out = newOut;
         this.position = 0;
     }
 
