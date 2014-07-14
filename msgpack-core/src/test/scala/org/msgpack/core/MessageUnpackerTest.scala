@@ -439,8 +439,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
 
         block("v7") {
-          //val unpacker = new MessageUnpacker(b)
-          val unpacker = new MessageUnpacker(new ByteArrayInputStream(b))
+          val unpacker = new MessageUnpacker(b)
           var i = 0
           while(i < R) {
             val len = unpacker.unpackBinaryHeader()
@@ -452,7 +451,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
 
         block("v7-ref") {
-          val unpacker = new MessageUnpacker(new ByteArrayInputStream(b))
+          val unpacker = new MessageUnpacker(b)
           var i = 0
           while(i < R) {
             val len = unpacker.unpackBinaryHeader()
