@@ -57,7 +57,7 @@ public class MessagePacker implements Closeable {
     private final MessagePack.Config config;
 
     private final MessageBufferOutput out;
-    private final MessageBuffer buffer;
+    private MessageBuffer buffer;
     private int position;
 
 
@@ -96,12 +96,14 @@ public class MessagePacker implements Closeable {
     }
 
     public void flush() throws IOException {
-        out.flush(buffer, 0, position);
+        if(position == buffer.size()) {
+            out.flush(buffer);
+        }
+        else {
+            out.flush(buffer.slice(0, position));
+        }
+        buffer = out.next(config.getPackerBufferSize());
         position = 0;
-    }
-
-    private void flushBuffer(MessageBuffer b) throws IOException {
-        out.flush(b, 0, b.size());
     }
 
     public void close() throws IOException {
@@ -296,12 +298,12 @@ public class MessagePacker implements Closeable {
         }
         return this;
     }
-    
+
     public MessagePacker packFloat(float v) throws IOException {
         writeByteAndFloat(FLOAT32, v);
         return this;
     }
- 
+
     public MessagePacker packDouble(double v) throws IOException {
         writeByteAndDouble(FLOAT64, v);
         return this;
@@ -493,7 +495,7 @@ public class MessagePacker implements Closeable {
             // Wrap the input source as a MessageBuffer
             MessageBuffer wrapped = MessageBuffer.wrap(src).slice(src.position(), src.remaining());
             // Then, dump the source data to the output
-            flushBuffer(wrapped);
+            out.flush(wrapped);
             src.position(src.limit());
         }
         else {
@@ -523,7 +525,7 @@ public class MessagePacker implements Closeable {
             // Wrap the input array as a MessageBuffer
             MessageBuffer wrapped = MessageBuffer.wrap(src).slice(off, len);
             // Dump the source data to the output
-            flushBuffer(wrapped);
+            out.flush(wrapped);
         }
         else {
             int cursor = 0;
