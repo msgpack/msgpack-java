@@ -172,15 +172,17 @@ public class MessageUnpacker implements Closeable {
     }
 
     public void reset(MessageBufferInput in) throws IOException {
-        close();
+        MessageBufferInput newIn = checkNotNull(in, "MessageBufferInput is null");
 
-        this.in = checkNotNull(in, "MessageBufferInput is null");
+        close();
+        this.in = newIn;
         this.buffer = EMPTY_BUFFER;
         this.position = 0;
         this.totalReadBytes = 0;
         this.secondaryBuffer = null;
         this.reachedEOF = false;
         // No need to initialize the already allocated string decoder here since we can reuse it.
+
     }
 
     public long getTotalReadBytes() {

@@ -35,7 +35,7 @@ class MessagePackerTest extends MessagePackSpec {
 
       val intSeq2 = intSeq.reverse
       val b2 = new ByteArrayOutputStream
-      packer.reset(b2)
+      packer.reset(new OutputStreamBufferOutput(b2))
       intSeq2 foreach packer.packInt
       packer.close
       verifyIntSeq(intSeq2, b2.toByteArray)

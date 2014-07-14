@@ -87,13 +87,12 @@ public class MessagePacker implements Closeable {
         this.position = 0;
     }
 
-    public void reset(OutputStream out) throws IOException {
-        reset(new OutputStreamBufferOutput(out));
-    }
-
     public void reset(MessageBufferOutput out) throws IOException {
-        out.close();
-        this.out = checkNotNull(out, "MessageBufferOutput is null");
+        // Validate the argument
+        MessageBufferOutput newOut = checkNotNull(out, "MessageBufferOutput is null");
+
+        close(); // Flush and close
+        this.out = newOut;
         this.position = 0;
     }
 
