@@ -3,7 +3,7 @@ package org.msgpack.core.buffer
 import java.nio.ByteBuffer
 import scala.util.Random
 import org.msgpack.core.MessagePackSpec
-
+import io.airlift.slice.{SliceFactory, Slice}
 
 /**
  * Created on 2014/05/01.
@@ -113,7 +113,32 @@ class MessageBufferTest extends MessagePackSpec {
 
     }
 
+    "create io.airlift.slice.Slice" taggedAs("slice") in {
+
+      def fill(b:MessageBuffer) {
+        for(i <- 0 until b.size()) {
+          b.putByte(i, i.toByte)
+        }
+      }
+
+      val b = MessageBuffer.newBuffer(1024)
+      fill(b)
+
+      val slice = SliceFactory.newSlice(b)
+      b.toByteBuffer.compareTo(slice.toByteBuffer) shouldBe 0
+
+      val d = MessageBuffer.newDirectBuffer(1024)
+      fill(d)
+
+      val slice2 = SliceFactory.newSlice(d)
+      d.toByteBuffer.compareTo(slice2.toByteBuffer) shouldBe 0
+
+
+    }
+
 
   }
 
 }
+
+
