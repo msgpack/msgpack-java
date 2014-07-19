@@ -5,7 +5,9 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
+import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.core.buffer.OutputStreamBufferOutput;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
@@ -20,9 +22,10 @@ import java.util.List;
 
 public class MessagePackGenerator extends GeneratorBase {
     private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
-    private MessagePacker messagePacker;
+    private static ThreadLocal<MessagePacker> messagePackersHolder = new ThreadLocal<MessagePacker>();
     private LinkedList<StackItem> stack;
     private StackItem rootStackItem;
+
 
     private static abstract class StackItem {
         protected List<String> objectKeys = new ArrayList<String>();
@@ -65,9 +68,17 @@ public class MessagePackGenerator extends GeneratorBase {
         }
     }
 
-    public MessagePackGenerator(int features, ObjectCodec codec, OutputStream out) {
+    public MessagePackGenerator(int features, ObjectCodec codec, OutputStream out) throws IOException {
         super(features, codec);
-        this.messagePacker = new MessagePacker(out);
+        MessagePacker messagePacker = messagePackersHolder.get();
+        if (messagePacker == null) {
+            messagePacker = new MessagePacker(out);
+        }
+        else {
+            messagePacker.reset(new OutputStreamBufferOutput(out));
+        }
+        messagePackersHolder.set(messagePacker);
+
         this.stack = new LinkedList<StackItem>();
     }
 
@@ -116,6 +127,7 @@ public class MessagePackGenerator extends GeneratorBase {
     }
 
     private void packValue(Object v) throws IOException {
+        MessagePacker messagePacker = getMessagePacker();
         if (v == null) {
             messagePacker.packNil();
         }
@@ -123,7 +135,7 @@ public class MessagePackGenerator extends GeneratorBase {
             messagePacker.packInt((Integer) v);
         }
         else if (v instanceof ByteBuffer) {
-            messagePacker.packBinary((ByteBuffer)v);
+            messagePacker.packBinary((ByteBuffer) v);
         }
         else if (v instanceof String) {
             messagePacker.packString((String) v);
@@ -159,6 +171,7 @@ public class MessagePackGenerator extends GeneratorBase {
         List<String> keys = stackItem.getKeys();
         List<Object> values = stackItem.getValues();
 
+        MessagePacker messagePacker = getMessagePacker();
         messagePacker.packMapHeader(keys.size());
 
         for (int i = 0; i < keys.size(); i++) {
@@ -171,6 +184,7 @@ public class MessagePackGenerator extends GeneratorBase {
     private void packArray(StackItemForArray stackItem) throws IOException {
         List<Object> values = stackItem.getValues();
 
+        MessagePacker messagePacker = getMessagePacker();
         messagePacker.packArrayHeader(values.size());
 
         for (int i = 0; i < values.size(); i++) {
@@ -291,6 +305,7 @@ public class MessagePackGenerator extends GeneratorBase {
             else {
                 throw new IllegalStateException("Unexpected rootStackItem: " + rootStackItem);
             }
+            MessagePacker messagePacker = getMessagePacker();
             messagePacker.flush();
         }
     }
@@ -352,5 +367,13 @@ public class MessagePackGenerator extends GeneratorBase {
                 rootStackItem = child;
             }
         }
+    }
+
+    private MessagePacker getMessagePacker() {
+        MessagePacker messagePacker = messagePackersHolder.get();
+        if (messagePacker == null) {
+            throw new IllegalStateException("messagePacker is null");
+        }
+        return messagePacker;
     }
 }

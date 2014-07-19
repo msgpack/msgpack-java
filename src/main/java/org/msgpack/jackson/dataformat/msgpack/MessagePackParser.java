@@ -5,6 +5,10 @@ import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.io.IOContext;
 import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessageUnpacker;
+import org.msgpack.core.buffer.ArrayBufferInput;
+import org.msgpack.core.buffer.InputStreamBufferInput;
+import org.msgpack.core.buffer.MessageBuffer;
+import org.msgpack.core.buffer.MessageBufferInput;
 import org.msgpack.value.NumberValue;
 import org.msgpack.value.ValueType;
 import org.msgpack.value.holder.IntegerHolder;
@@ -18,9 +22,9 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
 public class MessagePackParser extends ParserBase {
-    private final MessageUnpacker unpacker;
     private ObjectCodec codec;
     private final LinkedList<StackItem> stack = new LinkedList<StackItem>();
+    private static final ThreadLocal<MessageUnpacker> messageUnpackerHolder = new ThreadLocal<MessageUnpacker>();
 
     private ValueHolder valueHolder = new ValueHolder();
 
@@ -52,19 +56,29 @@ public class MessagePackParser extends ParserBase {
         }
     }
 
-    public MessagePackParser(IOContext ctxt, int features, InputStream in) {
-        super(ctxt, features);
-        unpacker = new MessageUnpacker(in);
+    public MessagePackParser(IOContext ctxt, int features, InputStream in) throws IOException {
+        this(ctxt, features, new InputStreamBufferInput(in));
     }
 
-    public MessagePackParser(IOContext ctxt, int features, byte[] bytes) {
+    public MessagePackParser(IOContext ctxt, int features, byte[] bytes) throws IOException {
+        this(ctxt, features, new ArrayBufferInput(bytes));
+    }
+
+    private MessagePackParser(IOContext ctxt, int features, MessageBufferInput input) throws IOException {
         super(ctxt, features);
-        unpacker = new MessageUnpacker(bytes);
+        MessageUnpacker messageUnpacker = messageUnpackerHolder.get();
+        if (messageUnpacker == null) {
+            messageUnpacker = new MessageUnpacker(input);
+        }
+        else {
+            messageUnpacker.reset(input);
+        }
+        messageUnpackerHolder.set(messageUnpacker);
     }
 
     @Override
     protected boolean loadMore() throws IOException {
-        return unpacker.hasNext();
+        return messageUnpackerHolder.get().hasNext();
     }
 
     @Override
@@ -87,6 +101,7 @@ public class MessagePackParser extends ParserBase {
 
     @Override
     public JsonToken nextToken() throws IOException, JsonParseException {
+        MessageUnpacker messageUnpacker = messageUnpackerHolder.get();
         JsonToken nextToken = null;
         if (_parsingContext.inObject() || _parsingContext.inArray()) {
             if (stack.getFirst().isEmpty()) {
@@ -97,38 +112,38 @@ public class MessagePackParser extends ParserBase {
             }
         }
 
-        if (!unpacker.hasNext()) {
+        if (!messageUnpacker.hasNext()) {
             if (!_parsingContext.inObject() && !_parsingContext.inArray()) {
                 throw new IllegalStateException("Not in Object nor Array");
             }
             _currToken = _parsingContext.inObject() ? JsonToken.END_OBJECT : JsonToken.END_ARRAY;
             _parsingContext = _parsingContext.getParent();
-            unpacker.close();
+            messageUnpacker.close();
             _handleEOF();
             return _currToken;
         }
 
-        MessageFormat nextFormat = unpacker.getNextFormat();
+        MessageFormat nextFormat = messageUnpacker.getNextFormat();
         ValueType valueType = nextFormat.getValueType();
         switch (valueType) {
             case NIL:
-                unpacker.unpackNil();
+                messageUnpacker.unpackNil();
                 nextToken = JsonToken.VALUE_NULL;
                 break;
             case BOOLEAN:
-                boolean b = unpacker.unpackBoolean();
+                boolean b = messageUnpacker.unpackBoolean();
                 nextToken = b ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE;
                 break;
             case INTEGER:
-                unpacker.unpackValue(valueHolder);
+                messageUnpacker.unpackValue(valueHolder);
                 nextToken = JsonToken.VALUE_NUMBER_INT;
                 break;
             case FLOAT:
-                unpacker.unpackValue(valueHolder);
+                messageUnpacker.unpackValue(valueHolder);
                 nextToken = JsonToken.VALUE_NUMBER_FLOAT;
                 break;
             case STRING:
-                unpacker.unpackValue(valueHolder);
+                messageUnpacker.unpackValue(valueHolder);
                 if (_parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
                     _parsingContext.setCurrentName(valueHolder.getRef().asRaw().toString());
                     nextToken = JsonToken.FIELD_NAME;
@@ -138,17 +153,17 @@ public class MessagePackParser extends ParserBase {
                 }
                 break;
             case BINARY:
-                unpacker.unpackValue(valueHolder);
+                messageUnpacker.unpackValue(valueHolder);
                 nextToken = JsonToken.VALUE_EMBEDDED_OBJECT;
                 break;
             case ARRAY:
                 nextToken = JsonToken.START_ARRAY;
-                stack.push(new StackItemForArray(unpacker.unpackArrayHeader()));
+                stack.push(new StackItemForArray(messageUnpacker.unpackArrayHeader()));
                 _parsingContext = _parsingContext.createChildArrayContext(-1, -1);
                 break;
             case MAP:
                 nextToken = JsonToken.START_OBJECT;
-                stack.push(new StackItemForObject(unpacker.unpackMapHeader()));
+                stack.push(new StackItemForObject(messageUnpacker.unpackMapHeader()));
                 _parsingContext = _parsingContext.createChildObjectContext(-1, -1);
                 break;
             case EXTENDED:
