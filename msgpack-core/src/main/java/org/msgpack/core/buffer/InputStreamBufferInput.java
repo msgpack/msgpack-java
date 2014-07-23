@@ -13,7 +13,7 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  */
 public class InputStreamBufferInput implements MessageBufferInput {
 
-    private final InputStream in;
+    private InputStream in;
     private final int bufferSize;
     private boolean reachedEOF = false;
 
@@ -33,6 +33,13 @@ public class InputStreamBufferInput implements MessageBufferInput {
         this.in = checkNotNull(in, "input is null");
         this.bufferSize = bufferSize;
     }
+
+    public void reset(InputStream in) throws IOException {
+        in.close();
+        this.in = in;
+        reachedEOF = false;
+    }
+
 
     @Override
     public MessageBuffer next() throws IOException {

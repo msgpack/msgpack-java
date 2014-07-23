@@ -11,7 +11,7 @@ import static org.msgpack.core.Preconditions.*;
  */
 public class ChannelBufferInput implements MessageBufferInput {
 
-    private final ReadableByteChannel channel;
+    private ReadableByteChannel channel;
     private boolean reachedEOF = false;
     private final int bufferSize;
 
@@ -25,6 +25,11 @@ public class ChannelBufferInput implements MessageBufferInput {
         this.bufferSize = bufferSize;
     }
 
+    public void reset(ReadableByteChannel channel) throws IOException {
+        channel.close();
+        this.channel = channel;
+        this.reachedEOF = false;
+    }
     @Override
     public MessageBuffer next() throws IOException {
 

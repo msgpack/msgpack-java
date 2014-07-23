@@ -10,12 +10,17 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  */
 public class OutputStreamBufferOutput implements MessageBufferOutput {
 
-    private final OutputStream out;
+    private OutputStream out;
     private MessageBuffer buffer;
     private byte[] tmpBuf;
 
     public OutputStreamBufferOutput(OutputStream out) {
         this.out = checkNotNull(out, "output is null");
+    }
+
+    public void reset(OutputStream out) throws IOException {
+        out.close();
+        this.out = out;
     }
 
     @Override
