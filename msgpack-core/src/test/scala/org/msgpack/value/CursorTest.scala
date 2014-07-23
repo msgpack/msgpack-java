@@ -11,7 +11,7 @@ import org.msgpack.value.holder.IntegerHolder
 class CursorTest extends MessagePackSpec {
 
   def sampleData = createMessagePackData { packer =>
-    packer.pack(
+    packer.packValue(
       ValueFactory.newArray(
         newInt(10),
         newBinary("message pack".getBytes(MessagePack.UTF8)),

@@ -58,14 +58,9 @@ public class MessagePacker implements Closeable {
 
     private MessageBufferOutput out;
     private MessageBuffer buffer;
+    private MessageBuffer strLenBuffer;
 
     private int position;
-
-
-    /**
-     * Buffer for encoding UTF8 strings
-     */
-    private ByteBuffer encodeBuffer;
 
     /**
      * String encoder
@@ -113,7 +108,6 @@ public class MessagePacker implements Closeable {
 
     private void prepareEncoder() {
         if(encoder == null) {
-            this.encodeBuffer = ByteBuffer.allocate(config.getStringEncoderBufferSize());
             this.encoder = MessagePack.UTF8.newEncoder().onMalformedInput(config.getActionOnMalFormedInput()).onUnmappableCharacter(config.getActionOnMalFormedInput());
         }
     }
@@ -340,55 +334,70 @@ public class MessagePacker implements Closeable {
      * @throws IOException
      */
     public MessagePacker packString(String s) throws IOException {
-        if(s.length() > 0) {
-            CharBuffer in = CharBuffer.wrap(s);
-            prepareEncoder();
+        if(s.length() <= 0) {
+            packRawStringHeader(0);
+            return this;
+        }
 
-            ByteBuffer preservedEncodeBuffer = encodeBuffer;
-            encodeBuffer.clear();
-            encoder.reset();
+        CharBuffer in = CharBuffer.wrap(s);
+        prepareEncoder();
+
+        flush();
+
+        boolean isExtended = false;
+        ByteBuffer encodeBuffer = buffer.toByteBuffer(position, buffer.size()-position);
+        encoder.reset();
+        while(in.hasRemaining()) {
             try {
-                while(in.hasRemaining()) {
-                    try {
-                        CoderResult cr = encoder.encode(in, encodeBuffer, true);
+                CoderResult cr = encoder.encode(in, encodeBuffer, true);
 
-                        if(cr.isUnderflow()) {
-                            cr = encoder.flush(encodeBuffer);
-                        }
+                if(cr.isUnderflow()) {
+                    cr = encoder.flush(encodeBuffer);
+                }
 
-                        if(cr.isOverflow()) {
-                            // Allocate a larger buffer
-                            int estimatedRemainingSize = Math.max(1, (int) (in.remaining() * encoder.averageBytesPerChar()));
-                            encodeBuffer.flip();
-                            ByteBuffer newBuffer = ByteBuffer.allocate(Math.max((int) (encodeBuffer.capacity() * 1.5), encodeBuffer.remaining() + estimatedRemainingSize));
-                            newBuffer.put(encodeBuffer);
-                            encodeBuffer = newBuffer;
-                            encoder.reset();
-                            continue;
-                        }
+                if(cr.isOverflow()) {
+                    // Allocate a larger buffer
+                    int estimatedRemainingSize = Math.max(1, (int) (in.remaining() * encoder.averageBytesPerChar()));
+                    encodeBuffer.flip();
+                    ByteBuffer newBuffer = ByteBuffer.allocate(Math.max((int) (encodeBuffer.capacity() * 1.5), encodeBuffer.remaining() + estimatedRemainingSize));
+                    newBuffer.put(encodeBuffer);
+                    encodeBuffer = newBuffer;
+                    isExtended = true;
+                    encoder.reset();
+                    continue;
+                }
 
-                        if(cr.isError()) {
-                            if((cr.isMalformed() && config.getActionOnMalFormedInput() == CodingErrorAction.REPORT) ||
-                               (cr.isUnmappable() && config.getActionOnUnmappableCharacter() == CodingErrorAction.REPORT)) {
-                                cr.throwException();
-                            }
-                        }
-                    } catch(CharacterCodingException e) {
-                        throw new MessageStringCodingException(e);
+                if(cr.isError()) {
+                    if((cr.isMalformed() && config.getActionOnMalFormedInput() == CodingErrorAction.REPORT) ||
+                            (cr.isUnmappable() && config.getActionOnUnmappableCharacter() == CodingErrorAction.REPORT)) {
+                        cr.throwException();
                     }
                 }
-                encodeBuffer.flip();
-                packRawStringHeader(encodeBuffer.remaining());
-                writePayload(encodeBuffer);
-            }
-            finally {
-                // Reset the encode buffer
-                encodeBuffer = preservedEncodeBuffer;
+            } catch(CharacterCodingException e) {
+                throw new MessageStringCodingException(e);
             }
         }
-        else {
-            packRawStringHeader(0);
+
+        encodeBuffer.flip();
+        int strLen = encodeBuffer.remaining();
+
+        // Preserve the current buffer
+        MessageBuffer tmpBuf = buffer;
+
+        // Switch the buffer to write the string length
+        if(strLenBuffer == null) {
+            strLenBuffer = MessageBuffer.newBuffer(5);
         }
+        buffer = strLenBuffer;
+        position = 0;
+        // pack raw string header (string binary size)
+        packRawStringHeader(strLen);
+        flush(); // We need to dump the data here to MessageBufferOutput so that we can switch back to the original buffer
+
+        // Reset to the original buffer (or encodeBuffer if new buffer is allocated)
+        buffer = isExtended ? MessageBuffer.wrap(encodeBuffer) : tmpBuf;
+        // No need exists to write payload since the encoded string is already written to the buffer
+        position = strLen;
         return this;
     }
 

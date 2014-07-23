@@ -97,7 +97,7 @@ public class MapCursorImpl extends AbstractValueRef implements MapCursor {
         ensureNotTraversed();
         packer.packMapHeader(mapSize);
         while(hasNext()) {
-            packer.pack(nextKeyOrValue().toValue());
+            packer.packValue(nextKeyOrValue().toValue());
         }
     }
 

@@ -22,6 +22,7 @@ import static org.msgpack.core.Preconditions.*;
 public class MessageBuffer {
 
     static final Unsafe unsafe;
+    // TODO We should use MethodHandle for efficiency, but it is not available in JDK6
     static final Constructor byteBufferConstructor;
     static final boolean isByteBufferConstructorTakesBufferReference;
     static final int ARRAY_BYTE_BASE_OFFSET;

@@ -37,7 +37,7 @@ public class ExtHolder extends AbstractValueRef implements ExtendedValue {
 
     @Override
     public void writeTo(MessagePacker packer) throws IOException {
-        packer.packExtendedType(extType, buffer.toByteBuffer());
+        packer.packExtendedTypeHeader(extType, buffer.size()).writePayload(buffer.toByteBuffer());
     }
 
     @Override
