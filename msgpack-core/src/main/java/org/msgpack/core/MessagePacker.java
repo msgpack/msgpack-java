@@ -69,15 +69,6 @@ public class MessagePacker implements Closeable {
 
 
     /**
-     * Create an MessagePacker that outputs the packed data to the specified stream
-     * @param out
-     */
-    public MessagePacker(OutputStream out) {
-        // This factory method does not have significant performance overhead.
-        this(new OutputStreamBufferOutput(out));
-    }
-
-    /**
      * Create an MessagePacker that outputs the packed data to the given {@link org.msgpack.core.buffer.MessageBufferOutput}
      *
      * @param out MessageBufferOutput. Use {@link org.msgpack.core.buffer.OutputStreamBufferOutput}, {@link org.msgpack.core.buffer.ChannelBufferOutput} or

@@ -125,42 +125,7 @@ public class MessageUnpacker implements Closeable {
         return new CursorImpl(this);
     }
 
-    /**
-     * Create an MessageUnpacker that reads data from the given byte array.
-     *
-     * @param arr
-     */
-    public MessageUnpacker(byte[] arr) {
-        this(new ArrayBufferInput(arr));
-    }
 
-    /**
-     * Create an MessageUnpacker that reads data from the given byte array [offset, offset+length)
-     * @param arr
-     * @param offset
-     * @param length
-     */
-    public MessageUnpacker(byte[] arr, int offset, int length) {
-        this(new ArrayBufferInput(arr, offset, length));
-    }
-
-    /**
-     * Create an MessageUnpacker that reads data from the given InputStream.
-     * For reading data efficiently from byte[], use {@link #MessageUnpacker(byte[])} or {@link #MessageUnpacker(byte[], int, int)} instead of this constructor.
-     *
-     * @param in
-     */
-    public MessageUnpacker(InputStream in) {
-        this(InputStreamBufferInput.newBufferInput(in));
-    }
-
-    /**
-     * Create an MessageUnpacker that reads data from the given ReadableByteChannel.
-     * @param in
-     */
-    public MessageUnpacker(ReadableByteChannel in) {
-        this(new ChannelBufferInput(in));
-    }
 
     /**
      * Create an MessageUnpacker that reads data from the given MessageBufferInput

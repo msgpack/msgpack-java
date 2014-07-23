@@ -100,17 +100,19 @@ class MessagePackTest extends MessagePackSpec  {
 
     }
 
+    val mf = MessagePackFactory.DEFAULT;
+
     def check[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A) {
       var b: Array[Byte] = null
       try {
         val bs = new ByteArrayOutputStream()
-        val packer = new MessagePacker(bs)
+        val packer = mf.newPacker(bs)
         pack(packer)
         packer.close()
 
         b = bs.toByteArray
 
-        val unpacker = new MessageUnpacker(b)
+        val unpacker = mf.newUnpacker(b)
         val ret = unpack(unpacker)
         ret shouldBe v
       }
@@ -126,13 +128,13 @@ class MessagePackTest extends MessagePackSpec  {
     def checkException[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A) {
       var b: Array[Byte] = null
       val bs = new ByteArrayOutputStream()
-      val packer = new MessagePacker(bs)
+      val packer = mf.newPacker(bs)
       pack(packer)
       packer.close()
 
       b = bs.toByteArray
 
-      val unpacker = new MessageUnpacker(b)
+      val unpacker = mf.newUnpacker(b)
       val ret = unpack(unpacker)
 
       fail("cannot not reach here")

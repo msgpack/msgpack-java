@@ -11,8 +11,10 @@ import scala.util.Random
  */
 class MessagePackerTest extends MessagePackSpec {
 
+  val mf = MessagePackFactory.DEFAULT;
+
   def verifyIntSeq(answer:Array[Int], packed:Array[Byte]) {
-    val unpacker = new MessageUnpacker(packed)
+    val unpacker = mf.newUnpacker(packed)
     val b = Array.newBuilder[Int]
     while(unpacker.hasNext) {
       b += unpacker.unpackInt()
@@ -28,7 +30,7 @@ class MessagePackerTest extends MessagePackSpec {
       val intSeq = (0 until 100).map(i => Random.nextInt).toArray
 
       val b = new ByteArrayOutputStream
-      val packer = new MessagePacker(b)
+      val packer = mf.newPacker(b)
       intSeq foreach packer.packInt
       packer.close
       verifyIntSeq(intSeq, b.toByteArray)

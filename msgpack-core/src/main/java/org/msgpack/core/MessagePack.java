@@ -15,12 +15,6 @@ public class MessagePack {
 
     public static final Charset UTF8 = Charset.forName("UTF-8");
 
-    public static MessageUnpacker newUnpacker(byte[] src) {
-        return new MessageUnpacker(new ArrayBufferInput(src));
-    }
-
-
-
     /**
      * Message packer/unpacker configuration object
      */
