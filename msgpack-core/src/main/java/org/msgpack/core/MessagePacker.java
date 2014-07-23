@@ -91,7 +91,8 @@ public class MessagePacker implements Closeable {
         // Validate the argument
         MessageBufferOutput newOut = checkNotNull(out, "MessageBufferOutput is null");
 
-        close(); // Flush and close
+        this.out.close();
+
         this.out = newOut;
         this.position = 0;
     }
