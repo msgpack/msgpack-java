@@ -48,7 +48,7 @@ import static org.msgpack.core.Preconditions.*;
  *
  * <pre>
  * <code>
- *     MessageUnpacker unpacker = new MessageUnpacker(...);
+ *     MessageUnpacker unpacker = MessagePackFactory.DEFAULT.newUnpacker(...);
  *     while(unpacker.hasNext()) {
  *         MessageFormat f = unpacker.getNextFormat();
  *         switch(f) {
