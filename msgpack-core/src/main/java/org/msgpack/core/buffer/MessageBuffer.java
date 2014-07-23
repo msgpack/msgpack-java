@@ -1,5 +1,6 @@
 package org.msgpack.core.buffer;
 
+import org.msgpack.core.annotations.Insecure;
 import sun.misc.Unsafe;
 import sun.nio.ch.DirectBuffer;
 
@@ -251,7 +252,7 @@ public class MessageBuffer {
         this.reference = null;
     }
 
-    protected MessageBuffer(Object base, long address, int length, ByteBuffer reference) {
+    MessageBuffer(Object base, long address, int length, ByteBuffer reference) {
         this.base = base;
         this.address = address;
         this.size = length;
@@ -397,7 +398,7 @@ public class MessageBuffer {
      * @return
      */
     public ByteBuffer toByteBuffer(int index, int length) {
-        if(base instanceof byte[]) {
+        if(hasArray()) {
             return ByteBuffer.wrap((byte[]) base, (int) ((address-ARRAY_BYTE_BASE_OFFSET) + index), length);
         }
         try {
@@ -411,15 +412,48 @@ public class MessageBuffer {
         }
     }
 
+    /**
+     * Get a ByteBuffer view of this buffer
+     * @return
+     */
     public ByteBuffer toByteBuffer() {
         return toByteBuffer(0, size());
     }
 
+    /**
+     * Get a copy of this buffer
+     * @return
+     */
     public byte[] toByteArray() {
         byte[] b = new byte[size()];
         unsafe.copyMemory(base, address, b, ARRAY_BYTE_BASE_OFFSET, size());
         return b;
     }
+
+    @Insecure
+    public boolean hasArray() { return base instanceof byte[]; }
+
+    @Insecure
+    public byte[] getArray() { return (byte[]) base; }
+
+    @Insecure
+    public Object getBase() { return base; }
+
+    @Insecure
+    public long getAddress() { return address; }
+
+    @Insecure
+    public int offset() {
+        if(hasArray()) {
+            return (int) address - ARRAY_BYTE_BASE_OFFSET;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    @Insecure
+    public Object getReference() { return reference; }
 
 
     public void relocate(int offset, int length, int dst) {

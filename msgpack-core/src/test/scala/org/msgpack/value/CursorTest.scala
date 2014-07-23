@@ -30,7 +30,7 @@ class CursorTest extends MessagePackSpec {
       val len = Random.nextInt(256)
       val b = new Array[Byte](len)
       Random.nextBytes(b)
-      packer.packBinary(b)
+      packer.packBinaryHeader(b.length).writePayload(b)
     }
   }
 

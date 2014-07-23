@@ -57,7 +57,8 @@ public class MessagePacker implements Closeable {
     private final MessagePack.Config config;
 
     private MessageBufferOutput out;
-    private final MessageBuffer buffer;
+    private MessageBuffer buffer;
+
     private int position;
 
 
@@ -71,11 +72,23 @@ public class MessagePacker implements Closeable {
      */
     private CharsetEncoder encoder;
 
+
+    /**
+     * Create an MessagePacker that outputs the packed data to the specified stream
+     * @param out
+     */
     public MessagePacker(OutputStream out) {
+        // This factory method does not have significant performance overhead.
         this(new OutputStreamBufferOutput(out));
     }
 
-
+    /**
+     * Create an MessagePacker that outputs the packed data to the given {@link org.msgpack.core.buffer.MessageBufferOutput}
+     *
+     * @param out MessageBufferOutput. Use {@link org.msgpack.core.buffer.OutputStreamBufferOutput}, {@link org.msgpack.core.buffer.ChannelBufferOutput} or
+     *            your own implementation of {@link org.msgpack.core.buffer.MessageBufferOutput} interface.
+     *
+     */
     public MessagePacker(MessageBufferOutput out) {
         this(out, MessagePack.DEFAULT_CONFIG);
     }
@@ -106,12 +119,14 @@ public class MessagePacker implements Closeable {
     }
 
     public void flush() throws IOException {
-        out.flush(buffer, 0, position);
+        if(position == buffer.size()) {
+            out.flush(buffer);
+        }
+        else {
+            out.flush(buffer.slice(0, position));
+        }
+        buffer = out.next(config.getPackerBufferSize());
         position = 0;
-    }
-
-    private void flushBuffer(MessageBuffer b) throws IOException {
-        out.flush(b, 0, b.size());
     }
 
     public void close() throws IOException {
@@ -306,12 +321,12 @@ public class MessagePacker implements Closeable {
         }
         return this;
     }
-    
+
     public MessagePacker packFloat(float v) throws IOException {
         writeByteAndFloat(FLOAT32, v);
         return this;
     }
- 
+
     public MessagePacker packDouble(double v) throws IOException {
         writeByteAndDouble(FLOAT64, v);
         return this;
@@ -405,63 +420,39 @@ public class MessagePacker implements Closeable {
         return this;
     }
 
-    public MessagePacker pack(Value v) throws IOException {
+    public MessagePacker packValue(Value v) throws IOException {
         v.writeTo(this);
         return this;
     }
 
-    public MessagePacker packExtendedType(int extType, byte[] src, int offset, int len) throws IOException {
-        return packExtendedTypeHeader(extType, len).writePayload(src, offset, len);
-    }
-
-    public MessagePacker packExtendedType(int extType, byte[] src) throws IOException {
-        return packExtendedType(extType, src, 0, src.length);
-    }
-
-    public MessagePacker packExtendedType(int extType, ByteBuffer src) throws IOException {
-        return packExtendedTypeHeader(extType, src.remaining()).writePayload(src);
-    }
-
-    public MessagePacker packExtendedTypeHeader(int extType, int dataLen) throws IOException {
-        if(dataLen < (1 << 8)) {
-            if(dataLen > 0 && (dataLen & (dataLen - 1)) == 0) { // check whether dataLen == 2^x
-                if(dataLen == 1) {
+    public MessagePacker packExtendedTypeHeader(int extType, int payloadLen) throws IOException {
+        if(payloadLen < (1 << 8)) {
+            if(payloadLen > 0 && (payloadLen & (payloadLen - 1)) == 0) { // check whether dataLen == 2^x
+                if(payloadLen == 1) {
                     writeByteAndByte(FIXEXT1, (byte) extType);
-                } else if(dataLen == 2){
+                } else if(payloadLen == 2){
                     writeByteAndByte(FIXEXT2, (byte) extType);
-                } else if(dataLen == 4) {
+                } else if(payloadLen == 4) {
                     writeByteAndByte(FIXEXT4, (byte) extType);
-                } else if(dataLen == 8) {
+                } else if(payloadLen == 8) {
                     writeByteAndByte(FIXEXT8, (byte) extType);
                 } else {
                     writeByteAndByte(FIXEXT16, (byte) extType);
                 }
             } else {
-                writeByteAndByte(EXT8, (byte) dataLen);
+                writeByteAndByte(EXT8, (byte) payloadLen);
                 writeByte((byte) extType);
             }
-        } else if(dataLen < (1 << 16)) {
-            writeByteAndShort(EXT16, (short) dataLen);
+        } else if(payloadLen < (1 << 16)) {
+            writeByteAndShort(EXT16, (short) payloadLen);
             writeByte((byte) extType);
         } else {
-            writeByteAndInt(EXT32, dataLen);
+            writeByteAndInt(EXT32, payloadLen);
             writeByte((byte) extType);
 
             // TODO support dataLen > 2^31 - 1
         }
         return this;
-    }
-
-    public MessagePacker packBinary(byte[] src) throws IOException {
-        return packBinary(src, 0, src.length);
-    }
-
-    public MessagePacker packBinary(byte[] src, int offset, int len) throws IOException {
-        return packBinaryHeader(len).writePayload(src, offset, len);
-    }
-
-    public MessagePacker packBinary(ByteBuffer src) throws IOException {
-        return packBinaryHeader(src.remaining()).writePayload(src);
     }
 
     public MessagePacker packBinaryHeader(int len) throws IOException {
@@ -473,10 +464,6 @@ public class MessagePacker implements Closeable {
             writeByteAndInt(BIN32, len);
         }
         return this;
-    }
-
-    public MessagePacker packRawString(ByteBuffer src) throws IOException {
-        return packRawStringHeader(src.remaining()).writePayload(src);
     }
 
     public MessagePacker packRawStringHeader(int len) throws IOException {
@@ -503,7 +490,7 @@ public class MessagePacker implements Closeable {
             // Wrap the input source as a MessageBuffer
             MessageBuffer wrapped = MessageBuffer.wrap(src).slice(src.position(), src.remaining());
             // Then, dump the source data to the output
-            flushBuffer(wrapped);
+            out.flush(wrapped);
             src.position(src.limit());
         }
         else {
@@ -533,7 +520,7 @@ public class MessagePacker implements Closeable {
             // Wrap the input array as a MessageBuffer
             MessageBuffer wrapped = MessageBuffer.wrap(src).slice(off, len);
             // Dump the source data to the output
-            flushBuffer(wrapped);
+            out.flush(wrapped);
         }
         else {
             int cursor = 0;

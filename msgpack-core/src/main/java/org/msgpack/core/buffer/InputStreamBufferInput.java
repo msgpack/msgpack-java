@@ -13,50 +13,15 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  */
 public class InputStreamBufferInput implements MessageBufferInput {
 
-    private static Field bufField;
-    private static Field bufPosField;
-    private static Field bufCountField;
-
-    private static Field getField(String name) {
-        Field f = null;
-        try {
-            f = ByteArrayInputStream.class.getDeclaredField(name);
-            f.setAccessible(true);
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-        return f;
-    }
-
-    static {
-        bufField = getField("buf");
-        bufPosField = getField("pos");
-        bufCountField = getField("count");
-    }
-
     private final InputStream in;
     private final int bufferSize;
     private boolean reachedEOF = false;
 
     public static MessageBufferInput newBufferInput(InputStream in) {
         checkNotNull(in, "InputStream is null");
-        if(in.getClass() == ByteArrayInputStream.class) {
-            ByteArrayInputStream b = (ByteArrayInputStream) in;
-            try {
-                // Extract a raw byte array from the ByteArrayInputStream
-                byte[] buf = (byte[]) bufField.get(b);
-                int pos = (Integer) bufPosField.get(b);
-                int length = (Integer) bufCountField.get(b);
-                return new ArrayBufferInput(buf, pos, length);
-            }
-            catch(Exception e) {
-                // Failed to retrieve the raw byte array
-            }
-        } else if (in instanceof FileInputStream) {
+        if (in instanceof FileInputStream) {
             return new ChannelBufferInput(((FileInputStream) in).getChannel());
         }
-
         return new InputStreamBufferInput(in);
     }
 

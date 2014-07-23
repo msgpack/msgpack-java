@@ -1,5 +1,7 @@
 package org.msgpack.core;
 
+import org.msgpack.core.buffer.ArrayBufferInput;
+
 import java.nio.charset.Charset;
 import java.nio.charset.CodingErrorAction;
 
@@ -12,6 +14,12 @@ import static org.msgpack.core.Preconditions.checkArgument;
 public class MessagePack {
 
     public static final Charset UTF8 = Charset.forName("UTF-8");
+
+    public static MessageUnpacker newUnpacker(byte[] src) {
+        return new MessageUnpacker(new ArrayBufferInput(src));
+    }
+
+
 
     /**
      * Message packer/unpacker configuration object
