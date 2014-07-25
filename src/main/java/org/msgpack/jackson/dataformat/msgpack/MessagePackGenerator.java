@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.core.buffer.MessageBufferOutput;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -71,11 +72,12 @@ public class MessagePackGenerator extends GeneratorBase {
     public MessagePackGenerator(int features, ObjectCodec codec, OutputStream out) throws IOException {
         super(features, codec);
         MessagePacker messagePacker = messagePackersHolder.get();
+        OutputStreamBufferOutput outputStreamBufferOutput = new OutputStreamBufferOutput(out);
         if (messagePacker == null) {
-            messagePacker = new MessagePacker(out);
+            messagePacker = new MessagePacker(outputStreamBufferOutput);
         }
         else {
-            messagePacker.reset(new OutputStreamBufferOutput(out));
+            messagePacker.reset(outputStreamBufferOutput);
         }
         messagePackersHolder.set(messagePacker);
 
@@ -135,7 +137,9 @@ public class MessagePackGenerator extends GeneratorBase {
             messagePacker.packInt((Integer) v);
         }
         else if (v instanceof ByteBuffer) {
-            messagePacker.packBinary((ByteBuffer) v);
+            ByteBuffer bb = (ByteBuffer) v;
+            messagePacker.packBinaryHeader(bb.limit());
+            messagePacker.writePayload(bb);
         }
         else if (v instanceof String) {
             messagePacker.packString((String) v);

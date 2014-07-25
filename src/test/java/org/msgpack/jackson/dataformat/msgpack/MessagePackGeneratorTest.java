@@ -2,6 +2,7 @@ package org.msgpack.jackson.dataformat.msgpack;
 
 import org.junit.Test;
 import org.msgpack.core.MessageUnpacker;
+import org.msgpack.core.buffer.ArrayBufferInput;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
 
         long bitmap = 0;
         byte[] bytes = objectMapper.writeValueAsBytes(hashMap);
-        MessageUnpacker messageUnpacker = new MessageUnpacker(bytes);
+        MessageUnpacker messageUnpacker = new MessageUnpacker(new ArrayBufferInput(bytes));
         assertEquals(hashMap.size(), messageUnpacker.unpackMapHeader());
         for (int i = 0; i < hashMap.size(); i++) {
             String key = messageUnpacker.unpackString();
@@ -111,7 +112,7 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
 
         long bitmap = 0;
         byte[] bytes = objectMapper.writeValueAsBytes(array);
-        MessageUnpacker messageUnpacker = new MessageUnpacker(bytes);
+        MessageUnpacker messageUnpacker = new MessageUnpacker(new ArrayBufferInput(bytes));
         assertEquals(array.size(), messageUnpacker.unpackArrayHeader());
         assertEquals("komamitsu", messageUnpacker.unpackString());
         assertEquals(Integer.MAX_VALUE, messageUnpacker.unpackInt());

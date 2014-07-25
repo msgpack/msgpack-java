@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MessagePackDataformatPojoBenchmarkTest extends MessagePackDataformatTestBase {
-    private static final int LOOP_MAX = 100000;
+    private static final int LOOP_MAX = 500000;
     private static final List<NormalPojo> pojos = new ArrayList<NormalPojo>(LOOP_MAX);
     private static final List<byte[]> pojosSerWithOrig = new ArrayList<byte[]>(LOOP_MAX);
     private static final List<byte[]> pojosSerWithMsgPack = new ArrayList<byte[]>(LOOP_MAX);

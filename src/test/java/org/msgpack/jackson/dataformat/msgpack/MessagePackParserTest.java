@@ -3,6 +3,7 @@ package org.msgpack.jackson.dataformat.msgpack;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.Test;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -16,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 public class MessagePackParserTest extends MessagePackDataformatTestBase {
     @Test
     public void testParserShouldReadObject() throws IOException {
-        MessagePacker packer = new MessagePacker(out);
+        MessagePacker packer = new MessagePacker(new OutputStreamBufferOutput(out));
         packer.packMapHeader(7);
         packer.packString("str");
         packer.packString("foobar");
@@ -105,7 +106,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
 
     @Test
     public void testParserShouldReadArray() throws IOException {
-        MessagePacker packer = new MessagePacker(out);
+        MessagePacker packer = new MessagePacker(new OutputStreamBufferOutput(out));
         packer.packArrayHeader(9);
         packer.packArrayHeader(3);
         {
@@ -121,7 +122,9 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         BigInteger bi = new BigInteger(Long.toString(Long.MAX_VALUE));
         bi = bi.add(BigInteger.ONE);
         packer.packBigInteger(bi);
-        packer.packBinary(new byte[]{(byte) 0xFF, (byte) 0xFE, 0x01, 0x00});
+        byte[] bytes = new byte[]{(byte) 0xFF, (byte) 0xFE, 0x01, 0x00};
+        packer.packBinaryHeader(bytes.length);
+        packer.writePayload(bytes);
         packer.packMapHeader(2);
         {
             packer.packString("child_map_name");
@@ -131,7 +134,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         }
         packer.flush();
 
-        byte[] bytes = out.toByteArray();
+        bytes = out.toByteArray();
 
         TypeReference<List<Object>> typeReference = new TypeReference<List<Object>>(){};
         List<Object> array = objectMapper.readValue(bytes, typeReference);
