@@ -17,11 +17,9 @@ package org.msgpack.core;
 
 import org.msgpack.core.buffer.MessageBuffer;
 import org.msgpack.core.buffer.MessageBufferOutput;
-import org.msgpack.core.buffer.OutputStreamBufferOutput;
 import org.msgpack.value.Value;
 
 import java.io.Closeable;
-import java.io.OutputStream;
 import java.math.BigInteger;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -82,7 +80,6 @@ public class MessagePacker implements Closeable {
     public MessagePacker(MessageBufferOutput out, MessagePack.Config config) {
         this.config = checkNotNull(config, "config is null");
         this.out = checkNotNull(out, "MessageBufferOutput is null");
-        this.buffer = MessageBuffer.newBuffer(config.getPackerBufferSize());
         this.position = 0;
     }
 
@@ -103,14 +100,25 @@ public class MessagePacker implements Closeable {
         }
     }
 
+    private void prepareBuffer() throws IOException {
+        if(buffer == null) {
+            buffer = out.next(config.getPackerBufferSize());
+        }
+    }
+
+
     public void flush() throws IOException {
+        if(buffer == null) {
+            return;
+        }
+
         if(position == buffer.size()) {
             out.flush(buffer);
         }
         else {
             out.flush(buffer.slice(0, position));
         }
-        buffer = out.next(config.getPackerBufferSize());
+        buffer = null;
         position = 0;
     }
 
@@ -124,10 +132,10 @@ public class MessagePacker implements Closeable {
     }
 
     private void ensureCapacity(int numBytesToWrite) throws IOException {
-        if(position + numBytesToWrite < buffer.size())
-            return;
-
-        flush();
+        if(buffer == null || position + numBytesToWrite >= buffer.size()) {
+            flush();
+            buffer = out.next(Math.max(config.getPackerBufferSize(), numBytesToWrite));
+        }
     }
 
 
@@ -335,6 +343,7 @@ public class MessagePacker implements Closeable {
 
         flush();
 
+        prepareBuffer();
         boolean isExtended = false;
         ByteBuffer encodeBuffer = buffer.toByteBuffer(position, buffer.size()-position);
         encoder.reset();
@@ -525,8 +534,10 @@ public class MessagePacker implements Closeable {
         else {
             int cursor = 0;
             while(cursor < len) {
-                if(position >= buffer.size())
+                if(buffer != null && position >= buffer.size()) {
                     flush();
+                }
+                prepareBuffer();
                 int writeLen = Math.min(buffer.size() - position, len - cursor);
                 buffer.putBytes(position, src, off + cursor, writeLen);
                 position += writeLen;

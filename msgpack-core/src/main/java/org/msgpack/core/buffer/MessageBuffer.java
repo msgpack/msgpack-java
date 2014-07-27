@@ -61,6 +61,7 @@ public class MessageBuffer {
             Constructor directByteBufferConstructor = null;
             boolean isAcceptReference = true;
             try {
+                // TODO We should use MethodHandle for Java7, which can avoid the cost of boxing with JIT optimization
                 directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
             }
             catch(NoSuchMethodException e) {
