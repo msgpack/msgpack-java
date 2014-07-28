@@ -24,6 +24,7 @@ import java.util.List;
 public class MessagePackGenerator extends GeneratorBase {
     private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
     private static ThreadLocal<MessagePacker> messagePackersHolder = new ThreadLocal<MessagePacker>();
+    private static ThreadLocal<OutputStreamBufferOutput> messageBufferOutputHolder = new ThreadLocal<OutputStreamBufferOutput>();
     private LinkedList<StackItem> stack;
     private StackItem rootStackItem;
 
@@ -72,12 +73,23 @@ public class MessagePackGenerator extends GeneratorBase {
     public MessagePackGenerator(int features, ObjectCodec codec, OutputStream out) throws IOException {
         super(features, codec);
         MessagePacker messagePacker = messagePackersHolder.get();
-        OutputStreamBufferOutput outputStreamBufferOutput = new OutputStreamBufferOutput(out);
-        if (messagePacker == null) {
-            messagePacker = new MessagePacker(outputStreamBufferOutput);
+//        OutputStreamBufferOutput outputStreamBufferOutput = new OutputStreamBufferOutput(out);
+        OutputStreamBufferOutput messageBufferOutput = messageBufferOutputHolder.get();
+        if (messageBufferOutput == null) {
+            messageBufferOutput = new OutputStreamBufferOutput(out);
         }
         else {
-            messagePacker.reset(outputStreamBufferOutput);
+            messageBufferOutput.reset(out);
+        }
+        messageBufferOutputHolder.set(messageBufferOutput);
+
+        if (messageBufferOutput == null) {
+        }
+        if (messagePacker == null) {
+            messagePacker = new MessagePacker(messageBufferOutput);
+        }
+        else {
+            messagePacker.reset(messageBufferOutput);
         }
         messagePackersHolder.set(messagePacker);
 
