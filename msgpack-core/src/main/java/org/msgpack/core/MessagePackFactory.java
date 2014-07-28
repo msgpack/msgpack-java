@@ -27,6 +27,12 @@ public class MessagePackFactory {
      */
     public static final MessagePackFactory DEFAULT = new MessagePackFactory(MessagePack.DEFAULT_CONFIG);
 
+
+    public static MessagePacker newDefaultPacker(OutputStream out) {
+        return DEFAULT.newPacker(out);
+    }
+
+
     /**
      * Create an MessagePacker that outputs the packed data to the specified stream
      * @param out
