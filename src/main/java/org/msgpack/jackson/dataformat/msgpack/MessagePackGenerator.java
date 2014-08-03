@@ -73,7 +73,6 @@ public class MessagePackGenerator extends GeneratorBase {
     public MessagePackGenerator(int features, ObjectCodec codec, OutputStream out) throws IOException {
         super(features, codec);
         MessagePacker messagePacker = messagePackersHolder.get();
-//        OutputStreamBufferOutput outputStreamBufferOutput = new OutputStreamBufferOutput(out);
         OutputStreamBufferOutput messageBufferOutput = messageBufferOutputHolder.get();
         if (messageBufferOutput == null) {
             messageBufferOutput = new OutputStreamBufferOutput(out);

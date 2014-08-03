@@ -12,7 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MessagePackDataformatPojoBenchmarkTest extends MessagePackDataformatTestBase {
-    private static final int LOOP_MAX = 500000;
+    private static final int LOOP_MAX = 50000;
+    private static final int LOOP_FACTOR = 100;
     private static final List<NormalPojo> pojos = new ArrayList<NormalPojo>(LOOP_MAX);
     private static final List<byte[]> pojosSerWithOrig = new ArrayList<byte[]>(LOOP_MAX);
     private static final List<byte[]> pojosSerWithMsgPack = new ArrayList<byte[]>(LOOP_MAX);
@@ -56,9 +57,10 @@ public class MessagePackDataformatPojoBenchmarkTest extends MessagePackDataforma
     public void testBenchmarkSerializeWithNormalObjectMapper() throws Exception {
         long currentTimeMillis = System.currentTimeMillis();
         String label = "normal object mapper: serialize(pojo)";
-        for (int i = 0; i < LOOP_MAX; i++) {
-            origObjectMapper.writeValueAsBytes(pojos.get(i));
-        }
+        for (int j = 0; j < LOOP_FACTOR; j++)
+            for (int i = 0; i < LOOP_MAX; i++) {
+                origObjectMapper.writeValueAsBytes(pojos.get(i));
+            }
         System.out.println(String.format("%s => %d", label, (System.currentTimeMillis() - currentTimeMillis)));
     }
 
@@ -66,9 +68,10 @@ public class MessagePackDataformatPojoBenchmarkTest extends MessagePackDataforma
     public void testBenchmarkSerializeWithMessagePackObjectMapper() throws Exception {
         long currentTimeMillis = System.currentTimeMillis();
         String label = "msgpack object mapper: serialize(pojo)";
-        for (int i = 0; i < LOOP_MAX; i++) {
-            msgpackObjectMapper.writeValueAsBytes(pojos.get(i));
-        }
+        for (int j = 0; j < LOOP_FACTOR; j++)
+            for (int i = 0; i < LOOP_MAX; i++) {
+                msgpackObjectMapper.writeValueAsBytes(pojos.get(i));
+            }
         System.out.println(String.format("%s => %d", label, (System.currentTimeMillis() - currentTimeMillis)));
     }
 
@@ -76,9 +79,10 @@ public class MessagePackDataformatPojoBenchmarkTest extends MessagePackDataforma
     public void testBenchmarkDeserializeWithNormalObjectMapper() throws Exception {
         long currentTimeMillis = System.currentTimeMillis();
         String label = "normal object mapper: deserialize(pojo)";
-        for (int i = 0; i < LOOP_MAX; i++) {
-            origObjectMapper.readValue(pojosSerWithOrig.get(i), NormalPojo.class);
-        }
+        for (int j = 0; j < LOOP_FACTOR; j++)
+            for (int i = 0; i < LOOP_MAX; i++) {
+                origObjectMapper.readValue(pojosSerWithOrig.get(i), NormalPojo.class);
+            }
         System.out.println(String.format("%s => %d", label, (System.currentTimeMillis() - currentTimeMillis)));
     }
 
@@ -86,9 +90,10 @@ public class MessagePackDataformatPojoBenchmarkTest extends MessagePackDataforma
     public void testBenchmarkDeserializeWithMessagePackObjectMapper() throws Exception {
         long currentTimeMillis = System.currentTimeMillis();
         String label = "msgpack object mapper: deserialize(pojo)";
-        for (int i = 0; i < LOOP_MAX; i++) {
-            msgpackObjectMapper.readValue(pojosSerWithMsgPack.get(i), NormalPojo.class);
-        }
+        for (int j = 0; j < LOOP_FACTOR; j++)
+            for (int i = 0; i < LOOP_MAX; i++) {
+                msgpackObjectMapper.readValue(pojosSerWithMsgPack.get(i), NormalPojo.class);
+            }
         System.out.println(String.format("%s => %d", label, (System.currentTimeMillis() - currentTimeMillis)));
     }
 }
