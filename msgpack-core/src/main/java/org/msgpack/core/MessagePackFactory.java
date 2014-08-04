@@ -32,6 +32,26 @@ public class MessagePackFactory {
         return DEFAULT.newPacker(out);
     }
 
+    public static MessagePacker newDefaultPacker(WritableByteChannel channel) {
+        return DEFAULT.newPacker(channel);
+    }
+
+    public static MessageUnpacker newDefaultUnpacker(InputStream in) {
+        return DEFAULT.newUnpacker(in);
+    }
+
+    public static MessageUnpacker newDefaultUnpacker(ReadableByteChannel channel) {
+        return DEFAULT.newUnpacker(channel);
+    }
+
+    public static MessageUnpacker newDefaultUnpacker(byte[] arr) {
+        return DEFAULT.newUnpacker(arr);
+    }
+
+    public static MessageUnpacker newDefaultUnpacker(byte[] arr, int offset, int length) {
+        return DEFAULT.newUnpacker(arr, offset, length);
+    }
+
 
     /**
      * Create an MessagePacker that outputs the packed data to the specified stream

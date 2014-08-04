@@ -508,13 +508,24 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       val data2 = intSeq
       val b2 = createMessagePackData(packer => data2 foreach packer.packInt)
-      unpacker.reset(new ArrayBufferInput(b2))
+      val bi = new ArrayBufferInput(b2)
+      unpacker.reset(bi)
       val unpacked2 = Array.newBuilder[Int]
       while(unpacker.hasNext) {
         unpacked2 += unpacker.unpackInt()
       }
       unpacker.close
       unpacked2.result shouldBe data2
+
+      // reused the buffer input instance
+      bi.reset(b2)
+      unpacker.reset(bi)
+      val unpacked3 = Array.newBuilder[Int]
+      while(unpacker.hasNext) {
+        unpacked3 += unpacker.unpackInt()
+      }
+      unpacker.close
+      unpacked3.result shouldBe data2
 
     }
 
