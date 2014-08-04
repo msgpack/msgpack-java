@@ -18,21 +18,18 @@ package org.msgpack.core;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import java.nio.CharBuffer;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
 import org.msgpack.core.MessagePack.Code;
-import org.msgpack.core.buffer.*;
-import org.msgpack.value.impl.ArrayCursorImpl;
+import org.msgpack.core.buffer.MessageBuffer;
+import org.msgpack.core.buffer.MessageBufferInput;
 import org.msgpack.value.Cursor;
-import org.msgpack.value.Value;
 import org.msgpack.value.ValueType;
 import org.msgpack.value.holder.FloatHolder;
 import org.msgpack.value.holder.IntegerHolder;
@@ -151,15 +148,21 @@ public class MessageUnpacker implements Closeable {
     public void reset(MessageBufferInput in) throws IOException {
         MessageBufferInput newIn = checkNotNull(in, "MessageBufferInput is null");
 
-        close();
-        this.in = newIn;
-        this.buffer = EMPTY_BUFFER;
-        this.position = 0;
-        this.totalReadBytes = 0;
-        this.secondaryBuffer = null;
-        this.reachedEOF = false;
-        // No need to initialize the already allocated string decoder here since we can reuse it.
-
+        try {
+            if(in != newIn) {
+                close();
+            }
+        }
+        finally {
+            // Reset the internal states here for the exception safety
+            this.in = newIn;
+            this.buffer = EMPTY_BUFFER;
+            this.position = 0;
+            this.totalReadBytes = 0;
+            this.secondaryBuffer = null;
+            this.reachedEOF = false;
+            // No need to initialize the already allocated string decoder here since we can reuse it.
+        }
     }
 
     public long getTotalReadBytes() {

@@ -41,5 +41,6 @@ public class ArrayBufferInput implements MessageBufferInput {
     @Override
     public void close() throws IOException {
         buffer = null;
+        isRead = false;
     }
 }
