@@ -18,17 +18,18 @@
 import de.johoop.findbugs4sbt.ReportType
 import sbt._
 import Keys._
-import xerial.sbt.Sonatype._
 import de.johoop.findbugs4sbt.FindBugs._
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
 import sbtrelease.ReleasePlugin._
+import xerial.sbt.Sonatype._
 
 object Build extends Build {
 
   val SCALA_VERSION = "2.11.1"
 
   lazy val buildSettings = Defaults.coreDefaultSettings ++
+    sonatypeSettings ++
     releaseSettings ++
     findbugsSettings ++
     jacoco.settings ++
@@ -52,6 +53,8 @@ object Build extends Build {
       scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-target:jvm-1.6", "-feature"),
       javaOptions in Test ++= Seq("-ea"),
       javacOptions in (Compile, compile) ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.6", "-target", "1.6"),
+      findbugsReportType := Some(ReportType.FancyHtml),
+      findbugsReportPath := Some(crossTarget.value / "findbugs" / "report.html"),
       pomExtra := {
         <url>http://msgpack.org/</url>
           <licenses>
@@ -66,7 +69,6 @@ object Build extends Build {
             <url>github.com/msgpack/msgpack-java.git</url>
           </scm>
           <properties>
-            <scala.version>{SCALA_VERSION}</scala.version>
             <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
           </properties>
           <developers>
@@ -96,9 +98,7 @@ object Build extends Build {
               <email>leo@xerial.org</email>
             </developer>
           </developers>
-      },
-      findbugsReportType := Some(ReportType.FancyHtml),
-      findbugsReportPath := Some(crossTarget.value / "findbugs" / "report.html")
+      }
     )
 
   import Dependencies._
@@ -112,7 +112,9 @@ object Build extends Build {
         // do not run findbugs for the root project
       },
       // Do not publish the root project
-      publishArtifact := false
+      publishArtifact := false,
+      publish := {},
+      publishLocal := {}
     )
   ) aggregate(msgpackCore)
 
@@ -120,7 +122,7 @@ object Build extends Build {
   lazy val msgpackCore = Project(
     id = "msgpack-core",
     base = file("msgpack-core"),
-    settings = buildSettings ++ sonatypeSettings ++ Seq(
+    settings = buildSettings ++ Seq(
       description := "Core library of the MessagePack for Java",
       libraryDependencies ++= testLib
     )
