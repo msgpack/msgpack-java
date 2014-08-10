@@ -20,14 +20,17 @@ public class ArrayBufferInput implements MessageBufferInput {
         this.buffer = MessageBuffer.wrap(checkNotNull(arr, "input array is null")).slice(offset, length);
     }
 
-    public void reset(byte[] arr) {
-        this.buffer = MessageBuffer.wrap(checkNotNull(arr, "input array is null"));
+    public void reset(MessageBuffer buf) {
+        this.buffer = buf;
         this.isRead = false;
     }
 
+    public void reset(byte[] arr) {
+        reset(MessageBuffer.wrap(checkNotNull(arr, "input array is null")));
+    }
+
     public void reset(byte[] arr, int offset, int len) {
-        this.buffer = MessageBuffer.wrap(checkNotNull(arr, "input array is null")).slice(offset, len);
-        this.isRead = false;
+        reset(MessageBuffer.wrap(checkNotNull(arr, "input array is null")).slice(offset, len));
     }
 
     @Override

@@ -531,13 +531,14 @@ class MessageUnpackerTest extends MessagePackSpec {
     }
 
     // TODO: change tag 'ignore' to 'in'
-    "improve the performance via reset method" taggedAs("reset") ignore {
+    "improve the performance via reset method" taggedAs("reset-arr") in {
 
       val out = new ByteArrayOutputStream
       val packer = MessagePackFactory.newDefaultPacker(out)
       packer.packInt(0)
       packer.flush
       val arr = out.toByteArray
+      val mb = MessageBuffer.wrap(arr)
 
       val N = 1000
       val t = time("unpacker", repeat = 10) {
@@ -556,7 +557,7 @@ class MessageUnpackerTest extends MessagePackSpec {
           IOUtil.withResource(MessagePackFactory.newDefaultUnpacker(arr)) { unpacker =>
             val buf = new ArrayBufferInput(arr)
             for (i <- 0 until N) {
-              buf.reset(arr)
+              buf.reset(mb)
               unpacker.reset(buf)
               unpacker.unpackInt
               unpacker.close
