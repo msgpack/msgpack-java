@@ -4,6 +4,7 @@ import java.io.{EOFException, ByteArrayInputStream, ByteArrayOutputStream}
 import scala.util.Random
 import org.msgpack.core.buffer.{MessageBuffer, MessageBufferInput, OutputStreamBufferOutput, ArrayBufferInput}
 import org.msgpack.value.ValueType
+import xerial.core.io.IOUtil
 
 /**
  * Created on 2014/05/07.
@@ -529,6 +530,42 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     }
 
-  }
+    // TODO: change tag 'ignore' to 'in'
+    "improve the performance via reset method" taggedAs("reset") ignore {
 
+      val out = new ByteArrayOutputStream
+      val packer = MessagePackFactory.newDefaultPacker(out)
+      packer.packInt(0)
+      packer.flush
+      val arr = out.toByteArray
+
+      val N = 1000
+      val t = time("unpacker", repeat = 10) {
+        block("no-buffer-reset") {
+          IOUtil.withResource(MessagePackFactory.newDefaultUnpacker(arr)) { unpacker =>
+            for (i <- 0 until N) {
+              val buf = new ArrayBufferInput(arr)
+              unpacker.reset(buf)
+              unpacker.unpackInt
+              unpacker.close
+            }
+          }
+        }
+
+        block("buffer-reset") {
+          IOUtil.withResource(MessagePackFactory.newDefaultUnpacker(arr)) { unpacker =>
+            val buf = new ArrayBufferInput(arr)
+            for (i <- 0 until N) {
+              buf.reset(arr)
+              unpacker.reset(buf)
+              unpacker.unpackInt
+              unpacker.close
+            }
+          }
+        }
+      }
+
+      t("buffer-reset").averageWithoutMinMax should be <= t("no-buffer-reset").averageWithoutMinMax
+    }
+  }
 }
