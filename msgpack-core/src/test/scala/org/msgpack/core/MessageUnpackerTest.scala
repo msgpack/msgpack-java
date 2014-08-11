@@ -530,7 +530,6 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     }
 
-    // TODO: change tag 'ignore' to 'in'
     "improve the performance via reset method" taggedAs("reset-arr") in {
 
       val out = new ByteArrayOutputStream
@@ -541,7 +540,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       val mb = MessageBuffer.wrap(arr)
 
       val N = 1000
-      val t = time("unpacker", repeat = 10) {
+      val t = time("unpacker", repeat = 500) {
         block("no-buffer-reset") {
           IOUtil.withResource(MessagePackFactory.newDefaultUnpacker(arr)) { unpacker =>
             for (i <- 0 until N) {
@@ -553,7 +552,7 @@ class MessageUnpackerTest extends MessagePackSpec {
           }
         }
 
-        block("buffer-reset") {
+        block("reuse-message-buffer") {
           IOUtil.withResource(MessagePackFactory.newDefaultUnpacker(arr)) { unpacker =>
             val buf = new ArrayBufferInput(arr)
             for (i <- 0 until N) {
@@ -564,9 +563,23 @@ class MessageUnpackerTest extends MessagePackSpec {
             }
           }
         }
+
+        block("reuse-array-input") {
+          IOUtil.withResource(MessagePackFactory.newDefaultUnpacker(arr)) { unpacker =>
+            val buf = new ArrayBufferInput(arr)
+            for (i <- 0 until N) {
+              buf.reset(arr)
+              unpacker.reset(buf)
+              unpacker.unpackInt
+              unpacker.close
+            }
+          }
+        }
+
       }
 
-      t("buffer-reset").averageWithoutMinMax should be <= t("no-buffer-reset").averageWithoutMinMax
+      t("reuse-message-buffer").averageWithoutMinMax should be <= t("no-buffer-reset").averageWithoutMinMax
+      t("reuse-array-input").averageWithoutMinMax should be <= t("no-buffer-reset").averageWithoutMinMax
     }
   }
 }

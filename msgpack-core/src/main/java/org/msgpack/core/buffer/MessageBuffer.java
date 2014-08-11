@@ -4,6 +4,9 @@ import org.msgpack.core.annotations.Insecure;
 import sun.misc.Unsafe;
 import sun.nio.ch.DirectBuffer;
 
+//import java.lang.invoke.MethodHandle;
+//import java.lang.invoke.MethodHandles;
+//import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.nio.BufferOverflowException;
@@ -90,7 +93,21 @@ public class MessageBuffer {
             }
 
             String bufferClsName = isLittleEndian ? "org.msgpack.core.buffer.MessageBuffer" : "org.msgpack.core.buffer.MessageBufferBE";
-            msgBufferClass = Class.forName(bufferClsName);
+            Class<?> bufferCls = Class.forName(bufferClsName);
+            msgBufferClass = bufferCls;
+
+            Constructor<?> mbArrCstr = bufferCls.getDeclaredConstructor(byte[].class);
+            mbArrCstr.setAccessible(true);
+            mbArrConstructor = mbArrCstr;
+
+            Constructor<?> mbBBCstr = bufferCls.getDeclaredConstructor(ByteBuffer.class);
+            mbBBCstr.setAccessible(true);
+            mbBBConstructor = mbBBCstr;
+
+            // Requires Java7
+            //newMsgBuffer = MethodHandles.lookup().unreflectConstructor(mbArrCstr).asType(
+            //    MethodType.methodType(bufferCls, byte[].class)
+            //);
         }
         catch (Exception e) {
             e.printStackTrace(System.err);
@@ -103,6 +120,13 @@ public class MessageBuffer {
      * MessageBuffer class to use. If this machine is big-endian, it uses MessageBufferBE, which overrides some methods in this class that translate endians. If not, uses MessageBuffer.
      */
     private final static Class<?> msgBufferClass;
+
+    private final static Constructor<?> mbArrConstructor;
+    private final static Constructor<?> mbBBConstructor;
+
+
+    // Requires Java7
+    //private final static MethodHandle newMsgBuffer;
 
     /**
      * Base object for resolving the relative address of the raw byte array.
@@ -163,11 +187,7 @@ public class MessageBuffer {
        try {
            // We need to use reflection to create MessageBuffer instances in order to prevent TypeProfile generation for getInt method. TypeProfile will be
            // generated to resolve one of the method references when two or more classes overrides the method.
-           Constructor<?> constructor = msgBufferClass.getDeclaredConstructor(ByteBuffer.class);
-           return (MessageBuffer) constructor.newInstance(bb);
-       }
-       catch(NoSuchMethodException e) {
-           throw new IllegalStateException(e);
+           return (MessageBuffer) mbBBConstructor.newInstance(bb);
        }
        catch(Exception e) {
            throw new RuntimeException(e);
@@ -182,12 +202,9 @@ public class MessageBuffer {
     private static MessageBuffer newMessageBuffer(byte[] arr) {
         checkNotNull(arr);
         try {
-            Constructor<?> constructor = msgBufferClass.getDeclaredConstructor(byte[].class);
-            return (MessageBuffer) constructor.newInstance(arr);
+            return (MessageBuffer) mbArrConstructor.newInstance(arr);
         }
-        catch(NoSuchMethodException e) {
-            throw new IllegalStateException(e);
-        } catch(Exception e) {
+        catch(Throwable e) {
             throw new RuntimeException(e);
         }
     }

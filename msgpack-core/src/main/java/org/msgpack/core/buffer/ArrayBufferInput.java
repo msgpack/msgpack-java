@@ -11,6 +11,10 @@ public class ArrayBufferInput implements MessageBufferInput {
     private MessageBuffer buffer;
     private boolean isRead = false;
 
+    public ArrayBufferInput(MessageBuffer buf) {
+        this.buffer = checkNotNull(buf, "input buffer is null");
+    }
+
     public ArrayBufferInput(byte[] arr) {
         this(arr, 0, arr.length);
     }
