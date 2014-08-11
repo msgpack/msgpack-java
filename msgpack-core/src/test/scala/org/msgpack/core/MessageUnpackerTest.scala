@@ -540,23 +540,11 @@ class MessageUnpackerTest extends MessagePackSpec {
       val mb = MessageBuffer.wrap(arr)
 
       val N = 1000
-      val t = time("unpacker", repeat = 500) {
+      val t = time("unpacker", repeat = 10) {
         block("no-buffer-reset") {
           IOUtil.withResource(MessagePackFactory.newDefaultUnpacker(arr)) { unpacker =>
             for (i <- 0 until N) {
               val buf = new ArrayBufferInput(arr)
-              unpacker.reset(buf)
-              unpacker.unpackInt
-              unpacker.close
-            }
-          }
-        }
-
-        block("reuse-message-buffer") {
-          IOUtil.withResource(MessagePackFactory.newDefaultUnpacker(arr)) { unpacker =>
-            val buf = new ArrayBufferInput(arr)
-            for (i <- 0 until N) {
-              buf.reset(mb)
               unpacker.reset(buf)
               unpacker.unpackInt
               unpacker.close
@@ -576,6 +564,17 @@ class MessageUnpackerTest extends MessagePackSpec {
           }
         }
 
+        block("reuse-message-buffer") {
+          IOUtil.withResource(MessagePackFactory.newDefaultUnpacker(arr)) { unpacker =>
+            val buf = new ArrayBufferInput(arr)
+            for (i <- 0 until N) {
+              buf.reset(mb)
+              unpacker.reset(buf)
+              unpacker.unpackInt
+              unpacker.close
+            }
+          }
+        }
       }
 
       t("reuse-message-buffer").averageWithoutMinMax should be <= t("no-buffer-reset").averageWithoutMinMax
