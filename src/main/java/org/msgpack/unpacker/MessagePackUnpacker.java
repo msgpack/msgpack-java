@@ -210,7 +210,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
         case 0xc4: // bin 8
         case 0xd9: // str 8
         {
-            int count = in.getByte();
+            int count = in.getByte() & 0xff;
             if (count == 0) {
                 a.acceptEmptyRaw();
                 in.advance();
