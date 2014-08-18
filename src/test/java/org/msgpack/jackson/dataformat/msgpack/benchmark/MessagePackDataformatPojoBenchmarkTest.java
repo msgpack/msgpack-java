@@ -32,6 +32,20 @@ public class MessagePackDataformatPojoBenchmarkTest extends MessagePackDataforma
             pojo.d = Double.valueOf(i);
             pojo.setS(String.valueOf(i));
             pojo.bi = BigInteger.valueOf(i);
+            switch (i % 4) {
+                case 0:
+                    pojo.suit = Suit.SPADE;
+                    break;
+                case 1:
+                    pojo.suit = Suit.HEART;
+                    break;
+                case 2:
+                    pojo.suit = Suit.DIAMOND;
+                    break;
+                case 3:
+                    pojo.suit = Suit.CLUB;
+                    break;
+            }
             pojo.b = new byte[] {(byte) i};
             pojos.add(pojo);
         }

@@ -24,6 +24,7 @@ public class MessagePackDataformatForPojoTest extends MessagePackDataformatTestB
         assertEquals(normalPojo.d, value.d, 0.000001f);
         assertTrue(Arrays.equals(normalPojo.b, value.b));
         assertEquals(normalPojo.bi, value.bi);
+        assertEquals(normalPojo.suit, Suit.HEART);
     }
 
     @Test

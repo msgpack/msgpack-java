@@ -34,6 +34,7 @@ public class MessagePackDataformatTestBase {
         normalPojo.d = Double.MAX_VALUE;
         normalPojo.b = new byte[] {0x01, 0x02, (byte) 0xFE, (byte) 0xFF};
         normalPojo.bi = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
+        normalPojo.suit = Suit.HEART;
     }
 
     @After
@@ -55,6 +56,10 @@ public class MessagePackDataformatTestBase {
         }
     }
 
+    public enum Suit {
+        SPADE, HEART, DIAMOND, CLUB;
+    }
+
     public static class NormalPojo {
         String s;
         public int i;
@@ -63,6 +68,7 @@ public class MessagePackDataformatTestBase {
         public Double d;
         public byte[] b;
         public BigInteger bi;
+        public Suit suit;
 
         public String getS() {
             return s;
