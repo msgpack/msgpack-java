@@ -82,8 +82,6 @@ public class MessagePackGenerator extends GeneratorBase {
         }
         messageBufferOutputHolder.set(messageBufferOutput);
 
-        if (messageBufferOutput == null) {
-        }
         if (messagePacker == null) {
             messagePacker = new MessagePacker(messageBufferOutput);
         }
