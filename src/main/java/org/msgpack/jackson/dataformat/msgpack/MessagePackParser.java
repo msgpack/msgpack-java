@@ -7,18 +7,15 @@ import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.core.buffer.ArrayBufferInput;
 import org.msgpack.core.buffer.InputStreamBufferInput;
-import org.msgpack.core.buffer.MessageBuffer;
 import org.msgpack.core.buffer.MessageBufferInput;
 import org.msgpack.value.NumberValue;
 import org.msgpack.value.ValueType;
-import org.msgpack.value.holder.IntegerHolder;
 import org.msgpack.value.holder.ValueHolder;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
 public class MessagePackParser extends ParserBase {
@@ -109,30 +106,23 @@ public class MessagePackParser extends ParserBase {
                 _currToken = _parsingContext.inObject() ? JsonToken.END_OBJECT : JsonToken.END_ARRAY;
                 _parsingContext = _parsingContext.getParent();
 
-                //If the message unpacker has no more tokens just unwind the stack until it's empty.
-                if(!messageUnpacker.hasNext()) {
-                    if (!stack.isEmpty() && !stack.getFirst().isEmpty()) {
-                        stack.getFirst().consume();
+                if (stack.isEmpty()) {
+                    _handleEOF();
+                    if (!messageUnpacker.hasNext()) {
+                        messageUnpacker.close();
                     }
                 }
+
                 return _currToken;
             }
         }
 
-        if (!messageUnpacker.hasNext()) {
-            if (!_parsingContext.inObject() && !_parsingContext.inArray()) {
-                throw new IllegalStateException("Not in Object nor Array");
-            }
-
-            _currToken = _parsingContext.inObject() ? JsonToken.END_OBJECT : JsonToken.END_ARRAY;
-            _parsingContext = _parsingContext.getParent();
-            messageUnpacker.close();
-            _handleEOF();
-            return _currToken;
-        }
-
         MessageFormat nextFormat = messageUnpacker.getNextFormat();
         ValueType valueType = nextFormat.getValueType();
+
+        // We should push a new StackItem lazily after updating the current stack.
+        StackItem newStack = null;
+
         switch (valueType) {
             case NIL:
                 messageUnpacker.unpackNil();
@@ -165,27 +155,33 @@ public class MessagePackParser extends ParserBase {
                 nextToken = JsonToken.VALUE_EMBEDDED_OBJECT;
                 break;
             case ARRAY:
-                nextToken = JsonToken.START_ARRAY;
-                stack.push(new StackItemForArray(messageUnpacker.unpackArrayHeader()));
-                _parsingContext = _parsingContext.createChildArrayContext(-1, -1);
+                newStack = new StackItemForArray(messageUnpacker.unpackArrayHeader());
                 break;
             case MAP:
-                nextToken = JsonToken.START_OBJECT;
-                stack.push(new StackItemForObject(messageUnpacker.unpackMapHeader()));
-                _parsingContext = _parsingContext.createChildObjectContext(-1, -1);
+                newStack = new StackItemForObject(messageUnpacker.unpackMapHeader());
                 break;
             case EXTENDED:
                 throw new NotImplementedException();
             default:
                 throw new IllegalStateException("Shouldn't reach here");
         }
-        _currToken = nextToken;
 
-        if ((_parsingContext.inObject() &&
-                (_currToken != JsonToken.START_OBJECT && _currToken != JsonToken.FIELD_NAME)) ||
-            (_parsingContext.inArray() && _currToken != JsonToken.START_ARRAY)) {
+        if (_parsingContext.inObject() && nextToken != JsonToken.FIELD_NAME || _parsingContext.inArray()) {
             stack.getFirst().consume();
         }
+
+        if (newStack != null) {
+            stack.push(newStack);
+            if (newStack instanceof StackItemForArray) {
+                nextToken = JsonToken.START_ARRAY;
+                _parsingContext = _parsingContext.createChildArrayContext(-1, -1);
+            }
+            else if (newStack instanceof StackItemForObject) {
+                nextToken = JsonToken.START_OBJECT;
+                _parsingContext = _parsingContext.createChildObjectContext(-1, -1);
+            }
+        }
+        _currToken = nextToken;
 
         return nextToken;
     }
