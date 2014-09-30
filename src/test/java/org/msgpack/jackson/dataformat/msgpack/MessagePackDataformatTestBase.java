@@ -11,6 +11,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MessagePackDataformatTestBase {
     protected MessagePackFactory factory;
@@ -18,6 +21,9 @@ public class MessagePackDataformatTestBase {
     protected ByteArrayInputStream in;
     protected ObjectMapper objectMapper;
     protected NormalPojo normalPojo;
+    protected NestedListPojo nestedListPojo;
+    protected NestedListComplexPojo nestedListComplexPojo;
+    protected TinyPojo tinyPojo;
 
     @Before
     public void setup() {
@@ -35,6 +41,17 @@ public class MessagePackDataformatTestBase {
         normalPojo.b = new byte[] {0x01, 0x02, (byte) 0xFE, (byte) 0xFF};
         normalPojo.bi = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
         normalPojo.suit = Suit.HEART;
+
+        nestedListPojo = new NestedListPojo();
+        nestedListPojo.s = "a string";
+        nestedListPojo.strs = Arrays.asList(new String[] {"string", "another string", "another string"});
+
+        tinyPojo = new TinyPojo();
+        tinyPojo.t = "t string";
+        nestedListComplexPojo = new NestedListComplexPojo();
+        nestedListComplexPojo.s = "a string";
+        nestedListComplexPojo.foos = new ArrayList<TinyPojo>();
+        nestedListComplexPojo.foos.add(tinyPojo);
     }
 
     @After
@@ -58,6 +75,20 @@ public class MessagePackDataformatTestBase {
 
     public enum Suit {
         SPADE, HEART, DIAMOND, CLUB;
+    }
+
+    public static class NestedListPojo {
+        public String s;
+        public List<String> strs;
+    }
+
+    public static class TinyPojo {
+        public String t;
+    }
+
+    public static class NestedListComplexPojo {
+        public String s;
+        public List<TinyPojo> foos;
     }
 
     public static class NormalPojo {

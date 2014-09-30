@@ -108,6 +108,13 @@ public class MessagePackParser extends ParserBase {
                 stack.pop();
                 _currToken = _parsingContext.inObject() ? JsonToken.END_OBJECT : JsonToken.END_ARRAY;
                 _parsingContext = _parsingContext.getParent();
+
+                //If the message unpacker has no more tokens just unwind the stack until it's empty.
+                if(!messageUnpacker.hasNext()) {
+                    if (!stack.isEmpty() && !stack.getFirst().isEmpty()) {
+                        stack.getFirst().consume();
+                    }
+                }
                 return _currToken;
             }
         }
@@ -116,6 +123,7 @@ public class MessagePackParser extends ParserBase {
             if (!_parsingContext.inObject() && !_parsingContext.inArray()) {
                 throw new IllegalStateException("Not in Object nor Array");
             }
+
             _currToken = _parsingContext.inObject() ? JsonToken.END_OBJECT : JsonToken.END_ARRAY;
             _parsingContext = _parsingContext.getParent();
             messageUnpacker.close();
