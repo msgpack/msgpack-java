@@ -28,6 +28,22 @@ public class MessagePackDataformatForPojoTest extends MessagePackDataformatTestB
     }
 
     @Test
+    public void testNestedList() throws IOException {
+        byte[] bytes = objectMapper.writeValueAsBytes(nestedListPojo);
+        NestedListPojo value = objectMapper.readValue(bytes, NestedListPojo.class);
+        assertEquals(nestedListPojo.s, value.s);
+        assertTrue(Arrays.equals(nestedListPojo.strs.toArray(), value.strs.toArray()));
+    }
+
+    @Test
+    public void testNestedListComplex() throws IOException {
+        byte[] bytes = objectMapper.writeValueAsBytes(nestedListComplexPojo);
+        NestedListComplexPojo value = objectMapper.readValue(bytes, NestedListComplexPojo.class);
+        assertEquals(nestedListPojo.s, value.s);
+        assertEquals(nestedListComplexPojo.foos.get(0).t, value.foos.get(0).t);
+    }
+
+    @Test
     public void testUsingCustomConstructor() throws IOException {
         UsingCustomConstructorPojo orig = new UsingCustomConstructorPojo("komamitsu", 55);
         byte[] bytes = objectMapper.writeValueAsBytes(orig);
