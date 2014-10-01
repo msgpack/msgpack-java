@@ -75,7 +75,7 @@ public class MessagePackParser extends ParserBase {
 
     @Override
     protected boolean loadMore() throws IOException {
-        return messageUnpackerHolder.get().hasNext();
+        return getMessageUnpacker().hasNext();
     }
 
     @Override
@@ -98,20 +98,13 @@ public class MessagePackParser extends ParserBase {
 
     @Override
     public JsonToken nextToken() throws IOException, JsonParseException {
-        MessageUnpacker messageUnpacker = messageUnpackerHolder.get();
+        MessageUnpacker messageUnpacker = getMessageUnpacker();
         JsonToken nextToken = null;
         if (_parsingContext.inObject() || _parsingContext.inArray()) {
             if (stack.getFirst().isEmpty()) {
                 stack.pop();
                 _currToken = _parsingContext.inObject() ? JsonToken.END_OBJECT : JsonToken.END_ARRAY;
                 _parsingContext = _parsingContext.getParent();
-
-                if (stack.isEmpty()) {
-                    _handleEOF();
-                    if (!messageUnpacker.hasNext()) {
-                        messageUnpacker.close();
-                    }
-                }
 
                 return _currToken;
             }
@@ -268,5 +261,27 @@ public class MessagePackParser extends ParserBase {
         else {
             return NumberType.BIG_INTEGER;
         }
+    }
+
+    @Override
+    public void close() throws IOException {
+        try {
+            _handleEOF();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            MessageUnpacker messageUnpacker = getMessageUnpacker();
+            messageUnpacker.close();
+        }
+    }
+
+    private MessageUnpacker getMessageUnpacker() {
+        MessageUnpacker messageUnpacker = messageUnpackerHolder.get();
+        if (messageUnpacker == null) {
+            throw new IllegalStateException("messageUnpacker is null");
+        }
+        return messageUnpacker;
     }
 }

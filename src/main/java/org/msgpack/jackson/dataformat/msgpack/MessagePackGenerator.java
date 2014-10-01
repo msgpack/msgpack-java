@@ -5,9 +5,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
-import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
-import org.msgpack.core.buffer.MessageBufferOutput;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -303,7 +301,16 @@ public class MessagePackGenerator extends GeneratorBase {
 
     @Override
     public void close() throws IOException {
-        flush();
+        try {
+            flush();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            MessagePacker messagePacker = getMessagePacker();
+            messagePacker.close();
+        }
     }
 
     @Override
