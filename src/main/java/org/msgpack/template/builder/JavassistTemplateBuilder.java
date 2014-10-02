@@ -31,6 +31,7 @@ import org.msgpack.template.FieldOption;
 import org.msgpack.template.Template;
 import org.msgpack.template.AbstractTemplate;
 import org.msgpack.template.TemplateRegistry;
+import org.msgpack.util.Exceptions;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
@@ -73,8 +74,10 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
                 appended = true;
             }
         } catch (SecurityException e) {
-            LOG.fine("Cannot append a search path of classloader");
-            e.printStackTrace();
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.fine("Cannot append a search path of classloader");
+                LOG.fine(Exceptions.getStackTraceAsString(e));
+            }
         }
         if (!appended) {
             pool.appendSystemPath();

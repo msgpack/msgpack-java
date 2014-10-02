@@ -22,11 +22,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.msgpack.template.TemplateRegistry;
+import org.msgpack.util.Exceptions;
 import org.msgpack.util.android.DalvikVmChecker;
 
 public class TemplateBuilderChain {
+	private static final Logger LOG = Logger.getLogger(TemplateBuilderChain.class.getName());
+
 	private static final String JAVASSIST_TEMPLATE_BUILDER_CLASS_NAME =
 			"org.msgpack.template.builder.JavassistTemplateBuilder";
 	private static final String REFLECTION_TEMPLATE_BUILDER_CLASS_NAME =
@@ -82,7 +87,9 @@ public class TemplateBuilderChain {
 					ClassLoader.class);
 			return (TemplateBuilder) cons.newInstance(registry, cl);
 		} catch (Exception e) {
-		    e.printStackTrace();
+			if (LOG.isLoggable(Level.FINE)) {
+				LOG.fine(Exceptions.getStackTraceAsString(e));
+			}
 		}
         return new ReflectionTemplateBuilder(registry, cl);
     }
