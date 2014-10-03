@@ -18,6 +18,7 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
     public void testGeneratorShouldWriteObject() throws IOException {
         Map<String, Object> hashMap = new HashMap<String, Object>();
         hashMap.put("str", "komamitsu");
+        hashMap.put("boolean", true);
         hashMap.put("int", Integer.MAX_VALUE);
         hashMap.put("long", Long.MIN_VALUE);
         hashMap.put("float", 3.14159f);
@@ -42,6 +43,9 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
             if (key.equals("str")) {
                 assertEquals("komamitsu", messageUnpacker.unpackString());
                 bitmap |= 0x1 << 0;
+            }
+            else if (key.equals("boolean")) {
+                assertTrue(messageUnpacker.unpackBoolean());
             }
             else if (key.equals("int")) {
                 assertEquals(Integer.MAX_VALUE, messageUnpacker.unpackInt());
