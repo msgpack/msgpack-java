@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.komamitsu</groupId>
     <artifactId>jackson-dataformat-msgpack</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4-SNAPSHOT</version>
     <build>
         <plugins>
             <plugin>
