@@ -173,6 +173,9 @@ public class MessagePackGenerator extends GeneratorBase {
             // TODO
             throw new NotImplementedException();
         }
+        else if (v instanceof Boolean) {
+            messagePacker.packBoolean((Boolean) v);
+        }
         else {
             throw new IllegalArgumentException(v.toString());
         }
