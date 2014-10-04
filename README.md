@@ -11,7 +11,7 @@ To use this module on Maven-based projects, use following dependency:
 <dependency>
   <groupId>org.komamitsu</groupId>
   <artifactId>jackson-dataformat-msgpack</artifactId>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
 </dependency>
 ```
 
