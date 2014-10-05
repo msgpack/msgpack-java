@@ -31,6 +31,7 @@ public class MessagePackDataformatPojoBenchmarkTest extends MessagePackDataforma
             pojo.f = Float.valueOf(i);
             pojo.d = Double.valueOf(i);
             pojo.setS(String.valueOf(i));
+            pojo.bool = i % 2 == 0;
             pojo.bi = BigInteger.valueOf(i);
             switch (i % 4) {
                 case 0:

@@ -18,6 +18,7 @@ public class MessagePackDataformatForPojoTest extends MessagePackDataformatTestB
         byte[] bytes = objectMapper.writeValueAsBytes(normalPojo);
         NormalPojo value = objectMapper.readValue(bytes, NormalPojo.class);
         assertEquals(normalPojo.s, value.getS());
+        assertEquals(normalPojo.bool, value.bool);
         assertEquals(normalPojo.i, value.i);
         assertEquals(normalPojo.l, value.l);
         assertEquals(normalPojo.f, value.f, 0.000001f);

@@ -34,6 +34,7 @@ public class MessagePackDataformatTestBase {
 
         normalPojo = new NormalPojo();
         normalPojo.setS("komamitsu");
+        normalPojo.bool = true;
         normalPojo.i = Integer.MAX_VALUE;
         normalPojo.l = Long.MIN_VALUE;
         normalPojo.f = Float.MIN_VALUE;
@@ -93,6 +94,7 @@ public class MessagePackDataformatTestBase {
 
     public static class NormalPojo {
         String s;
+        public boolean bool;
         public int i;
         public long l;
         public Float f;
