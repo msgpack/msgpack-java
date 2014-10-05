@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class MessagePackDataformatHugeDataBenchmarkTest extends MessagePackDataformatTestBase {
-    private static final int ELM_NUM = 500000;
+    private static final int ELM_NUM = 1000000;
     private final ObjectMapper origObjectMapper = new ObjectMapper();
     private final ObjectMapper msgpackObjectMapper = new ObjectMapper(new MessagePackFactory());
     private static final List<Object> value;
