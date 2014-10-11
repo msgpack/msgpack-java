@@ -1,8 +1,10 @@
 package org.msgpack.jackson.dataformat.msgpack;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.base.ParserBase;
+import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.json.DupDetector;
+import com.fasterxml.jackson.core.json.JsonReadContext;
 import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.core.buffer.ArrayBufferInput;
@@ -11,19 +13,22 @@ import org.msgpack.core.buffer.MessageBufferInput;
 import org.msgpack.value.NumberValue;
 import org.msgpack.value.ValueType;
 import org.msgpack.value.holder.ValueHolder;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.LinkedList;
 
-public class MessagePackParser extends ParserBase {
-    private ObjectCodec codec;
-    private final LinkedList<StackItem> stack = new LinkedList<StackItem>();
+public class MessagePackParser extends ParserMinimalBase {
     private static final ThreadLocal<MessageUnpacker> messageUnpackerHolder = new ThreadLocal<MessageUnpacker>();
 
-    private ValueHolder valueHolder = new ValueHolder();
+    private ObjectCodec codec;
+    private JsonReadContext parsingContext;
+
+    private final LinkedList<StackItem> stack = new LinkedList<StackItem>();
+    private final ValueHolder valueHolder = new ValueHolder();
+    private boolean isClosed;
 
     private static abstract class StackItem {
         private long numOfElements;
@@ -62,7 +67,10 @@ public class MessagePackParser extends ParserBase {
     }
 
     private MessagePackParser(IOContext ctxt, int features, MessageBufferInput input) throws IOException {
-        super(ctxt, features);
+        DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
+                ? DupDetector.rootDetector(this) : null;
+        parsingContext = JsonReadContext.createRootContext(dups);
+
         MessageUnpacker messageUnpacker = messageUnpackerHolder.get();
         if (messageUnpacker == null) {
             messageUnpacker = new MessageUnpacker(input);
@@ -71,19 +79,6 @@ public class MessagePackParser extends ParserBase {
             messageUnpacker.reset(input);
         }
         messageUnpackerHolder.set(messageUnpacker);
-    }
-
-    @Override
-    protected boolean loadMore() throws IOException {
-        return getMessageUnpacker().hasNext();
-    }
-
-    @Override
-    protected void _finishString() throws IOException, JsonParseException {
-    }
-
-    @Override
-    protected void _closeInput() throws IOException {
     }
 
     @Override
@@ -97,14 +92,19 @@ public class MessagePackParser extends ParserBase {
     }
 
     @Override
+    public Version version() {
+        return null;
+    }
+
+    @Override
     public JsonToken nextToken() throws IOException, JsonParseException {
         MessageUnpacker messageUnpacker = getMessageUnpacker();
         JsonToken nextToken = null;
-        if (_parsingContext.inObject() || _parsingContext.inArray()) {
+        if (parsingContext.inObject() || parsingContext.inArray()) {
             if (stack.getFirst().isEmpty()) {
                 stack.pop();
-                _currToken = _parsingContext.inObject() ? JsonToken.END_OBJECT : JsonToken.END_ARRAY;
-                _parsingContext = _parsingContext.getParent();
+                _currToken = parsingContext.inObject() ? JsonToken.END_OBJECT : JsonToken.END_ARRAY;
+                parsingContext = parsingContext.getParent();
 
                 return _currToken;
             }
@@ -135,8 +135,8 @@ public class MessagePackParser extends ParserBase {
                 break;
             case STRING:
                 messageUnpacker.unpackValue(valueHolder);
-                if (_parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
-                    _parsingContext.setCurrentName(valueHolder.getRef().asRaw().toString());
+                if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
+                    parsingContext.setCurrentName(valueHolder.getRef().asRaw().toString());
                     nextToken = JsonToken.FIELD_NAME;
                 }
                 else {
@@ -154,12 +154,12 @@ public class MessagePackParser extends ParserBase {
                 newStack = new StackItemForObject(messageUnpacker.unpackMapHeader());
                 break;
             case EXTENDED:
-                throw new NotImplementedException();
+                throw new UnsupportedOperationException();
             default:
                 throw new IllegalStateException("Shouldn't reach here");
         }
 
-        if (_parsingContext.inObject() && nextToken != JsonToken.FIELD_NAME || _parsingContext.inArray()) {
+        if (parsingContext.inObject() && nextToken != JsonToken.FIELD_NAME || parsingContext.inArray()) {
             stack.getFirst().consume();
         }
 
@@ -167,17 +167,20 @@ public class MessagePackParser extends ParserBase {
             stack.push(newStack);
             if (newStack instanceof StackItemForArray) {
                 nextToken = JsonToken.START_ARRAY;
-                _parsingContext = _parsingContext.createChildArrayContext(-1, -1);
+                parsingContext = parsingContext.createChildArrayContext(-1, -1);
             }
             else if (newStack instanceof StackItemForObject) {
                 nextToken = JsonToken.START_OBJECT;
-                _parsingContext = _parsingContext.createChildObjectContext(-1, -1);
+                parsingContext = parsingContext.createChildObjectContext(-1, -1);
             }
         }
         _currToken = nextToken;
 
         return nextToken;
     }
+
+    @Override
+    protected void _handleEOF() throws JsonParseException {}
 
     @Override
     public String getText() throws IOException, JsonParseException {
@@ -188,6 +191,11 @@ public class MessagePackParser extends ParserBase {
     @Override
     public char[] getTextCharacters() throws IOException, JsonParseException {
         return getText().toCharArray();
+    }
+
+    @Override
+    public boolean hasTextCharacters() {
+        return false;
     }
 
     @Override
@@ -245,6 +253,11 @@ public class MessagePackParser extends ParserBase {
     }
 
     @Override
+    public BigDecimal getDecimalValue() throws IOException {
+        return null;
+    }
+
+    @Override
     public Object getEmbeddedObject() throws IOException, JsonParseException {
         return valueHolder.getRef().asBinary().toByteArray();
     }
@@ -266,15 +279,48 @@ public class MessagePackParser extends ParserBase {
     @Override
     public void close() throws IOException {
         try {
-            _handleEOF();
+            MessageUnpacker messageUnpacker = getMessageUnpacker();
+            messageUnpacker.close();
         }
         catch (Exception e) {
             e.printStackTrace();
         }
         finally {
-            MessageUnpacker messageUnpacker = getMessageUnpacker();
-            messageUnpacker.close();
+            isClosed = true;
         }
+    }
+
+    @Override
+    public boolean isClosed() {
+        return isClosed;
+    }
+
+    @Override
+    public JsonStreamContext getParsingContext() {
+        return parsingContext;
+    }
+
+    @Override
+    public JsonLocation getTokenLocation() {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public JsonLocation getCurrentLocation() {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
+    public void overrideCurrentName(String name) {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override public String getCurrentName() throws IOException {
+        if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
+            JsonReadContext parent = parsingContext.getParent();
+            return parent.getCurrentName();
+        }
+        return parsingContext.getCurrentName();
     }
 
     private MessageUnpacker getMessageUnpacker() {
