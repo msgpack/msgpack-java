@@ -2,6 +2,9 @@ package org.msgpack.jackson.dataformat.msgpack.benchmark;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.math3.stat.StatUtils;
+import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
+import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.msgpack.jackson.dataformat.msgpack.MessagePackDataformatTestBase;
@@ -12,8 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MessagePackDataformatPojoBenchmarkTest extends MessagePackDataformatTestBase {
-    private static final int LOOP_MAX = 6000;
+    private static final int LOOP_MAX = 8000;
     private static final int LOOP_FACTOR = 50;
+    private static final int SAMPLING_COUNT = 3;
     private static final List<NormalPojo> pojos = new ArrayList<NormalPojo>(LOOP_MAX);
     private static final List<byte[]> pojosSerWithOrig = new ArrayList<byte[]>(LOOP_MAX);
     private static final List<byte[]> pojosSerWithMsgPack = new ArrayList<byte[]>(LOOP_MAX);
@@ -69,46 +73,43 @@ public class MessagePackDataformatPojoBenchmarkTest extends MessagePackDataforma
     }
 
     @Test
-    public void testBenchmarkSerializeWithNormalObjectMapper() throws Exception {
-        long currentTimeMillis = System.currentTimeMillis();
-        String label = "normal object mapper: serialize(pojo)";
-        for (int j = 0; j < LOOP_FACTOR; j++)
-            for (int i = 0; i < LOOP_MAX; i++) {
-                origObjectMapper.writeValueAsBytes(pojos.get(i));
-            }
-        System.out.println(String.format("%s => %d", label, (System.currentTimeMillis() - currentTimeMillis)));
-    }
+    public void testBenchmark() throws Exception {
+        double durationOfSerializeWithJson[] = new double[SAMPLING_COUNT];
+        double durationOfSerializeWithMsgPack[] = new double[SAMPLING_COUNT];
+        double durationOfDeserializeWithJson[] = new double[SAMPLING_COUNT];
+        double durationOfDeserializeWithMsgPack[] = new double[SAMPLING_COUNT];
+        for (int si = 0; si < SAMPLING_COUNT; si++) {
+            long currentTimeMillis = System.currentTimeMillis();
+            for (int j = 0; j < LOOP_FACTOR; j++)
+                for (int i = 0; i < LOOP_MAX; i++) {
+                    origObjectMapper.writeValueAsBytes(pojos.get(i));
+                }
+            durationOfSerializeWithJson[si] = System.currentTimeMillis() - currentTimeMillis;
 
-    @Test
-    public void testBenchmarkSerializeWithMessagePackObjectMapper() throws Exception {
-        long currentTimeMillis = System.currentTimeMillis();
-        String label = "msgpack object mapper: serialize(pojo)";
-        for (int j = 0; j < LOOP_FACTOR; j++)
-            for (int i = 0; i < LOOP_MAX; i++) {
-                msgpackObjectMapper.writeValueAsBytes(pojos.get(i));
-            }
-        System.out.println(String.format("%s => %d", label, (System.currentTimeMillis() - currentTimeMillis)));
-    }
+            currentTimeMillis = System.currentTimeMillis();
+            for (int j = 0; j < LOOP_FACTOR; j++)
+                for (int i = 0; i < LOOP_MAX; i++) {
+                    msgpackObjectMapper.writeValueAsBytes(pojos.get(i));
+                }
+            durationOfSerializeWithMsgPack[si] = System.currentTimeMillis() - currentTimeMillis;
 
-    @Test
-    public void testBenchmarkDeserializeWithNormalObjectMapper() throws Exception {
-        long currentTimeMillis = System.currentTimeMillis();
-        String label = "normal object mapper: deserialize(pojo)";
-        for (int j = 0; j < LOOP_FACTOR; j++)
-            for (int i = 0; i < LOOP_MAX; i++) {
-                origObjectMapper.readValue(pojosSerWithOrig.get(i), NormalPojo.class);
-            }
-        System.out.println(String.format("%s => %d", label, (System.currentTimeMillis() - currentTimeMillis)));
-    }
+            currentTimeMillis = System.currentTimeMillis();
+            for (int j = 0; j < LOOP_FACTOR; j++)
+                for (int i = 0; i < LOOP_MAX; i++) {
+                    origObjectMapper.readValue(pojosSerWithOrig.get(i), NormalPojo.class);
+                }
+            durationOfDeserializeWithJson[si] = System.currentTimeMillis() - currentTimeMillis;
 
-    @Test
-    public void testBenchmarkDeserializeWithMessagePackObjectMapper() throws Exception {
-        long currentTimeMillis = System.currentTimeMillis();
-        String label = "msgpack object mapper: deserialize(pojo)";
-        for (int j = 0; j < LOOP_FACTOR; j++)
-            for (int i = 0; i < LOOP_MAX; i++) {
-                msgpackObjectMapper.readValue(pojosSerWithMsgPack.get(i), NormalPojo.class);
-            }
-        System.out.println(String.format("%s => %d", label, (System.currentTimeMillis() - currentTimeMillis)));
+            currentTimeMillis = System.currentTimeMillis();
+            for (int j = 0; j < LOOP_FACTOR; j++)
+                for (int i = 0; i < LOOP_MAX; i++) {
+                    msgpackObjectMapper.readValue(pojosSerWithMsgPack.get(i), NormalPojo.class);
+                }
+            durationOfDeserializeWithMsgPack[si] = System.currentTimeMillis() - currentTimeMillis;
+        }
+        printStat("serialize(pojo) with JSON", durationOfSerializeWithJson);
+        printStat("serialize(pojo) with MessagePack", durationOfSerializeWithMsgPack);
+        printStat("deserialize(pojo) with JSON", durationOfDeserializeWithJson);
+        printStat("deserialize(pojo) with MessagePack", durationOfDeserializeWithMsgPack);
     }
 }

@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 public class MessagePackDataformatHugeDataBenchmarkTest extends MessagePackDataformatTestBase {
-    private static final int ELM_NUM = 1000000;
+    private static final int ELM_NUM = 1500000;
+    private static final int SAMPLING_COUNT = 3;
     private final ObjectMapper origObjectMapper = new ObjectMapper();
     private final ObjectMapper msgpackObjectMapper = new ObjectMapper(new MessagePackFactory());
     private static final List<Object> value;
@@ -50,34 +51,31 @@ public class MessagePackDataformatHugeDataBenchmarkTest extends MessagePackDataf
     }
 
     @Test
-    public void testBenchmarkSerializeWithNormalObjectMapper() throws Exception {
-        long currentTimeMillis = System.currentTimeMillis();
-        String label = "normal object mapper: serialize(huge_data)";
-        origObjectMapper.writeValueAsBytes(value);
-        System.out.println(String.format("%s => %d", label, (System.currentTimeMillis() - currentTimeMillis)));
-    }
+    public void testBenchmark() throws Exception {
+        double durationOfSerializeWithJson[] = new double[SAMPLING_COUNT];
+        double durationOfSerializeWithMsgPack[] = new double[SAMPLING_COUNT];
+        double durationOfDeserializeWithJson[] = new double[SAMPLING_COUNT];
+        double durationOfDeserializeWithMsgPack[] = new double[SAMPLING_COUNT];
+        for (int si = 0; si < SAMPLING_COUNT; si++) {
+            long currentTimeMillis = System.currentTimeMillis();
+            origObjectMapper.writeValueAsBytes(value);
+            durationOfSerializeWithJson[si] = System.currentTimeMillis() - currentTimeMillis;
 
-    @Test
-    public void testBenchmarkSerializeWithMessagePackObjectMapper() throws Exception {
-        long currentTimeMillis = System.currentTimeMillis();
-        String label = "msgpack object mapper: serialize(huge_data)";
-        msgpackObjectMapper.writeValueAsBytes(value);
-        System.out.println(String.format("%s => %d", label, (System.currentTimeMillis() - currentTimeMillis)));
-    }
+            currentTimeMillis = System.currentTimeMillis();
+            msgpackObjectMapper.writeValueAsBytes(value);
+            durationOfSerializeWithMsgPack[si] = System.currentTimeMillis() - currentTimeMillis;
 
-    @Test
-    public void testBenchmarkDeserializeWithNormalObjectMapper() throws Exception {
-        long currentTimeMillis = System.currentTimeMillis();
-        String label = "normal object mapper: deserialize(huge_data)";
-        origObjectMapper.readValue(packedByOriginal, new TypeReference<List<Object>>() {});
-        System.out.println(String.format("%s => %d", label, (System.currentTimeMillis() - currentTimeMillis)));
-    }
+            currentTimeMillis = System.currentTimeMillis();
+            origObjectMapper.readValue(packedByOriginal, new TypeReference<List<Object>>() {});
+            durationOfDeserializeWithJson[si] = System.currentTimeMillis() - currentTimeMillis;
 
-    @Test
-    public void testBenchmarkDeserializeWithMessagePackObjectMapper() throws Exception {
-        long currentTimeMillis = System.currentTimeMillis();
-        String label = "msgpack object mapper: deserialize(huge_data)";
-        msgpackObjectMapper.readValue(packedByMsgPack, new TypeReference<List<Object>>() {});
-        System.out.println(String.format("%s => %d", label, (System.currentTimeMillis() - currentTimeMillis)));
+            currentTimeMillis = System.currentTimeMillis();
+            msgpackObjectMapper.readValue(packedByMsgPack, new TypeReference<List<Object>>() {});
+            durationOfDeserializeWithMsgPack[si] = System.currentTimeMillis() - currentTimeMillis;
+        }
+        printStat("serialize(huge) with JSON", durationOfSerializeWithJson);
+        printStat("serialize(huge) with MessagePack", durationOfSerializeWithMsgPack);
+        printStat("deserialize(huge) with JSON", durationOfDeserializeWithJson);
+        printStat("deserialize(huge) with MessagePack", durationOfDeserializeWithMsgPack);
     }
 }

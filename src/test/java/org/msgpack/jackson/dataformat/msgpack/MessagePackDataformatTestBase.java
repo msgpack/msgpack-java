@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.math3.stat.StatUtils;
+import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.junit.After;
 import org.junit.Before;
 
@@ -72,6 +74,16 @@ public class MessagePackDataformatTestBase {
                 e.printStackTrace();
             }
         }
+    }
+
+    protected void printStat(String label, double[] values) {
+        StandardDeviation standardDeviation = new StandardDeviation();
+        System.out.println(label + ":");
+        System.out.println(String.format("  mean : %.2f", StatUtils.mean(values)));
+        System.out.println(String.format("  min  : %.2f", StatUtils.min(values)));
+        System.out.println(String.format("  max  : %.2f", StatUtils.max(values)));
+        System.out.println(String.format("  stdev: %.2f", standardDeviation.evaluate(values)));
+        System.out.println("");
     }
 
     public enum Suit {
