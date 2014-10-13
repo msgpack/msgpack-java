@@ -26,7 +26,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.msgpack.template.TemplateRegistry;
-import org.msgpack.util.Exceptions;
 import org.msgpack.util.android.DalvikVmChecker;
 
 public class TemplateBuilderChain {
@@ -87,8 +86,8 @@ public class TemplateBuilderChain {
                     ClassLoader.class);
             return (TemplateBuilder) cons.newInstance(registry, cl);
         } catch (Exception e) {
-            if (LOG.isLoggable(Level.FINE)) {
-                LOG.fine(Exceptions.getStackTraceAsString(e));
+            if (LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Failed to create a TemplateBuilder reflectively", e);
             }
         }
         return new ReflectionTemplateBuilder(registry, cl);
