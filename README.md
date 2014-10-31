@@ -21,7 +21,7 @@ For sbt users:
 libraryDependencies += "org.msgpack" % "msgpack-core" % "0.7.0-p1"
 ```
 
-- [Usage examples](src/main/java/org/msgpack/core/example/MessagePackExample.java)
+- [Usage examples](msgpack-core/src/main/java/org/msgpack/core/example/MessagePackExample.java)
 
 
 ## For Developers
