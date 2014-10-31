@@ -26,7 +26,7 @@ import xerial.sbt.Sonatype._
 
 object Build extends Build {
 
-  val SCALA_VERSION = "2.11.2"
+  val SCALA_VERSION = "2.11.1"
 
   lazy val buildSettings = Defaults.coreDefaultSettings ++
     sonatypeSettings ++
