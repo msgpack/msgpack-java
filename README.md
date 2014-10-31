@@ -22,7 +22,7 @@ libraryDependencies += "org.msgpack" % "msgpack-core" % "0.7.0-p1"
 ```
 
 - [Usage examples](msgpack-core/src/main/java/org/msgpack/core/example/MessagePackExample.java)
-
+- TODO: jackson-databind-msgpack usage
 
 ## For Developers
 

@@ -127,8 +127,10 @@ public class MessagePackExample {
             .packString("yyy-yyyy");
 
 
-        // [Advanced] ByteBuffer
-        ByteBuffer.wrap(new byte[] {'b', 'i', 'n', 'a', 'r', 'y', 'd', 'a', 't', 'a'});
+        // [Advanced] write data using ByteBuffer
+        ByteBuffer bb = ByteBuffer.wrap(new byte[] {'b', 'i', 'n', 'a', 'r', 'y', 'd', 'a', 't', 'a'});
+        packer.packBinaryHeader(bb.remaining());
+        packer.writePayload(bb);
 
     }
 
