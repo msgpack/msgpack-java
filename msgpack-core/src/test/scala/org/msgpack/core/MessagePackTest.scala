@@ -238,16 +238,18 @@ class MessagePackTest extends MessagePackSpec  {
 
 
     "report errors when packing/unpacking malformed strings" taggedAs("malformed") in {
+      // TODO produce malformed utf-8 strings in Java8"
+      pending
       // Create 100 malformed UTF8 Strings
       val r = new Random(0)
-      val malformedStrings = Iterator.continually{
+      val malformedStrings = Iterator.continually {
         val b = new Array[Byte](10)
         r.nextBytes(b)
         b
       }
         .filter(b => !isValidUTF8(new String(b))).take(100)
 
-      for(malformedBytes <- malformedStrings) {
+      for (malformedBytes <- malformedStrings) {
         // Pack tests
         val malformed = new String(malformedBytes)
         try {

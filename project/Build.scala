@@ -26,7 +26,7 @@ import xerial.sbt.Sonatype._
 
 object Build extends Build {
 
-  val SCALA_VERSION = "2.11.1"
+  val SCALA_VERSION = "2.11.2"
 
   lazy val buildSettings = Defaults.coreDefaultSettings ++
     sonatypeSettings ++
@@ -135,7 +135,8 @@ object Build extends Build {
       "org.scalacheck" % "scalacheck_2.11" % "1.11.4" % "test",
       "org.xerial" % "xerial-core" % "3.3.0" % "test",
       "org.msgpack" % "msgpack" % "0.6.9" % "test",
-      "com.novocode" % "junit-interface" % "0.10" % "test"
+      "com.novocode" % "junit-interface" % "0.10" % "test",
+      "commons-codec" % "commons-codec" % "1.9" % "test"
     )
   }
 
