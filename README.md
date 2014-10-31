@@ -1,4 +1,4 @@
-MessagePack for Java [![Travis CI](https://travis-ci.org/msgpack/msgpack-java.svg?branch=v07-develop)](https://travis-ci.org/msgpack/msgpack-java)
+MessagePack for Java 
 === 
 
 [MessagePack](http://msgpack.org) is an efficient binary serialization format. It lets you exchange data among multiple languages like JSON. But it's faster and smaller. Small integers are encoded into a single byte, and typical short strings require only one extra byte in addition to the strings themselves.
@@ -24,7 +24,7 @@ libraryDependencies += "org.msgpack" % "msgpack-core" % "0.7.0-p1"
 - [Usage examples](msgpack-core/src/main/java/org/msgpack/core/example/MessagePackExample.java)
 - TODO: jackson-databind-msgpack usage
 
-## For Developers 
+## For Developers [![Travis CI](https://travis-ci.org/msgpack/msgpack-java.svg?branch=v07-develop)](https://travis-ci.org/msgpack/msgpack-java)
 
 msgpack-java uses [sbt](http://www.scala-sbt.org/) for building the projects. For the basic usage of sbt, see:
  * [Building Java projects with sbt](http://xerial.org/blog/2014/03/24/sbt/)
