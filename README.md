@@ -5,6 +5,8 @@ MessagePack for Java
 
  * Message Pack specification: <https://github.com/msgpack/msgpack/blob/master/spec.md>
 
+MessagePack v7 (0.7.x) is a faster implementation of the previous version [v06](https://github.com/msgpack/msgpack-java/blob/v06), and supports all of the message pack types, including extended types, in the specification. 
+
 ## Quick Start
 
 For Maven users:
