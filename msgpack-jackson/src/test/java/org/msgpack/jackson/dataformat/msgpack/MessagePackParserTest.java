@@ -81,6 +81,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
             else if (k.equals("map")) {
                 // #3
                 bitmap |= 1 << 2;
+                @SuppressWarnings("unchecked")
                 Map<String, Object> child = (Map<String, Object>) v;
                 assertEquals(2, child.keySet().size());
                 for (Map.Entry<String, Object> childEntry : child.entrySet()) {
@@ -115,6 +116,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
             else if (k.equals("array")) {
                 // #7
                 bitmap |= 1 << 8;
+                @SuppressWarnings("unchecked")
                 List<? extends Serializable> expected = Arrays.asList((double)Float.MIN_VALUE, null, "array_child_str");
                 assertEquals(expected, v);
             }
@@ -176,6 +178,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         assertEquals(10, array.size());
         int i = 0;
         // #1
+        @SuppressWarnings("unchecked")
         List<Object> childArray = (List<Object>) array.get(i++);
         {
             int j = 0;
@@ -203,6 +206,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         assertEquals((byte)0x01, bs[2]);
         assertEquals((byte)0x00, bs[3]);
         // #9
+        @SuppressWarnings("unchecked")
         Map<String, Object> childMap = (Map<String, Object>) array.get(i++);
         {
             assertEquals(2, childMap.keySet().size());
