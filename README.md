@@ -70,4 +70,5 @@ credentials += Credentials("Sonatype Nexus Repository Manager",
 
 ```
 msgpack-core                 # Contains packer/unpacker implementation that never uses third-party libraries
+msgpack-jackson              # Contains jackson-dataformat-java implementation
 ```
