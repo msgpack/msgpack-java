@@ -132,10 +132,12 @@ object Build extends Build {
     id = "msgpack-jackson",
     base = file("msgpack-jackson"),
     settings = buildSettings ++ Seq(
+      name := "jackson-dataformat-msgpack",
       description := "Jackson extension that adds support for MessagePack",
-      libraryDependencies ++= jacksonLib
+      libraryDependencies ++= jacksonLib,
+      testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
     )
-  )
+  ).dependsOn(msgpackCore)
 
   object Dependencies {
 
@@ -150,7 +152,6 @@ object Build extends Build {
 
     val jacksonLib = Seq(
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.4.3",
-      "org.msgpack" % "msgpack-core" % "0.7.0-p1",
       "com.novocode" % "junit-interface" % "0.10" % "test",
       "org.apache.commons" % "commons-math3" % "3.3" % "test"
     )
