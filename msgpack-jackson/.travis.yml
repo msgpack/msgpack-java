@@ -1,8 +1,0 @@
-language: java
-jdk:
-  - openjdk6
-  - openjdk7
-  - oraclejdk7
-branches:
-  only:
-    - master
