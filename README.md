@@ -21,6 +21,7 @@ For sbt users:
 libraryDependencies += "org.msgpack" % "msgpack-core" % "0.7.0"
 ```
 
+If you want to use MessagePack through [jackson-databind](https://github.com/FasterXML/jackson-databind), you can use *jackson-dataformat-msgpack*. Please read [README](msgpack-jackson/README.md) to know how to use it.
 
 ## For Developers
 
