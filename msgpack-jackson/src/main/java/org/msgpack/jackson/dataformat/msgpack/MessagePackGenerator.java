@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -171,7 +170,7 @@ public class MessagePackGenerator extends GeneratorBase {
         }
         else if (v instanceof BigDecimal) {
             // TODO
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException("BigDecimal isn't supported yet");
         }
         else if (v instanceof Boolean) {
             messagePacker.packBoolean((Boolean) v);
@@ -289,7 +288,7 @@ public class MessagePackGenerator extends GeneratorBase {
 
     @Override
     public void writeNumber(String encodedValue) throws IOException, JsonGenerationException, UnsupportedOperationException {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException("writeNumber(String encodedValue) isn't supported yet");
     }
 
     @Override
