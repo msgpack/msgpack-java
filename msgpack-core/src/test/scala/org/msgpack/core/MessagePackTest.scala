@@ -98,9 +98,8 @@ class MessagePackTest extends MessagePackSpec  {
 
     }
 
-    val msgpack = MessagePack.DEFAULT;
 
-    def check[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A) {
+    def check[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A, msgpack:MessagePack = MessagePack.DEFAULT): Unit = {
       var b: Array[Byte] = null
       try {
         val bs = new ByteArrayOutputStream()
@@ -123,7 +122,7 @@ class MessagePackTest extends MessagePackSpec  {
       }
     }
 
-    def checkException[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A) {
+    def checkException[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A, msgpack:MessagePack=MessagePack.DEFAULT) : Unit = {
       var b: Array[Byte] = null
       val bs = new ByteArrayOutputStream()
       val packer = msgpack.newPacker(bs)
@@ -275,14 +274,20 @@ class MessagePackTest extends MessagePackSpec  {
       val unmappable = Array[Byte](0xfc.toByte, 0x0a.toByte)
       //val unmappableChar = Array[Char](new Character(0xfc0a).toChar)
 
+      // Report error on unmappable character
+      val config = new MessagePack.ConfigBuilder().onMalFormedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT).build()
+      val msgpack = new MessagePack(config)
 
       for(bytes <- Seq(unmappable)) {
         When("unpacking")
         try {
-          checkException(bytes, { packer =>
+          checkException(bytes,
+          { packer =>
             packer.packRawStringHeader(bytes.length)
             packer.writePayload(bytes)
-          }, _.unpackString())
+          },
+          _.unpackString(),
+          msgpack)
         }
         catch {
           case e:MessageStringCodingException => // OK
