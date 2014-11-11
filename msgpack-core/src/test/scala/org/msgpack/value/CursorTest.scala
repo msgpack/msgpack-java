@@ -1,6 +1,6 @@
 package org.msgpack.value
 
-import org.msgpack.core.{MessagePackFactory, MessagePack, MessageUnpacker, MessagePackSpec}
+import org.msgpack.core.{MessagePack, MessageUnpacker, MessagePackSpec}
 import ValueFactory._
 import scala.util.Random
 import org.msgpack.value.holder.IntegerHolder
@@ -10,7 +10,7 @@ import org.msgpack.value.holder.IntegerHolder
  */
 class CursorTest extends MessagePackSpec {
 
-  val mf = MessagePackFactory.DEFAULT
+  val msgpack = MessagePack.DEFAULT
 
   def sampleData = createMessagePackData { packer =>
     packer.packValue(
@@ -41,7 +41,7 @@ class CursorTest extends MessagePackSpec {
 
     "have array cursor" taggedAs("array") in {
 
-      val cursor = mf.newUnpacker(sampleData).getCursor
+      val cursor = msgpack.newUnpacker(sampleData).getCursor
       // Traverse as references
       val arrCursor = cursor.nextRef().getArrayCursor
       arrCursor.size() shouldBe 3
@@ -58,14 +58,14 @@ class CursorTest extends MessagePackSpec {
 
       time("traversal", repeat=100) {
         block("value") {
-          val cursor = mf.newUnpacker(data).getCursor
+          val cursor = msgpack.newUnpacker(data).getCursor
           while(cursor.hasNext) {
             cursor.next()
           }
           cursor.close()
         }
         block("value-ref") {
-          val cursor = mf.newUnpacker(data).getCursor
+          val cursor = msgpack.newUnpacker(data).getCursor
           while(cursor.hasNext) {
             cursor.nextRef()
           }
@@ -80,7 +80,7 @@ class CursorTest extends MessagePackSpec {
       val data = intSeq(N)
       time("scan int-seq", repeat=1000) {
         block("unpacker") {
-          val unpacker = mf.newUnpacker(data)
+          val unpacker = msgpack.newUnpacker(data)
           val intHolder = new IntegerHolder()
           var count = 0
           while(unpacker.hasNext) {
@@ -98,7 +98,7 @@ class CursorTest extends MessagePackSpec {
         }
         block("cursor") {
           var count = 0
-          val cursor = mf.newUnpacker(data).getCursor
+          val cursor = msgpack.newUnpacker(data).getCursor
           while(cursor.hasNext) {
             val ref = cursor.nextRef()
             val v = ref.asInteger().toInt

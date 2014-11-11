@@ -2,12 +2,10 @@ package org.msgpack.core
 
 import scala.util.Random
 import MessagePack.Code
-import org.scalatest.prop.PropertyChecks
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
-import xerial.core.io.{Resource, IOUtil}
-import java.nio.{ByteBuffer, CharBuffer}
-import java.nio.charset.{Charset, UnmappableCharacterException, CodingErrorAction}
+import java.nio.CharBuffer
+import java.nio.charset.{UnmappableCharacterException, CodingErrorAction}
 
 /**
  * Created on 2014/05/07.
@@ -24,12 +22,12 @@ class MessagePackTest extends MessagePackSpec  {
       false
     }
     catch {
-      case e:UnmappableCharacterException =>
+      case e: UnmappableCharacterException =>
         true
-      case _ : Exception => false
+      case _: Exception => false
     }
-
   }
+
 
   "MessagePack" should {
     "detect fixint values" in {
@@ -100,19 +98,19 @@ class MessagePackTest extends MessagePackSpec  {
 
     }
 
-    val mf = MessagePackFactory.DEFAULT;
+    val msgpack = MessagePack.DEFAULT;
 
     def check[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A) {
       var b: Array[Byte] = null
       try {
         val bs = new ByteArrayOutputStream()
-        val packer = mf.newPacker(bs)
+        val packer = msgpack.newPacker(bs)
         pack(packer)
         packer.close()
 
         b = bs.toByteArray
 
-        val unpacker = mf.newUnpacker(b)
+        val unpacker = msgpack.newUnpacker(b)
         val ret = unpack(unpacker)
         ret shouldBe v
       }
@@ -128,13 +126,13 @@ class MessagePackTest extends MessagePackSpec  {
     def checkException[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A) {
       var b: Array[Byte] = null
       val bs = new ByteArrayOutputStream()
-      val packer = mf.newPacker(bs)
+      val packer = msgpack.newPacker(bs)
       pack(packer)
       packer.close()
 
       b = bs.toByteArray
 
-      val unpacker = mf.newUnpacker(b)
+      val unpacker = msgpack.newUnpacker(b)
       val ret = unpack(unpacker)
 
       fail("cannot not reach here")

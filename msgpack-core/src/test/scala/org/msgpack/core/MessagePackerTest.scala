@@ -12,10 +12,10 @@ import scala.util.Random
  */
 class MessagePackerTest extends MessagePackSpec {
 
-  val mf = MessagePackFactory.DEFAULT
+  val msgpack = MessagePack.DEFAULT
 
   def verifyIntSeq(answer:Array[Int], packed:Array[Byte]) {
-    val unpacker = mf.newUnpacker(packed)
+    val unpacker = msgpack.newUnpacker(packed)
     val b = Array.newBuilder[Int]
     while(unpacker.hasNext) {
       b += unpacker.unpackInt()
@@ -31,7 +31,7 @@ class MessagePackerTest extends MessagePackSpec {
       val intSeq = (0 until 100).map(i => Random.nextInt).toArray
 
       val b = new ByteArrayOutputStream
-      val packer = mf.newPacker(b)
+      val packer = msgpack.newPacker(b)
       intSeq foreach packer.packInt
       packer.close
       verifyIntSeq(intSeq, b.toByteArray)
@@ -58,7 +58,7 @@ class MessagePackerTest extends MessagePackSpec {
       val t = time("packer", repeat = 10) {
         block("no-buffer-reset") {
           val out = new ByteArrayOutputStream
-          IOUtil.withResource(MessagePackFactory.newDefaultPacker(out)) { packer =>
+          IOUtil.withResource(msgpack.newPacker(out)) { packer =>
             for (i <- 0 until N) {
               val outputStream = new ByteArrayOutputStream()
               packer.reset(new OutputStreamBufferOutput(outputStream))
@@ -70,7 +70,7 @@ class MessagePackerTest extends MessagePackSpec {
 
         block("buffer-reset") {
           val out = new ByteArrayOutputStream
-          IOUtil.withResource(MessagePackFactory.newDefaultPacker(out)) { packer =>
+          IOUtil.withResource(msgpack.newPacker(out)) { packer =>
             val bufferOut = new OutputStreamBufferOutput(new ByteArrayOutputStream())
             for (i <- 0 until N) {
               val outputStream = new ByteArrayOutputStream()

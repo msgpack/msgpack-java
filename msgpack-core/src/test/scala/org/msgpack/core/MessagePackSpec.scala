@@ -24,7 +24,7 @@ trait MessagePackSpec
 
   def createMessagePackData(f: MessagePacker => Unit) : Array[Byte] = {
     val b = new ByteArrayOutputStream()
-    val packer = MessagePackFactory.DEFAULT.newPacker(b)
+    val packer = MessagePack.newDefaultPacker(b)
     f(packer)
     packer.close()
     b.toByteArray
