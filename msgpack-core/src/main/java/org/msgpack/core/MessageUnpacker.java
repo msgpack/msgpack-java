@@ -25,6 +25,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
+import java.nio.charset.MalformedInputException;
 
 import org.msgpack.core.MessagePack.Code;
 import org.msgpack.core.buffer.MessageBuffer;
@@ -968,7 +969,7 @@ public class MessageUnpacker implements Closeable {
                 decodeBuffer.clear();
                 StringBuilder sb = new StringBuilder();
                 while(cursor < strLen) {
-                    if(!ensureBuffer())
+                    if (!ensure(strLen))
                         throw new EOFException();
 
                     int readLen = Math.min(buffer.size() - position, strLen-cursor);
@@ -985,6 +986,16 @@ public class MessageUnpacker implements Closeable {
                             // The output CharBuffer has insufficient space
                             readLen = bb.limit() - bb.remaining();
                             decoder.reset();
+                        }
+
+                        if(cr.isUnderflow() && bb.hasRemaining()) {
+                            // input buffer doesn't have enough bytes for multi bytes characters
+                            if(config.getActionOnMalFormedInput() == CodingErrorAction.REPORT) {
+                                throw new MalformedInputException(strLen);
+                            }
+                            // trash truncated bytes
+                            while (bb.hasRemaining())
+                                bb.get();
                         }
 
                         if(cr.isError()) {

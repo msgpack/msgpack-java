@@ -146,8 +146,8 @@ object Build extends Build {
       "org.scalacheck" % "scalacheck_2.11" % "1.11.4" % "test",
       "org.xerial" % "xerial-core" % "3.3.0" % "test",
       "org.msgpack" % "msgpack" % "0.6.9" % "test",
-      "io.airlift" % "slice" % "0.6" % "test",
-      "com.novocode" % "junit-interface" % "0.10" % "test"
+      "com.novocode" % "junit-interface" % "0.10" % "test",
+      "commons-codec" % "commons-codec" % "1.9" % "test"
     )
 
     val jacksonLib = Seq(
