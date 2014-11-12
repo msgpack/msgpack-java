@@ -57,7 +57,7 @@ class CursorTest extends MessagePackSpec {
         packer packMapHeader(1) packString("f") packString("x")
       }
 
-      val cursor = mf.newUnpacker(packedData).getCursor
+      val cursor = msgpack.newUnpacker(packedData).getCursor
       val mapCursor = cursor.nextRef().getMapCursor
       mapCursor.size() shouldBe 1
 
