@@ -109,7 +109,7 @@ public class MapCursorImpl extends AbstractValueRef implements MapCursor {
     @Override
     public MapValue toValue() {
         ensureNotTraversed();
-        Value[] keyValueArray = new Value[mapSize];
+        Value[] keyValueArray = new Value[mapSize * 2];
         int i = 0;
         while(hasNext()) {
             keyValueArray[i++] = nextKeyOrValue().toValue();

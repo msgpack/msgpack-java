@@ -1,5 +1,9 @@
 package org.msgpack.core
 
+import org.msgpack.value.Value
+import org.msgpack.value.holder.ValueHolder
+
+import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import MessagePack.Code
 import org.scalatest.prop.PropertyChecks
@@ -408,6 +412,37 @@ class MessagePackTest extends MessagePackSpec  {
         check(ext, _.packExtendedTypeHeader(ext.getType, ext.getLength), _.unpackExtendedTypeHeader())
       }
 
+    }
+
+    "pack/unpack maps in lists" in {
+      val aMap = List(Map("f" -> "x"))
+
+      check(aMap, { packer =>
+        packer.packArrayHeader(aMap.size)
+        for (m <- aMap) {
+          packer.packMapHeader(m.size)
+          for ((k, v) <- m) {
+            packer.packString(k)
+            packer.packString(v)
+          }
+        }
+      }, { unpacker =>
+        val holder = new ValueHolder()
+        unpacker.unpackValue(holder)
+        val v = holder.get()
+
+        v.asArrayValue().toValueArray.map { m =>
+          val mv = m.asMapValue()
+          val kvs = mv.toKeyValueSeq
+
+          kvs.grouped(2).map({ kvp: Array[Value] =>
+            val k = kvp(0)
+            val v = kvp(1)
+
+            (k.asString().toString, v.asString().toString)
+          }).toMap
+        }.toList
+      })
     }
 
   }
