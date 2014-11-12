@@ -1,12 +1,8 @@
-package org.msgpack.jackson.dataformat.msgpack;
+package org.msgpack.jackson.dataformat;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;

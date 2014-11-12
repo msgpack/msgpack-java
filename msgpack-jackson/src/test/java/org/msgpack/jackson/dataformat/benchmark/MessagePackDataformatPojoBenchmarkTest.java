@@ -1,14 +1,10 @@
-package org.msgpack.jackson.dataformat.msgpack.benchmark;
+package org.msgpack.jackson.dataformat.benchmark;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.math3.stat.StatUtils;
-import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
-import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.msgpack.jackson.dataformat.msgpack.MessagePackDataformatTestBase;
-import org.msgpack.jackson.dataformat.msgpack.MessagePackFactory;
+import org.msgpack.jackson.dataformat.MessagePackDataformatTestBase;
+import org.msgpack.jackson.dataformat.MessagePackFactory;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
