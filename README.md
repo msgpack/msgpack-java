@@ -25,7 +25,8 @@ libraryDependencies += "org.msgpack" % "msgpack-core" % "0.7.0-M5"
 
 - [Usage examples](msgpack-core/src/main/java/org/msgpack/core/example/MessagePackExample.java)
 
-To serialize/deserialize Java objects in MessagePack format, use [jackson-databind](https://github.com/FasterXML/jackson-databind), you can use *jackson-dataformat-msgpack*. For details, see [README](msgpack-jackson/README.md).
+msgpack-java supports serialization and deserialization of Java objects through [jackson-databind](https://github.com/FasterXML/jackson-databind).
+For details, see [msgpack-jackson/README.md](msgpack-jackson/README.md). The template-based serialization mechanism used in v06 is deprecated.
 
 ## For MessagePack Developers [![Travis CI](https://travis-ci.org/msgpack/msgpack-java.svg?branch=v07-develop)](https://travis-ci.org/msgpack/msgpack-java)
 
