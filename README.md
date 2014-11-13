@@ -23,11 +23,11 @@ For sbt users:
 libraryDependencies += "org.msgpack" % "msgpack-core" % "0.7.0-M5"
 ```
 
-If you want to use MessagePack through [jackson-databind](https://github.com/FasterXML/jackson-databind), you can use *jackson-dataformat-msgpack*. Please read [README](msgpack-jackson/README.md) to know how to use it.
 - [Usage examples](msgpack-core/src/main/java/org/msgpack/core/example/MessagePackExample.java)
-- TODO: jackson-databind-msgpack usage
 
-## For Developers [![Travis CI](https://travis-ci.org/msgpack/msgpack-java.svg?branch=v07-develop)](https://travis-ci.org/msgpack/msgpack-java)
+To serialize/deserialize Java objects in MessagePack format, use [jackson-databind](https://github.com/FasterXML/jackson-databind), you can use *jackson-dataformat-msgpack*. For details, see [README](msgpack-jackson/README.md).
+
+## For MessagePack Developers [![Travis CI](https://travis-ci.org/msgpack/msgpack-java.svg?branch=v07-develop)](https://travis-ci.org/msgpack/msgpack-java)
 
 msgpack-java uses [sbt](http://www.scala-sbt.org/) for building the projects. For the basic usage of sbt, see:
  * [Building Java projects with sbt](http://xerial.org/blog/2014/03/24/sbt/)
