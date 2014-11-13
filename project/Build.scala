@@ -135,7 +135,7 @@ object Build extends Build {
       name := "jackson-dataformat-msgpack",
       description := "Jackson extension that adds support for MessagePack",
       libraryDependencies ++= jacksonLib,
-      testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v")
+      testOptions += Tests.Argument(TestFrameworks.JUnit, "-v")
     )
   ).dependsOn(msgpackCore)
 
