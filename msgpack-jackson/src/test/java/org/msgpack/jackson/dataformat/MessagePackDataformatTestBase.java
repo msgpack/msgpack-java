@@ -1,4 +1,4 @@
-package org.msgpack.jackson.dataformat.msgpack;
+package org.msgpack.jackson.dataformat;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -8,6 +8,7 @@ import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.junit.After;
 import org.junit.Before;
+import org.msgpack.jackson.dataformat.MessagePackFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

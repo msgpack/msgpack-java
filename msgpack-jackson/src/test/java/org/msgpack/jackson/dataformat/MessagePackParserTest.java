@@ -1,4 +1,4 @@
-package org.msgpack.jackson.dataformat.msgpack;
+package org.msgpack.jackson.dataformat;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.Test;

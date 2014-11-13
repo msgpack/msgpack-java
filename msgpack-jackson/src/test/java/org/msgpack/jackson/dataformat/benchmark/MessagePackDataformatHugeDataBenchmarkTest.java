@@ -1,18 +1,14 @@
-package org.msgpack.jackson.dataformat.msgpack.benchmark;
+package org.msgpack.jackson.dataformat.benchmark;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.msgpack.jackson.dataformat.msgpack.MessagePackDataformatTestBase;
-import org.msgpack.jackson.dataformat.msgpack.MessagePackFactory;
+import org.msgpack.jackson.dataformat.MessagePackDataformatTestBase;
+import org.msgpack.jackson.dataformat.MessagePackFactory;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MessagePackDataformatHugeDataBenchmarkTest extends MessagePackDataformatTestBase {
     private static final int ELM_NUM = 1500000;

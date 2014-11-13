@@ -1,4 +1,4 @@
-package org.msgpack.jackson.dataformat.msgpack;
+package org.msgpack.jackson.dataformat;
 
 import org.junit.Test;
 import org.msgpack.core.MessageUnpacker;

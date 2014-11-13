@@ -52,6 +52,24 @@ class CursorTest extends MessagePackSpec {
       }
     }
 
+    "have map cursor" taggedAs("map") in {
+      val packedData = createMessagePackData { packer =>
+        packer packMapHeader(1) packString("f") packString("x")
+      }
+
+      val cursor = msgpack.newUnpacker(packedData).getCursor
+      val mapCursor = cursor.nextRef().getMapCursor
+      mapCursor.size() shouldBe 1
+
+      val mapValue = mapCursor.toValue
+      val data = mapValue.toKeyValueSeq
+
+      data should have length 2
+
+      data(0).asString().toString shouldBe "f"
+      data(1).asString().toString shouldBe "x"
+    }
+
     "traverse ValueRef faster than traversing Value" taggedAs("ref") in {
       val N = 10000
       val data = binSeq(N)
