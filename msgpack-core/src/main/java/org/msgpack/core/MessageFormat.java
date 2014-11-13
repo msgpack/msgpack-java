@@ -61,7 +61,7 @@ public enum MessageFormat {
 
     /**
      * Retruns the ValueType corresponding to this MessageFormat
-     * @return
+     * @return value type
      * @throws MessageFormatException if this == NEVER_USED type
      */
     public ValueType getValueType() throws MessageFormatException {
@@ -82,7 +82,7 @@ public enum MessageFormat {
 
     /**
      * Returns a MessageFormat type of the specified byte value
-     * @param b
+     * @param b MessageFormat of the given byte
      * @return
      */
     public static MessageFormat valueOf(final byte b) {
@@ -91,7 +91,7 @@ public enum MessageFormat {
 
     /**
      * Converting a byte value into MessageFormat. For faster performance, use {@link #valueOf}
-     * @param b
+     * @param b MessageFormat of the given byte
      * @return
      */
     @VisibleForTesting

@@ -50,13 +50,13 @@ import static org.msgpack.core.Preconditions.*;
  *     while(unpacker.hasNext()) {
  *         MessageFormat f = unpacker.getNextFormat();
  *         switch(f) {
- *             case MessageFormat.POSFIXINT =>
- *             case MessageFormat.INT8 =>
- *             case MessageFormat.UINT8 => {
+ *             case MessageFormat.POSFIXINT:
+ *             case MessageFormat.INT8:
+ *             case MessageFormat.UINT8: {
  *                int v = unpacker.unpackInt();
  *                break;
  *             }
- *             case MessageFormat.STRING => {
+ *             case MessageFormat.STRING: {
  *                String v = unpacker.unpackString();
  *                break;
  *             }

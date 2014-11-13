@@ -29,7 +29,6 @@ object Build extends Build {
   val SCALA_VERSION = "2.11.1"
 
   lazy val buildSettings = Defaults.coreDefaultSettings ++
-    sonatypeSettings ++
     releaseSettings ++
     findbugsSettings ++
     jacoco.settings ++
@@ -46,6 +45,13 @@ object Build extends Build {
       concurrentRestrictions in Global := Seq(
         Tags.limit(Tags.Test, 1)
       ),
+      publishTo := {
+        val nexus = "https://oss.sonatype.org/"
+        if (isSnapshot.value)
+          Some("snapshots" at nexus + "content/repositories/snapshots")
+        else
+          Some("releases" at nexus + "service/local/staging/deploy/maven2")
+      },
       parallelExecution in jacoco.Config := false,
       // Since sbt-0.13.2
       incOptions := incOptions.value.withNameHashing(true),
@@ -53,6 +59,7 @@ object Build extends Build {
       scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-target:jvm-1.6", "-feature"),
       javaOptions in Test ++= Seq("-ea"),
       javacOptions in (Compile, compile) ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.6", "-target", "1.6"),
+      javacOptions in doc := Seq("-source", "1.6", "-Xdoclint:none"),
       findbugsReportType := Some(ReportType.FancyHtml),
       findbugsReportPath := Some(crossTarget.value / "findbugs" / "report.html"),
       pomExtra := {
