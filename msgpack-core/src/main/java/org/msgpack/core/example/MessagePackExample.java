@@ -1,3 +1,18 @@
+//
+// MessagePack for Java
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+//
+//        http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+//
 package org.msgpack.core.example;
 
 import org.msgpack.core.*;
@@ -27,7 +42,7 @@ public class MessagePackExample {
 
         // Serialize with MessagePacker
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        MessagePacker packer = MessagePackFactory.newDefaultPacker(out);
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
         packer
             .packInt(1)
             .packString("leo")
@@ -37,7 +52,7 @@ public class MessagePackExample {
         packer.close();
 
         // Deserialize with MessageUnpacker
-        MessageUnpacker unpacker = MessagePackFactory.newDefaultUnpacker(out.toByteArray());
+        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(out.toByteArray());
         int id = unpacker.unpackInt();             // 1
         String name = unpacker.unpackString();     // "leo"
         int numPhones = unpacker.unpackArrayHeader();  // 2
@@ -69,7 +84,7 @@ public class MessagePackExample {
 
         // Create a MesagePacker (encoder) instance
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        MessagePacker packer = MessagePackFactory.newDefaultPacker(out);
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
 
         // pack (encode) primitive values in message pack format
         packer.packBoolean(true);
@@ -145,14 +160,14 @@ public class MessagePackExample {
         tempFile.deleteOnExit();
 
         // Write packed data to a file. No need exists to wrap the file stream with BufferedOutputStream, since MessagePacker has its own buffer
-        MessagePacker packer = MessagePackFactory.newDefaultPacker(new FileOutputStream(tempFile));
+        MessagePacker packer = MessagePack.newDefaultPacker(new FileOutputStream(tempFile));
         packer.packInt(1);
         packer.packString("Hello Message Pack!");
         packer.packArrayHeader(2).packFloat(0.1f).packDouble(0.342);
         packer.close();
 
         // Read packed data from a file. No need exists to wrap the file stream with an buffer
-        MessageUnpacker unpacker = MessagePackFactory.newDefaultUnpacker(new FileInputStream(tempFile));
+        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(new FileInputStream(tempFile));
 
         while(unpacker.hasNext()) {
             // [Advanced] You can check the detailed data format with getNextFormat()
@@ -227,19 +242,19 @@ public class MessagePackExample {
             .onUnmappableCharacter(CodingErrorAction.REPLACE)
             .packerBufferSize(8192 * 2)
             .build();
-        // Create a factory that uses this configuration
-        MessagePackFactory mf = new MessagePackFactory(config);
+        // Create a  that uses this configuration
+        MessagePack msgpack = new MessagePack(config);
 
         // Pack data
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        MessagePacker packer = mf.newPacker(out);
+        MessagePacker packer = msgpack.newPacker(out);
         packer.packInt(10);
         packer.packBoolean(true);
         packer.close();
 
         // Unpack data
         byte[] packedData = out.toByteArray();
-        MessageUnpacker unpacker = mf.newUnpacker(packedData);
+        MessageUnpacker unpacker = msgpack.newUnpacker(packedData);
         int i = unpacker.unpackInt();  // 10
         boolean b = unpacker.unpackBoolean(); // true
         unpacker.close();

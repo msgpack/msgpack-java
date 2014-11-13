@@ -23,6 +23,7 @@ For sbt users:
 libraryDependencies += "org.msgpack" % "msgpack-core" % "0.7.0-p1"
 ```
 
+If you want to use MessagePack through [jackson-databind](https://github.com/FasterXML/jackson-databind), you can use *jackson-dataformat-msgpack*. Please read [README](msgpack-jackson/README.md) to know how to use it.
 - [Usage examples](msgpack-core/src/main/java/org/msgpack/core/example/MessagePackExample.java)
 - TODO: jackson-databind-msgpack usage
 
@@ -74,4 +75,5 @@ credentials += Credentials("Sonatype Nexus Repository Manager",
 
 ```
 msgpack-core                 # Contains packer/unpacker implementation that never uses third-party libraries
+msgpack-jackson              # Contains jackson-dataformat-java implementation
 ```

@@ -116,7 +116,7 @@ object Build extends Build {
       publish := {},
       publishLocal := {}
     )
-  ) aggregate(msgpackCore)
+  ) aggregate(msgpackCore, msgpackJackson)
 
 
   lazy val msgpackCore = Project(
@@ -128,6 +128,17 @@ object Build extends Build {
     )
   )
 
+  lazy val msgpackJackson = Project(
+    id = "msgpack-jackson",
+    base = file("msgpack-jackson"),
+    settings = buildSettings ++ Seq(
+      name := "jackson-dataformat-msgpack",
+      description := "Jackson extension that adds support for MessagePack",
+      libraryDependencies ++= jacksonLib,
+      testOptions += Tests.Argument(TestFrameworks.JUnit, "-v")
+    )
+  ).dependsOn(msgpackCore)
+
   object Dependencies {
 
     val testLib = Seq(
@@ -137,6 +148,12 @@ object Build extends Build {
       "org.msgpack" % "msgpack" % "0.6.9" % "test",
       "com.novocode" % "junit-interface" % "0.10" % "test",
       "commons-codec" % "commons-codec" % "1.9" % "test"
+    )
+
+    val jacksonLib = Seq(
+      "com.fasterxml.jackson.core" % "jackson-databind" % "2.4.3",
+      "com.novocode" % "junit-interface" % "0.10" % "test",
+      "org.apache.commons" % "commons-math3" % "3.3" % "test"
     )
   }
 

@@ -1,17 +1,29 @@
+//
+// MessagePack for Java
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+//
+//        http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+//
 package org.msgpack.core
 
 import org.msgpack.value.Value
 import org.msgpack.value.holder.ValueHolder
 
-import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import MessagePack.Code
-import org.scalatest.prop.PropertyChecks
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
-import xerial.core.io.{Resource, IOUtil}
-import java.nio.{ByteBuffer, CharBuffer}
-import java.nio.charset.{Charset, UnmappableCharacterException, CodingErrorAction}
+import java.nio.CharBuffer
+import java.nio.charset.{UnmappableCharacterException, CodingErrorAction}
 
 /**
  * Created on 2014/05/07.
@@ -28,12 +40,12 @@ class MessagePackTest extends MessagePackSpec  {
       false
     }
     catch {
-      case e:UnmappableCharacterException =>
+      case e: UnmappableCharacterException =>
         true
-      case _ : Exception => false
+      case _: Exception => false
     }
-
   }
+
 
   "MessagePack" should {
     "detect fixint values" in {
@@ -104,19 +116,18 @@ class MessagePackTest extends MessagePackSpec  {
 
     }
 
-    val mf = MessagePackFactory.DEFAULT;
 
-    def check[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A) {
+    def check[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A, msgpack:MessagePack = MessagePack.DEFAULT): Unit = {
       var b: Array[Byte] = null
       try {
         val bs = new ByteArrayOutputStream()
-        val packer = mf.newPacker(bs)
+        val packer = msgpack.newPacker(bs)
         pack(packer)
         packer.close()
 
         b = bs.toByteArray
 
-        val unpacker = mf.newUnpacker(b)
+        val unpacker = msgpack.newUnpacker(b)
         val ret = unpack(unpacker)
         ret shouldBe v
       }
@@ -129,16 +140,16 @@ class MessagePackTest extends MessagePackSpec  {
       }
     }
 
-    def checkException[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A) {
+    def checkException[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A, msgpack:MessagePack=MessagePack.DEFAULT) : Unit = {
       var b: Array[Byte] = null
       val bs = new ByteArrayOutputStream()
-      val packer = mf.newPacker(bs)
+      val packer = msgpack.newPacker(bs)
       pack(packer)
       packer.close()
 
       b = bs.toByteArray
 
-      val unpacker = mf.newUnpacker(b)
+      val unpacker = msgpack.newUnpacker(b)
       val ret = unpack(unpacker)
 
       fail("cannot not reach here")
@@ -281,14 +292,20 @@ class MessagePackTest extends MessagePackSpec  {
       val unmappable = Array[Byte](0xfc.toByte, 0x0a.toByte)
       //val unmappableChar = Array[Char](new Character(0xfc0a).toChar)
 
+      // Report error on unmappable character
+      val config = new MessagePack.ConfigBuilder().onMalFormedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT).build()
+      val msgpack = new MessagePack(config)
 
       for(bytes <- Seq(unmappable)) {
         When("unpacking")
         try {
-          checkException(bytes, { packer =>
+          checkException(bytes,
+          { packer =>
             packer.packRawStringHeader(bytes.length)
             packer.writePayload(bytes)
-          }, _.unpackString())
+          },
+          _.unpackString(),
+          msgpack)
         }
         catch {
           case e:MessageStringCodingException => // OK

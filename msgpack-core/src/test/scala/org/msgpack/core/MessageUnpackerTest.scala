@@ -11,11 +11,11 @@ import xerial.core.io.IOUtil
  */
 class MessageUnpackerTest extends MessagePackSpec {
 
-  val mf = MessagePackFactory.DEFAULT
+  val msgpack = MessagePack.DEFAULT
 
   def testData : Array[Byte] = {
     val out = new ByteArrayOutputStream()
-    val packer = mf.newPacker(out)
+    val packer = msgpack.newPacker(out)
 
     packer
       .packArrayHeader(2)
@@ -38,7 +38,7 @@ class MessageUnpackerTest extends MessagePackSpec {
   def testData2 : Array[Byte] = {
 
     val out = new ByteArrayOutputStream()
-    val packer = mf.newPacker(out);
+    val packer = msgpack.newPacker(out);
 
     packer
       .packBoolean(true)
@@ -108,7 +108,7 @@ class MessageUnpackerTest extends MessagePackSpec {
   def testData3(N:Int) : Array[Byte] = {
 
     val out = new ByteArrayOutputStream()
-    val packer = mf.newPacker(out)
+    val packer = msgpack.newPacker(out)
 
     val r = new Random(0)
 
@@ -149,7 +149,7 @@ class MessageUnpackerTest extends MessagePackSpec {
     "parse message packed data" taggedAs("unpack") in {
       val arr = testData
 
-      val unpacker = mf.newUnpacker(arr)
+      val unpacker = msgpack.newUnpacker(arr)
 
       var count = 0
       while(unpacker.hasNext) {
@@ -162,7 +162,7 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     "skip reading values" in {
 
-      val unpacker = mf.newUnpacker(testData)
+      val unpacker = msgpack.newUnpacker(testData)
       var skipCount = 0
       while(unpacker.hasNext) {
         unpacker.skipValue()
@@ -179,7 +179,7 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       time("skip performance", repeat = 100) {
         block("switch") {
-          val unpacker = mf.newUnpacker(data)
+          val unpacker = msgpack.newUnpacker(data)
           var skipCount = 0
           while(unpacker.hasNext) {
             unpacker.skipValue()
@@ -197,7 +197,7 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       val ib = Seq.newBuilder[Int]
 
-      val unpacker = mf.newUnpacker(testData2)
+      val unpacker = msgpack.newUnpacker(testData2)
       while(unpacker.hasNext) {
         val f = unpacker.getNextFormat
         f.getValueType match {
@@ -238,7 +238,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       trait SplitTest {
         val data : Array[Byte]
         def run {
-          val unpacker = mf.newUnpacker(data)
+          val unpacker = msgpack.newUnpacker(data)
           val numElems = {
             var c = 0
             while (unpacker.hasNext) {
@@ -295,7 +295,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
 
         block("v7") {
-          val unpacker = mf.newUnpacker(data)
+          val unpacker = msgpack.newUnpacker(data)
           var count = 0
           try {
             while (unpacker.hasNext) {
@@ -397,7 +397,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
 
         block("v7") {
-          val unpacker = mf.newUnpacker(data)
+          val unpacker = msgpack.newUnpacker(data)
           var count = 0
           try {
             while (unpacker.hasNext) {
@@ -418,7 +418,7 @@ class MessageUnpackerTest extends MessagePackSpec {
     "be faster for reading binary than v6" taggedAs("cmp-binary") in {
 
       val bos = new ByteArrayOutputStream()
-      val packer = mf.newPacker(bos)
+      val packer = msgpack.newPacker(bos)
       val L = 10000
       val R = 100
       (0 until R).foreach { i =>
@@ -441,7 +441,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
 
         block("v7") {
-          val unpacker = mf.newUnpacker(b)
+          val unpacker = msgpack.newUnpacker(b)
           var i = 0
           while(i < R) {
             val len = unpacker.unpackBinaryHeader()
@@ -453,7 +453,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
 
         block("v7-ref") {
-          val unpacker = mf.newUnpacker(b)
+          val unpacker = msgpack.newUnpacker(b)
           var i = 0
           while(i < R) {
             val len = unpacker.unpackBinaryHeader()
@@ -474,12 +474,12 @@ class MessageUnpackerTest extends MessagePackSpec {
         val data = new Array[Byte](s)
         Random.nextBytes(data)
         val b = new ByteArrayOutputStream()
-        val packer = mf.newPacker(b)
+        val packer = msgpack.newPacker(b)
         packer.packBinaryHeader(s)
         packer.writePayload(data)
         packer.close()
 
-        val unpacker = mf.newUnpacker(b.toByteArray)
+        val unpacker = msgpack.newUnpacker(b.toByteArray)
         val len = unpacker.unpackBinaryHeader()
         len shouldBe s
         val ref = unpacker.readPayloadAsReference(len)
@@ -498,7 +498,7 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       val data = intSeq
       val b = createMessagePackData(packer => data foreach packer.packInt)
-      val unpacker = mf.newUnpacker(b)
+      val unpacker = msgpack.newUnpacker(b)
 
       val unpacked = Array.newBuilder[Int]
       while(unpacker.hasNext) {
@@ -533,7 +533,7 @@ class MessageUnpackerTest extends MessagePackSpec {
     "improve the performance via reset method" taggedAs("reset-arr") in {
 
       val out = new ByteArrayOutputStream
-      val packer = MessagePackFactory.newDefaultPacker(out)
+      val packer = msgpack.newPacker(out)
       packer.packInt(0)
       packer.flush
       val arr = out.toByteArray
@@ -542,7 +542,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       val N = 1000
       val t = time("unpacker", repeat = 10) {
         block("no-buffer-reset") {
-          IOUtil.withResource(MessagePackFactory.newDefaultUnpacker(arr)) { unpacker =>
+          IOUtil.withResource(msgpack.newUnpacker(arr)) { unpacker =>
             for (i <- 0 until N) {
               val buf = new ArrayBufferInput(arr)
               unpacker.reset(buf)
@@ -553,7 +553,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
 
         block("reuse-array-input") {
-          IOUtil.withResource(MessagePackFactory.newDefaultUnpacker(arr)) { unpacker =>
+          IOUtil.withResource(msgpack.newUnpacker(arr)) { unpacker =>
             val buf = new ArrayBufferInput(arr)
             for (i <- 0 until N) {
               buf.reset(arr)
@@ -565,7 +565,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
 
         block("reuse-message-buffer") {
-          IOUtil.withResource(MessagePackFactory.newDefaultUnpacker(arr)) { unpacker =>
+          IOUtil.withResource(msgpack.newUnpacker(arr)) { unpacker =>
             val buf = new ArrayBufferInput(arr)
             for (i <- 0 until N) {
               buf.reset(mb)
