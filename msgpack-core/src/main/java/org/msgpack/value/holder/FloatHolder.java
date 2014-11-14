@@ -165,7 +165,14 @@ public class FloatHolder extends AbstractValueRef implements FloatValue {
 
     @Override
     public String toString() {
-        return Double.toString(value);
+        switch(tpe) {
+            case FLOAT:
+                return Float.toString((float) value);
+            case DOUBLE:
+                return Double.toString(value);
+            default:
+                throw new IllegalStateException("cannto reach here");
+        }
     }
 
 
