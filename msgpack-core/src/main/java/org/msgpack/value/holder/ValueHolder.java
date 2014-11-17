@@ -11,6 +11,7 @@ import org.msgpack.value.impl.MapCursorImpl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
 
 import static org.msgpack.core.MessagePackException.UNREACHABLE;
 
@@ -24,8 +25,8 @@ public class ValueHolder {
     private FloatHolder floatHolder = new FloatHolder();
     private RawHolder rawHolder = new RawHolder();
     private ExtHolder extHolder = new ExtHolder();
-    private ArrayCursorImpl arrayCursor = new ArrayCursorImpl(this);
-    private MapCursorImpl mapCursor = new MapCursorImpl(this);
+    private ArrayCursorImpl arrayCursor;
+    private MapCursorImpl mapCursor;
     private ValueRef currentRef;
 
     public ValueRef getRef() {
@@ -108,12 +109,18 @@ public class ValueHolder {
 
     public void prepareArrayCursor(MessageUnpacker unpacker) throws IOException {
         vt = ValueType.ARRAY;
+
+        // TODO reusing cursor instances
+        arrayCursor = new ArrayCursorImpl(new ValueHolder());
         arrayCursor.reset(unpacker);
         currentRef = arrayCursor;
     }
 
     public void prepareMapCursor(MessageUnpacker unpacker) throws IOException {
         vt = ValueType.MAP;
+
+        // TODO reusing cursor instances
+        mapCursor = new MapCursorImpl(new ValueHolder());
         mapCursor.reset(unpacker);
         currentRef = mapCursor;
     }
