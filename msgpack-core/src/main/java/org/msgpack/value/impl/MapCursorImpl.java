@@ -1,9 +1,6 @@
 package org.msgpack.value.impl;
 
-import org.msgpack.core.MessageFormatException;
-import org.msgpack.core.MessagePacker;
-import org.msgpack.core.MessageTypeException;
-import org.msgpack.core.MessageUnpacker;
+import org.msgpack.core.*;
 import org.msgpack.value.*;
 import org.msgpack.value.holder.ValueHolder;
 
@@ -50,7 +47,7 @@ public class MapCursorImpl extends AbstractValueRef implements MapCursor {
     @Override
     public ValueRef nextKeyOrValue() {
         try {
-            unpacker.unpackValue(valueHolder);
+            MessageFormat f = unpacker.unpackValue(valueHolder);
             cursor++;
             return valueHolder.getRef();
         }
@@ -78,7 +75,7 @@ public class MapCursorImpl extends AbstractValueRef implements MapCursor {
 
     private void ensureNotTraversed() {
         if(cursor != 0)
-            throw UNSUPPORTED("ArrayCursor is already traversed");
+            throw UNSUPPORTED("MapCursor is already traversed");
     }
 
 

@@ -15,10 +15,12 @@
 //
 package org.msgpack.value
 
+import java.io.ByteArrayInputStream
+
 import org.msgpack.core.{MessagePack, MessageUnpacker, MessagePackSpec}
 import ValueFactory._
 import scala.util.Random
-import org.msgpack.value.holder.IntegerHolder
+import org.msgpack.value.holder.{ValueHolder, IntegerHolder}
 
 /**
  * Created on 6/13/14.
@@ -142,8 +144,54 @@ class CursorTest extends MessagePackSpec {
         }
       }
 
+    }
 
+    "create immutable map" taggedAs("im-map") in {
 
+      val m = createMessagePackData { packer =>
+        packer.packMapHeader(3)
+
+        // A -> [1, "leo"]
+        packer.packString("A")
+        packer.packArrayHeader(2)
+        packer.packInt(1)
+        packer.packString("leo")
+
+        // B -> 10
+        packer.packString("B")
+        packer.packInt(10)
+
+        // C -> {a -> 1.0f, b -> 5, c -> {cc->1}}
+        packer.packString("C")
+        packer.packMapHeader(3)
+        packer.packString("a")
+        packer.packFloat(1.0f)
+        packer.packString("b")
+        packer.packInt(5)
+
+        packer.packString("c")
+        packer.packMapHeader(1)
+        packer.packString("cc")
+        packer.packInt(1)
+
+      }
+
+      val unpacker = msgpack.newUnpacker(m)
+      val vh = new ValueHolder
+      unpacker.unpackValue(vh)
+      val mapValue = vh.get().asMapValue()
+
+      val map = mapValue.toMap
+      map.size shouldBe 3
+
+      val arr = map.get(ValueFactory.newString("A")).asArrayValue()
+      arr.size shouldBe 2
+
+      val cmap = map.get(ValueFactory.newString("C")).asMapValue()
+      cmap.size shouldBe 3
+      cmap.toMap.get(ValueFactory.newString("c")).asMapValue().size() shouldBe 1
+
+      info(mapValue)
     }
 
 
