@@ -60,7 +60,7 @@ class CursorTest extends MessagePackSpec {
 
       val cursor = msgpack.newUnpacker(sampleData).getCursor
       // Traverse as references
-      val arrCursor = cursor.nextRef().getArrayCursor
+      val arrCursor = cursor.next().asArrayValue()
       arrCursor.size() shouldBe 3
 
       import scala.collection.JavaConversions._
@@ -75,16 +75,16 @@ class CursorTest extends MessagePackSpec {
       }
 
       val cursor = msgpack.newUnpacker(packedData).getCursor
-      val mapCursor = cursor.nextRef().getMapCursor
+      val mapCursor = cursor.next().asMapValue()
       mapCursor.size() shouldBe 1
 
-      val mapValue = mapCursor.toValue
-      val data = mapValue.toKeyValueSeq
+      val mapValue = mapCursor.toImmutable
+      val data = mapValue.toKeyValueArray
 
       data should have length 2
 
-      data(0).asString().toString shouldBe "f"
-      data(1).asString().toString shouldBe "x"
+      data(0).asStringValue().toString shouldBe "f"
+      data(1).asStringValue().toString shouldBe "x"
     }
 
     "traverse ValueRef faster than traversing Value" taggedAs("ref") in {
@@ -102,7 +102,7 @@ class CursorTest extends MessagePackSpec {
         block("value-ref") {
           val cursor = msgpack.newUnpacker(data).getCursor
           while(cursor.hasNext) {
-            cursor.nextRef()
+            cursor.next()
           }
           cursor.close()
         }
@@ -135,8 +135,8 @@ class CursorTest extends MessagePackSpec {
           var count = 0
           val cursor = msgpack.newUnpacker(data).getCursor
           while(cursor.hasNext) {
-            val ref = cursor.nextRef()
-            val v = ref.asInteger().toInt
+            val ref = cursor.next()
+            val v = ref.asIntegerValue().toInt
             count += 1
           }
           cursor.close()

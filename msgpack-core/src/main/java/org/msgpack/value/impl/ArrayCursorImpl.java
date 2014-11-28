@@ -9,9 +9,9 @@ import java.io.IOException;
 import java.util.Iterator;
 
 /**
- * Created on 6/16/14.
+ * ArrayCursor implementation
  */
-public class ArrayCursorImpl extends AbstractValueRef implements ArrayCursor {
+public class ArrayCursorImpl extends AbstractValue implements ArrayCursor {
 
     private final ValueHolder valueHolder;
     private MessageUnpacker unpacker;
@@ -34,14 +34,14 @@ public class ArrayCursorImpl extends AbstractValueRef implements ArrayCursor {
     }
 
     @Override
-    public Iterator<ValueRef> iterator() {
-        return new Iterator<ValueRef>() {
+    public Iterator<Value> iterator() {
+        return new Iterator<Value>() {
             @Override
             public boolean hasNext() {
                 return ArrayCursorImpl.this.hasNext();
             }
             @Override
-            public ValueRef next() {
+            public Value next() {
                 return ArrayCursorImpl.this.next();
             }
             @Override
@@ -55,11 +55,11 @@ public class ArrayCursorImpl extends AbstractValueRef implements ArrayCursor {
         return cursor < arraySize;
     }
 
-    public ValueRef next() {
+    public Value next() {
         try {
             unpacker.unpackValue(valueHolder);
             cursor++;
-            return valueHolder.getRef();
+            return valueHolder.get();
         }
         catch(IOException e) {
             throw new MessageFormatException(e);
@@ -96,30 +96,26 @@ public class ArrayCursorImpl extends AbstractValueRef implements ArrayCursor {
     }
 
     @Override
-    public ArrayCursor getArrayCursor() throws MessageTypeException {
-        return this;
-    }
-
-    @Override
     public void writeTo(MessagePacker packer) throws IOException {
         ensureNotTraversed();
         packer.packArrayHeader(arraySize);
-        for(ValueRef v : this) {
-            packer.packValue(v.toValue());
+        for(Value v : this) {
+            packer.packValue(v.toImmutable());
         }
     }
 
     @Override
     public void accept(ValueVisitor visitor) {
-        visitor.visitArray(toValue());
+        visitor.visitArray(toImmutable());
     }
 
     @Override
-    public ArrayValue toValue() {
+    public ArrayValue toImmutable() {
+        ensureNotTraversed();
         Value[] arr = new Value[arraySize];
         int i = 0;
-        for(ValueRef v : this) {
-            arr[i++] = v.toValue();
+        for(Value v : this) {
+            arr[i++] = v.toImmutable();
         }
         return ValueFactory.newArray(arr);
     }

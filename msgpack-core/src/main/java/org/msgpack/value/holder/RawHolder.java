@@ -5,7 +5,7 @@ import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageStringCodingException;
 import org.msgpack.core.buffer.MessageBuffer;
 import org.msgpack.value.*;
-import org.msgpack.value.impl.AbstractValueRef;
+import org.msgpack.value.impl.AbstractValue;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
 import static org.msgpack.core.MessagePackException.UNREACHABLE;
 
 
-class RawHolderImpl extends AbstractValueRef implements RawValue {
+class RawHolderImpl extends AbstractValue implements RawValue {
 
     public static enum Type {
         STRING,
@@ -105,10 +105,10 @@ class RawHolderImpl extends AbstractValueRef implements RawValue {
     public void accept(ValueVisitor visitor) {
         switch(tpe) {
             case STRING:
-                visitor.visitString(this.asString());
+                visitor.visitString(this.asStringValue());
                 break;
             case BINARY:
-                visitor.visitBinary(this.asBinary());
+                visitor.visitBinary(this.asBinaryValue());
                 break;
             default:
                 throw UNREACHABLE;
@@ -116,7 +116,7 @@ class RawHolderImpl extends AbstractValueRef implements RawValue {
     }
 
     @Override
-    public RawValue toValue() {
+    public RawValue toImmutable() {
         switch(tpe) {
             case STRING:
                 return ValueFactory.newRawString(buf.toByteArray());
@@ -137,7 +137,7 @@ public class RawHolder extends RawHolderImpl {
 
     private static class StringValueWrap extends RawHolderImpl implements StringValue {
         @Override
-        public StringValue toValue() {
+        public StringValue toImmutable() {
             return ValueFactory.newRawString(buf.toByteArray());
         }
     }
@@ -238,10 +238,10 @@ public class RawHolder extends RawHolderImpl {
     public void accept(ValueVisitor visitor) {
         switch(tpe) {
             case STRING:
-                visitor.visitString(this.asString());
+                visitor.visitString(this.asStringValue());
                 break;
             case BINARY:
-                visitor.visitBinary(this.asBinary());
+                visitor.visitBinary(this.asBinaryValue());
                 break;
             default:
                 throw UNREACHABLE;
@@ -249,7 +249,7 @@ public class RawHolder extends RawHolderImpl {
     }
     
     @Override
-    public RawValue toValue() {
+    public RawValue toImmutable() {
         switch(tpe) {
             case STRING:
                 return ValueFactory.newRawString(buf.toByteArray());
@@ -262,12 +262,12 @@ public class RawHolder extends RawHolderImpl {
 
 
     @Override
-    public StringValue asString() {
+    public StringValue asStringValue() {
         return stringWrap;
     }
 
     @Override
-    public BinaryValue asBinary() {
+    public BinaryValue asBinaryValue() {
         return binaryWrap;
     }
 

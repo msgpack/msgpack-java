@@ -1,5 +1,6 @@
 package org.msgpack.value.impl;
 
+import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageStringCodingException;
 import org.msgpack.core.buffer.MessageBuffer;
@@ -12,7 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.*;
 
 /**
-* Created on 5/30/14.
+* Immutable RawValue implementation bas
 */
 public abstract class RawValueImpl extends AbstractValue implements RawValue {
 
@@ -32,7 +33,7 @@ public abstract class RawValueImpl extends AbstractValue implements RawValue {
     }
 
     @Override
-    public RawValue toValue() {
+    public RawValue toImmutable() {
         return this;
     }
 
@@ -63,7 +64,7 @@ public abstract class RawValueImpl extends AbstractValue implements RawValue {
             return;
         }
         try {
-            CharsetDecoder reportDecoder = Charset.forName("UTF-8").newDecoder()
+            CharsetDecoder reportDecoder = MessagePack.UTF8.newDecoder()
                     .onMalformedInput(CodingErrorAction.REPLACE)
                     .onUnmappableCharacter(CodingErrorAction.REPLACE);
             decodedStringCache = reportDecoder.decode(byteBuffer.asReadOnlyBuffer()).toString();
@@ -72,7 +73,7 @@ public abstract class RawValueImpl extends AbstractValue implements RawValue {
         } catch (CharacterCodingException ex) {
             codingException = new MessageStringCodingException(ex);
             try {
-                CharsetDecoder replaceDecoder = Charset.forName("UTF-8").newDecoder()
+                CharsetDecoder replaceDecoder = MessagePack.UTF8.newDecoder()
                         .onMalformedInput(CodingErrorAction.REPLACE)
                         .onUnmappableCharacter(CodingErrorAction.REPLACE);
                 decodedStringCache = replaceDecoder.decode(byteBuffer.asReadOnlyBuffer()).toString();
@@ -93,10 +94,10 @@ public abstract class RawValueImpl extends AbstractValue implements RawValue {
             return false;
         }
         Value v = (Value) o;
-        if (!v.isBinary()) {
+        if (!v.isBinaryValue()) {
             return false;
         }
-        BinaryValue bv = v.asBinary();
+        BinaryValue bv = v.asBinaryValue();
         return bv.toByteBuffer().equals(byteBuffer);
     }
 

@@ -5,11 +5,11 @@ import java.util.Iterator;
 /**
  * Created on 6/16/14.
  */
-public interface ArrayCursor extends ValueRef, Iterable<ValueRef> {
+public interface ArrayCursor extends Value, Iterable<Value> {
     public int size();
 
     public boolean hasNext();
-    public ValueRef next();
+    public Value next();
     public void skip();
 
     /**
@@ -17,8 +17,8 @@ public interface ArrayCursor extends ValueRef, Iterable<ValueRef> {
      */
     public void skipAll();
 
-    public Iterator<ValueRef> iterator();
+    public Iterator<Value> iterator();
 
-    public ArrayValue toValue();
+    public ArrayValue toImmutable();
 
 }

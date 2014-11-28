@@ -38,7 +38,7 @@ public class ExtendedValueImpl extends RawValueImpl implements ExtendedValue {
     }
 
     @Override
-    public ExtendedValue toValue() {
+    public ExtendedValue toImmutable() {
         return this;
     }
 

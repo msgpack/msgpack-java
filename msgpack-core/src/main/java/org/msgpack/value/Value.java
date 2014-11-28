@@ -15,15 +15,65 @@
 //
 package org.msgpack.value;
 
+import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageTypeException;
 
-import org.msgpack.core.*;
+import java.io.IOException;
 
 /**
- * Value is a holder of a message-packed value.
+ * Value is an object representation of a message pack value.
  */
-public interface Value extends ValueRef {
+public interface Value {
 
+    public ValueType getValueType();
+
+    public NilValue asNilValue() throws MessageTypeException;
+    public BooleanValue asBooleanValue() throws MessageTypeException;
+    public NumberValue asNumberValue() throws MessageTypeException;
+    public IntegerValue asIntegerValue() throws MessageTypeException;
+    public FloatValue asFloatValue() throws MessageTypeException;
+    public BinaryValue asBinaryValue() throws MessageTypeException;
+    public StringValue asStringValue() throws MessageTypeException;
+    public RawValue asRawValue() throws MessageTypeException;
+    public ExtendedValue asExtendedValue() throws MessageTypeException;
     public ArrayValue asArrayValue() throws MessageTypeException;
     public MapValue asMapValue() throws MessageTypeException;
+
+    public boolean isNilValue();
+    public boolean isBooleanValue();
+    public boolean isNumberValue();
+    public boolean isIntegerValue();
+    public boolean isFloatValue();
+    public boolean isBinaryValue();
+    public boolean isStringValue();
+    public boolean isRawValue();
+    public boolean isArrayValue();
+    public boolean isMapValue();
+    public boolean isExtendedValue();
+
+    /**
+     * Write this value into the specified packer
+     * @param packer
+     * @throws IOException
+     */
+    public void writeTo(MessagePacker packer) throws IOException;
+
+    /**
+     * Accepting a visitor
+     * @param visitor
+     */
+    public void accept(ValueVisitor visitor);
+
+    /**
+     * Create an immutable representation of this value. If this value is already immutable, it returns self
+     * @return
+     */
+    public Value toImmutable();
+
+    /**
+     * Test whether this value is an immutable or not
+     * @return true if this value is an immutable object, otherwise false.
+     */
+    public boolean isImmutable();
 
 }

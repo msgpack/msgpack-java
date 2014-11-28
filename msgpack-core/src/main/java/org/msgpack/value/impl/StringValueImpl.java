@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
-* Created on 5/30/14.
+* Immutable StringValue implementation
 */
 public class StringValueImpl extends AbstractValue implements StringValue {
 
@@ -55,7 +55,7 @@ public class StringValueImpl extends AbstractValue implements StringValue {
         visitor.visitString(this);
     }
     @Override
-    public StringValue toValue() {
+    public StringValue toImmutable() {
         return ValueFactory.newString(value);
     }
 
@@ -68,11 +68,11 @@ public class StringValueImpl extends AbstractValue implements StringValue {
             return false;
         }
         Value v = (Value) o;
-        if (!v.isString()) {
+        if (!v.isStringValue()) {
             return false;
         }
         try {
-            return v.asString().toString().equals(value);
+            return v.asStringValue().toString().equals(value);
         } catch (MessageStringCodingException ex) {
             return false;
         }

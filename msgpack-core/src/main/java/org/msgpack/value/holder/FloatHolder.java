@@ -5,7 +5,6 @@ import org.msgpack.core.MessageOverflowException;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.value.*;
 import org.msgpack.value.impl.AbstractValue;
-import org.msgpack.value.impl.AbstractValueRef;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -14,7 +13,7 @@ import java.math.BigInteger;
 /**
  * Created on 6/3/14.
  */
-public class FloatHolder extends AbstractValueRef implements FloatValue {
+public class FloatHolder extends AbstractValue implements FloatValue {
 
     public static enum Type {
         FLOAT,
@@ -132,7 +131,7 @@ public class FloatHolder extends AbstractValueRef implements FloatValue {
         visitor.visitFloat(this);
     }
     @Override
-    public FloatValue toValue() {
+    public FloatValue toImmutable() {
         switch(tpe) {
             case FLOAT:
                 return ValueFactory.newFloat(toFloat());

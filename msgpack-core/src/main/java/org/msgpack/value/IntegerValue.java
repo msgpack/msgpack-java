@@ -1,8 +1,8 @@
 package org.msgpack.value;
 
 /**
-* Created on 5/30/14.
+* IntegerValue interface
 */
 public interface IntegerValue extends NumberValue {
-    IntegerValue toValue();
+    IntegerValue toImmutable();
 }

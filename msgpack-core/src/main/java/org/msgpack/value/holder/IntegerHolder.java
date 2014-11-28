@@ -5,7 +5,6 @@ import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageTypeException;
 import org.msgpack.value.*;
 import org.msgpack.value.impl.AbstractValue;
-import org.msgpack.value.impl.AbstractValueRef;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -14,7 +13,7 @@ import static org.msgpack.core.NumberUtil.*;
 /**
  * Union of integer values
  */
-public class IntegerHolder extends AbstractValueRef implements IntegerValue {
+public class IntegerHolder extends AbstractValue implements IntegerValue {
 
     @Override
     public ValueType getValueType() {
@@ -33,7 +32,7 @@ public class IntegerHolder extends AbstractValueRef implements IntegerValue {
     }
 
     @Override
-    public IntegerValue asInteger() throws MessageTypeException {
+    public IntegerValue asIntegerValue() throws MessageTypeException {
         return this;
     }
 
@@ -43,7 +42,7 @@ public class IntegerHolder extends AbstractValueRef implements IntegerValue {
     }
 
     @Override
-    public IntegerValue toValue() {
+    public IntegerValue toImmutable() {
         switch(type){
             case BYTE:
                 return ValueFactory.newByte(toByte());

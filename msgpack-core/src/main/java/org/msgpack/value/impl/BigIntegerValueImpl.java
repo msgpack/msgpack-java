@@ -13,8 +13,8 @@ import java.math.BigInteger;
 import static org.msgpack.core.Preconditions.checkNotNull;
 
 /**
-* Created on 5/30/14.
-*/
+ * Immutable BigIntegerValue implementation
+ */
 public class BigIntegerValueImpl extends AbstractValue implements IntegerValue {
 
     private final BigInteger value;
@@ -74,7 +74,7 @@ public class BigIntegerValueImpl extends AbstractValue implements IntegerValue {
 
     @Override
     public byte asByte() throws MessageIntegerOverflowException {
-        if (!isValidByte()) {
+        if(!isValidByte()) {
             throw new MessageIntegerOverflowException(value);
         }
         return value.byteValue();
@@ -82,7 +82,7 @@ public class BigIntegerValueImpl extends AbstractValue implements IntegerValue {
 
     @Override
     public short asShort() throws MessageIntegerOverflowException {
-        if (!isValidShort()) {
+        if(!isValidShort()) {
             throw new MessageIntegerOverflowException(value);
         }
         return value.shortValue();
@@ -90,7 +90,7 @@ public class BigIntegerValueImpl extends AbstractValue implements IntegerValue {
 
     @Override
     public int asInt() throws MessageIntegerOverflowException {
-        if (!isValidInt()) {
+        if(!isValidInt()) {
             throw new MessageIntegerOverflowException(value);
         }
         return value.intValue();
@@ -98,7 +98,7 @@ public class BigIntegerValueImpl extends AbstractValue implements IntegerValue {
 
     @Override
     public long asLong() throws MessageIntegerOverflowException {
-        if (!isValidLong()) {
+        if(!isValidLong()) {
             throw new MessageIntegerOverflowException(value);
         }
         return value.longValue();
@@ -142,32 +142,32 @@ public class BigIntegerValueImpl extends AbstractValue implements IntegerValue {
         visitor.visitInteger(this);
     }
     @Override
-    public IntegerValue toValue() {
+    public IntegerValue toImmutable() {
         return this;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o == this) {
+        if(o == this) {
             return true;
         }
-        if (!(o instanceof Value)) {
+        if(!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
-        if (!v.isInteger()) {
+        if(!v.isIntegerValue()) {
             return false;
         }
-        IntegerValue iv = v.asInteger();
+        IntegerValue iv = v.asIntegerValue();
         return value.equals(iv.toBigInteger());
     }
 
     @Override
     public int hashCode() {
-        if (INT_MIN.compareTo(value) <= 0 && value.compareTo(INT_MAX) <= 0) {
+        if(INT_MIN.compareTo(value) <= 0 && value.compareTo(INT_MAX) <= 0) {
             return (int) value.longValue();
-        } else if (LONG_MIN.compareTo(value) <= 0
-                && value.compareTo(LONG_MAX) <= 0) {
+        } else if(LONG_MIN.compareTo(value) <= 0
+            && value.compareTo(LONG_MAX) <= 0) {
             long v = value.longValue();
             return (int) (v ^ (v >>> 32));
         }

@@ -448,15 +448,15 @@ class MessagePackTest extends MessagePackSpec  {
         unpacker.unpackValue(holder)
         val v = holder.get()
 
-        v.asArrayValue().toValueArray.map { m =>
+        v.asArrayValue().toArray.map { m =>
           val mv = m.asMapValue()
-          val kvs = mv.toKeyValueSeq
+          val kvs = mv.toKeyValueArray
 
           kvs.grouped(2).map({ kvp: Array[Value] =>
             val k = kvp(0)
             val v = kvp(1)
 
-            (k.asString().toString, v.asString().toString)
+            (k.asStringValue().toString, v.asStringValue().toString)
           }).toMap
         }.toList
       })

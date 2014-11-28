@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
-* Created on 5/30/14.
+* Immutable raw string value implementation
 */
 public class RawStringValueImpl extends RawValueImpl implements StringValue {
 
@@ -38,7 +38,7 @@ public class RawStringValueImpl extends RawValueImpl implements StringValue {
     }
 
     @Override
-    public StringValue toValue() {
+    public StringValue toImmutable() {
         return this;
     }
 
@@ -51,10 +51,10 @@ public class RawStringValueImpl extends RawValueImpl implements StringValue {
             return false;
         }
         Value v = (Value) o;
-        if (!v.isString()) {
+        if (!v.isStringValue()) {
             return false;
         }
-        StringValue sv = v.asString();
+        StringValue sv = v.asStringValue();
         return sv.toByteBuffer().equals(byteBuffer);
     }
 

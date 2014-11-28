@@ -5,11 +5,19 @@ import org.msgpack.value.ValueType;
 import org.msgpack.value.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
-* Created on 5/30/14.
-*/
+ * MapValue implementation
+ */
 public class MapValueImpl extends AbstractValue implements MapValue {
     private static MapValueImpl EMPTY = new MapValueImpl(new Value[0]);
 
@@ -30,9 +38,19 @@ public class MapValueImpl extends AbstractValue implements MapValue {
     }
 
     @Override
-    public Value[] toKeyValueSeq() {
+    public Value[] toKeyValueArray() {
         return Arrays.copyOf(array, array.length);
     }
+    @Override
+    public KeyValuePair[] toArray() {
+        KeyValuePair[] result = new KeyValuePair[array.length / 2];
+        for(int i = 0; i < result.length; ++i) {
+            result[i] = new KeyValuePair(array[2 * i], array[2 * i + 1]);
+        }
+        return result;
+    }
+
+
     @Override
     public int size() {
         return array.length / 2;
@@ -40,21 +58,23 @@ public class MapValueImpl extends AbstractValue implements MapValue {
 
     @Override
     public boolean hasNext() {
-        return cursor < array.length;
+        return cursor < size();
     }
     @Override
-    public ValueRef nextKeyOrValue() {
-        return array[cursor++];
+    public KeyValuePair next() {
+        int pos = cursor;
+        cursor += 2;
+        return new KeyValuePair(array[pos], array[pos + 1]);
     }
 
     @Override
-    public void skipKeyOrValue() {
+    public void skip() {
         cursor++;
     }
     @Override
     public void skipAll() {
         while(hasNext()) {
-            skipKeyOrValue();
+            skip();
         }
     }
 
@@ -75,7 +95,7 @@ public class MapValueImpl extends AbstractValue implements MapValue {
         }
 
         private class EntrySetIterator implements
-                Iterator<Map.Entry<Value, Value>> {
+            Iterator<Map.Entry<Value, Value>> {
             private int pos = 0;
 
             @Override
@@ -85,7 +105,7 @@ public class MapValueImpl extends AbstractValue implements MapValue {
 
             @Override
             public Entry<Value, Value> next() {
-                if (pos >= array.length) {
+                if(pos >= array.length) {
                     throw new NoSuchElementException();
                 }
 
@@ -142,7 +162,7 @@ public class MapValueImpl extends AbstractValue implements MapValue {
 
             @Override
             public Value next() {
-                if (pos >= array.length) {
+                if(pos >= array.length) {
                     throw new NoSuchElementException();
                 }
                 Value v = array[pos];
@@ -174,8 +194,8 @@ public class MapValueImpl extends AbstractValue implements MapValue {
 
         @Override
         public Value get(Object key) {
-            for (int i = array.length - 2; i >= 0; i -= 2) {
-                if (array[i].equals(key)) {
+            for(int i = array.length - 2; i >= 0; i -= 2) {
+                if(array[i].equals(key)) {
                     return array[i + 1];
                 }
             }
@@ -191,7 +211,7 @@ public class MapValueImpl extends AbstractValue implements MapValue {
     @Override
     public void writeTo(MessagePacker pk) throws IOException {
         pk.packMapHeader(array.length / 2);
-        for (int i = 0; i < array.length; i++) {
+        for(int i = 0; i < array.length; i++) {
             array[i].writeTo(pk);
         }
     }
@@ -201,39 +221,39 @@ public class MapValueImpl extends AbstractValue implements MapValue {
     }
 
     @Override
-    public MapValue toValue() {
+    public MapValue toImmutable() {
         return ValueFactory.newMap(array);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (o == this) {
+        if(o == this) {
             return true;
         }
-        if (!(o instanceof Value)) {
+        if(!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
-        if (!v.isMap()) {
+        if(!v.isMapValue()) {
             return false;
         }
 
         Map<Value, Value> mv = v.asMapValue().toMap();
-        if (mv.size() != array.length / 2) {
+        if(mv.size() != array.length / 2) {
             return false;
         }
 
         try {
-            for (int i = 0; i < array.length; i += 2) {
+            for(int i = 0; i < array.length; i += 2) {
                 Value key = array[i];
                 Value value = array[i + 1];
-                if (!value.equals(mv.get(key))) {
+                if(!value.equals(mv.get(key))) {
                     return false;
                 }
             }
-        } catch (ClassCastException ex) {
+        } catch(ClassCastException ex) {
             return false;
-        } catch (NullPointerException ex) {
+        } catch(NullPointerException ex) {
             return false;
         }
 
@@ -243,7 +263,7 @@ public class MapValueImpl extends AbstractValue implements MapValue {
     @Override
     public int hashCode() {
         int h = 0;
-        for (int i = 0; i < array.length; i += 2) {
+        for(int i = 0; i < array.length; i += 2) {
             h += array[i].hashCode() ^ array[i + 1].hashCode();
         }
         return h;
@@ -255,14 +275,14 @@ public class MapValueImpl extends AbstractValue implements MapValue {
     }
 
     private StringBuilder toString(StringBuilder sb) {
-        if (array.length == 0) {
+        if(array.length == 0) {
             return sb.append("{}");
         }
         sb.append("{");
         sb.append(array[0]);
         sb.append(":");
         sb.append(array[1]);
-        for (int i = 2; i < array.length; i += 2) {
+        for(int i = 2; i < array.length; i += 2) {
             sb.append(",");
             sb.append(array[i].toString());
             sb.append(":");
@@ -271,7 +291,6 @@ public class MapValueImpl extends AbstractValue implements MapValue {
         sb.append("}");
         return sb;
     }
-
 
 
 }
