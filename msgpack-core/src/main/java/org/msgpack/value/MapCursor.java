@@ -1,12 +1,10 @@
 package org.msgpack.value;
 
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * Cursor for traversing map value entries. This cursor reports a sequence of key and value pairs.
  */
-public interface MapCursor extends ValueRef {
+public interface MapCursor extends Value {
     public int size();
 
     /**
@@ -16,20 +14,20 @@ public interface MapCursor extends ValueRef {
     public boolean hasNext();
 
     /**
-     * Retrieves a reference to the next key or value.
+     * Retrieves the next key and value.
      * @return
      */
-    public ValueRef nextKeyOrValue();
+    public KeyValuePair next();
 
     /**
-     * Skips a next key or value
+     * Skips a next key-value pair
      */
-    public void skipKeyOrValue();
+    public void skip();
 
     /**
      * Skips all of the remaining keys and values.
      */
     public void skipAll();
 
-    MapValue toValue();
+    public MapValue toImmutable();
 }

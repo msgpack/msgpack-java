@@ -766,7 +766,7 @@ public class MessageUnpacker implements Closeable {
             case Code.UINT32: // unsigned int 32
                 int u32 = readInt();
                 if(u32 < 0) {
-                    return (long) (u32 & 0x7fffffff) + 0x80000000L;
+                    return u32 & 0xffffffffL;
                 } else {
                     return (long) u32;
                 }
@@ -808,7 +808,7 @@ public class MessageUnpacker implements Closeable {
             case Code.UINT32: // unsigned int 32
                 int u32 = readInt();
                 if(u32 < 0) {
-                    return BigInteger.valueOf((long) (u32 & 0x7fffffff) + 0x80000000L);
+                    return BigInteger.valueOf(u32 & 0xffffffffL);
                 } else {
                     return BigInteger.valueOf((long) u32);
                 }
@@ -884,7 +884,7 @@ public class MessageUnpacker implements Closeable {
             case Code.UINT32: // unsigned int 32
                 int u32 = readInt();
                 if(u32 < 0) {
-                    holder.setLong((long) (u32 & 0x7fffffff) + 0x80000000L);
+                    holder.setLong(u32 & 0xffffffffL);
                 } else {
                     holder.setInt(u32);
                 }
@@ -1229,7 +1229,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     private static MessageIntegerOverflowException overflowU32(int u32) {
-        BigInteger bi = BigInteger.valueOf((long) (u32 & 0x7fffffff) + 0x80000000L);
+        BigInteger bi = BigInteger.valueOf(u32 & 0xffffffffL);
         return new MessageIntegerOverflowException(bi);
     }
 
@@ -1254,7 +1254,7 @@ public class MessageUnpacker implements Closeable {
     }
 
     private static MessageSizeException overflowU32Size(int u32) {
-        long lv = (long) (u32 & 0x7fffffff) + 0x80000000L;
+        long lv = u32 & 0xffffffffL;
         return new MessageSizeException(lv);
     }
 

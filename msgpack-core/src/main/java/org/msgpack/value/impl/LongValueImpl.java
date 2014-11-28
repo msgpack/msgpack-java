@@ -34,7 +34,7 @@ public class LongValueImpl extends AbstractValue implements IntegerValue {
     }
 
     @Override
-    public IntegerValue asInteger() {
+    public IntegerValue asIntegerValue() {
         return this;
     }
 
@@ -140,7 +140,7 @@ public class LongValueImpl extends AbstractValue implements IntegerValue {
         visitor.visitInteger(this);
     }
     @Override
-    public IntegerValue toValue() {
+    public IntegerValue toImmutable() {
         return this;
     }
 
@@ -153,10 +153,10 @@ public class LongValueImpl extends AbstractValue implements IntegerValue {
             return false;
         }
         Value v = (Value) o;
-        if (!v.isInteger()) {
+        if (!v.isIntegerValue()) {
             return false;
         }
-        IntegerValue iv = v.asInteger();
+        IntegerValue iv = v.asIntegerValue();
         if (!iv.isValidLong()) {
             return false;
         }

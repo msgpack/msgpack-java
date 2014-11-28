@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
-* Created on 5/30/14.
+* Immutable float value implementation
 */
 public class FloatValueImpl extends AbstractValue implements FloatValue {
     private final float value;
@@ -127,10 +127,10 @@ public class FloatValueImpl extends AbstractValue implements FloatValue {
             return false;
         }
         Value v = (Value) o;
-        if (!v.isFloat()) {
+        if (!v.isFloatValue()) {
             return false;
         }
-        return (double) value == v.asFloat().toDouble();
+        return value == v.asFloatValue().toFloat();
     }
 
     @Override
@@ -142,7 +142,7 @@ public class FloatValueImpl extends AbstractValue implements FloatValue {
         visitor.visitFloat(this);
     }
     @Override
-    public FloatValue toValue() {
+    public FloatValue toImmutable() {
         return this;
     }
 

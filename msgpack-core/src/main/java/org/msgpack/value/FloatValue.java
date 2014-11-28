@@ -1,8 +1,8 @@
 package org.msgpack.value;
 
 /**
-* Created on 5/30/14.
+* FloatValue interface
 */
 public interface FloatValue extends NumberValue {
-    FloatValue toValue();
+    FloatValue toImmutable();
 }

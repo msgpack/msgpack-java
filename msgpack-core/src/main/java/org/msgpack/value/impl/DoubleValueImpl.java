@@ -3,15 +3,18 @@ package org.msgpack.value.impl;
 import org.msgpack.core.MessageFloatOverflowException;
 import org.msgpack.core.MessageOverflowException;
 import org.msgpack.core.MessagePacker;
-import org.msgpack.value.*;
+import org.msgpack.value.FloatValue;
+import org.msgpack.value.Value;
+import org.msgpack.value.ValueType;
+import org.msgpack.value.ValueVisitor;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
-* Created on 5/30/14.
-*/
+ * Immutable DoubleValue implementation
+ */
 public class DoubleValueImpl extends AbstractValue implements FloatValue {
     private final double value;
 
@@ -113,23 +116,24 @@ public class DoubleValueImpl extends AbstractValue implements FloatValue {
 
     @Override
     public boolean equals(Object o) {
-        if (o == this) {
+        if(o == this) {
             return true;
         }
-        if (!(o instanceof Value)) {
+        if(!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
-        if (!v.isFloat()) {
+        if(!v.isFloatValue()) {
             return false;
         }
-        return value == v.asFloat().toDouble();
+        return value == v.asFloatValue().toDouble();
     }
 
     @Override
-    public FloatValue toValue() {
-        return ValueFactory.newDouble(value);
+    public FloatValue toImmutable() {
+        return this;
     }
+
     @Override
     public void writeTo(MessagePacker pk) throws IOException {
         pk.packDouble(value);

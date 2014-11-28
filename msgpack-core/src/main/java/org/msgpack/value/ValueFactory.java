@@ -15,10 +15,9 @@
 //
 package org.msgpack.value;
 
-import org.msgpack.value.holder.FloatHolder;
-import org.msgpack.value.holder.IntegerHolder;
 import org.msgpack.value.impl.*;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -122,6 +121,40 @@ public class ValueFactory {
             keyValueSequence[index++] = pair.getValue();
         }
         return newMap(keyValueSequence);
+    }
+
+    public static MapValue newMap(KeyValuePair... pairs) {
+        MapValueBuilder b = new MapValueBuilder();
+        for(KeyValuePair p : pairs) {
+            b.put(p);
+        }
+        return b.build();
+    }
+
+
+    public static MapValueBuilder newMapBuilder() {
+        return new MapValueBuilder();
+    }
+
+    public static KeyValuePair newPair(Value key, Value value) {
+        return new KeyValuePair(key, value);
+    }
+
+    public static class MapValueBuilder {
+        private Map<Value, Value> map = new HashMap<Value, Value>();
+        public MapValueBuilder() {}
+
+        public MapValue build() {
+            return newMap(map);
+        }
+
+        public void put(KeyValuePair pair) {
+            put(pair.key, pair.value);
+        }
+
+        public void put(Value key, Value value) {
+            map.put(key, value);
+        }
     }
 
     public static MapValue newMap(Value[] keyValueSequence) {

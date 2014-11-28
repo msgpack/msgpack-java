@@ -181,11 +181,11 @@ public class MessagePackExample {
             switch(format.getValueType()) {
                 case NIL:
                     Value nil = v.get();
-                    nil.isNil(); // true
+                    nil.isNilValue(); // true
                     System.out.println("read nil");
                     break;
                 case BOOLEAN:
-                    boolean b = v.get().asBoolean().toBoolean();
+                    boolean b = v.get().asBooleanValue().toBoolean();
                     System.out.println("read boolean: " + b);
                     break;
                 case INTEGER:
@@ -206,22 +206,22 @@ public class MessagePackExample {
                     System.out.println("read float: " + d);
                     break;
                 case STRING:
-                    String s = v.get().asString().toString();
+                    String s = v.get().asStringValue().toString();
                     System.out.println("read string: " + s);
                     break;
                 case BINARY:
                     // Message buffer is an efficient byte buffer
-                    MessageBuffer mb = v.get().asBinary().toMessageBuffer();
+                    MessageBuffer mb = v.get().asBinaryValue().toMessageBuffer();
                     System.out.println("read binary: " + mb.toHexString(0, mb.size()));
                     break;
                 case ARRAY:
                     ArrayValue arr = v.get().asArrayValue();
-                    for(ValueRef a : arr) {
+                    for(Value a : arr) {
                         System.out.println("read array element: " + a);
                     }
                     break;
                 case EXTENDED:
-                    ExtendedValue ev = v.get().asExtended();
+                    ExtendedValue ev = v.get().asExtendedValue();
                     int extType = ev.getExtType();
                     byte[] extValue = ev.toByteArray();
                     break;

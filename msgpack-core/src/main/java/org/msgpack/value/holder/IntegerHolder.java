@@ -5,7 +5,6 @@ import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageTypeException;
 import org.msgpack.value.*;
 import org.msgpack.value.impl.AbstractValue;
-import org.msgpack.value.impl.AbstractValueRef;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -14,7 +13,7 @@ import static org.msgpack.core.NumberUtil.*;
 /**
  * Union of integer values
  */
-public class IntegerHolder extends AbstractValueRef implements IntegerValue {
+public class IntegerHolder extends AbstractValue implements IntegerValue {
 
     @Override
     public ValueType getValueType() {
@@ -22,7 +21,7 @@ public class IntegerHolder extends AbstractValueRef implements IntegerValue {
     }
     @Override
     public void writeTo(MessagePacker packer) throws IOException {
-        switch(tpe) {
+        switch(type) {
             case BIG_INTEGER:
                 packer.packBigInteger(biValue);
                 break;
@@ -33,7 +32,7 @@ public class IntegerHolder extends AbstractValueRef implements IntegerValue {
     }
 
     @Override
-    public IntegerValue asInteger() throws MessageTypeException {
+    public IntegerValue asIntegerValue() throws MessageTypeException {
         return this;
     }
 
@@ -43,8 +42,8 @@ public class IntegerHolder extends AbstractValueRef implements IntegerValue {
     }
 
     @Override
-    public IntegerValue toValue() {
-        switch(tpe){
+    public IntegerValue toImmutable() {
+        switch(type){
             case BYTE:
                 return ValueFactory.newByte(toByte());
             case SHORT:
@@ -68,32 +67,32 @@ public class IntegerHolder extends AbstractValueRef implements IntegerValue {
         BIG_INTEGER
     }
 
-    private Type tpe;
+    private Type type;
     private long longValue;
     private BigInteger biValue;
 
     public Type getType() {
-        return tpe;
+        return type;
     }
 
     public void setByte(byte v){
-        tpe = Type.BYTE;
+        type = Type.BYTE;
         longValue = v;
     }
     public void setShort(short v) {
-        tpe = Type.SHORT;
+        type = Type.SHORT;
         longValue = v;
     }
     public void setInt(int v) {
-        tpe = Type.INT;
+        type = Type.INT;
         longValue = v;
     }
     public void setLong(long v) {
-        tpe = Type.LONG;
+        type = Type.LONG;
         longValue = v;
     }
     public void setBigInteger(BigInteger v) {
-        tpe = Type.BIG_INTEGER;
+        type = Type.BIG_INTEGER;
         biValue = v;
     }
 
@@ -102,24 +101,24 @@ public class IntegerHolder extends AbstractValueRef implements IntegerValue {
     }
 
     public boolean isBigInteger() {
-        return tpe == Type.BIG_INTEGER;
+        return type == Type.BIG_INTEGER;
     }
 
     @Override
     public boolean isValidByte() {
-        return tpe == Type.BYTE;
+        return type == Type.BYTE;
     }
     @Override
     public boolean isValidShort() {
-        return tpe.ordinal() <= Type.SHORT.ordinal();
+        return type.ordinal() <= Type.SHORT.ordinal();
     }
     @Override
     public boolean isValidInt() {
-        return tpe.ordinal() <= Type.INT.ordinal();
+        return type.ordinal() <= Type.INT.ordinal();
     }
     @Override
     public boolean isValidLong() {
-        return tpe.ordinal() <= Type.LONG.ordinal();
+        return type.ordinal() <= Type.LONG.ordinal();
     }
 
     @Override
@@ -127,22 +126,27 @@ public class IntegerHolder extends AbstractValueRef implements IntegerValue {
         return true;
     }
 
+    @Override
     public byte toByte() {
         return isBigInteger() ? biValue.byteValue() : (byte) longValue;
     }
 
+    @Override
     public short toShort() {
         return isBigInteger() ? biValue.shortValue() : (short) longValue;
     }
 
+    @Override
     public int toInt() {
         return isBigInteger() ? biValue.intValue() : (int) longValue;
     }
 
+    @Override
     public long toLong(){
         return isBigInteger() ? biValue.longValue() : longValue;
     }
 
+    @Override
     public BigInteger toBigInteger() {
         return isBigInteger() ? biValue : BigInteger.valueOf(longValue);
     }
@@ -158,7 +162,7 @@ public class IntegerHolder extends AbstractValueRef implements IntegerValue {
 
     @Override
     public byte asByte() throws MessageIntegerOverflowException {
-        switch(tpe) {
+        switch(type) {
             case BYTE:
                 return (byte) longValue;
             case SHORT:
@@ -185,7 +189,7 @@ public class IntegerHolder extends AbstractValueRef implements IntegerValue {
 
     @Override
     public short asShort() throws MessageIntegerOverflowException {
-        switch(tpe) {
+        switch(type) {
             case BYTE:
             case SHORT:
                 return (short) longValue;
@@ -212,7 +216,7 @@ public class IntegerHolder extends AbstractValueRef implements IntegerValue {
 
     @Override
     public int asInt() throws MessageIntegerOverflowException {
-        switch(tpe) {
+        switch(type) {
             case BYTE:
             case SHORT:
             case INT:
@@ -256,7 +260,14 @@ public class IntegerHolder extends AbstractValueRef implements IntegerValue {
 
     @Override
     public int hashCode() {
-        return isBigInteger() ? biValue.hashCode() : (int) longValue;
+        int hash = 0;
+        if(isBigInteger()) {
+            hash = biValue.hashCode();
+        }
+        else {
+            hash = (int)((longValue >>> 32) * 31 + longValue & 0xFFFFFFFF);
+        }
+        return hash;
     }
 
     @Override

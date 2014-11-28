@@ -60,7 +60,7 @@ class CursorTest extends MessagePackSpec {
 
       val cursor = msgpack.newUnpacker(sampleData).getCursor
       // Traverse as references
-      val arrCursor = cursor.nextRef().getArrayCursor
+      val arrCursor = cursor.next().asArrayValue()
       arrCursor.size() shouldBe 3
 
       import scala.collection.JavaConversions._
@@ -75,34 +75,34 @@ class CursorTest extends MessagePackSpec {
       }
 
       val cursor = msgpack.newUnpacker(packedData).getCursor
-      val mapCursor = cursor.nextRef().getMapCursor
+      val mapCursor = cursor.next().asMapValue()
       mapCursor.size() shouldBe 1
 
-      val mapValue = mapCursor.toValue
-      val data = mapValue.toKeyValueSeq
+      val mapValue = mapCursor.toImmutable
+      val data = mapValue.toKeyValueArray
 
       data should have length 2
 
-      data(0).asString().toString shouldBe "f"
-      data(1).asString().toString shouldBe "x"
+      data(0).asStringValue().toString shouldBe "f"
+      data(1).asStringValue().toString shouldBe "x"
     }
 
-    "traverse ValueRef faster than traversing Value" taggedAs("ref") in {
+    "traverse faster than extracting immutable values" taggedAs("ref") in {
       val N = 10000
       val data = binSeq(N)
 
       time("traversal", repeat=100) {
-        block("value") {
+        block("immutable") {
           val cursor = msgpack.newUnpacker(data).getCursor
           while(cursor.hasNext) {
-            cursor.next()
+            cursor.next().toImmutable
           }
           cursor.close()
         }
-        block("value-ref") {
+        block("cursor") {
           val cursor = msgpack.newUnpacker(data).getCursor
           while(cursor.hasNext) {
-            cursor.nextRef()
+            cursor.next()
           }
           cursor.close()
         }
@@ -121,7 +121,7 @@ class CursorTest extends MessagePackSpec {
           while(unpacker.hasNext) {
             val vt = unpacker.getNextFormat.getValueType
             if(vt.isIntegerType) {
-              unpacker.unpackInteger(intHolder);
+              unpacker.unpackInteger(intHolder)
               count += 1
             }
             else {
@@ -135,8 +135,8 @@ class CursorTest extends MessagePackSpec {
           var count = 0
           val cursor = msgpack.newUnpacker(data).getCursor
           while(cursor.hasNext) {
-            val ref = cursor.nextRef()
-            val v = ref.asInteger().toInt
+            val ref = cursor.next()
+            val v = ref.asIntegerValue().toInt
             count += 1
           }
           cursor.close()
@@ -179,19 +179,24 @@ class CursorTest extends MessagePackSpec {
       val unpacker = msgpack.newUnpacker(m)
       val vh = new ValueHolder
       unpacker.unpackValue(vh)
-      val mapValue = vh.get().asMapValue()
+      val mapValue = vh.get().asMapValue().toImmutable
+      info(mapValue)
 
       val map = mapValue.toMap
       map.size shouldBe 3
 
-      val arr = map.get(ValueFactory.newString("A")).asArrayValue()
+      //import scala.collection.JavaConversions._
+      //info(map.map(p => s"${p._1}->${p._2}").mkString(", "))
+
+      val k = map.get(ValueFactory.newString("A"))
+      val arr = k.asArrayValue()
       arr.size shouldBe 2
 
       val cmap = map.get(ValueFactory.newString("C")).asMapValue()
       cmap.size shouldBe 3
       cmap.toMap.get(ValueFactory.newString("c")).asMapValue().size() shouldBe 1
 
-      info(mapValue)
+
     }
 
 

@@ -30,5 +30,9 @@ public interface ValueVisitor {
     public void visitMap(MapValue v);
     public void visitExtended(ExtendedValue v);
 
+    /**
+     * Visitor can use this method to handle an exception occurred while visiting a value
+     * @param e
+     */
     public void onError(Exception e);
 }

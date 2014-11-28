@@ -9,7 +9,7 @@ import org.msgpack.value.ValueVisitor;
 import java.io.IOException;
 
 /**
-* Created on 5/30/14.
+* Immutable NilValue implementation
 */
 public class NilValueImpl extends AbstractValue implements NilValue {
 
@@ -32,7 +32,7 @@ public class NilValueImpl extends AbstractValue implements NilValue {
         if (!(o instanceof Value)) {
             return false;
         }
-        return ((Value) o).isNil();
+        return ((Value) o).isNilValue();
     }
 
     @Override
@@ -54,7 +54,7 @@ public class NilValueImpl extends AbstractValue implements NilValue {
         visitor.visitNil();
     }
     @Override
-    public NilValue toValue() {
+    public NilValue toImmutable() {
         return instance;
     }
 }

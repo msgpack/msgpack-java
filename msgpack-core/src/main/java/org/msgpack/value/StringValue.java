@@ -1,8 +1,8 @@
 package org.msgpack.value;
 
 /**
- * Created on 5/30/14.
+ * StringValue interface
  */
 public interface StringValue extends RawValue {
-    public StringValue toValue();
+    public StringValue toImmutable();
 }

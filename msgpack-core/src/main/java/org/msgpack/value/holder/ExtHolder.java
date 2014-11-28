@@ -6,15 +6,14 @@ import org.msgpack.core.MessageStringCodingException;
 import org.msgpack.core.buffer.MessageBuffer;
 import org.msgpack.value.*;
 import org.msgpack.value.impl.AbstractValue;
-import org.msgpack.value.impl.AbstractValueRef;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
- * Created on 6/13/14.
+ * ExtendedValue holder
  */
-public class ExtHolder extends AbstractValueRef implements ExtendedValue {
+public class ExtHolder extends AbstractValue implements ExtendedValue {
 
     private int extType;
     private MessageBuffer buffer;
@@ -45,7 +44,7 @@ public class ExtHolder extends AbstractValueRef implements ExtendedValue {
         visitor.visitExtended(this);
     }
     @Override
-    public ExtendedValue toValue() {
+    public ExtendedValue toImmutable() {
         // clone the buffer contents
         return ValueFactory.newExtendedValue(extType, buffer.toByteArray());
     }

@@ -136,7 +136,7 @@ public class MessagePackParser extends ParserMinimalBase {
             case STRING:
                 messageUnpacker.unpackValue(valueHolder);
                 if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
-                    parsingContext.setCurrentName(valueHolder.getRef().asRaw().toString());
+                    parsingContext.setCurrentName(valueHolder.get().asRawValue().toString());
                     nextToken = JsonToken.FIELD_NAME;
                 }
                 else {
@@ -185,7 +185,7 @@ public class MessagePackParser extends ParserMinimalBase {
     @Override
     public String getText() throws IOException, JsonParseException {
         // This method can be called for new BigInteger(text)
-        return valueHolder.getRef().toString();
+        return valueHolder.get().toString();
     }
 
     @Override
@@ -210,12 +210,12 @@ public class MessagePackParser extends ParserMinimalBase {
 
     @Override
     public byte[] getBinaryValue(Base64Variant b64variant) throws IOException, JsonParseException {
-        return valueHolder.getRef().asBinary().toByteArray();
+        return valueHolder.get().asBinaryValue().toByteArray();
     }
 
     @Override
     public Number getNumberValue() throws IOException, JsonParseException {
-        NumberValue numberValue = valueHolder.getRef().asNumber();
+        NumberValue numberValue = valueHolder.get().asNumberValue();
         if (numberValue.isValidInt()) {
             return numberValue.toInt();
         }
@@ -229,27 +229,27 @@ public class MessagePackParser extends ParserMinimalBase {
 
     @Override
     public int getIntValue() throws IOException, JsonParseException {
-        return valueHolder.getRef().asNumber().toInt();
+        return valueHolder.get().asNumberValue().toInt();
     }
 
     @Override
     public long getLongValue() throws IOException, JsonParseException {
-        return valueHolder.getRef().asNumber().toLong();
+        return valueHolder.get().asNumberValue().toLong();
     }
 
     @Override
     public BigInteger getBigIntegerValue() throws IOException, JsonParseException {
-        return valueHolder.getRef().asNumber().toBigInteger();
+        return valueHolder.get().asNumberValue().toBigInteger();
     }
 
     @Override
     public float getFloatValue() throws IOException, JsonParseException {
-        return valueHolder.getRef().asFloat().toFloat();
+        return valueHolder.get().asFloatValue().toFloat();
     }
 
     @Override
     public double getDoubleValue() throws IOException, JsonParseException {
-        return valueHolder.getRef().asFloat().toDouble();
+        return valueHolder.get().asFloatValue().toDouble();
     }
 
     @Override
@@ -259,12 +259,12 @@ public class MessagePackParser extends ParserMinimalBase {
 
     @Override
     public Object getEmbeddedObject() throws IOException, JsonParseException {
-        return valueHolder.getRef().asBinary().toByteArray();
+        return valueHolder.get().asBinaryValue().toByteArray();
     }
 
     @Override
     public NumberType getNumberType() throws IOException, JsonParseException {
-        NumberValue numberValue = valueHolder.getRef().asNumber();
+        NumberValue numberValue = valueHolder.get().asNumberValue();
         if (numberValue.isValidInt()) {
             return NumberType.INT;
         }

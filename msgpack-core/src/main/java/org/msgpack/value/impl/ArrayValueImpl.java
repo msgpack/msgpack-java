@@ -1,16 +1,18 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
-import org.msgpack.core.MessageTypeException;
+import org.msgpack.value.ArrayValue;
+import org.msgpack.value.Value;
 import org.msgpack.value.ValueType;
-import org.msgpack.value.*;
+import org.msgpack.value.ValueType;
+import org.msgpack.value.ValueVisitor;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 
 /**
-* Created on 5/30/14.
+* Immutable ArrayValue implementation
 */
 public class ArrayValueImpl extends AbstractValue implements ArrayValue {
     private static ArrayValueImpl EMPTY = new ArrayValueImpl(new Value[0]);
@@ -39,12 +41,6 @@ public class ArrayValueImpl extends AbstractValue implements ArrayValue {
         return ValueType.ARRAY;
     }
 
-
-    @Override
-    public ArrayCursor getArrayCursor() throws MessageTypeException {
-        return this;
-    }
-
     @Override
     public void writeTo(MessagePacker pk) throws IOException {
         pk.packArrayHeader(array.length);
@@ -57,7 +53,7 @@ public class ArrayValueImpl extends AbstractValue implements ArrayValue {
         visitor.visitArray(this);
     }
     @Override
-    public ArrayValue toValue() {
+    public ArrayValue toImmutable() {
         return this;
     }
 
@@ -70,10 +66,10 @@ public class ArrayValueImpl extends AbstractValue implements ArrayValue {
             return false;
         }
         Value v = (Value) o;
-        if(!v.isArray()) {
+        if(!v.isArrayValue()) {
             return false;
         }
-        Value[] other = v.asArrayValue().toValueArray();
+        Value[] other = v.asArrayValue().toArray();
         if(array.length != other.length)
             return false;
 
@@ -123,10 +119,12 @@ public class ArrayValueImpl extends AbstractValue implements ArrayValue {
     public boolean hasNext() {
         return cursor < array.length;
     }
+
     @Override
-    public ValueRef next() {
+    public Value next() {
         return array[cursor++];
     }
+
     @Override
     public void skip() {
         cursor++;
@@ -138,20 +136,20 @@ public class ArrayValueImpl extends AbstractValue implements ArrayValue {
         }
     }
 
-    public Value[] toValueArray() {
+    public Value[] toArray() {
         return Arrays.copyOf(array, array.length);
     }
 
     @Override
-    public Iterator<ValueRef> iterator() {
-        return new Iterator<ValueRef>() {
+    public Iterator<Value> iterator() {
+        return new Iterator<Value>() {
             int cursor = 0;
             @Override
             public boolean hasNext() {
                 return cursor < array.length;
             }
             @Override
-            public ValueRef next() {
+            public Value next() {
                 return array[cursor++];
             }
             @Override

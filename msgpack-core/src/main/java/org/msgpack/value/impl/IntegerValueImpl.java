@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 
 /**
-* Created on 5/30/14.
+* IntegerValue implementation
 */
 public class IntegerValueImpl extends AbstractValue implements IntegerValue {
 
@@ -30,7 +30,7 @@ public class IntegerValueImpl extends AbstractValue implements IntegerValue {
     }
 
     @Override
-    public IntegerValue asInteger() {
+    public IntegerValue asIntegerValue() {
         return this;
     }
 
@@ -134,7 +134,7 @@ public class IntegerValueImpl extends AbstractValue implements IntegerValue {
         visitor.visitInteger(this);
     }
     @Override
-    public IntegerValue toValue() {
+    public IntegerValue toImmutable() {
         return this;
     }
 
@@ -147,10 +147,10 @@ public class IntegerValueImpl extends AbstractValue implements IntegerValue {
             return false;
         }
         Value v = (Value) o;
-        if (!v.isInteger()) {
+        if (!v.isIntegerValue()) {
             return false;
         }
-        IntegerValue iv = v.asInteger();
+        IntegerValue iv = v.asIntegerValue();
         if (!iv.isValidInt()) {
             return false;
         }

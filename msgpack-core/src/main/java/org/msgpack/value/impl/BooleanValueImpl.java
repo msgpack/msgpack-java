@@ -35,7 +35,7 @@ public class BooleanValueImpl extends AbstractValue implements BooleanValue {
 
     @Override
     public int hashCode() {
-        return 0;
+        return value ? 1 : 0;
     }
 
     public String toString() {
@@ -46,6 +46,10 @@ public class BooleanValueImpl extends AbstractValue implements BooleanValue {
     public boolean toBoolean() {
         return value;
     }
+    @Override
+    public BooleanValue toValue() {
+        return null;
+    }
 
     @Override
     public void writeTo(MessagePacker packer) throws IOException {
@@ -55,9 +59,15 @@ public class BooleanValueImpl extends AbstractValue implements BooleanValue {
     public void accept(ValueVisitor visitor) {
         visitor.visitBoolean(value);
     }
+
     @Override
-    public BooleanValue toValue() {
+    public BooleanValue toImmutable() {
         return this;
+    }
+
+    @Override
+    public boolean isImmutable() {
+        return true;
     }
 
 

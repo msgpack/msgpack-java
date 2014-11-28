@@ -5,7 +5,9 @@ import java.io.Closeable;
 import java.util.Iterator;
 
 /**
- * Cursor for traversing a stream of message-packed values
+ * Cursor for traversing a stream of message-packed values.
+ * Returned value might be changed for efficiency. To retrieving an immutable value,
+ * call {@link org.msgpack.value.Value#toImmutable()} after retrieving a value.
  */
 public interface Cursor extends Iterator<Value>, Closeable {
 
@@ -16,14 +18,7 @@ public interface Cursor extends Iterator<Value>, Closeable {
     public boolean hasNext();
 
     /**
-     * Returns a reference to the value, then proceeds the cursor.
-     * The returned reference is valid until {@link #hasNext()} is called.
-     * @return
-     */
-    public ValueRef nextRef();
-
-    /**
-     * Returns the materialized value of the referenced value, then proceeds the cursor.
+     * Returns the next value, then proceeds the cursor.
      * @return
      */
     public Value next();

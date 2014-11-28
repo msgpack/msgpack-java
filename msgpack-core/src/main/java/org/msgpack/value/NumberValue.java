@@ -5,7 +5,7 @@ import org.msgpack.core.MessageOverflowException;
 import java.math.BigInteger;
 
 /**
-* Created on 5/30/14.
+* NumberValue interface
 */
 public interface NumberValue extends Value {
 
@@ -60,11 +60,11 @@ public interface NumberValue extends Value {
      */
     public BigInteger toBigInteger();
     /**
-     * Convert this value into a float value
+     * Convert this value into a 32-bit float
      */
     public float toFloat();
     /**
-     * Convert this value into a double value
+     * Convert this value into a 64-bit double
      */
     public double toDouble();
 

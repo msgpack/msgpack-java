@@ -2,7 +2,6 @@ package org.msgpack.value.holder;
 
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.core.buffer.MessageBuffer;
-import org.msgpack.value.ValueRef;
 import org.msgpack.value.impl.ArrayCursorImpl;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueFactory;
@@ -11,7 +10,6 @@ import org.msgpack.value.impl.MapCursorImpl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayDeque;
 
 import static org.msgpack.core.MessagePackException.UNREACHABLE;
 
@@ -27,15 +25,7 @@ public class ValueHolder {
     private ExtHolder extHolder = new ExtHolder();
     private ArrayCursorImpl arrayCursor;
     private MapCursorImpl mapCursor;
-    private ValueRef currentRef;
-
-    public ValueRef getRef() {
-        if(currentRef == null) {
-            throw new IllegalStateException("no value is set to this holder");
-        }
-
-        return currentRef;
-    }
+    private Value current;
 
     public Value get() {
         switch(vt) {
@@ -46,16 +36,15 @@ public class ValueHolder {
             case ARRAY:
             case MAP:
             case EXTENDED:
-                return getRef().toValue();
             case STRING:
-                return ValueFactory.newRawString(cloneBuffer(rawHolder.getBuffer()));
             case BINARY:
-                return ValueFactory.newBinary(cloneBuffer(rawHolder.getBuffer()));
+                return current;
+//                return ValueFactory.newRawString(cloneBuffer(rawHolder.getBuffer()));
+//                return ValueFactory.newBinary(cloneBuffer(rawHolder.getBuffer()));
             default:
                 throw UNREACHABLE;
         }
     }
-
 
     private static ByteBuffer cloneBuffer(MessageBuffer buffer) {
         return ByteBuffer.wrap(buffer.toByteArray());
@@ -71,40 +60,40 @@ public class ValueHolder {
 
     public void setBoolean(boolean v) {
         vt = ValueType.BOOLEAN;
-        currentRef = ValueFactory.newBoolean(v);
+        current = ValueFactory.newBoolean(v);
     }
 
     public void setNil() {
         vt = ValueType.NIL;
-        currentRef = ValueFactory.nilValue();
+        current = ValueFactory.nilValue();
     }
 
     public void setString(MessageBuffer rawString) {
         vt = ValueType.STRING;
         rawHolder.setString(rawString);
-        currentRef = rawHolder.asString();
+        current = rawHolder.asStringValue();
     }
 
     public void setBinary(MessageBuffer b) {
         vt = ValueType.BINARY;
         rawHolder.setBinary(b);
-        currentRef = rawHolder.asBinary();
+        current = rawHolder.asBinaryValue();
     }
 
     public void setToInteger() {
         vt = ValueType.INTEGER;
-        currentRef = integerHolder;
+        current = integerHolder;
     }
 
     public void setToFloat() {
         vt = ValueType.FLOAT;
-        currentRef = floatHolder;
+        current = floatHolder;
     }
 
     public void setExt(int extType, MessageBuffer b) {
         vt = ValueType.EXTENDED;
         extHolder.setExtType(extType, b);
-        currentRef = extHolder;
+        current = extHolder;
     }
 
     public void prepareArrayCursor(MessageUnpacker unpacker) throws IOException {
@@ -113,7 +102,7 @@ public class ValueHolder {
         // TODO reusing cursor instances
         arrayCursor = new ArrayCursorImpl(new ValueHolder());
         arrayCursor.reset(unpacker);
-        currentRef = arrayCursor;
+        current = arrayCursor;
     }
 
     public void prepareMapCursor(MessageUnpacker unpacker) throws IOException {
@@ -122,7 +111,7 @@ public class ValueHolder {
         // TODO reusing cursor instances
         mapCursor = new MapCursorImpl(new ValueHolder());
         mapCursor.reset(unpacker);
-        currentRef = mapCursor;
+        current = mapCursor;
     }
 
 }
