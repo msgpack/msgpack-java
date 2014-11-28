@@ -36,11 +36,11 @@ public class ValueHolder {
             case ARRAY:
             case MAP:
             case EXTENDED:
-                return current.toImmutable();
             case STRING:
-                return ValueFactory.newRawString(cloneBuffer(rawHolder.getBuffer()));
             case BINARY:
-                return ValueFactory.newBinary(cloneBuffer(rawHolder.getBuffer()));
+                return current;
+//                return ValueFactory.newRawString(cloneBuffer(rawHolder.getBuffer()));
+//                return ValueFactory.newBinary(cloneBuffer(rawHolder.getBuffer()));
             default:
                 throw UNREACHABLE;
         }

@@ -87,19 +87,19 @@ class CursorTest extends MessagePackSpec {
       data(1).asStringValue().toString shouldBe "x"
     }
 
-    "traverse ValueRef faster than traversing Value" taggedAs("ref") in {
+    "traverse faster than extracting immutable values" taggedAs("ref") in {
       val N = 10000
       val data = binSeq(N)
 
       time("traversal", repeat=100) {
-        block("value") {
+        block("immutable") {
           val cursor = msgpack.newUnpacker(data).getCursor
           while(cursor.hasNext) {
-            cursor.next()
+            cursor.next().toImmutable
           }
           cursor.close()
         }
-        block("value-ref") {
+        block("cursor") {
           val cursor = msgpack.newUnpacker(data).getCursor
           while(cursor.hasNext) {
             cursor.next()
@@ -121,7 +121,7 @@ class CursorTest extends MessagePackSpec {
           while(unpacker.hasNext) {
             val vt = unpacker.getNextFormat.getValueType
             if(vt.isIntegerType) {
-              unpacker.unpackInteger(intHolder);
+              unpacker.unpackInteger(intHolder)
               count += 1
             }
             else {
@@ -179,19 +179,24 @@ class CursorTest extends MessagePackSpec {
       val unpacker = msgpack.newUnpacker(m)
       val vh = new ValueHolder
       unpacker.unpackValue(vh)
-      val mapValue = vh.get().asMapValue()
+      val mapValue = vh.get().asMapValue().toImmutable
+      info(mapValue)
 
       val map = mapValue.toMap
       map.size shouldBe 3
 
-      val arr = map.get(ValueFactory.newString("A")).asArrayValue()
+      //import scala.collection.JavaConversions._
+      //info(map.map(p => s"${p._1}->${p._2}").mkString(", "))
+
+      val k = map.get(ValueFactory.newString("A"))
+      val arr = k.asArrayValue()
       arr.size shouldBe 2
 
       val cmap = map.get(ValueFactory.newString("C")).asMapValue()
       cmap.size shouldBe 3
       cmap.toMap.get(ValueFactory.newString("c")).asMapValue().size() shouldBe 1
 
-      info(mapValue)
+
     }
 
 

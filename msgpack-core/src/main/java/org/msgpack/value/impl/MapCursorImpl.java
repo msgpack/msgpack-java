@@ -4,7 +4,6 @@ import org.msgpack.core.MessageFormatException;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.value.KeyValuePair;
-import org.msgpack.value.MapCursor;
 import org.msgpack.value.MapValue;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueFactory;
@@ -13,13 +12,15 @@ import org.msgpack.value.ValueVisitor;
 import org.msgpack.value.holder.ValueHolder;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.msgpack.core.MessagePackException.UNSUPPORTED;
 
 /**
  * MapCursor implementation
  */
-public class MapCursorImpl extends AbstractValue implements MapCursor {
+public class MapCursorImpl extends AbstractValue implements MapValue {
 
     private final ValueHolder valueHolder;
     private MessageUnpacker unpacker;
@@ -54,11 +55,11 @@ public class MapCursorImpl extends AbstractValue implements MapCursor {
     public KeyValuePair next() {
         try {
             unpacker.unpackValue(valueHolder);
-            Value key = valueHolder.get();
+            Value key = valueHolder.get().toImmutable();
             cursor++;
 
             unpacker.unpackValue(valueHolder);
-            Value value = valueHolder.get();
+            Value value = valueHolder.get().toImmutable();
             cursor++;
             return new KeyValuePair(key, value);
         }
@@ -72,6 +73,7 @@ public class MapCursorImpl extends AbstractValue implements MapCursor {
         try {
             unpacker.skipValue();
             unpacker.skipValue();
+            cursor += 2;
         }
         catch(IOException e) {
             throw new MessageFormatException(e);
@@ -113,16 +115,42 @@ public class MapCursorImpl extends AbstractValue implements MapCursor {
     }
 
     @Override
-    public MapValue toImmutable() {
+    public Value[] toKeyValueArray() {
         ensureNotTraversed();
         Value[] keyValueArray = new Value[mapSize * 2];
         int i = 0;
         while(hasNext()) {
             KeyValuePair pair = next();
-            keyValueArray[i++] = pair.key.toImmutable();
-            keyValueArray[i++] = pair.value.toImmutable();
+            keyValueArray[i++] = pair.key;
+            keyValueArray[i++] = pair.value;
         }
-        return ValueFactory.newMap(keyValueArray);
+        return keyValueArray;
+    }
+
+    @Override
+    public KeyValuePair[] toArray() {
+        ensureNotTraversed();
+        KeyValuePair[] result = new KeyValuePair[mapSize];
+        int i = 0;
+        while(hasNext()) {
+            KeyValuePair pair = next();
+            result[i++] = pair;
+        }
+        return result;
+    }
+
+    @Override
+    public Map<Value, Value> toMap() {
+        Map<Value, Value> map = new HashMap<Value, Value>();
+        for(KeyValuePair kv : toArray()) {
+            map.put(kv.key, kv.value);
+        }
+        return map;
+    }
+
+    @Override
+    public MapValue toImmutable() {
+        return ValueFactory.newMap(toKeyValueArray());
     }
 
     @Override

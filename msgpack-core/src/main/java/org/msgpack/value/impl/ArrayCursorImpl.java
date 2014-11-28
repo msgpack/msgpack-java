@@ -11,7 +11,7 @@ import java.util.Iterator;
 /**
  * ArrayCursor implementation
  */
-public class ArrayCursorImpl extends AbstractValue implements ArrayCursor {
+public class ArrayCursorImpl extends AbstractValue implements ArrayValue {
 
     private final ValueHolder valueHolder;
     private MessageUnpacker unpacker;
@@ -110,14 +110,29 @@ public class ArrayCursorImpl extends AbstractValue implements ArrayCursor {
     }
 
     @Override
-    public ArrayValue toImmutable() {
+    public Value[] toArray() {
         ensureNotTraversed();
         Value[] arr = new Value[arraySize];
         int i = 0;
         for(Value v : this) {
             arr[i++] = v.toImmutable();
         }
-        return ValueFactory.newArray(arr);
+        return arr;
+    }
+
+    @Override
+    public Value get(int index) {
+        throw UNSUPPORTED("get(index) on ArrayCursor is not supported. Use ArrayCursor.toImmutable().");
+    }
+
+    @Override
+    public Value apply(int index) {
+        throw UNSUPPORTED("apply(index) on ArrayCursor is not supported. Use ArrayCursor.toImmutable().");
+    }
+
+    @Override
+    public ArrayValue toImmutable() {
+        return ValueFactory.newArray(toArray());
 
     }
 
