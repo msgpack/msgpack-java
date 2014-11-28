@@ -118,5 +118,10 @@ public class ArrayCursorImpl extends AbstractValue implements ArrayCursor {
             arr[i++] = v.toImmutable();
         }
         return ValueFactory.newArray(arr);
+
     }
+
+    @Override
+    public boolean isImmutable() { return false; }
+
 }

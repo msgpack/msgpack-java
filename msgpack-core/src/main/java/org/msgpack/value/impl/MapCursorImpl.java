@@ -125,5 +125,7 @@ public class MapCursorImpl extends AbstractValue implements MapCursor {
         return ValueFactory.newMap(keyValueArray);
     }
 
+    @Override
+    public boolean isImmutable() { return false; }
 
 }
