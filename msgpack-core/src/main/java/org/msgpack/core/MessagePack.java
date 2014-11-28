@@ -1,12 +1,33 @@
+//
+// MessagePack for Java
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+//
+//        http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+//
 package org.msgpack.core;
 
+import org.msgpack.core.buffer.*;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CodingErrorAction;
 
 import static org.msgpack.core.Preconditions.checkArgument;
 
 /**
- * Includes MessagePack codes
+ * This class has MessagePack prefix code definitions and packer/unpacker factory methods.
  *
  */
 public class MessagePack {
@@ -91,8 +112,8 @@ public class MessagePack {
         private boolean readStringAsBinary = true;
         private boolean readBinaryAsString = true;
 
-        private CodingErrorAction onMalFormedInput = CodingErrorAction.REPORT;
-        private CodingErrorAction onUnmappableCharacter = CodingErrorAction.REPORT;
+        private CodingErrorAction onMalFormedInput = CodingErrorAction.REPLACE;
+        private CodingErrorAction onUnmappableCharacter = CodingErrorAction.REPLACE;
 
         private int maxUnpackStringSize = Integer.MAX_VALUE;
         private int stringEncoderBufferSize = 8192;
@@ -236,5 +257,138 @@ public class MessagePack {
 
         public static final byte NEGFIXINT_PREFIX = (byte) 0xe0;
     }
+
+    // Packer/Unpacker factory methods
+
+    private final MessagePack.Config config;
+
+    public MessagePack() {
+        this(MessagePack.DEFAULT_CONFIG);
+    }
+
+    public MessagePack(MessagePack.Config config) {
+        this.config = config;
+    }
+
+    /**
+     * Default MessagePack packer/unpacker factory
+     */
+    public static final MessagePack DEFAULT = new MessagePack(MessagePack.DEFAULT_CONFIG);
+
+
+    /**
+     * Create a MessagePacker that outputs the packed data to the specified stream, using the default configuration
+     * @param out
+     * @return
+     */
+    public static MessagePacker newDefaultPacker(OutputStream out) {
+        return DEFAULT.newPacker(out);
+    }
+
+    /**
+     * Create a MessagePacker that outputs the packed data to the specified channel, using the default configuration
+     * @param channel
+     * @return
+     */
+    public static MessagePacker newDefaultPacker(WritableByteChannel channel) {
+        return DEFAULT.newPacker(channel);
+    }
+
+    /**
+     * Create a MessageUnpacker that reads data from then given InputStream, using the default configuration
+     * @param in
+     * @return
+     */
+    public static MessageUnpacker newDefaultUnpacker(InputStream in) {
+        return DEFAULT.newUnpacker(in);
+    }
+
+    /**
+     * Create a MessageUnpacker that reads data from the given channel, using the default configuration
+     * @param channel
+     * @return
+     */
+    public static MessageUnpacker newDefaultUnpacker(ReadableByteChannel channel) {
+        return DEFAULT.newUnpacker(channel);
+    }
+
+    /**
+     * Create a MessageUnpacker that reads data from the given byte array, using the default configuration
+     * @param arr
+     * @return
+     */
+    public static MessageUnpacker newDefaultUnpacker(byte[] arr) {
+        return DEFAULT.newUnpacker(arr);
+    }
+
+    /**
+     * Create a MessageUnpacker that reads data form the given byte array [offset, .. offset+length), using the default
+     * configuration.
+     * @param arr
+     * @param offset
+     * @param length
+     * @return
+     */
+    public static MessageUnpacker newDefaultUnpacker(byte[] arr, int offset, int length) {
+        return DEFAULT.newUnpacker(arr, offset, length);
+    }
+
+
+    /**
+     * Create a MessagePacker that outputs the packed data to the specified stream
+     * @param out
+     */
+    public MessagePacker newPacker(OutputStream out) {
+        return new MessagePacker(new OutputStreamBufferOutput(out), config);
+    }
+
+    /**
+     * Create a MessagePacker that outputs the packed data to the specified channel
+     * @param channel
+     */
+    public MessagePacker newPacker(WritableByteChannel channel) {
+        return new MessagePacker(new ChannelBufferOutput(channel), config);
+    }
+
+    /**
+     * Create a MessageUnpacker that reads data from the given InputStream.
+     * For reading data efficiently from byte[], use {@link MessageUnpacker(byte[])} or {@link MessageUnpacker(byte[], int, int)} instead of this constructor.
+     *
+     * @param in
+     */
+    public MessageUnpacker newUnpacker(InputStream in) {
+        return new MessageUnpacker(InputStreamBufferInput.newBufferInput(in), config);
+    }
+
+    /**
+     * Create a MessageUnpacker that reads data from the given ReadableByteChannel.
+     * @param in
+     */
+    public MessageUnpacker newUnpacker(ReadableByteChannel in) {
+        return new MessageUnpacker(new ChannelBufferInput(in), config);
+    }
+
+
+    /**
+     * Create a MessageUnpacker that reads data from the given byte array.
+     *
+     * @param arr
+     */
+    public MessageUnpacker newUnpacker(byte[] arr) {
+        return new MessageUnpacker(new ArrayBufferInput(arr), config);
+    }
+
+    /**
+     * Create a MessageUnpacker that reads data from the given byte array [offset, offset+length)
+     * @param arr
+     * @param offset
+     * @param length
+     */
+    public MessageUnpacker newUnpacker(byte[] arr, int offset, int length) {
+        return new MessageUnpacker(new ArrayBufferInput(arr, offset, length), config);
+    }
+
+
+
 
 }

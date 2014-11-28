@@ -91,10 +91,10 @@ class RawHolderImpl extends AbstractValueRef implements RawValue {
     public void writeTo(MessagePacker packer) throws IOException {
         switch(tpe) {
             case STRING:
-                packer.packRawString(buf.toByteBuffer());
+                packer.packRawStringHeader(buf.size()).writePayload(buf.toByteBuffer());
                 break;
             case BINARY:
-                packer.packBinary(buf.toByteBuffer());
+                packer.packBinaryHeader(buf.size()).writePayload(buf.toByteBuffer());
                 break;
             default:
                 throw UNREACHABLE;
@@ -224,10 +224,10 @@ public class RawHolder extends RawHolderImpl {
     public void writeTo(MessagePacker packer) throws IOException {
         switch(tpe) {
             case STRING:
-                packer.packRawString(buf.toByteBuffer());
+                packer.packRawStringHeader(buf.size()).writePayload(buf.toByteBuffer());
                 break;
             case BINARY:
-                packer.packBinary(buf.toByteBuffer());
+                packer.packBinaryHeader(buf.size()).writePayload(buf.toByteBuffer());
                 break;
             default:
                 throw UNREACHABLE;

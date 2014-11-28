@@ -9,13 +9,17 @@ import static org.msgpack.core.Preconditions.*;
  */
 public class ByteBufferInput implements MessageBufferInput {
 
-    private final ByteBuffer input;
+    private ByteBuffer input;
     private boolean isRead = false;
 
     public ByteBufferInput(ByteBuffer input) {
         this.input = checkNotNull(input, "input ByteBuffer is null");
     }
 
+    public void reset(ByteBuffer input) {
+        this.input = input;
+        isRead = false;
+    }
 
     @Override
     public MessageBuffer next() throws IOException {

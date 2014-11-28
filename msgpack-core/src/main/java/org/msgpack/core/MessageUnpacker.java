@@ -18,21 +18,19 @@ package org.msgpack.core;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.math.BigInteger;
 import java.nio.CharBuffer;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
+import java.nio.charset.MalformedInputException;
 
 import org.msgpack.core.MessagePack.Code;
-import org.msgpack.core.buffer.*;
-import org.msgpack.value.impl.ArrayCursorImpl;
+import org.msgpack.core.buffer.MessageBuffer;
+import org.msgpack.core.buffer.MessageBufferInput;
 import org.msgpack.value.Cursor;
-import org.msgpack.value.Value;
 import org.msgpack.value.ValueType;
 import org.msgpack.value.holder.FloatHolder;
 import org.msgpack.value.holder.IntegerHolder;
@@ -48,17 +46,17 @@ import static org.msgpack.core.Preconditions.*;
  *
  * <pre>
  * <code>
- *     MessageUnpacker unpacker = new MessageUnpacker(...);
+ *     MessageUnpacker unpacker = MessagePackFactory.DEFAULT.newUnpacker(...);
  *     while(unpacker.hasNext()) {
  *         MessageFormat f = unpacker.getNextFormat();
  *         switch(f) {
- *             case MessageFormat.POSFIXINT =>
- *             case MessageFormat.INT8 =>
- *             case MessageFormat.UINT8 => {
+ *             case MessageFormat.POSFIXINT:
+ *             case MessageFormat.INT8:
+ *             case MessageFormat.UINT8: {
  *                int v = unpacker.unpackInt();
  *                break;
  *             }
- *             case MessageFormat.STRING => {
+ *             case MessageFormat.STRING: {
  *                String v = unpacker.unpackString();
  *                break;
  *             }
@@ -75,7 +73,7 @@ public class MessageUnpacker implements Closeable {
 
     private final MessagePack.Config config;
 
-    private final MessageBufferInput in;
+    private MessageBufferInput in;
 
     /**
      * Points to the current buffer to read
@@ -125,30 +123,7 @@ public class MessageUnpacker implements Closeable {
         return new CursorImpl(this);
     }
 
-    /**
-     * Create an MessageUnpacker that reads data from the given byte array.
-     *
-     * @param arr
-     */
-    public MessageUnpacker(byte[] arr) {
-        this(new ArrayBufferInput(arr));
-    }
 
-    /**
-     * Create an MessageUnpacker that reads data from the given InputStream.
-     * @param in
-     */
-    public MessageUnpacker(InputStream in) {
-        this(InputStreamBufferInput.newBufferInput(in));
-    }
-
-    /**
-     * Create an MessageUnpacker that reads data from the given ReadableByteChannel.
-     * @param in
-     */
-    public MessageUnpacker(ReadableByteChannel in) {
-        this(new ChannelBufferInput(in));
-    }
 
     /**
      * Create an MessageUnpacker that reads data from the given MessageBufferInput
@@ -167,10 +142,29 @@ public class MessageUnpacker implements Closeable {
      */
     public MessageUnpacker(MessageBufferInput in, MessagePack.Config config) {
         // Root constructor. All of the constructors must call this constructor.
-        this.in = checkNotNull(in, "MessageBufferInput");
+        this.in = checkNotNull(in, "MessageBufferInput is null");
         this.config = checkNotNull(config, "Config");
     }
 
+    public void reset(MessageBufferInput in) throws IOException {
+        MessageBufferInput newIn = checkNotNull(in, "MessageBufferInput is null");
+
+        try {
+            if(in != newIn) {
+                close();
+            }
+        }
+        finally {
+            // Reset the internal states here for the exception safety
+            this.in = newIn;
+            this.buffer = EMPTY_BUFFER;
+            this.position = 0;
+            this.totalReadBytes = 0;
+            this.secondaryBuffer = null;
+            this.reachedEOF = false;
+            // No need to initialize the already allocated string decoder here since we can reuse it.
+        }
+    }
 
     public long getTotalReadBytes() {
         return totalReadBytes + position;
@@ -975,7 +969,7 @@ public class MessageUnpacker implements Closeable {
                 decodeBuffer.clear();
                 StringBuilder sb = new StringBuilder();
                 while(cursor < strLen) {
-                    if(!ensureBuffer())
+                    if (!ensure(strLen))
                         throw new EOFException();
 
                     int readLen = Math.min(buffer.size() - position, strLen-cursor);
@@ -992,6 +986,16 @@ public class MessageUnpacker implements Closeable {
                             // The output CharBuffer has insufficient space
                             readLen = bb.limit() - bb.remaining();
                             decoder.reset();
+                        }
+
+                        if(cr.isUnderflow() && bb.hasRemaining()) {
+                            // input buffer doesn't have enough bytes for multi bytes characters
+                            if(config.getActionOnMalFormedInput() == CodingErrorAction.REPORT) {
+                                throw new MalformedInputException(strLen);
+                            }
+                            // trash truncated bytes
+                            while (bb.hasRemaining())
+                                bb.get();
                         }
 
                         if(cr.isError()) {

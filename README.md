@@ -1,9 +1,11 @@
-MessagePack for Java
+MessagePack for Java 
 === 
 
 [MessagePack](http://msgpack.org) is an efficient binary serialization format. It lets you exchange data among multiple languages like JSON. But it's faster and smaller. Small integers are encoded into a single byte, and typical short strings require only one extra byte in addition to the strings themselves.
 
  * Message Pack specification: <https://github.com/msgpack/msgpack/blob/master/spec.md>
+
+MessagePack v7 (0.7.x) is a faster implementation of the previous version [v06](https://github.com/msgpack/msgpack-java/tree/v06), and supports all of the message pack types, including [extended format](https://github.com/msgpack/msgpack/blob/master/spec.md#formats-ext).
 
 ## Quick Start
 
@@ -12,17 +14,21 @@ For Maven users:
 <dependency>
    <groupId>org.msgpack</groupId>
    <artifactId>msgpack-core</artifactId>
-   <version>0.7.0</version>
+   <version>0.7.0-p2</version>
 </dependency>
 ```
 
 For sbt users:
 ```
-libraryDependencies += "org.msgpack" % "msgpack-core" % "0.7.0"
+libraryDependencies += "org.msgpack" % "msgpack-core" % "0.7.0-p2"
 ```
 
+- [Usage examples](msgpack-core/src/main/java/org/msgpack/core/example/MessagePackExample.java)
 
-## For Developers
+msgpack-java supports serialization and deserialization of Java objects through [jackson-databind](https://github.com/FasterXML/jackson-databind).
+For details, see [msgpack-jackson/README.md](msgpack-jackson/README.md). The template-based serialization mechanism used in v06 is deprecated.
+
+## For MessagePack Developers [![Travis CI](https://travis-ci.org/msgpack/msgpack-java.svg?branch=v07-develop)](https://travis-ci.org/msgpack/msgpack-java)
 
 msgpack-java uses [sbt](http://www.scala-sbt.org/) for building the projects. For the basic usage of sbt, see:
  * [Building Java projects with sbt](http://xerial.org/blog/2014/03/24/sbt/)
@@ -70,4 +76,5 @@ credentials += Credentials("Sonatype Nexus Repository Manager",
 
 ```
 msgpack-core                 # Contains packer/unpacker implementation that never uses third-party libraries
+msgpack-jackson              # Contains jackson-dataformat-java implementation
 ```

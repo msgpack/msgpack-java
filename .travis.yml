@@ -6,17 +6,17 @@ jdk:
   - openjdk6
   - openjdk7
   - oraclejdk7
+  - oraclejdk8
 
 branches:
   only:
-    - master
-    - develop
     - v07
+    - v07-develop
 
 script: sbt ++$TRAVIS_SCALA_VERSION test
 
 notifications:
   email:
-    - muga.nishizawa@gmail.com
     - ozawa.tsuyoshi@gmail.com
     - leo@xerial.org
+    - komamitsu@gmail.com

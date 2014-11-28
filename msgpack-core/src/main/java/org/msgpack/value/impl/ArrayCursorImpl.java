@@ -105,7 +105,7 @@ public class ArrayCursorImpl extends AbstractValueRef implements ArrayCursor {
         ensureNotTraversed();
         packer.packArrayHeader(arraySize);
         for(ValueRef v : this) {
-            packer.pack(v.toValue());
+            packer.packValue(v.toValue());
         }
     }
 
