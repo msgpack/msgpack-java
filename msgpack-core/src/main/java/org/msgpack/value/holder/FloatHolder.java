@@ -171,7 +171,7 @@ public class FloatHolder extends AbstractValueRef implements FloatValue {
             case DOUBLE:
                 return Double.toString(value);
             default:
-                throw new IllegalStateException("cannto reach here");
+                throw new IllegalStateException("cannot reach here");
         }
     }
 
