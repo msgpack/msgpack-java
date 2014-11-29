@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 import java.util.Iterator;
+import java.nio.charset.Charset;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.msgpack.MessagePack;
@@ -41,6 +42,10 @@ public class JSONUnpacker extends Converter {
 
     public JSONUnpacker(MessagePack msgpack, InputStream in) {
         this(msgpack, new InputStreamReader(in));
+    }
+    
+    public JSONUnpacker(MessagePack msgpack, InputStream in, Charset cs) {
+        this(msgpack, new InputStreamReader(in, cs));
     }
 
     JSONUnpacker(MessagePack msgpack, Reader in) {
