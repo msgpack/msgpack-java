@@ -17,9 +17,9 @@
 //
 package org.msgpack.template.builder;
 
-import java.lang.reflect.Type;
-
 import org.msgpack.template.FieldOption;
+
+import java.lang.reflect.Type;
 
 public abstract class FieldEntry {
 
@@ -50,7 +50,7 @@ public abstract class FieldEntry {
     }
 
     public boolean isNotNullable() {
-        return option == FieldOption.NOTNULLABLE;
+        return option == FieldOption.NOTNULLABLE || option == FieldOption.NOT_NULL_KEY;
     }
 
     public abstract String getName();
