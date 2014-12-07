@@ -73,8 +73,9 @@ public class JavassistTemplateBuilder extends AbstractTemplateBuilder {
                 appended = true;
             }
         } catch (SecurityException e) {
-            LOG.fine("Cannot append a search path of classloader");
-            e.printStackTrace();
+            if (LOG.isLoggable(Level.WARNING)) {
+                LOG.log(Level.WARNING, "Cannot append a search path of classloader", e);
+            }
         }
         if (!appended) {
             pool.appendSystemPath();
