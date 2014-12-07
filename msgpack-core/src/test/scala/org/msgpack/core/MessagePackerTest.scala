@@ -21,6 +21,7 @@ import org.msgpack.core.buffer.{OutputStreamBufferOutput, ArrayBufferInput}
 import xerial.core.io.IOUtil
 
 import scala.util.Random
+import org.msgpack.value.ValueFactory
 
 /**
  *
@@ -102,5 +103,32 @@ class MessagePackerTest extends MessagePackSpec {
 
     }
 
+    "pack larger string array than byte buf" taggedAs ("larger-string-array-than-byte-buf") in {
+      // Based on https://github.com/msgpack/msgpack-java/issues/154
+
+      // TODO: Refactor this test code to fit other ones.
+      def test(bufferSize: Int, stringSize: Int): Boolean = {
+        val msgpack = new MessagePack(new MessagePack.ConfigBuilder().packerBufferSize(bufferSize).build)
+        val str = "a" * stringSize
+        val rawString = ValueFactory.newRawString(str.getBytes("UTF-8"))
+        val array = ValueFactory.newArray(rawString)
+        val out = new ByteArrayOutputStream()
+        val packer = msgpack.newPacker(out)
+        packer.packValue(array)
+        packer.close()
+        out.toByteArray
+        true
+      }
+
+      val testCases = List(
+        32 -> 30,
+        33 -> 31,
+        32 -> 31,
+        34 -> 32
+      )
+      testCases.foreach{
+        case (bufferSize, stringSize) => test(bufferSize, stringSize)
+      }
+    }
   }
 }

@@ -511,8 +511,10 @@ public class MessagePacker implements Closeable {
         else {
             // If the input source is small, simply copy the contents to the buffer
             while(src.remaining() > 0) {
-                if(position >= buffer.size())
+                if(position >= buffer.size()) {
                     flush();
+                }
+                prepareBuffer();
                 int writeLen = Math.min(buffer.size() - position, src.remaining());
                 buffer.putByteBuffer(position, src, writeLen);
                 position += writeLen;
