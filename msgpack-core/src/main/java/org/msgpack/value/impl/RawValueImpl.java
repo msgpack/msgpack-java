@@ -62,11 +62,13 @@ public abstract class RawValueImpl extends AbstractValue implements RawValue {
         if (decodedStringCache != null) {
             return;
         }
+        ByteBuffer readOnlyBuffer = byteBuffer.asReadOnlyBuffer();
+        readOnlyBuffer.position(0);
         try {
             CharsetDecoder reportDecoder = Charset.forName("UTF-8").newDecoder()
                     .onMalformedInput(CodingErrorAction.REPLACE)
                     .onUnmappableCharacter(CodingErrorAction.REPLACE);
-            decodedStringCache = reportDecoder.decode(byteBuffer.asReadOnlyBuffer()).toString();
+            decodedStringCache = reportDecoder.decode(readOnlyBuffer).toString();
         } catch (UnsupportedCharsetException neverThrown) {
             throw new AssertionError(neverThrown);
         } catch (CharacterCodingException ex) {
@@ -75,7 +77,7 @@ public abstract class RawValueImpl extends AbstractValue implements RawValue {
                 CharsetDecoder replaceDecoder = Charset.forName("UTF-8").newDecoder()
                         .onMalformedInput(CodingErrorAction.REPLACE)
                         .onUnmappableCharacter(CodingErrorAction.REPLACE);
-                decodedStringCache = replaceDecoder.decode(byteBuffer.asReadOnlyBuffer()).toString();
+                decodedStringCache = replaceDecoder.decode(readOnlyBuffer).toString();
             } catch (UnsupportedCharsetException neverThrown) {
                 throw new AssertionError(neverThrown);
             } catch (CharacterCodingException neverThrown) {
