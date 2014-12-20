@@ -158,7 +158,7 @@ object Build extends Build {
     )
 
     val jacksonLib = Seq(
-      "com.fasterxml.jackson.core" % "jackson-databind" % "2.4.3",
+      "com.fasterxml.jackson.core" % "jackson-databind" % "2.4.4",
       "com.novocode" % "junit-interface" % "0.10" % "test",
       "org.apache.commons" % "commons-math3" % "3.3" % "test"
     )
