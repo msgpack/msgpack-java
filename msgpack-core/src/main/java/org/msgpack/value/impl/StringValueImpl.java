@@ -4,7 +4,6 @@ import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageStringCodingException;
 import org.msgpack.core.buffer.MessageBuffer;
-import org.msgpack.value.ValueType;
 import org.msgpack.value.*;
 
 import java.io.IOException;

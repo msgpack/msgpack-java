@@ -1,8 +1,5 @@
 package org.msgpack.value;
 
-import java.util.Iterator;
-import java.util.List;
-
 /**
  * Value interface for array type data.
  *

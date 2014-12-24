@@ -1,8 +1,5 @@
 package org.msgpack.value;
 
-import java.util.Iterator;
-import java.util.Map;
-
 /**
  * Cursor for traversing map value entries. This cursor reports a sequence of key and value pairs.
  */

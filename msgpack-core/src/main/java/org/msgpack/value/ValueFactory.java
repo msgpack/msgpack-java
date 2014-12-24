@@ -15,8 +15,6 @@
 //
 package org.msgpack.value;
 
-import org.msgpack.value.holder.FloatHolder;
-import org.msgpack.value.holder.IntegerHolder;
 import org.msgpack.value.impl.*;
 
 import java.util.Iterator;
