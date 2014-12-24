@@ -130,5 +130,12 @@ class MessagePackerTest extends MessagePackSpec {
         case (bufferSize, stringSize) => test(bufferSize, stringSize)
       }
     }
+
+    "writePayload keep original position" in {
+      val str1, str2 = ValueFactory.newRawString("aaa".getBytes("UTF-8"))
+      str1 shouldBe str2
+      createMessagePackData(_.packValue(str1))
+      str1 shouldBe str2
+    }
   }
 }
