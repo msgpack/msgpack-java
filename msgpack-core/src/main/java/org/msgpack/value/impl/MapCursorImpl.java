@@ -5,8 +5,6 @@ import org.msgpack.value.*;
 import org.msgpack.value.holder.ValueHolder;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
 
 import static org.msgpack.core.MessagePackException.UNSUPPORTED;
 

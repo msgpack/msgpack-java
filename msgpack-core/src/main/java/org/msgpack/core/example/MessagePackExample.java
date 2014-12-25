@@ -23,10 +23,8 @@ import org.msgpack.value.holder.IntegerHolder;
 import org.msgpack.value.holder.ValueHolder;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.charset.CodingErrorAction;
-import java.util.Random;
 
 /**
  * This class describes the usage of MessagePack v07

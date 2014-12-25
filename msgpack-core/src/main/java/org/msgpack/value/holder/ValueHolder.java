@@ -11,7 +11,6 @@ import org.msgpack.value.impl.MapCursorImpl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayDeque;
 
 import static org.msgpack.core.MessagePackException.UNREACHABLE;
 
