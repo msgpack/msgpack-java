@@ -442,17 +442,22 @@ public class MessagePacker implements Closeable {
 
     public MessagePacker packExtendedTypeHeader(int extType, int payloadLen) throws IOException {
         if(payloadLen < (1 << 8)) {
-            if(payloadLen == 1) {
-                writeByteAndByte(FIXEXT1, (byte) extType);
-            } else if(payloadLen == 2){
-                writeByteAndByte(FIXEXT2, (byte) extType);
-            } else if(payloadLen == 4) {
-                writeByteAndByte(FIXEXT4, (byte) extType);
-            } else if(payloadLen == 8) {
-                writeByteAndByte(FIXEXT8, (byte) extType);
-            } else if(payloadLen == 16) {
-                writeByteAndByte(FIXEXT16, (byte) extType);
-            } else {
+            if(payloadLen > 0 && (payloadLen & (payloadLen - 1)) == 0) { // check whether dataLen == 2^x
+            	if(payloadLen == 1) {
+            		writeByteAndByte(FIXEXT1, (byte) extType);
+            	} else if(payloadLen == 2){
+            		writeByteAndByte(FIXEXT2, (byte) extType);
+            	} else if(payloadLen == 4) {
+            		writeByteAndByte(FIXEXT4, (byte) extType);
+            	} else if(payloadLen == 8) {
+            		writeByteAndByte(FIXEXT8, (byte) extType);
+            	} else if(payloadLen == 16) {
+            		writeByteAndByte(FIXEXT16, (byte) extType);
+            	} else {
+                    writeByteAndByte(EXT8, (byte) payloadLen);
+                    writeByte((byte) extType);
+            	}        	
+        	} else {
                 writeByteAndByte(EXT8, (byte) payloadLen);
                 writeByte((byte) extType);
             }
