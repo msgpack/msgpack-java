@@ -348,7 +348,7 @@ class MessagePackTest extends MessagePackSpec  {
       }
     }
 
-    val testHeaderLength = Seq(1, 2, 4, 8, 16, 1000, 2000, 10000, 50000, 100000, 500000)
+    val testHeaderLength = Seq(1, 2, 4, 8, 16, 17, 32, 64, 255, 256, 1000, 2000, 10000, 50000, 100000, 500000)
 
 
     "pack/unpack arrays" taggedAs ("array") in {
