@@ -1,7 +1,6 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
-import org.msgpack.value.Value;
 import org.msgpack.value.ValueType;
 import org.msgpack.value.ExtendedValue;
 import org.msgpack.value.ValueVisitor;

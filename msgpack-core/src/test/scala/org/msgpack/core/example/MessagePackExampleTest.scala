@@ -1,7 +1,6 @@
 package org.msgpack.core.example
 
 import org.msgpack.core.MessagePackSpec
-import org.scalatest.FunSuite
 
 /**
  *

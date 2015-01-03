@@ -17,7 +17,7 @@ package org.msgpack.core
 
 import java.io.ByteArrayOutputStream
 
-import org.msgpack.core.buffer.{OutputStreamBufferOutput, ArrayBufferInput}
+import org.msgpack.core.buffer.OutputStreamBufferOutput
 import xerial.core.io.IOUtil
 
 import scala.util.Random

@@ -4,7 +4,6 @@ import org.msgpack.core.MessageFloatOverflowException;
 import org.msgpack.core.MessageOverflowException;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.value.*;
-import org.msgpack.value.impl.AbstractValue;
 import org.msgpack.value.impl.AbstractValueRef;
 
 import java.io.IOException;

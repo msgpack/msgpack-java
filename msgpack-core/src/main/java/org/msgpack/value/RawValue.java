@@ -1,6 +1,5 @@
 package org.msgpack.value;
 
-import org.msgpack.core.MessageStringCodingException;
 import org.msgpack.core.buffer.MessageBuffer;
 
 import java.nio.ByteBuffer;

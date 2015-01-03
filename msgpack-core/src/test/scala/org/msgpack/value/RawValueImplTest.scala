@@ -1,9 +1,6 @@
 package org.msgpack.value
 
-import scala.util.Random
-import org.msgpack.core.MessagePack.Code
-import org.msgpack.core.{MessagePack, MessageFormat, MessageFormatException, MessagePackSpec}
-import org.msgpack.core.MessagePack.Code._
+import org.msgpack.core.{MessagePack, MessagePackSpec}
 import java.io.ByteArrayOutputStream
 
 

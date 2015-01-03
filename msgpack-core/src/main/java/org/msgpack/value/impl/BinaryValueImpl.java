@@ -1,6 +1,5 @@
 package org.msgpack.value.impl;
 
-import org.msgpack.value.Value;
 import org.msgpack.value.ValueType;
 import org.msgpack.value.BinaryValue;
 import org.msgpack.value.ValueVisitor;

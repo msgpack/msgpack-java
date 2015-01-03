@@ -4,7 +4,6 @@ import org.msgpack.core.*;
 import org.msgpack.value.*;
 import org.msgpack.value.holder.ValueHolder;
 import java.io.IOException;
-import java.util.NoSuchElementException;
 
 /**
  * Cursor implementation

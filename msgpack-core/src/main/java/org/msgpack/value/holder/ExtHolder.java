@@ -5,7 +5,6 @@ import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageStringCodingException;
 import org.msgpack.core.buffer.MessageBuffer;
 import org.msgpack.value.*;
-import org.msgpack.value.impl.AbstractValue;
 import org.msgpack.value.impl.AbstractValueRef;
 
 import java.io.IOException;

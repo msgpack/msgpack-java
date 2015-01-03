@@ -451,9 +451,12 @@ public class MessagePacker implements Closeable {
                     writeByteAndByte(FIXEXT4, (byte) extType);
                 } else if(payloadLen == 8) {
                     writeByteAndByte(FIXEXT8, (byte) extType);
-                } else {
+                } else if(payloadLen == 16) {
                     writeByteAndByte(FIXEXT16, (byte) extType);
-                }
+                } else {
+                    writeByteAndByte(EXT8, (byte) payloadLen);
+                    writeByte((byte) extType);
+                }        	
             } else {
                 writeByteAndByte(EXT8, (byte) payloadLen);
                 writeByte((byte) extType);

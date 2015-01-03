@@ -2,7 +2,6 @@ package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageTypeException;
-import org.msgpack.value.ValueType;
 import org.msgpack.value.*;
 
 import java.io.IOException;
