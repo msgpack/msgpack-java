@@ -2,9 +2,6 @@ package org.msgpack.value
 
 import org.msgpack.core.MessagePackSpec
 
-/**
- * Created on 6/13/14.
- */
 class RawStringValueImplTest extends MessagePackSpec {
 
   "StringValue" should {
