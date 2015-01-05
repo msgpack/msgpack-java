@@ -1,6 +1,7 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageStringCodingException;
 import org.msgpack.value.*;
 
 import java.io.IOException;
@@ -53,12 +54,16 @@ public class RawStringValueImpl extends RawValueImpl implements StringValue {
         if (!v.isString()) {
             return false;
         }
-        StringValue sv = v.asString();
-        return sv.toByteBuffer().equals(byteBuffer);
+        try {
+            return toString().equals(v.asString().toString());
+        } catch (MessageStringCodingException ex) {
+            return false;
+        }
+
     }
 
     @Override
     public int hashCode() {
-        return byteBuffer.hashCode();
+        return toString().hashCode();
     }
 }
