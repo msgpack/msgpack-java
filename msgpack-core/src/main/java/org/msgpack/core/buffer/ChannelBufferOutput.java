@@ -19,7 +19,6 @@ public class ChannelBufferOutput implements MessageBufferOutput {
     }
 
     public void reset(WritableByteChannel channel) throws IOException {
-        channel.close();
         this.channel = channel;
     }
 
