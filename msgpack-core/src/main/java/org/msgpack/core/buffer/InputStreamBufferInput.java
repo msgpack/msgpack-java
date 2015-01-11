@@ -33,7 +33,7 @@ public class InputStreamBufferInput implements MessageBufferInput {
     }
 
     public void reset(InputStream in) throws IOException {
-        in.close();
+        this.in.close();
         this.in = in;
         reachedEOF = false;
     }
