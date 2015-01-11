@@ -6,7 +6,9 @@ import java.io._
 class MessageBufferOutputTest extends MessagePackSpec {
 
   def createTempFile = {
-    File.createTempFile("msgpackTest", "msgpack")
+    val f = File.createTempFile("msgpackTest", "msgpack")
+    f.deleteOnExit
+    f
   }
 
   def createTempFileWithOutputStream = {
