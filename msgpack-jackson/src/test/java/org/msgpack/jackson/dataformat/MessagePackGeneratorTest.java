@@ -15,10 +15,15 @@
 //
 package org.msgpack.jackson.dataformat;
 
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonGenerator;
 import org.junit.Test;
+import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.core.buffer.ArrayBufferInput;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
@@ -188,5 +194,31 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
         assertEquals(0x3, bitmap);
         // #7
         assertEquals(false, messageUnpacker.unpackBoolean());
+    }
+
+    @Test
+    public void testMessagePackGeneratorDirectly() throws IOException {
+        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        File tempFile = File.createTempFile("msgpackTest", "msgpack");
+        tempFile.deleteOnExit();
+
+        JsonGenerator generator = messagePackFactory.createGenerator(tempFile, JsonEncoding.UTF8);
+        assertTrue(generator instanceof MessagePackGenerator);
+        generator.writeStartArray();
+        generator.writeNumber(0);
+        generator.writeString("one");
+        generator.writeNumber(2.0f);
+        generator.writeEndArray();
+        generator.flush();
+        generator.flush();      // intentional
+        generator.close();
+
+        FileInputStream fileInputStream = new FileInputStream(tempFile);
+        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(fileInputStream);
+        assertEquals(3, unpacker.unpackArrayHeader());
+        assertEquals(0, unpacker.unpackInt());
+        assertEquals("one", unpacker.unpackString());
+        assertEquals(2.0f, unpacker.unpackFloat(), 0.001f);
+        assertFalse(unpacker.hasNext());
     }
 }

@@ -18,9 +18,7 @@ package org.msgpack.jackson.dataformat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Arrays;
 
 public class MessagePackFactory extends JsonFactory {
@@ -31,6 +29,16 @@ public class MessagePackFactory extends JsonFactory {
     @Override
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws IOException {
         return new MessagePackGenerator(messagePackGeneratorFeature, _objectCodec, out);
+    }
+
+    @Override
+    public JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException {
+        return createGenerator(new FileOutputStream(f), enc);
+    }
+
+    @Override
+    public JsonGenerator createGenerator(Writer w) throws IOException {
+        throw new UnsupportedOperationException();
     }
 
     @Override
