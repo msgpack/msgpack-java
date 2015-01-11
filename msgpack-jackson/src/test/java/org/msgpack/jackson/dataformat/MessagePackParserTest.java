@@ -1,18 +1,21 @@
 package org.msgpack.jackson.dataformat;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.Test;
+import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MessagePackParserTest extends MessagePackDataformatTestBase {
     @Test
@@ -223,5 +226,56 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         }
         // #10
         assertEquals(true, array.get(i++));
+    }
+
+    @Test
+    public void testMessagePackParserDirectly() throws IOException {
+        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        File tempFile = File.createTempFile("msgpackTest", "msgpack");
+        tempFile.deleteOnExit();
+
+        FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
+        MessagePacker packer = MessagePack.newDefaultPacker(fileOutputStream);
+        packer.packMapHeader(2);
+        packer.packString("zero");
+        packer.packInt(0);
+        packer.packString("one");
+        packer.packFloat(1.0f);
+        packer.close();
+
+        JsonParser parser = messagePackFactory.createParser(tempFile);
+        assertTrue(parser instanceof MessagePackParser);
+
+        JsonToken jsonToken = parser.nextToken();
+        assertEquals(JsonToken.START_OBJECT, jsonToken);
+
+        jsonToken = parser.nextToken();
+        assertEquals(JsonToken.FIELD_NAME, jsonToken);
+        assertEquals("zero", parser.getCurrentName());
+
+        jsonToken = parser.nextToken();
+        assertEquals(JsonToken.VALUE_NUMBER_INT, jsonToken);
+        assertEquals(0, parser.getIntValue());
+
+        jsonToken = parser.nextToken();
+        assertEquals(JsonToken.FIELD_NAME, jsonToken);
+        assertEquals("one", parser.getCurrentName());
+
+        jsonToken = parser.nextToken();
+        assertEquals(JsonToken.VALUE_NUMBER_FLOAT, jsonToken);
+        assertEquals(1.0f, parser.getIntValue(), 0.001f);
+
+        jsonToken = parser.nextToken();
+        assertEquals(JsonToken.END_OBJECT, jsonToken);
+
+        try {
+            parser.nextToken();
+            assertTrue(false);
+        }
+        catch (EOFException e) {
+            // Expected
+        }
+        parser.close();
+        parser.close(); // Intentional
     }
 }
