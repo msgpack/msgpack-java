@@ -19,6 +19,7 @@ public class OutputStreamBufferOutput implements MessageBufferOutput {
     }
 
     public void reset(OutputStream out) throws IOException {
+        this.out.close();
         this.out = out;
     }
 
