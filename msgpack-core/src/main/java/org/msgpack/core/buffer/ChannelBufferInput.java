@@ -26,7 +26,7 @@ public class ChannelBufferInput implements MessageBufferInput {
     }
 
     public void reset(ReadableByteChannel channel) throws IOException {
-        channel.close();
+        this.channel.close();
         this.channel = channel;
         this.reachedEOF = false;
     }
