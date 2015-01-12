@@ -59,7 +59,16 @@ object Build extends Build {
       scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-target:jvm-1.6", "-feature"),
       javaOptions in Test ++= Seq("-ea"),
       javacOptions in (Compile, compile) ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.6", "-target", "1.6"),
-      javacOptions in doc := Seq("-source", "1.6", "-Xdoclint:none"),
+      javacOptions in doc := {
+        val opts = Seq("-source", "1.6")
+        val (major, minor) = System.getProperty("java.version").split('.') match {
+          case Array(major, minor, _) => (major.toInt, minor.toInt)
+        }
+        if ((major == 1 && minor >= 8) || (major > 1))
+          opts ++ Seq("-Xdoclint:none")
+        else
+          opts
+      },
       findbugsReportType := Some(ReportType.FancyHtml),
       findbugsReportPath := Some(crossTarget.value / "findbugs" / "report.html"),
       pomExtra := {
