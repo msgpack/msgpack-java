@@ -327,6 +327,7 @@ public class MessagePackGenerator extends GeneratorBase {
             else {
                 throw new IllegalStateException("Unexpected rootStackItem: " + rootStackItem);
             }
+            rootStackItem = null;
             MessagePacker messagePacker = getMessagePacker();
             messagePacker.flush();
         }
