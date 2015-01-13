@@ -22,7 +22,8 @@ import de.johoop.findbugs4sbt.FindBugs._
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
 import sbtrelease.ReleasePlugin._
-import xerial.sbt.Sonatype._
+import scala.util.Properties
+
 
 object Build extends Build {
 
@@ -61,10 +62,7 @@ object Build extends Build {
       javacOptions in (Compile, compile) ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.6", "-target", "1.6"),
       javacOptions in doc := {
         val opts = Seq("-source", "1.6")
-        val (major, minor) = System.getProperty("java.version").split('.') match {
-          case Array(major, minor, _) => (major.toInt, minor.toInt)
-        }
-        if ((major == 1 && minor >= 8) || (major > 1))
+        if (Properties.isJavaAtLeast("1.8"))
           opts ++ Seq("-Xdoclint:none")
         else
           opts
