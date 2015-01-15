@@ -1,15 +1,52 @@
+//
+// MessagePack for Java
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+//
+//        http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+//
 package org.msgpack.core
 
 import org.scalatest._
 import xerial.core.log.{LogLevel, Logger}
 import xerial.core.util.{TimeReport, Timer}
 import scala.language.implicitConversions
+import org.scalatest.prop.PropertyChecks
+import java.io.ByteArrayOutputStream
 
-trait MessagePackSpec extends WordSpec with Matchers with GivenWhenThen with OptionValues with BeforeAndAfter with Benchmark with Logger {
+trait MessagePackSpec
+  extends WordSpec
+  with Matchers
+  with GivenWhenThen
+  with OptionValues
+  with BeforeAndAfter
+  with PropertyChecks
+  with Benchmark
+  with Logger {
 
   implicit def toTag(s:String) : Tag = Tag(s)
 
   def toHex(arr:Array[Byte]) = arr.map(x => f"$x%02x").mkString(" ")
+
+
+  def createMessagePackData(f: MessagePacker => Unit) : Array[Byte] = {
+    val b = new ByteArrayOutputStream()
+    val packer = MessagePack.newDefaultPacker(b)
+    f(packer)
+    packer.close()
+    b.toByteArray
+  }
+
+
+
 
 }
 

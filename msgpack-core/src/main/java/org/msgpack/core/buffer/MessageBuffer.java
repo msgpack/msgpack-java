@@ -1,5 +1,6 @@
 package org.msgpack.core.buffer;
 
+import org.msgpack.core.annotations.Insecure;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Constructor;
@@ -8,7 +9,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicInteger;
 import static org.msgpack.core.Preconditions.*;
 
 /**
@@ -23,11 +23,14 @@ import static org.msgpack.core.Preconditions.*;
 public class MessageBuffer {
 
     static final Unsafe unsafe;
+    // TODO We should use MethodHandle for efficiency, but it is not available in JDK6
     static final Constructor byteBufferConstructor;
-    static final Class<?> directByteBufferClass;
-    static final long ARRAY_BYTE_BASE_OFFSET;
-    static final long ARRAY_BYTE_INDEX_SCALE;
+
     static final boolean isAndroid;
+    static final Class<?> directByteBufferClass;
+    static final boolean isByteBufferConstructorTakesBufferReference;
+    static final int ARRAY_BYTE_BASE_OFFSET;
+    static final int ARRAY_BYTE_INDEX_SCALE;
 
     static {
         try {
@@ -61,14 +64,20 @@ public class MessageBuffer {
 
             // Find the hidden constructor for DirectByteBuffer
             directByteBufferClass = ClassLoader.getSystemClassLoader().loadClass("java.nio.DirectByteBuffer");
-            if(!isAndroid) {
-                byteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
+            Constructor directByteBufferConstructor = null;
+            boolean isAcceptReference = true;
+            try {
+                // TODO We should use MethodHandle for Java7, which can avoid the cost of boxing with JIT optimization
+                directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
             }
-            else {
+            catch(NoSuchMethodException e) {
                 // https://android.googlesource.com/platform/libcore/+/master/luni/src/main/java/java/nio/DirectByteBuffer.java
                 // DirectByteBuffer(long address, int capacity)
-                byteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class);
+                directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class);
+                isAcceptReference = true;
             }
+            byteBufferConstructor = directByteBufferConstructor;
+            isByteBufferConstructorTakesBufferReference = isAcceptReference;
             if(byteBufferConstructor == null)
                 throw new RuntimeException("Constructor of DirectByteBuffer is not found");
 
@@ -77,10 +86,10 @@ public class MessageBuffer {
             // Check the endian of this CPU
             boolean isLittleEndian = true;
             byte[] a = new byte[8];
-            unsafe.putLong(a, ARRAY_BYTE_BASE_OFFSET, 0x0102030405060708L);
+
             // TODO  Unsafe.getByte is not available in Android
-            byte b = unsafe.getByte(a, ARRAY_BYTE_BASE_OFFSET);
-            switch (b) {
+            unsafe.putLong(a, (long) ARRAY_BYTE_BASE_OFFSET, 0x0102030405060708L);
+            switch (a[0]) {
                 case 0x01:
                     isLittleEndian = false;
                     break;
@@ -92,9 +101,24 @@ public class MessageBuffer {
             }
 
             String bufferClsName = isLittleEndian ? "org.msgpack.core.buffer.MessageBuffer" : "org.msgpack.core.buffer.MessageBufferBE";
-            msgBufferClass = Class.forName(bufferClsName);
+            Class<?> bufferCls = Class.forName(bufferClsName);
+            msgBufferClass = bufferCls;
+
+            Constructor<?> mbArrCstr = bufferCls.getDeclaredConstructor(byte[].class);
+            mbArrCstr.setAccessible(true);
+            mbArrConstructor = mbArrCstr;
+
+            Constructor<?> mbBBCstr = bufferCls.getDeclaredConstructor(ByteBuffer.class);
+            mbBBCstr.setAccessible(true);
+            mbBBConstructor = mbBBCstr;
+
+            // Requires Java7
+            //newMsgBuffer = MethodHandles.lookup().unreflectConstructor(mbArrCstr).asType(
+            //    MethodType.methodType(bufferCls, byte[].class)
+            //);
         }
         catch (Exception e) {
+            e.printStackTrace(System.err);
             throw new RuntimeException(e);
         }
     }
@@ -150,6 +174,13 @@ public class MessageBuffer {
      */
     private final static Class<?> msgBufferClass;
 
+    private final static Constructor<?> mbArrConstructor;
+    private final static Constructor<?> mbBBConstructor;
+
+
+    // Requires Java7
+    //private final static MethodHandle newMsgBuffer;
+
     /**
      * Base object for resolving the relative address of the raw byte array.
      * If base == null, the address value is a raw memory address
@@ -171,10 +202,10 @@ public class MessageBuffer {
      * Reference is used to hold a reference to an object that holds the underlying memory so that it cannot be
      * released by the garbage collector.
      */
-    private final ByteBuffer reference;
+    protected final ByteBuffer reference;
 
     // TODO life-time managment of this buffer
-    private AtomicInteger referenceCounter;
+    //private AtomicInteger referenceCounter;
 
 
     static MessageBuffer newOffHeapBuffer(int length) {
@@ -210,11 +241,7 @@ public class MessageBuffer {
        try {
            // We need to use reflection to create MessageBuffer instances in order to prevent TypeProfile generation for getInt method. TypeProfile will be
            // generated to resolve one of the method references when two or more classes overrides the method.
-           Constructor<?> constructor = msgBufferClass.getDeclaredConstructor(ByteBuffer.class);
-           return (MessageBuffer) constructor.newInstance(bb);
-       }
-       catch(NoSuchMethodException e) {
-           throw new IllegalStateException(e);
+           return (MessageBuffer) mbBBConstructor.newInstance(bb);
        }
        catch(Exception e) {
            throw new RuntimeException(e);
@@ -229,12 +256,9 @@ public class MessageBuffer {
     private static MessageBuffer newMessageBuffer(byte[] arr) {
         checkNotNull(arr);
         try {
-            Constructor<?> constructor = msgBufferClass.getDeclaredConstructor(byte[].class);
-            return (MessageBuffer) constructor.newInstance(arr);
+            return (MessageBuffer) mbArrConstructor.newInstance(arr);
         }
-        catch(NoSuchMethodException e) {
-            throw new IllegalStateException(e);
-        } catch(Exception e) {
+        catch(Throwable e) {
             throw new RuntimeException(e);
         }
     }
@@ -310,7 +334,7 @@ public class MessageBuffer {
         this.reference = null;
     }
 
-    private MessageBuffer(Object base, long address, int length, ByteBuffer reference) {
+    MessageBuffer(Object base, long address, int length, ByteBuffer reference) {
         this.base = base;
         this.address = address;
         this.size = length;
@@ -326,7 +350,12 @@ public class MessageBuffer {
 
     public MessageBuffer slice(int offset, int length) {
         // TODO ensure deleting this slice does not collapse this MessageBuffer
-        return new MessageBuffer(base, address + offset, length, reference);
+        if(offset == 0 && length == size())
+            return this;
+        else {
+            checkArgument(offset + length <= size());
+            return new MessageBuffer(base, address + offset, length, reference);
+        }
     }
 
     public byte getByte(int index) {
@@ -435,7 +464,14 @@ public class MessageBuffer {
             byte[] srcArray = src.array();
             unsafe.copyMemory(srcArray, ARRAY_BYTE_BASE_OFFSET + src.position(), base, address+index, len);
         } else {
-            throw new IllegalArgumentException("Only the array-backed ByteBuffer or DirectBuffer are supported");
+            if(base != null) {
+                src.get((byte []) base, index, len);
+            }
+            else {
+                for(int i=0; i<len; ++i) {
+                    unsafe.putByte(base, address + index, src.get());
+                }
+            }
         }
         src.position(src.position() + len);
     }
@@ -448,21 +484,63 @@ public class MessageBuffer {
      * @return
      */
     public ByteBuffer toByteBuffer(int index, int length) {
-        if(base instanceof byte[]) {
+        if(hasArray()) {
             return ByteBuffer.wrap((byte[]) base, (int) ((address-ARRAY_BYTE_BASE_OFFSET) + index), length);
         }
         try {
-            if(!isAndroid)
+            if(isByteBufferConstructorTakesBufferReference)
                 return (ByteBuffer) byteBufferConstructor.newInstance(address + index, length, reference);
-            else {
-                // DirectByteBuffer(long address, int offset)
+            else
                 return (ByteBuffer) byteBufferConstructor.newInstance(address + index, length);
-            }
         } catch(Throwable e) {
             // Convert checked exception to unchecked exception
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Get a ByteBuffer view of this buffer
+     * @return
+     */
+    public ByteBuffer toByteBuffer() {
+        return toByteBuffer(0, size());
+    }
+
+    /**
+     * Get a copy of this buffer
+     * @return
+     */
+    public byte[] toByteArray() {
+        byte[] b = new byte[size()];
+        unsafe.copyMemory(base, address, b, ARRAY_BYTE_BASE_OFFSET, size());
+        return b;
+    }
+
+    @Insecure
+    public boolean hasArray() { return base instanceof byte[]; }
+
+    @Insecure
+    public byte[] getArray() { return (byte[]) base; }
+
+    @Insecure
+    public Object getBase() { return base; }
+
+    @Insecure
+    public long getAddress() { return address; }
+
+    @Insecure
+    public int offset() {
+        if(hasArray()) {
+            return (int) address - ARRAY_BYTE_BASE_OFFSET;
+        }
+        else {
+            return 0;
+        }
+    }
+
+    @Insecure
+    public Object getReference() { return reference; }
+
 
     public void relocate(int offset, int length, int dst) {
         unsafe.copyMemory(base, address + offset, base, address+dst, length);

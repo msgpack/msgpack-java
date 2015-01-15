@@ -23,12 +23,17 @@ import java.math.BigInteger;
  * using a smaller types. For example, calling MessageUnpacker.unpackInt() for an integer value
  * that is larger than Integer.MAX_VALUE will cause this exception.
  */
-public class MessageIntegerOverflowException extends MessageTypeException {
+public class MessageIntegerOverflowException extends MessageOverflowException {
+
     private final BigInteger bigInteger;
 
     public MessageIntegerOverflowException(BigInteger bigInteger) {
         super();
         this.bigInteger = bigInteger;
+    }
+
+    public MessageIntegerOverflowException(long value) {
+        this(BigInteger.valueOf(value));
     }
 
     public MessageIntegerOverflowException(String message, BigInteger bigInteger) {

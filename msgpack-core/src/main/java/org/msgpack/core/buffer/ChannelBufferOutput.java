@@ -11,16 +11,30 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  */
 public class ChannelBufferOutput implements MessageBufferOutput {
 
-    private final WritableByteChannel channel;
+    private WritableByteChannel channel;
+    private MessageBuffer buffer;
 
     public ChannelBufferOutput(WritableByteChannel channel) {
         this.channel = checkNotNull(channel, "output channel is null");
     }
 
+    public void reset(WritableByteChannel channel) throws IOException {
+        this.channel.close();
+        this.channel = channel;
+    }
+
+
     @Override
-    public void flush(MessageBuffer buf, int offset, int len) throws IOException {
-        assert(offset + len < buf.size());
-        ByteBuffer bb = buf.toByteBuffer(offset, len);
+    public MessageBuffer next(int bufferSize) throws IOException {
+        if(buffer == null || buffer.size() != bufferSize) {
+            buffer = MessageBuffer.newBuffer(bufferSize);
+        }
+        return buffer;
+    }
+
+    @Override
+    public void flush(MessageBuffer buf) throws IOException {
+        ByteBuffer bb = buf.toByteBuffer();
         channel.write(bb);
     }
 

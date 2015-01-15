@@ -4,7 +4,6 @@ import java.nio.ByteBuffer
 import scala.util.Random
 import org.msgpack.core.MessagePackSpec
 
-
 /**
  * Created on 2014/05/01.
  */
@@ -113,7 +112,8 @@ class MessageBufferTest extends MessagePackSpec {
 
     }
 
-
   }
 
 }
+
+

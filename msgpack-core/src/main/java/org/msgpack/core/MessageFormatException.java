@@ -19,6 +19,12 @@ package org.msgpack.core;
  * Thrown when the input message pack format is invalid
  */
 public class MessageFormatException extends MessagePackException {
+
+    public MessageFormatException(Throwable e) {
+        super(e);
+    }
+
+
     public MessageFormatException(String message) {
         super(message);
     }
