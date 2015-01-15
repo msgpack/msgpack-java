@@ -16,6 +16,10 @@ public class ByteBufferInput implements MessageBufferInput {
         this.input = checkNotNull(input, "input ByteBuffer is null");
     }
 
+    /**
+     * Reset buffer. This method doesn't close the old resource.
+     * @param input new buffer
+     */
     public void reset(ByteBuffer input) {
         this.input = input;
         isRead = false;

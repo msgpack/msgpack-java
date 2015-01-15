@@ -15,9 +15,9 @@
 //
 package org.msgpack.core
 
-import java.io.ByteArrayOutputStream
+import java.io.{FileInputStream, FileOutputStream, File, ByteArrayOutputStream}
 
-import org.msgpack.core.buffer.OutputStreamBufferOutput
+import org.msgpack.core.buffer.{ChannelBufferOutput, MessageBufferOutput, OutputStreamBufferOutput}
 import xerial.core.io.IOUtil
 
 import scala.util.Random
@@ -39,6 +39,24 @@ class MessagePackerTest extends MessagePackSpec {
     val result = b.result
     result.size shouldBe answer.size
     result shouldBe answer
+  }
+
+  def createTempFile = {
+    val f = File.createTempFile("msgpackTest", "msgpack")
+    f.deleteOnExit
+    f
+  }
+
+  def createTempFileWithOutputStream = {
+    val f = createTempFile
+    val out = new FileOutputStream(f)
+    (f, out)
+  }
+
+  def createTempFileWithChannel = {
+    val (f, out) = createTempFileWithOutputStream
+    val ch = out.getChannel
+    (f, ch)
   }
 
   "MessagePacker" should {
@@ -130,5 +148,59 @@ class MessagePackerTest extends MessagePackSpec {
         case (bufferSize, stringSize) => test(bufferSize, stringSize)
       }
     }
+
+    "reset OutputStreamBufferOutput" in {
+      val (f0, out0) = createTempFileWithOutputStream
+      val packer = MessagePack.newDefaultPacker(out0)
+      packer.packInt(99)
+      packer.close
+
+      val up0 = MessagePack.newDefaultUnpacker(new FileInputStream(f0))
+      up0.unpackInt shouldBe 99
+      up0.hasNext shouldBe false
+      up0.close
+
+      val (f1, out1) = createTempFileWithOutputStream
+      packer.reset(new OutputStreamBufferOutput(out1))
+      packer.packInt(99)
+      packer.flush
+      packer.reset(new OutputStreamBufferOutput(out1))
+      packer.packString("hello")
+      packer.close
+
+      val up1 = MessagePack.newDefaultUnpacker(new FileInputStream(f1))
+      up1.unpackInt shouldBe 99
+      up1.unpackString shouldBe "hello"
+      up1.hasNext shouldBe false
+      up1.close
+    }
+
+    "reset ChannelBufferOutput" in {
+      val (f0, out0) = createTempFileWithChannel
+      val packer = MessagePack.newDefaultPacker(out0)
+      packer.packInt(99)
+      packer.close
+
+      val up0 = MessagePack.newDefaultUnpacker(new FileInputStream(f0))
+      up0.unpackInt shouldBe 99
+      up0.hasNext shouldBe false
+      up0.close
+
+      val (f1, out1) = createTempFileWithChannel
+      packer.reset(new ChannelBufferOutput(out1))
+      packer.packInt(99)
+      packer.flush
+      packer.reset(new ChannelBufferOutput(out1))
+      packer.packString("hello")
+      packer.close
+
+      val up1 = MessagePack.newDefaultUnpacker(new FileInputStream(f1))
+      up1.unpackInt shouldBe 99
+      up1.unpackString shouldBe "hello"
+      up1.hasNext shouldBe false
+      up1.close
+    }
+
   }
+
 }

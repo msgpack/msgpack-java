@@ -18,8 +18,11 @@ public class OutputStreamBufferOutput implements MessageBufferOutput {
         this.out = checkNotNull(out, "output is null");
     }
 
+    /**
+     * Reset Stream. This method doesn't close the old resource.
+     * @param out new stream
+     */
     public void reset(OutputStream out) throws IOException {
-        this.out.close();
         this.out = out;
     }
 

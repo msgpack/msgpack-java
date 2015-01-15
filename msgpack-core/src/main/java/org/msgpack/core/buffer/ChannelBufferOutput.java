@@ -18,8 +18,11 @@ public class ChannelBufferOutput implements MessageBufferOutput {
         this.channel = checkNotNull(channel, "output channel is null");
     }
 
+    /**
+     * Reset channel. This method doesn't close the old resource.
+     * @param channel new channel
+     */
     public void reset(WritableByteChannel channel) throws IOException {
-        this.channel.close();
         this.channel = channel;
     }
 
