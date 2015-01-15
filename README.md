@@ -7,6 +7,10 @@ MessagePack for Java
 
 MessagePack v7 (0.7.x) is a faster implementation of the previous version [v06](https://github.com/msgpack/msgpack-java/tree/v06), and supports all of the message pack types, including [extended format](https://github.com/msgpack/msgpack/blob/master/spec.md#formats-ext).
 
+## Limitation
+ - Android and Java6 platform support is not yet ready. You can see the ongoing work here: https://github.com/msgpack/msgpack-java/tree/v07-android
+ - Value API is in-designing phase: https://github.com/msgpack/msgpack-java/pull/109
+
 ## Quick Start
 
 For Maven users:
