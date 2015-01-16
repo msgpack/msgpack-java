@@ -25,11 +25,18 @@ public class ChannelBufferInput implements MessageBufferInput {
         this.bufferSize = bufferSize;
     }
 
-    public void reset(ReadableByteChannel channel) throws IOException {
-        this.channel.close();
+    /**
+     * Reset channel. This method doesn't close the old resource.
+     * @param channel new channel
+     * @return the old resource
+     */
+    public ReadableByteChannel reset(ReadableByteChannel channel) throws IOException {
+        ReadableByteChannel old = this.channel;
         this.channel = channel;
         this.reachedEOF = false;
+        return old;
     }
+
     @Override
     public MessageBuffer next() throws IOException {
 

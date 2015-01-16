@@ -24,9 +24,16 @@ public class ArrayBufferInput implements MessageBufferInput {
         this.buffer = MessageBuffer.wrap(checkNotNull(arr, "input array is null")).slice(offset, length);
     }
 
-    public void reset(MessageBuffer buf) {
+    /**
+     * Reset buffer. This method doesn't close the old resource.
+     * @param buf new buffer
+     * @return the old resource
+     */
+    public MessageBuffer reset(MessageBuffer buf) {
+        MessageBuffer old = this.buffer;
         this.buffer = buf;
         this.isRead = false;
+        return old;
     }
 
     public void reset(byte[] arr) {
