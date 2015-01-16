@@ -19,10 +19,13 @@ public class ByteBufferInput implements MessageBufferInput {
     /**
      * Reset buffer. This method doesn't close the old resource.
      * @param input new buffer
+     * @return the old resource
      */
-    public void reset(ByteBuffer input) {
+    public ByteBuffer reset(ByteBuffer input) {
+        ByteBuffer old = this.input;
         this.input = input;
         isRead = false;
+        return old;
     }
 
     @Override

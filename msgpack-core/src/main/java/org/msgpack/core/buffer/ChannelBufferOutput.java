@@ -21,9 +21,12 @@ public class ChannelBufferOutput implements MessageBufferOutput {
     /**
      * Reset channel. This method doesn't close the old resource.
      * @param channel new channel
+     * @return the old resource
      */
-    public void reset(WritableByteChannel channel) throws IOException {
+    public WritableByteChannel reset(WritableByteChannel channel) throws IOException {
+        WritableByteChannel old = this.channel;
         this.channel = channel;
+        return old;
     }
 
 

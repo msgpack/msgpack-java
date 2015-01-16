@@ -27,10 +27,13 @@ public class ArrayBufferInput implements MessageBufferInput {
     /**
      * Reset buffer. This method doesn't close the old resource.
      * @param buf new buffer
+     * @return the old resource
      */
-    public void reset(MessageBuffer buf) {
+    public MessageBuffer reset(MessageBuffer buf) {
+        MessageBuffer old = this.buffer;
         this.buffer = buf;
         this.isRead = false;
+        return old;
     }
 
     public void reset(byte[] arr) {

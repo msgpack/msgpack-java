@@ -35,10 +35,13 @@ public class InputStreamBufferInput implements MessageBufferInput {
     /**
      * Reset Stream. This method doesn't close the old resource.
      * @param in new stream
+     * @return the old resource
      */
-    public void reset(InputStream in) throws IOException {
+    public InputStream reset(InputStream in) throws IOException {
+        InputStream old = this.in;
         this.in = in;
         reachedEOF = false;
+        return old;
     }
 
 

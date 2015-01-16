@@ -86,14 +86,17 @@ public class MessagePacker implements Closeable {
     /**
      * Reset output. This method doesn't close the old resource.
      * @param out new output
+     * @return the old resource
      */
-    public void reset(MessageBufferOutput out) throws IOException {
+    public MessageBufferOutput reset(MessageBufferOutput out) throws IOException {
         // Validate the argument
         MessageBufferOutput newOut = checkNotNull(out, "MessageBufferOutput is null");
 
         // Reset the internal states
+        MessageBufferOutput old = this.out;
         this.out = newOut;
         this.position = 0;
+        return old;
     }
 
 

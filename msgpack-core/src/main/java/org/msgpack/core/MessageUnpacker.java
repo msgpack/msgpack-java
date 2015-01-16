@@ -149,11 +149,13 @@ public class MessageUnpacker implements Closeable {
     /**
      * Reset input. This method doesn't close the old resource.
      * @param in new input
+     * @return the old resource
      */
-    public void reset(MessageBufferInput in) throws IOException {
+    public MessageBufferInput reset(MessageBufferInput in) throws IOException {
         MessageBufferInput newIn = checkNotNull(in, "MessageBufferInput is null");
 
         // Reset the internal states
+        MessageBufferInput old = this.in;
         this.in = newIn;
         this.buffer = EMPTY_BUFFER;
         this.position = 0;
@@ -161,6 +163,7 @@ public class MessageUnpacker implements Closeable {
         this.secondaryBuffer = null;
         this.reachedEOF = false;
         // No need to initialize the already allocated string decoder here since we can reuse it.
+        return old;
     }
 
     public long getTotalReadBytes() {

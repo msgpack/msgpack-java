@@ -21,9 +21,12 @@ public class OutputStreamBufferOutput implements MessageBufferOutput {
     /**
      * Reset Stream. This method doesn't close the old resource.
      * @param out new stream
+     * @return the old resource
      */
-    public void reset(OutputStream out) throws IOException {
+    public OutputStream reset(OutputStream out) throws IOException {
+        OutputStream old = this.out;
         this.out = out;
+        return old;
     }
 
     @Override
