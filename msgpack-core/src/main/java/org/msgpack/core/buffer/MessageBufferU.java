@@ -33,11 +33,15 @@ public class MessageBufferU extends MessageBuffer {
         }
     }
 
+    private void resetBufferPosition() {
+        reference.position(0);
+        reference.limit(size);
+    }
+
     @Override
     public byte getByte(int index) {
         return reference.get(index);
     }
-
     @Override
     public boolean getBoolean(int index) {
         return reference.get(index) != 0;
@@ -66,7 +70,12 @@ public class MessageBufferU extends MessageBuffer {
     public void getBytes(int index, int len, ByteBuffer dst) {
         reference.position(index);
         reference.limit(index+len);
-        dst.put(reference);
+        try {
+            dst.put(reference);
+        }
+        finally {
+            resetBufferPosition();
+        }
     }
     @Override
     public void putByte(int index, byte v) {
@@ -98,9 +107,14 @@ public class MessageBufferU extends MessageBuffer {
     }
     @Override
     public ByteBuffer toByteBuffer(int index, int length) {
-        reference.position(index);
-        reference.limit(index+length);
-        return reference.slice();
+        try {
+            reference.position(index);
+            reference.limit(index+length);
+            return reference.slice();
+        }
+        finally {
+            resetBufferPosition();
+        }
     }
     @Override
     public ByteBuffer toByteBuffer() {
@@ -109,8 +123,13 @@ public class MessageBufferU extends MessageBuffer {
 
     @Override
     public void getBytes(int index, byte[] dst, int dstOffset, int length) {
-        reference.position(index);
-        reference.get(dst, dstOffset, length);
+        try {
+            reference.position(index);
+            reference.get(dst, dstOffset, length);
+        }
+        finally {
+            resetBufferPosition();
+        }
     }
 
     @Override
@@ -132,7 +151,12 @@ public class MessageBufferU extends MessageBuffer {
     @Override
     public void putBytes(int index, byte[] src, int srcOffset, int length) {
         reference.position(index);
-        reference.put(src, srcOffset, length);
+        try {
+            reference.put(src, srcOffset, length);
+        }
+        finally {
+            resetBufferPosition();
+        }
     }
 
     @Override
