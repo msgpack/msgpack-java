@@ -27,9 +27,14 @@ public class MessageBufferU extends MessageBuffer {
             return this;
         else {
             checkArgument(offset + length <= size());
-            reference.position(offset);
-            reference.limit(offset + length);
-            return new MessageBufferU(reference.slice());
+            try {
+                reference.position(offset);
+                reference.limit(offset + length);
+                return new MessageBufferU(reference.slice());
+            }
+            finally {
+                resetBufferPosition();
+            }
         }
     }
 
@@ -68,9 +73,9 @@ public class MessageBufferU extends MessageBuffer {
     }
     @Override
     public void getBytes(int index, int len, ByteBuffer dst) {
-        reference.position(index);
-        reference.limit(index+len);
         try {
+            reference.position(index);
+            reference.limit(index+len);
             dst.put(reference);
         }
         finally {
@@ -150,8 +155,8 @@ public class MessageBufferU extends MessageBuffer {
 
     @Override
     public void putBytes(int index, byte[] src, int srcOffset, int length) {
-        reference.position(index);
         try {
+            reference.position(index);
             reference.put(src, srcOffset, length);
         }
         finally {
@@ -161,10 +166,12 @@ public class MessageBufferU extends MessageBuffer {
 
     @Override
     public void copyTo(int index, MessageBuffer dst, int offset, int length) {
-        if(dst.hasArray()) {
-            System.arraycopy(this.base, this.offset() + index, dst.getBase(), offset, length);
-        } else {
-            dst.putBytes(offset, this.getArray(), this.offset(), length);
+        try {
+            reference.position(index);
+            dst.putByteBuffer(offset, reference, length);
+        }
+        finally {
+            resetBufferPosition();
         }
     }
     @Override
