@@ -30,9 +30,22 @@ public class MessageBuffer {
     static final boolean isByteBufferConstructorTakesBufferReference;
     static final int ARRAY_BYTE_BASE_OFFSET;
     static final int ARRAY_BYTE_INDEX_SCALE;
+    static final boolean isJavaAtLeast7;
 
     static {
         try {
+            // Check java version
+            String javaVersion = System.getProperty("java.specification.version", "");
+            int dotPos = javaVersion.indexOf('.');
+            if(dotPos == -1) {
+                isJavaAtLeast7 = false;
+            }
+            else {
+                int major = Integer.parseInt(javaVersion.substring(0, dotPos));
+                int minor = Integer.parseInt(javaVersion.substring(dotPos+1));
+                isJavaAtLeast7 = major > 1 || (major == 1 && minor >= 7);
+            }
+
             // Fetch theUnsafe object for Orackle JDK and OpenJDK
             Unsafe u;
             try {
@@ -92,7 +105,17 @@ public class MessageBuffer {
                     assert false;
             }
 
-            String bufferClsName = isLittleEndian ? "org.msgpack.core.buffer.MessageBuffer" : "org.msgpack.core.buffer.MessageBufferBE";
+            String bufferClsName;
+            if(isJavaAtLeast7) {
+                if(isLittleEndian)
+                    bufferClsName = "org.msgpack.core.buffer.MessageBuffer";
+                else
+                    bufferClsName = "org.msgpack.core.buffer.MessageBufferBE";
+            }
+            else {
+                bufferClsName = "org.msgpack.core.buffer.MessageBufferU";
+            }
+
             Class<?> bufferCls = Class.forName(bufferClsName);
             msgBufferClass = bufferCls;
 
@@ -472,12 +495,7 @@ public class MessageBuffer {
     }
 
     @Insecure
-    public Object getReference() { return reference; }
-
-
-    public void relocate(int offset, int length, int dst) {
-        unsafe.copyMemory(base, address + offset, base, address+dst, length);
-    }
+    public ByteBuffer getReference() { return reference; }
 
     /**
      * Copy this buffer contents to another MessageBuffer
