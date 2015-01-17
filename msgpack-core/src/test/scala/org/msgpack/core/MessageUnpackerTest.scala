@@ -1,8 +1,8 @@
 package org.msgpack.core
 
-import java.io.{EOFException, ByteArrayInputStream, ByteArrayOutputStream}
+import java.io._
 import scala.util.Random
-import org.msgpack.core.buffer.{MessageBuffer, MessageBufferInput, OutputStreamBufferOutput, ArrayBufferInput}
+import org.msgpack.core.buffer._
 import org.msgpack.value.ValueType
 import xerial.core.io.IOUtil
 
@@ -143,6 +143,19 @@ class MessageUnpackerTest extends MessagePackSpec {
     }
   }
 
+  def createTempFile = {
+    val f = File.createTempFile("msgpackTest", "msgpack")
+    f.deleteOnExit
+    val p = MessagePack.newDefaultPacker(new FileOutputStream(f))
+    p.packInt(99)
+    p.close
+    f
+  }
+
+  def checkFile(u:MessageUnpacker) = {
+    u.unpackInt shouldBe 99
+    u.hasNext shouldBe false
+  }
 
   "MessageUnpacker" should {
 
@@ -580,6 +593,30 @@ class MessageUnpackerTest extends MessagePackSpec {
       t("reuse-message-buffer").averageWithoutMinMax should be <= t("no-buffer-reset").averageWithoutMinMax
       // This performance comparition is too close, so we disabled it
       // t("reuse-array-input").averageWithoutMinMax should be <= t("no-buffer-reset").averageWithoutMinMax
+    }
+
+    "reset ChannelBufferInput" in {
+      val f0 = createTempFile
+      val u = MessagePack.newDefaultUnpacker(new FileInputStream(f0).getChannel)
+      checkFile(u)
+
+      val f1 = createTempFile
+      val ch = new FileInputStream(f1).getChannel
+      u.reset(new ChannelBufferInput(ch))
+      checkFile(u)
+      u.close
+    }
+
+    "reset InputStreamBufferInput" in {
+      val f0 = createTempFile
+      val u = MessagePack.newDefaultUnpacker(new FileInputStream(f0))
+      checkFile(u)
+
+      val f1 = createTempFile
+      val in = new FileInputStream(f1)
+      u.reset(new InputStreamBufferInput(in))
+      checkFile(u)
+      u.close
     }
   }
 }
