@@ -30,13 +30,13 @@ public class MessageBuffer {
     static final boolean isByteBufferConstructorTakesBufferReference;
     static final int ARRAY_BYTE_BASE_OFFSET;
     static final int ARRAY_BYTE_INDEX_SCALE;
-    static final boolean isJavaAtLeast7;
 
     static {
         try {
             // Check java version
             String javaVersion = System.getProperty("java.specification.version", "");
             int dotPos = javaVersion.indexOf('.');
+            boolean isJavaAtLeast7 = false;
             if(dotPos == -1) {
                 isJavaAtLeast7 = false;
             }
@@ -357,7 +357,7 @@ public class MessageBuffer {
     }
 
     public void getBytes(int index, byte[] dst, int dstOffset, int length) {
-        unsafe.copyMemory(base, address+index, dst, ARRAY_BYTE_BASE_OFFSET + dstOffset, length);
+        unsafe.copyMemory(base, address + index, dst, ARRAY_BYTE_BASE_OFFSET + dstOffset, length);
     }
 
     public void getBytes(int index, int len, ByteBuffer dst) {
