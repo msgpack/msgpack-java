@@ -17,6 +17,10 @@ public class MessageBufferU extends MessageBuffer {
         checkNotNull(reference);
     }
 
+    MessageBufferU(byte[] arr) {
+        this(ByteBuffer.wrap(arr));
+    }
+
     @Override
     public MessageBufferU slice(int offset, int length) {
         if(offset == 0 && length == size())
