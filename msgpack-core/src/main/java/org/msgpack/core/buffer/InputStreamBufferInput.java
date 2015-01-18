@@ -32,10 +32,16 @@ public class InputStreamBufferInput implements MessageBufferInput {
         this.bufferSize = bufferSize;
     }
 
-    public void reset(InputStream in) throws IOException {
-        this.in.close();
+    /**
+     * Reset Stream. This method doesn't close the old resource.
+     * @param in new stream
+     * @return the old resource
+     */
+    public InputStream reset(InputStream in) throws IOException {
+        InputStream old = this.in;
         this.in = in;
         reachedEOF = false;
+        return old;
     }
 
 

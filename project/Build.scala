@@ -23,7 +23,7 @@ import de.johoop.jacoco4sbt._
 import JacocoPlugin._
 import sbtrelease.ReleasePlugin._
 import scala.util.Properties
-
+import com.typesafe.sbt.pgp.PgpKeys
 
 object Build extends Build {
 
@@ -39,6 +39,7 @@ object Build extends Build {
       organizationHomepage := Some(new URL("http://msgpack.org/")),
       description := "MessagePack for Java",
       scalaVersion in Global := SCALA_VERSION,
+      ReleaseKeys.publishArtifactsAction := PgpKeys.publishSigned.value,
       logBuffered in Test := false,
       //parallelExecution in Test := false,
       autoScalaLibrary := false,
