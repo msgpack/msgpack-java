@@ -29,6 +29,9 @@ public class MessagePackParser extends ParserMinimalBase {
     private final LinkedList<StackItem> stack = new LinkedList<StackItem>();
     private final ValueHolder valueHolder = new ValueHolder();
     private boolean isClosed;
+    private long tokenPosition;
+    private long currentPosition;
+    private final IOContext ioContext;
 
     private static abstract class StackItem {
         private long numOfElements;
@@ -67,6 +70,7 @@ public class MessagePackParser extends ParserMinimalBase {
     }
 
     private MessagePackParser(IOContext ctxt, int features, MessageBufferInput input) throws IOException {
+        ioContext = ctxt;
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
         parsingContext = JsonReadContext.createRootContext(dups);
@@ -99,6 +103,8 @@ public class MessagePackParser extends ParserMinimalBase {
     @Override
     public JsonToken nextToken() throws IOException, JsonParseException {
         MessageUnpacker messageUnpacker = getMessageUnpacker();
+        tokenPosition = messageUnpacker.getTotalReadBytes();
+
         JsonToken nextToken = null;
         if (parsingContext.inObject() || parsingContext.inArray()) {
             if (stack.getFirst().isEmpty()) {
@@ -158,6 +164,7 @@ public class MessagePackParser extends ParserMinimalBase {
             default:
                 throw new IllegalStateException("Shouldn't reach here");
         }
+        currentPosition = messageUnpacker.getTotalReadBytes();
 
         if (parsingContext.inObject() && nextToken != JsonToken.FIELD_NAME || parsingContext.inArray()) {
             stack.getFirst().consume();
@@ -302,17 +309,27 @@ public class MessagePackParser extends ParserMinimalBase {
 
     @Override
     public JsonLocation getTokenLocation() {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return new JsonLocation(ioContext.getSourceReference(), tokenPosition, -1, -1, (int) tokenPosition);
     }
 
     @Override
     public JsonLocation getCurrentLocation() {
-        throw new UnsupportedOperationException("Not implemented yet");
+        return new JsonLocation(ioContext.getSourceReference(), currentPosition, -1, -1, (int) currentPosition);
     }
 
     @Override
     public void overrideCurrentName(String name) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        try {
+            if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
+                JsonReadContext parent = parsingContext.getParent();
+                parent.setCurrentName(name);
+            }
+            else {
+                parsingContext.setCurrentName(name);
+            }
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override public String getCurrentName() throws IOException {
