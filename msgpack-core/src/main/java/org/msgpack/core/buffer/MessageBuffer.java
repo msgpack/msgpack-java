@@ -41,9 +41,14 @@ public class MessageBuffer {
                 isJavaAtLeast7 = false;
             }
             else {
-                int major = Integer.parseInt(javaVersion.substring(0, dotPos));
-                int minor = Integer.parseInt(javaVersion.substring(dotPos+1));
-                isJavaAtLeast7 = major > 1 || (major == 1 && minor >= 7);
+                try {
+                    int major = Integer.parseInt(javaVersion.substring(0, dotPos));
+                    int minor = Integer.parseInt(javaVersion.substring(dotPos + 1));
+                    isJavaAtLeast7 = major > 1 || (major == 1 && minor >= 7);
+                }
+                catch(NumberFormatException e) {
+                    e.printStackTrace(System.err);
+                }
             }
 
             // Fetch theUnsafe object for Orackle JDK and OpenJDK
@@ -105,6 +110,8 @@ public class MessageBuffer {
                     assert false;
             }
 
+            // We need to use reflection to find MessageBuffer implementation classes because
+            // importing these classes creates TypeProfile and adds some overhead to method calls.
             String bufferClsName;
             if(isJavaAtLeast7) {
                 if(isLittleEndian)

@@ -75,7 +75,7 @@ public class MessageBufferU extends MessageBuffer {
     public void getBytes(int index, int len, ByteBuffer dst) {
         try {
             reference.position(index);
-            reference.limit(index+len);
+            reference.limit(index + len);
             dst.put(reference);
         }
         finally {
@@ -114,7 +114,7 @@ public class MessageBufferU extends MessageBuffer {
     public ByteBuffer toByteBuffer(int index, int length) {
         try {
             reference.position(index);
-            reference.limit(index+length);
+            reference.limit(index + length);
             return reference.slice();
         }
         finally {
@@ -142,15 +142,19 @@ public class MessageBufferU extends MessageBuffer {
         assert (len <= src.remaining());
 
         if(src.hasArray()) {
-            byte[] srcArray = src.array();
-            putBytes(index, srcArray, src.position(), len);
-
-        } else {
-            for(int i = 0; i < len; ++i) {
-                putByte(index + i, src.get());
+            putBytes(index, src.array(), src.position(), len);
+            src.position(src.position() + len);
+        }
+        else {
+            int prevSrcLimit = src.limit();
+            try {
+                src.limit(src.position() + len);
+                reference.put(src);
+            }
+            finally {
+                src.limit(prevSrcLimit);
             }
         }
-        src.position(src.position() + len);
     }
 
     @Override
