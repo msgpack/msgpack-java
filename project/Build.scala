@@ -47,6 +47,7 @@ object Build extends Build {
       concurrentRestrictions in Global := Seq(
         Tags.limit(Tags.Test, 1)
       ),
+      ReleaseKeys.tagName <<= (version in ThisBuild) map (v => v),
       publishTo := {
         val nexus = "https://oss.sonatype.org/"
         if (isSnapshot.value)
