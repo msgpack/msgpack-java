@@ -248,25 +248,43 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
 
         JsonToken jsonToken = parser.nextToken();
         assertEquals(JsonToken.START_OBJECT, jsonToken);
+        assertEquals(-1, parser.getTokenLocation().getLineNr());
+        assertEquals(0, parser.getTokenLocation().getColumnNr());
+        assertEquals(-1, parser.getCurrentLocation().getLineNr());
+        assertEquals(1, parser.getCurrentLocation().getColumnNr());
 
         jsonToken = parser.nextToken();
         assertEquals(JsonToken.FIELD_NAME, jsonToken);
         assertEquals("zero", parser.getCurrentName());
+        assertEquals(1, parser.getTokenLocation().getColumnNr());
+        assertEquals(6, parser.getCurrentLocation().getColumnNr());
 
         jsonToken = parser.nextToken();
         assertEquals(JsonToken.VALUE_NUMBER_INT, jsonToken);
         assertEquals(0, parser.getIntValue());
+        assertEquals(6, parser.getTokenLocation().getColumnNr());
+        assertEquals(7, parser.getCurrentLocation().getColumnNr());
 
         jsonToken = parser.nextToken();
         assertEquals(JsonToken.FIELD_NAME, jsonToken);
         assertEquals("one", parser.getCurrentName());
+        assertEquals(7, parser.getTokenLocation().getColumnNr());
+        assertEquals(11, parser.getCurrentLocation().getColumnNr());
+        parser.overrideCurrentName("two");
+        assertEquals("two", parser.getCurrentName());
 
         jsonToken = parser.nextToken();
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, jsonToken);
         assertEquals(1.0f, parser.getIntValue(), 0.001f);
+        assertEquals(11, parser.getTokenLocation().getColumnNr());
+        assertEquals(16, parser.getCurrentLocation().getColumnNr());
 
         jsonToken = parser.nextToken();
         assertEquals(JsonToken.END_OBJECT, jsonToken);
+        assertEquals(-1, parser.getTokenLocation().getLineNr());
+        assertEquals(16, parser.getTokenLocation().getColumnNr());
+        assertEquals(-1, parser.getCurrentLocation().getLineNr());
+        assertEquals(16, parser.getCurrentLocation().getColumnNr());
 
         try {
             parser.nextToken();
