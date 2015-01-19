@@ -91,7 +91,7 @@ public class MessageBuffer {
                 // https://android.googlesource.com/platform/libcore/+/master/luni/src/main/java/java/nio/DirectByteBuffer.java
                 // DirectByteBuffer(long address, int capacity)
                 directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class);
-                isAcceptReference = true;
+                isAcceptReference = false;
             }
             byteBufferConstructor = directByteBufferConstructor;
             isByteBufferConstructorTakesBufferReference = isAcceptReference;
