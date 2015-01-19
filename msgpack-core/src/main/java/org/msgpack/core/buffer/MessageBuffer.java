@@ -33,6 +33,24 @@ public class MessageBuffer {
 
     static {
         try {
+            // Check java version
+            String javaVersion = System.getProperty("java.specification.version", "");
+            int dotPos = javaVersion.indexOf('.');
+            boolean isJavaAtLeast7 = false;
+            if(dotPos == -1) {
+                isJavaAtLeast7 = false;
+            }
+            else {
+                try {
+                    int major = Integer.parseInt(javaVersion.substring(0, dotPos));
+                    int minor = Integer.parseInt(javaVersion.substring(dotPos + 1));
+                    isJavaAtLeast7 = major > 1 || (major == 1 && minor >= 7);
+                }
+                catch(NumberFormatException e) {
+                    e.printStackTrace(System.err);
+                }
+            }
+
             // Fetch theUnsafe object for Orackle JDK and OpenJDK
             Unsafe u;
             try {
@@ -92,7 +110,19 @@ public class MessageBuffer {
                     assert false;
             }
 
-            String bufferClsName = isLittleEndian ? "org.msgpack.core.buffer.MessageBuffer" : "org.msgpack.core.buffer.MessageBufferBE";
+            // We need to use reflection to find MessageBuffer implementation classes because
+            // importing these classes creates TypeProfile and adds some overhead to method calls.
+            String bufferClsName;
+            if(isJavaAtLeast7) {
+                if(isLittleEndian)
+                    bufferClsName = "org.msgpack.core.buffer.MessageBuffer";
+                else
+                    bufferClsName = "org.msgpack.core.buffer.MessageBufferBE";
+            }
+            else {
+                bufferClsName = "org.msgpack.core.buffer.MessageBufferU";
+            }
+
             Class<?> bufferCls = Class.forName(bufferClsName);
             msgBufferClass = bufferCls;
 
@@ -334,7 +364,7 @@ public class MessageBuffer {
     }
 
     public void getBytes(int index, byte[] dst, int dstOffset, int length) {
-        unsafe.copyMemory(base, address+index, dst, ARRAY_BYTE_BASE_OFFSET + dstOffset, length);
+        unsafe.copyMemory(base, address + index, dst, ARRAY_BYTE_BASE_OFFSET + dstOffset, length);
     }
 
     public void getBytes(int index, int len, ByteBuffer dst) {
@@ -472,12 +502,7 @@ public class MessageBuffer {
     }
 
     @Insecure
-    public Object getReference() { return reference; }
-
-
-    public void relocate(int offset, int length, int dst) {
-        unsafe.copyMemory(base, address + offset, base, address+dst, length);
-    }
+    public ByteBuffer getReference() { return reference; }
 
     /**
      * Copy this buffer contents to another MessageBuffer
