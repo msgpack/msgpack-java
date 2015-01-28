@@ -12,7 +12,14 @@ branches:
   only:
     - /^v07.*$/
 
-script: sbt ++$TRAVIS_SCALA_VERSION test
+script:
+  - sbt ++$TRAVIS_SCALA_VERSION test
+  - find $HOME/.sbt -name "*.lock" | xargs rm
+  - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
+
+cache:
+  directories:
+    - $HOME/.ivy2/cache
 
 notifications:
   email:
