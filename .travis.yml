@@ -2,6 +2,8 @@ language: scala
 scala:
    - 2.11.1
 
+sudo: false
+
 jdk:
   - openjdk6
   - openjdk7
