@@ -553,7 +553,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       val mb = MessageBuffer.wrap(arr)
 
       val N = 1000
-      val t = time("unpacker", repeat = 10) {
+      val t = time("unpacker", repeat = 30) {
         block("no-buffer-reset") {
           IOUtil.withResource(msgpack.newUnpacker(arr)) { unpacker =>
             for (i <- 0 until N) {
