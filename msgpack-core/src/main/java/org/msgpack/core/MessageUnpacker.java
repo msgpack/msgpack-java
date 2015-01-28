@@ -503,19 +503,15 @@ public class MessageUnpacker implements Closeable {
                     break;
                 case ARRAY16:
                     remainingValues += readNextLength16();
-                    consume(2);
                     break;
                 case ARRAY32:
                     remainingValues += readNextLength32();
-                    consume(4);
                     break;
                 case MAP16:
                     remainingValues += readNextLength16() * 2;
-                    consume(2);
                     break;
                 case MAP32:
                     remainingValues += readNextLength32() * 2; // TODO check int overflow
-                    consume(2);
                     break;
                 case NEVER_USED:
                     throw new MessageFormatException(String.format("unknown code: %02x is found", b));
