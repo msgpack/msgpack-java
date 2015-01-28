@@ -87,7 +87,6 @@ class MessagePackerTest extends MessagePackSpec {
 
     "improve the performance via reset method" taggedAs("reset") in {
 
-
       val N = 1000
       val t = time("packer", repeat = 10) {
         block("no-buffer-reset") {
