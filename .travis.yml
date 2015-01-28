@@ -2,8 +2,6 @@ language: scala
 scala:
    - 2.11.1
 
-sudo: false
-
 jdk:
   - openjdk6
   - openjdk7
@@ -14,14 +12,7 @@ branches:
   only:
     - /^v07.*$/
 
-script:
-  - sbt ++$TRAVIS_SCALA_VERSION test
-  - find $HOME/.sbt -name "*.lock" | xargs rm
-  - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
-
-cache:
-  directories:
-    - $HOME/.ivy2/cache
+script: sbt ++$TRAVIS_SCALA_VERSION test
 
 notifications:
   email:
