@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MessagePackDataformatPojoBenchmarkTest extends MessagePackDataformatTestBase {
-    private static final int LOOP_MAX = 8000;
+    private static final int LOOP_MAX = 1000;
     private static final int LOOP_FACTOR = 50;
     private static final int SAMPLING_COUNT = 4;
     private static final List<NormalPojo> pojos = new ArrayList<NormalPojo>(LOOP_MAX);
