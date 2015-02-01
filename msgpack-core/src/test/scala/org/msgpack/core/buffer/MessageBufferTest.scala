@@ -112,6 +112,18 @@ class MessageBufferTest extends MessagePackSpec {
 
     }
 
+    "convert to ByteBuffer" in {
+      for (t <- Seq(
+        MessageBuffer.newBuffer(10),
+        MessageBuffer.newDirectBuffer(10),
+        MessageBuffer.newOffHeapBuffer(10))
+      ) {
+        val bb = t.toByteBuffer
+        bb.position shouldBe 0
+        bb.limit shouldBe 10
+        bb.capacity shouldBe 10
+      }
+    }
   }
 
 }
