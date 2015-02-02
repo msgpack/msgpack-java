@@ -119,7 +119,8 @@ public class MessageBuffer {
             // We need to use reflection to find MessageBuffer implementation classes because
             // importing these classes creates TypeProfile and adds some overhead to method calls.
             String bufferClsName;
-            if(!isAndroid && isJavaAtLeast7) {
+            boolean useUniversalBuffer = Boolean.parseBoolean(System.getProperty("msgpack.universal-buffer", "false"));
+            if(!useUniversalBuffer && !isAndroid && isJavaAtLeast7) {
                 if(isLittleEndian)
                     bufferClsName = "org.msgpack.core.buffer.MessageBuffer";
                 else
