@@ -280,7 +280,7 @@ public class MessageBuffer {
     }
 
     public static MessageBuffer wrap(ByteBuffer bb) {
-        return newMessageBuffer(bb);
+        return newMessageBuffer(bb).slice(bb.position(), bb.remaining());
     }
 
     /**

@@ -11,6 +11,14 @@ class MessageBufferTest extends MessagePackSpec {
 
   "MessageBuffer" should {
 
+    "wrap ByteBuffer considering position and remaining values" taggedAs("wrap-bb") in {
+      val d = Array[Byte](10,11,12,13,14,15,16,17,18,19)
+      val subset = ByteBuffer.wrap(d, 2, 2)
+      val mb = MessageBuffer.wrap(subset)
+      mb.getByte(0) shouldBe 12
+      mb.size() shouldBe 2
+    }
+
     "have better performance than ByteBuffer" in {
 
       val N = 1000000

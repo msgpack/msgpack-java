@@ -506,7 +506,7 @@ public class MessagePacker implements Closeable {
             flush();
 
             // Wrap the input source as a MessageBuffer
-            MessageBuffer wrapped = MessageBuffer.wrap(src).slice(src.position(), src.remaining());
+            MessageBuffer wrapped = MessageBuffer.wrap(src);
             // Then, dump the source data to the output
             out.flush(wrapped);
             src.position(src.limit());
