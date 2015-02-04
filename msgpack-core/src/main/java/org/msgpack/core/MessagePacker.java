@@ -55,15 +55,15 @@ public class MessagePacker implements Closeable {
     private final MessagePack.Config config;
 
     private MessageBufferOutput out;
-    private MessageBuffer buffer;
-    private MessageBuffer strLenBuffer;
+    protected MessageBuffer buffer;
+    protected MessageBuffer strLenBuffer;
 
-    private int position;
+    protected int position;
 
     /**
      * String encoder
      */
-    private CharsetEncoder encoder;
+    protected CharsetEncoder encoder;
 
 
     /**
