@@ -61,6 +61,11 @@ public class MessagePacker implements Closeable {
     private int position;
 
     /**
+     * Total read byte size
+     */
+    private long totalWrittenBytes;
+
+    /**
      * String encoder
      */
     private CharsetEncoder encoder;
@@ -96,9 +101,13 @@ public class MessagePacker implements Closeable {
         MessageBufferOutput old = this.out;
         this.out = newOut;
         this.position = 0;
+        this.totalWrittenBytes = 0;
         return old;
     }
 
+    public long getTotalWritternBytes() {
+      return totalWrittenBytes;
+    }
 
     private void prepareEncoder() {
         if(encoder == null) {
@@ -138,6 +147,7 @@ public class MessagePacker implements Closeable {
     }
 
     private void ensureCapacity(int numBytesToWrite) throws IOException {
+        totalWrittenBytes += numBytesToWrite;
         if(buffer == null || position + numBytesToWrite >= buffer.size()) {
             flush();
             buffer = out.next(Math.max(config.getPackerBufferSize(), numBytesToWrite));
@@ -355,10 +365,12 @@ public class MessagePacker implements Closeable {
         encoder.reset();
         while(in.hasRemaining()) {
             try {
+                int originalEncodeBuffer = encodeBuffer.position();
                 CoderResult cr = encoder.encode(in, encodeBuffer, true);
 
                 if(cr.isUnderflow()) {
                     cr = encoder.flush(encodeBuffer);
+                    totalWrittenBytes += encodeBuffer.position() - originalEncodeBuffer;
                 }
 
                 if(cr.isOverflow()) {
@@ -499,6 +511,7 @@ public class MessagePacker implements Closeable {
 
 
     public MessagePacker writePayload(ByteBuffer src) throws IOException {
+        totalWrittenBytes += src.remaining();
         if(src.remaining() >= config.getPackerRawDataCopyingThreshold()) {
             // Use the source ByteBuffer directly to avoid memory copy
 
@@ -523,6 +536,7 @@ public class MessagePacker implements Closeable {
                 position += writeLen;
             }
         }
+
         return this;
     }
 
@@ -555,6 +569,7 @@ public class MessagePacker implements Closeable {
                 cursor += writeLen;
             }
         }
+        totalWrittenBytes += len;
         return this;
     }
 

@@ -199,7 +199,23 @@ class MessagePackerTest extends MessagePackSpec {
       up1.hasNext shouldBe false
       up1.close
     }
-
   }
 
+  "compute totalWrittenBytes" in {
+    val out = new ByteArrayOutputStream
+    val packerTotalWrittenBytes = IOUtil.withResource(msgpack.newPacker(out)) { packer =>
+
+      packer.packByte(0)
+      .packBoolean(true)
+      .packShort(12)
+      .packInt(1024)
+      .packLong(Long.MaxValue)
+      .packString("foobar")
+      .flush()
+
+      packer.getTotalWritternBytes
+    }
+
+    out.toByteArray.length shouldBe packerTotalWrittenBytes
+  }
 }
