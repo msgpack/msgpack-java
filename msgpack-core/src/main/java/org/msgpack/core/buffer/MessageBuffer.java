@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import static org.msgpack.core.Preconditions.*;
 
@@ -45,10 +46,7 @@ public class MessageBuffer {
             String javaVersion = System.getProperty("java.specification.version", "");
             int dotPos = javaVersion.indexOf('.');
             boolean isJavaAtLeast7 = false;
-            if(dotPos == -1) {
-                isJavaAtLeast7 = false;
-            }
-            else {
+            if(dotPos != -1) {
                 try {
                     int major = Integer.parseInt(javaVersion.substring(0, dotPos));
                     int minor = Integer.parseInt(javaVersion.substring(dotPos + 1));
@@ -59,33 +57,74 @@ public class MessageBuffer {
                 }
             }
 
+            boolean hasUnsafe = false;
+            try {
+                Class.forName("sun.misc.Unsafe");
+                hasUnsafe = true;
+            }
+            catch(ClassNotFoundException e) {
+            }
+
             // Detect android VM
             boolean isAndroid = System.getProperty("java.runtime.name", "").toLowerCase().contains("android");
-            // Fetch theUnsafe object for Orackle JDK and OpenJDK
-            Unsafe u;
-            if(!isAndroid) {
-                // Fetch theUnsafe object for Oracle JDK and OpenJDK
+
+            // For Java6, android and JVM that has no Unsafe class, use Universal MessageBuffer
+            boolean useUniversalBuffer =
+                Boolean.parseBoolean(System.getProperty("msgpack.universal-buffer", "false"))
+                    || isAndroid
+                    || !isJavaAtLeast7
+                    || !hasUnsafe;
+
+            // We need to use reflection to find MessageBuffer implementation classes because
+            // importing these classes creates TypeProfile and adds some overhead to method calls.
+            String bufferClsName;
+            if(useUniversalBuffer) {
+                bufferClsName = "org.msgpack.core.buffer.MessageBufferU";
+                unsafe = null;
+                ARRAY_BYTE_BASE_OFFSET = 16; // dummy value
+                ARRAY_BYTE_INDEX_SCALE = 1;
+            }
+            else {
+                // Check the endian of this CPU
+                boolean isLittleEndian = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
+                if(isLittleEndian) {
+                    bufferClsName = "org.msgpack.core.buffer.MessageBuffer";
+                }
+                else {
+                    bufferClsName = "org.msgpack.core.buffer.MessageBufferBE";
+                }
+
+                // Fetch theUnsafe object for Oracle and OpenJDK
+                Unsafe u;
                 Field field = Unsafe.class.getDeclaredField("theUnsafe");
                 field.setAccessible(true);
                 unsafe = (Unsafe) field.get(null);
-            }
-            else {
-                // Workaround for creating an Unsafe instance for Android OS
-                Constructor<Unsafe> unsafeConstructor = Unsafe.class.getDeclaredConstructor();
-                unsafeConstructor.setAccessible(true);
-                unsafe = unsafeConstructor.newInstance();
-            }
-            if(unsafe == null) {
-                throw new RuntimeException("Unsafe is unavailable");
-            }
+                if(unsafe == null) {
+                    throw new RuntimeException("Unsafe is unavailable");
+                }
+                ARRAY_BYTE_BASE_OFFSET = unsafe.arrayBaseOffset(byte[].class);
+                ARRAY_BYTE_INDEX_SCALE = unsafe.arrayIndexScale(byte[].class);
 
-            ARRAY_BYTE_BASE_OFFSET = unsafe.arrayBaseOffset(byte[].class);
-            ARRAY_BYTE_INDEX_SCALE = unsafe.arrayIndexScale(byte[].class);
-
-            // Make sure the VM thinks bytes are only one byte wide
-            if(ARRAY_BYTE_INDEX_SCALE != 1) {
-                throw new IllegalStateException("Byte array index scale must be 1, but is " + ARRAY_BYTE_INDEX_SCALE);
+                // Make sure the VM thinks bytes are only one byte wide
+                if(ARRAY_BYTE_INDEX_SCALE != 1) {
+                    throw new IllegalStateException("Byte array index scale must be 1, but is " + ARRAY_BYTE_INDEX_SCALE);
+                }
             }
+            Class<?> bufferCls = Class.forName(bufferClsName);
+            msgBufferClass = bufferCls;
+
+            Constructor<?> mbArrCstr = bufferCls.getDeclaredConstructor(byte[].class);
+            mbArrCstr.setAccessible(true);
+            mbArrConstructor = mbArrCstr;
+
+            Constructor<?> mbBBCstr = bufferCls.getDeclaredConstructor(ByteBuffer.class);
+            mbBBCstr.setAccessible(true);
+            mbBBConstructor = mbBBCstr;
+
+            // Requires Java7
+            //newMsgBuffer = MethodHandles.lookup().unreflectConstructor(mbArrCstr).asType(
+            //    MethodType.methodType(bufferCls, byte[].class)
+            //);
 
             // Find the hidden constructor for DirectByteBuffer
             directByteBufferClass = ClassLoader.getSystemClassLoader().loadClass("java.nio.DirectByteBuffer");
@@ -123,52 +162,6 @@ public class MessageBuffer {
                 throw new RuntimeException("Constructor of DirectByteBuffer is not found");
 
             byteBufferConstructor.setAccessible(true);
-
-            // Check the endian of this CPU
-            boolean isLittleEndian = true;
-            byte[] a = new byte[8];
-            // use Unsafe.putLong to an array since Unsafe.getByte is not available in Android
-            unsafe.putLong(a, (long) ARRAY_BYTE_BASE_OFFSET, 0x0102030405060708L);
-            switch(a[0]) {
-                case 0x01:
-                    isLittleEndian = false;
-                    break;
-                case 0x08:
-                    isLittleEndian = true;
-                    break;
-                default:
-                    assert false;
-            }
-
-            // We need to use reflection to find MessageBuffer implementation classes because
-            // importing these classes creates TypeProfile and adds some overhead to method calls.
-            String bufferClsName;
-            boolean useUniversalBuffer = Boolean.parseBoolean(System.getProperty("msgpack.universal-buffer", "false"));
-            if(!useUniversalBuffer && !isAndroid && isJavaAtLeast7) {
-                if(isLittleEndian)
-                    bufferClsName = "org.msgpack.core.buffer.MessageBuffer";
-                else
-                    bufferClsName = "org.msgpack.core.buffer.MessageBufferBE";
-            }
-            else {
-                bufferClsName = "org.msgpack.core.buffer.MessageBufferU";
-            }
-
-            Class<?> bufferCls = Class.forName(bufferClsName);
-            msgBufferClass = bufferCls;
-
-            Constructor<?> mbArrCstr = bufferCls.getDeclaredConstructor(byte[].class);
-            mbArrCstr.setAccessible(true);
-            mbArrConstructor = mbArrCstr;
-
-            Constructor<?> mbBBCstr = bufferCls.getDeclaredConstructor(ByteBuffer.class);
-            mbBBCstr.setAccessible(true);
-            mbBBConstructor = mbBBCstr;
-
-            // Requires Java7
-            //newMsgBuffer = MethodHandles.lookup().unreflectConstructor(mbArrCstr).asType(
-            //    MethodType.methodType(bufferCls, byte[].class)
-            //);
         }
         catch(Exception e) {
             e.printStackTrace(System.err);
