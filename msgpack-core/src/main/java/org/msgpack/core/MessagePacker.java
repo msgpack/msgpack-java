@@ -34,13 +34,13 @@ import static org.msgpack.core.Preconditions.*;
 
 /**
  * Writer of message packed data.
- *
+ * <p/>
  * <p>
  * MessagePacker provides packXXX methods for writing values in the message pack format.
  * To write raw string or binary data, first use packRawStringHeader or packBinaryHeader to specify the data length,
  * then call writePayload(...) method.
  * </p>
- *
+ * <p/>
  * <p>
  * MessagePacker class has no guarantee to produce the correct message-pack format data if it is not used correctly:
  * packXXX methods of primitive values always produce the correct format, but
@@ -48,7 +48,6 @@ import static org.msgpack.core.Preconditions.*;
  * packRawStringHeader(length) and packBinaryHeader(length) must be followed by writePayload( ... length) to supply
  * the binary data of the specified length in the header.
  * </p>
- *
  */
 public class MessagePacker implements Closeable {
 
@@ -61,9 +60,9 @@ public class MessagePacker implements Closeable {
     private int position;
 
     /**
-     * Total read byte size
+     * Total written byte size
      */
-    private long totalWrittenBytes;
+    private long flushedBytes;
 
     /**
      * String encoder
@@ -76,7 +75,6 @@ public class MessagePacker implements Closeable {
      *
      * @param out MessageBufferOutput. Use {@link org.msgpack.core.buffer.OutputStreamBufferOutput}, {@link org.msgpack.core.buffer.ChannelBufferOutput} or
      *            your own implementation of {@link org.msgpack.core.buffer.MessageBufferOutput} interface.
-     *
      */
     public MessagePacker(MessageBufferOutput out) {
         this(out, MessagePack.DEFAULT_CONFIG);
@@ -86,10 +84,12 @@ public class MessagePacker implements Closeable {
         this.config = checkNotNull(config, "config is null");
         this.out = checkNotNull(out, "MessageBufferOutput is null");
         this.position = 0;
+        this.flushedBytes = 0;
     }
 
     /**
      * Reset output. This method doesn't close the old resource.
+     *
      * @param out new output
      * @return the old resource
      */
@@ -101,12 +101,12 @@ public class MessagePacker implements Closeable {
         MessageBufferOutput old = this.out;
         this.out = newOut;
         this.position = 0;
-        this.totalWrittenBytes = 0;
+        this.flushedBytes = 0;
         return old;
     }
 
-    public long getTotalWritternBytes() {
-      return totalWrittenBytes;
+    public long getTotalWrittenBytes() {
+        return flushedBytes + position;
     }
 
     private void prepareEncoder() {
@@ -134,6 +134,7 @@ public class MessagePacker implements Closeable {
             out.flush(buffer.slice(0, position));
         }
         buffer = null;
+        flushedBytes += position;
         position = 0;
     }
 
@@ -147,13 +148,11 @@ public class MessagePacker implements Closeable {
     }
 
     private void ensureCapacity(int numBytesToWrite) throws IOException {
-        totalWrittenBytes += numBytesToWrite;
         if(buffer == null || position + numBytesToWrite >= buffer.size()) {
             flush();
             buffer = out.next(Math.max(config.getPackerBufferSize(), numBytesToWrite));
         }
     }
-
 
     private void writeByte(byte b) throws IOException {
         ensureCapacity(1);
@@ -234,7 +233,8 @@ public class MessagePacker implements Closeable {
     public MessagePacker packByte(byte b) throws IOException {
         if(b < -(1 << 5)) {
             writeByteAndByte(INT8, b);
-        } else {
+        }
+        else {
             writeByte(b);
         }
         return this;
@@ -244,12 +244,15 @@ public class MessagePacker implements Closeable {
         if(v < -(1 << 5)) {
             if(v < -(1 << 7)) {
                 writeByteAndShort(INT16, v);
-            } else {
+            }
+            else {
                 writeByteAndByte(INT8, (byte) v);
             }
-        } else if(v < (1 << 7)) {
+        }
+        else if(v < (1 << 7)) {
             writeByte((byte) v);
-        } else {
+        }
+        else {
             if(v < (1 << 8)) {
                 writeByteAndByte(UINT8, (byte) v);
             }
@@ -261,22 +264,28 @@ public class MessagePacker implements Closeable {
     }
 
     public MessagePacker packInt(int r) throws IOException {
-        if (r < -(1 << 5)) {
-            if (r < -(1 << 15)) {
+        if(r < -(1 << 5)) {
+            if(r < -(1 << 15)) {
                 writeByteAndInt(INT32, r);
-            } else if (r < -(1 << 7)) {
+            }
+            else if(r < -(1 << 7)) {
                 writeByteAndShort(INT16, (short) r);
-            } else {
+            }
+            else {
                 writeByteAndByte(INT8, (byte) r);
             }
-        } else if (r < (1 << 7)) {
+        }
+        else if(r < (1 << 7)) {
             writeByte((byte) r);
-        } else {
-            if (r < (1 << 8)) {
+        }
+        else {
+            if(r < (1 << 8)) {
                 writeByteAndByte(UINT8, (byte) r);
-            } else if (r < (1 << 16)) {
+            }
+            else if(r < (1 << 16)) {
                 writeByteAndShort(UINT16, (short) r);
-            } else {
+            }
+            else {
                 // unsigned 32
                 writeByteAndInt(UINT32, r);
             }
@@ -285,34 +294,42 @@ public class MessagePacker implements Closeable {
     }
 
     public MessagePacker packLong(long v) throws IOException {
-        if (v < -(1L << 5)) {
-            if (v < -(1L << 15)) {
-                if (v < -(1L << 31)) {
+        if(v < -(1L << 5)) {
+            if(v < -(1L << 15)) {
+                if(v < -(1L << 31)) {
                     writeByteAndLong(INT64, v);
-                } else {
+                }
+                else {
                     writeByteAndInt(INT32, (int) v);
                 }
-            } else {
-                if (v < -(1 << 7)) {
+            }
+            else {
+                if(v < -(1 << 7)) {
                     writeByteAndShort(INT16, (short) v);
-                } else {
+                }
+                else {
                     writeByteAndByte(INT8, (byte) v);
                 }
             }
-        } else if (v < (1 << 7)) {
+        }
+        else if(v < (1 << 7)) {
             // fixnum
             writeByte((byte) v);
-        } else {
-            if (v < (1L << 16)) {
-                if (v < (1 << 8)) {
+        }
+        else {
+            if(v < (1L << 16)) {
+                if(v < (1 << 8)) {
                     writeByteAndByte(UINT8, (byte) v);
-                } else {
+                }
+                else {
                     writeByteAndShort(UINT16, (short) v);
                 }
-            } else {
-                if (v < (1L << 32)) {
+            }
+            else {
+                if(v < (1L << 32)) {
                     writeByteAndInt(UINT32, (int) v);
-                } else {
+                }
+                else {
                     writeByteAndLong(UINT64, v);
                 }
             }
@@ -323,9 +340,11 @@ public class MessagePacker implements Closeable {
     public MessagePacker packBigInteger(BigInteger bi) throws IOException {
         if(bi.bitLength() <= 63) {
             packLong(bi.longValue());
-        } else if(bi.bitLength() == 64 && bi.signum() == 1) {
+        }
+        else if(bi.bitLength() == 64 && bi.signum() == 1) {
             writeByteAndLong(UINT64, bi.longValue());
-        } else {
+        }
+        else {
             throw new IllegalArgumentException("Messagepack cannot serialize BigInteger larger than 2^64-1");
         }
         return this;
@@ -361,23 +380,24 @@ public class MessagePacker implements Closeable {
 
         prepareBuffer();
         boolean isExtended = false;
-        ByteBuffer encodeBuffer = buffer.toByteBuffer(position, buffer.size()-position);
+        ByteBuffer encodeBuffer = buffer.toByteBuffer(position, buffer.size() - position);
         encoder.reset();
         while(in.hasRemaining()) {
             try {
-                int originalEncodeBuffer = encodeBuffer.position();
                 CoderResult cr = encoder.encode(in, encodeBuffer, true);
 
+                // Input data is insufficient
                 if(cr.isUnderflow()) {
                     cr = encoder.flush(encodeBuffer);
-                    totalWrittenBytes += encodeBuffer.position() - originalEncodeBuffer;
                 }
 
+                // encodeBuffer is too small
                 if(cr.isOverflow()) {
                     // Allocate a larger buffer
                     int estimatedRemainingSize = Math.max(1, (int) (in.remaining() * encoder.averageBytesPerChar()));
                     encodeBuffer.flip();
                     ByteBuffer newBuffer = ByteBuffer.allocate(Math.max((int) (encodeBuffer.capacity() * 1.5), encodeBuffer.remaining() + estimatedRemainingSize));
+                    // Coy the current encodeBuffer contents to the new buffer
                     newBuffer.put(encodeBuffer);
                     encodeBuffer = newBuffer;
                     isExtended = true;
@@ -387,11 +407,12 @@ public class MessagePacker implements Closeable {
 
                 if(cr.isError()) {
                     if((cr.isMalformed() && config.getActionOnMalFormedInput() == CodingErrorAction.REPORT) ||
-                            (cr.isUnmappable() && config.getActionOnUnmappableCharacter() == CodingErrorAction.REPORT)) {
+                        (cr.isUnmappable() && config.getActionOnUnmappableCharacter() == CodingErrorAction.REPORT)) {
                         cr.throwException();
                     }
                 }
-            } catch(CharacterCodingException e) {
+            }
+            catch(CharacterCodingException e) {
                 throw new MessageStringCodingException(e);
             }
         }
@@ -414,7 +435,7 @@ public class MessagePacker implements Closeable {
 
         // Reset to the original buffer (or encodeBuffer if new buffer is allocated)
         buffer = isExtended ? MessageBuffer.wrap(encodeBuffer) : tmpBuf;
-        // No need exists to write payload since the encoded string is already written to the buffer
+        // No need exists to write payload since the encoded string (payload) is already written to the buffer
         position = strLen;
         return this;
     }
@@ -425,9 +446,11 @@ public class MessagePacker implements Closeable {
 
         if(arraySize < (1 << 4)) {
             writeByte((byte) (FIXARRAY_PREFIX | arraySize));
-        } else if(arraySize < (1 << 16)) {
+        }
+        else if(arraySize < (1 << 16)) {
             writeByteAndShort(ARRAY16, (short) arraySize);
-        } else {
+        }
+        else {
             writeByteAndInt(ARRAY32, arraySize);
         }
         return this;
@@ -439,9 +462,11 @@ public class MessagePacker implements Closeable {
 
         if(mapSize < (1 << 4)) {
             writeByte((byte) (FIXMAP_PREFIX | mapSize));
-        } else if(mapSize < (1 << 16)) {
+        }
+        else if(mapSize < (1 << 16)) {
             writeByteAndShort(MAP16, (short) mapSize);
-        } else {
+        }
+        else {
             writeByteAndInt(MAP32, mapSize);
         }
         return this;
@@ -457,26 +482,34 @@ public class MessagePacker implements Closeable {
             if(payloadLen > 0 && (payloadLen & (payloadLen - 1)) == 0) { // check whether dataLen == 2^x
                 if(payloadLen == 1) {
                     writeByteAndByte(FIXEXT1, (byte) extType);
-                } else if(payloadLen == 2){
+                }
+                else if(payloadLen == 2) {
                     writeByteAndByte(FIXEXT2, (byte) extType);
-                } else if(payloadLen == 4) {
+                }
+                else if(payloadLen == 4) {
                     writeByteAndByte(FIXEXT4, (byte) extType);
-                } else if(payloadLen == 8) {
+                }
+                else if(payloadLen == 8) {
                     writeByteAndByte(FIXEXT8, (byte) extType);
-                } else if(payloadLen == 16) {
+                }
+                else if(payloadLen == 16) {
                     writeByteAndByte(FIXEXT16, (byte) extType);
-                } else {
+                }
+                else {
                     writeByteAndByte(EXT8, (byte) payloadLen);
                     writeByte((byte) extType);
-                }        	
-            } else {
+                }
+            }
+            else {
                 writeByteAndByte(EXT8, (byte) payloadLen);
                 writeByte((byte) extType);
             }
-        } else if(payloadLen < (1 << 16)) {
+        }
+        else if(payloadLen < (1 << 16)) {
             writeByteAndShort(EXT16, (short) payloadLen);
             writeByte((byte) extType);
-        } else {
+        }
+        else {
             writeByteAndInt(EXT32, payloadLen);
             writeByte((byte) extType);
 
@@ -488,9 +521,11 @@ public class MessagePacker implements Closeable {
     public MessagePacker packBinaryHeader(int len) throws IOException {
         if(len < (1 << 8)) {
             writeByteAndByte(BIN8, (byte) len);
-        } else if(len < (1 << 16)) {
+        }
+        else if(len < (1 << 16)) {
             writeByteAndShort(BIN16, (short) len);
-        } else {
+        }
+        else {
             writeByteAndInt(BIN32, len);
         }
         return this;
@@ -499,11 +534,14 @@ public class MessagePacker implements Closeable {
     public MessagePacker packRawStringHeader(int len) throws IOException {
         if(len < (1 << 5)) {
             writeByte((byte) (FIXSTR_PREFIX | len));
-        } else if(len < (1 << 8)) {
+        }
+        else if(len < (1 << 8)) {
             writeByteAndByte(STR8, (byte) len);
-        } else if(len < (1 << 16)) {
+        }
+        else if(len < (1 << 16)) {
             writeByteAndShort(STR16, (short) len);
-        } else {
+        }
+        else {
             writeByteAndInt(STR32, len);
         }
         return this;
@@ -511,7 +549,7 @@ public class MessagePacker implements Closeable {
 
 
     public MessagePacker writePayload(ByteBuffer src) throws IOException {
-        totalWrittenBytes += src.remaining();
+        flushedBytes += src.remaining();
         if(src.remaining() >= config.getPackerRawDataCopyingThreshold()) {
             // Use the source ByteBuffer directly to avoid memory copy
 
@@ -569,7 +607,6 @@ public class MessagePacker implements Closeable {
                 cursor += writeLen;
             }
         }
-        totalWrittenBytes += len;
         return this;
     }
 

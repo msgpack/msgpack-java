@@ -204,16 +204,15 @@ class MessagePackerTest extends MessagePackSpec {
   "compute totalWrittenBytes" in {
     val out = new ByteArrayOutputStream
     val packerTotalWrittenBytes = IOUtil.withResource(msgpack.newPacker(out)) { packer =>
-
-      packer.packByte(0)
-      .packBoolean(true)
-      .packShort(12)
-      .packInt(1024)
-      .packLong(Long.MaxValue)
-      .packString("foobar")
+      packer.packByte(0) // 1
+      .packBoolean(true) // 1
+      .packShort(12)     // 1
+      .packInt(1024)     // 3
+      .packLong(Long.MaxValue) // 5
+      .packString("foobar") // 7
       .flush()
 
-      packer.getTotalWritternBytes
+      packer.getTotalWrittenBytes
     }
 
     out.toByteArray.length shouldBe packerTotalWrittenBytes
