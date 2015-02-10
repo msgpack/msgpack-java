@@ -69,12 +69,7 @@ class DirectBufferAccess {
             if(byteBufferConstructor == null)
                 throw new RuntimeException("Constructor of DirectByteBuffer is not found");
             byteBufferConstructor.setAccessible(true);
-        }
-        catch(Exception e) {
 
-        }
-
-        try {
             mGetAddress = directByteBufferClass.getDeclaredMethod("address");
             mGetAddress.setAccessible(true);
 
@@ -84,7 +79,7 @@ class DirectBufferAccess {
             mClean = mCleaner.getReturnType().getDeclaredMethod("clean");
             mClean.setAccessible(true);
         }
-        catch(NoSuchMethodException e) {
+        catch(Exception e) {
             throw new RuntimeException(e);
         }
     }
