@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.security.AccessControlException;
 
 import static org.msgpack.core.Preconditions.*;
 
@@ -23,13 +24,9 @@ import static org.msgpack.core.Preconditions.*;
  */
 public class MessageBuffer {
 
+    static final boolean isUniversalBuffer;
     static final Unsafe unsafe;
     // TODO We should use MethodHandle for efficiency, but it is not available in JDK6
-    static final Constructor byteBufferConstructor;
-
-    static final Class<?> directByteBufferClass;
-    static final DirectBufferConstructorType directBufferConstructorType;
-    static final Method memoryBlockWrapFromJni;
     static final int ARRAY_BYTE_BASE_OFFSET;
     static final int ARRAY_BYTE_INDEX_SCALE;
 
@@ -37,7 +34,8 @@ public class MessageBuffer {
         ARGS_LONG_INT_REF,
         ARGS_LONG_INT,
         ARGS_INT_INT,
-        ARGS_MB_INT_INT
+        ARGS_MB_INT_INT,
+        NONE
     }
 
     static {
@@ -71,17 +69,17 @@ public class MessageBuffer {
             boolean isGAE = System.getProperty("com.google.appengine.runtime.version") != null;
 
             // For Java6, android and JVM that has no Unsafe class, use Universal MessageBuffer
-            boolean useUniversalBuffer =
+            isUniversalBuffer =
                 Boolean.parseBoolean(System.getProperty("msgpack.universal-buffer", "false"))
                     || isAndroid
                     || isGAE
                     || !isJavaAtLeast7
                     || !hasUnsafe;
 
-            // We need to use reflection to find MessageBuffer implementation classes abecause
+            // We need to use reflection to find MessageBuffer implementation classes because
             // importing these classes creates TypeProfile and adds some overhead to method calls.
             String bufferClsName;
-            if(useUniversalBuffer) {
+            if(isUniversalBuffer) {
                 bufferClsName = "org.msgpack.core.buffer.MessageBufferU";
                 unsafe = null;
                 ARRAY_BYTE_BASE_OFFSET = 16; // dummy value
@@ -129,42 +127,6 @@ public class MessageBuffer {
             //    MethodType.methodType(bufferCls, byte[].class)
             //);
 
-            // Find the hidden constructor for DirectByteBuffer
-            directByteBufferClass = ClassLoader.getSystemClassLoader().loadClass("java.nio.DirectByteBuffer");
-            Constructor directByteBufferConstructor = null;
-            DirectBufferConstructorType constructorType = null;
-            Method mbWrap = null;
-            try {
-                // TODO We should use MethodHandle for Java7, which can avoid the cost of boxing with JIT optimization
-                directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
-                constructorType = DirectBufferConstructorType.ARGS_LONG_INT_REF;
-            }
-            catch(NoSuchMethodException e0) {
-                try {
-                    // https://android.googlesource.com/platform/libcore/+/master/luni/src/main/java/java/nio/DirectByteBuffer.java
-                    // DirectByteBuffer(long address, int capacity)
-                    directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class);
-                    constructorType = DirectBufferConstructorType.ARGS_LONG_INT;
-                } catch (NoSuchMethodException e1) {
-                    try {
-                        directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(int.class, int.class);
-                        constructorType = DirectBufferConstructorType.ARGS_INT_INT;
-                    } catch (NoSuchMethodException e2) {
-                        Class<?> aClass = Class.forName("java.nio.MemoryBlock");
-                        mbWrap = aClass.getDeclaredMethod("wrapFromJni", int.class, long.class);
-                        mbWrap.setAccessible(true);
-                        directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(aClass, int.class, int.class);
-                        constructorType = DirectBufferConstructorType.ARGS_MB_INT_INT;
-                    }
-                }
-            }
-            byteBufferConstructor = directByteBufferConstructor;
-            directBufferConstructorType = constructorType;
-            memoryBlockWrapFromJni = mbWrap;
-            if(byteBufferConstructor == null)
-                throw new RuntimeException("Constructor of DirectByteBuffer is not found");
-
-            byteBufferConstructor.setAccessible(true);
         }
         catch(Exception e) {
             e.printStackTrace(System.err);
@@ -180,8 +142,61 @@ public class MessageBuffer {
         static Method mCleaner;
         static Method mClean;
 
+        static Constructor byteBufferConstructor;
+
+        static Class<?> directByteBufferClass;
+        static DirectBufferConstructorType directBufferConstructorType;
+        static Method memoryBlockWrapFromJni;
+
         static {
             try {
+                if(!isUniversalBuffer) {
+                    try {
+                        // Find the hidden constructor for DirectByteBuffer
+                        directByteBufferClass = ClassLoader.getSystemClassLoader().loadClass("java.nio.DirectByteBuffer");
+                        Constructor directByteBufferConstructor = null;
+                        DirectBufferConstructorType constructorType = null;
+                        Method mbWrap = null;
+                        try {
+                            // TODO We should use MethodHandle for Java7, which can avoid the cost of boxing with JIT optimization
+                            directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
+                            constructorType = DirectBufferConstructorType.ARGS_LONG_INT_REF;
+                        }
+                        catch(NoSuchMethodException e0) {
+                            try {
+                                // https://android.googlesource.com/platform/libcore/+/master/luni/src/main/java/java/nio/DirectByteBuffer.java
+                                // DirectByteBuffer(long address, int capacity)
+                                directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class);
+                                constructorType = DirectBufferConstructorType.ARGS_LONG_INT;
+                            }
+                            catch(NoSuchMethodException e1) {
+                                try {
+                                    directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(int.class, int.class);
+                                    constructorType = DirectBufferConstructorType.ARGS_INT_INT;
+                                }
+                                catch(NoSuchMethodException e2) {
+                                    Class<?> aClass = Class.forName("java.nio.MemoryBlock");
+                                    mbWrap = aClass.getDeclaredMethod("wrapFromJni", int.class, long.class);
+                                    mbWrap.setAccessible(true);
+                                    directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(aClass, int.class, int.class);
+                                    constructorType = DirectBufferConstructorType.ARGS_MB_INT_INT;
+                                }
+                            }
+                        }
+
+                        byteBufferConstructor = directByteBufferConstructor;
+                        directBufferConstructorType = constructorType;
+                        memoryBlockWrapFromJni = mbWrap;
+
+                        if(byteBufferConstructor == null)
+                            throw new RuntimeException("Constructor of DirectByteBuffer is not found");
+                        byteBufferConstructor.setAccessible(true);
+                    }
+                    catch(Exception e) {
+                        directBufferConstructorType = DirectBufferConstructorType.NONE;
+                    }
+                }
+
                 mGetAddress = directByteBufferClass.getDeclaredMethod("address");
                 mGetAddress.setAccessible(true);
 
@@ -214,6 +229,33 @@ public class MessageBuffer {
                 mClean.invoke(cleaner);
             }
             catch(Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        static boolean isDirectByteBufferInstance(Object s) {
+            return directByteBufferClass.isInstance(s);
+        }
+
+        static ByteBuffer newByteBuffer(long address, int index, int length, ByteBuffer reference) {
+            try {
+                switch(directBufferConstructorType) {
+                    case ARGS_LONG_INT_REF:
+                        return (ByteBuffer) byteBufferConstructor.newInstance(address + index, length, reference);
+                    case ARGS_LONG_INT:
+                        return (ByteBuffer) byteBufferConstructor.newInstance(address + index, length);
+                    case ARGS_INT_INT:
+                        return (ByteBuffer) byteBufferConstructor.newInstance((int) address + index, length);
+                    case ARGS_MB_INT_INT:
+                        return (ByteBuffer) byteBufferConstructor.newInstance(
+                            memoryBlockWrapFromJni.invoke(null, address + index, length),
+                            length, 0);
+                    default:
+                        throw new IllegalStateException("Unexpected value");
+                }
+            }
+            catch(Throwable e) {
+                // Convert checked exception to unchecked exception
                 throw new RuntimeException(e);
             }
         }
@@ -259,8 +301,13 @@ public class MessageBuffer {
 
     static MessageBuffer newOffHeapBuffer(int length) {
         // This method is not available in Android OS
-        long address = unsafe.allocateMemory(length);
-        return new MessageBuffer(address, length);
+        if(!isUniversalBuffer) {
+            long address = unsafe.allocateMemory(length);
+            return new MessageBuffer(address, length);
+        }
+        else {
+            return newDirectBuffer(length);
+        }
     }
 
     public static MessageBuffer newDirectBuffer(int length) {
@@ -318,7 +365,7 @@ public class MessageBuffer {
         if(buffer.base instanceof byte[]) {
             // We have nothing to do. Wait until the garbage-collector collects this array object
         }
-        else if(directByteBufferClass.isInstance(buffer.base)) {
+        else if(DirectBufferAccess.isDirectByteBufferInstance(buffer.base)) {
             DirectBufferAccess.clean(buffer.base);
         }
         else {
@@ -530,31 +577,8 @@ public class MessageBuffer {
         if(hasArray()) {
             return ByteBuffer.wrap((byte[]) base, (int) ((address - ARRAY_BYTE_BASE_OFFSET) + index), length);
         }
-        try {
-            ByteBuffer bb = null;
-            switch (directBufferConstructorType) {
-                case ARGS_LONG_INT_REF:
-                    bb = (ByteBuffer) byteBufferConstructor.newInstance(address + index, length, reference);
-                    break;
-                case ARGS_LONG_INT:
-                    bb = (ByteBuffer) byteBufferConstructor.newInstance(address + index, length);
-                    break;
-                case ARGS_INT_INT:
-                    bb = (ByteBuffer) byteBufferConstructor.newInstance((int)address + index, length);
-                    break;
-                case ARGS_MB_INT_INT:
-                    bb = (ByteBuffer) byteBufferConstructor.newInstance(
-                            memoryBlockWrapFromJni.invoke(null, address + index, length),
-                            length, 0);
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected value");
-            }
-            return bb;
-        }
-        catch(Throwable e) {
-            // Convert checked exception to unchecked exception
-            throw new RuntimeException(e);
+        else {
+            return DirectBufferAccess.newByteBuffer(address, index, length, reference);
         }
     }
 
