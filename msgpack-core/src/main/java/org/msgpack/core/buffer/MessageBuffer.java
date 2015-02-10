@@ -406,6 +406,7 @@ public class MessageBuffer {
 
     public void putByteBuffer(int index, ByteBuffer src, int len) {
         assert (len <= src.remaining());
+        assert (!isUniversalBuffer);
 
         if(src.isDirect()) {
             unsafe.copyMemory(null, DirectBufferAccess.getAddress(src) + src.position(), base, address + index, len);
@@ -439,6 +440,7 @@ public class MessageBuffer {
             return ByteBuffer.wrap((byte[]) base, (int) ((address - ARRAY_BYTE_BASE_OFFSET) + index), length);
         }
         else {
+            assert (!isUniversalBuffer);
             return DirectBufferAccess.newByteBuffer(address, index, length, reference);
         }
     }
