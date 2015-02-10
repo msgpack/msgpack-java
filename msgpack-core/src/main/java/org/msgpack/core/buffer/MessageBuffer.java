@@ -59,23 +59,26 @@ public class MessageBuffer {
 
             boolean hasUnsafe = false;
             try {
-                Class.forName("sun.misc.Unsafe");
-                hasUnsafe = true;
+                hasUnsafe = Class.forName("sun.misc.Unsafe") != null;
             }
-            catch(ClassNotFoundException e) {
+            catch(Exception e) {
             }
 
             // Detect android VM
             boolean isAndroid = System.getProperty("java.runtime.name", "").toLowerCase().contains("android");
 
+            // Is Google App Engine?
+            boolean isGAE = System.getProperty("com.google.appengine.runtime.version") != null;
+
             // For Java6, android and JVM that has no Unsafe class, use Universal MessageBuffer
             boolean useUniversalBuffer =
                 Boolean.parseBoolean(System.getProperty("msgpack.universal-buffer", "false"))
                     || isAndroid
+                    || isGAE
                     || !isJavaAtLeast7
                     || !hasUnsafe;
 
-            // We need to use reflection to find MessageBuffer implementation classes because
+            // We need to use reflection to find MessageBuffer implementation classes abecause
             // importing these classes creates TypeProfile and adds some overhead to method calls.
             String bufferClsName;
             if(useUniversalBuffer) {
