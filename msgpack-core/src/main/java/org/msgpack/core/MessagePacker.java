@@ -549,8 +549,8 @@ public class MessagePacker implements Closeable {
 
 
     public MessagePacker writePayload(ByteBuffer src) throws IOException {
-        flushedBytes += src.remaining();
-        if(src.remaining() >= config.getPackerRawDataCopyingThreshold()) {
+        int len = src.remaining();
+        if(len >= config.getPackerRawDataCopyingThreshold()) {
             // Use the source ByteBuffer directly to avoid memory copy
 
             // First, flush the current buffer contents
@@ -561,6 +561,7 @@ public class MessagePacker implements Closeable {
             // Then, dump the source data to the output
             out.flush(wrapped);
             src.position(src.limit());
+            flushedBytes += len;
         }
         else {
             // If the input source is small, simply copy the contents to the buffer
@@ -593,6 +594,7 @@ public class MessagePacker implements Closeable {
             MessageBuffer wrapped = MessageBuffer.wrap(src).slice(off, len);
             // Dump the source data to the output
             out.flush(wrapped);
+            flushedBytes += len;
         }
         else {
             int cursor = 0;
