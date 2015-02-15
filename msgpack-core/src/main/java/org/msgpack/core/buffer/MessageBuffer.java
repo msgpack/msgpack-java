@@ -5,10 +5,9 @@ import sun.misc.Unsafe;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import static org.msgpack.core.Preconditions.*;
 
@@ -22,33 +21,34 @@ import static org.msgpack.core.Preconditions.*;
  */
 public class MessageBuffer {
 
+    static final boolean isUniversalBuffer;
     static final Unsafe unsafe;
-    // TODO We should use MethodHandle for efficiency, but it is not available in JDK6
-    static final Constructor byteBufferConstructor;
+    /**
+     * Reference to MessageBuffer Constructors
+     */
+    private final static Constructor<?> mbArrConstructor;
+    private final static Constructor<?> mbBBConstructor;
 
-    static final Class<?> directByteBufferClass;
-    static final DirectBufferConstructorType directBufferConstructorType;
-    static final Method memoryBlockWrapFromJni;
+    /**
+     * The offset from the object memory header to its byte array data
+     */
     static final int ARRAY_BYTE_BASE_OFFSET;
-    static final int ARRAY_BYTE_INDEX_SCALE;
-
-    enum DirectBufferConstructorType {
-        ARGS_LONG_INT_REF,
-        ARGS_LONG_INT,
-        ARGS_INT_INT,
-        ARGS_MB_INT_INT
-    }
 
     static {
+        boolean useUniversalBuffer = false;
+        Unsafe unsafeInstance = null;
+        int arrayByteBaseOffset = 16;
+
+        final String UNIVERSAL_MESSAGE_BUFFER = "org.msgpack.core.buffer.MessageBufferU";
+        final String BIGENDIAN_MESSAGE_BUFFER = "org.msgpack.core.buffer.MessageBufferBE";
+        final String DEFAULT_MESSAGE_BUFFER = "org.msgpack.core.buffer.MessageBuffer";
+
         try {
             // Check java version
             String javaVersion = System.getProperty("java.specification.version", "");
             int dotPos = javaVersion.indexOf('.');
             boolean isJavaAtLeast7 = false;
-            if(dotPos == -1) {
-                isJavaAtLeast7 = false;
-            }
-            else {
+            if(dotPos != -1) {
                 try {
                     int major = Integer.parseInt(javaVersion.substring(0, dotPos));
                     int minor = Integer.parseInt(javaVersion.substring(dotPos + 1));
@@ -59,180 +59,89 @@ public class MessageBuffer {
                 }
             }
 
+            boolean hasUnsafe = false;
+            try {
+                hasUnsafe = Class.forName("sun.misc.Unsafe") != null;
+            }
+            catch(Exception e) {
+            }
+
             // Detect android VM
             boolean isAndroid = System.getProperty("java.runtime.name", "").toLowerCase().contains("android");
-            // Fetch theUnsafe object for Orackle JDK and OpenJDK
-            Unsafe u;
-            if(!isAndroid) {
-                // Fetch theUnsafe object for Oracle JDK and OpenJDK
+
+            // Is Google App Engine?
+            boolean isGAE = System.getProperty("com.google.appengine.runtime.version") != null;
+
+            // For Java6, android and JVM that has no Unsafe class, use Universal MessageBuffer
+            useUniversalBuffer =
+                Boolean.parseBoolean(System.getProperty("msgpack.universal-buffer", "false"))
+                    || isAndroid
+                    || isGAE
+                    || !isJavaAtLeast7
+                    || !hasUnsafe;
+
+            if(!useUniversalBuffer) {
+                // Fetch theUnsafe object for Oracle and OpenJDK
                 Field field = Unsafe.class.getDeclaredField("theUnsafe");
                 field.setAccessible(true);
-                unsafe = (Unsafe) field.get(null);
-            }
-            else {
-                // Workaround for creating an Unsafe instance for Android OS
-                Constructor<Unsafe> unsafeConstructor = Unsafe.class.getDeclaredConstructor();
-                unsafeConstructor.setAccessible(true);
-                unsafe = unsafeConstructor.newInstance();
-            }
-            if(unsafe == null) {
-                throw new RuntimeException("Unsafe is unavailable");
-            }
+                unsafeInstance = (Unsafe) field.get(null);
+                if(unsafeInstance == null) {
+                    throw new RuntimeException("Unsafe is unavailable");
+                }
+                arrayByteBaseOffset = unsafeInstance.arrayBaseOffset(byte[].class);
+                int arrayByteIndexScale = unsafeInstance.arrayIndexScale(byte[].class);
 
-            ARRAY_BYTE_BASE_OFFSET = unsafe.arrayBaseOffset(byte[].class);
-            ARRAY_BYTE_INDEX_SCALE = unsafe.arrayIndexScale(byte[].class);
-
-            // Make sure the VM thinks bytes are only one byte wide
-            if(ARRAY_BYTE_INDEX_SCALE != 1) {
-                throw new IllegalStateException("Byte array index scale must be 1, but is " + ARRAY_BYTE_INDEX_SCALE);
-            }
-
-            // Find the hidden constructor for DirectByteBuffer
-            directByteBufferClass = ClassLoader.getSystemClassLoader().loadClass("java.nio.DirectByteBuffer");
-            Constructor directByteBufferConstructor = null;
-            DirectBufferConstructorType constructorType = null;
-            Method mbWrap = null;
-            try {
-                // TODO We should use MethodHandle for Java7, which can avoid the cost of boxing with JIT optimization
-                directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
-                constructorType = DirectBufferConstructorType.ARGS_LONG_INT_REF;
-            }
-            catch(NoSuchMethodException e0) {
-                try {
-                    // https://android.googlesource.com/platform/libcore/+/master/luni/src/main/java/java/nio/DirectByteBuffer.java
-                    // DirectByteBuffer(long address, int capacity)
-                    directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class);
-                    constructorType = DirectBufferConstructorType.ARGS_LONG_INT;
-                } catch (NoSuchMethodException e1) {
-                    try {
-                        directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(int.class, int.class);
-                        constructorType = DirectBufferConstructorType.ARGS_INT_INT;
-                    } catch (NoSuchMethodException e2) {
-                        Class<?> aClass = Class.forName("java.nio.MemoryBlock");
-                        mbWrap = aClass.getDeclaredMethod("wrapFromJni", int.class, long.class);
-                        mbWrap.setAccessible(true);
-                        directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(aClass, int.class, int.class);
-                        constructorType = DirectBufferConstructorType.ARGS_MB_INT_INT;
-                    }
+                // Make sure the VM thinks bytes are only one byte wide
+                if(arrayByteIndexScale != 1) {
+                    throw new IllegalStateException("Byte array index scale must be 1, but is " + arrayByteIndexScale);
                 }
             }
-            byteBufferConstructor = directByteBufferConstructor;
-            directBufferConstructorType = constructorType;
-            memoryBlockWrapFromJni = mbWrap;
-            if(byteBufferConstructor == null)
-                throw new RuntimeException("Constructor of DirectByteBuffer is not found");
-
-            byteBufferConstructor.setAccessible(true);
-
-            // Check the endian of this CPU
-            boolean isLittleEndian = true;
-            byte[] a = new byte[8];
-            // use Unsafe.putLong to an array since Unsafe.getByte is not available in Android
-            unsafe.putLong(a, (long) ARRAY_BYTE_BASE_OFFSET, 0x0102030405060708L);
-            switch(a[0]) {
-                case 0x01:
-                    isLittleEndian = false;
-                    break;
-                case 0x08:
-                    isLittleEndian = true;
-                    break;
-                default:
-                    assert false;
-            }
-
-            // We need to use reflection to find MessageBuffer implementation classes because
-            // importing these classes creates TypeProfile and adds some overhead to method calls.
-            String bufferClsName;
-            boolean useUniversalBuffer = Boolean.parseBoolean(System.getProperty("msgpack.universal-buffer", "false"));
-            if(!useUniversalBuffer && !isAndroid && isJavaAtLeast7) {
-                if(isLittleEndian)
-                    bufferClsName = "org.msgpack.core.buffer.MessageBuffer";
-                else
-                    bufferClsName = "org.msgpack.core.buffer.MessageBufferBE";
-            }
-            else {
-                bufferClsName = "org.msgpack.core.buffer.MessageBufferU";
-            }
-
-            Class<?> bufferCls = Class.forName(bufferClsName);
-            msgBufferClass = bufferCls;
-
-            Constructor<?> mbArrCstr = bufferCls.getDeclaredConstructor(byte[].class);
-            mbArrCstr.setAccessible(true);
-            mbArrConstructor = mbArrCstr;
-
-            Constructor<?> mbBBCstr = bufferCls.getDeclaredConstructor(ByteBuffer.class);
-            mbBBCstr.setAccessible(true);
-            mbBBConstructor = mbBBCstr;
-
-            // Requires Java7
-            //newMsgBuffer = MethodHandles.lookup().unreflectConstructor(mbArrCstr).asType(
-            //    MethodType.methodType(bufferCls, byte[].class)
-            //);
         }
         catch(Exception e) {
             e.printStackTrace(System.err);
-            throw new RuntimeException(e);
+            // Use MessageBufferU
+            useUniversalBuffer = true;
         }
-    }
+        finally {
+            // Initialize the static fields
+            unsafe = unsafeInstance;
+            ARRAY_BYTE_BASE_OFFSET = arrayByteBaseOffset;
 
-    /**
-     * Wraps the difference of access methods to DirectBuffers between Android and others.
-     */
-    private static class DirectBufferAccess {
-        static Method mGetAddress;
-        static Method mCleaner;
-        static Method mClean;
+            // Switch MessageBuffer implementation according to the environment
+            isUniversalBuffer = useUniversalBuffer;
+            String bufferClsName;
+            if(isUniversalBuffer) {
+                bufferClsName = UNIVERSAL_MESSAGE_BUFFER;
+            }
+            else {
+                // Check the endian of this CPU
+                boolean isLittleEndian = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
+                bufferClsName = isLittleEndian ? DEFAULT_MESSAGE_BUFFER : BIGENDIAN_MESSAGE_BUFFER;
+            }
 
-        static {
             try {
-                mGetAddress = directByteBufferClass.getDeclaredMethod("address");
-                mGetAddress.setAccessible(true);
+                // We need to use reflection here to find MessageBuffer implementation classes because
+                // importing these classes creates TypeProfile and adds some overhead to method calls.
 
-                mCleaner = directByteBufferClass.getDeclaredMethod("cleaner");
-                mCleaner.setAccessible(true);
+                // MessageBufferX (default, BE or U) class
+                Class<?> bufferCls = Class.forName(bufferClsName);
 
-                mClean = mCleaner.getReturnType().getDeclaredMethod("clean");
-                mClean.setAccessible(true);
-            }
-            catch(NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            }
-        }
+                // MessageBufferX(byte[]) constructor
+                Constructor<?> mbArrCstr = bufferCls.getDeclaredConstructor(byte[].class);
+                mbArrCstr.setAccessible(true);
+                mbArrConstructor = mbArrCstr;
 
-        static long getAddress(Object base) {
-            try {
-                return (Long) mGetAddress.invoke(base);
+                // MessageBufferX(ByteBuffer) constructor
+                Constructor<?> mbBBCstr = bufferCls.getDeclaredConstructor(ByteBuffer.class);
+                mbBBCstr.setAccessible(true);
+                mbBBConstructor = mbBBCstr;
             }
-            catch(IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-            catch(InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        static void clean(Object base) {
-            try {
-                Object cleaner = mCleaner.invoke(base);
-                mClean.invoke(cleaner);
-            }
-            catch(Throwable e) {
-                throw new RuntimeException(e);
+            catch(Exception e){
+                e.printStackTrace(System.err);
+                throw new RuntimeException(e); // No more fallback exists if MessageBuffer constructors are inaccessible
             }
         }
     }
-
-    /**
-     * MessageBuffer class to use. If this machine is big-endian, it uses MessageBufferBE, which overrides some methods in this class that translate endians. If not, uses MessageBuffer.
-     */
-    private final static Class<?> msgBufferClass;
-
-    private final static Constructor<?> mbArrConstructor;
-    private final static Constructor<?> mbBBConstructor;
-
-    // Requires Java7
-    //private final static MethodHandle newMsgBuffer;
 
     /**
      * Base object for resolving the relative address of the raw byte array.
@@ -257,14 +166,15 @@ public class MessageBuffer {
      */
     protected final ByteBuffer reference;
 
-    // TODO life-time management of this buffer
-    //private AtomicInteger referenceCounter;
-
-
     static MessageBuffer newOffHeapBuffer(int length) {
         // This method is not available in Android OS
-        long address = unsafe.allocateMemory(length);
-        return new MessageBuffer(address, length);
+        if(!isUniversalBuffer) {
+            long address = unsafe.allocateMemory(length);
+            return new MessageBuffer(address, length);
+        }
+        else {
+            return newDirectBuffer(length);
+        }
     }
 
     public static MessageBuffer newDirectBuffer(int length) {
@@ -319,10 +229,10 @@ public class MessageBuffer {
     }
 
     public static void releaseBuffer(MessageBuffer buffer) {
-        if(buffer.base instanceof byte[]) {
+        if(isUniversalBuffer || buffer.base instanceof byte[]) {
             // We have nothing to do. Wait until the garbage-collector collects this array object
         }
-        else if(directByteBufferClass.isInstance(buffer.base)) {
+        else if(DirectBufferAccess.isDirectByteBufferInstance(buffer.base)) {
             DirectBufferAccess.clean(buffer.base);
         }
         else {
@@ -351,6 +261,9 @@ public class MessageBuffer {
      */
     MessageBuffer(ByteBuffer bb) {
         if(bb.isDirect()) {
+            if(isUniversalBuffer) {
+                throw new IllegalStateException("Cannot create MessageBuffer from DirectBuffer");
+            }
             // Direct buffer or off-heap memory
             this.base = null;
             this.address = DirectBufferAccess.getAddress(bb);
@@ -502,6 +415,7 @@ public class MessageBuffer {
 
     public void putByteBuffer(int index, ByteBuffer src, int len) {
         assert (len <= src.remaining());
+        assert (!isUniversalBuffer);
 
         if(src.isDirect()) {
             unsafe.copyMemory(null, DirectBufferAccess.getAddress(src) + src.position(), base, address + index, len);
@@ -534,31 +448,9 @@ public class MessageBuffer {
         if(hasArray()) {
             return ByteBuffer.wrap((byte[]) base, (int) ((address - ARRAY_BYTE_BASE_OFFSET) + index), length);
         }
-        try {
-            ByteBuffer bb = null;
-            switch (directBufferConstructorType) {
-                case ARGS_LONG_INT_REF:
-                    bb = (ByteBuffer) byteBufferConstructor.newInstance(address + index, length, reference);
-                    break;
-                case ARGS_LONG_INT:
-                    bb = (ByteBuffer) byteBufferConstructor.newInstance(address + index, length);
-                    break;
-                case ARGS_INT_INT:
-                    bb = (ByteBuffer) byteBufferConstructor.newInstance((int)address + index, length);
-                    break;
-                case ARGS_MB_INT_INT:
-                    bb = (ByteBuffer) byteBufferConstructor.newInstance(
-                            memoryBlockWrapFromJni.invoke(null, address + index, length),
-                            length, 0);
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected value");
-            }
-            return bb;
-        }
-        catch(Throwable e) {
-            // Convert checked exception to unchecked exception
-            throw new RuntimeException(e);
+        else {
+            assert (!isUniversalBuffer);
+            return DirectBufferAccess.newByteBuffer(address, index, length, reference);
         }
     }
 
