@@ -23,11 +23,26 @@ public class MessageBuffer {
 
     static final boolean isUniversalBuffer;
     static final Unsafe unsafe;
+    /**
+     * Reference to MessageBuffer Constructors
+     */
+    private final static Constructor<?> mbArrConstructor;
+    private final static Constructor<?> mbBBConstructor;
 
+    /**
+     * The offset from the object memory header to its byte array data
+     */
     static final int ARRAY_BYTE_BASE_OFFSET;
-    static final int ARRAY_BYTE_INDEX_SCALE;
 
     static {
+        boolean useUniversalBuffer = false;
+        Unsafe unsafeInstance = null;
+        int arrayByteBaseOffset = 16;
+
+        final String UNIVERSAL_MESSAGE_BUFFER = "org.msgpack.core.buffer.MessageBufferU";
+        final String BIGENDIAN_MESSAGE_BUFFER = "org.msgpack.core.buffer.MessageBufferBE";
+        final String DEFAULT_MESSAGE_BUFFER = "org.msgpack.core.buffer.MessageBuffer";
+
         try {
             // Check java version
             String javaVersion = System.getProperty("java.specification.version", "");
@@ -58,80 +73,75 @@ public class MessageBuffer {
             boolean isGAE = System.getProperty("com.google.appengine.runtime.version") != null;
 
             // For Java6, android and JVM that has no Unsafe class, use Universal MessageBuffer
-            isUniversalBuffer =
+            useUniversalBuffer =
                 Boolean.parseBoolean(System.getProperty("msgpack.universal-buffer", "false"))
                     || isAndroid
                     || isGAE
                     || !isJavaAtLeast7
                     || !hasUnsafe;
 
-            // We need to use reflection to find MessageBuffer implementation classes because
-            // importing these classes creates TypeProfile and adds some overhead to method calls.
+            if(!useUniversalBuffer) {
+                // Fetch theUnsafe object for Oracle and OpenJDK
+                Field field = Unsafe.class.getDeclaredField("theUnsafe");
+                field.setAccessible(true);
+                unsafeInstance = (Unsafe) field.get(null);
+                if(unsafeInstance == null) {
+                    throw new RuntimeException("Unsafe is unavailable");
+                }
+                arrayByteBaseOffset = unsafeInstance.arrayBaseOffset(byte[].class);
+                int arrayByteIndexScale = unsafeInstance.arrayIndexScale(byte[].class);
+
+                // Make sure the VM thinks bytes are only one byte wide
+                if(arrayByteIndexScale != 1) {
+                    throw new IllegalStateException("Byte array index scale must be 1, but is " + arrayByteIndexScale);
+                }
+            }
+        }
+        catch(Exception e) {
+            e.printStackTrace(System.err);
+            // Use MessageBufferU
+            useUniversalBuffer = true;
+        }
+        finally {
+            // Initialize the static fields
+            unsafe = unsafeInstance;
+            ARRAY_BYTE_BASE_OFFSET = arrayByteBaseOffset;
+
+            // Switch MessageBuffer implementation according to the environment
+            isUniversalBuffer = useUniversalBuffer;
             String bufferClsName;
             if(isUniversalBuffer) {
-                bufferClsName = "org.msgpack.core.buffer.MessageBufferU";
-                unsafe = null;
-                ARRAY_BYTE_BASE_OFFSET = 16; // dummy value
-                ARRAY_BYTE_INDEX_SCALE = 1;
+                bufferClsName = UNIVERSAL_MESSAGE_BUFFER;
             }
             else {
                 // Check the endian of this CPU
                 boolean isLittleEndian = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
-                if(isLittleEndian) {
-                    bufferClsName = "org.msgpack.core.buffer.MessageBuffer";
-                }
-                else {
-                    bufferClsName = "org.msgpack.core.buffer.MessageBufferBE";
-                }
-
-                // Fetch theUnsafe object for Oracle and OpenJDK
-                Field field = Unsafe.class.getDeclaredField("theUnsafe");
-                field.setAccessible(true);
-                unsafe = (Unsafe) field.get(null);
-                if(unsafe == null) {
-                    throw new RuntimeException("Unsafe is unavailable");
-                }
-                ARRAY_BYTE_BASE_OFFSET = unsafe.arrayBaseOffset(byte[].class);
-                ARRAY_BYTE_INDEX_SCALE = unsafe.arrayIndexScale(byte[].class);
-
-                // Make sure the VM thinks bytes are only one byte wide
-                if(ARRAY_BYTE_INDEX_SCALE != 1) {
-                    throw new IllegalStateException("Byte array index scale must be 1, but is " + ARRAY_BYTE_INDEX_SCALE);
-                }
+                bufferClsName = isLittleEndian ? DEFAULT_MESSAGE_BUFFER : BIGENDIAN_MESSAGE_BUFFER;
             }
-            Class<?> bufferCls = Class.forName(bufferClsName);
-            msgBufferClass = bufferCls;
 
-            Constructor<?> mbArrCstr = bufferCls.getDeclaredConstructor(byte[].class);
-            mbArrCstr.setAccessible(true);
-            mbArrConstructor = mbArrCstr;
+            try {
+                // We need to use reflection here to find MessageBuffer implementation classes because
+                // importing these classes creates TypeProfile and adds some overhead to method calls.
 
-            Constructor<?> mbBBCstr = bufferCls.getDeclaredConstructor(ByteBuffer.class);
-            mbBBCstr.setAccessible(true);
-            mbBBConstructor = mbBBCstr;
+                // MessageBufferX (default, BE or U) class
+                Class<?> bufferCls = Class.forName(bufferClsName);
 
-            // Requires Java7
-            //newMsgBuffer = MethodHandles.lookup().unreflectConstructor(mbArrCstr).asType(
-            //    MethodType.methodType(bufferCls, byte[].class)
-            //);
+                // MessageBufferX(byte[]) constructor
+                Constructor<?> mbArrCstr = bufferCls.getDeclaredConstructor(byte[].class);
+                mbArrCstr.setAccessible(true);
+                mbArrConstructor = mbArrCstr;
 
-        }
-        catch(Exception e) {
-            e.printStackTrace(System.err);
-            throw new RuntimeException(e);
+                // MessageBufferX(ByteBuffer) constructor
+                Constructor<?> mbBBCstr = bufferCls.getDeclaredConstructor(ByteBuffer.class);
+                mbBBCstr.setAccessible(true);
+                mbBBConstructor = mbBBCstr;
+            }
+            catch(Exception e){
+                e.printStackTrace(System.err);
+                throw new RuntimeException(e); // No more fallback exists if MessageBuffer constructors are inaccessible
+            }
         }
     }
-
-    /**
-     * MessageBuffer class to use. If this machine is big-endian, it uses MessageBufferBE, which overrides some methods in this class that translate endians. If not, uses MessageBuffer.
-     */
-    private final static Class<?> msgBufferClass;
-
-    private final static Constructor<?> mbArrConstructor;
-    private final static Constructor<?> mbBBConstructor;
-
-    // Requires Java7
-    //private final static MethodHandle newMsgBuffer;
 
     /**
      * Base object for resolving the relative address of the raw byte array.
