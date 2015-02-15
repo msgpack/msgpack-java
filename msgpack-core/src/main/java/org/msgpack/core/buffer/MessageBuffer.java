@@ -85,7 +85,6 @@ public class MessageBuffer {
                 }
 
                 // Fetch theUnsafe object for Oracle and OpenJDK
-                Unsafe u;
                 Field field = Unsafe.class.getDeclaredField("theUnsafe");
                 field.setAccessible(true);
                 unsafe = (Unsafe) field.get(null);
