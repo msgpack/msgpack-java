@@ -1,5 +1,8 @@
 # Release Notes
 
+* 2015-02-16 0.7.0-p7
+ * Google App Engine (GAE) support
+
 * 2015-02-11 0.7.0-p6
  * Add MessagePacker.getTotalWrittenBytes()
 
