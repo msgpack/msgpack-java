@@ -13,9 +13,3 @@ branches:
     - /^v07.*$/
 
 script: sbt ++$TRAVIS_SCALA_VERSION test
-
-notifications:
-  email:
-    - ozawa.tsuyoshi@gmail.com
-    - leo@xerial.org
-    - komamitsu@gmail.com
