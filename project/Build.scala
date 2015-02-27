@@ -157,19 +157,21 @@ object Build extends Build {
 
   object Dependencies {
 
+    val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
+
     val testLib = Seq(
-      "org.scalatest" % "scalatest_2.11" % "2.2.0" % "test",
-      "org.scalacheck" % "scalacheck_2.11" % "1.11.4" % "test",
-      "org.xerial" % "xerial-core" % "3.3.0" % "test",
-      "org.msgpack" % "msgpack" % "0.6.9" % "test",
-      "com.novocode" % "junit-interface" % "0.10" % "test",
-      "commons-codec" % "commons-codec" % "1.9" % "test"
+      "org.scalatest" %% "scalatest" % "2.2.4" % "test",
+      "org.scalacheck" %% "scalacheck" % "1.12.2" % "test",
+      "org.xerial" % "xerial-core" % "3.3.5" % "test",
+      "org.msgpack" % "msgpack" % "0.6.11" % "test",
+      junitInterface,
+      "commons-codec" % "commons-codec" % "1.10" % "test"
     )
 
     val jacksonLib = Seq(
       "com.fasterxml.jackson.core" % "jackson-databind" % "2.4.4",
-      "com.novocode" % "junit-interface" % "0.10" % "test",
-      "org.apache.commons" % "commons-math3" % "3.3" % "test"
+      junitInterface,
+      "org.apache.commons" % "commons-math3" % "3.4.1" % "test"
     )
   }
 
