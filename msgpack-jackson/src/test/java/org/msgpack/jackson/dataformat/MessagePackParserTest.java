@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
+import org.msgpack.value.ExtendedValue;
 
 import java.io.*;
 import java.math.BigInteger;
@@ -15,13 +16,14 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
 public class MessagePackParserTest extends MessagePackDataformatTestBase {
     @Test
     public void testParserShouldReadObject() throws IOException {
         MessagePacker packer = new MessagePacker(new OutputStreamBufferOutput(out));
-        packer.packMapHeader(8);
+        packer.packMapHeader(9);
         // #1
         packer.packString("str");
         packer.packString("foobar");
@@ -58,6 +60,11 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         // #8
         packer.packString("bool");
         packer.packBoolean(false);
+        // #9
+        byte[] extPayload = {-80, -50, -25, -114, -25, 16, 60, 68};
+        packer.packString("ext");
+        packer.packExtendedTypeHeader(2, extPayload.length);
+        packer.writePayload(extPayload);
 
         packer.flush();
 
@@ -65,7 +72,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
 
         TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>(){};
         Map<String, Object> object = objectMapper.readValue(bytes, typeReference);
-        assertEquals(8, object.keySet().size());
+        assertEquals(9, object.keySet().size());
 
         int bitmap = 0;
         for (Map.Entry<String, Object> entry : object.entrySet()) {
@@ -128,14 +135,19 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
                 bitmap |= 1 << 9;
                 assertEquals(false, v);
             }
+            else if (k.equals("ext")) {
+                // #9
+                bitmap |= 1 << 10;
+                assertArrayEquals(extPayload, ((ExtendedValue) v).toByteArray());
+            }
         }
-        assertEquals(0x3FF, bitmap);
+        assertEquals(0x7FF, bitmap);
     }
 
     @Test
     public void testParserShouldReadArray() throws IOException {
         MessagePacker packer = new MessagePacker(new OutputStreamBufferOutput(out));
-        packer.packArrayHeader(10);
+        packer.packArrayHeader(11);
         // #1
         packer.packArrayHeader(3);
         {
@@ -171,6 +183,10 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         }
         // #10
         packer.packBoolean(true);
+        // #11
+        byte[] extPayload = {-80, -50, -25, -114, -25, 16, 60, 68};
+        packer.packExtendedTypeHeader(2, extPayload.length);
+        packer.writePayload(extPayload);
 
         packer.flush();
 
@@ -178,7 +194,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
 
         TypeReference<List<Object>> typeReference = new TypeReference<List<Object>>(){};
         List<Object> array = objectMapper.readValue(bytes, typeReference);
-        assertEquals(10, array.size());
+        assertEquals(11, array.size());
         int i = 0;
         // #1
         @SuppressWarnings("unchecked")
@@ -226,6 +242,8 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         }
         // #10
         assertEquals(true, array.get(i++));
+        // #11
+        assertArrayEquals(extPayload, ((ExtendedValue) array.get(i++)).toByteArray());
     }
 
     @Test

@@ -10,6 +10,7 @@ import org.msgpack.core.MessageUnpacker;
 import org.msgpack.core.buffer.ArrayBufferInput;
 import org.msgpack.core.buffer.InputStreamBufferInput;
 import org.msgpack.core.buffer.MessageBufferInput;
+import org.msgpack.value.ValueRef;
 import org.msgpack.value.NumberValue;
 import org.msgpack.value.ValueType;
 import org.msgpack.value.holder.ValueHolder;
@@ -160,7 +161,9 @@ public class MessagePackParser extends ParserMinimalBase {
                 newStack = new StackItemForObject(messageUnpacker.unpackMapHeader());
                 break;
             case EXTENDED:
-                throw new UnsupportedOperationException();
+                messageUnpacker.unpackValue(valueHolder);
+                nextToken = JsonToken.VALUE_EMBEDDED_OBJECT;
+                break;
             default:
                 throw new IllegalStateException("Shouldn't reach here");
         }
@@ -266,7 +269,15 @@ public class MessagePackParser extends ParserMinimalBase {
 
     @Override
     public Object getEmbeddedObject() throws IOException, JsonParseException {
-        return valueHolder.getRef().asBinary().toByteArray();
+        ValueRef ref = valueHolder.getRef();
+
+        if (ref.isBinary()) {
+          return ref.asBinary().toByteArray();
+        } else if (ref.isExtended()) {
+          return ref.asExtended().toValue();
+        } else {
+          throw new UnsupportedOperationException();
+        }
     }
 
     @Override
