@@ -11,6 +11,7 @@ import org.msgpack.value.ExtendedValue;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +64,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         // #9
         byte[] extPayload = {-80, -50, -25, -114, -25, 16, 60, 68};
         packer.packString("ext");
-        packer.packExtendedTypeHeader(2, extPayload.length);
+        packer.packExtendedTypeHeader(0, extPayload.length);
         packer.writePayload(extPayload);
 
         packer.flush();
@@ -138,7 +139,9 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
             else if (k.equals("ext")) {
                 // #9
                 bitmap |= 1 << 10;
-                assertArrayEquals(extPayload, ((ExtendedValue) v).toByteArray());
+                MessagePackExtendedType extendedType = (MessagePackExtendedType) v;
+                assertEquals(0, extendedType.extType());
+                assertEquals(ByteBuffer.wrap(extPayload), extendedType.byteBuffer());
             }
         }
         assertEquals(0x7FF, bitmap);
@@ -185,7 +188,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         packer.packBoolean(true);
         // #11
         byte[] extPayload = {-80, -50, -25, -114, -25, 16, 60, 68};
-        packer.packExtendedTypeHeader(2, extPayload.length);
+        packer.packExtendedTypeHeader(-1, extPayload.length);
         packer.writePayload(extPayload);
 
         packer.flush();
@@ -243,7 +246,9 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         // #10
         assertEquals(true, array.get(i++));
         // #11
-        assertArrayEquals(extPayload, ((ExtendedValue) array.get(i++)).toByteArray());
+        MessagePackExtendedType extendedType = (MessagePackExtendedType) array.get(i++);
+        assertEquals(-1, extendedType.extType());
+        assertEquals(ByteBuffer.wrap(extPayload), extendedType.byteBuffer());
     }
 
     @Test

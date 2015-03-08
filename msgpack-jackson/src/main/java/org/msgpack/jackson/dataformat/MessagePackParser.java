@@ -10,6 +10,7 @@ import org.msgpack.core.MessageUnpacker;
 import org.msgpack.core.buffer.ArrayBufferInput;
 import org.msgpack.core.buffer.InputStreamBufferInput;
 import org.msgpack.core.buffer.MessageBufferInput;
+import org.msgpack.value.ExtendedValue;
 import org.msgpack.value.ValueRef;
 import org.msgpack.value.NumberValue;
 import org.msgpack.value.ValueType;
@@ -272,11 +273,14 @@ public class MessagePackParser extends ParserMinimalBase {
         ValueRef ref = valueHolder.getRef();
 
         if (ref.isBinary()) {
-          return ref.asBinary().toByteArray();
+            return ref.asBinary().toByteArray();
         } else if (ref.isExtended()) {
-          return ref.asExtended().toValue();
+            ExtendedValue extendedValue = ref.asExtended().toValue();
+            MessagePackExtendedType extendedType =
+                    new MessagePackExtendedType(extendedValue.getExtType(), extendedValue.toByteBuffer());
+            return extendedType;
         } else {
-          throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException();
         }
     }
 
