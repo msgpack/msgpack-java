@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
+
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
@@ -17,6 +18,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.math.MathContext;
 
 public class MessagePackGenerator extends GeneratorBase {
     private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
@@ -169,8 +171,20 @@ public class MessagePackGenerator extends GeneratorBase {
             messagePacker.packBigInteger((BigInteger) v);
         }
         else if (v instanceof BigDecimal) {
-            // TODO
-            throw new UnsupportedOperationException("BigDecimal isn't supported yet");
+            BigDecimal decimal = (BigDecimal) v;
+            try {
+                //Check to see if this BigDecimal can be converted to BigInteger
+                BigInteger integer = decimal.toBigIntegerExact();
+                messagePacker.packBigInteger(integer);
+            } catch (ArithmeticException e){
+                //If not an integer, then try converting to double
+                double doubleValue = decimal.doubleValue();
+                //Check to make sure this BigDecimal can be represented as a double 
+                if (!new BigDecimal(doubleValue, MathContext.DECIMAL128).equals(decimal)) {
+                    throw new IllegalArgumentException("Messagepack cannot serialize a BigDecimal that can't be represented as double");
+                }
+                messagePacker.packDouble(doubleValue);
+            }
         }
         else if (v instanceof Boolean) {
             messagePacker.packBoolean((Boolean) v);

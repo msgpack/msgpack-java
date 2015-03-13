@@ -265,7 +265,24 @@ public class MessagePackParser extends ParserMinimalBase {
 
     @Override
     public BigDecimal getDecimalValue() throws IOException {
-        return null;
+        ValueRef ref = valueHolder.getRef();
+
+        if (ref.isInteger()) {
+            NumberValue number = ref.asNumber();
+            //optimization to not convert the value to BigInteger unnecessarily
+            if (number.isValidByte() || number.isValidShort() || number.isValidInt() || number.isValidLong()) {
+                return BigDecimal.valueOf(number.asInt());
+            }
+            else {
+                return new BigDecimal(number.asBigInteger());
+            }
+        }
+
+        if (ref.isFloat()) { 
+            return BigDecimal.valueOf(ref.asFloat().toDouble());
+        }
+
+        throw new UnsupportedOperationException("couldn't parse value as BigDecimal");
     }
 
     @Override
