@@ -19,6 +19,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 
 public class MessagePackParserTest extends MessagePackDataformatTestBase {
     @Test
@@ -309,13 +310,8 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         assertEquals(-1, parser.getCurrentLocation().getLineNr());
         assertEquals(16, parser.getCurrentLocation().getColumnNr());
 
-        try {
-            parser.nextToken();
-            assertTrue(false);
-        }
-        catch (EOFException e) {
-            // Expected
-        }
+        assertNull(parser.nextToken());
+
         parser.close();
         parser.close(); // Intentional
     }

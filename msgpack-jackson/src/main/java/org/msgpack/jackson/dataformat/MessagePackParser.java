@@ -118,6 +118,10 @@ public class MessagePackParser extends ParserMinimalBase {
             }
         }
 
+        if (!messageUnpacker.hasNext()) {
+            return null;
+        }
+
         MessageFormat nextFormat = messageUnpacker.getNextFormat();
         ValueType valueType = nextFormat.getValueType();
 
