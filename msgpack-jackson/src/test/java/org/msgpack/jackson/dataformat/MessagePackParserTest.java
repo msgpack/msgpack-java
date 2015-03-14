@@ -3,13 +3,15 @@ package org.msgpack.jackson.dataformat;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
-import org.msgpack.value.ExtendedValue;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -17,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
 
@@ -314,5 +315,30 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
 
         parser.close();
         parser.close(); // Intentional
+    }
+
+    @Test
+    public void testBigDecimal() throws IOException {
+        double d0 = 1.23456789;
+        double d1 = 1.23450000000000000000006789;
+        MessagePacker packer = new MessagePacker(new OutputStreamBufferOutput(out));
+        packer.packArrayHeader(5);
+        packer.packDouble(d0);
+        packer.packDouble(d1);
+        packer.packDouble(Double.MIN_VALUE);
+        packer.packDouble(Double.MAX_VALUE);
+        packer.packDouble(Double.MIN_NORMAL);
+        packer.flush();
+
+        ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
+        mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
+        List<Object> objects = mapper.readValue(out.toByteArray(), new TypeReference<List<Object>>(){});
+        assertEquals(5, objects.size());
+        int idx = 0;
+        assertEquals(BigDecimal.valueOf(d0), objects.get(idx++));
+        assertEquals(BigDecimal.valueOf(d1), objects.get(idx++));
+        assertEquals(BigDecimal.valueOf(Double.MIN_VALUE), objects.get(idx++));
+        assertEquals(BigDecimal.valueOf(Double.MAX_VALUE), objects.get(idx++));
+        assertEquals(BigDecimal.valueOf(Double.MIN_NORMAL), objects.get(idx++));
     }
 }

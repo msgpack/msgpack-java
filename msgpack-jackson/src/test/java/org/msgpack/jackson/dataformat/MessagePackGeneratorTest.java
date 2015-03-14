@@ -17,6 +17,7 @@ package org.msgpack.jackson.dataformat;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
@@ -25,10 +26,8 @@ import org.msgpack.core.buffer.ArrayBufferInput;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -220,5 +219,48 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
         assertEquals("one", unpacker.unpackString());
         assertEquals(2.0f, unpacker.unpackFloat(), 0.001f);
         assertFalse(unpacker.hasNext());
+    }
+
+    @Test
+    public void testBigDecimal() throws IOException {
+        ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
+
+        {
+            double d0 = 1.23456789;
+            double d1 = 1.23450000000000000000006789;
+            List<BigDecimal> bigDecimals = Arrays.asList(
+                    BigDecimal.valueOf(d0),
+                    BigDecimal.valueOf(d1),
+                    BigDecimal.valueOf(Double.MIN_VALUE),
+                    BigDecimal.valueOf(Double.MAX_VALUE),
+                    BigDecimal.valueOf(Double.MIN_NORMAL)
+            );
+
+            byte[] bytes = mapper.writeValueAsBytes(bigDecimals);
+            MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes);
+
+            assertEquals(5, unpacker.unpackArrayHeader());
+            assertEquals(d0, unpacker.unpackDouble(), 0.000000000000001);
+            assertEquals(d1, unpacker.unpackDouble(), 0.000000000000001);
+            assertEquals(Double.MIN_VALUE, unpacker.unpackDouble(), 0.000000000000001);
+            assertEquals(Double.MAX_VALUE, unpacker.unpackDouble(), 0.000000000000001);
+            assertEquals(Double.MIN_NORMAL, unpacker.unpackDouble(), 0.000000000000001);
+        }
+
+        {
+
+            BigDecimal decimal = new BigDecimal("1234.567890123456789012345678901234567890");
+            List<BigDecimal> bigDecimals = Arrays.asList(
+                    decimal
+            );
+
+            try {
+                mapper.writeValueAsBytes(bigDecimals);
+                assertTrue(false);
+            }
+            catch (IllegalArgumentException e) {
+                assertTrue(true);
+            }
+        }
     }
 }

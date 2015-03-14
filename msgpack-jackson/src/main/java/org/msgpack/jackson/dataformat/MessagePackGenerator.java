@@ -18,7 +18,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.math.MathContext;
 
 public class MessagePackGenerator extends GeneratorBase {
     private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
@@ -171,20 +170,7 @@ public class MessagePackGenerator extends GeneratorBase {
             messagePacker.packBigInteger((BigInteger) v);
         }
         else if (v instanceof BigDecimal) {
-            BigDecimal decimal = (BigDecimal) v;
-            try {
-                //Check to see if this BigDecimal can be converted to BigInteger
-                BigInteger integer = decimal.toBigIntegerExact();
-                messagePacker.packBigInteger(integer);
-            } catch (ArithmeticException e){
-                //If not an integer, then try converting to double
-                double doubleValue = decimal.doubleValue();
-                //Check to make sure this BigDecimal can be represented as a double 
-                if (!new BigDecimal(doubleValue, MathContext.DECIMAL128).equals(decimal)) {
-                    throw new IllegalArgumentException("Messagepack cannot serialize a BigDecimal that can't be represented as double");
-                }
-                messagePacker.packDouble(doubleValue);
-            }
+            packBigDecimal((BigDecimal) v);
         }
         else if (v instanceof Boolean) {
             messagePacker.packBoolean((Boolean) v);
@@ -193,6 +179,29 @@ public class MessagePackGenerator extends GeneratorBase {
             throw new IllegalArgumentException(v.toString());
         }
     }
+
+    private void packBigDecimal(BigDecimal decimal) throws IOException {
+        MessagePacker messagePacker = getMessagePacker();
+        boolean failedToPackAsBI = false;
+        try {
+            //Check to see if this BigDecimal can be converted to BigInteger
+            BigInteger integer = decimal.toBigIntegerExact();
+            messagePacker.packBigInteger(integer);
+        } catch (ArithmeticException e) {
+            failedToPackAsBI = true;
+        } catch (IllegalArgumentException e) {
+            failedToPackAsBI = true;
+        }
+
+        if (failedToPackAsBI) {
+            double doubleValue = decimal.doubleValue();
+            //Check to make sure this BigDecimal can be represented as a double
+            if (!decimal.toEngineeringString().equals(BigDecimal.valueOf(doubleValue).toEngineeringString())) {
+                throw new IllegalArgumentException("MessagePack cannot serialize a BigDecimal that can't be represented as double. " + decimal);
+            }
+            messagePacker.packDouble(doubleValue);
+        }
+}
 
     private void packObject(StackItemForObject stackItem) throws IOException {
         List<String> keys = stackItem.getKeys();
@@ -319,9 +328,6 @@ public class MessagePackGenerator extends GeneratorBase {
     public void close() throws IOException {
         try {
             flush();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
         }
         finally {
             MessagePacker messagePacker = getMessagePacker();

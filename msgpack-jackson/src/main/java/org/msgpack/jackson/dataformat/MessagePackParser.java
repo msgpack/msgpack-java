@@ -281,12 +281,12 @@ public class MessagePackParser extends ParserMinimalBase {
                 return new BigDecimal(number.asBigInteger());
             }
         }
-
-        if (ref.isFloat()) { 
+        else if (ref.isFloat()) {
             return BigDecimal.valueOf(ref.asFloat().toDouble());
         }
-
-        throw new UnsupportedOperationException("couldn't parse value as BigDecimal");
+        else {
+            throw new UnsupportedOperationException("Couldn't parse value as BigDecimal. " + ref);
+        }
     }
 
     @Override
