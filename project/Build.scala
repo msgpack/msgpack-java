@@ -166,7 +166,7 @@ object Build extends Build {
       "org.msgpack" % "msgpack" % "0.6.11" % "test",
       junitInterface,
       "commons-codec" % "commons-codec" % "1.10" % "test",
-      "com.typesafe.akka" %% "akka-actor"% "2.3.9"
+      "com.typesafe.akka" %% "akka-actor"% "2.3.9" % "test"
     )
 
     val jacksonLib = Seq(
