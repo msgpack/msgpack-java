@@ -12,7 +12,7 @@ import static org.msgpack.core.Preconditions.*;
  */
 public class MessageBufferU extends MessageBuffer {
 
-    MessageBufferU(ByteBuffer bb) {
+    public MessageBufferU(ByteBuffer bb) {
         super(null, 0L, bb.capacity(), bb.order(ByteOrder.BIG_ENDIAN));
         checkNotNull(reference);
     }

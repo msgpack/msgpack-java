@@ -165,7 +165,8 @@ object Build extends Build {
       "org.xerial" % "xerial-core" % "3.3.5" % "test",
       "org.msgpack" % "msgpack" % "0.6.11" % "test",
       junitInterface,
-      "commons-codec" % "commons-codec" % "1.10" % "test"
+      "commons-codec" % "commons-codec" % "1.10" % "test",
+      "com.typesafe.akka" %% "akka-actor"% "2.3.9" % "test"
     )
 
     val jacksonLib = Seq(
