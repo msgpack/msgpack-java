@@ -980,7 +980,6 @@ public class MessageUnpacker implements Closeable {
 
                         if(cr.isOverflow()) {
                             // The output CharBuffer has insufficient space
-                            readLen = bb.limit() - bb.remaining();
                             decoder.reset();
                         }
 
@@ -1005,9 +1004,10 @@ public class MessageUnpacker implements Closeable {
                         sb.append(decodeBuffer);
 
                         decodeBuffer.clear();
-                        cursor += readLen;
-                        consume(readLen);
                     }
+
+                    cursor += readLen;
+                    consume(readLen);
                 }
 
                 return sb.toString();

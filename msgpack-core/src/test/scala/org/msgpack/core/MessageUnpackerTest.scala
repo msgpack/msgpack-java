@@ -618,5 +618,33 @@ class MessageUnpackerTest extends MessagePackSpec {
       checkFile(u)
       u.close
     }
+
+    "parse message large packed data" taggedAs("unpack") in {
+      def createLargeData(stringLength: Int): Array[Byte] = {
+        val out = new ByteArrayOutputStream()
+        val packer = msgpack.newPacker(out)
+
+        packer
+          .packArrayHeader(2)
+          .packString("l" * stringLength)
+          .packInt(1)
+
+        packer.close()
+
+        out.toByteArray
+      }
+
+      Seq(8191, 8192, 8193, 16383, 16384, 16385).foreach { n =>
+        val arr = createLargeData(n)
+
+        val unpacker = msgpack.newUnpacker(arr)
+
+        unpacker.unpackArrayHeader shouldBe 2
+        unpacker.unpackString.length shouldBe n
+        unpacker.unpackInt shouldBe 1
+
+        unpacker.getTotalReadBytes shouldBe arr.length
+      }
+    }
   }
 }
