@@ -965,7 +965,7 @@ public class MessageUnpacker implements Closeable {
                 decodeBuffer.clear();
                 StringBuilder sb = new StringBuilder();
                 while(cursor < strLen) {
-                    if (!ensure(strLen))
+                    if (!ensure(strLen-cursor))
                         throw new EOFException();
 
                     int readLen = Math.min(buffer.size() - position, strLen-cursor);
