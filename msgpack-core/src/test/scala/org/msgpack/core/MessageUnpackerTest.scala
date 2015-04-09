@@ -619,7 +619,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       u.close
     }
 
-    "parse message large packed data" taggedAs("unpack") in {
+    "unpack large string data" taggedAs("large-string") in {
       def createLargeData(stringLength: Int): Array[Byte] = {
         val out = new ByteArrayOutputStream()
         val packer = msgpack.newPacker(out)
