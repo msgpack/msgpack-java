@@ -3,6 +3,7 @@ package org.msgpack.core.buffer;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.FileChannel;
 
 import static org.msgpack.core.Preconditions.checkNotNull;
 
@@ -18,7 +19,10 @@ public class InputStreamBufferInput implements MessageBufferInput {
     public static MessageBufferInput newBufferInput(InputStream in) {
         checkNotNull(in, "InputStream is null");
         if (in instanceof FileInputStream) {
-            return new ChannelBufferInput(((FileInputStream) in).getChannel());
+            FileChannel channel = ((FileInputStream) in).getChannel();
+            if(channel != null) {
+                return new ChannelBufferInput(channel);
+            }
         }
         return new InputStreamBufferInput(in);
     }
