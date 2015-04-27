@@ -22,8 +22,11 @@ import de.johoop.findbugs4sbt.FindBugs._
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
 import sbtrelease.ReleasePlugin._
+import sbtrelease.ReleaseStateTransformations._
+import sbtrelease.ReleaseStep
 import scala.util.Properties
 import com.typesafe.sbt.pgp.PgpKeys
+import xerial.sbt.Sonatype.SonatypeKeys._
 
 object Build extends Build {
 
@@ -47,7 +50,6 @@ object Build extends Build {
       concurrentRestrictions in Global := Seq(
         Tags.limit(Tags.Test, 1)
       ),
-      ReleaseKeys.tagName <<= (version in ThisBuild) map (v => v),
       publishTo := {
         val nexus = "https://oss.sonatype.org/"
         if (isSnapshot.value)
@@ -55,6 +57,29 @@ object Build extends Build {
         else
           Some("releases" at nexus + "service/local/staging/deploy/maven2")
       },
+      ReleaseKeys.tagName <<= (version in ThisBuild) map (v => v),
+      ReleaseKeys.releaseProcess := Seq[ReleaseStep](
+        checkSnapshotDependencies,
+        inquireVersions,
+        runClean,
+        runTest,
+        setReleaseVersion,
+        commitReleaseVersion,
+        tagRelease,
+        ReleaseStep(
+          action = { state =>
+            val extracted = Project extract state
+            extracted.runAggregated(PgpKeys.publishSigned in Global in extracted.get(thisProjectRef), state)
+          }
+        ),
+        setNextVersion,
+        commitNextVersion,
+        ReleaseStep{ state =>
+          val extracted = Project extract state
+          extracted.runAggregated(sonatypeReleaseAll in Global in extracted.get(thisProjectRef), state)
+        },
+        pushChanges
+      ),
       parallelExecution in jacoco.Config := false,
       // Since sbt-0.13.2
       incOptions := incOptions.value.withNameHashing(true),
