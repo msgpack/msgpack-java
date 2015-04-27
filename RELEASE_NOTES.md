@@ -1,5 +1,8 @@
 # Release Notes
 
+* 2015-04-27 0.7.0-p9
+ * Fix [#217] when reading from SockectInputStream 
+
 * 2015-04-09 0.7.0-p8
  * Support Extended type (defined in MessagePack) in msgpack-jackson
  * Support BigDecimal type (defined in Jackson) in msgpack-jackson
