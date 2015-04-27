@@ -27,7 +27,7 @@ import com.typesafe.sbt.pgp.PgpKeys
 
 object Build extends Build {
 
-  val SCALA_VERSION = "2.11.1"
+  val SCALA_VERSION = "2.11.6"
 
   lazy val buildSettings = Defaults.coreDefaultSettings ++
     releaseSettings ++
@@ -162,7 +162,7 @@ object Build extends Build {
     val testLib = Seq(
       "org.scalatest" %% "scalatest" % "2.2.4" % "test",
       "org.scalacheck" %% "scalacheck" % "1.12.2" % "test",
-      "org.xerial" % "xerial-core" % "3.3.5" % "test",
+      "org.xerial" % "xerial-core" % "3.3.6" % "test",
       "org.msgpack" % "msgpack" % "0.6.11" % "test",
       junitInterface,
       "commons-codec" % "commons-codec" % "1.10" % "test",
