@@ -57,6 +57,10 @@ public class MapValueImpl extends AbstractValue implements MapValue {
         }
     }
 
+    @Override
+    public MapCursor getMapCursor() {
+        return this;
+    }
 
     private class MapImpl extends AbstractMap<Value, Value> {
 
