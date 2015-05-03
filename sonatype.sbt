@@ -1,4 +1,4 @@
-import SonatypeKeys._
+Sonatype.sonatypeSettings
 
 sonatypeProfileName := "org.msgpack"
 

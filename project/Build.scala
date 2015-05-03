@@ -26,8 +26,7 @@ import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.ReleaseStep
 import scala.util.Properties
 import com.typesafe.sbt.pgp.PgpKeys
-import xerial.sbt.Sonatype
-import Sonatype.SonatypeKeys._
+import xerial.sbt.Sonatype.SonatypeKeys._
 
 object Build extends Build {
 
@@ -94,21 +93,19 @@ object Build extends Build {
 
   import Dependencies._
 
-
   lazy val root = Project(
     id = "msgpack-java",
     base = file("."),
     settings = buildSettings ++ Seq(
-      findbugs := {
-        // do not run findbugs for the root project
-      },
       // Do not publish the root project
       publishArtifact := false,
       publish := {},
-      publishLocal := {}
+      publishLocal := {},
+      findbugs := {
+        // do not run findbugs for the root project
+      }
     )
-  ) aggregate(msgpackCore, msgpackJackson)
-
+  ).aggregate(msgpackCore, msgpackJackson)
 
   lazy val msgpackCore = Project(
     id = "msgpack-core",
@@ -117,7 +114,7 @@ object Build extends Build {
       description := "Core library of the MessagePack for Java",
       libraryDependencies ++= testLib
     )
-  ).disablePlugins(Sonatype)
+  )
 
   lazy val msgpackJackson = Project(
     id = "msgpack-jackson",
@@ -128,7 +125,7 @@ object Build extends Build {
       libraryDependencies ++= jacksonLib,
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-v")
     )
-  ).disablePlugins(Sonatype).dependsOn(msgpackCore)
+  ).dependsOn(msgpackCore)
 
   object Dependencies {
 
