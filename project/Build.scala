@@ -25,8 +25,6 @@ import sbtrelease.ReleasePlugin._
 import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.ReleaseStep
 import scala.util.Properties
-import com.typesafe.sbt.pgp.PgpKeys
-import xerial.sbt.Sonatype.SonatypeKeys._
 
 object Build extends Build {
 
@@ -42,7 +40,6 @@ object Build extends Build {
       organizationHomepage := Some(new URL("http://msgpack.org/")),
       description := "MessagePack for Java",
       scalaVersion in Global := SCALA_VERSION,
-      ReleaseKeys.publishArtifactsAction := PgpKeys.publishSigned.value,
       logBuffered in Test := false,
       //parallelExecution in Test := false,
       autoScalaLibrary := false,
@@ -59,18 +56,10 @@ object Build extends Build {
         setReleaseVersion,
         commitReleaseVersion,
         tagRelease,
-        ReleaseStep(
-          action = { state =>
-            val extracted = Project extract state
-            extracted.runAggregated(PgpKeys.publishSigned in Global in extracted.get(thisProjectRef), state)
-          }
-        ),
+        ReleaseStep(action = Command.process("publishSigned", _)),
         setNextVersion,
         commitNextVersion,
-        ReleaseStep{ state =>
-          val extracted = Project extract state
-          extracted.runAggregated(sonatypeReleaseAll in Global in extracted.get(thisProjectRef), state)
-        },
+        ReleaseStep(action = Command.process("sonatypeReleaseAll", _)),
         pushChanges
       ),
       parallelExecution in jacoco.Config := false,

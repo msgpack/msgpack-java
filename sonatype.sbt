@@ -1,5 +1,3 @@
-Sonatype.sonatypeSettings
-
 sonatypeProfileName := "org.msgpack"
 
 pomExtra := {
