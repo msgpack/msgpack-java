@@ -25,8 +25,6 @@ import sbtrelease.ReleasePlugin._
 import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.ReleaseStep
 import scala.util.Properties
-import com.typesafe.sbt.pgp.PgpKeys
-import xerial.sbt.Sonatype.SonatypeKeys._
 
 object Build extends Build {
 
@@ -42,7 +40,6 @@ object Build extends Build {
       organizationHomepage := Some(new URL("http://msgpack.org/")),
       description := "MessagePack for Java",
       scalaVersion in Global := SCALA_VERSION,
-      ReleaseKeys.publishArtifactsAction := PgpKeys.publishSigned.value,
       logBuffered in Test := false,
       //parallelExecution in Test := false,
       autoScalaLibrary := false,
@@ -50,13 +47,6 @@ object Build extends Build {
       concurrentRestrictions in Global := Seq(
         Tags.limit(Tags.Test, 1)
       ),
-      publishTo := {
-        val nexus = "https://oss.sonatype.org/"
-        if (isSnapshot.value)
-          Some("snapshots" at nexus + "content/repositories/snapshots")
-        else
-          Some("releases" at nexus + "service/local/staging/deploy/maven2")
-      },
       ReleaseKeys.tagName <<= (version in ThisBuild) map (v => v),
       ReleaseKeys.releaseProcess := Seq[ReleaseStep](
         checkSnapshotDependencies,
@@ -66,18 +56,10 @@ object Build extends Build {
         setReleaseVersion,
         commitReleaseVersion,
         tagRelease,
-        ReleaseStep(
-          action = { state =>
-            val extracted = Project extract state
-            extracted.runAggregated(PgpKeys.publishSigned in Global in extracted.get(thisProjectRef), state)
-          }
-        ),
+        ReleaseStep(action = Command.process("publishSigned", _)),
         setNextVersion,
         commitNextVersion,
-        ReleaseStep{ state =>
-          val extracted = Project extract state
-          extracted.runAggregated(sonatypeReleaseAll in Global in extracted.get(thisProjectRef), state)
-        },
+        ReleaseStep(action = Command.process("sonatypeReleaseAll", _)),
         pushChanges
       ),
       parallelExecution in jacoco.Config := false,
@@ -95,70 +77,24 @@ object Build extends Build {
           opts
       },
       findbugsReportType := Some(ReportType.FancyHtml),
-      findbugsReportPath := Some(crossTarget.value / "findbugs" / "report.html"),
-      pomExtra := {
-        <url>http://msgpack.org/</url>
-          <licenses>
-            <license>
-              <name>Apache 2</name>
-              <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            </license>
-          </licenses>
-          <scm>
-            <connection>scm:git:github.com/msgpack/msgpack-java.git</connection>
-            <developerConnection>scm:git:git@github.com:msgpack/msgpack-java.git</developerConnection>
-            <url>github.com/msgpack/msgpack-java.git</url>
-          </scm>
-          <properties>
-            <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-          </properties>
-          <developers>
-            <developer>
-              <id>frsyuki</id>
-              <name>Sadayuki Furuhashi</name>
-              <email>frsyuki@users.sourceforge.jp</email>
-            </developer>
-            <developer>
-              <id>muga</id>
-              <name>Muga Nishizawa</name>
-              <email>muga.nishizawa@gmail.com</email>
-            </developer>
-            <developer>
-              <id>oza</id>
-              <name>Tsuyoshi Ozawa</name>
-              <url>https://github.com/oza</url>
-            </developer>
-            <developer>
-              <id>komamitsu</id>
-              <name>Mitsunori Komatsu</name>
-              <email>komamitsu@gmail.com</email>
-            </developer>
-            <developer>
-              <id>xerial</id>
-              <name>Taro L. Saito</name>
-              <email>leo@xerial.org</email>
-            </developer>
-          </developers>
-      }
+      findbugsReportPath := Some(crossTarget.value / "findbugs" / "report.html")
     )
 
   import Dependencies._
-
 
   lazy val root = Project(
     id = "msgpack-java",
     base = file("."),
     settings = buildSettings ++ Seq(
-      findbugs := {
-        // do not run findbugs for the root project
-      },
       // Do not publish the root project
       publishArtifact := false,
       publish := {},
-      publishLocal := {}
+      publishLocal := {},
+      findbugs := {
+        // do not run findbugs for the root project
+      }
     )
-  ) aggregate(msgpackCore, msgpackJackson)
-
+  ).aggregate(msgpackCore, msgpackJackson)
 
   lazy val msgpackCore = Project(
     id = "msgpack-core",
