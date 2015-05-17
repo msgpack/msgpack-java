@@ -1,7 +1,7 @@
 # jackson-dataformat-msgpack
 
 This Jackson extension library handles reading and writing of data encoded in [MessagePack](http://msgpack.org/) data format.
-It extends standard Jackson streaming API (`JsonFactory`, `JsonParser`, `JsonGenerator`), and as such works seamlessly with all the higher level data abstractions (data binding, tree model, and pluggable extensions).
+It extends standard Jackson streaming API (`JsonFactory`, `JsonParser`, `JsonGenerator`), and as such works seamlessly with all the higher level data abstractions (data binding, tree model, and pluggable extensions). For the details of Jackson-annotations, please see https://github.com/FasterXML/jackson-annotations.
 
 ## Maven dependency
 
