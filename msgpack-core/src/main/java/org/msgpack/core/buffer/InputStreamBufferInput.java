@@ -57,11 +57,14 @@ public class InputStreamBufferInput implements MessageBufferInput {
         byte[] buffer = null;
         int cursor = 0;
         while(!reachedEOF && cursor < bufferSize) {
-            if(buffer == null)
+            if(buffer == null) {
                 buffer = new byte[bufferSize];
+            }
 
-            int readLen = in.read(buffer, cursor, bufferSize - cursor);
-            if(readLen == -1) {
+            int readLen = -1;
+            // available() == 0 means, it reached the end of the stream
+            if(in.available() == 0 ||
+                (readLen = in.read(buffer, cursor, bufferSize - cursor)) == -1) {
                 reachedEOF = true;
                 break;
             }
