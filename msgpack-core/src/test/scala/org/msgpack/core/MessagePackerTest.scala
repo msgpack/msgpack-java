@@ -16,6 +16,7 @@
 package org.msgpack.core
 
 import java.io.{FileInputStream, FileOutputStream, File, ByteArrayOutputStream}
+import java.nio.ByteBuffer
 
 import org.msgpack.core.buffer.{ChannelBufferOutput, MessageBufferOutput, OutputStreamBufferOutput}
 import xerial.core.io.IOUtil
@@ -216,5 +217,15 @@ class MessagePackerTest extends MessagePackSpec {
     }
 
     out.toByteArray.length shouldBe packerTotalWrittenBytes
+  }
+
+  "support read-only buffer" taggedAs("read-only") in {
+    val payload = Array[Byte](1)
+    val buffer = ByteBuffer.wrap(payload).asReadOnlyBuffer()
+    val out = new ByteArrayOutputStream()
+    val packer = MessagePack.newDefaultPacker(out)
+      .packBinaryHeader(1)
+      .writePayload(buffer)
+      .close()
   }
 }

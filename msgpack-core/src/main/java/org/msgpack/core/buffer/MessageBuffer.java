@@ -419,10 +419,12 @@ public class MessageBuffer {
 
         if(src.isDirect()) {
             unsafe.copyMemory(null, DirectBufferAccess.getAddress(src) + src.position(), base, address + index, len);
+            src.position(src.position() + len);
         }
         else if(src.hasArray()) {
             byte[] srcArray = src.array();
             unsafe.copyMemory(srcArray, ARRAY_BYTE_BASE_OFFSET + src.position(), base, address + index, len);
+            src.position(src.position() + len);
         }
         else {
             if(base != null) {
@@ -434,7 +436,6 @@ public class MessageBuffer {
                 }
             }
         }
-        src.position(src.position() + len);
     }
 
     /**
