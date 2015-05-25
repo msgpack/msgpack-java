@@ -268,6 +268,7 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
     @Test
     public void testDisableFeatureAutoCloseTarget() throws IOException {
         File tempFile = File.createTempFile("test", "msgpack");
+        tempFile.deleteOnExit();
         FileOutputStream out = new FileOutputStream(tempFile);
         MessagePackFactory messagePackFactory = new MessagePackFactory();
         messagePackFactory.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
@@ -276,5 +277,11 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
         objectMapper.writeValue(out, integers);
         objectMapper.writeValue(out, integers);
         out.close();
+
+        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(new FileInputStream(tempFile));
+        assertEquals(1, unpacker.unpackArrayHeader());
+        assertEquals(1, unpacker.unpackInt());
+        assertEquals(1, unpacker.unpackArrayHeader());
+        assertEquals(1, unpacker.unpackInt());
     }
 }
