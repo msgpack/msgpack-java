@@ -330,8 +330,10 @@ public class MessagePackGenerator extends GeneratorBase {
             flush();
         }
         finally {
-            MessagePacker messagePacker = getMessagePacker();
-            messagePacker.close();
+            if (isEnabled(Feature.AUTO_CLOSE_TARGET)) {
+                MessagePacker messagePacker = getMessagePacker();
+                messagePacker.close();
+            }
         }
     }
 
