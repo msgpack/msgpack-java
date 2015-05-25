@@ -11,7 +11,7 @@ To use this module on Maven-based projects, use following dependency:
 <dependency>
   <groupId>org.msgpack</groupId>
   <artifactId>jackson-dataformat-msgpack</artifactId>
-  <version>0.7.0-p5</version>
+  <version>0.7.0-p9</version>
 </dependency>
 ```
 
