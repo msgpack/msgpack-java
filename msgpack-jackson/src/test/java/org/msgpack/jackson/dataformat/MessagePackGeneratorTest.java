@@ -25,6 +25,7 @@ import org.msgpack.core.buffer.ArrayBufferInput;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
@@ -262,5 +263,18 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
                 assertTrue(true);
             }
         }
+    }
+
+    @Test
+    public void testDisableFeatureAutoCloseTarget() throws IOException {
+        File tempFile = File.createTempFile("test", "msgpack");
+        FileOutputStream out = new FileOutputStream(tempFile);
+        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        messagePackFactory.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+        ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
+        List<Integer> integers = Arrays.asList(1);
+        objectMapper.writeValue(out, integers);
+        objectMapper.writeValue(out, integers);
+        out.close();
     }
 }
