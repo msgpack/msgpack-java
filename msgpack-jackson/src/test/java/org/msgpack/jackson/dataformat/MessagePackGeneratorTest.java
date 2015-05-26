@@ -265,14 +265,26 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
         }
     }
 
+    @Test(expected = IOException.class)
+    public void testEnableFeatureAutoCloseTarget() throws IOException {
+        File tempFile = File.createTempFile("test", "msgpack");
+        tempFile.deleteOnExit();
+        FileOutputStream out = new FileOutputStream(tempFile);
+        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
+        List<Integer> integers = Arrays.asList(1);
+        objectMapper.writeValue(out, integers);
+        objectMapper.writeValue(out, integers);
+    }
+
     @Test
     public void testDisableFeatureAutoCloseTarget() throws IOException {
         File tempFile = File.createTempFile("test", "msgpack");
         tempFile.deleteOnExit();
         FileOutputStream out = new FileOutputStream(tempFile);
         MessagePackFactory messagePackFactory = new MessagePackFactory();
-        messagePackFactory.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
         ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
+        objectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
         List<Integer> integers = Arrays.asList(1);
         objectMapper.writeValue(out, integers);
         objectMapper.writeValue(out, integers);
