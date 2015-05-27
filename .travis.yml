@@ -1,15 +1,15 @@
-language: java
+language: scala
+scala:
+   - 2.11.1
+
 jdk:
   - openjdk6
   - openjdk7
   - oraclejdk7
+  - oraclejdk8
+
 branches:
   only:
-    - master
-    - develop
-    - v07
-notifications:
-  email:
-    - muga.nishizawa@gmail.com
-    - ozawa.tsuyoshi@gmail.com
-    - leo@xerial.org
+    - /^v07.*$/
+
+script: sbt ++$TRAVIS_SCALA_VERSION test

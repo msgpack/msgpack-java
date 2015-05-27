@@ -1,53 +1,85 @@
-# MessagePack for Java
+MessagePack for Java 
+=== 
 
-[MessagePack](http://msgpack.org/) is an efficient binary serialization format.
-It lets you exchange data among multiple languages like JSON but it's faster and smaller.
-For example, small integers (like flags or error code) are encoded into a single byte,
-and typical short strings only require an extra byte in addition to the strings themselves.
+[MessagePack](http://msgpack.org) is an efficient binary serialization format. It lets you exchange data among multiple languages like JSON. But it's faster and smaller. Small integers are encoded into a single byte, and typical short strings require only one extra byte in addition to the strings themselves.
 
-You may be interested in how msgpack-java is faster than the other libraries.
-To know this, please see [jvm-serializers](https://github.com/eishay/jvm-serializers/wiki), which is one of well-known benchmarks for comparing Java libraries of data serialization.
+ * Message Pack specification: <https://github.com/msgpack/msgpack/blob/master/spec.md>
 
-[![Build Status](https://travis-ci.org/msgpack/msgpack-java.png?branch=master)](https://travis-ci.org/msgpack/msgpack-java)
+MessagePack v7 (0.7.x) is a faster implementation of the previous version [v06](https://github.com/msgpack/msgpack-java/tree/v06), and supports all of the message pack types, including [extended format](https://github.com/msgpack/msgpack/blob/master/spec.md#formats-ext).
 
-## Quick start
+## Limitation
+ - Value API is in a designing phase: https://github.com/msgpack/msgpack-java/pull/109
 
-Quick start for msgpack-java is available at [Wiki](https://github.com/msgpack/msgpack-java/wiki/QuickStart).
+## Quick Start
 
+For Maven users:
+```
+<dependency>
+   <groupId>org.msgpack</groupId>
+   <artifactId>msgpack-core</artifactId>
+   <version>0.7.0-p9</version>
+</dependency>
+```
 
-## Build
+For sbt users:
+```
+libraryDependencies += "org.msgpack" % "msgpack-core" % "0.7.0-p9"
+```
 
-To build the JAR file of MessagePack, you need to install Maven (http://maven.apache.org), then type the following command:
+- [Usage examples](msgpack-core/src/main/java/org/msgpack/core/example/MessagePackExample.java)
 
-    $ mvn package
+msgpack-java supports serialization and deserialization of Java objects through [jackson-databind](https://github.com/FasterXML/jackson-databind).
+For details, see [msgpack-jackson/README.md](msgpack-jackson/README.md). The template-based serialization mechanism used in v06 is deprecated.
 
-To locally install the project, type
+- [Release Notes](RELEASE_NOTES.md)
 
-    $ mvn install
+## For MessagePack Developers [![Travis CI](https://travis-ci.org/msgpack/msgpack-java.svg?branch=v07-develop)](https://travis-ci.org/msgpack/msgpack-java)
 
-To generate project files (.project, .classpath) for Eclipse, do
+msgpack-java uses [sbt](http://www.scala-sbt.org/) for building the projects. For the basic usage of sbt, see:
+ * [Building Java projects with sbt](http://xerial.org/blog/2014/03/24/sbt/)
 
-    $ mvn eclipse:eclipse
+### Basic sbt commands
+Enter the sbt console:
+```
+$ ./sbt
+```
 
-then import the folder from your Eclipse.
+Here is a list of sbt commands for daily development:
+```
+> ~compile                                 # Compile source codes
+> ~test:compile                            # Compile both source and test codes
+> ~test                                    # Run tests upon source code change
+> ~test-only *MessagePackTest              # Run tests in the specified class
+> ~test-only *MessagePackTest -- -n prim   # Run the test tagged as "prim"
+> project msgpack-core                     # Focus on a specific project
+> package                                  # Create a jar file in the target folder of each project
+> findbugs                                 # Produce findbugs report in target/findbugs
+> jacoco:cover                             # Report the code coverage of tests to target/jacoco folder
+```
 
-Next, open the preference page in Eclipse and add the CLASSPATH variable:
+### Publishing
 
-    M2_REPO = $HOME/.m2/repository
+```
+> publishLocal            # Install to local .ivy2 repository
+> publishM2               # Install to local .m2 Maven repository
+> publishSigned           # Publish GPG signed artifacts to the Sonatype repository
+> sonatypeRelease         # Publish to the Maven Central (It will be synched within less than 4 hours)
+```
 
-where $HOME is your home directory. In Windows XP, $HOME is:
+For publishing to Maven central, msgpack-java uses [sbt-sonatype](https://github.com/xerial/sbt-sonatype) plugin. Set Sonatype account information (user name and password) in the global sbt settings. To protect your password, never include this file in your project.
 
-    C:/Documents and Settings/(user name)/.m2/repository
+___$HOME/.sbt/(sbt-version)/sonatype.sbt___
 
+```
+credentials += Credentials("Sonatype Nexus Repository Manager",
+        "oss.sonatype.org",
+        "(Sonatype user name)",
+        "(Sonatype password)")
+```
 
-## How to release
+### Project Structure
 
-To relese the project (compile, test, tagging, deploy), please use the commands as follows:
-
-    $ mvn release:prepare
-    $ mvn release:perform
-
-## License
-
-This software is distributed under [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html).
-
+```
+msgpack-core                 # Contains packer/unpacker implementation that never uses third-party libraries
+msgpack-jackson              # Contains jackson-dataformat-java implementation
+```
