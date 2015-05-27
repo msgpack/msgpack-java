@@ -23,12 +23,10 @@ import java.util.Arrays;
 
 public class MessagePackFactory extends JsonFactory {
     private static final long serialVersionUID = 2578263992015504347L;
-    protected int messagePackGeneratorFeature = 0;
-    protected int messagePackParserFeature = 0;
 
     @Override
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws IOException {
-        return new MessagePackGenerator(messagePackGeneratorFeature, _objectCodec, out);
+        return new MessagePackGenerator(_generatorFeatures, _objectCodec, out);
     }
 
     @Override
@@ -55,7 +53,7 @@ public class MessagePackFactory extends JsonFactory {
 
     @Override
     protected MessagePackParser _createParser(InputStream in, IOContext ctxt) throws IOException {
-        MessagePackParser parser = new MessagePackParser(ctxt, messagePackParserFeature, in);
+        MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, in);
         return parser;
     }
 
@@ -64,7 +62,7 @@ public class MessagePackFactory extends JsonFactory {
         if (offset != 0 || len != data.length) {
             data = Arrays.copyOfRange(data, offset, offset + len);
         }
-        MessagePackParser parser = new MessagePackParser(ctxt, messagePackParserFeature, data);
+        MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, data);
         return parser;
     }
 }
