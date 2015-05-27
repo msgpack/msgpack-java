@@ -341,4 +341,37 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         assertEquals(BigDecimal.valueOf(Double.MAX_VALUE), objects.get(idx++));
         assertEquals(BigDecimal.valueOf(Double.MIN_NORMAL), objects.get(idx++));
     }
+
+    private File createTestFile() throws IOException {
+        File tempFile = File.createTempFile("test", "msgpack");
+        tempFile.deleteOnExit();
+        FileOutputStream out = new FileOutputStream(tempFile);
+        MessagePack.newDefaultPacker(out)
+                .packArrayHeader(1).packInt(1)
+                .packArrayHeader(1).packInt(1)
+                .close();
+        return tempFile;
+    }
+
+    @Test(expected = IOException.class)
+    public void testEnableFeatureAutoCloseSource() throws IOException {
+        File tempFile = createTestFile();
+        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        FileInputStream in = new FileInputStream(tempFile);
+        ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
+        objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
+        objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
+    }
+
+    // FIXME
+    @Test(expected = IOException.class)
+    public void testDisableFeatureAutoCloseSource() throws IOException {
+        File tempFile = createTestFile();
+        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        FileInputStream in = new FileInputStream(tempFile);
+        ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
+        objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
+        objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
+        objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
+    }
 }

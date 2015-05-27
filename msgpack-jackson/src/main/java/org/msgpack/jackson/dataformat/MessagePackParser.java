@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.LinkedList;
+import java.util.logging.Logger;
 
 public class MessagePackParser extends ParserMinimalBase {
     private static final ThreadLocal<MessageUnpacker> messageUnpackerHolder = new ThreadLocal<MessageUnpacker>();
@@ -72,6 +73,8 @@ public class MessagePackParser extends ParserMinimalBase {
     }
 
     private MessagePackParser(IOContext ctxt, int features, MessageBufferInput input) throws IOException {
+        super(features);
+
         ioContext = ctxt;
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
@@ -322,6 +325,9 @@ public class MessagePackParser extends ParserMinimalBase {
     @Override
     public void close() throws IOException {
         try {
+            // JsonParser.Feature.AUTO_CLOSE_SOURCE can't be disabled for now.
+            // MessageUnpacker reads a stream ahead and load the data to its own buffer.
+            // As a result, following MessagePackParser fails to read the stream from proper position.
             MessageUnpacker messageUnpacker = getMessageUnpacker();
             messageUnpacker.close();
         }
