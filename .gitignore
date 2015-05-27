@@ -3,9 +3,12 @@ target
 .project
 .classpath
 .settings
-.iml
+*.iml
 *~
 ._*
 .DS_Store
 build
 lib
+.idea
+atlassian-ide-plugin.xml
+
