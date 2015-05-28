@@ -363,8 +363,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
     }
 
-    // FIXME
-    @Test(expected = IOException.class)
+    @Test
     public void testDisableFeatureAutoCloseSource() throws IOException {
         File tempFile = createTestFile();
         MessagePackFactory messagePackFactory = new MessagePackFactory();
