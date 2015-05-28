@@ -28,6 +28,7 @@ import org.msgpack.MessagePack;
 import org.msgpack.MessageTypeException;
 import org.msgpack.packer.Unconverter;
 import org.msgpack.type.ValueType;
+import org.msgpack.type.NumberValue;
 
 public class MessagePackUnpacker extends AbstractUnpacker {
     private static final byte REQUIRE_TO_READ_HEAD = (byte) 0xc1;
@@ -44,6 +45,7 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     private final LongAccept longAccept = new LongAccept();
     private final BigIntegerAccept bigIntegerAccept = new BigIntegerAccept();
     private final DoubleAccept doubleAccept = new DoubleAccept();
+    private final NumberAccept numberAccept = new NumberAccept();
     private final ByteArrayAccept byteArrayAccept = new ByteArrayAccept();
     private final StringAccept stringAccept = new StringAccept();
     private final ArrayAccept arrayAccept = new ArrayAccept();
@@ -489,6 +491,12 @@ public class MessagePackUnpacker extends AbstractUnpacker {
     public double readDouble() throws IOException {
         readOne(doubleAccept);
         return doubleAccept.value;
+    }
+
+    @Override
+    public NumberValue readNumber() throws IOException {
+        readOne(numberAccept);
+        return numberAccept.value;
     }
 
     @Override
