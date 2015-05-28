@@ -54,21 +54,13 @@ public class InputStreamBufferInput implements MessageBufferInput {
         if(reachedEOF)
             return null;
 
-        byte[] buffer = null;
-        int cursor = 0;
-        while(!reachedEOF && cursor < bufferSize) {
-            if(buffer == null)
-                buffer = new byte[bufferSize];
-
-            int readLen = in.read(buffer, cursor, bufferSize - cursor);
-            if(readLen == -1) {
-                reachedEOF = true;
-                break;
-            }
-            cursor += readLen;
+        byte[] buffer = new byte[bufferSize];
+        int readLen = in.read(buffer);
+        if(readLen == -1) {
+            reachedEOF = true;
+            return null;
         }
-
-        return buffer == null ? null : MessageBuffer.wrap(buffer).slice(0, cursor);
+        return MessageBuffer.wrap(buffer).slice(0, readLen);
     }
 
     @Override
