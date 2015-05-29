@@ -14,6 +14,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -372,5 +373,17 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
         objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
         objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
+    }
+
+    @Test
+    public void testParseBigDecimal() throws IOException {
+        ArrayList<BigDecimal> list = new ArrayList<BigDecimal>();
+        list.add(new BigDecimal(Long.MAX_VALUE));
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        byte[] bytes = objectMapper.writeValueAsBytes(list);
+
+        ArrayList<BigDecimal> result = objectMapper.readValue(
+                bytes, new TypeReference<ArrayList<BigDecimal>>() {});
+        assertEquals(list, result);
     }
 }

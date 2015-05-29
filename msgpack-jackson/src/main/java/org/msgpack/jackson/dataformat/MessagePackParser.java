@@ -287,7 +287,7 @@ public class MessagePackParser extends ParserMinimalBase {
             NumberValue number = ref.asNumber();
             //optimization to not convert the value to BigInteger unnecessarily
             if (number.isValidByte() || number.isValidShort() || number.isValidInt() || number.isValidLong()) {
-                return BigDecimal.valueOf(number.asInt());
+                return BigDecimal.valueOf(number.asLong());
             }
             else {
                 return new BigDecimal(number.asBigInteger());
