@@ -21,9 +21,11 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.LinkedList;
+import java.util.logging.Logger;
 
 public class MessagePackParser extends ParserMinimalBase {
-    private static final ThreadLocal<MessageUnpacker> messageUnpackerHolder = new ThreadLocal<MessageUnpacker>();
+    private static final ThreadLocal<Tuple<Object, MessageUnpacker>> messageUnpackerHolder =
+            new ThreadLocal<Tuple<Object, MessageUnpacker>>();
 
     private ObjectCodec codec;
     private JsonReadContext parsingContext;
@@ -64,27 +66,37 @@ public class MessagePackParser extends ParserMinimalBase {
     }
 
     public MessagePackParser(IOContext ctxt, int features, InputStream in) throws IOException {
-        this(ctxt, features, new InputStreamBufferInput(in));
+        this(ctxt, features, new InputStreamBufferInput(in), in);
     }
 
     public MessagePackParser(IOContext ctxt, int features, byte[] bytes) throws IOException {
-        this(ctxt, features, new ArrayBufferInput(bytes));
+        this(ctxt, features, new ArrayBufferInput(bytes), bytes);
     }
 
-    private MessagePackParser(IOContext ctxt, int features, MessageBufferInput input) throws IOException {
+    private MessagePackParser(IOContext ctxt, int features, MessageBufferInput input, Object src) throws IOException {
+        super(features);
+
         ioContext = ctxt;
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
         parsingContext = JsonReadContext.createRootContext(dups);
 
-        MessageUnpacker messageUnpacker = messageUnpackerHolder.get();
-        if (messageUnpacker == null) {
+        MessageUnpacker messageUnpacker;
+        Tuple<Object, MessageUnpacker> messageUnpackerTuple = messageUnpackerHolder.get();
+        if (messageUnpackerTuple == null) {
             messageUnpacker = new MessageUnpacker(input);
         }
         else {
-            messageUnpacker.reset(input);
+            // Considering to reuse InputStream with JsonParser.Feature.AUTO_CLOSE_SOURCE,
+            // MessagePackParser needs to use the MessageUnpacker that has the same InputStream
+            // since it has buffer which has loaded the InputStream data ahead.
+            // However, it needs to call MessageUnpacker#reset when the source is different from the previous one.
+            if (isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE) || messageUnpackerTuple.first() != src) {
+                messageUnpackerTuple.second().reset(input);
+            }
+            messageUnpacker = messageUnpackerTuple.second();
         }
-        messageUnpackerHolder.set(messageUnpacker);
+        messageUnpackerHolder.set(new Tuple<Object, MessageUnpacker>(src, messageUnpacker));
     }
 
     @Override
@@ -322,8 +334,10 @@ public class MessagePackParser extends ParserMinimalBase {
     @Override
     public void close() throws IOException {
         try {
-            MessageUnpacker messageUnpacker = getMessageUnpacker();
-            messageUnpacker.close();
+            if (isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE)) {
+                MessageUnpacker messageUnpacker = getMessageUnpacker();
+                messageUnpacker.close();
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -377,10 +391,10 @@ public class MessagePackParser extends ParserMinimalBase {
     }
 
     private MessageUnpacker getMessageUnpacker() {
-        MessageUnpacker messageUnpacker = messageUnpackerHolder.get();
-        if (messageUnpacker == null) {
+        Tuple<Object, MessageUnpacker> messageUnpackerTuple = messageUnpackerHolder.get();
+        if (messageUnpackerTuple == null) {
             throw new IllegalStateException("messageUnpacker is null");
         }
-        return messageUnpacker;
+        return messageUnpackerTuple.second();
     }
 }
