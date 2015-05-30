@@ -11,7 +11,10 @@ import org.junit.Before;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -175,4 +178,28 @@ public class MessagePackDataformatTestBase {
         public void setTheName(String n) { _name = n; }
     }
 
+    protected interface FileSetup {
+        void setup(File f) throws Exception;
+    }
+
+    protected File createTempFile() throws Exception
+    {
+        return createTempFile(null);
+    }
+
+    protected File createTempFile(FileSetup fileSetup) throws Exception
+    {
+        File tempFile = File.createTempFile("test", "msgpack");
+        tempFile.deleteOnExit();
+        if (fileSetup != null) {
+            fileSetup.setup(tempFile);
+        }
+        return tempFile;
+    }
+
+    protected OutputStream createTempFileOutputStream() throws IOException {
+        File tempFile = File.createTempFile("test", "msgpack");
+        tempFile.deleteOnExit();
+        return new FileOutputStream(tempFile);
+    }
 }

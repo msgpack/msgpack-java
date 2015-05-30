@@ -198,7 +198,7 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testMessagePackGeneratorDirectly() throws IOException {
+    public void testMessagePackGeneratorDirectly() throws Exception {
         MessagePackFactory messagePackFactory = new MessagePackFactory();
         File tempFile = createTempFile();
 
@@ -223,7 +223,7 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testWritePrimitives() throws IOException {
+    public void testWritePrimitives() throws Exception {
         MessagePackFactory messagePackFactory = new MessagePackFactory();
         File tempFile = createTempFile();
 
@@ -286,18 +286,6 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
         }
     }
 
-    private File createTempFile() throws IOException {
-        File tempFile = File.createTempFile("test", "msgpack");
-        tempFile.deleteOnExit();
-        return tempFile;
-    }
-
-    private OutputStream createTempFileOutputStream() throws IOException {
-        File tempFile = File.createTempFile("test", "msgpack");
-        tempFile.deleteOnExit();
-        return new FileOutputStream(tempFile);
-    }
-
     @Test(expected = IOException.class)
     public void testEnableFeatureAutoCloseTarget() throws IOException {
         OutputStream out = createTempFileOutputStream();
@@ -309,7 +297,7 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testDisableFeatureAutoCloseTarget() throws IOException {
+    public void testDisableFeatureAutoCloseTarget() throws Exception {
         File tempFile = createTempFile();
         OutputStream out = new FileOutputStream(tempFile);
         MessagePackFactory messagePackFactory = new MessagePackFactory();
@@ -328,8 +316,7 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testWritePrimitiveObjectViaObjectMapper() throws IOException
-    {
+    public void testWritePrimitiveObjectViaObjectMapper() throws Exception {
         File tempFile = createTempFile();
         OutputStream out = new FileOutputStream(tempFile);
 
