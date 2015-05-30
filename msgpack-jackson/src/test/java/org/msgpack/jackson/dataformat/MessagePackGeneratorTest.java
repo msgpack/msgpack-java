@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -199,8 +200,7 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
     @Test
     public void testMessagePackGeneratorDirectly() throws IOException {
         MessagePackFactory messagePackFactory = new MessagePackFactory();
-        File tempFile = File.createTempFile("msgpackTest", "msgpack");
-        tempFile.deleteOnExit();
+        File tempFile = createTempFile();
 
         JsonGenerator generator = messagePackFactory.createGenerator(tempFile, JsonEncoding.UTF8);
         assertTrue(generator instanceof MessagePackGenerator);
@@ -216,6 +216,27 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
         FileInputStream fileInputStream = new FileInputStream(tempFile);
         MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(fileInputStream);
         assertEquals(3, unpacker.unpackArrayHeader());
+        assertEquals(0, unpacker.unpackInt());
+        assertEquals("one", unpacker.unpackString());
+        assertEquals(2.0f, unpacker.unpackFloat(), 0.001f);
+        assertFalse(unpacker.hasNext());
+    }
+
+    @Test
+    public void testWritePrimitives() throws IOException {
+        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        File tempFile = createTempFile();
+
+        JsonGenerator generator = messagePackFactory.createGenerator(tempFile, JsonEncoding.UTF8);
+        assertTrue(generator instanceof MessagePackGenerator);
+        generator.writeNumber(0);
+        generator.writeString("one");
+        generator.writeNumber(2.0f);
+        generator.flush();
+        generator.close();
+
+        FileInputStream fileInputStream = new FileInputStream(tempFile);
+        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(fileInputStream);
         assertEquals(0, unpacker.unpackInt());
         assertEquals("one", unpacker.unpackString());
         assertEquals(2.0f, unpacker.unpackFloat(), 0.001f);
@@ -265,11 +286,21 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
         }
     }
 
-    @Test(expected = IOException.class)
-    public void testEnableFeatureAutoCloseTarget() throws IOException {
+    private File createTempFile() throws IOException {
         File tempFile = File.createTempFile("test", "msgpack");
         tempFile.deleteOnExit();
-        FileOutputStream out = new FileOutputStream(tempFile);
+        return tempFile;
+    }
+
+    private OutputStream createTempFileOutputStream() throws IOException {
+        File tempFile = File.createTempFile("test", "msgpack");
+        tempFile.deleteOnExit();
+        return new FileOutputStream(tempFile);
+    }
+
+    @Test(expected = IOException.class)
+    public void testEnableFeatureAutoCloseTarget() throws IOException {
+        OutputStream out = createTempFileOutputStream();
         MessagePackFactory messagePackFactory = new MessagePackFactory();
         ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
         List<Integer> integers = Arrays.asList(1);
@@ -279,9 +310,8 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
 
     @Test
     public void testDisableFeatureAutoCloseTarget() throws IOException {
-        File tempFile = File.createTempFile("test", "msgpack");
-        tempFile.deleteOnExit();
-        FileOutputStream out = new FileOutputStream(tempFile);
+        File tempFile = createTempFile();
+        OutputStream out = new FileOutputStream(tempFile);
         MessagePackFactory messagePackFactory = new MessagePackFactory();
         ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
         objectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
@@ -295,5 +325,28 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
         assertEquals(1, unpacker.unpackInt());
         assertEquals(1, unpacker.unpackArrayHeader());
         assertEquals(1, unpacker.unpackInt());
+    }
+
+    @Test
+    public void testWritePrimitiveObjectViaObjectMapper() throws IOException
+    {
+        File tempFile = createTempFile();
+        OutputStream out = new FileOutputStream(tempFile);
+
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+        objectMapper.writeValue(out, 1);
+        objectMapper.writeValue(out, "two");
+        objectMapper.writeValue(out, 3.14);
+        objectMapper.writeValue(out, Arrays.asList(4));
+        objectMapper.writeValue(out, 5L);
+
+        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(new FileInputStream(tempFile));
+        assertEquals(1, unpacker.unpackInt());
+        assertEquals("two", unpacker.unpackString());
+        assertEquals(3.14, unpacker.unpackFloat(), 0.0001);
+        assertEquals(1, unpacker.unpackArrayHeader());
+        assertEquals(4, unpacker.unpackInt());
+        assertEquals(5, unpacker.unpackLong());
     }
 }
