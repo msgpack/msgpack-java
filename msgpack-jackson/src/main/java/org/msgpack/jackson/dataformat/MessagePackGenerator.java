@@ -350,9 +350,14 @@ public class MessagePackGenerator extends GeneratorBase {
                 throw new IllegalStateException("Unexpected rootStackItem: " + rootStackItem);
             }
             rootStackItem = null;
-            MessagePacker messagePacker = getMessagePacker();
-            messagePacker.flush();
+            flushMessagePacker();
         }
+    }
+
+    private void flushMessagePacker() throws IOException
+    {
+        MessagePacker messagePacker = getMessagePacker();
+        messagePacker.flush();
     }
 
     @Override
@@ -395,11 +400,19 @@ public class MessagePackGenerator extends GeneratorBase {
         getStackTop().addKey(key);
     }
 
-    private void addValueToStackTop(Object value) {
-        getStackTop().addValue(value);
+    private void addValueToStackTop(Object value) throws IOException
+    {
+        if (stack.isEmpty()) {
+            packValue(value);
+            flushMessagePacker();
+        }
+        else {
+            getStackTop().addValue(value);
+        }
     }
 
-    private void popStackAndStoreTheItemAsValue() {
+    private void popStackAndStoreTheItemAsValue() throws IOException
+    {
         StackItem child = stack.pop();
         if (stack.size() > 0) {
             addValueToStackTop(child);

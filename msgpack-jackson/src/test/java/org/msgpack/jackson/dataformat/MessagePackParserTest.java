@@ -319,6 +319,36 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
     }
 
     @Test
+    public void testReadPrimitives() throws Exception
+    {
+        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        File tempFile = createTempFile();
+
+        FileOutputStream out = new FileOutputStream(tempFile);
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
+        packer.packString("foo");
+        packer.packDouble(3.14);
+        packer.packLong(Long.MAX_VALUE);
+        byte[] bytes = {0x00, 0x11, 0x22};
+        packer.packBinaryHeader(bytes.length);
+        packer.writePayload(bytes);
+        packer.close();
+
+        JsonParser parser = messagePackFactory.createParser(new FileInputStream(tempFile));
+        assertEquals(JsonToken.VALUE_STRING, parser.nextToken());
+        assertEquals("foo", parser.getText());
+        assertEquals(JsonToken.VALUE_NUMBER_FLOAT, parser.nextToken());
+        assertEquals(3.14, parser.getDoubleValue(), 0.0001);
+        assertEquals(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
+        assertEquals(Long.MAX_VALUE, parser.getLongValue());
+        assertEquals(JsonToken.VALUE_EMBEDDED_OBJECT, parser.nextToken());
+        assertEquals(bytes.length, parser.getBinaryValue().length);
+        assertEquals(bytes[0], parser.getBinaryValue()[0]);
+        assertEquals(bytes[1], parser.getBinaryValue()[1]);
+        assertEquals(bytes[2], parser.getBinaryValue()[2]);
+    }
+
+    @Test
     public void testBigDecimal() throws IOException {
         double d0 = 1.23456789;
         double d1 = 1.23450000000000000000006789;
@@ -343,19 +373,21 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         assertEquals(BigDecimal.valueOf(Double.MIN_NORMAL), objects.get(idx++));
     }
 
-    private File createTestFile() throws IOException {
-        File tempFile = File.createTempFile("test", "msgpack");
-        tempFile.deleteOnExit();
-        FileOutputStream out = new FileOutputStream(tempFile);
-        MessagePack.newDefaultPacker(out)
-                .packArrayHeader(1).packInt(1)
-                .packArrayHeader(1).packInt(1)
-                .close();
+    private File createTestFile() throws Exception {
+        File tempFile = createTempFile(new FileSetup() {
+            @Override
+            public void setup(File f) throws IOException {
+                MessagePack.newDefaultPacker(new FileOutputStream(f))
+                    .packArrayHeader(1).packInt(1)
+                    .packArrayHeader(1).packInt(1)
+                    .close();
+            }
+        });
         return tempFile;
     }
 
     @Test(expected = IOException.class)
-    public void testEnableFeatureAutoCloseSource() throws IOException {
+    public void testEnableFeatureAutoCloseSource() throws Exception {
         File tempFile = createTestFile();
         MessagePackFactory messagePackFactory = new MessagePackFactory();
         FileInputStream in = new FileInputStream(tempFile);
@@ -365,11 +397,10 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testDisableFeatureAutoCloseSource() throws IOException {
+    public void testDisableFeatureAutoCloseSource() throws Exception {
         File tempFile = createTestFile();
-        MessagePackFactory messagePackFactory = new MessagePackFactory();
         FileInputStream in = new FileInputStream(tempFile);
-        ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
         objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
         objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
         objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
@@ -385,5 +416,32 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         ArrayList<BigDecimal> result = objectMapper.readValue(
                 bytes, new TypeReference<ArrayList<BigDecimal>>() {});
         assertEquals(list, result);
+    }
+
+    @Test
+    public void testReadPrimitiveObjectViaObjectMapper() throws Exception {
+        File tempFile = createTempFile();
+        FileOutputStream out = new FileOutputStream(tempFile);
+
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
+        packer.packString("foo");
+        packer.packLong(Long.MAX_VALUE);
+        packer.packDouble(3.14);
+        byte[] bytes = {0x00, 0x11, 0x22};
+        packer.packBinaryHeader(bytes.length);
+        packer.writePayload(bytes);
+        packer.close();
+
+        FileInputStream in = new FileInputStream(tempFile);
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+        assertEquals("foo", objectMapper.readValue(in, new TypeReference<String>() {}));
+        assertEquals(Long.MAX_VALUE, objectMapper.readValue(in, new TypeReference<Long>() {}));
+        assertEquals(3.14, objectMapper.readValue(in, new TypeReference<Double>() {}));
+        byte[] bs = objectMapper.readValue(in, new TypeReference<byte []>() {});
+        assertEquals(bytes.length, bs.length);
+        assertEquals(bytes[0], bs[0]);
+        assertEquals(bytes[1], bs[1]);
+        assertEquals(bytes[2], bs[2]);
     }
 }
