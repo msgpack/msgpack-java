@@ -339,9 +339,6 @@ public class MessagePackParser extends ParserMinimalBase {
                 messageUnpacker.close();
             }
         }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
         finally {
             isClosed = true;
         }
