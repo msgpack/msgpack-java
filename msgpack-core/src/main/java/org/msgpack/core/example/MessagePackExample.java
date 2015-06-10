@@ -18,10 +18,8 @@ package org.msgpack.core.example;
 import org.msgpack.core.*;
 import org.msgpack.core.buffer.MessageBuffer;
 import org.msgpack.value.*;
-import org.msgpack.value.holder.FloatHolder;
-import org.msgpack.value.holder.IntegerHolder;
-import org.msgpack.value.holder.ValueHolder;
 
+import java.math.BigInteger;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.CodingErrorAction;
@@ -174,54 +172,55 @@ public class MessagePackExample {
 
             // Alternatively you can use ValueHolder to extract a value of any type
             // NOTE: Value interface is in a preliminary state, so the following code might change in future releases
-            ValueHolder v = new ValueHolder();
-            format = unpacker.unpackValue(v);
-            switch(format.getValueType()) {
+            Value v = unpacker.unpackValue();
+            switch(v.getValueType()) {
                 case NIL:
-                    Value nil = v.get();
-                    nil.isNil(); // true
+                    v.isNilValue(); // true
                     System.out.println("read nil");
                     break;
                 case BOOLEAN:
-                    boolean b = v.get().asBoolean().toBoolean();
+                    boolean b = v.asBooleanValue().getBoolean();
                     System.out.println("read boolean: " + b);
                     break;
                 case INTEGER:
-                    IntegerHolder ih = v.getIntegerHolder();
-                    if(ih.isValidInt()) { // int range check [-2^31-1, 2^31-1]
-                        int i = ih.asInt();
+                    IntegerValue iv = v.asIntegerValue();
+                    if(iv.isInIntRange()) {
+                        int i = iv.intValue();
                         System.out.println("read int: " + i);
                     }
-                    else {
-                        long l = ih.asLong();
+                    else if (iv.isInLongRange()) {
+                        long l = iv.longValue();
                         System.out.println("read long: " + l);
+                    }
+                    else {
+                        BigInteger i = iv.bigIntegerValue();
+                        System.out.println("read long: " + i);
                     }
                     break;
                 case FLOAT:
-                    FloatHolder fh = v.getFloatHolder();
-                    float f = fh.toFloat();   // read as float
-                    double d = fh.toDouble(); // read as double
+                    FloatValue fv = v.asFloatValue();
+                    float f = fv.floatValue();   // use as float
+                    double d = fv.doubleValue(); // use as double
                     System.out.println("read float: " + d);
                     break;
                 case STRING:
-                    String s = v.get().asString().toString();
+                    String s = v.asStringValue().getString();
                     System.out.println("read string: " + s);
                     break;
                 case BINARY:
-                    // Message buffer is an efficient byte buffer
-                    MessageBuffer mb = v.get().asBinary().toMessageBuffer();
-                    System.out.println("read binary: " + mb.toHexString(0, mb.size()));
+                    byte[] mb = v.asBinaryValue().getByteArray();
+                    System.out.println("read binary: size=" + mb.length);
                     break;
                 case ARRAY:
-                    ArrayValue arr = v.get().asArrayValue();
-                    for(ValueRef a : arr) {
-                        System.out.println("read array element: " + a);
+                    ArrayValue a = v.asArrayValue();
+                    for(Value e : a) {
+                        System.out.println("read array element: " + e);
                     }
                     break;
                 case EXTENDED:
-                    ExtendedValue ev = v.get().asExtended();
-                    int extType = ev.getExtType();
-                    byte[] extValue = ev.toByteArray();
+                    ExtendedValue ev = v.asExtendedValue();
+                    byte extType = ev.getType();
+                    byte[] extValue = ev.getData();
                     break;
             }
         }

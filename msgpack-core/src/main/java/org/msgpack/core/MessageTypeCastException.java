@@ -13,16 +13,22 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.value;
+package org.msgpack.core;
 
-/**
- * The interface {@code FloatValue} represents MessagePack's Float type.
- *
- * MessagePack's Float type can represent IEEE 754 double precision floating point numbers including NaN and infinity. This is same with Java's {@code double} type.
- *
- * @see  org.msgpack.value.NumberValue
- */
-public interface FloatValue extends NumberValue {
-    @Override
-    public ImmutableFloatValue immutableValue();
+public class MessageTypeCastException extends MessageTypeException {
+    public MessageTypeCastException() {
+        super();
+    }
+
+    public MessageTypeCastException(String message) {
+        super(message);
+    }
+
+    public MessageTypeCastException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public MessageTypeCastException(Throwable cause) {
+        super(cause);
+    }
 }

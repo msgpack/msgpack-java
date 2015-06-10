@@ -24,7 +24,6 @@ import java.math.BigInteger;
  * that is larger than Integer.MAX_VALUE will cause this exception.
  */
 public class MessageIntegerOverflowException extends MessageOverflowException {
-
     private final BigInteger bigInteger;
 
     public MessageIntegerOverflowException(BigInteger bigInteger) {

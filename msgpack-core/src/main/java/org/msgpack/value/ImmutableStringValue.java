@@ -15,20 +15,5 @@
 //
 package org.msgpack.value;
 
-/**
- * Interface for implementing the visitor pattern on message-packed values
- */
-public interface ValueVisitor {
-
-    public void visitNil();
-    public void visitBoolean(boolean v);
-    public void visitInteger(IntegerValue v);
-    public void visitFloat(FloatValue v);
-    public void visitBinary(BinaryValue v);
-    public void visitString(StringValue v);
-    public void visitArray(ArrayValue v);
-    public void visitMap(MapValue v);
-    public void visitExtended(ExtendedValue v);
-
-    public void onError(Exception e);
+public interface ImmutableStringValue extends StringValue, ImmutableRawValue {
 }

@@ -95,7 +95,7 @@ public enum MessageFormat {
      * @return
      */
     @VisibleForTesting
-    public static MessageFormat toMessageFormat(final byte b) {
+    static MessageFormat toMessageFormat(final byte b) {
         if (Code.isPosFixInt(b)) {
             return POSFIXINT;
         }

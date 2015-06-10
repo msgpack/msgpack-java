@@ -1,106 +1,66 @@
+//
+// MessagePack for Java
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+//
+//        http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+//
 package org.msgpack.value;
-
-import org.msgpack.core.MessageOverflowException;
 
 import java.math.BigInteger;
 
 /**
-* Created on 5/30/14.
-*/
+ * The interface {@code NumberValue} is the interface of {@code IntegerValue} and {@code FloatValue}.
+ *
+ * @see  org.msgpack.value.IntegerValue
+ * @see  org.msgpack.value.FloatValue
+ */
 public interface NumberValue extends Value {
+    @Override
+    public ImmutableNumberValue immutableValue();
 
     /**
-     * Check whether this value is a valid byte value.
-     * @return true if this value has no fractional part, and is within the range of {@link Byte#MIN_VALUE} and {@link Byte#MAX_VALUE}; otherwise returns false
+     * Returns the value as a {@code byte}, which may involve rounding or truncation.
      */
-    public boolean isValidByte();
+    public byte byteValue();
 
     /**
-     * Check whether this value is a valid short value.
-     * @return true if this value has no fractional part, and is within the range of {@link Short#MIN_VALUE} and {@link Short#MAX_VALUE}; otherwise returns false
+     * Returns the value as a {@code short}, which may involve rounding or truncation.
      */
-    public boolean isValidShort();
+    public short shortValue();
 
     /**
-     * Check whether this value is a valid integer value.
-     * @return true if this value has no fractional part, and is within the range of {@link Integer#MIN_VALUE} and {@link Integer#MAX_VALUE}; otherwise returns false
+     * Returns the value as an {@code int}, which may involve rounding or truncation.
      */
-    public boolean isValidInt();
+    public int intValue();
 
     /**
-     * Check whether this value is a valid long value.
-     * @return true if this value has no fractional part, and is within the range of {@link Long#MIN_VALUE} and {@link Long#MAX_VALUE}; otherwise returns false
+     * Returns the value as a {@code long}, which may involve rounding or truncation.
      */
-    public boolean isValidLong();
+    public long longValue();
 
     /**
-     * Returns true if this number has no decimal component
-     * @return true if this number has no decimal component, otherwise false (float, double values);
+     * Returns the value as a {@code BigInteger}, which may involve rounding or truncation.
+     *
+     * Rounding could happen if type of this value is float or double.
      */
-    public boolean isWhole();
+    public BigInteger bigIntegerValue();
 
     /**
-     * Convert this value into a byte value. If this value is not within the range of Byte value, it will truncate or round the value.
+     * Returns the value as a {@code float}, which may involve rounding or truncation.
      */
-    public byte toByte();
-    /**
-     * Convert this value into a short value. If this value is not within the range of Short value, it will truncate or round the value.
-     */
-    public short toShort();
-    /**
-     * Convert this value into an int value. If this value is not within the range of Int value, it will truncate or round the value.
-     */
-    public int toInt();
-    /**
-     * Convert this value into a long value. If this value is not within the range of Long value, it will truncate or round the value.
-     */
-    public long toLong();
-    /**
-     * Convert this value into a BigInteger
-     */
-    public BigInteger toBigInteger();
-    /**
-     * Convert this value into a float value
-     */
-    public float toFloat();
-    /**
-     * Convert this value into a double value
-     */
-    public double toDouble();
+    public float floatValue();
 
     /**
-     * Convert this value into a byte value. If this value is not within the range of Byte value, it throws an exception.
-     * @return
-     * @throws org.msgpack.core.MessageOverflowException when the value is not within the range of {@link Byte#MIN_VALUE} and {@link Byte#MAX_VALUE};
+     * Returns the value as a {@code double}, which may involve rounding or truncation.
      */
-    public byte asByte() throws MessageOverflowException;
-
-    /**
-     * Convert this value into a short value. If this value is not within the range of Short value, it throws an exception.
-     * @return
-     * @throws org.msgpack.core.MessageOverflowException when the value is not within the range of {@link Short#MIN_VALUE} and {@link Short#MAX_VALUE}
-     */
-    public short asShort() throws MessageOverflowException;
-
-    /**
-     * Convert this value into an int value. If this value is not within the range of Integer value, it throws an exception.
-     * @return
-     * @throws org.msgpack.core.MessageOverflowException when the value is not within the range of {@link Integer#MIN_VALUE} and {@link Integer#MAX_VALUE}
-     */
-    public int asInt() throws MessageOverflowException;
-
-    /**
-     * Convert this value into a long value. If this value is not within the range of Long value, it throws an exception.
-     * @return
-     * @throws org.msgpack.core.MessageOverflowException when the value is not within the range of {@link Long#MIN_VALUE} and {@link Long#MAX_VALUE}
-     */
-    public long asLong() throws MessageOverflowException;
-
-    /**
-     * Convert this value into a BigInteger value.
-     * @return
-     * @throws org.msgpack.core.MessageOverflowException
-     */
-    public BigInteger asBigInteger() throws MessageOverflowException;
-
+    public double doubleValue();
 }

@@ -15,14 +15,33 @@
 //
 package org.msgpack.value;
 
-/**
- * The interface {@code FloatValue} represents MessagePack's Float type.
- *
- * MessagePack's Float type can represent IEEE 754 double precision floating point numbers including NaN and infinity. This is same with Java's {@code double} type.
- *
- * @see  org.msgpack.value.NumberValue
- */
-public interface FloatValue extends NumberValue {
+import java.io.Serializable;
+
+public interface ImmutableValue extends Value {
     @Override
-    public ImmutableFloatValue immutableValue();
+    public ImmutableNilValue asNilValue();
+
+    @Override
+    public ImmutableBooleanValue asBooleanValue();
+
+    @Override
+    public ImmutableIntegerValue asIntegerValue();
+
+    @Override
+    public ImmutableFloatValue asFloatValue();
+
+    @Override
+    public ImmutableArrayValue asArrayValue();
+
+    @Override
+    public ImmutableMapValue asMapValue();
+
+    @Override
+    public ImmutableRawValue asRawValue();
+
+    @Override
+    public ImmutableBinaryValue asBinaryValue();
+
+    @Override
+    public ImmutableStringValue asStringValue();
 }

@@ -1,26 +1,42 @@
+//
+// MessagePack for Java
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+//
+//        http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+//
 package org.msgpack.value.impl;
 
-import org.msgpack.core.MessageIntegerOverflowException;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageIntegerOverflowException;
+import org.msgpack.value.Value;
 import org.msgpack.value.ValueType;
 import org.msgpack.value.IntegerValue;
-import org.msgpack.value.Value;
-import org.msgpack.value.ValueVisitor;
+import org.msgpack.value.ImmutableNumberValue;
+import org.msgpack.value.ImmutableIntegerValue;
 
 import java.io.IOException;
 import java.math.BigInteger;
 
-import static org.msgpack.core.Preconditions.checkNotNull;
 
 /**
-* Created on 5/30/14.
-*/
-public class BigIntegerValueImpl extends AbstractValue implements IntegerValue {
-
+ * {@code ImmutableBigIntegerValueImpl} Implements {@code ImmutableBigIntegerValue} using a {@code BigInteger} field.
+ *
+ * @see  org.msgpack.value.IntegerValue
+ */
+public class ImmutableBigIntegerValueImpl extends AbstractImmutableValue implements ImmutableIntegerValue {
     private final BigInteger value;
 
-    public BigIntegerValueImpl(BigInteger value) {
-        this.value = checkNotNull(value, "BigInteger value is null");
+    public ImmutableBigIntegerValueImpl(BigInteger value) {
+        this.value = value;
     }
 
     private static final BigInteger BYTE_MIN = BigInteger.valueOf((long) Byte.MIN_VALUE);
@@ -38,112 +54,115 @@ public class BigIntegerValueImpl extends AbstractValue implements IntegerValue {
     }
 
     @Override
-    public byte toByte() {
+    public ImmutableIntegerValue immutableValue() {
+        return this;
+    }
+
+    @Override
+    public ImmutableNumberValue asNumberValue() {
+        return this;
+    }
+
+    @Override
+    public ImmutableIntegerValue asIntegerValue() {
+        return this;
+    }
+
+    @Override
+    public byte byteValue() {
         return value.byteValue();
     }
 
     @Override
-    public short toShort() {
+    public short shortValue() {
         return value.shortValue();
     }
 
     @Override
-    public int toInt() {
+    public int intValue() {
         return value.intValue();
     }
 
     @Override
-    public long toLong() {
+    public long longValue() {
         return value.longValue();
     }
 
     @Override
-    public BigInteger toBigInteger() {
+    public BigInteger bigIntegerValue() {
         return value;
     }
 
     @Override
-    public float toFloat() {
+    public float floatValue() {
         return value.floatValue();
     }
 
     @Override
-    public double toDouble() {
+    public double doubleValue() {
         return value.doubleValue();
     }
 
     @Override
-    public byte asByte() throws MessageIntegerOverflowException {
-        if (!isValidByte()) {
+    public boolean isInByteRange() {
+        return 0 <= value.compareTo(BYTE_MIN) && value.compareTo(BYTE_MAX) <= 0;
+    }
+
+    @Override
+    public boolean isInShortRange() {
+        return 0 <= value.compareTo(SHORT_MIN) && value.compareTo(SHORT_MAX) <= 0;
+    }
+
+    @Override
+    public boolean isInIntRange() {
+        return 0 <= value.compareTo(INT_MIN) && value.compareTo(INT_MAX) <= 0;
+    }
+
+    @Override
+    public boolean isInLongRange() {
+        return 0 <= value.compareTo(LONG_MIN) && value.compareTo(LONG_MAX) <= 0;
+    }
+
+    @Override
+    public byte getByte() {
+        if (!isInByteRange()) {
             throw new MessageIntegerOverflowException(value);
         }
         return value.byteValue();
     }
 
     @Override
-    public short asShort() throws MessageIntegerOverflowException {
-        if (!isValidShort()) {
+    public short getShort() {
+        if (!isInShortRange()) {
             throw new MessageIntegerOverflowException(value);
         }
         return value.shortValue();
     }
 
     @Override
-    public int asInt() throws MessageIntegerOverflowException {
-        if (!isValidInt()) {
+    public int getInt() {
+        if (!isInIntRange()) {
             throw new MessageIntegerOverflowException(value);
         }
         return value.intValue();
     }
 
     @Override
-    public long asLong() throws MessageIntegerOverflowException {
-        if (!isValidLong()) {
+    public long getLong() {
+        if (!isInLongRange()) {
             throw new MessageIntegerOverflowException(value);
         }
         return value.longValue();
     }
 
     @Override
-    public BigInteger asBigInteger() throws MessageIntegerOverflowException {
+    public BigInteger getBigInteger() {
         return value;
-    }
-
-    @Override
-    public boolean isValidByte() {
-        return 0 <= value.compareTo(BYTE_MIN) && value.compareTo(BYTE_MAX) <= 0;
-    }
-
-    @Override
-    public boolean isValidShort() {
-        return 0 <= value.compareTo(SHORT_MIN) && value.compareTo(SHORT_MAX) <= 0;
-    }
-
-    @Override
-    public boolean isValidInt() {
-        return 0 <= value.compareTo(INT_MIN) && value.compareTo(INT_MAX) <= 0;
-    }
-
-    @Override
-    public boolean isValidLong() {
-        return 0 <= value.compareTo(LONG_MIN) && value.compareTo(LONG_MAX) <= 0;
-    }
-    @Override
-    public boolean isWhole() {
-        return true;
     }
 
     @Override
     public void writeTo(MessagePacker pk) throws IOException {
         pk.packBigInteger(value);
-    }
-    @Override
-    public void accept(ValueVisitor visitor) {
-        visitor.visitInteger(this);
-    }
-    @Override
-    public IntegerValue toValue() {
-        return this;
     }
 
     @Override
@@ -155,11 +174,12 @@ public class BigIntegerValueImpl extends AbstractValue implements IntegerValue {
             return false;
         }
         Value v = (Value) o;
-        if (!v.isInteger()) {
+
+        if (!v.isIntegerValue()) {
             return false;
         }
-        IntegerValue iv = v.asInteger();
-        return value.equals(iv.toBigInteger());
+        IntegerValue iv = v.asIntegerValue();
+        return value.equals(iv.bigIntegerValue());
     }
 
     @Override
