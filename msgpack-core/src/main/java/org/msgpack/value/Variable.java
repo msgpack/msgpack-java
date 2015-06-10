@@ -37,8 +37,7 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.CharacterCodingException;
 
 
-public class Variable implements Value
-{
+public class Variable implements Value {
     private abstract class AbstractValueAccessor implements Value {
         @Override
         public boolean isNilValue() {
@@ -189,15 +188,15 @@ public class Variable implements Value
         }
     }
 
-    final NilValueAccessor nilAccessor = new NilValueAccessor();
-    final BooleanValueAccessor booleanAccessor = new BooleanValueAccessor();
-    final IntegerValueAccessor integerAccessor = new IntegerValueAccessor();
-    final FloatValueAccessor floatAccessor = new FloatValueAccessor();
-    final BinaryValueAccessor binaryAccessor = new BinaryValueAccessor();
-    final StringValueAccessor stringAccessor = new StringValueAccessor();
-    final ArrayValueAccessor arrayAccessor = new ArrayValueAccessor();
-    final MapValueAccessor mapAccessor = new MapValueAccessor();
-    final ExtendedValueAccessor extendedAccessor = new ExtendedValueAccessor();
+    private final NilValueAccessor nilAccessor = new NilValueAccessor();
+    private final BooleanValueAccessor booleanAccessor = new BooleanValueAccessor();
+    private final IntegerValueAccessor integerAccessor = new IntegerValueAccessor();
+    private final FloatValueAccessor floatAccessor = new FloatValueAccessor();
+    private final BinaryValueAccessor binaryAccessor = new BinaryValueAccessor();
+    private final StringValueAccessor stringAccessor = new StringValueAccessor();
+    private final ArrayValueAccessor arrayAccessor = new ArrayValueAccessor();
+    private final MapValueAccessor mapAccessor = new MapValueAccessor();
+    private final ExtendedValueAccessor extendedAccessor = new ExtendedValueAccessor();
 
     private Type type;
 

@@ -178,7 +178,6 @@ public class MessagePackParser extends ParserMinimalBase {
                     nextToken = JsonToken.FIELD_NAME;
                 }
                 else {
-                    nextToken = JsonToken.VALUE_STRING;
                     nextToken = JsonToken.VALUE_EMBEDDED_OBJECT;
                 }
                 break;

@@ -73,6 +73,9 @@ public abstract class AbstractImmutableRawValue extends AbstractImmutableValue i
 
     @Override
     public String stringValue() {
+        if (decodedStringCache == null) {
+            decodeString();
+        }
         return decodedStringCache;
     }
 
