@@ -114,35 +114,11 @@ public class ImmutableMapValueImpl extends AbstractImmutableValue implements Imm
         }
         Value v = (Value) o;
 
-        if (v instanceof ImmutableMapValueImpl) {
-            ImmutableMapValueImpl om = (ImmutableMapValueImpl) v;
-            return Arrays.equals(kvs, om.kvs);
-        } else {
-            if (!v.isMapValue()) {
-                return false;
-            }
-            MapValue mv = v.asMapValue();
-            if (size() != mv.size()) {
-                return false;
-            }
-            Map<Value, Value> m = mv.map();
-            Iterator<Map.Entry<Value, Value>> ite = entrySet().iterator();
-            while (ite.hasNext()) {
-                Map.Entry<Value, Value> e = ite.next();
-                Value ek = e.getKey();
-                Value ev = e.getValue();
-                if (ev == null) {
-                    if (!(m.get(ek) == null && m.containsKey(ek))) {
-                        return false;
-                    }
-                } else {
-                    if (!ev.equals(m.get(ek))) {
-                        return false;
-                    }
-                }
-            }
-            return true;
+        if (!v.isMapValue()) {
+            return false;
         }
+        MapValue mv = v.asMapValue();
+        return map().equals(mv.map());
     }
 
     @Override

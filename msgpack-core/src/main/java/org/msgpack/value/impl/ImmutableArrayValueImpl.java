@@ -74,7 +74,7 @@ public class ImmutableArrayValueImpl extends AbstractImmutableValue implements I
 
     @Override
     public Value getOrNilValue(int index) {
-        if (array.length < index && index >= 0) {
+        if (index < array.length && index >= 0) {
             return array[index];
         }
         return ImmutableNilValueImpl.get();
