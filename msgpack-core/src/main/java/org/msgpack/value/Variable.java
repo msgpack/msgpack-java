@@ -151,11 +151,6 @@ public class Variable implements Value
         }
 
         @Override
-        public void writeTo(MessagePacker pk) throws IOException {
-            Variable.this.writeTo(pk);
-        }
-
-        @Override
         public boolean equals(Object obj) {
             return Variable.this.equals(obj);
         }
@@ -242,6 +237,11 @@ public class Variable implements Value
         public ImmutableNilValue immutableValue() {
             return ValueFactory.newNilValue();
         }
+
+        @Override
+        public void writeTo(MessagePacker pk) throws IOException {
+            pk.packNil();
+        }
     }
 
 
@@ -275,6 +275,11 @@ public class Variable implements Value
         @Override
         public boolean getBoolean() {
             return longValue == 1L;
+        }
+
+        @Override
+        public void writeTo(MessagePacker pk) throws IOException {
+            pk.packBoolean(longValue == 1L);
         }
     }
 
@@ -480,6 +485,15 @@ public class Variable implements Value
                 return BigInteger.valueOf(longValue);
             }
         }
+
+        @Override
+        public void writeTo(MessagePacker pk) throws IOException {
+            if (type == Type.BIG_INTEGER) {
+                pk.packBigInteger((BigInteger) objectValue);
+            } else {
+                pk.packLong(longValue);
+            }
+        }
     }
 
 
@@ -509,6 +523,11 @@ public class Variable implements Value
         @Override
         public ValueType getValueType() {
             return ValueType.FLOAT;
+        }
+
+        @Override
+        public void writeTo(MessagePacker pk) throws IOException {
+            pk.packDouble(doubleValue);
         }
     }
 
@@ -588,6 +607,13 @@ public class Variable implements Value
         public ImmutableBinaryValue immutableValue() {
             return ValueFactory.newBinaryValue(getByteArray());
         }
+
+        @Override
+        public void writeTo(MessagePacker pk) throws IOException {
+            byte[] data = (byte[]) objectValue;
+            pk.packBinaryHeader(data.length);
+            pk.writePayload(data);
+        }
     }
 
 
@@ -620,6 +646,13 @@ public class Variable implements Value
         @Override
         public ImmutableStringValue immutableValue() {
             return ValueFactory.newStringValue((byte[]) objectValue);
+        }
+
+        @Override
+        public void writeTo(MessagePacker pk) throws IOException {
+            byte[] data = (byte[]) objectValue;
+            pk.packRawStringHeader(data.length);
+            pk.writePayload(data);
         }
     }
 
@@ -679,6 +712,15 @@ public class Variable implements Value
         @SuppressWarnings("unchecked")
         public List<Value> list() {
             return (List<Value>) objectValue;
+        }
+
+        @Override
+        public void writeTo(MessagePacker pk) throws IOException {
+            List<Value> l = list();
+            pk.packArrayHeader(l.size());
+            for (Value e : l) {
+                e.writeTo(pk);
+            }
         }
     }
 
@@ -749,6 +791,16 @@ public class Variable implements Value
         public Map<Value, Value> map() {
             return (Map<Value, Value>) objectValue;
         }
+
+        @Override
+        public void writeTo(MessagePacker pk) throws IOException {
+            Map<Value,Value> m = map();
+            pk.packArrayHeader(m.size());
+            for (Map.Entry<Value,Value> pair : m.entrySet()) {
+                pair.getKey().writeTo(pk);
+                pair.getValue().writeTo(pk);
+            }
+        }
     }
 
 
@@ -788,6 +840,11 @@ public class Variable implements Value
         public byte[] getData() {
             return ((ImmutableExtendedValue) objectValue).getData();
         }
+
+        @Override
+        public void writeTo(MessagePacker pk) throws IOException {
+            ((ImmutableExtendedValue) objectValue).writeTo(pk);
+        }
     }
 
 
@@ -802,7 +859,22 @@ public class Variable implements Value
 
     @Override
     public void writeTo(MessagePacker pk) throws IOException {
-        // TODO
+        accessor.writeTo(pk);
+    }
+
+    @Override
+    public int hashCode() {
+        return immutableValue().hashCode();  // TODO optimize
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return immutableValue().equals(o);  // TODO optimize
+    }
+
+    @Override
+    public String toString() {
+        return immutableValue().toString();  // TODO optimize
     }
 
     @Override
