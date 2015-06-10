@@ -21,8 +21,9 @@ import org.msgpack.value.ValueType;
 import org.msgpack.value.FloatValue;
 import org.msgpack.value.ImmutableFloatValue;
 
-import java.io.IOException;
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.io.IOException;
 
 
 /**
@@ -69,7 +70,7 @@ public class ImmutableDoubleValueImpl extends AbstractImmutableValue implements 
 
     @Override
     public BigInteger bigIntegerValue() {
-        return BigInteger.valueOf((long) value);
+        return new BigDecimal(value).toBigInteger();
     }
 
     @Override

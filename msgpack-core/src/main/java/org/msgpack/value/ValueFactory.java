@@ -89,11 +89,11 @@ public final class ValueFactory {
         return new ImmutableStringValueImpl(s);
     }
 
-    public static ImmutableStringValue newRawStringValue(byte[] b) {
+    public static ImmutableStringValue newStringValue(byte[] b) {
         return new ImmutableStringValueImpl(b);
     }
 
-    public static ImmutableStringValue newRawStringValue(byte[] b, int off, int len) {
+    public static ImmutableStringValue newStringValue(byte[] b, int off, int len) {
         return new ImmutableStringValueImpl(Arrays.copyOfRange(b, off, len));
     }
 

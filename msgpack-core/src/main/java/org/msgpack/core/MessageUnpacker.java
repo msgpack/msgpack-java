@@ -15,6 +15,10 @@
 //
 package org.msgpack.core;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
@@ -32,6 +36,7 @@ import org.msgpack.core.buffer.MessageBuffer;
 import org.msgpack.core.buffer.MessageBufferInput;
 import org.msgpack.value.Value;
 import org.msgpack.value.ImmutableValue;
+import org.msgpack.value.Variable;
 import org.msgpack.value.ValueType;
 import org.msgpack.value.ValueFactory;
 
@@ -550,7 +555,7 @@ public class MessageUnpacker implements Closeable {
                 return ValueFactory.newFloatValue(unpackDouble());
             case STRING: {
                 int length = unpackRawStringHeader();
-                return ValueFactory.newRawStringValue(readPayload(length));
+                return ValueFactory.newStringValue(readPayload(length));
             }
             case BINARY: {
                 int length = unpackBinaryHeader();
@@ -567,14 +572,83 @@ public class MessageUnpacker implements Closeable {
             case MAP: {
                 int size = unpackMapHeader();
                 Value[] kvs = new Value[size * 2];
-                for (int i=0; i < size * 2; i++) {
+                for (int i=0; i < size * 2; ) {
                     kvs[i] = unpackValue();
+                    i++;
+                    kvs[i] = unpackValue();
+                    i++;
                 }
                 return ValueFactory.newMapValue(kvs);
             }
             case EXTENDED: {
                 ExtendedTypeHeader extHeader = unpackExtendedTypeHeader();
                 return ValueFactory.newExtendedValue(extHeader.getType(), readPayload(extHeader.getLength()));
+            }
+            default:
+                throw new MessageFormatException("Unknown value type");
+        }
+    }
+
+    public Variable unpackValue(Variable var) throws IOException {
+        MessageFormat mf = getNextFormat();
+        switch(mf.getValueType()) {
+            case NIL:
+                unpackNil();
+                var.setNilValue();
+                return var;
+            case BOOLEAN:
+                var.setBooleanValue(unpackBoolean());
+                return var;
+            case INTEGER:
+                switch (mf) {
+                    case UINT64:
+                        var.setIntegerValue(unpackBigInteger());
+                        return var;
+                    default:
+                        var.setIntegerValue(unpackLong());
+                        return var;
+                }
+            case FLOAT:
+                var.setFloatValue(unpackDouble());
+                return var;
+            case STRING: {
+                int length = unpackRawStringHeader();
+                var.setStringValue(readPayload(length));
+                return var;
+            }
+            case BINARY: {
+                int length = unpackBinaryHeader();
+                var.setBinaryValue(readPayload(length));
+                return var;
+            }
+            case ARRAY: {
+                int size = unpackArrayHeader();
+                List<Value> list = new ArrayList<Value>(size);
+                for (int i=0; i < size; i++) {
+                    Variable e = new Variable();
+                    unpackValue(e);
+                    list.add(e);
+                }
+                var.setArrayValue(list);
+                return var;
+            }
+            case MAP: {
+                int size = unpackMapHeader();
+                Map<Value,Value> map = new HashMap<Value,Value>();
+                for (int i=0; i < size; i++) {
+                    Variable k = new Variable();
+                    unpackValue(k);
+                    Variable v = new Variable();
+                    unpackValue(v);
+                    map.put(k, v);
+                }
+                var.setMapValue(map);
+                return var;
+            }
+            case EXTENDED: {
+                ExtendedTypeHeader extHeader = unpackExtendedTypeHeader();
+                var.setExtendedValue(extHeader.getType(), readPayload(extHeader.getLength()));
+                return var;
             }
             default:
                 throw new MessageFormatException("Unknown value type");

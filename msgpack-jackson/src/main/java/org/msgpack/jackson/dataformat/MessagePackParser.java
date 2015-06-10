@@ -11,7 +11,7 @@ import org.msgpack.core.buffer.ArrayBufferInput;
 import org.msgpack.core.buffer.InputStreamBufferInput;
 import org.msgpack.core.buffer.MessageBufferInput;
 import org.msgpack.value.Value;
-import org.msgpack.value.ImmutableValue;
+import org.msgpack.value.Variable;
 import org.msgpack.value.NumberValue;
 import org.msgpack.value.IntegerValue;
 import org.msgpack.value.ExtendedValue;
@@ -33,7 +33,8 @@ public class MessagePackParser extends ParserMinimalBase {
     private JsonReadContext parsingContext;
 
     private final LinkedList<StackItem> stack = new LinkedList<StackItem>();
-    private ImmutableValue value = ValueFactory.newNilValue();
+    private Value value = ValueFactory.newNilValue();
+    private Variable var = new Variable();
     private boolean isClosed;
     private long tokenPosition;
     private long currentPosition;
@@ -153,15 +154,15 @@ public class MessagePackParser extends ParserMinimalBase {
                 nextToken = b ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE;
                 break;
             case INTEGER:
-                value = messageUnpacker.unpackValue();
+                value = messageUnpacker.unpackValue(var);
                 nextToken = JsonToken.VALUE_NUMBER_INT;
                 break;
             case FLOAT:
-                value = messageUnpacker.unpackValue();
+                value = messageUnpacker.unpackValue(var);
                 nextToken = JsonToken.VALUE_NUMBER_FLOAT;
                 break;
             case STRING:
-                value = messageUnpacker.unpackValue();
+                value = messageUnpacker.unpackValue(var);
                 if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
                     parsingContext.setCurrentName(value.asRawValue().stringValue());
                     nextToken = JsonToken.FIELD_NAME;
@@ -171,7 +172,7 @@ public class MessagePackParser extends ParserMinimalBase {
                 }
                 break;
             case BINARY:
-                value = messageUnpacker.unpackValue();
+                value = messageUnpacker.unpackValue(var);
                 if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
                     parsingContext.setCurrentName(value.asRawValue().stringValue());
                     nextToken = JsonToken.FIELD_NAME;
@@ -190,7 +191,7 @@ public class MessagePackParser extends ParserMinimalBase {
                 newStack = new StackItemForObject(messageUnpacker.unpackMapHeader());
                 break;
             case EXTENDED:
-                value = messageUnpacker.unpackValue();
+                value = messageUnpacker.unpackValue(var);
                 nextToken = JsonToken.VALUE_EMBEDDED_OBJECT;
                 break;
             default:
