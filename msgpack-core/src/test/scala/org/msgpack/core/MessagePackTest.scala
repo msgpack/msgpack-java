@@ -15,7 +15,7 @@
 //
 package org.msgpack.core
 
-import org.msgpack.value.Value
+import org.msgpack.value.{Variable, Value}
 import org.msgpack.value.holder.ValueHolder
 
 import scala.util.Random
@@ -444,7 +444,7 @@ class MessagePackTest extends MessagePackSpec  {
           }
         }
       }, { unpacker =>
-        val holder = new ValueHolder()
+        val holder = new Variable()
         unpacker.unpackValue(holder)
         val v = holder.get()
 

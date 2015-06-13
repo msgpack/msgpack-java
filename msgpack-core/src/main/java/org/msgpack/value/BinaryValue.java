@@ -24,5 +24,5 @@ package org.msgpack.value;
  */
 public interface BinaryValue extends RawValue {
     @Override
-    public ImmutableBinaryValue immutableValue();
+    public ImmutableBinaryValue toImmutable();
 }

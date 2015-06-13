@@ -22,7 +22,7 @@ package org.msgpack.value;
  */
 public interface BooleanValue extends Value {
     @Override
-    public ImmutableBooleanValue immutableValue();
+    public ImmutableBooleanValue toImmutable();
 
     /**
      * Returns the value as a {@code boolean}.

@@ -16,10 +16,7 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
-import org.msgpack.value.Value;
-import org.msgpack.value.ValueType;
-import org.msgpack.value.ArrayValue;
-import org.msgpack.value.ImmutableArrayValue;
+import org.msgpack.value.*;
 
 import java.util.List;
 import java.util.AbstractList;
@@ -53,7 +50,7 @@ public class ImmutableArrayValueImpl extends AbstractImmutableValue implements I
     }
 
     @Override
-    public ImmutableArrayValue immutableValue() {
+    public ImmutableArrayValue toImmutable() {
         return this;
     }
 

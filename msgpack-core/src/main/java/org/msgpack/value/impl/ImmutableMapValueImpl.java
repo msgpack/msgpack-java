@@ -16,10 +16,7 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
-import org.msgpack.value.Value;
-import org.msgpack.value.ValueType;
-import org.msgpack.value.MapValue;
-import org.msgpack.value.ImmutableMapValue;
+import org.msgpack.value.*;
 
 import java.io.IOException;
 import java.util.Map;
@@ -57,7 +54,7 @@ public class ImmutableMapValueImpl extends AbstractImmutableValue implements Imm
     }
 
     @Override
-    public ImmutableMapValue immutableValue() {
+    public ImmutableMapValue toImmutable() {
         return this;
     }
 

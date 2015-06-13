@@ -19,6 +19,7 @@ import org.msgpack.core.MessagePacker;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueType;
 import org.msgpack.value.ImmutableBinaryValue;
+import org.msgpack.value.ValueVisitor;
 
 import java.util.Arrays;
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class ImmutableBinaryValueImpl extends AbstractImmutableRawValue implemen
     }
 
     @Override
-    public ImmutableBinaryValue immutableValue() {
+    public ImmutableBinaryValue toImmutable() {
         return this;
     }
 

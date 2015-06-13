@@ -25,7 +25,7 @@ package org.msgpack.value;
  */
 public interface ExtensionValue extends Value {
     @Override
-    public ImmutableExtensionValue immutableValue();
+    public ImmutableExtensionValue toImmutable();
 
     public byte getType();
 

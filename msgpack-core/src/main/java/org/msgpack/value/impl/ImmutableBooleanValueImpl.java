@@ -16,10 +16,7 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
-import org.msgpack.value.Value;
-import org.msgpack.value.ValueType;
-import org.msgpack.value.BooleanValue;
-import org.msgpack.value.ImmutableBooleanValue;
+import org.msgpack.value.*;
 
 import java.io.IOException;
 
@@ -47,7 +44,7 @@ public class ImmutableBooleanValueImpl extends AbstractImmutableValue implements
     }
 
     @Override
-    public ImmutableBooleanValue immutableValue() {
+    public ImmutableBooleanValue toImmutable() {
         return this;
     }
 

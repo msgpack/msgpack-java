@@ -27,7 +27,7 @@ import java.nio.ByteBuffer;
  */
 public interface RawValue extends Value {
     @Override
-    public ImmutableRawValue immutableValue();
+    public ImmutableRawValue toImmutable();
 
     /**
      * Returns the value as {@code byte[]}.

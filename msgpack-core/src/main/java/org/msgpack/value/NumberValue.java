@@ -25,7 +25,7 @@ import java.math.BigInteger;
  */
 public interface NumberValue extends Value {
     @Override
-    public ImmutableNumberValue immutableValue();
+    public ImmutableNumberValue toImmutable();
 
     /**
      * Returns the value as a {@code byte}, which may involve rounding or truncation.

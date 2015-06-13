@@ -19,6 +19,7 @@ import org.msgpack.core.MessagePacker;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueType;
 import org.msgpack.value.ImmutableNilValue;
+import org.msgpack.value.ValueVisitor;
 
 import java.io.IOException;
 
@@ -45,7 +46,7 @@ public class ImmutableNilValueImpl extends AbstractImmutableValue implements Imm
     }
 
     @Override
-    public ImmutableNilValue immutableValue() {
+    public ImmutableNilValue toImmutable() {
         return this;
     }
 

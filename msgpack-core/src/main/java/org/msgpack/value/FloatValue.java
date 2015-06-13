@@ -24,5 +24,5 @@ package org.msgpack.value;
  */
 public interface FloatValue extends NumberValue {
     @Override
-    public ImmutableFloatValue immutableValue();
+    public ImmutableFloatValue toImmutable();
 }

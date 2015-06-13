@@ -20,5 +20,5 @@ package org.msgpack.value;
  */
 public interface NilValue extends Value {
     @Override
-    public ImmutableNilValue immutableValue();
+    public ImmutableNilValue toImmutable();
 }

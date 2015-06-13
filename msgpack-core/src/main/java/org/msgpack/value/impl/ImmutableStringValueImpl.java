@@ -19,6 +19,7 @@ import org.msgpack.core.MessagePacker;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueType;
 import org.msgpack.value.ImmutableStringValue;
+import org.msgpack.value.ValueVisitor;
 
 import java.util.Arrays;
 import java.io.IOException;
@@ -45,7 +46,7 @@ public class ImmutableStringValueImpl extends AbstractImmutableRawValue implemen
     }
 
     @Override
-    public ImmutableStringValue immutableValue() {
+    public ImmutableStringValue toImmutable() {
         return this;
     }
 

@@ -26,7 +26,7 @@ import java.util.Collection;
  */
 public interface MapValue extends Value {
     @Override
-    public ImmutableMapValue immutableValue();
+    public ImmutableMapValue toImmutable();
 
     /**
      * Returns number of key-value pairs in this array.

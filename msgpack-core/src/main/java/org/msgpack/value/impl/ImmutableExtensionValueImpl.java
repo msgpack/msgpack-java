@@ -16,10 +16,7 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
-import org.msgpack.value.Value;
-import org.msgpack.value.ValueType;
-import org.msgpack.value.ExtensionValue;
-import org.msgpack.value.ImmutableExtensionValue;
+import org.msgpack.value.*;
 
 import java.util.Arrays;
 import java.io.IOException;
@@ -45,7 +42,7 @@ public class ImmutableExtensionValueImpl extends AbstractImmutableValue implemen
     }
 
     @Override
-    public ImmutableExtensionValue immutableValue() {
+    public ImmutableExtensionValue toImmutable() {
         return this;
     }
 

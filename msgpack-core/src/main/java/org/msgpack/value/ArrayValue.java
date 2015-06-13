@@ -25,7 +25,7 @@ import java.util.Iterator;
  */
 public interface ArrayValue extends Value, Iterable<Value> {
     @Override
-    public ImmutableArrayValue immutableValue();
+    public ImmutableArrayValue toImmutable();
 
     /**
      * Returns number of elements in this array.

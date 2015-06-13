@@ -24,7 +24,7 @@ import java.math.BigInteger;
  */
 public interface IntegerValue extends NumberValue {
     @Override
-    public ImmutableIntegerValue immutableValue();
+    public ImmutableIntegerValue toImmutable();
 
     /**
      * Returns true if the value is in the range of [-2<sup>7</sup> to 2<sup>7</sup>-1].

@@ -17,11 +17,7 @@ package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageIntegerOverflowException;
-import org.msgpack.value.Value;
-import org.msgpack.value.ValueType;
-import org.msgpack.value.IntegerValue;
-import org.msgpack.value.ImmutableNumberValue;
-import org.msgpack.value.ImmutableIntegerValue;
+import org.msgpack.value.*;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -54,7 +50,7 @@ public class ImmutableBigIntegerValueImpl extends AbstractImmutableValue impleme
     }
 
     @Override
-    public ImmutableIntegerValue immutableValue() {
+    public ImmutableIntegerValue toImmutable() {
         return this;
     }
 
