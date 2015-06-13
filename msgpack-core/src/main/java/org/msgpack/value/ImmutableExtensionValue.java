@@ -15,5 +15,5 @@
 //
 package org.msgpack.value;
 
-public interface ImmutableExtendedValue extends ExtendedValue, ImmutableValue {
+public interface ImmutableExtensionValue extends ExtensionValue, ImmutableValue {
 }

@@ -20,7 +20,6 @@ import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageTypeCastException;
 import org.msgpack.core.MessageStringCodingException;
 import org.msgpack.core.MessageIntegerOverflowException;
-import org.msgpack.value.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -32,7 +31,6 @@ import java.util.Iterator;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.CharacterCodingException;
 
@@ -90,8 +88,8 @@ public class Variable implements Value {
         }
 
         @Override
-        public boolean isExtendedValue() {
-            return getValueType().isExtendedType();
+        public boolean isExtensionValue() {
+            return getValueType().isExtensionType();
         }
 
         @Override
@@ -145,7 +143,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public ExtendedValue asExtendedValue() {
+        public ExtensionValue asExtensionValue() {
             throw new MessageTypeCastException();
         }
 
@@ -175,7 +173,7 @@ public class Variable implements Value {
         RAW_STRING(ValueType.STRING),
         LIST(ValueType.ARRAY),
         MAP(ValueType.MAP),
-        EXTENDED(ValueType.EXTENDED);
+        EXTENSION(ValueType.EXTENSION);
 
         private final ValueType valueType;
 
@@ -196,7 +194,7 @@ public class Variable implements Value {
     private final StringValueAccessor stringAccessor = new StringValueAccessor();
     private final ArrayValueAccessor arrayAccessor = new ArrayValueAccessor();
     private final MapValueAccessor mapAccessor = new MapValueAccessor();
-    private final ExtendedValueAccessor extendedAccessor = new ExtendedValueAccessor();
+    private final ExtensionValueAccessor extensionAccessor = new ExtensionValueAccessor();
 
     private Type type;
 
@@ -804,45 +802,45 @@ public class Variable implements Value {
 
 
     ////
-    // ExtendedValue
+    // ExtensionValue
     //
 
-    public Variable setExtendedValue(byte type, byte[] data) {
-        this.type = Type.EXTENDED;
-        this.accessor = extendedAccessor;
-        this.objectValue = ValueFactory.newExtendedValue(type, data);
+    public Variable setExtensionValue(byte type, byte[] data) {
+        this.type = Type.EXTENSION;
+        this.accessor = extensionAccessor;
+        this.objectValue = ValueFactory.newExtensionValue(type, data);
         return this;
     }
 
-    private class ExtendedValueAccessor extends AbstractValueAccessor implements ExtendedValue {
+    private class ExtensionValueAccessor extends AbstractValueAccessor implements ExtensionValue {
         @Override
         public ValueType getValueType() {
-            return ValueType.EXTENDED;
+            return ValueType.EXTENSION;
         }
 
         @Override
-        public ExtendedValue asExtendedValue() {
+        public ExtensionValue asExtensionValue() {
             return this;
         }
 
         @Override
-        public ImmutableExtendedValue immutableValue() {
-            return (ImmutableExtendedValue) objectValue;
+        public ImmutableExtensionValue immutableValue() {
+            return (ImmutableExtensionValue) objectValue;
         }
 
         @Override
         public byte getType() {
-            return ((ImmutableExtendedValue) objectValue).getType();
+            return ((ImmutableExtensionValue) objectValue).getType();
         }
 
         @Override
         public byte[] getData() {
-            return ((ImmutableExtendedValue) objectValue).getData();
+            return ((ImmutableExtensionValue) objectValue).getData();
         }
 
         @Override
         public void writeTo(MessagePacker pk) throws IOException {
-            ((ImmutableExtendedValue) objectValue).writeTo(pk);
+            ((ImmutableExtensionValue) objectValue).writeTo(pk);
         }
     }
 
@@ -932,8 +930,8 @@ public class Variable implements Value {
     }
 
     @Override
-    public boolean isExtendedValue() {
-        return getValueType().isExtendedType();
+    public boolean isExtensionValue() {
+        return getValueType().isExtensionType();
     }
 
     @Override
@@ -1017,10 +1015,10 @@ public class Variable implements Value {
     }
 
     @Override
-    public ExtendedValue asExtendedValue() {
-        if (!isExtendedValue()) {
+    public ExtensionValue asExtensionValue() {
+        if (!isExtensionValue()) {
             throw new MessageTypeCastException();
         }
-        return (ExtendedValue) accessor;
+        return (ExtensionValue) accessor;
     }
 }

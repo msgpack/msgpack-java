@@ -414,19 +414,19 @@ class MessagePackTest extends MessagePackSpec  {
 
     }
 
-    "pack/unpack extended types" taggedAs("ext") in {
+    "pack/unpack extension types" taggedAs("ext") in {
       forAll { (dataLen: Int, tpe: Int) =>
         val l = Math.abs(dataLen)
         val t = Math.abs(tpe) % 128
         whenever(l >= 0) {
-          val ext = new ExtendedTypeHeader(l, t)
-          check(ext, _.packExtendedTypeHeader(ext.getType, ext.getLength), _.unpackExtendedTypeHeader())
+          val ext = new ExtensionTypeHeader(l, t)
+          check(ext, _.packExtensionTypeHeader(ext.getType, ext.getLength), _.unpackExtensionTypeHeader())
         }
       }
 
       for(l <- testHeaderLength) {
-        val ext = new ExtendedTypeHeader(l, Random.nextInt(128))
-        check(ext, _.packExtendedTypeHeader(ext.getType, ext.getLength), _.unpackExtendedTypeHeader())
+        val ext = new ExtensionTypeHeader(l, Random.nextInt(128))
+        check(ext, _.packExtensionTypeHeader(ext.getType, ext.getLength), _.unpackExtensionTypeHeader())
       }
 
     }

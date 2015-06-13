@@ -3,13 +3,13 @@ package org.msgpack.core;
 import static org.msgpack.core.Preconditions.*;
 
 /**
- * Header of the extended types
+ * Header of the Extension types
  */
-public class ExtendedTypeHeader {
+public class ExtensionTypeHeader {
     private final byte type;
     private final int length;
 
-    ExtendedTypeHeader(byte type, int length) {
+    ExtensionTypeHeader(byte type, int length) {
         checkArgument(length >= 0, String.format("length must be >= 0: %,d", length));
         this.length = length;
         this.type = type;
@@ -30,8 +30,8 @@ public class ExtendedTypeHeader {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj instanceof ExtendedTypeHeader) {
-            ExtendedTypeHeader other = (ExtendedTypeHeader) obj;
+        if(obj instanceof ExtensionTypeHeader) {
+            ExtensionTypeHeader other = (ExtensionTypeHeader) obj;
             return this.type == other.type && this.length == other.length;
         }
         return false;
@@ -39,7 +39,7 @@ public class ExtendedTypeHeader {
 
     @Override
     public String toString() {
-        return String.format("ExtendedTypeHeader(type:%d, length:%,d)", type, length);
+        return String.format("ExtensionTypeHeader(type:%d, length:%,d)", type, length);
     }
 
 }

@@ -46,7 +46,7 @@ class ValueTypeTest extends MessagePackSpec {
         check(t, ValueType.BINARY)
 
       for(t <- Seq(FIXEXT1, FIXEXT2, FIXEXT4, FIXEXT8, FIXEXT16, EXT8, EXT16, EXT32))
-        check(t, ValueType.EXTENDED)
+        check(t, ValueType.EXTENSION)
 
       for(t <- Seq(INT8, INT16, INT32, INT64, UINT8, UINT16, UINT32, UINT64))
         check(t, ValueType.INTEGER)

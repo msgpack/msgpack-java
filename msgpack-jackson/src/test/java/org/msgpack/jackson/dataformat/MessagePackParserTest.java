@@ -67,7 +67,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         // #9
         byte[] extPayload = {-80, -50, -25, -114, -25, 16, 60, 68};
         packer.packString("ext");
-        packer.packExtendedTypeHeader(0, extPayload.length);
+        packer.packExtensionTypeHeader(0, extPayload.length);
         packer.writePayload(extPayload);
 
         packer.flush();
@@ -142,9 +142,9 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
             else if (k.equals("ext")) {
                 // #9
                 bitmap |= 1 << 10;
-                MessagePackExtendedType extendedType = (MessagePackExtendedType) v;
-                assertEquals(0, extendedType.extType());
-                assertEquals(ByteBuffer.wrap(extPayload), extendedType.byteBuffer());
+                MessagePackExtensionType ExtensionType = (MessagePackExtensionType) v;
+                assertEquals(0, ExtensionType.extType());
+                assertEquals(ByteBuffer.wrap(extPayload), ExtensionType.byteBuffer());
             }
         }
         assertEquals(0x7FF, bitmap);
@@ -191,7 +191,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         packer.packBoolean(true);
         // #11
         byte[] extPayload = {-80, -50, -25, -114, -25, 16, 60, 68};
-        packer.packExtendedTypeHeader(-1, extPayload.length);
+        packer.packExtensionTypeHeader(-1, extPayload.length);
         packer.writePayload(extPayload);
 
         packer.flush();
@@ -249,9 +249,9 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         // #10
         assertEquals(true, array.get(i++));
         // #11
-        MessagePackExtendedType extendedType = (MessagePackExtendedType) array.get(i++);
-        assertEquals(-1, extendedType.extType());
-        assertEquals(ByteBuffer.wrap(extPayload), extendedType.byteBuffer());
+        MessagePackExtensionType ExtensionType = (MessagePackExtensionType) array.get(i++);
+        assertEquals(-1, ExtensionType.extType());
+        assertEquals(ByteBuffer.wrap(extPayload), ExtensionType.byteBuffer());
     }
 
     @Test

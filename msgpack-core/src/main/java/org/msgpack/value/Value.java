@@ -16,6 +16,7 @@
 package org.msgpack.value;
 
 import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageTypeCastException;
 
 import java.io.IOException;
 
@@ -119,12 +120,13 @@ public interface Value {
     public boolean isMapValue();
 
     /**
-     * Returns true if type of this an Extended.
+     * Returns true if type of this an Extension.
      *
-     * If this method returns true, {@code asExtendedValue} never throws exceptions.
-     * Note that you can't use <code>instanceof</code> or cast <code>((ExtendedValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
+     * If this method returns true, {@code asExtensionValue} never throws exceptions.
+     * Note that you can't use <code>instanceof</code> or cast <code>((ExtensionValue) thisValue)</code> to check type of a value because
+     * type of a mutable value is variable.
      */
-    public boolean isExtendedValue();
+    public boolean isExtensionValue();
 
     /**
      * Returns the value as {@code NilValue}. Otherwise throws {@code MessageTypeCastException}.
@@ -227,14 +229,15 @@ public interface Value {
     public MapValue asMapValue();
 
     /**
-     * Returns the value as {@code ExtendedValue}. Otherwise throws {@code MessageTypeCastException}.
+     * Returns the value as {@code ExtensionValue}. Otherwise throws {@code MessageTypeCastException}.
      *
-     * Note that you can't use <code>instanceof</code> or cast <code>((ExtendedValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
+     * Note that you can't use <code>instanceof</code> or cast <code>((ExtensionValue) thisValue)</code> to check type of a value
+     * because type of a mutable value is variable.
      *
      * @throws  MessageTypeCastException
-     *          If type of this value is not Extended.
+     *          If type of this value is not an Extension.
      */
-    public ExtendedValue asExtendedValue();
+    public ExtensionValue asExtensionValue();
 
     /**
      * Serializes the value using the specified {@code MessagePacker}

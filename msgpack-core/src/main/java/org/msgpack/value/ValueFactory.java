@@ -24,15 +24,13 @@ import org.msgpack.value.impl.ImmutableDoubleValueImpl;
 import org.msgpack.value.impl.ImmutableStringValueImpl;
 import org.msgpack.value.impl.ImmutableArrayValueImpl;
 import org.msgpack.value.impl.ImmutableMapValueImpl;
-import org.msgpack.value.impl.ImmutableExtendedValueImpl;
+import org.msgpack.value.impl.ImmutableExtensionValueImpl;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
 import java.math.BigInteger;
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 
 public final class ValueFactory {
     private ValueFactory() { }
@@ -134,7 +132,7 @@ public final class ValueFactory {
         return new ImmutableMapValueImpl(Arrays.copyOf(kvs, kvs.length));
     }
 
-    public static ImmutableExtendedValue newExtendedValue(byte type, byte[] data) {
-        return new ImmutableExtendedValueImpl(type, data);
+    public static ImmutableExtensionValue newExtensionValue(byte type, byte[] data) {
+        return new ImmutableExtensionValueImpl(type, data);
     }
 }

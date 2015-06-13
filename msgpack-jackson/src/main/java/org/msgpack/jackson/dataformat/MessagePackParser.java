@@ -5,16 +5,13 @@ import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonReadContext;
-import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.core.buffer.ArrayBufferInput;
 import org.msgpack.core.buffer.InputStreamBufferInput;
 import org.msgpack.core.buffer.MessageBufferInput;
 import org.msgpack.value.Value;
 import org.msgpack.value.Variable;
-import org.msgpack.value.NumberValue;
 import org.msgpack.value.IntegerValue;
-import org.msgpack.value.ExtendedValue;
 import org.msgpack.value.ValueType;
 import org.msgpack.value.ValueFactory;
 
@@ -23,7 +20,6 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.LinkedList;
-import java.util.logging.Logger;
 
 public class MessagePackParser extends ParserMinimalBase {
     private static final ThreadLocal<Tuple<Object, MessageUnpacker>> messageUnpackerHolder =
@@ -189,7 +185,7 @@ public class MessagePackParser extends ParserMinimalBase {
                 value = ValueFactory.newNilValue();
                 newStack = new StackItemForObject(messageUnpacker.unpackMapHeader());
                 break;
-            case EXTENDED:
+            case EXTENSION:
                 value = messageUnpacker.unpackValue(var);
                 nextToken = JsonToken.VALUE_EMBEDDED_OBJECT;
                 break;
@@ -319,8 +315,8 @@ public class MessagePackParser extends ParserMinimalBase {
     public Object getEmbeddedObject() throws IOException, JsonParseException {
         if (value.isBinaryValue()) {
             return value.asBinaryValue().getByteArray();
-        } else if (value.isExtendedValue()) {
-            return value.asExtendedValue();
+        } else if (value.isExtensionValue()) {
+            return value.asExtensionValue();
         } else {
             throw new UnsupportedOperationException();
         }

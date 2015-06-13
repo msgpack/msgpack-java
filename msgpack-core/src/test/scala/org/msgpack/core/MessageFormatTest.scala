@@ -52,14 +52,14 @@ class MessageFormatTest extends MessagePackSpec {
       check(Code.BIN16, ValueType.BINARY, MessageFormat.BIN16)
       check(Code.BIN32, ValueType.BINARY, MessageFormat.BIN32)
 
-      check(Code.FIXEXT1, ValueType.EXTENDED, MessageFormat.FIXEXT1)
-      check(Code.FIXEXT2, ValueType.EXTENDED, MessageFormat.FIXEXT2)
-      check(Code.FIXEXT4, ValueType.EXTENDED, MessageFormat.FIXEXT4)
-      check(Code.FIXEXT8, ValueType.EXTENDED, MessageFormat.FIXEXT8)
-      check(Code.FIXEXT16, ValueType.EXTENDED, MessageFormat.FIXEXT16)
-      check(Code.EXT8, ValueType.EXTENDED, MessageFormat.EXT8)
-      check(Code.EXT16, ValueType.EXTENDED, MessageFormat.EXT16)
-      check(Code.EXT32, ValueType.EXTENDED, MessageFormat.EXT32)
+      check(Code.FIXEXT1, ValueType.EXTENSION, MessageFormat.FIXEXT1)
+      check(Code.FIXEXT2, ValueType.EXTENSION, MessageFormat.FIXEXT2)
+      check(Code.FIXEXT4, ValueType.EXTENSION, MessageFormat.FIXEXT4)
+      check(Code.FIXEXT8, ValueType.EXTENSION, MessageFormat.FIXEXT8)
+      check(Code.FIXEXT16, ValueType.EXTENSION, MessageFormat.FIXEXT16)
+      check(Code.EXT8, ValueType.EXTENSION, MessageFormat.EXT8)
+      check(Code.EXT16, ValueType.EXTENSION, MessageFormat.EXT16)
+      check(Code.EXT32, ValueType.EXTENSION, MessageFormat.EXT32)
 
 
       check(Code.INT8, ValueType.INTEGER, MessageFormat.INT8)
