@@ -21,11 +21,8 @@ package org.msgpack.value;
  * MessagePack's Boolean type can represent {@code true} or {@code false}.
  */
 public interface BooleanValue extends Value {
-    @Override
-    public ImmutableBooleanValue toImmutable();
-
     /**
      * Returns the value as a {@code boolean}.
      */
-    public boolean getBoolean();
+    boolean getBoolean();
 }

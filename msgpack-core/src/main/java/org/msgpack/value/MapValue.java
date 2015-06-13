@@ -25,24 +25,21 @@ import java.util.Collection;
  * MessagePack's Map type can represent sequence of key-value pairs.
  */
 public interface MapValue extends Value {
-    @Override
-    public ImmutableMapValue toImmutable();
-
     /**
      * Returns number of key-value pairs in this array.
      */
-    public int size();
+    int size();
 
-    public Set<Value> keySet();
+    Set<Value> keySet();
 
-    public Set<Map.Entry<Value, Value>> entrySet();
+    Set<Map.Entry<Value, Value>> entrySet();
 
-    public Collection<Value> values();
+    Collection<Value> values();
 
     /**
      * Returns the value as {@code Map}.
      */
-    public Map<Value, Value> map();
+    Map<Value, Value> map();
 
     /**
      * Returns the key-value pairs as an array of {@code Value}.
@@ -51,5 +48,5 @@ public interface MapValue extends Value {
      *
      * For example, if this value represents <code>{"k1": "v1", "k2": "v2"}</code>, this method returns ["k1", "v1", "k2", "v2"].
      */
-    public Value[] getKeyValueArray();
+    Value[] getKeyValueArray();
 }

@@ -24,10 +24,7 @@ package org.msgpack.value;
  * As the type information, applications can use 0 to 127 as the application-specific types. -1 to -128 is reserved for MessagePack's future extension.
  */
 public interface ExtensionValue extends Value {
-    @Override
-    public ImmutableExtensionValue toImmutable();
+    byte getType();
 
-    public byte getType();
-
-    public byte[] getData();
+    byte[] getData();
 }
