@@ -142,9 +142,9 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
             else if (k.equals("ext")) {
                 // #9
                 bitmap |= 1 << 10;
-                MessagePackExtensionType ExtensionType = (MessagePackExtensionType) v;
-                assertEquals(0, ExtensionType.extType());
-                assertEquals(ByteBuffer.wrap(extPayload), ExtensionType.byteBuffer());
+                MessagePackExtensionType extensionType = (MessagePackExtensionType) v;
+                assertEquals(0, extensionType.extType());
+                assertEquals(ByteBuffer.wrap(extPayload), extensionType.byteBuffer());
             }
         }
         assertEquals(0x7FF, bitmap);
@@ -249,9 +249,9 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         // #10
         assertEquals(true, array.get(i++));
         // #11
-        MessagePackExtensionType ExtensionType = (MessagePackExtensionType) array.get(i++);
-        assertEquals(-1, ExtensionType.extType());
-        assertEquals(ByteBuffer.wrap(extPayload), ExtensionType.byteBuffer());
+        MessagePackExtensionType extensionType = (MessagePackExtensionType) array.get(i++);
+        assertEquals(-1, extensionType.extType());
+        assertEquals(ByteBuffer.wrap(extPayload), extensionType.byteBuffer());
     }
 
     @Test

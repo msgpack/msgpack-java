@@ -6,8 +6,8 @@ import java.nio.ByteBuffer;
 
 import static org.junit.Assert.*;
 
-public class MessagePackextensionTypeTest {
-    private void assertextensionType(MessagePackextensionType x,
+public class MessagePackExtensionTypeTest {
+    private void assertExtensionType(MessagePackExtensionType x,
                                     int expectedExtType, ByteBuffer expectedByteBuffer) {
         assertEquals(expectedExtType, x.extType());
         assertEquals(expectedByteBuffer, x.byteBuffer());
@@ -20,7 +20,7 @@ public class MessagePackextensionTypeTest {
         ByteBuffer expectedByteBuffer = ByteBuffer.wrap(bs);
 
         int extType = 1;
-        MessagePackextensionType extensionType =
+        MessagePackExtensionType extensionType =
                 new MessagePackExtensionType(extType, ByteBuffer.wrap(bs));
         assertExtensionType(extensionType, extType, expectedByteBuffer);
 
@@ -28,33 +28,33 @@ public class MessagePackextensionTypeTest {
         ByteBuffer bb = ByteBuffer.allocate(3);
         bb.put(bs);
         bb.position(0);
-        extensionType = new MessagePackextensionType(extType, bb);
-        assertextensionType(extensionType, extType, expectedByteBuffer);
+        extensionType = new MessagePackExtensionType(extType, bb);
+        assertExtensionType(extensionType, extType, expectedByteBuffer);
 
         extType = 3;
         bb = ByteBuffer.allocateDirect(3);
         bb.put(bs);
         bb.position(0);
-        extensionType = new MessagePackextensionType(extType, bb);
-        assertextensionType(extensionType, extType, expectedByteBuffer);
+        extensionType = new MessagePackExtensionType(extType, bb);
+        assertExtensionType(extensionType, extType, expectedByteBuffer);
 
         extType = -1;
         extensionType =
-                new MessagePackextensionType(extType, ByteBuffer.wrap(bs).asReadOnlyBuffer());
-        assertextensionType(extensionType, extType, expectedByteBuffer);
+                new MessagePackExtensionType(extType, ByteBuffer.wrap(bs).asReadOnlyBuffer());
+        assertExtensionType(extensionType, extType, expectedByteBuffer);
 
         extType = -2;
         bb = ByteBuffer.allocate(3);
         bb.put(bs);
         bb.position(0);
-        extensionType = new MessagePackextensionType(extType, bb.asReadOnlyBuffer());
-        assertextensionType(extensionType, extType, expectedByteBuffer);
+        extensionType = new MessagePackExtensionType(extType, bb.asReadOnlyBuffer());
+        assertExtensionType(extensionType, extType, expectedByteBuffer);
 
         extType = -3;
         bb = ByteBuffer.allocateDirect(3);
         bb.put(bs);
         bb.position(0);
-        extensionType = new MessagePackextensionType(extType, bb.asReadOnlyBuffer());
-        assertextensionType(extensionType, extType, expectedByteBuffer);
+        extensionType = new MessagePackExtensionType(extType, bb.asReadOnlyBuffer());
+        assertExtensionType(extensionType, extType, expectedByteBuffer);
     }
 }
