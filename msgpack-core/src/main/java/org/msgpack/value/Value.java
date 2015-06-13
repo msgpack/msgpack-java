@@ -30,7 +30,7 @@ public interface Value {
      * <p/>
      * Note that you can't use <code>instanceof</code> to check type of a value because type of a mutable value is variable.
      */
-    public ValueType getValueType();
+    ValueType getValueType();
 
     /**
      * Returns immutable copy of this value.

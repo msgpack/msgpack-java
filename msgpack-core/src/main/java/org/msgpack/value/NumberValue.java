@@ -20,47 +20,43 @@ import java.math.BigInteger;
 /**
  * The interface {@code NumberValue} is the interface of {@code IntegerValue} and {@code FloatValue}.
  *
- * @see  org.msgpack.value.IntegerValue
- * @see  org.msgpack.value.FloatValue
+ * @see org.msgpack.value.IntegerValue
+ * @see org.msgpack.value.FloatValue
  */
 public interface NumberValue extends Value {
-    @Override
-    public ImmutableNumberValue toImmutable();
 
     /**
-     * Returns the value as a {@code byte}, which may involve rounding or truncation.
+     * Convert this value into a byte value. If this value is not within the range of Byte value, it will truncate or round the value.
      */
-    public byte byteValue();
+    byte toByte();
 
     /**
-     * Returns the value as a {@code short}, which may involve rounding or truncation.
+     * Convert this value into a short value. If this value is not within the range of Short value, it will truncate or round the value.
      */
-    public short shortValue();
+    short toShort();
 
     /**
-     * Returns the value as an {@code int}, which may involve rounding or truncation.
+     * Convert this value into an int value. If this value is not within the range of Int value, it will truncate or round the value.
      */
-    public int intValue();
+    int toInt();
 
     /**
-     * Returns the value as a {@code long}, which may involve rounding or truncation.
+     * Convert this value into a long value. If this value is not within the range of Long value, it will truncate or round the value.
      */
-    public long longValue();
+    long toLong();
 
     /**
-     * Returns the value as a {@code BigInteger}, which may involve rounding or truncation.
-     *
-     * Rounding could happen if type of this value is float or double.
+     * Convert this value into a BigInteger. If value is Float type, it will round the value
      */
-    public BigInteger bigIntegerValue();
+    BigInteger toBigInteger();
 
     /**
-     * Returns the value as a {@code float}, which may involve rounding or truncation.
+     * Converts this value into a 32-bit float
      */
-    public float floatValue();
+    float toFloat();
 
     /**
-     * Returns the value as a {@code double}, which may involve rounding or truncation.
+     * Converts this value into a 64-bit double
      */
-    public double doubleValue();
+    double toDouble();
 }

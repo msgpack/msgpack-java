@@ -313,7 +313,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public byte byteValue() {
+        public byte toByte() {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).byteValue();
             }
@@ -321,7 +321,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public short shortValue() {
+        public short toShort() {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).shortValue();
             }
@@ -329,7 +329,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public int intValue() {
+        public int toInt() {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).intValue();
             }
@@ -337,7 +337,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public long longValue() {
+        public long toLong() {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).longValue();
             }
@@ -345,7 +345,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public BigInteger bigIntegerValue() {
+        public BigInteger toBigInteger() {
             if (type == Type.BIG_INTEGER) {
                 return (BigInteger) objectValue;
             }
@@ -356,7 +356,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public float floatValue() {
+        public float toFloat() {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).floatValue();
             }
@@ -367,7 +367,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public double doubleValue() {
+        public double toDouble() {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).doubleValue();
             }
@@ -517,14 +517,14 @@ public class Variable implements Value {
         this.type = Type.DOUBLE;
         this.accessor = floatAccessor;
         this.doubleValue = v;
-        this.longValue = (long) v;  // AbstractNumberValueAccessor uses longValue
+        this.longValue = (long) v;  // AbstractNumberValueAccessor uses toLong
         return this;
     }
 
     public Variable setFloatValue(float v) {
         this.type = Type.DOUBLE;
         this.accessor = floatAccessor;
-        this.longValue = (long) v;  // AbstractNumberValueAccessor uses longValue
+        this.longValue = (long) v;  // AbstractNumberValueAccessor uses toLong
         return this;
     }
 
