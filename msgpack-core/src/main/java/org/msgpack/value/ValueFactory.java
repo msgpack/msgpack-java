@@ -103,6 +103,11 @@ public final class ValueFactory {
         return new ImmutableArrayValueImpl(Arrays.copyOf(array, array.length));
     }
 
+    public static ImmutableArrayValue newArrayOf(Value... elem) {
+        return newArray(elem);
+    }
+
+
     public static ImmutableArrayValue emptyArray() {
         return ImmutableArrayValueImpl.empty();
     }
@@ -129,6 +134,11 @@ public final class ValueFactory {
         }
         return new ImmutableMapValueImpl(Arrays.copyOf(kvs, kvs.length));
     }
+
+    public static ImmutableMapValue emptyMap() {
+        return ImmutableMapValueImpl.empty();
+    }
+
 
     public static class MapEntry {
         public final Value key;

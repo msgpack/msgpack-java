@@ -21,25 +21,25 @@ class ValueFactoryTest extends MessagePackSpec {
               isRaw : Boolean = false,
               isNumber : Boolean = false
                ) {
-    v.isNil shouldBe isNil
-    v.isBoolean shouldBe isBoolean
-    v.isInteger shouldBe isInteger
-    v.isFloat shouldBe isFloat
-    v.isString shouldBe isString
-    v.isBinary shouldBe isBinary
-    v.isArray shouldBe isArray
-    v.isMap shouldBe isMap
-    v.isExtension shouldBe isExtension
-    v.isRaw shouldBe isRaw
-    v.isNumber shouldBe isNumber
+    v.isNilValue shouldBe isNil
+    v.isBooleanValue shouldBe isBoolean
+    v.isIntegerValue shouldBe isInteger
+    v.isFloatValue shouldBe isFloat
+    v.isStringValue shouldBe isString
+    v.isBinaryValue shouldBe isBinary
+    v.isArrayValue shouldBe isArray
+    v.isMapValue shouldBe isMap
+    v.isExtensionValue shouldBe isExtension
+    v.isRawValue shouldBe isRaw
+    v.isNumberValue shouldBe isNumber
   }
 
   "ValueFactory" should {
 
     "create valid type values" in {
-      isValid(ValueFactory.nilValue(), expected=ValueType.NIL, isNil = true)
+      isValid(ValueFactory.nil(), expected=ValueType.NIL, isNil = true)
       forAll{(v:Boolean) => isValid(ValueFactory.newBoolean(v), expected=ValueType.BOOLEAN, isBoolean = true)}
-      forAll{(v:Int) => isValid(ValueFactory.newInt(v), expected=ValueType.INTEGER, isInteger = true, isNumber = true)}
+      forAll{(v:Int) => isValid(ValueFactory.newInteger(v), expected=ValueType.INTEGER, isInteger = true, isNumber = true)}
       forAll{(v:Float) => isValid(ValueFactory.newFloat(v), expected=ValueType.FLOAT, isFloat = true, isNumber = true)}
       forAll{(v:String) => isValid(ValueFactory.newString(v), expected=ValueType.STRING, isString = true, isRaw = true)}
       forAll{(v:Array[Byte]) => isValid(ValueFactory.newBinary(v), expected=ValueType.BINARY, isBinary = true, isRaw = true)}

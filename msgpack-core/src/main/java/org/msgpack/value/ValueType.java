@@ -15,6 +15,8 @@
 //
 package org.msgpack.value;
 
+import org.msgpack.core.MessageFormat;
+
 /**
  * MessageTypeFamily is a group of {@link org.msgpack.core.MessageFormat}s
  */
@@ -32,10 +34,30 @@ public enum ValueType {
 
     private final boolean numberType;
     private final boolean rawType;
+    private final int bitMask;
 
     private ValueType(boolean numberType, boolean rawType) {
         this.numberType = numberType;
         this.rawType = rawType;
+        this.bitMask = 1 << this.ordinal();
+    }
+
+    /**
+     * Returns a bit mask representing this value type for quickly cheking
+     * this value type
+     * @return bit mask representing this value type
+     */
+    public int getBitMask() {
+        return bitMask;
+    }
+
+    /**
+     * Check whether the given bit mask represents this value type
+     * @param bitMask
+     * @return
+     */
+    public boolean isTypeOf(int bitMask) {
+        return (this.bitMask & bitMask) != 0;
     }
 
     public boolean isNilType() {
@@ -80,5 +102,13 @@ public enum ValueType {
 
     public boolean isExtensionType() {
         return this == EXTENSION;
+    }
+
+    public static ValueType valueOf(byte b) {
+        return MessageFormat.valueOf(b).getValueType();
+    }
+
+    public String toTypeName() {
+        return this.name().substring(0, 1) + this.name().substring(1).toLowerCase();
     }
 }
