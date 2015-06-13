@@ -9,7 +9,7 @@ class RawValueImplTest extends MessagePackSpec {
   "RawValueImple" should {
     "toString shouldn't return empty value" in {
       val str = "aaa"
-      def newRawStr() = ValueFactory.newRawString(str.getBytes("UTF-8"))
+      def newRawStr() = ValueFactory.newString(str.getBytes("UTF-8"))
 
       def pack(v: Value): Array[Byte] = {
         val out = new ByteArrayOutputStream()
@@ -28,7 +28,7 @@ class RawValueImplTest extends MessagePackSpec {
       {
         val rawStr = newRawStr()
         pack(rawStr)
-        rawStr.asString().toString shouldBe str
+        rawStr.asStringValue().toString shouldBe str
       }
     }
   }

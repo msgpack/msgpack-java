@@ -521,6 +521,13 @@ public class Variable implements Value {
         return this;
     }
 
+    public Variable setFloatValue(float v) {
+        this.type = Type.DOUBLE;
+        this.accessor = floatAccessor;
+        this.longValue = (long) v;  // AbstractNumberValueAccessor uses longValue
+        return this;
+    }
+
     private class FloatValueAccessor extends AbstractNumberValueAccessor implements FloatValue {
         @Override
         public FloatValue asFloatValue() {
