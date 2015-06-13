@@ -232,7 +232,7 @@ public class Variable implements Value {
 
         @Override
         public ImmutableNilValue immutableValue() {
-            return ValueFactory.newNilValue();
+            return ValueFactory.nil();
         }
 
         @Override
@@ -266,7 +266,7 @@ public class Variable implements Value {
 
         @Override
         public ImmutableBooleanValue immutableValue() {
-            return ValueFactory.newBooleanValue(getBoolean());
+            return ValueFactory.newBoolean(getBoolean());
         }
 
         @Override
@@ -405,9 +405,9 @@ public class Variable implements Value {
         @Override
         public ImmutableIntegerValue immutableValue() {
             if (type == Type.BIG_INTEGER) {
-                return ValueFactory.newIntegerValue((BigInteger) objectValue);
+                return ValueFactory.newInteger((BigInteger) objectValue);
             }
-            return ValueFactory.newIntegerValue(longValue);
+            return ValueFactory.newInteger(longValue);
         }
 
         @Override
@@ -514,7 +514,7 @@ public class Variable implements Value {
 
         @Override
         public ImmutableFloatValue immutableValue() {
-            return ValueFactory.newFloatValue(doubleValue);
+            return ValueFactory.newFloat(doubleValue);
         }
 
         @Override
@@ -602,7 +602,7 @@ public class Variable implements Value {
 
         @Override
         public ImmutableBinaryValue immutableValue() {
-            return ValueFactory.newBinaryValue(getByteArray());
+            return ValueFactory.newBinary(getByteArray());
         }
 
         @Override
@@ -642,7 +642,7 @@ public class Variable implements Value {
 
         @Override
         public ImmutableStringValue immutableValue() {
-            return ValueFactory.newStringValue((byte[]) objectValue);
+            return ValueFactory.newString((byte[]) objectValue);
         }
 
         @Override
@@ -678,7 +678,7 @@ public class Variable implements Value {
 
         @Override
         public ImmutableArrayValue immutableValue() {
-            return ValueFactory.newArrayValue(list());
+            return ValueFactory.newArray(list());
         }
 
         @Override
@@ -695,7 +695,7 @@ public class Variable implements Value {
         public Value getOrNilValue(int index) {
             List<Value> l = list();
             if (l.size() < index && index >= 0) {
-                return ValueFactory.newNilValue();
+                return ValueFactory.nil();
             }
             return l.get(index);
         }
@@ -745,7 +745,7 @@ public class Variable implements Value {
 
         @Override
         public ImmutableMapValue immutableValue() {
-            return ValueFactory.newMapValue(map());
+            return ValueFactory.newMap(map());
         }
 
         @Override
@@ -808,7 +808,7 @@ public class Variable implements Value {
     public Variable setExtensionValue(byte type, byte[] data) {
         this.type = Type.EXTENSION;
         this.accessor = extensionAccessor;
-        this.objectValue = ValueFactory.newExtensionValue(type, data);
+        this.objectValue = ValueFactory.newExtension(type, data);
         return this;
     }
 

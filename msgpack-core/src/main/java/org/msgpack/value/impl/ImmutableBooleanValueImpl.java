@@ -41,14 +41,6 @@ public class ImmutableBooleanValueImpl extends AbstractImmutableValue implements
         this.value = value;
     }
 
-    public static ImmutableBooleanValue trueInstance() {
-        return TRUE;
-    }
-
-    public static ImmutableBooleanValue falseInstance() {
-        return FALSE;
-    }
-
     @Override
     public ValueType getValueType() {
         return ValueType.BOOLEAN;

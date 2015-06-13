@@ -540,25 +540,25 @@ public class MessageUnpacker implements Closeable {
         switch(mf.getValueType()) {
             case NIL:
                 unpackNil();
-                return ValueFactory.newNilValue();
+                return ValueFactory.nil();
             case BOOLEAN:
-                return ValueFactory.newBooleanValue(unpackBoolean());
+                return ValueFactory.newBoolean(unpackBoolean());
             case INTEGER:
                 switch (mf) {
                     case UINT64:
-                        return ValueFactory.newIntegerValue(unpackBigInteger());
+                        return ValueFactory.newInteger(unpackBigInteger());
                     default:
-                        return ValueFactory.newIntegerValue(unpackLong());
+                        return ValueFactory.newInteger(unpackLong());
                 }
             case FLOAT:
-                return ValueFactory.newFloatValue(unpackDouble());
+                return ValueFactory.newFloat(unpackDouble());
             case STRING: {
                 int length = unpackRawStringHeader();
-                return ValueFactory.newStringValue(readPayload(length));
+                return ValueFactory.newString(readPayload(length));
             }
             case BINARY: {
                 int length = unpackBinaryHeader();
-                return ValueFactory.newBinaryValue(readPayload(length));
+                return ValueFactory.newBinary(readPayload(length));
             }
             case ARRAY: {
                 int size = unpackArrayHeader();
@@ -566,7 +566,7 @@ public class MessageUnpacker implements Closeable {
                 for (int i=0; i < size; i++) {
                     array[i] = unpackValue();
                 }
-                return ValueFactory.newArrayValue(array);
+                return ValueFactory.newArray(array);
             }
             case MAP: {
                 int size = unpackMapHeader();
@@ -577,11 +577,11 @@ public class MessageUnpacker implements Closeable {
                     kvs[i] = unpackValue();
                     i++;
                 }
-                return ValueFactory.newMapValue(kvs);
+                return ValueFactory.newMap(kvs);
             }
             case EXTENSION: {
                 ExtensionTypeHeader extHeader = unpackExtensionTypeHeader();
-                return ValueFactory.newExtensionValue(extHeader.getType(), readPayload(extHeader.getLength()));
+                return ValueFactory.newExtension(extHeader.getType(), readPayload(extHeader.getLength()));
             }
             default:
                 throw new MessageFormatException("Unknown value type");

@@ -45,7 +45,7 @@ class ValueFactoryTest extends MessagePackSpec {
       forAll{(v:Array[Byte]) => isValid(ValueFactory.newBinary(v), expected=ValueType.BINARY, isBinary = true, isRaw = true)}
       isValid(ValueFactory.emptyArray(), expected=ValueType.ARRAY, isArray = true)
       isValid(ValueFactory.emptyMap(), expected=ValueType.MAP, isMap = true)
-      forAll{(v:Array[Byte]) => isValid(ValueFactory.newExtensionValue(0, v), expected=ValueType.EXTENSION, isExtension=true, isRaw=true)}
+      forAll{(v:Array[Byte]) => isValid(ValueFactory.newExtension(0, v), expected=ValueType.EXTENSION, isExtension=true, isRaw=true)}
     }
 
   }
