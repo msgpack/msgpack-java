@@ -16,7 +16,6 @@
 package org.msgpack.core
 
 import org.msgpack.value.{Variable, Value}
-import org.msgpack.value.holder.ValueHolder
 
 import scala.util.Random
 import MessagePack.Code
@@ -444,19 +443,18 @@ class MessagePackTest extends MessagePackSpec  {
           }
         }
       }, { unpacker =>
-        val holder = new Variable()
-        unpacker.unpackValue(holder)
-        val v = holder.get()
-
-        v.asArrayValue().toValueArray.map { m =>
+        val v = new Variable()
+        unpacker.unpackValue(v)
+        import scala.collection.JavaConversions._
+        v.asArrayValue().map { m =>
           val mv = m.asMapValue()
-          val kvs = mv.toKeyValueSeq
+          val kvs = mv.getKeyValueArray
 
           kvs.grouped(2).map({ kvp: Array[Value] =>
             val k = kvp(0)
             val v = kvp(1)
 
-            (k.asString().toString, v.asString().toString)
+            (k.asStringValue().toString, v.asStringValue().toString)
           }).toMap
         }.toList
       })
