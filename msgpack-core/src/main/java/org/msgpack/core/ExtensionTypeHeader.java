@@ -9,10 +9,16 @@ public class ExtensionTypeHeader {
     private final byte type;
     private final int length;
 
-    ExtensionTypeHeader(byte type, int length) {
+    public ExtensionTypeHeader(byte type, int length) {
         checkArgument(length >= 0, String.format("length must be >= 0: %,d", length));
-        this.length = length;
         this.type = type;
+        this.length = length;
+    }
+
+    public ExtensionTypeHeader(int type, int length) {
+        checkArgument(Byte.MIN_VALUE <= type &&  type <= Byte.MAX_VALUE, "Extension type must be within -128 to 127");
+        this.type = (byte) type;
+        this.length = length;
     }
 
     public byte getType() {
