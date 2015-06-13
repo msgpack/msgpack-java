@@ -86,6 +86,11 @@ public class ImmutableDoubleValueImpl extends AbstractImmutableValue implements 
     }
 
     @Override
+    public void accept(ValueVisitor visitor) {
+        visitor.visitFloat(this);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == this) {
             return true;

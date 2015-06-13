@@ -58,6 +58,11 @@ public class ImmutableBinaryValueImpl extends AbstractImmutableRawValue implemen
     }
 
     @Override
+    public void accept(ValueVisitor visitor) {
+        visitor.visitBinary(this);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

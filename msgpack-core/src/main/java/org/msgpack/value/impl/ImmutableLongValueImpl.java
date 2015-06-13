@@ -157,6 +157,11 @@ public class ImmutableLongValueImpl extends AbstractImmutableValue implements Im
     }
 
     @Override
+    public void accept(ValueVisitor visitor) {
+        visitor.visitInteger(this);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == this) {
             return true;

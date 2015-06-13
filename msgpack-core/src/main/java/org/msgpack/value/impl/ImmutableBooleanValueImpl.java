@@ -59,6 +59,11 @@ public class ImmutableBooleanValueImpl extends AbstractImmutableValue implements
     }
 
     @Override
+    public void accept(ValueVisitor visitor) {
+        visitor.visitBoolean(this);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == this) {
             return true;

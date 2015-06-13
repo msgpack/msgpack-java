@@ -239,6 +239,11 @@ public class Variable implements Value {
         public void writeTo(MessagePacker pk) throws IOException {
             pk.packNil();
         }
+
+        @Override
+        public void accept(ValueVisitor visitor) {
+            visitor.visitNil();
+        }
     }
 
 
@@ -277,6 +282,11 @@ public class Variable implements Value {
         @Override
         public void writeTo(MessagePacker pk) throws IOException {
             pk.packBoolean(longValue == 1L);
+        }
+
+        @Override
+        public void accept(ValueVisitor visitor) {
+            visitor.visitBoolean(this);
         }
     }
 
@@ -491,6 +501,11 @@ public class Variable implements Value {
                 pk.packLong(longValue);
             }
         }
+
+        @Override
+        public void accept(ValueVisitor visitor) {
+            visitor.visitInteger(this);
+        }
     }
 
 
@@ -525,6 +540,11 @@ public class Variable implements Value {
         @Override
         public void writeTo(MessagePacker pk) throws IOException {
             pk.packDouble(doubleValue);
+        }
+
+        @Override
+        public void accept(ValueVisitor visitor) {
+            visitor.visitFloat(this);
         }
     }
 
@@ -611,6 +631,11 @@ public class Variable implements Value {
             pk.packBinaryHeader(data.length);
             pk.writePayload(data);
         }
+
+        @Override
+        public void accept(ValueVisitor visitor) {
+            visitor.visitBinary(this);
+        }
     }
 
 
@@ -650,6 +675,11 @@ public class Variable implements Value {
             byte[] data = (byte[]) objectValue;
             pk.packRawStringHeader(data.length);
             pk.writePayload(data);
+        }
+
+        @Override
+        public void accept(ValueVisitor visitor) {
+            visitor.visitString(this);
         }
     }
 
@@ -718,6 +748,11 @@ public class Variable implements Value {
             for (Value e : l) {
                 e.writeTo(pk);
             }
+        }
+
+        @Override
+        public void accept(ValueVisitor visitor) {
+            visitor.visitArray(this);
         }
     }
 
@@ -845,6 +880,11 @@ public class Variable implements Value {
         @Override
         public void writeTo(MessagePacker pk) throws IOException {
             ((ImmutableExtensionValue) objectValue).writeTo(pk);
+        }
+
+        @Override
+        public void accept(ValueVisitor visitor) {
+            visitor.visitExtension(((ImmutableExtensionValue) objectValue));
         }
     }
 

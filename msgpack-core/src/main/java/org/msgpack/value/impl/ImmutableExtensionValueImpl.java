@@ -68,6 +68,11 @@ public class ImmutableExtensionValueImpl extends AbstractImmutableValue implemen
     }
 
     @Override
+    public void accept(ValueVisitor visitor) {
+        visitor.visitExtension(this);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == this) {
             return true;

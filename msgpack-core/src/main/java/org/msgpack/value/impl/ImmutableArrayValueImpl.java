@@ -96,6 +96,11 @@ public class ImmutableArrayValueImpl extends AbstractImmutableValue implements I
     }
 
     @Override
+    public void accept(ValueVisitor visitor) {
+        visitor.visitArray(this);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if(o == this) {
             return true;

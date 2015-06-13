@@ -62,6 +62,11 @@ public class ImmutableStringValueImpl extends AbstractImmutableRawValue implemen
     }
 
     @Override
+    public void accept(ValueVisitor visitor) {
+        visitor.visitString(this);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

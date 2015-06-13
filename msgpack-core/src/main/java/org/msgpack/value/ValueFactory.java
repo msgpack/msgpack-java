@@ -103,6 +103,11 @@ public final class ValueFactory {
         return new ImmutableArrayValueImpl(Arrays.copyOf(array, array.length));
     }
 
+    public static ImmutableArrayValue emptyArray() {
+        return ImmutableArrayValueImpl.empty();
+    }
+
+
     public static <K extends Value, V extends Value>
     ImmutableMapValue newMap(Map<K, V> map) {
         Value[] kvs = new Value[map.size() * 2];

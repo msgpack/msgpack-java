@@ -61,6 +61,11 @@ public class ImmutableNilValueImpl extends AbstractImmutableValue implements Imm
     }
 
     @Override
+    public void accept(ValueVisitor visitor) {
+        visitor.visitNil();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == this) {
             return true;
