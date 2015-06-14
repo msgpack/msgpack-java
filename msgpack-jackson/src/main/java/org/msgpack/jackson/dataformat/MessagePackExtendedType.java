@@ -37,7 +37,7 @@ public class MessagePackExtendedType {
                 msgpackGenerator.writeExtendedType(value);
             }
             else {
-                throw new IllegalStateException("gen is expected to be MessagePackGenerator but it's " + gen.getClass());
+                throw new IllegalStateException("'gen' is expected to be MessagePackGenerator but it's " + gen.getClass());
             }
         }
     }
