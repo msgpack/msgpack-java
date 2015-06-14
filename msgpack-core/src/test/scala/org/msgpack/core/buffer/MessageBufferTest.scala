@@ -132,8 +132,35 @@ class MessageBufferTest extends MessagePackSpec {
         bb.capacity shouldBe 10
       }
     }
-  }
 
+    "put ByteBuffer on itself" in {
+      for (t <- Seq(
+        MessageBuffer.newBuffer(10),
+        MessageBuffer.newDirectBuffer(10),
+        MessageBuffer.newOffHeapBuffer(10))
+      ) {
+        val b = Array[Byte](0x02, 0x03)
+        val srcArray = ByteBuffer.wrap(b)
+        val srcHeap = ByteBuffer.allocate(b.length)
+        srcHeap.put(b).flip
+        val srcOffHeap = ByteBuffer.allocateDirect(b.length)
+        srcOffHeap.put(b).flip
+
+        for (src <- Seq(srcArray, srcHeap, srcOffHeap)) {
+          // Write header bytes
+          val header = Array[Byte](0x00, 0x01)
+          t.putBytes(0, header, 0, header.length)
+          // Write src after the header
+          t.putByteBuffer(header.length, src, header.length)
+
+          t.getByte(0) shouldBe 0x00
+          t.getByte(1) shouldBe 0x01
+          t.getByte(2) shouldBe 0x02
+          t.getByte(3) shouldBe 0x03
+        }
+      }
+    }
+  }
 }
 
 

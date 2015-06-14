@@ -149,6 +149,7 @@ public class MessageBufferU extends MessageBuffer {
             int prevSrcLimit = src.limit();
             try {
                 src.limit(src.position() + len);
+                reference.position(index);
                 reference.put(src);
             }
             finally {
