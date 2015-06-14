@@ -142,7 +142,7 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
                 bitmap |= 0x1 << 9;
             }
             else if (key.equals("ext")) {
-                // #9
+                // #10
                 ExtendedTypeHeader header = messageUnpacker.unpackExtendedTypeHeader();
                 assertEquals(17, header.getType());
                 assertEquals(5, header.getLength());
