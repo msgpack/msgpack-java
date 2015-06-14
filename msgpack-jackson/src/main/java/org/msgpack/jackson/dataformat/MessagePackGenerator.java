@@ -175,6 +175,12 @@ public class MessagePackGenerator extends GeneratorBase {
         else if (v instanceof Boolean) {
             messagePacker.packBoolean((Boolean) v);
         }
+        else if (v instanceof MessagePackExtendedType) {
+            MessagePackExtendedType extendedType = (MessagePackExtendedType) v;
+            ByteBuffer buf = extendedType.byteBuffer();
+            messagePacker.packExtendedTypeHeader(extendedType.extType(), buf.remaining());
+            messagePacker.writePayload(buf);
+        }
         else {
             throw new IllegalArgumentException(v.toString());
         }
@@ -322,6 +328,10 @@ public class MessagePackGenerator extends GeneratorBase {
     @Override
     public void writeNull() throws IOException, JsonGenerationException {
         addValueToStackTop(null);
+    }
+
+    public void writeExtendedType(MessagePackExtendedType extendedType) throws IOException {
+        addValueToStackTop(extendedType);
     }
 
     @Override

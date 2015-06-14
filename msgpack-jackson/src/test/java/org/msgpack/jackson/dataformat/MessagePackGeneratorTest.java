@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
+import org.msgpack.core.ExtendedTypeHeader;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.core.buffer.ArrayBufferInput;
@@ -29,8 +30,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.util.*;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -63,6 +66,10 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
         childArray.add("child#1");
         childArray.add(1.23f);
         hashMap.put("childArray", childArray);
+        // #10
+        byte[] hello = "hello".getBytes("UTF-8");
+        ByteBuffer buffer = ByteBuffer.wrap(hello);
+        hashMap.put("ext", new MessagePackExtendedType(17, buffer));
 
         long bitmap = 0;
         byte[] bytes = objectMapper.writeValueAsBytes(hashMap);
@@ -134,11 +141,24 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
                 assertEquals(1.23f, messageUnpacker.unpackFloat(), 0.01f);
                 bitmap |= 0x1 << 9;
             }
+            else if (key.equals("ext")) {
+                // #9
+                ExtendedTypeHeader header = messageUnpacker.unpackExtendedTypeHeader();
+                assertEquals(17, header.getType());
+                assertEquals(5, header.getLength());
+                ByteBuffer payload = ByteBuffer.allocate(header.getLength());
+                payload.flip();
+                payload.limit(payload.capacity());
+                messageUnpacker.readPayload(payload);
+                payload.flip();
+                assertArrayEquals("hello".getBytes(), payload.array());
+                bitmap |= 0x1 << 10;
+            }
             else {
                 assertTrue(false);
             }
         }
-        assertEquals(0x03FF, bitmap);
+        assertEquals(0x07FF, bitmap);
     }
 
     @Test
@@ -270,7 +290,6 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
         }
 
         {
-
             BigDecimal decimal = new BigDecimal("1234.567890123456789012345678901234567890");
             List<BigDecimal> bigDecimals = Arrays.asList(
                     decimal
