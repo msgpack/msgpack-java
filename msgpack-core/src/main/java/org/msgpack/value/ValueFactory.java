@@ -96,22 +96,16 @@ public final class ValueFactory {
         return new ImmutableArrayValueImpl(array);
     }
 
-    public static ImmutableArrayValue newArray(Value[] array) {
+    public static ImmutableArrayValue newArray(Value... array) {
         if (array.length == 0) {
             return ImmutableArrayValueImpl.empty();
         }
         return new ImmutableArrayValueImpl(Arrays.copyOf(array, array.length));
     }
 
-    public static ImmutableArrayValue newArrayOf(Value... elem) {
-        return newArray(elem);
-    }
-
-
     public static ImmutableArrayValue emptyArray() {
         return ImmutableArrayValueImpl.empty();
     }
-
 
     public static <K extends Value, V extends Value>
     ImmutableMapValue newMap(Map<K, V> map) {
