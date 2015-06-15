@@ -129,7 +129,7 @@ class MessagePackerTest extends MessagePackSpec {
         val msgpack = new MessagePack(new MessagePack.ConfigBuilder().packerBufferSize(bufferSize).build)
         val str = "a" * stringSize
         val rawString = ValueFactory.newString(str.getBytes("UTF-8"))
-        val array = ValueFactory.newArrayOf(rawString)
+        val array = ValueFactory.newArray(rawString)
         val out = new ByteArrayOutputStream()
         val packer = msgpack.newPacker(out)
         packer.packValue(array)
