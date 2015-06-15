@@ -37,7 +37,7 @@ public interface Value {
      * <p/>
      * This method simply returns <code>this</code> without copying the value if this value is already immutable.
      */
-    ImmutableValue toImmutable();
+    ImmutableValue immutableValue();
 
     /**
      * Returns true if type of this value is Nil.

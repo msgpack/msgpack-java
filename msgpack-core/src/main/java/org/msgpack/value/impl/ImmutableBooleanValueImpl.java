@@ -44,7 +44,7 @@ public class ImmutableBooleanValueImpl extends AbstractImmutableValue implements
     }
 
     @Override
-    public ImmutableBooleanValue toImmutable() {
+    public ImmutableBooleanValue immutableValue() {
         return this;
     }
 

@@ -231,7 +231,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public ImmutableNilValue toImmutable() {
+        public ImmutableNilValue immutableValue() {
             return ValueFactory.nil();
         }
 
@@ -270,7 +270,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public ImmutableBooleanValue toImmutable() {
+        public ImmutableBooleanValue immutableValue() {
             return ValueFactory.newBoolean(getBoolean());
         }
 
@@ -413,7 +413,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public ImmutableIntegerValue toImmutable() {
+        public ImmutableIntegerValue immutableValue() {
             if (type == Type.BIG_INTEGER) {
                 return ValueFactory.newInteger((BigInteger) objectValue);
             }
@@ -535,7 +535,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public ImmutableFloatValue toImmutable() {
+        public ImmutableFloatValue immutableValue() {
             return ValueFactory.newFloat(doubleValue);
         }
 
@@ -628,7 +628,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public ImmutableBinaryValue toImmutable() {
+        public ImmutableBinaryValue immutableValue() {
             return ValueFactory.newBinary(getByteArray());
         }
 
@@ -673,7 +673,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public ImmutableStringValue toImmutable() {
+        public ImmutableStringValue immutableValue() {
             return ValueFactory.newString((byte[]) objectValue);
         }
 
@@ -714,7 +714,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public ImmutableArrayValue toImmutable() {
+        public ImmutableArrayValue immutableValue() {
             return ValueFactory.newArray(list());
         }
 
@@ -786,7 +786,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public ImmutableMapValue toImmutable() {
+        public ImmutableMapValue immutableValue() {
             return ValueFactory.newMap(map());
         }
 
@@ -870,7 +870,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public ImmutableExtensionValue toImmutable() {
+        public ImmutableExtensionValue immutableValue() {
             return (ImmutableExtensionValue) objectValue;
         }
 
@@ -901,8 +901,8 @@ public class Variable implements Value {
     //
 
     @Override
-    public ImmutableValue toImmutable() {
-        return accessor.toImmutable();
+    public ImmutableValue immutableValue() {
+        return accessor.immutableValue();
     }
 
     @Override
@@ -917,17 +917,17 @@ public class Variable implements Value {
 
     @Override
     public int hashCode() {
-        return toImmutable().hashCode();  // TODO optimize
+        return immutableValue().hashCode();  // TODO optimize
     }
 
     @Override
     public boolean equals(Object o) {
-        return toImmutable().equals(o);  // TODO optimize
+        return immutableValue().equals(o);  // TODO optimize
     }
 
     @Override
     public String toString() {
-        return toImmutable().toString();  // TODO optimize
+        return immutableValue().toString();  // TODO optimize
     }
 
     @Override

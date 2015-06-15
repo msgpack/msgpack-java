@@ -46,7 +46,7 @@ public class ImmutableNilValueImpl extends AbstractImmutableValue implements Imm
     }
 
     @Override
-    public ImmutableNilValue toImmutable() {
+    public ImmutableNilValue immutableValue() {
         return this;
     }
 

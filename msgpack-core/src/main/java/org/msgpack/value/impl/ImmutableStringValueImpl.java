@@ -46,7 +46,7 @@ public class ImmutableStringValueImpl extends AbstractImmutableRawValue implemen
     }
 
     @Override
-    public ImmutableStringValue toImmutable() {
+    public ImmutableStringValue immutableValue() {
         return this;
     }
 

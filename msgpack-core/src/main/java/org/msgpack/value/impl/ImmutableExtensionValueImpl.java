@@ -42,7 +42,7 @@ public class ImmutableExtensionValueImpl extends AbstractImmutableValue implemen
     }
 
     @Override
-    public ImmutableExtensionValue toImmutable() {
+    public ImmutableExtensionValue immutableValue() {
         return this;
     }
 

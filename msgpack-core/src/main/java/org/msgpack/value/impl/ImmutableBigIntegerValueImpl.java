@@ -50,7 +50,7 @@ public class ImmutableBigIntegerValueImpl extends AbstractImmutableValue impleme
     }
 
     @Override
-    public ImmutableIntegerValue toImmutable() {
+    public ImmutableIntegerValue immutableValue() {
         return this;
     }
 

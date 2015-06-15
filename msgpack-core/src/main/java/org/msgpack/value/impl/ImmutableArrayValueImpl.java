@@ -50,7 +50,7 @@ public class ImmutableArrayValueImpl extends AbstractImmutableValue implements I
     }
 
     @Override
-    public ImmutableArrayValue toImmutable() {
+    public ImmutableArrayValue immutableValue() {
         return this;
     }
 

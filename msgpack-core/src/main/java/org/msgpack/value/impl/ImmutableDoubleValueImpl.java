@@ -41,7 +41,7 @@ public class ImmutableDoubleValueImpl extends AbstractImmutableValue implements 
     }
 
     @Override
-    public ImmutableDoubleValueImpl toImmutable() {
+    public ImmutableDoubleValueImpl immutableValue() {
         return this;
     }
 

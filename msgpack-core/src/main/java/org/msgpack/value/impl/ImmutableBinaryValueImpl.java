@@ -42,7 +42,7 @@ public class ImmutableBinaryValueImpl extends AbstractImmutableRawValue implemen
     }
 
     @Override
-    public ImmutableBinaryValue toImmutable() {
+    public ImmutableBinaryValue immutableValue() {
         return this;
     }
 

@@ -54,7 +54,7 @@ public class ImmutableMapValueImpl extends AbstractImmutableValue implements Imm
     }
 
     @Override
-    public ImmutableMapValue toImmutable() {
+    public ImmutableMapValue immutableValue() {
         return this;
     }
 

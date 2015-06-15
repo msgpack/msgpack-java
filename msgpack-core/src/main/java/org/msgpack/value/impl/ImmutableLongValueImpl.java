@@ -48,7 +48,7 @@ public class ImmutableLongValueImpl extends AbstractImmutableValue implements Im
     }
 
     @Override
-    public ImmutableIntegerValue toImmutable() {
+    public ImmutableIntegerValue immutableValue() {
         return this;
     }
 
