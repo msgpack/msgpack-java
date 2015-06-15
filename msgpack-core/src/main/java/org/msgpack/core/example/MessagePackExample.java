@@ -125,7 +125,7 @@ public class MessagePackExample {
 
         // Write ext type data: https://github.com/msgpack/msgpack/blob/master/spec.md#ext-format-family
         byte[] extData = "custom data type".getBytes(MessagePack.UTF8);
-        packer.packExtensionTypeHeader(1, 10);  // type number [0, 127], data byte length
+        packer.packExtensionTypeHeader((byte) 1, 10);  // type number [0, 127], data byte length
         packer.writePayload(extData);
 
         // Succinct syntax for packing

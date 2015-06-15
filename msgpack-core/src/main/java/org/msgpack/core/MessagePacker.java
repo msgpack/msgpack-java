@@ -477,41 +477,41 @@ public class MessagePacker implements Closeable {
         return this;
     }
 
-    public MessagePacker packExtensionTypeHeader(int extType, int payloadLen) throws IOException {
+    public MessagePacker packExtensionTypeHeader(byte extType, int payloadLen) throws IOException {
         if(payloadLen < (1 << 8)) {
             if(payloadLen > 0 && (payloadLen & (payloadLen - 1)) == 0) { // check whether dataLen == 2^x
                 if(payloadLen == 1) {
-                    writeByteAndByte(FIXEXT1, (byte) extType);
+                    writeByteAndByte(FIXEXT1, extType);
                 }
                 else if(payloadLen == 2) {
-                    writeByteAndByte(FIXEXT2, (byte) extType);
+                    writeByteAndByte(FIXEXT2, extType);
                 }
                 else if(payloadLen == 4) {
-                    writeByteAndByte(FIXEXT4, (byte) extType);
+                    writeByteAndByte(FIXEXT4, extType);
                 }
                 else if(payloadLen == 8) {
-                    writeByteAndByte(FIXEXT8, (byte) extType);
+                    writeByteAndByte(FIXEXT8, extType);
                 }
                 else if(payloadLen == 16) {
-                    writeByteAndByte(FIXEXT16, (byte) extType);
+                    writeByteAndByte(FIXEXT16, extType);
                 }
                 else {
                     writeByteAndByte(EXT8, (byte) payloadLen);
-                    writeByte((byte) extType);
+                    writeByte(extType);
                 }
             }
             else {
                 writeByteAndByte(EXT8, (byte) payloadLen);
-                writeByte((byte) extType);
+                writeByte(extType);
             }
         }
         else if(payloadLen < (1 << 16)) {
             writeByteAndShort(EXT16, (short) payloadLen);
-            writeByte((byte) extType);
+            writeByte(extType);
         }
         else {
             writeByteAndInt(EXT32, payloadLen);
-            writeByte((byte) extType);
+            writeByte(extType);
 
             // TODO support dataLen > 2^31 - 1
         }

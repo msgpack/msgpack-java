@@ -67,7 +67,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         // #9
         byte[] extPayload = {-80, -50, -25, -114, -25, 16, 60, 68};
         packer.packString("ext");
-        packer.packExtensionTypeHeader(0, extPayload.length);
+        packer.packExtensionTypeHeader((byte) 0, extPayload.length);
         packer.writePayload(extPayload);
 
         packer.flush();
@@ -191,7 +191,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         packer.packBoolean(true);
         // #11
         byte[] extPayload = {-80, -50, -25, -114, -25, 16, 60, 68};
-        packer.packExtensionTypeHeader(-1, extPayload.length);
+        packer.packExtensionTypeHeader((byte) -1, extPayload.length);
         packer.writePayload(extPayload);
 
         packer.flush();
