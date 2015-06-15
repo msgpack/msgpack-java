@@ -407,7 +407,7 @@ class MessagePackTest extends MessagePackSpec  {
         checkException(0, _.packMapHeader(-1), _.unpackMapHeader)
       }
       catch {
-        case e: IllegalArgumentException => // OK
+        case e: IllegalArgumentExcepNetion => // OK
       }
 
 

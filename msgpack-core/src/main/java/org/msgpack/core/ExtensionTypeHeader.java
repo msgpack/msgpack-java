@@ -9,6 +9,11 @@ public class ExtensionTypeHeader {
     private final byte type;
     private final int length;
 
+    /**
+     * Create a ExtensionTypeHeader(
+     * @param type
+     * @param length
+     */
     public ExtensionTypeHeader(byte type, int length) {
         checkArgument(length >= 0, "length must be >= 0");
         this.type = type;
