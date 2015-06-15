@@ -174,7 +174,7 @@ class MessagePackTest extends MessagePackSpec  {
       forAll { (v: Float) => check(v, _.packFloat(v), _.unpackFloat)}
       forAll { (v: Long) => check(v, _.packLong(v), _.unpackLong)}
       forAll { (v: Double) => check(v, _.packDouble(v), _.unpackDouble)}
-      check(null, _.packNil, _.unpackNil())
+      check(null, _.packNil, {unpacker => unpacker.unpackNil(); null})
     }
 
     "pack/unpack integer values" taggedAs("int") in {
