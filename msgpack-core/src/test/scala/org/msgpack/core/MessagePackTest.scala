@@ -414,17 +414,16 @@ class MessagePackTest extends MessagePackSpec  {
     }
 
     "pack/unpack extension types" taggedAs("ext") in {
-      forAll { (dataLen: Int, tpe: Int) =>
+      forAll { (dataLen: Int, tpe: Byte) =>
         val l = Math.abs(dataLen)
-        val t = Math.abs(tpe) % 128
         whenever(l >= 0) {
-          val ext = new ExtensionTypeHeader(ExtensionTypeHeader.checkedCastToByte(l), t)
+          val ext = new ExtensionTypeHeader(ExtensionTypeHeader.checkedCastToByte(tpe), l)
           check(ext, _.packExtensionTypeHeader(ext.getType, ext.getLength), _.unpackExtensionTypeHeader())
         }
       }
 
       for(l <- testHeaderLength) {
-        val ext = new ExtensionTypeHeader(ExtensionTypeHeader.checkedCastToByte(l), Random.nextInt(128))
+        val ext = new ExtensionTypeHeader(ExtensionTypeHeader.checkedCastToByte(Random.nextInt(128)), l)
         check(ext, _.packExtensionTypeHeader(ext.getType, ext.getLength), _.unpackExtensionTypeHeader())
       }
 

@@ -16,7 +16,7 @@ public class ExtensionTypeHeader {
     }
 
     public static byte checkedCastToByte(int code) {
-        checkArgument(code < Byte.MIN_VALUE && code > Byte.MAX_VALUE, "Extension type code must be within the range of byte");
+        checkArgument(Byte.MIN_VALUE <= code && code <= Byte.MAX_VALUE, "Extension type code must be within the range of byte");
         return (byte) code;
     }
 
