@@ -453,7 +453,7 @@ class MessagePackTest extends MessagePackSpec  {
             val k = kvp(0)
             val v = kvp(1)
 
-            (k.asStringValue().toString, v.asStringValue().toString)
+            (k.asStringValue().getString, v.asStringValue().getString)
           }).toMap
         }.toList
       })
