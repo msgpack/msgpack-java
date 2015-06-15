@@ -10,15 +10,14 @@ public class ExtensionTypeHeader {
     private final int length;
 
     public ExtensionTypeHeader(byte type, int length) {
-        checkArgument(length >= 0, String.format("length must be >= 0: %,d", length));
+        checkArgument(length >= 0, "length must be >= 0");
         this.type = type;
         this.length = length;
     }
 
-    public ExtensionTypeHeader(int type, int length) {
-        checkArgument(Byte.MIN_VALUE <= type &&  type <= Byte.MAX_VALUE, "Extension type must be within -128 to 127");
-        this.type = (byte) type;
-        this.length = length;
+    public static byte checkedCastToByte(int code) {
+        checkArgument(code < Byte.MIN_VALUE && code > Byte.MAX_VALUE, "Extension type code must be within the range of byte");
+        return (byte) code;
     }
 
     public byte getType() {

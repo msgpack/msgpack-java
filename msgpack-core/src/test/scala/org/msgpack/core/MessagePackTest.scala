@@ -418,13 +418,13 @@ class MessagePackTest extends MessagePackSpec  {
         val l = Math.abs(dataLen)
         val t = Math.abs(tpe) % 128
         whenever(l >= 0) {
-          val ext = new ExtensionTypeHeader(l, t)
+          val ext = new ExtensionTypeHeader(ExtensionTypeHeader.checkedCastToByte(l), t)
           check(ext, _.packExtensionTypeHeader(ext.getType, ext.getLength), _.unpackExtensionTypeHeader())
         }
       }
 
       for(l <- testHeaderLength) {
-        val ext = new ExtensionTypeHeader(l, Random.nextInt(128))
+        val ext = new ExtensionTypeHeader(ExtensionTypeHeader.checkedCastToByte(l), Random.nextInt(128))
         check(ext, _.packExtensionTypeHeader(ext.getType, ext.getLength), _.unpackExtensionTypeHeader())
       }
 

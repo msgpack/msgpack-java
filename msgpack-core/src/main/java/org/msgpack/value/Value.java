@@ -235,13 +235,6 @@ public interface Value {
      */
     void writeTo(MessagePacker pk) throws IOException;
 
-
-    /**
-     * Accept a visitor to traverse this value
-     * @param visitor
-     */
-    void accept(ValueVisitor visitor);
-
     /**
      * Compares this value to the specified object.
      * <p/>

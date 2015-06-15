@@ -19,7 +19,6 @@ import org.msgpack.core.MessagePacker;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueType;
 import org.msgpack.value.ImmutableNilValue;
-import org.msgpack.value.ValueVisitor;
 
 import java.io.IOException;
 
@@ -58,11 +57,6 @@ public class ImmutableNilValueImpl extends AbstractImmutableValue implements Imm
     @Override
     public void writeTo(MessagePacker pk) throws IOException {
         pk.packNil();
-    }
-
-    @Override
-    public void accept(ValueVisitor visitor) {
-        visitor.visitNil();
     }
 
     @Override

@@ -16,20 +16,19 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
+import org.msgpack.value.ImmutableBinaryValue;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueType;
-import org.msgpack.value.ImmutableBinaryValue;
-import org.msgpack.value.ValueVisitor;
 
-import java.util.Arrays;
 import java.io.IOException;
+import java.util.Arrays;
 
 
 /**
  * {@code ImmutableBinaryValueImpl} Implements {@code ImmutableBinaryValue} using a {@code byte[]} field.
  * This implementation caches result of {@code stringValue()} and {@code getString()} using a private {@code String} field.
  *
- * @see  org.msgpack.value.StringValue
+ * @see org.msgpack.value.StringValue
  */
 public class ImmutableBinaryValueImpl extends AbstractImmutableRawValue implements ImmutableBinaryValue {
     public ImmutableBinaryValueImpl(byte[] data) {
@@ -58,27 +57,23 @@ public class ImmutableBinaryValueImpl extends AbstractImmutableRawValue implemen
     }
 
     @Override
-    public void accept(ValueVisitor visitor) {
-        visitor.visitBinary(this);
-    }
-
-    @Override
     public boolean equals(Object o) {
-        if (this == o) {
+        if(this == o) {
             return true;
         }
-        if (!(o instanceof Value)) {
+        if(!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
-        if (!v.isBinaryValue()) {
+        if(!v.isBinaryValue()) {
             return false;
         }
 
-        if (v instanceof ImmutableBinaryValueImpl) {
+        if(v instanceof ImmutableBinaryValueImpl) {
             ImmutableBinaryValueImpl bv = (ImmutableBinaryValueImpl) v;
             return Arrays.equals(data, bv.data);
-        } else {
+        }
+        else {
             return Arrays.equals(data, v.asBinaryValue().getByteArray());
         }
     }

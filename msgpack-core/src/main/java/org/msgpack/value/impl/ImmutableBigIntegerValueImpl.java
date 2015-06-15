@@ -162,11 +162,6 @@ public class ImmutableBigIntegerValueImpl extends AbstractImmutableValue impleme
     }
 
     @Override
-    public void accept(ValueVisitor visitor) {
-        visitor.visitInteger(this);
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (o == this) {
             return true;

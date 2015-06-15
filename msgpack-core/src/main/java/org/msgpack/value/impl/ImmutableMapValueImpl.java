@@ -102,11 +102,6 @@ public class ImmutableMapValueImpl extends AbstractImmutableValue implements Imm
     }
 
     @Override
-    public void accept(ValueVisitor visitor) {
-        visitor.visitMap(this);
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (o == this) {
             return true;

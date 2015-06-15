@@ -16,7 +16,7 @@
 package org.msgpack.value;
 
 import java.math.BigInteger;
-import org.msgpack.core.MessageOverflowException;
+import org.msgpack.core.MessageIntegerOverflowException;
 
 /**
  * The interface {@code IntegerValue} represents MessagePack's Integer type.
@@ -47,7 +47,7 @@ public interface IntegerValue extends NumberValue {
     /**
      * Returns the value as a {@code byte}, otherwise throws an exception.
      *
-     * @throws  MessageOverflowException
+     * @throws  MessageIntegerOverflowException
      *          If the value does not fit in the range of {@code byte} type.
      */
     byte getByte();
@@ -55,7 +55,7 @@ public interface IntegerValue extends NumberValue {
     /**
      * Returns the value as a {@code short}, otherwise throws an exception.
      *
-     * @throws  MessageOverflowException
+     * @throws  MessageIntegerOverflowException
      *          If the value does not fit in the range of {@code short} type.
      */
     short getShort();
@@ -63,7 +63,7 @@ public interface IntegerValue extends NumberValue {
     /**
      * Returns the value as an {@code int}, otherwise throws an exception.
      *
-     * @throws  MessageOverflowException
+     * @throws  MessageIntegerOverflowException
      *          If the value does not fit in the range of {@code int} type.
      */
     int getInt();
@@ -71,7 +71,7 @@ public interface IntegerValue extends NumberValue {
     /**
      * Returns the value as a {@code long}, otherwise throws an exception.
      *
-     * @throws  MessageOverflowException
+     * @throws  MessageIntegerOverflowException
      *          If the value does not fit in the range of {@code long} type.
      */
     long getLong();
