@@ -134,19 +134,9 @@ public final class ValueFactory {
     }
 
 
-    public static class MapEntry {
-        public final Value key;
-        public final Value value;
-
-        public MapEntry(Value key, Value value) {
-            this.key = key;
-            this.value = value;
-        }
-    }
-
-    public static MapValue newMap(MapEntry... pairs) {
+    public static MapValue newMap(Map.Entry<? extends Value, ? extends Value>... pairs) {
         MapBuilder b = new MapBuilder();
-        for(MapEntry p : pairs) {
+        for(Map.Entry<? extends Value, ? extends Value> p : pairs) {
             b.put(p);
         }
         return b.build();
@@ -157,25 +147,37 @@ public final class ValueFactory {
         return new MapBuilder();
     }
 
-    public static MapEntry newMapEntry(Value key, Value value) {
-        return new MapEntry(key, value);
+    public static Map.Entry<Value, Value> newMapEntry(Value key, Value value) {
+        return new AbstractMap.SimpleEntry<Value, Value>(key, value);
 
     }
 
     public static class MapBuilder {
-        private Map<Value, Value> map = new HashMap<Value, Value>();
+        private final Map<Value, Value> map = new HashMap<Value, Value>();
         public MapBuilder() {}
 
         public MapValue build() {
             return newMap(map);
         }
 
-        public void put(MapEntry pair) {
-            put(pair.key, pair.value);
+        public void put(Map.Entry<? extends Value, ? extends Value> pair) {
+            put(pair.getKey(), pair.getValue());
         }
 
         public void put(Value key, Value value) {
             map.put(key, value);
+        }
+
+        public void putAll(Iterable<? extends Map.Entry<? extends Value,? extends Value>> entries){
+            for(Map.Entry<? extends Value, ? extends Value> entry : entries) {
+                put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        public void putAll(Map<? extends Value, ? extends Value> map) {
+            for(Map.Entry<? extends Value, ? extends Value> entry : map.entrySet()) {
+                put(entry);
+            }
         }
     }
 
