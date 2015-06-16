@@ -232,7 +232,7 @@ public class Variable implements Value {
 
         @Override
         public ImmutableNilValue immutableValue() {
-            return ValueFactory.nil();
+            return ValueFactory.newNil();
         }
 
         @Override
@@ -704,7 +704,7 @@ public class Variable implements Value {
         public Value getOrNilValue(int index) {
             List<Value> l = list();
             if (l.size() < index && index >= 0) {
-                return ValueFactory.nil();
+                return ValueFactory.newNil();
             }
             return l.get(index);
         }

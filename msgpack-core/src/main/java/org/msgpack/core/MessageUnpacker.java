@@ -540,7 +540,7 @@ public class MessageUnpacker implements Closeable {
         switch(mf.getValueType()) {
             case NIL:
                 unpackNil();
-                return ValueFactory.nil();
+                return ValueFactory.newNil();
             case BOOLEAN:
                 return ValueFactory.newBoolean(unpackBoolean());
             case INTEGER:

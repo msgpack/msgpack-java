@@ -32,7 +32,7 @@ import java.math.BigInteger;
 public final class ValueFactory {
     private ValueFactory() { }
 
-    public static ImmutableNilValue nil() {
+    public static ImmutableNilValue newNil() {
         return ImmutableNilValueImpl.get();
     }
 

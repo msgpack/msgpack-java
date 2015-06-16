@@ -29,7 +29,7 @@ public class MessagePackParser extends ParserMinimalBase {
     private JsonReadContext parsingContext;
 
     private final LinkedList<StackItem> stack = new LinkedList<StackItem>();
-    private Value value = ValueFactory.nil();
+    private Value value = ValueFactory.newNil();
     private Variable var = new Variable();
     private boolean isClosed;
     private long tokenPosition;
@@ -141,12 +141,12 @@ public class MessagePackParser extends ParserMinimalBase {
         switch (type) {
             case NIL:
                 messageUnpacker.unpackNil();
-                value = ValueFactory.nil();
+                value = ValueFactory.newNil();
                 nextToken = JsonToken.VALUE_NULL;
                 break;
             case BOOLEAN:
                 boolean b = messageUnpacker.unpackBoolean();
-                value = ValueFactory.nil();
+                value = ValueFactory.newNil();
                 nextToken = b ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE;
                 break;
             case INTEGER:
@@ -178,11 +178,11 @@ public class MessagePackParser extends ParserMinimalBase {
                 }
                 break;
             case ARRAY:
-                value = ValueFactory.nil();
+                value = ValueFactory.newNil();
                 newStack = new StackItemForArray(messageUnpacker.unpackArrayHeader());
                 break;
             case MAP:
-                value = ValueFactory.nil();
+                value = ValueFactory.newNil();
                 newStack = new StackItemForObject(messageUnpacker.unpackMapHeader());
                 break;
             case EXTENSION:

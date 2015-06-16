@@ -37,7 +37,7 @@ class ValueFactoryTest extends MessagePackSpec {
   "ValueFactory" should {
 
     "create valid type values" in {
-      isValid(ValueFactory.nil(), expected=ValueType.NIL, isNil = true)
+      isValid(ValueFactory.newNil(), expected=ValueType.NIL, isNil = true)
       forAll{(v:Boolean) => isValid(ValueFactory.newBoolean(v), expected=ValueType.BOOLEAN, isBoolean = true)}
       forAll{(v:Int) => isValid(ValueFactory.newInteger(v), expected=ValueType.INTEGER, isInteger = true, isNumber = true)}
       forAll{(v:Float) => isValid(ValueFactory.newFloat(v), expected=ValueType.FLOAT, isFloat = true, isNumber = true)}
