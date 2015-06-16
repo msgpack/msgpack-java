@@ -10,9 +10,9 @@ public class ExtensionTypeHeader {
     private final int length;
 
     /**
-     * Create a ExtensionTypeHeader(
-     * @param type
-     * @param length
+     * Create an extension type header
+     * @param type extension type (byte). You can check the valid byte range with {@link #checkedCastToByte(int)} method.
+     * @param length extension type data length
      */
     public ExtensionTypeHeader(byte type, int length) {
         checkArgument(length >= 0, "length must be >= 0");
