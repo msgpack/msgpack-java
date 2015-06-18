@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
+import org.msgpack.value.ExtensionValue;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -19,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
@@ -142,9 +144,9 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
             else if (k.equals("ext")) {
                 // #9
                 bitmap |= 1 << 10;
-                MessagePackExtensionType extensionType = (MessagePackExtensionType) v;
-                assertEquals(0, extensionType.extType());
-                assertEquals(ByteBuffer.wrap(extPayload), extensionType.byteBuffer());
+                ExtensionValue extensionValue = (ExtensionValue) v;
+                assertEquals(0, extensionValue.getType());
+                assertArrayEquals(extPayload, extensionValue.getData());
             }
         }
         assertEquals(0x7FF, bitmap);
@@ -249,9 +251,9 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         // #10
         assertEquals(true, array.get(i++));
         // #11
-        MessagePackExtensionType extensionType = (MessagePackExtensionType) array.get(i++);
-        assertEquals(-1, extensionType.extType());
-        assertEquals(ByteBuffer.wrap(extPayload), extensionType.byteBuffer());
+        ExtensionValue extensionValue = (ExtensionValue) array.get(i++);
+        assertEquals(-1, extensionValue.getType());
+        assertArrayEquals(extPayload, extensionValue.getData());
     }
 
     @Test
