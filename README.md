@@ -55,6 +55,7 @@ Here is a list of sbt commands for daily development:
 > package                                  # Create a jar file in the target folder of each project
 > findbugs                                 # Produce findbugs report in target/findbugs
 > jacoco:cover                             # Report the code coverage of tests to target/jacoco folder
+> jcheckStyle                              # Run check style
 ```
 
 ### Publishing
