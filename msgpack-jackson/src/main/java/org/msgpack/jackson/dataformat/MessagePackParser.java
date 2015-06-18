@@ -220,7 +220,12 @@ public class MessagePackParser extends ParserMinimalBase {
     @Override
     public String getText() throws IOException, JsonParseException {
         // This method can be called for new BigInteger(text)
-        return value.asRawValue().stringValue();
+        if (value.isRawValue()) {
+            return value.asRawValue().stringValue();
+        }
+        else {
+            return value.toString();
+        }
     }
 
     @Override

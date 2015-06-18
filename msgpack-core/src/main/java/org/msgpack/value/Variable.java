@@ -383,9 +383,11 @@ public class Variable implements Value {
     public Variable setIntegerValue(BigInteger v) {
         if (0 <= v.compareTo(LONG_MIN) && v.compareTo(LONG_MAX) <= 0) {
             this.type = Type.LONG;
+            this.accessor = integerAccessor;
             this.longValue = v.longValue();
         } else {
             this.type = Type.BIG_INTEGER;
+            this.accessor = integerAccessor;
             this.objectValue = v;
         }
         return this;
