@@ -37,7 +37,6 @@ import org.msgpack.core.buffer.MessageBufferInput;
 import org.msgpack.value.Value;
 import org.msgpack.value.ImmutableValue;
 import org.msgpack.value.Variable;
-import org.msgpack.value.ValueType;
 import org.msgpack.value.ValueFactory;
 
 import static org.msgpack.core.Preconditions.*;
@@ -541,25 +540,25 @@ public class MessageUnpacker implements Closeable {
         switch(mf.getValueType()) {
             case NIL:
                 unpackNil();
-                return ValueFactory.newNilValue();
+                return ValueFactory.newNil();
             case BOOLEAN:
-                return ValueFactory.newBooleanValue(unpackBoolean());
+                return ValueFactory.newBoolean(unpackBoolean());
             case INTEGER:
                 switch (mf) {
                     case UINT64:
-                        return ValueFactory.newIntegerValue(unpackBigInteger());
+                        return ValueFactory.newInteger(unpackBigInteger());
                     default:
-                        return ValueFactory.newIntegerValue(unpackLong());
+                        return ValueFactory.newInteger(unpackLong());
                 }
             case FLOAT:
-                return ValueFactory.newFloatValue(unpackDouble());
+                return ValueFactory.newFloat(unpackDouble());
             case STRING: {
                 int length = unpackRawStringHeader();
-                return ValueFactory.newStringValue(readPayload(length));
+                return ValueFactory.newString(readPayload(length));
             }
             case BINARY: {
                 int length = unpackBinaryHeader();
-                return ValueFactory.newBinaryValue(readPayload(length));
+                return ValueFactory.newBinary(readPayload(length));
             }
             case ARRAY: {
                 int size = unpackArrayHeader();
@@ -567,7 +566,7 @@ public class MessageUnpacker implements Closeable {
                 for (int i=0; i < size; i++) {
                     array[i] = unpackValue();
                 }
-                return ValueFactory.newArrayValue(array);
+                return ValueFactory.newArray(array);
             }
             case MAP: {
                 int size = unpackMapHeader();
@@ -578,11 +577,11 @@ public class MessageUnpacker implements Closeable {
                     kvs[i] = unpackValue();
                     i++;
                 }
-                return ValueFactory.newMapValue(kvs);
+                return ValueFactory.newMap(kvs);
             }
-            case EXTENDED: {
-                ExtendedTypeHeader extHeader = unpackExtendedTypeHeader();
-                return ValueFactory.newExtendedValue(extHeader.getType(), readPayload(extHeader.getLength()));
+            case EXTENSION: {
+                ExtensionTypeHeader extHeader = unpackExtensionTypeHeader();
+                return ValueFactory.newExtension(extHeader.getType(), readPayload(extHeader.getLength()));
             }
             default:
                 throw new MessageFormatException("Unknown value type");
@@ -648,9 +647,9 @@ public class MessageUnpacker implements Closeable {
                 var.setMapValue(map);
                 return var;
             }
-            case EXTENDED: {
-                ExtendedTypeHeader extHeader = unpackExtendedTypeHeader();
-                var.setExtendedValue(extHeader.getType(), readPayload(extHeader.getLength()));
+            case EXTENSION: {
+                ExtensionTypeHeader extHeader = unpackExtensionTypeHeader();
+                var.setExtensionValue(extHeader.getType(), readPayload(extHeader.getLength()));
                 return var;
             }
             default:
@@ -1042,33 +1041,33 @@ public class MessageUnpacker implements Closeable {
         throw unexpected("Map", b);
     }
 
-    public ExtendedTypeHeader unpackExtendedTypeHeader() throws IOException {
+    public ExtensionTypeHeader unpackExtensionTypeHeader() throws IOException {
         byte b = consume();
         switch(b) {
             case Code.FIXEXT1:
-                return new ExtendedTypeHeader(readByte(), 1);
+                return new ExtensionTypeHeader(readByte(), 1);
             case Code.FIXEXT2:
-                return new ExtendedTypeHeader(readByte(), 2);
+                return new ExtensionTypeHeader(readByte(), 2);
             case Code.FIXEXT4:
-                return new ExtendedTypeHeader(readByte(), 4);
+                return new ExtensionTypeHeader(readByte(), 4);
             case Code.FIXEXT8:
-                return new ExtendedTypeHeader(readByte(), 8);
+                return new ExtensionTypeHeader(readByte(), 8);
             case Code.FIXEXT16:
-                return new ExtendedTypeHeader(readByte(), 16);
+                return new ExtensionTypeHeader(readByte(), 16);
             case Code.EXT8: {
                 int length = readNextLength8();
                 byte type = readByte();
-                return new ExtendedTypeHeader(type, length);
+                return new ExtensionTypeHeader(type, length);
             }
             case Code.EXT16: {
                 int length = readNextLength16();
                 byte type = readByte();
-                return new ExtendedTypeHeader(type, length);
+                return new ExtensionTypeHeader(type, length);
             }
             case Code.EXT32: {
                 int length = readNextLength32();
                 byte type = readByte();
-                return new ExtendedTypeHeader(type, length);
+                return new ExtensionTypeHeader(type, length);
             }
         }
 

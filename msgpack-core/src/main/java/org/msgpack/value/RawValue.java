@@ -16,6 +16,7 @@
 package org.msgpack.value;
 
 import java.nio.ByteBuffer;
+import org.msgpack.core.MessageStringCodingException;
 
 /**
  * The interface {@code RawValue} represents MessagePack's Raw type, which means Binary or String type.
@@ -26,15 +27,12 @@ import java.nio.ByteBuffer;
  * @see  org.msgpack.value.BinaryValue
  */
 public interface RawValue extends Value {
-    @Override
-    public ImmutableRawValue immutableValue();
-
     /**
      * Returns the value as {@code byte[]}.
      *
      * This method copies the byte array.
      */
-    public byte[] getByteArray();
+    byte[] getByteArray();
 
     /**
      * Returns the value as {@code ByteBuffer}.
@@ -42,7 +40,7 @@ public interface RawValue extends Value {
      * Returned ByteBuffer is read-only. See {@code#asReadOnlyBuffer()}.
      * This method doesn't copy the byte array as much as possible.
      */
-    public ByteBuffer getByteBuffer();
+    ByteBuffer getByteBuffer();
 
     /**
      * Returns the value as {@code String}.
@@ -52,12 +50,12 @@ public interface RawValue extends Value {
      * @throws  MessageStringCodingException
      *          If this value includes invalid UTF-8 byte sequence.
      */
-    public String getString();
+    String getString();
 
     /**
      * Returns the value as {@code String}.
      *
      * This method replaces an invalid UTF-8 byte sequence with <code>U+FFFD replacement character</code>.
      */
-    public String stringValue();
+    String stringValue();
 }

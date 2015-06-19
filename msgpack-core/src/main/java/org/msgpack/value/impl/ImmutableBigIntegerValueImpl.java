@@ -17,11 +17,7 @@ package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageIntegerOverflowException;
-import org.msgpack.value.Value;
-import org.msgpack.value.ValueType;
-import org.msgpack.value.IntegerValue;
-import org.msgpack.value.ImmutableNumberValue;
-import org.msgpack.value.ImmutableIntegerValue;
+import org.msgpack.value.*;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -69,37 +65,37 @@ public class ImmutableBigIntegerValueImpl extends AbstractImmutableValue impleme
     }
 
     @Override
-    public byte byteValue() {
+    public byte toByte() {
         return value.byteValue();
     }
 
     @Override
-    public short shortValue() {
+    public short toShort() {
         return value.shortValue();
     }
 
     @Override
-    public int intValue() {
+    public int toInt() {
         return value.intValue();
     }
 
     @Override
-    public long longValue() {
+    public long toLong() {
         return value.longValue();
     }
 
     @Override
-    public BigInteger bigIntegerValue() {
+    public BigInteger toBigInteger() {
         return value;
     }
 
     @Override
-    public float floatValue() {
+    public float toFloat() {
         return value.floatValue();
     }
 
     @Override
-    public double doubleValue() {
+    public double toDouble() {
         return value.doubleValue();
     }
 
@@ -179,7 +175,7 @@ public class ImmutableBigIntegerValueImpl extends AbstractImmutableValue impleme
             return false;
         }
         IntegerValue iv = v.asIntegerValue();
-        return value.equals(iv.bigIntegerValue());
+        return value.equals(iv.toBigInteger());
     }
 
     @Override

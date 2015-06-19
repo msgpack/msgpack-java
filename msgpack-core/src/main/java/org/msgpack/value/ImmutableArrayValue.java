@@ -24,11 +24,11 @@ public interface ImmutableArrayValue extends ArrayValue, ImmutableValue {
      * Returns an iterator over elements.
      * Returned Iterator does not support {@code remove()} method since the value is immutable.
      */
-    public Iterator<Value> iterator();
+    Iterator<Value> iterator();
 
     /**
      * Returns the value as {@code List}.
      * Returned List is immutable. It does not support {@code put()}, {@code clear()}, or other methods that modify the value.
      */
-    public List<Value> list();
+    List<Value> list();
 }

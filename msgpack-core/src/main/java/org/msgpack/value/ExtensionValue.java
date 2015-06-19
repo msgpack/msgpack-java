@@ -16,17 +16,15 @@
 package org.msgpack.value;
 
 /**
- * The interface {@code ExtendedValue} represents MessagePack's Extended type.
+ * The interface {@code ExtensionValue} represents MessagePack's Extension type.
  *
- * MessagePack's Extended type can represent represents a tuple of type information and a byte array where type information is an integer whose meaning is defined by applications.
+ * MessagePack's Extension type can represent represents a tuple of type information and a byte array where type information is an
+ * integer whose meaning is defined by applications.
  *
  * As the type information, applications can use 0 to 127 as the application-specific types. -1 to -128 is reserved for MessagePack's future extension.
  */
-public interface ExtendedValue extends Value {
-    @Override
-    public ImmutableExtendedValue immutableValue();
+public interface ExtensionValue extends Value {
+    byte getType();
 
-    public byte getType();
-
-    public byte[] getData();
+    byte[] getData();
 }

@@ -16,41 +16,38 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
-import org.msgpack.value.Value;
-import org.msgpack.value.ValueType;
-import org.msgpack.value.ExtendedValue;
-import org.msgpack.value.ImmutableExtendedValue;
+import org.msgpack.value.*;
 
 import java.util.Arrays;
 import java.io.IOException;
 
 
 /**
- * {@code ImmutableExtendedValueImpl} Implements {@code ImmutableExtendedValue} using a {@code byte} and a {@code byte[]} fields.
+ * {@code ImmutableExtensionValueImpl} Implements {@code ImmutableExtensionValue} using a {@code byte} and a {@code byte[]} fields.
  *
- * @see  org.msgpack.value.ExtendedValue
+ * @see  ExtensionValue
  */
-public class ImmutableExtendedValueImpl extends AbstractImmutableValue implements ImmutableExtendedValue {
+public class ImmutableExtensionValueImpl extends AbstractImmutableValue implements ImmutableExtensionValue {
     private final byte type;
     private final byte[] data;
 
-    public ImmutableExtendedValueImpl(byte type, byte[] data) {
+    public ImmutableExtensionValueImpl(byte type, byte[] data) {
         this.type = type;
         this.data = data;
     }
 
     @Override
     public ValueType getValueType() {
-        return ValueType.EXTENDED;
+        return ValueType.EXTENSION;
     }
 
     @Override
-    public ImmutableExtendedValue immutableValue() {
+    public ImmutableExtensionValue immutableValue() {
         return this;
     }
 
     @Override
-    public ImmutableExtendedValue asExtendedValue() {
+    public ImmutableExtensionValue asExtensionValue() {
         return this;
     }
 
@@ -66,7 +63,7 @@ public class ImmutableExtendedValueImpl extends AbstractImmutableValue implement
 
     @Override
     public void writeTo(MessagePacker packer) throws IOException {
-        packer.packExtendedTypeHeader(type, data.length);
+        packer.packExtensionTypeHeader(type, data.length);
         packer.writePayload(data);
     }
 
@@ -80,10 +77,10 @@ public class ImmutableExtendedValueImpl extends AbstractImmutableValue implement
         }
         Value v = (Value) o;
 
-        if (!v.isExtendedValue()) {
+        if (!v.isExtensionValue()) {
             return false;
         }
-        ExtendedValue ev = v.asExtendedValue();
+        ExtensionValue ev = v.asExtensionValue();
         return type == ev.getType() && Arrays.equals(data, ev.getData());
     }
 

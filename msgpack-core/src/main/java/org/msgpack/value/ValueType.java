@@ -30,7 +30,7 @@ public enum ValueType {
     BINARY(false, true),
     ARRAY(false, false),
     MAP(false, false),
-    EXTENDED(false, true);
+    EXTENSION(false, true);
 
     private final boolean numberType;
     private final boolean rawType;
@@ -80,7 +80,11 @@ public enum ValueType {
         return this == MAP;
     }
 
-    public boolean isExtendedType() {
-        return this == EXTENDED;
+    public boolean isExtensionType() {
+        return this == EXTENSION;
+    }
+
+    public String toTypeName() {
+        return this.name().substring(0, 1) + this.name().substring(1).toLowerCase();
     }
 }

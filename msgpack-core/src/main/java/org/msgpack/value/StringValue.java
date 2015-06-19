@@ -25,6 +25,4 @@ package org.msgpack.value;
  * @see  org.msgpack.value.RawValue
  */
 public interface StringValue extends RawValue {
-    @Override
-    public ImmutableStringValue immutableValue();
 }

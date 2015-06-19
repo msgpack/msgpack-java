@@ -16,20 +16,19 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
+import org.msgpack.value.ImmutableBooleanValue;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueType;
-import org.msgpack.value.BooleanValue;
-import org.msgpack.value.ImmutableBooleanValue;
 
 import java.io.IOException;
 
 
 /**
  * {@code ImmutableBooleanValueImpl} Implements {@code ImmutableBooleanValue} using a {@code boolean} field.
- *
+ * <p/>
  * This class is a singleton. {@code ImmutableBooleanValueImpl.trueInstance()} and {@code ImmutableBooleanValueImpl.falseInstance()} are the only instances of this class.
  *
- * @see  org.msgpack.value.BooleanValue
+ * @see org.msgpack.value.BooleanValue
  */
 public class ImmutableBooleanValueImpl extends AbstractImmutableValue implements ImmutableBooleanValue {
     public static ImmutableBooleanValue TRUE = new ImmutableBooleanValueImpl(true);
@@ -39,14 +38,6 @@ public class ImmutableBooleanValueImpl extends AbstractImmutableValue implements
 
     private ImmutableBooleanValueImpl(boolean value) {
         this.value = value;
-    }
-
-    public static ImmutableBooleanValue trueInstance() {
-        return TRUE;
-    }
-
-    public static ImmutableBooleanValue falseInstance() {
-        return FALSE;
     }
 
     @Override
@@ -71,15 +62,15 @@ public class ImmutableBooleanValueImpl extends AbstractImmutableValue implements
 
     @Override
     public boolean equals(Object o) {
-        if (o == this) {
+        if(o == this) {
             return true;
         }
-        if (!(o instanceof Value)) {
+        if(!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
 
-        if (!v.isBooleanValue()) {
+        if(!v.isBooleanValue()) {
             return false;
         }
         return value == v.asBooleanValue().getBoolean();
@@ -87,9 +78,10 @@ public class ImmutableBooleanValueImpl extends AbstractImmutableValue implements
 
     @Override
     public int hashCode() {
-        if (value) {
+        if(value) {
             return 1231;
-        } else {
+        }
+        else {
             return 1237;
         }
     }

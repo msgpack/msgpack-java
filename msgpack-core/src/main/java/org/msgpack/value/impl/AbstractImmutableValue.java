@@ -71,8 +71,8 @@ abstract class AbstractImmutableValue implements ImmutableValue {
     }
 
     @Override
-    public boolean isExtendedValue() {
-        return getValueType().isExtendedType();
+    public boolean isExtensionValue() {
+        return getValueType().isExtensionType();
     }
 
     @Override
@@ -126,7 +126,7 @@ abstract class AbstractImmutableValue implements ImmutableValue {
     }
 
     @Override
-    public ImmutableExtendedValue asExtendedValue() {
+    public ImmutableExtensionValue asExtensionValue() {
         throw new MessageTypeCastException();
     }
 }

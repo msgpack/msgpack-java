@@ -20,7 +20,6 @@ import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageTypeCastException;
 import org.msgpack.core.MessageStringCodingException;
 import org.msgpack.core.MessageIntegerOverflowException;
-import org.msgpack.value.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -32,7 +31,6 @@ import java.util.Iterator;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.CharacterCodingException;
 
@@ -90,8 +88,8 @@ public class Variable implements Value {
         }
 
         @Override
-        public boolean isExtendedValue() {
-            return getValueType().isExtendedType();
+        public boolean isExtensionValue() {
+            return getValueType().isExtensionType();
         }
 
         @Override
@@ -145,7 +143,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public ExtendedValue asExtendedValue() {
+        public ExtensionValue asExtensionValue() {
             throw new MessageTypeCastException();
         }
 
@@ -175,7 +173,7 @@ public class Variable implements Value {
         RAW_STRING(ValueType.STRING),
         LIST(ValueType.ARRAY),
         MAP(ValueType.MAP),
-        EXTENDED(ValueType.EXTENDED);
+        EXTENSION(ValueType.EXTENSION);
 
         private final ValueType valueType;
 
@@ -196,7 +194,7 @@ public class Variable implements Value {
     private final StringValueAccessor stringAccessor = new StringValueAccessor();
     private final ArrayValueAccessor arrayAccessor = new ArrayValueAccessor();
     private final MapValueAccessor mapAccessor = new MapValueAccessor();
-    private final ExtendedValueAccessor extendedAccessor = new ExtendedValueAccessor();
+    private final ExtensionValueAccessor extensionAccessor = new ExtensionValueAccessor();
 
     private Type type;
 
@@ -234,7 +232,7 @@ public class Variable implements Value {
 
         @Override
         public ImmutableNilValue immutableValue() {
-            return ValueFactory.newNilValue();
+            return ValueFactory.newNil();
         }
 
         @Override
@@ -268,7 +266,7 @@ public class Variable implements Value {
 
         @Override
         public ImmutableBooleanValue immutableValue() {
-            return ValueFactory.newBooleanValue(getBoolean());
+            return ValueFactory.newBoolean(getBoolean());
         }
 
         @Override
@@ -305,7 +303,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public byte byteValue() {
+        public byte toByte() {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).byteValue();
             }
@@ -313,7 +311,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public short shortValue() {
+        public short toShort() {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).shortValue();
             }
@@ -321,7 +319,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public int intValue() {
+        public int toInt() {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).intValue();
             }
@@ -329,7 +327,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public long longValue() {
+        public long toLong() {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).longValue();
             }
@@ -337,7 +335,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public BigInteger bigIntegerValue() {
+        public BigInteger toBigInteger() {
             if (type == Type.BIG_INTEGER) {
                 return (BigInteger) objectValue;
             }
@@ -348,7 +346,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public float floatValue() {
+        public float toFloat() {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).floatValue();
             }
@@ -359,7 +357,7 @@ public class Variable implements Value {
         }
 
         @Override
-        public double doubleValue() {
+        public double toDouble() {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).doubleValue();
             }
@@ -385,9 +383,11 @@ public class Variable implements Value {
     public Variable setIntegerValue(BigInteger v) {
         if (0 <= v.compareTo(LONG_MIN) && v.compareTo(LONG_MAX) <= 0) {
             this.type = Type.LONG;
+            this.accessor = integerAccessor;
             this.longValue = v.longValue();
         } else {
             this.type = Type.BIG_INTEGER;
+            this.accessor = integerAccessor;
             this.objectValue = v;
         }
         return this;
@@ -407,9 +407,9 @@ public class Variable implements Value {
         @Override
         public ImmutableIntegerValue immutableValue() {
             if (type == Type.BIG_INTEGER) {
-                return ValueFactory.newIntegerValue((BigInteger) objectValue);
+                return ValueFactory.newInteger((BigInteger) objectValue);
             }
-            return ValueFactory.newIntegerValue(longValue);
+            return ValueFactory.newInteger(longValue);
         }
 
         @Override
@@ -504,7 +504,14 @@ public class Variable implements Value {
         this.type = Type.DOUBLE;
         this.accessor = floatAccessor;
         this.doubleValue = v;
-        this.longValue = (long) v;  // AbstractNumberValueAccessor uses longValue
+        this.longValue = (long) v;  // AbstractNumberValueAccessor uses toLong
+        return this;
+    }
+
+    public Variable setFloatValue(float v) {
+        this.type = Type.DOUBLE;
+        this.accessor = floatAccessor;
+        this.longValue = (long) v;  // AbstractNumberValueAccessor uses toLong
         return this;
     }
 
@@ -516,7 +523,7 @@ public class Variable implements Value {
 
         @Override
         public ImmutableFloatValue immutableValue() {
-            return ValueFactory.newFloatValue(doubleValue);
+            return ValueFactory.newFloat(doubleValue);
         }
 
         @Override
@@ -528,6 +535,7 @@ public class Variable implements Value {
         public void writeTo(MessagePacker pk) throws IOException {
             pk.packDouble(doubleValue);
         }
+
     }
 
 
@@ -604,7 +612,7 @@ public class Variable implements Value {
 
         @Override
         public ImmutableBinaryValue immutableValue() {
-            return ValueFactory.newBinaryValue(getByteArray());
+            return ValueFactory.newBinary(getByteArray());
         }
 
         @Override
@@ -613,6 +621,7 @@ public class Variable implements Value {
             pk.packBinaryHeader(data.length);
             pk.writePayload(data);
         }
+
     }
 
 
@@ -644,7 +653,7 @@ public class Variable implements Value {
 
         @Override
         public ImmutableStringValue immutableValue() {
-            return ValueFactory.newStringValue((byte[]) objectValue);
+            return ValueFactory.newString((byte[]) objectValue);
         }
 
         @Override
@@ -680,7 +689,7 @@ public class Variable implements Value {
 
         @Override
         public ImmutableArrayValue immutableValue() {
-            return ValueFactory.newArrayValue(list());
+            return ValueFactory.newArray(list());
         }
 
         @Override
@@ -697,7 +706,7 @@ public class Variable implements Value {
         public Value getOrNilValue(int index) {
             List<Value> l = list();
             if (l.size() < index && index >= 0) {
-                return ValueFactory.newNilValue();
+                return ValueFactory.newNil();
             }
             return l.get(index);
         }
@@ -747,7 +756,7 @@ public class Variable implements Value {
 
         @Override
         public ImmutableMapValue immutableValue() {
-            return ValueFactory.newMapValue(map());
+            return ValueFactory.newMap(map());
         }
 
         @Override
@@ -804,45 +813,44 @@ public class Variable implements Value {
 
 
     ////
-    // ExtendedValue
+    // ExtensionValue
     //
-
-    public Variable setExtendedValue(byte type, byte[] data) {
-        this.type = Type.EXTENDED;
-        this.accessor = extendedAccessor;
-        this.objectValue = ValueFactory.newExtendedValue(type, data);
+    public Variable setExtensionValue(byte type, byte[] data) {
+        this.type = Type.EXTENSION;
+        this.accessor = extensionAccessor;
+        this.objectValue = ValueFactory.newExtension(type, data);
         return this;
     }
 
-    private class ExtendedValueAccessor extends AbstractValueAccessor implements ExtendedValue {
+    private class ExtensionValueAccessor extends AbstractValueAccessor implements ExtensionValue {
         @Override
         public ValueType getValueType() {
-            return ValueType.EXTENDED;
+            return ValueType.EXTENSION;
         }
 
         @Override
-        public ExtendedValue asExtendedValue() {
+        public ExtensionValue asExtensionValue() {
             return this;
         }
 
         @Override
-        public ImmutableExtendedValue immutableValue() {
-            return (ImmutableExtendedValue) objectValue;
+        public ImmutableExtensionValue immutableValue() {
+            return (ImmutableExtensionValue) objectValue;
         }
 
         @Override
         public byte getType() {
-            return ((ImmutableExtendedValue) objectValue).getType();
+            return ((ImmutableExtensionValue) objectValue).getType();
         }
 
         @Override
         public byte[] getData() {
-            return ((ImmutableExtendedValue) objectValue).getData();
+            return ((ImmutableExtensionValue) objectValue).getData();
         }
 
         @Override
         public void writeTo(MessagePacker pk) throws IOException {
-            ((ImmutableExtendedValue) objectValue).writeTo(pk);
+            ((ImmutableExtensionValue) objectValue).writeTo(pk);
         }
     }
 
@@ -932,8 +940,8 @@ public class Variable implements Value {
     }
 
     @Override
-    public boolean isExtendedValue() {
-        return getValueType().isExtendedType();
+    public boolean isExtensionValue() {
+        return getValueType().isExtensionType();
     }
 
     @Override
@@ -1017,10 +1025,10 @@ public class Variable implements Value {
     }
 
     @Override
-    public ExtendedValue asExtendedValue() {
-        if (!isExtendedValue()) {
+    public ExtensionValue asExtensionValue() {
+        if (!isExtensionValue()) {
             throw new MessageTypeCastException();
         }
-        return (ExtendedValue) accessor;
+        return (ExtensionValue) accessor;
     }
 }

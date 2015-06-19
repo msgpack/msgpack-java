@@ -24,13 +24,11 @@ import java.util.Iterator;
  * MessagePack's Array type can represent sequence of values.
  */
 public interface ArrayValue extends Value, Iterable<Value> {
-    @Override
-    public ImmutableArrayValue immutableValue();
 
     /**
      * Returns number of elements in this array.
      */
-    public int size();
+    int size();
 
     /**
      * Returns the element at the specified position in this array.
@@ -39,21 +37,21 @@ public interface ArrayValue extends Value, Iterable<Value> {
      *         If the index is out of range
      *         (<tt>index &lt; 0 || index &gt;= size()</tt>)
      */
-    public Value get(int index);
+    Value get(int index);
 
     /**
      * Returns the element at the specified position in this array.
      * This method returns an ImmutableNilValue if the index is out of range.
      */
-    public Value getOrNilValue(int index);
+    Value getOrNilValue(int index);
 
     /**
      * Returns an iterator over elements.
      */
-    public Iterator<Value> iterator();
+    Iterator<Value> iterator();
 
     /**
      * Returns the value as {@code List}.
      */
-    public List<Value> list();
+    List<Value> list();
 }

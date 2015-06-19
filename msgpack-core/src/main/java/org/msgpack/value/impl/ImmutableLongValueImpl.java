@@ -17,11 +17,7 @@ package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageIntegerOverflowException;
-import org.msgpack.value.ValueType;
-import org.msgpack.value.Value;
-import org.msgpack.value.IntegerValue;
-import org.msgpack.value.ImmutableIntegerValue;
-import org.msgpack.value.ImmutableNumberValue;
+import org.msgpack.value.*;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -67,37 +63,37 @@ public class ImmutableLongValueImpl extends AbstractImmutableValue implements Im
     }
 
     @Override
-    public byte byteValue() {
+    public byte toByte() {
         return (byte) value;
     }
 
     @Override
-    public short shortValue() {
+    public short toShort() {
         return (short) value;
     }
 
     @Override
-    public int intValue() {
+    public int toInt() {
         return (int) value;
     }
 
     @Override
-    public long longValue() {
+    public long toLong() {
         return value;
     }
 
     @Override
-    public BigInteger bigIntegerValue() {
+    public BigInteger toBigInteger() {
         return BigInteger.valueOf(value);
     }
 
     @Override
-    public float floatValue() {
+    public float toFloat() {
         return (float) value;
     }
 
     @Override
-    public double doubleValue() {
+    public double toDouble() {
         return (double) value;
     }
 
@@ -177,7 +173,7 @@ public class ImmutableLongValueImpl extends AbstractImmutableValue implements Im
         if (!iv.isInLongRange()) {
             return false;
         }
-        return value == iv.longValue();
+        return value == iv.toLong();
     }
 
     @Override

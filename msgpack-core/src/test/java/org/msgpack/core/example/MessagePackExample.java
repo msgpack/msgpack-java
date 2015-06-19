@@ -16,7 +16,6 @@
 package org.msgpack.core.example;
 
 import org.msgpack.core.*;
-import org.msgpack.core.buffer.MessageBuffer;
 import org.msgpack.value.*;
 
 import java.math.BigInteger;
@@ -126,7 +125,7 @@ public class MessagePackExample {
 
         // Write ext type data: https://github.com/msgpack/msgpack/blob/master/spec.md#ext-format-family
         byte[] extData = "custom data type".getBytes(MessagePack.UTF8);
-        packer.packExtendedTypeHeader(1, 10);  // type number [0, 127], data byte length
+        packer.packExtensionTypeHeader((byte) 1, 10);  // type number [0, 127], data byte length
         packer.writePayload(extData);
 
         // Succinct syntax for packing
@@ -185,22 +184,22 @@ public class MessagePackExample {
                 case INTEGER:
                     IntegerValue iv = v.asIntegerValue();
                     if(iv.isInIntRange()) {
-                        int i = iv.intValue();
+                        int i = iv.toInt();
                         System.out.println("read int: " + i);
                     }
                     else if (iv.isInLongRange()) {
-                        long l = iv.longValue();
+                        long l = iv.toLong();
                         System.out.println("read long: " + l);
                     }
                     else {
-                        BigInteger i = iv.bigIntegerValue();
+                        BigInteger i = iv.toBigInteger();
                         System.out.println("read long: " + i);
                     }
                     break;
                 case FLOAT:
                     FloatValue fv = v.asFloatValue();
-                    float f = fv.floatValue();   // use as float
-                    double d = fv.doubleValue(); // use as double
+                    float f = fv.toFloat();   // use as float
+                    double d = fv.toDouble(); // use as double
                     System.out.println("read float: " + d);
                     break;
                 case STRING:
@@ -217,8 +216,8 @@ public class MessagePackExample {
                         System.out.println("read array element: " + e);
                     }
                     break;
-                case EXTENDED:
-                    ExtendedValue ev = v.asExtendedValue();
+                case EXTENSION:
+                    ExtensionValue ev = v.asExtensionValue();
                     byte extType = ev.getType();
                     byte[] extValue = ev.getData();
                     break;

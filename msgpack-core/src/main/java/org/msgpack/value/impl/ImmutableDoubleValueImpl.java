@@ -16,20 +16,19 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
+import org.msgpack.value.ImmutableFloatValue;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueType;
-import org.msgpack.value.FloatValue;
-import org.msgpack.value.ImmutableFloatValue;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.io.IOException;
 
 
 /**
  * {@code ImmutableDoubleValueImpl} Implements {@code ImmutableFloatValue} using a {@code double} field.
  *
- * @see  org.msgpack.value.FloatValue
+ * @see org.msgpack.value.FloatValue
  */
 public class ImmutableDoubleValueImpl extends AbstractImmutableValue implements ImmutableFloatValue {
     private final double value;
@@ -49,37 +48,37 @@ public class ImmutableDoubleValueImpl extends AbstractImmutableValue implements 
     }
 
     @Override
-    public byte byteValue() {
+    public byte toByte() {
         return (byte) value;
     }
 
     @Override
-    public short shortValue() {
+    public short toShort() {
         return (short) value;
     }
 
     @Override
-    public int intValue() {
+    public int toInt() {
         return (int) value;
     }
 
     @Override
-    public long longValue() {
+    public long toLong() {
         return (long) value;
     }
 
     @Override
-    public BigInteger bigIntegerValue() {
+    public BigInteger toBigInteger() {
         return new BigDecimal(value).toBigInteger();
     }
 
     @Override
-    public float floatValue() {
+    public float toFloat() {
         return (float) value;
     }
 
     @Override
-    public double doubleValue() {
+    public double toDouble() {
         return value;
     }
 
@@ -90,18 +89,18 @@ public class ImmutableDoubleValueImpl extends AbstractImmutableValue implements 
 
     @Override
     public boolean equals(Object o) {
-        if (o == this) {
+        if(o == this) {
             return true;
         }
-        if (!(o instanceof Value)) {
+        if(!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
 
-        if (!v.isFloatValue()) {
+        if(!v.isFloatValue()) {
             return false;
         }
-        return value == v.asFloatValue().doubleValue();
+        return value == v.asFloatValue().toDouble();
     }
 
     @Override

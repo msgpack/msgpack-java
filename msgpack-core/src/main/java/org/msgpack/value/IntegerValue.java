@@ -16,6 +16,7 @@
 package org.msgpack.value;
 
 import java.math.BigInteger;
+import org.msgpack.core.MessageIntegerOverflowException;
 
 /**
  * The interface {@code IntegerValue} represents MessagePack's Integer type.
@@ -23,28 +24,25 @@ import java.math.BigInteger;
  * MessagePack's Integer type can represent from -2<sup>63</sup> to 2<sup>64</sup>-1.
  */
 public interface IntegerValue extends NumberValue {
-    @Override
-    public ImmutableIntegerValue immutableValue();
-
     /**
      * Returns true if the value is in the range of [-2<sup>7</sup> to 2<sup>7</sup>-1].
      */
-    public boolean isInByteRange();
+    boolean isInByteRange();
 
     /**
      * Returns true if the value is in the range of [-2<sup>15</sup> to 2<sup>15</sup>-1]
      */
-    public boolean isInShortRange();
+    boolean isInShortRange();
 
     /**
      * Returns true if the value is in the range of [-2<sup>31</sup> to 2<sup>31</sup>-1]
      */
-    public boolean isInIntRange();
+    boolean isInIntRange();
 
     /**
      * Returns true if the value is in the range of [-2<sup>63</sup> to 2<sup>63</sup>-1]
      */
-    public boolean isInLongRange();
+    boolean isInLongRange();
 
     /**
      * Returns the value as a {@code byte}, otherwise throws an exception.
@@ -52,7 +50,7 @@ public interface IntegerValue extends NumberValue {
      * @throws  MessageIntegerOverflowException
      *          If the value does not fit in the range of {@code byte} type.
      */
-    public byte getByte();
+    byte getByte();
 
     /**
      * Returns the value as a {@code short}, otherwise throws an exception.
@@ -60,7 +58,7 @@ public interface IntegerValue extends NumberValue {
      * @throws  MessageIntegerOverflowException
      *          If the value does not fit in the range of {@code short} type.
      */
-    public short getShort();
+    short getShort();
 
     /**
      * Returns the value as an {@code int}, otherwise throws an exception.
@@ -68,7 +66,7 @@ public interface IntegerValue extends NumberValue {
      * @throws  MessageIntegerOverflowException
      *          If the value does not fit in the range of {@code int} type.
      */
-    public int getInt();
+    int getInt();
 
     /**
      * Returns the value as a {@code long}, otherwise throws an exception.
@@ -76,10 +74,10 @@ public interface IntegerValue extends NumberValue {
      * @throws  MessageIntegerOverflowException
      *          If the value does not fit in the range of {@code long} type.
      */
-    public long getLong();
+    long getLong();
 
     /**
      * Returns the value as a {@code BigInteger}.
      */
-    public BigInteger getBigInteger();
+    BigInteger getBigInteger();
 }
