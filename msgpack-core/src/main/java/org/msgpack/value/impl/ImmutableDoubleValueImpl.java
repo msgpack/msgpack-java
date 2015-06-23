@@ -24,93 +24,110 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-
 /**
  * {@code ImmutableDoubleValueImpl} Implements {@code ImmutableFloatValue} using a {@code double} field.
  *
  * @see org.msgpack.value.FloatValue
  */
-public class ImmutableDoubleValueImpl extends AbstractImmutableValue implements ImmutableFloatValue {
+public class ImmutableDoubleValueImpl
+        extends AbstractImmutableValue
+        implements ImmutableFloatValue
+{
     private final double value;
 
-    public ImmutableDoubleValueImpl(double value) {
+    public ImmutableDoubleValueImpl(double value)
+    {
         this.value = value;
     }
 
     @Override
-    public ValueType getValueType() {
+    public ValueType getValueType()
+    {
         return ValueType.FLOAT;
     }
 
     @Override
-    public ImmutableDoubleValueImpl immutableValue() {
+    public ImmutableDoubleValueImpl immutableValue()
+    {
         return this;
     }
 
     @Override
-    public byte castAsByte() {
+    public byte castAsByte()
+    {
         return (byte) value;
     }
 
     @Override
-    public short castAsShort() {
+    public short castAsShort()
+    {
         return (short) value;
     }
 
     @Override
-    public int castAsInt() {
+    public int castAsInt()
+    {
         return (int) value;
     }
 
     @Override
-    public long castAsLong() {
+    public long castAsLong()
+    {
         return (long) value;
     }
 
     @Override
-    public BigInteger castAsBigInteger() {
+    public BigInteger castAsBigInteger()
+    {
         return new BigDecimal(value).toBigInteger();
     }
 
     @Override
-    public float castAsFloat() {
+    public float castAsFloat()
+    {
         return (float) value;
     }
 
     @Override
-    public double castAsDouble() {
+    public double castAsDouble()
+    {
         return value;
     }
 
     @Override
-    public void writeTo(MessagePacker pk) throws IOException {
+    public void writeTo(MessagePacker pk)
+            throws IOException
+    {
         pk.packDouble(value);
     }
 
     @Override
-    public boolean equals(Object o) {
-        if(o == this) {
+    public boolean equals(Object o)
+    {
+        if (o == this) {
             return true;
         }
-        if(!(o instanceof Value)) {
+        if (!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
 
-        if(!v.isFloatValue()) {
+        if (!v.isFloatValue()) {
             return false;
         }
         return value == v.asFloatValue().castAsDouble();
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         long v = Double.doubleToLongBits(value);
         return (int) (v ^ (v >>> 32));
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return Double.toString(value);
     }
 }

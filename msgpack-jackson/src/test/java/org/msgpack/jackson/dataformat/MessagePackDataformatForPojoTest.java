@@ -8,9 +8,13 @@ import java.util.Arrays;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class MessagePackDataformatForPojoTest extends MessagePackDataformatTestBase {
+public class MessagePackDataformatForPojoTest
+        extends MessagePackDataformatTestBase
+{
     @Test
-    public void testNormal() throws IOException {
+    public void testNormal()
+            throws IOException
+    {
         byte[] bytes = objectMapper.writeValueAsBytes(normalPojo);
         NormalPojo value = objectMapper.readValue(bytes, NormalPojo.class);
         assertEquals(normalPojo.s, value.getS());
@@ -25,7 +29,9 @@ public class MessagePackDataformatForPojoTest extends MessagePackDataformatTestB
     }
 
     @Test
-    public void testNestedList() throws IOException {
+    public void testNestedList()
+            throws IOException
+    {
         byte[] bytes = objectMapper.writeValueAsBytes(nestedListPojo);
         NestedListPojo value = objectMapper.readValue(bytes, NestedListPojo.class);
         assertEquals(nestedListPojo.s, value.s);
@@ -33,7 +39,9 @@ public class MessagePackDataformatForPojoTest extends MessagePackDataformatTestB
     }
 
     @Test
-    public void testNestedListComplex() throws IOException {
+    public void testNestedListComplex()
+            throws IOException
+    {
         byte[] bytes = objectMapper.writeValueAsBytes(nestedListComplexPojo);
         NestedListComplexPojo value = objectMapper.readValue(bytes, NestedListComplexPojo.class);
         assertEquals(nestedListPojo.s, value.s);
@@ -41,7 +49,9 @@ public class MessagePackDataformatForPojoTest extends MessagePackDataformatTestB
     }
 
     @Test
-    public void testUsingCustomConstructor() throws IOException {
+    public void testUsingCustomConstructor()
+            throws IOException
+    {
         UsingCustomConstructorPojo orig = new UsingCustomConstructorPojo("komamitsu", 55);
         byte[] bytes = objectMapper.writeValueAsBytes(orig);
         UsingCustomConstructorPojo value = objectMapper.readValue(bytes, UsingCustomConstructorPojo.class);
@@ -50,7 +60,9 @@ public class MessagePackDataformatForPojoTest extends MessagePackDataformatTestB
     }
 
     @Test
-    public void testIgnoringProperties() throws IOException {
+    public void testIgnoringProperties()
+            throws IOException
+    {
         IgnoringPropertiesPojo orig = new IgnoringPropertiesPojo();
         orig.internal = "internal";
         orig.external = "external";
@@ -63,12 +75,13 @@ public class MessagePackDataformatForPojoTest extends MessagePackDataformatTestB
     }
 
     @Test
-    public void testChangingPropertyNames() throws IOException {
+    public void testChangingPropertyNames()
+            throws IOException
+    {
         ChangingPropertyNamesPojo orig = new ChangingPropertyNamesPojo();
         orig.setTheName("komamitsu");
         byte[] bytes = objectMapper.writeValueAsBytes(orig);
         ChangingPropertyNamesPojo value = objectMapper.readValue(bytes, ChangingPropertyNamesPojo.class);
         assertEquals("komamitsu", value.getTheName());
     }
-
 }

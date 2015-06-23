@@ -15,50 +15,75 @@
 //
 package org.msgpack.jackson.dataformat;
 
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.io.IOContext;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.util.Arrays;
 
-public class MessagePackFactory extends JsonFactory {
+public class MessagePackFactory
+        extends JsonFactory
+{
     private static final long serialVersionUID = 2578263992015504347L;
 
     @Override
-    public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc) throws IOException {
+    public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
+            throws IOException
+    {
         return new MessagePackGenerator(_generatorFeatures, _objectCodec, out);
     }
 
     @Override
-    public JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException {
+    public JsonGenerator createGenerator(File f, JsonEncoding enc)
+            throws IOException
+    {
         return createGenerator(new FileOutputStream(f), enc);
     }
 
     @Override
-    public JsonGenerator createGenerator(Writer w) throws IOException {
+    public JsonGenerator createGenerator(Writer w)
+            throws IOException
+    {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public JsonParser createParser(byte[] data) throws IOException, JsonParseException {
+    public JsonParser createParser(byte[] data)
+            throws IOException, JsonParseException
+    {
         IOContext ioContext = _createContext(data, false);
         return _createParser(data, 0, data.length, ioContext);
     }
 
     @Override
-    public JsonParser createParser(InputStream in) throws IOException, JsonParseException {
+    public JsonParser createParser(InputStream in)
+            throws IOException, JsonParseException
+    {
         IOContext ioContext = _createContext(in, false);
         return _createParser(in, ioContext);
     }
 
     @Override
-    protected MessagePackParser _createParser(InputStream in, IOContext ctxt) throws IOException {
+    protected MessagePackParser _createParser(InputStream in, IOContext ctxt)
+            throws IOException
+    {
         MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, in);
         return parser;
     }
 
     @Override
-    protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt) throws IOException, JsonParseException {
+    protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt)
+            throws IOException, JsonParseException
+    {
         if (offset != 0 || len != data.length) {
             data = Arrays.copyOfRange(data, offset, offset + len);
         }

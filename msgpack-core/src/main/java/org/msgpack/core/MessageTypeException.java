@@ -18,20 +18,26 @@ package org.msgpack.core;
 /**
  * Thrown when a type mismatch error occurs
  */
-public class MessageTypeException extends MessagePackException {
-    public MessageTypeException() {
+public class MessageTypeException
+        extends MessagePackException
+{
+    public MessageTypeException()
+    {
         super();
     }
 
-    public MessageTypeException(String message) {
+    public MessageTypeException(String message)
+    {
         super(message);
     }
 
-    public MessageTypeException(String message, Throwable cause) {
+    public MessageTypeException(String message, Throwable cause)
+    {
         super(message, cause);
     }
 
-    public MessageTypeException(Throwable cause) {
+    public MessageTypeException(Throwable cause)
+    {
         super(cause);
     }
 }

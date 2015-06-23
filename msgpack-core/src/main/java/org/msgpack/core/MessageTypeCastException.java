@@ -15,20 +15,26 @@
 //
 package org.msgpack.core;
 
-public class MessageTypeCastException extends MessageTypeException {
-    public MessageTypeCastException() {
+public class MessageTypeCastException
+        extends MessageTypeException
+{
+    public MessageTypeCastException()
+    {
         super();
     }
 
-    public MessageTypeCastException(String message) {
+    public MessageTypeCastException(String message)
+    {
         super(message);
     }
 
-    public MessageTypeCastException(String message, Throwable cause) {
+    public MessageTypeCastException(String message, Throwable cause)
+    {
         super(message, cause);
     }
 
-    public MessageTypeCastException(Throwable cause) {
+    public MessageTypeCastException(Throwable cause)
+    {
         super(cause);
     }
 }

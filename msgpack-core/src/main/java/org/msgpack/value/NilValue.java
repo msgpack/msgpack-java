@@ -18,5 +18,7 @@ package org.msgpack.value;
 /**
  * The interface {@code NilValue} represents MessagePack's Nil type.
  */
-public interface NilValue extends Value {
+public interface NilValue
+        extends Value
+{
 }

@@ -16,86 +16,95 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePack;
-import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageStringCodingException;
-import org.msgpack.value.Value;
 import org.msgpack.value.ImmutableRawValue;
 
-import java.util.Arrays;
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CodingErrorAction;
 import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
+import java.util.Arrays;
 
-
-public abstract class AbstractImmutableRawValue extends AbstractImmutableValue implements ImmutableRawValue {
+public abstract class AbstractImmutableRawValue
+        extends AbstractImmutableValue
+        implements ImmutableRawValue
+{
     protected final byte[] data;
     private volatile String decodedStringCache;
     private volatile CharacterCodingException codingException;
 
-    public AbstractImmutableRawValue(byte[] data) {
+    public AbstractImmutableRawValue(byte[] data)
+    {
         this.data = data;
     }
 
-    public AbstractImmutableRawValue(String string) {
+    public AbstractImmutableRawValue(String string)
+    {
         this.decodedStringCache = string;
         this.data = string.getBytes(MessagePack.UTF8);  // TODO
     }
 
     @Override
-    public ImmutableRawValue asRawValue() {
+    public ImmutableRawValue asRawValue()
+    {
         return this;
     }
 
     @Override
-    public byte[] getByteArray() {
+    public byte[] getByteArray()
+    {
         return Arrays.copyOf(data, data.length);
     }
 
     @Override
-    public ByteBuffer getByteBuffer() {
+    public ByteBuffer getByteBuffer()
+    {
         return ByteBuffer.wrap(data).asReadOnlyBuffer();
     }
 
     @Override
-    public String getString() {
+    public String getString()
+    {
         if (decodedStringCache == null) {
             decodeString();
         }
         if (codingException != null) {
             throw new MessageStringCodingException(codingException);
-        } else {
+        }
+        else {
             return decodedStringCache;
         }
     }
 
     @Override
-    public String stringValue() {
+    public String stringValue()
+    {
         if (decodedStringCache == null) {
             decodeString();
         }
         return decodedStringCache;
     }
 
-    private void decodeString() {
+    private void decodeString()
+    {
         synchronized (data) {
             if (decodedStringCache != null) {
                 return;
             }
             try {
                 CharsetDecoder reportDecoder = MessagePack.UTF8.newDecoder()
-                    .onMalformedInput(CodingErrorAction.REPORT)
-                    .onUnmappableCharacter(CodingErrorAction.REPORT);
+                        .onMalformedInput(CodingErrorAction.REPORT)
+                        .onUnmappableCharacter(CodingErrorAction.REPORT);
                 this.decodedStringCache = reportDecoder.decode(getByteBuffer()).toString();
-            } catch (CharacterCodingException ex) {
+            }
+            catch (CharacterCodingException ex) {
                 try {
                     CharsetDecoder replaceDecoder = MessagePack.UTF8.newDecoder()
-                        .onMalformedInput(CodingErrorAction.REPLACE)
-                        .onUnmappableCharacter(CodingErrorAction.REPLACE);
+                            .onMalformedInput(CodingErrorAction.REPLACE)
+                            .onUnmappableCharacter(CodingErrorAction.REPLACE);
                     this.decodedStringCache = replaceDecoder.decode(getByteBuffer()).toString();
-                } catch (CharacterCodingException neverThrown) {
+                }
+                catch (CharacterCodingException neverThrown) {
                     throw new MessageStringCodingException(neverThrown);
                 }
                 this.codingException = ex;
@@ -104,53 +113,58 @@ public abstract class AbstractImmutableRawValue extends AbstractImmutableValue i
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return toString(new StringBuilder()).toString();
     }
 
-    private StringBuilder toString(StringBuilder sb) {
+    private StringBuilder toString(StringBuilder sb)
+    {
         String s = stringValue();
         sb.append("\"");
         for (int i = 0; i < s.length(); i++) {
             char ch = s.charAt(i);
             if (ch < 0x20) {
                 switch (ch) {
-                case '\n':
-                    sb.append("\\n");
-                    break;
-                case '\r':
-                    sb.append("\\r");
-                    break;
-                case '\t':
-                    sb.append("\\t");
-                    break;
-                case '\f':
-                    sb.append("\\f");
-                    break;
-                case '\b':
-                    sb.append("\\b");
-                    break;
-                default:
-                    // control chars
-                    escapeChar(sb, ch);
-                    break;
+                    case '\n':
+                        sb.append("\\n");
+                        break;
+                    case '\r':
+                        sb.append("\\r");
+                        break;
+                    case '\t':
+                        sb.append("\\t");
+                        break;
+                    case '\f':
+                        sb.append("\\f");
+                        break;
+                    case '\b':
+                        sb.append("\\b");
+                        break;
+                    default:
+                        // control chars
+                        escapeChar(sb, ch);
+                        break;
                 }
-            } else if (ch <= 0x7f) {
+            }
+            else if (ch <= 0x7f) {
                 switch (ch) {
-                case '\\':
-                    sb.append("\\\\");
-                    break;
-                case '"':
-                    sb.append("\\\"");
-                    break;
-                default:
-                    sb.append(ch);
-                    break;
+                    case '\\':
+                        sb.append("\\\\");
+                        break;
+                    case '"':
+                        sb.append("\\\"");
+                        break;
+                    default:
+                        sb.append(ch);
+                        break;
                 }
-            } else if (ch >= 0xd800 && ch <= 0xdfff) {
+            }
+            else if (ch >= 0xd800 && ch <= 0xdfff) {
                 // surrogates
                 escapeChar(sb, ch);
-            } else {
+            }
+            else {
                 sb.append(ch);
             }
         }
@@ -159,9 +173,10 @@ public abstract class AbstractImmutableRawValue extends AbstractImmutableValue i
         return sb;
     }
 
-    private final static char[] HEX_TABLE = "0123456789ABCDEF".toCharArray();
+    private static final char[] HEX_TABLE = "0123456789ABCDEF".toCharArray();
 
-    private void escapeChar(StringBuilder sb, int ch) {
+    private void escapeChar(StringBuilder sb, int ch)
+    {
         sb.append("\\u");
         sb.append(HEX_TABLE[(ch >> 12) & 0x0f]);
         sb.append(HEX_TABLE[(ch >> 8) & 0x0f]);

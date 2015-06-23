@@ -15,5 +15,7 @@
 //
 package org.msgpack.value;
 
-public interface ImmutableMapValue extends MapValue, ImmutableValue {
+public interface ImmutableMapValue
+        extends MapValue, ImmutableValue
+{
 }

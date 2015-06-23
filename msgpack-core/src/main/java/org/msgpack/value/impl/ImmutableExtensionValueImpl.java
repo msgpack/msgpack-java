@@ -16,59 +16,73 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
-import org.msgpack.value.*;
+import org.msgpack.value.ExtensionValue;
+import org.msgpack.value.ImmutableExtensionValue;
+import org.msgpack.value.Value;
+import org.msgpack.value.ValueType;
 
-import java.util.Arrays;
 import java.io.IOException;
-
+import java.util.Arrays;
 
 /**
  * {@code ImmutableExtensionValueImpl} Implements {@code ImmutableExtensionValue} using a {@code byte} and a {@code byte[]} fields.
  *
- * @see  ExtensionValue
+ * @see ExtensionValue
  */
-public class ImmutableExtensionValueImpl extends AbstractImmutableValue implements ImmutableExtensionValue {
+public class ImmutableExtensionValueImpl
+        extends AbstractImmutableValue
+        implements ImmutableExtensionValue
+{
     private final byte type;
     private final byte[] data;
 
-    public ImmutableExtensionValueImpl(byte type, byte[] data) {
+    public ImmutableExtensionValueImpl(byte type, byte[] data)
+    {
         this.type = type;
         this.data = data;
     }
 
     @Override
-    public ValueType getValueType() {
+    public ValueType getValueType()
+    {
         return ValueType.EXTENSION;
     }
 
     @Override
-    public ImmutableExtensionValue immutableValue() {
+    public ImmutableExtensionValue immutableValue()
+    {
         return this;
     }
 
     @Override
-    public ImmutableExtensionValue asExtensionValue() {
+    public ImmutableExtensionValue asExtensionValue()
+    {
         return this;
     }
 
     @Override
-    public byte getType() {
+    public byte getType()
+    {
         return type;
     }
 
     @Override
-    public byte[] getData() {
+    public byte[] getData()
+    {
         return data;
     }
 
     @Override
-    public void writeTo(MessagePacker packer) throws IOException {
+    public void writeTo(MessagePacker packer)
+            throws IOException
+    {
         packer.packExtensionTypeHeader(type, data.length);
         packer.writePayload(data);
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (o == this) {
             return true;
         }
@@ -85,7 +99,8 @@ public class ImmutableExtensionValueImpl extends AbstractImmutableValue implemen
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         int hash = 31 + type;
         for (byte e : data) {
             hash = 31 * hash + e;
@@ -94,7 +109,8 @@ public class ImmutableExtensionValueImpl extends AbstractImmutableValue implemen
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         StringBuilder sb = new StringBuilder();
         sb.append('(');
         sb.append(Byte.toString(type));

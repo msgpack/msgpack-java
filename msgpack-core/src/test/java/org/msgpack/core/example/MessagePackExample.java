@@ -15,35 +15,51 @@
 //
 package org.msgpack.core.example;
 
-import org.msgpack.core.*;
-import org.msgpack.value.*;
+import org.msgpack.core.MessageFormat;
+import org.msgpack.core.MessagePack;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageUnpacker;
+import org.msgpack.value.ArrayValue;
+import org.msgpack.value.ExtensionValue;
+import org.msgpack.value.FloatValue;
+import org.msgpack.value.IntegerValue;
+import org.msgpack.value.Value;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
-import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.CodingErrorAction;
 
 /**
  * This class describes the usage of MessagePack v07
  */
-public class MessagePackExample {
-
+public class MessagePackExample
+{
+    private MessagePackExample()
+    {
+    }
 
     /**
      * Basic usage example
+     *
      * @throws IOException
      */
-    public static void basicUsage() throws IOException {
-
+    public static void basicUsage()
+            throws IOException
+    {
         // Serialize with MessagePacker
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         MessagePacker packer = MessagePack.newDefaultPacker(out);
         packer
-            .packInt(1)
-            .packString("leo")
-            .packArrayHeader(2)
-            .packString("xxx-xxxx")
-            .packString("yyy-yyyy");
+                .packInt(1)
+                .packString("leo")
+                .packArrayHeader(2)
+                .packString("xxx-xxxx")
+                .packString("yyy-yyyy");
         packer.close();
 
         // Deserialize with MessageUnpacker
@@ -52,7 +68,7 @@ public class MessagePackExample {
         String name = unpacker.unpackString();     // "leo"
         int numPhones = unpacker.unpackArrayHeader();  // 2
         String[] phones = new String[numPhones];
-        for(int i=0; i < numPhones; ++i) {
+        for (int i = 0; i < numPhones; ++i) {
             phones[i] = unpacker.unpackString();   // phones = {"xxx-xxxx", "yyy-yyyy"}
         }
         unpacker.close();
@@ -60,10 +76,11 @@ public class MessagePackExample {
         System.out.println(String.format("id:%d, name:%s, phone:[%s]", id, name, join(phones)));
     }
 
-    private static String join(String[] in) {
+    private static String join(String[] in)
+    {
         StringBuilder s = new StringBuilder();
-        for(int i=0; i<in.length; ++i) {
-            if(i > 0) {
+        for (int i = 0; i < in.length; ++i) {
+            if (i > 0) {
                 s.append(", ");
             }
             s.append(in[i]);
@@ -73,10 +90,12 @@ public class MessagePackExample {
 
     /**
      * Packing various types of data
+     *
      * @throws IOException
      */
-    public static void packer() throws IOException {
-
+    public static void packer()
+            throws IOException
+    {
         // Create a MesagePacker (encoder) instance
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         MessagePacker packer = MessagePack.newDefaultPacker(out);
@@ -102,9 +121,9 @@ public class MessagePackExample {
         packer.writePayload(s);
 
         // pack arrays
-        int[] arr = new int[]{3, 5, 1, 0, -1, 255};
+        int[] arr = new int[] {3, 5, 1, 0, -1, 255};
         packer.packArrayHeader(arr.length);
-        for(int v : arr) {
+        for (int v : arr) {
             packer.packInt(v);
         }
 
@@ -118,10 +137,9 @@ public class MessagePackExample {
         packer.packInt(2);
 
         // pack binary data
-        byte[] ba = new byte[]{1, 2, 3, 4};
+        byte[] ba = new byte[] {1, 2, 3, 4};
         packer.packBinaryHeader(ba.length);
         packer.writePayload(ba);
-
 
         // Write ext type data: https://github.com/msgpack/msgpack/blob/master/spec.md#ext-format-family
         byte[] extData = "custom data type".getBytes(MessagePack.UTF8);
@@ -130,27 +148,26 @@ public class MessagePackExample {
 
         // Succinct syntax for packing
         packer
-            .packInt(1)
-            .packString("leo")
-            .packArrayHeader(2)
-            .packString("xxx-xxxx")
-            .packString("yyy-yyyy");
-
+                .packInt(1)
+                .packString("leo")
+                .packArrayHeader(2)
+                .packString("xxx-xxxx")
+                .packString("yyy-yyyy");
 
         // [Advanced] write data using ByteBuffer
         ByteBuffer bb = ByteBuffer.wrap(new byte[] {'b', 'i', 'n', 'a', 'r', 'y', 'd', 'a', 't', 'a'});
         packer.packBinaryHeader(bb.remaining());
         packer.writePayload(bb);
-
     }
-
 
     /**
      * An example of reading and writing MessagePack data
+     *
      * @throws IOException
      */
-    public static void readAndWriteFile() throws IOException {
-
+    public static void readAndWriteFile()
+            throws IOException
+    {
         File tempFile = File.createTempFile("target/tmp", ".txt");
         tempFile.deleteOnExit();
 
@@ -164,7 +181,7 @@ public class MessagePackExample {
         // Read packed data from a file. No need exists to wrap the file stream with an buffer
         MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(new FileInputStream(tempFile));
 
-        while(unpacker.hasNext()) {
+        while (unpacker.hasNext()) {
             // [Advanced] You can check the detailed data format with getNextFormat()
             // Here is a list of message pack data format: https://github.com/msgpack/msgpack/blob/master/spec.md#overview
             MessageFormat format = unpacker.getNextFormat();
@@ -172,7 +189,7 @@ public class MessagePackExample {
             // Alternatively you can use ValueHolder to extract a value of any type
             // NOTE: Value interface is in a preliminary state, so the following code might change in future releases
             Value v = unpacker.unpackValue();
-            switch(v.getValueType()) {
+            switch (v.getValueType()) {
                 case NIL:
                     v.isNilValue(); // true
                     System.out.println("read nil");
@@ -183,7 +200,7 @@ public class MessagePackExample {
                     break;
                 case INTEGER:
                     IntegerValue iv = v.asIntegerValue();
-                    if(iv.isInIntRange()) {
+                    if (iv.isInIntRange()) {
                         int i = iv.castAsInt();
                         System.out.println("read int: " + i);
                     }
@@ -212,7 +229,7 @@ public class MessagePackExample {
                     break;
                 case ARRAY:
                     ArrayValue a = v.asArrayValue();
-                    for(Value e : a) {
+                    for (Value e : a) {
                         System.out.println("read array element: " + e);
                     }
                     break;
@@ -223,21 +240,22 @@ public class MessagePackExample {
                     break;
             }
         }
-
     }
 
     /**
      * Example of using custom MessagePack configuration
+     *
      * @throws IOException
      */
-    public static void configuration() throws IOException {
-
+    public static void configuration()
+            throws IOException
+    {
         // Build a conifiguration
         MessagePack.Config config = new MessagePack.ConfigBuilder()
-            .onMalFormedInput(CodingErrorAction.REPLACE)         // Drop malformed and unmappable UTF-8 characters
-            .onUnmappableCharacter(CodingErrorAction.REPLACE)
-            .packerBufferSize(8192 * 2)
-            .build();
+                .onMalFormedInput(CodingErrorAction.REPLACE)         // Drop malformed and unmappable UTF-8 characters
+                .onUnmappableCharacter(CodingErrorAction.REPLACE)
+                .packerBufferSize(8192 * 2)
+                .build();
         // Create a  that uses this configuration
         MessagePack msgpack = new MessagePack(config);
 
@@ -255,9 +273,4 @@ public class MessagePackExample {
         boolean b = unpacker.unpackBoolean(); // true
         unpacker.close();
     }
-
-
-
-
-
 }

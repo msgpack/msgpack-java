@@ -23,8 +23,9 @@ import java.math.BigInteger;
  * @see org.msgpack.value.IntegerValue
  * @see org.msgpack.value.FloatValue
  */
-public interface NumberValue extends Value {
-
+public interface NumberValue
+        extends Value
+{
     /**
      * Represent this value as a byte value, which may involve rounding or truncation of the original value.
      * the value.

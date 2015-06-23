@@ -17,10 +17,12 @@ package org.msgpack.value;
 
 /**
  * The interface {@code BinaryValue} represents MessagePack's Binary type.
- *
+ * <p/>
  * MessagePack's Binary type can represent a byte array at most 2<sup>64</sup>-1 bytes.
  *
- * @see  org.msgpack.value.RawValue
+ * @see org.msgpack.value.RawValue
  */
-public interface BinaryValue extends RawValue {
+public interface BinaryValue
+        extends RawValue
+{
 }

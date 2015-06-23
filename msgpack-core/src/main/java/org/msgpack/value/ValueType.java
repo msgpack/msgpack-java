@@ -15,13 +15,11 @@
 //
 package org.msgpack.value;
 
-import org.msgpack.core.MessageFormat;
-
 /**
  * MessageTypeFamily is a group of {@link org.msgpack.core.MessageFormat}s
  */
-public enum ValueType {
-
+public enum ValueType
+{
     NIL(false, false),
     BOOLEAN(false, false),
     INTEGER(true, false),
@@ -35,52 +33,64 @@ public enum ValueType {
     private final boolean numberType;
     private final boolean rawType;
 
-    private ValueType(boolean numberType, boolean rawType) {
+    private ValueType(boolean numberType, boolean rawType)
+    {
         this.numberType = numberType;
         this.rawType = rawType;
     }
 
-    public boolean isNilType() {
+    public boolean isNilType()
+    {
         return this == NIL;
     }
 
-    public boolean isBooleanType() {
+    public boolean isBooleanType()
+    {
         return this == BOOLEAN;
     }
 
-    public boolean isNumberType() {
+    public boolean isNumberType()
+    {
         return numberType;
     }
 
-    public boolean isIntegerType() {
+    public boolean isIntegerType()
+    {
         return this == INTEGER;
     }
 
-    public boolean isFloatType() {
+    public boolean isFloatType()
+    {
         return this == FLOAT;
     }
 
-    public boolean isRawType() {
+    public boolean isRawType()
+    {
         return rawType;
     }
 
-    public boolean isStringType() {
+    public boolean isStringType()
+    {
         return this == STRING;
     }
 
-    public boolean isBinaryType() {
+    public boolean isBinaryType()
+    {
         return this == BINARY;
     }
 
-    public boolean isArrayType() {
+    public boolean isArrayType()
+    {
         return this == ARRAY;
     }
 
-    public boolean isMapType() {
+    public boolean isMapType()
+    {
         return this == MAP;
     }
 
-    public boolean isExtensionType() {
+    public boolean isExtensionType()
+    {
         return this == EXTENSION;
     }
 }

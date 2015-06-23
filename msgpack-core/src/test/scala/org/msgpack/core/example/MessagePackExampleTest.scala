@@ -5,7 +5,8 @@ import org.msgpack.core.MessagePackSpec
 /**
  *
  */
-class MessagePackExampleTest extends MessagePackSpec {
+class MessagePackExampleTest
+  extends MessagePackSpec {
 
   "example" should {
 
@@ -24,6 +25,5 @@ class MessagePackExampleTest extends MessagePackSpec {
     "have configuration example" in {
       MessagePackExample.configuration();
     }
-
   }
 }

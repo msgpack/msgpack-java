@@ -15,155 +15,184 @@
 //
 package org.msgpack.value;
 
+import org.msgpack.core.MessageIntegerOverflowException;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
-import org.msgpack.core.MessageTypeCastException;
 import org.msgpack.core.MessageStringCodingException;
-import org.msgpack.core.MessageIntegerOverflowException;
+import org.msgpack.core.MessageTypeCastException;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.List;
-import java.util.Set;
-import java.util.Map;
-import java.util.Collection;
-import java.util.Iterator;
-import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
-import java.nio.charset.CharacterCodingException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-
-public class Variable implements Value {
-    private abstract class AbstractValueAccessor implements Value {
+public class Variable
+        implements Value
+{
+    private abstract class AbstractValueAccessor
+            implements Value
+    {
         @Override
-        public boolean isNilValue() {
+        public boolean isNilValue()
+        {
             return getValueType().isNilType();
         }
 
         @Override
-        public boolean isBooleanValue() {
+        public boolean isBooleanValue()
+        {
             return getValueType().isBooleanType();
         }
 
         @Override
-        public boolean isNumberValue() {
+        public boolean isNumberValue()
+        {
             return getValueType().isNumberType();
         }
 
         @Override
-        public boolean isIntegerValue() {
+        public boolean isIntegerValue()
+        {
             return getValueType().isIntegerType();
         }
 
         @Override
-        public boolean isFloatValue() {
+        public boolean isFloatValue()
+        {
             return getValueType().isFloatType();
         }
 
         @Override
-        public boolean isRawValue() {
+        public boolean isRawValue()
+        {
             return getValueType().isRawType();
         }
 
         @Override
-        public boolean isBinaryValue() {
+        public boolean isBinaryValue()
+        {
             return getValueType().isBinaryType();
         }
 
         @Override
-        public boolean isStringValue() {
+        public boolean isStringValue()
+        {
             return getValueType().isStringType();
         }
 
         @Override
-        public boolean isArrayValue() {
+        public boolean isArrayValue()
+        {
             return getValueType().isArrayType();
         }
 
         @Override
-        public boolean isMapValue() {
+        public boolean isMapValue()
+        {
             return getValueType().isMapType();
         }
 
         @Override
-        public boolean isExtensionValue() {
+        public boolean isExtensionValue()
+        {
             return getValueType().isExtensionType();
         }
 
         @Override
-        public NilValue asNilValue() {
+        public NilValue asNilValue()
+        {
             throw new MessageTypeCastException();
         }
 
         @Override
-        public BooleanValue asBooleanValue() {
+        public BooleanValue asBooleanValue()
+        {
             throw new MessageTypeCastException();
         }
 
         @Override
-        public NumberValue asNumberValue() {
+        public NumberValue asNumberValue()
+        {
             throw new MessageTypeCastException();
         }
 
         @Override
-        public IntegerValue asIntegerValue() {
+        public IntegerValue asIntegerValue()
+        {
             throw new MessageTypeCastException();
         }
 
         @Override
-        public FloatValue asFloatValue() {
+        public FloatValue asFloatValue()
+        {
             throw new MessageTypeCastException();
         }
 
         @Override
-        public RawValue asRawValue() {
+        public RawValue asRawValue()
+        {
             throw new MessageTypeCastException();
         }
 
         @Override
-        public BinaryValue asBinaryValue() {
+        public BinaryValue asBinaryValue()
+        {
             throw new MessageTypeCastException();
         }
 
         @Override
-        public StringValue asStringValue() {
+        public StringValue asStringValue()
+        {
             throw new MessageTypeCastException();
         }
 
         @Override
-        public ArrayValue asArrayValue() {
+        public ArrayValue asArrayValue()
+        {
             throw new MessageTypeCastException();
         }
 
         @Override
-        public MapValue asMapValue() {
+        public MapValue asMapValue()
+        {
             throw new MessageTypeCastException();
         }
 
         @Override
-        public ExtensionValue asExtensionValue() {
+        public ExtensionValue asExtensionValue()
+        {
             throw new MessageTypeCastException();
         }
 
         @Override
-        public boolean equals(Object obj) {
+        public boolean equals(Object obj)
+        {
             return Variable.this.equals(obj);
         }
 
         @Override
-        public int hashCode() {
+        public int hashCode()
+        {
             return Variable.this.hashCode();
         }
 
         @Override
-        public String toString() {
+        public String toString()
+        {
             return Variable.this.toString();
         }
     }
 
-    public static enum Type {
+    public static enum Type
+    {
         NULL(ValueType.NIL),
         BOOLEAN(ValueType.BOOLEAN),
         LONG(ValueType.INTEGER),
@@ -177,11 +206,13 @@ public class Variable implements Value {
 
         private final ValueType valueType;
 
-        private Type(ValueType valueType) {
+        private Type(ValueType valueType)
+        {
             this.valueType = valueType;
         }
 
-        public ValueType getValueType() {
+        public ValueType getValueType()
+        {
             return valueType;
         }
     }
@@ -204,82 +235,99 @@ public class Variable implements Value {
 
     private AbstractValueAccessor accessor;
 
-    public Variable() {
+    public Variable()
+    {
         setNilValue();
     }
-
 
     ////
     // NilValue
     //
 
-    public Variable setNilValue() {
+    public Variable setNilValue()
+    {
         this.type = Type.NULL;
         this.accessor = nilAccessor;
         return this;
     }
 
-    private class NilValueAccessor extends AbstractValueAccessor implements NilValue {
+    private class NilValueAccessor
+            extends AbstractValueAccessor
+            implements NilValue
+    {
         @Override
-        public ValueType getValueType() {
+        public ValueType getValueType()
+        {
             return ValueType.NIL;
         }
 
         @Override
-        public NilValue asNilValue() {
+        public NilValue asNilValue()
+        {
             return this;
         }
 
         @Override
-        public ImmutableNilValue immutableValue() {
+        public ImmutableNilValue immutableValue()
+        {
             return ValueFactory.newNil();
         }
 
         @Override
-        public void writeTo(MessagePacker pk) throws IOException {
+        public void writeTo(MessagePacker pk)
+                throws IOException
+        {
             pk.packNil();
         }
     }
-
 
     ////
     // BooleanValue
     //
 
-    public Variable setBooleanValue(boolean v) {
+    public Variable setBooleanValue(boolean v)
+    {
         this.type = Type.BOOLEAN;
         this.accessor = booleanAccessor;
         this.longValue = (v ? 1L : 0L);
         return this;
     }
 
-    private class BooleanValueAccessor extends AbstractValueAccessor implements BooleanValue {
+    private class BooleanValueAccessor
+            extends AbstractValueAccessor
+            implements BooleanValue
+    {
         @Override
-        public ValueType getValueType() {
+        public ValueType getValueType()
+        {
             return ValueType.BOOLEAN;
         }
 
         @Override
-        public BooleanValue asBooleanValue() {
+        public BooleanValue asBooleanValue()
+        {
             return this;
         }
 
         @Override
-        public ImmutableBooleanValue immutableValue() {
+        public ImmutableBooleanValue immutableValue()
+        {
             return ValueFactory.newBoolean(getBoolean());
         }
 
         @Override
-        public boolean getBoolean() {
+        public boolean getBoolean()
+        {
             return longValue == 1L;
         }
 
         @Override
-        public void writeTo(MessagePacker pk) throws IOException {
+        public void writeTo(MessagePacker pk)
+                throws IOException
+        {
             pk.packBoolean(longValue == 1L);
         }
     }
-
 
     ////
     // NumberValue
@@ -296,14 +344,19 @@ public class Variable implements Value {
     private static final long INT_MIN = (long) Integer.MIN_VALUE;
     private static final long INT_MAX = (long) Integer.MAX_VALUE;
 
-    private abstract class AbstractNumberValueAccessor extends AbstractValueAccessor implements NumberValue {
+    private abstract class AbstractNumberValueAccessor
+            extends AbstractValueAccessor
+            implements NumberValue
+    {
         @Override
-        public NumberValue asNumberValue() {
+        public NumberValue asNumberValue()
+        {
             return this;
         }
 
         @Override
-        public byte castAsByte() {
+        public byte castAsByte()
+        {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).byteValue();
             }
@@ -311,7 +364,8 @@ public class Variable implements Value {
         }
 
         @Override
-        public short castAsShort() {
+        public short castAsShort()
+        {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).shortValue();
             }
@@ -319,7 +373,8 @@ public class Variable implements Value {
         }
 
         @Override
-        public int castAsInt() {
+        public int castAsInt()
+        {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).intValue();
             }
@@ -327,7 +382,8 @@ public class Variable implements Value {
         }
 
         @Override
-        public long castAsLong() {
+        public long castAsLong()
+        {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).longValue();
             }
@@ -335,7 +391,8 @@ public class Variable implements Value {
         }
 
         @Override
-        public BigInteger castAsBigInteger() {
+        public BigInteger castAsBigInteger()
+        {
             if (type == Type.BIG_INTEGER) {
                 return (BigInteger) objectValue;
             }
@@ -346,7 +403,8 @@ public class Variable implements Value {
         }
 
         @Override
-        public float castAsFloat() {
+        public float castAsFloat()
+        {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).floatValue();
             }
@@ -357,7 +415,8 @@ public class Variable implements Value {
         }
 
         @Override
-        public double castAsDouble() {
+        public double castAsDouble()
+        {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).doubleValue();
             }
@@ -368,24 +427,26 @@ public class Variable implements Value {
         }
     }
 
-
     ////
     // IntegerValue
     //
 
-    public Variable setIntegerValue(long v) {
+    public Variable setIntegerValue(long v)
+    {
         this.type = Type.LONG;
         this.accessor = integerAccessor;
         this.longValue = v;
         return this;
     }
 
-    public Variable setIntegerValue(BigInteger v) {
+    public Variable setIntegerValue(BigInteger v)
+    {
         if (0 <= v.compareTo(LONG_MIN) && v.compareTo(LONG_MAX) <= 0) {
             this.type = Type.LONG;
             this.accessor = integerAccessor;
             this.longValue = v.longValue();
-        } else {
+        }
+        else {
             this.type = Type.BIG_INTEGER;
             this.accessor = integerAccessor;
             this.objectValue = v;
@@ -393,19 +454,25 @@ public class Variable implements Value {
         return this;
     }
 
-    private class IntegerValueAccessor extends AbstractNumberValueAccessor implements IntegerValue {
+    private class IntegerValueAccessor
+            extends AbstractNumberValueAccessor
+            implements IntegerValue
+    {
         @Override
-        public ValueType getValueType() {
+        public ValueType getValueType()
+        {
             return ValueType.INTEGER;
         }
 
         @Override
-        public IntegerValue asIntegerValue() {
+        public IntegerValue asIntegerValue()
+        {
             return this;
         }
 
         @Override
-        public ImmutableIntegerValue immutableValue() {
+        public ImmutableIntegerValue immutableValue()
+        {
             if (type == Type.BIG_INTEGER) {
                 return ValueFactory.newInteger((BigInteger) objectValue);
             }
@@ -413,7 +480,8 @@ public class Variable implements Value {
         }
 
         @Override
-        public boolean isInByteRange() {
+        public boolean isInByteRange()
+        {
             if (type == Type.BIG_INTEGER) {
                 return false;
             }
@@ -421,7 +489,8 @@ public class Variable implements Value {
         }
 
         @Override
-        public boolean isInShortRange() {
+        public boolean isInShortRange()
+        {
             if (type == Type.BIG_INTEGER) {
                 return false;
             }
@@ -429,7 +498,8 @@ public class Variable implements Value {
         }
 
         @Override
-        public boolean isInIntRange() {
+        public boolean isInIntRange()
+        {
             if (type == Type.BIG_INTEGER) {
                 return false;
             }
@@ -437,7 +507,8 @@ public class Variable implements Value {
         }
 
         @Override
-        public boolean isInLongRange() {
+        public boolean isInLongRange()
+        {
             if (type == Type.BIG_INTEGER) {
                 return false;
             }
@@ -445,7 +516,8 @@ public class Variable implements Value {
         }
 
         @Override
-        public byte getByte() {
+        public byte getByte()
+        {
             if (!isInByteRange()) {
                 throw new MessageIntegerOverflowException(longValue);
             }
@@ -453,7 +525,8 @@ public class Variable implements Value {
         }
 
         @Override
-        public short getShort() {
+        public short getShort()
+        {
             if (!isInByteRange()) {
                 throw new MessageIntegerOverflowException(longValue);
             }
@@ -461,7 +534,8 @@ public class Variable implements Value {
         }
 
         @Override
-        public int getInt() {
+        public int getInt()
+        {
             if (!isInIntRange()) {
                 throw new MessageIntegerOverflowException(longValue);
             }
@@ -469,7 +543,8 @@ public class Variable implements Value {
         }
 
         @Override
-        public long getLong() {
+        public long getLong()
+        {
             if (!isInLongRange()) {
                 throw new MessageIntegerOverflowException(longValue);
             }
@@ -477,30 +552,35 @@ public class Variable implements Value {
         }
 
         @Override
-        public BigInteger getBigInteger() {
+        public BigInteger getBigInteger()
+        {
             if (type == Type.BIG_INTEGER) {
                 return (BigInteger) objectValue;
-            } else {
+            }
+            else {
                 return BigInteger.valueOf(longValue);
             }
         }
 
         @Override
-        public void writeTo(MessagePacker pk) throws IOException {
+        public void writeTo(MessagePacker pk)
+                throws IOException
+        {
             if (type == Type.BIG_INTEGER) {
                 pk.packBigInteger((BigInteger) objectValue);
-            } else {
+            }
+            else {
                 pk.packLong(longValue);
             }
         }
     }
 
-
     ////
     // FloatValue
     //
 
-    public Variable setFloatValue(double v) {
+    public Variable setFloatValue(double v)
+    {
         this.type = Type.DOUBLE;
         this.accessor = floatAccessor;
         this.doubleValue = v;
@@ -508,35 +588,43 @@ public class Variable implements Value {
         return this;
     }
 
-    public Variable setFloatValue(float v) {
+    public Variable setFloatValue(float v)
+    {
         this.type = Type.DOUBLE;
         this.accessor = floatAccessor;
         this.longValue = (long) v;  // AbstractNumberValueAccessor uses castAsLong
         return this;
     }
 
-    private class FloatValueAccessor extends AbstractNumberValueAccessor implements FloatValue {
+    private class FloatValueAccessor
+            extends AbstractNumberValueAccessor
+            implements FloatValue
+    {
         @Override
-        public FloatValue asFloatValue() {
+        public FloatValue asFloatValue()
+        {
             return this;
         }
 
         @Override
-        public ImmutableFloatValue immutableValue() {
+        public ImmutableFloatValue immutableValue()
+        {
             return ValueFactory.newFloat(doubleValue);
         }
 
         @Override
-        public ValueType getValueType() {
+        public ValueType getValueType()
+        {
             return ValueType.FLOAT;
         }
 
         @Override
-        public void writeTo(MessagePacker pk) throws IOException {
+        public void writeTo(MessagePacker pk)
+                throws IOException
+        {
             pk.packDouble(doubleValue);
         }
     }
-
 
     ////
     // RawValue
@@ -544,44 +632,54 @@ public class Variable implements Value {
     // StringValue
     //
 
-    private abstract class AbstractRawValueAccessor extends AbstractValueAccessor implements RawValue {
+    private abstract class AbstractRawValueAccessor
+            extends AbstractValueAccessor
+            implements RawValue
+    {
         @Override
-        public RawValue asRawValue() {
+        public RawValue asRawValue()
+        {
             return this;
         }
 
         @Override
-        public byte[] getByteArray() {
+        public byte[] getByteArray()
+        {
             return (byte[]) objectValue;
         }
 
         @Override
-        public ByteBuffer getByteBuffer() {
+        public ByteBuffer getByteBuffer()
+        {
             return ByteBuffer.wrap(getByteArray());
         }
 
         @Override
-        public String getString() {
+        public String getString()
+        {
             byte[] raw = (byte[]) objectValue;
             try {
                 CharsetDecoder reportDecoder = MessagePack.UTF8.newDecoder()
-                    .onMalformedInput(CodingErrorAction.REPORT)
-                    .onUnmappableCharacter(CodingErrorAction.REPORT);
+                        .onMalformedInput(CodingErrorAction.REPORT)
+                        .onUnmappableCharacter(CodingErrorAction.REPORT);
                 return reportDecoder.decode(ByteBuffer.wrap(raw)).toString();
-            } catch (CharacterCodingException ex) {
+            }
+            catch (CharacterCodingException ex) {
                 throw new MessageStringCodingException(ex);
             }
         }
 
         @Override
-        public String stringValue() {
+        public String stringValue()
+        {
             byte[] raw = (byte[]) objectValue;
             try {
                 CharsetDecoder reportDecoder = MessagePack.UTF8.newDecoder()
-                    .onMalformedInput(CodingErrorAction.REPLACE)
-                    .onUnmappableCharacter(CodingErrorAction.REPLACE);
+                        .onMalformedInput(CodingErrorAction.REPLACE)
+                        .onUnmappableCharacter(CodingErrorAction.REPLACE);
                 return reportDecoder.decode(ByteBuffer.wrap(raw)).toString();
-            } catch (CharacterCodingException ex) {
+            }
+            catch (CharacterCodingException ex) {
                 throw new MessageStringCodingException(ex);
             }
         }
@@ -591,117 +689,144 @@ public class Variable implements Value {
     // BinaryValue
     //
 
-    public Variable setBinaryValue(byte[] v) {
+    public Variable setBinaryValue(byte[] v)
+    {
         this.type = Type.BYTE_ARRAY;
         this.accessor = binaryAccessor;
         this.objectValue = v;
         return this;
     }
 
-    private class BinaryValueAccessor extends AbstractRawValueAccessor implements BinaryValue {
+    private class BinaryValueAccessor
+            extends AbstractRawValueAccessor
+            implements BinaryValue
+    {
         @Override
-        public ValueType getValueType() {
+        public ValueType getValueType()
+        {
             return ValueType.BINARY;
         }
 
         @Override
-        public BinaryValue asBinaryValue() {
+        public BinaryValue asBinaryValue()
+        {
             return this;
         }
 
         @Override
-        public ImmutableBinaryValue immutableValue() {
+        public ImmutableBinaryValue immutableValue()
+        {
             return ValueFactory.newBinary(getByteArray());
         }
 
         @Override
-        public void writeTo(MessagePacker pk) throws IOException {
+        public void writeTo(MessagePacker pk)
+                throws IOException
+        {
             byte[] data = (byte[]) objectValue;
             pk.packBinaryHeader(data.length);
             pk.writePayload(data);
         }
     }
 
-
     ////
     // StringValue
     //
 
-    public Variable setStringValue(String v) {
+    public Variable setStringValue(String v)
+    {
         return setStringValue(v.getBytes(MessagePack.UTF8));
     }
 
-    public Variable setStringValue(byte[] v) {
+    public Variable setStringValue(byte[] v)
+    {
         this.type = Type.RAW_STRING;
         this.accessor = stringAccessor;
         this.objectValue = v;
         return this;
     }
 
-    private class StringValueAccessor extends AbstractRawValueAccessor implements StringValue {
+    private class StringValueAccessor
+            extends AbstractRawValueAccessor
+            implements StringValue
+    {
         @Override
-        public ValueType getValueType() {
+        public ValueType getValueType()
+        {
             return ValueType.STRING;
         }
 
         @Override
-        public StringValue asStringValue() {
+        public StringValue asStringValue()
+        {
             return this;
         }
 
         @Override
-        public ImmutableStringValue immutableValue() {
+        public ImmutableStringValue immutableValue()
+        {
             return ValueFactory.newString((byte[]) objectValue);
         }
 
         @Override
-        public void writeTo(MessagePacker pk) throws IOException {
+        public void writeTo(MessagePacker pk)
+                throws IOException
+        {
             byte[] data = (byte[]) objectValue;
             pk.packRawStringHeader(data.length);
             pk.writePayload(data);
         }
     }
 
-
     ////
     // ArrayValue
     //
 
-    public Variable setArrayValue(List<Value> v) {
+    public Variable setArrayValue(List<Value> v)
+    {
         this.type = Type.LIST;
         this.accessor = arrayAccessor;
         this.objectValue = v;
         return this;
     }
 
-    private class ArrayValueAccessor extends AbstractValueAccessor implements ArrayValue {
+    private class ArrayValueAccessor
+            extends AbstractValueAccessor
+            implements ArrayValue
+    {
         @Override
-        public ValueType getValueType() {
+        public ValueType getValueType()
+        {
             return ValueType.ARRAY;
         }
 
         @Override
-        public ArrayValue asArrayValue() {
+        public ArrayValue asArrayValue()
+        {
             return this;
         }
 
         @Override
-        public ImmutableArrayValue immutableValue() {
+        public ImmutableArrayValue immutableValue()
+        {
             return ValueFactory.newArray(list());
         }
 
         @Override
-        public int size() {
+        public int size()
+        {
             return list().size();
         }
 
         @Override
-        public Value get(int index) {
+        public Value get(int index)
+        {
             return list().get(index);
         }
 
         @Override
-        public Value getOrNilValue(int index) {
+        public Value getOrNilValue(int index)
+        {
             List<Value> l = list();
             if (l.size() < index && index >= 0) {
                 return ValueFactory.newNil();
@@ -710,18 +835,22 @@ public class Variable implements Value {
         }
 
         @Override
-        public Iterator<Value> iterator() {
+        public Iterator<Value> iterator()
+        {
             return list().iterator();
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public List<Value> list() {
+        public List<Value> list()
+        {
             return (List<Value>) objectValue;
         }
 
         @Override
-        public void writeTo(MessagePacker pk) throws IOException {
+        public void writeTo(MessagePacker pk)
+                throws IOException
+        {
             List<Value> l = list();
             pk.packArrayHeader(l.size());
             for (Value e : l) {
@@ -734,57 +863,69 @@ public class Variable implements Value {
     // MapValue
     //
 
-    public Variable setMapValue(Map<Value,Value> v) {
+    public Variable setMapValue(Map<Value, Value> v)
+    {
         this.type = Type.MAP;
         this.accessor = mapAccessor;
         this.objectValue = v;
         return this;
     }
 
-    private class MapValueAccessor extends AbstractValueAccessor implements MapValue {
+    private class MapValueAccessor
+            extends AbstractValueAccessor
+            implements MapValue
+    {
         @Override
-        public ValueType getValueType() {
+        public ValueType getValueType()
+        {
             return ValueType.MAP;
         }
 
         @Override
-        public MapValue asMapValue() {
+        public MapValue asMapValue()
+        {
             return this;
         }
 
         @Override
-        public ImmutableMapValue immutableValue() {
+        public ImmutableMapValue immutableValue()
+        {
             return ValueFactory.newMap(map());
         }
 
         @Override
-        public int size() {
+        public int size()
+        {
             return map().size();
         }
 
         @Override
-        public Set<Value> keySet() {
+        public Set<Value> keySet()
+        {
             return map().keySet();
         }
 
         @Override
-        public Set<Map.Entry<Value, Value>> entrySet() {
+        public Set<Map.Entry<Value, Value>> entrySet()
+        {
             return map().entrySet();
         }
 
         @Override
-        public Collection<Value> values() {
+        public Collection<Value> values()
+        {
             return map().values();
         }
 
         @Override
-        public Value[] getKeyValueArray() {
-            Map<Value,Value> v = map();
+        public Value[] getKeyValueArray()
+        {
+            Map<Value, Value> v = map();
             Value[] kvs = new Value[v.size() * 2];
-            Iterator<Map.Entry<Value,Value>> ite = v.entrySet().iterator();
+            Iterator<Map.Entry<Value, Value>> ite = v.entrySet().iterator();
             int i = 0;
             while (ite.hasNext()) {
-                Map.Entry<Value,Value> pair = ite.next();
+                Map.Entry<Value, Value> pair = ite.next();
                 kvs[i] = pair.getKey();
                 i++;
                 kvs[i] = pair.getValue();
@@ -794,156 +935,187 @@ public class Variable implements Value {
         }
 
         @SuppressWarnings("unchecked")
-        public Map<Value, Value> map() {
+        public Map<Value, Value> map()
+        {
             return (Map<Value, Value>) objectValue;
         }
 
         @Override
-        public void writeTo(MessagePacker pk) throws IOException {
-            Map<Value,Value> m = map();
+        public void writeTo(MessagePacker pk)
+                throws IOException
+        {
+            Map<Value, Value> m = map();
             pk.packArrayHeader(m.size());
-            for (Map.Entry<Value,Value> pair : m.entrySet()) {
+            for (Map.Entry<Value, Value> pair : m.entrySet()) {
                 pair.getKey().writeTo(pk);
                 pair.getValue().writeTo(pk);
             }
         }
     }
 
-
     ////
     // ExtensionValue
     //
-    public Variable setExtensionValue(byte type, byte[] data) {
+    public Variable setExtensionValue(byte type, byte[] data)
+    {
         this.type = Type.EXTENSION;
         this.accessor = extensionAccessor;
         this.objectValue = ValueFactory.newExtension(type, data);
         return this;
     }
 
-    private class ExtensionValueAccessor extends AbstractValueAccessor implements ExtensionValue {
+    private class ExtensionValueAccessor
+            extends AbstractValueAccessor
+            implements ExtensionValue
+    {
         @Override
-        public ValueType getValueType() {
+        public ValueType getValueType()
+        {
             return ValueType.EXTENSION;
         }
 
         @Override
-        public ExtensionValue asExtensionValue() {
+        public ExtensionValue asExtensionValue()
+        {
             return this;
         }
 
         @Override
-        public ImmutableExtensionValue immutableValue() {
+        public ImmutableExtensionValue immutableValue()
+        {
             return (ImmutableExtensionValue) objectValue;
         }
 
         @Override
-        public byte getType() {
+        public byte getType()
+        {
             return ((ImmutableExtensionValue) objectValue).getType();
         }
 
         @Override
-        public byte[] getData() {
+        public byte[] getData()
+        {
             return ((ImmutableExtensionValue) objectValue).getData();
         }
 
         @Override
-        public void writeTo(MessagePacker pk) throws IOException {
+        public void writeTo(MessagePacker pk)
+                throws IOException
+        {
             ((ImmutableExtensionValue) objectValue).writeTo(pk);
         }
     }
-
 
     ////
     // Value
     //
 
     @Override
-    public ImmutableValue immutableValue() {
+    public ImmutableValue immutableValue()
+    {
         return accessor.immutableValue();
     }
 
     @Override
-    public void writeTo(MessagePacker pk) throws IOException {
+    public void writeTo(MessagePacker pk)
+            throws IOException
+    {
         accessor.writeTo(pk);
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return immutableValue().hashCode();  // TODO optimize
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         return immutableValue().equals(o);  // TODO optimize
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return immutableValue().toString();  // TODO optimize
     }
 
     @Override
-    public ValueType getValueType() {
+    public ValueType getValueType()
+    {
         return type.getValueType();
     }
 
     @Override
-    public boolean isNilValue() {
+    public boolean isNilValue()
+    {
         return getValueType().isNilType();
     }
 
     @Override
-    public boolean isBooleanValue() {
+    public boolean isBooleanValue()
+    {
         return getValueType().isBooleanType();
     }
 
     @Override
-    public boolean isNumberValue() {
+    public boolean isNumberValue()
+    {
         return getValueType().isNumberType();
     }
 
     @Override
-    public boolean isIntegerValue() {
+    public boolean isIntegerValue()
+    {
         return getValueType().isIntegerType();
     }
 
     @Override
-    public boolean isFloatValue() {
+    public boolean isFloatValue()
+    {
         return getValueType().isFloatType();
     }
 
     @Override
-    public boolean isRawValue() {
+    public boolean isRawValue()
+    {
         return getValueType().isRawType();
     }
 
     @Override
-    public boolean isBinaryValue() {
+    public boolean isBinaryValue()
+    {
         return getValueType().isBinaryType();
     }
 
     @Override
-    public boolean isStringValue() {
+    public boolean isStringValue()
+    {
         return getValueType().isStringType();
     }
 
     @Override
-    public boolean isArrayValue() {
+    public boolean isArrayValue()
+    {
         return getValueType().isArrayType();
     }
 
     @Override
-    public boolean isMapValue() {
+    public boolean isMapValue()
+    {
         return getValueType().isMapType();
     }
 
     @Override
-    public boolean isExtensionValue() {
+    public boolean isExtensionValue()
+    {
         return getValueType().isExtensionType();
     }
 
     @Override
-    public NilValue asNilValue() {
+    public NilValue asNilValue()
+    {
         if (!isNilValue()) {
             throw new MessageTypeCastException();
         }
@@ -951,7 +1123,8 @@ public class Variable implements Value {
     }
 
     @Override
-    public BooleanValue asBooleanValue() {
+    public BooleanValue asBooleanValue()
+    {
         if (!isBooleanValue()) {
             throw new MessageTypeCastException();
         }
@@ -959,7 +1132,8 @@ public class Variable implements Value {
     }
 
     @Override
-    public NumberValue asNumberValue() {
+    public NumberValue asNumberValue()
+    {
         if (!isNumberValue()) {
             throw new MessageTypeCastException();
         }
@@ -967,7 +1141,8 @@ public class Variable implements Value {
     }
 
     @Override
-    public IntegerValue asIntegerValue() {
+    public IntegerValue asIntegerValue()
+    {
         if (!isIntegerValue()) {
             throw new MessageTypeCastException();
         }
@@ -975,7 +1150,8 @@ public class Variable implements Value {
     }
 
     @Override
-    public FloatValue asFloatValue() {
+    public FloatValue asFloatValue()
+    {
         if (!isFloatValue()) {
             throw new MessageTypeCastException();
         }
@@ -983,7 +1159,8 @@ public class Variable implements Value {
     }
 
     @Override
-    public RawValue asRawValue() {
+    public RawValue asRawValue()
+    {
         if (!isRawValue()) {
             throw new MessageTypeCastException();
         }
@@ -991,7 +1168,8 @@ public class Variable implements Value {
     }
 
     @Override
-    public BinaryValue asBinaryValue() {
+    public BinaryValue asBinaryValue()
+    {
         if (!isBinaryValue()) {
             throw new MessageTypeCastException();
         }
@@ -999,7 +1177,8 @@ public class Variable implements Value {
     }
 
     @Override
-    public StringValue asStringValue() {
+    public StringValue asStringValue()
+    {
         if (!isStringValue()) {
             throw new MessageTypeCastException();
         }
@@ -1007,7 +1186,8 @@ public class Variable implements Value {
     }
 
     @Override
-    public ArrayValue asArrayValue() {
+    public ArrayValue asArrayValue()
+    {
         if (!isArrayValue()) {
             throw new MessageTypeCastException();
         }
@@ -1015,7 +1195,8 @@ public class Variable implements Value {
     }
 
     @Override
-    public MapValue asMapValue() {
+    public MapValue asMapValue()
+    {
         if (!isMapValue()) {
             throw new MessageTypeCastException();
         }
@@ -1023,7 +1204,8 @@ public class Variable implements Value {
     }
 
     @Override
-    public ExtensionValue asExtensionValue() {
+    public ExtensionValue asExtensionValue()
+    {
         if (!isExtensionValue()) {
             throw new MessageTypeCastException();
         }

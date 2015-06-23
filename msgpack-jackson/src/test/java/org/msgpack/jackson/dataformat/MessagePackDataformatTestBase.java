@@ -20,7 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MessagePackDataformatTestBase {
+public class MessagePackDataformatTestBase
+{
     protected MessagePackFactory factory;
     protected ByteArrayOutputStream out;
     protected ByteArrayInputStream in;
@@ -31,7 +32,8 @@ public class MessagePackDataformatTestBase {
     protected TinyPojo tinyPojo;
 
     @Before
-    public void setup() {
+    public void setup()
+    {
         factory = new MessagePackFactory();
         objectMapper = new ObjectMapper(factory);
         out = new ByteArrayOutputStream();
@@ -61,11 +63,13 @@ public class MessagePackDataformatTestBase {
     }
 
     @After
-    public void teardown() {
+    public void teardown()
+    {
         if (in != null) {
             try {
                 in.close();
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -73,13 +77,15 @@ public class MessagePackDataformatTestBase {
         if (out != null) {
             try {
                 out.close();
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    protected void printStat(String label, double[] values) {
+    protected void printStat(String label, double[] values)
+    {
         StandardDeviation standardDeviation = new StandardDeviation();
         System.out.println(label + ":");
         System.out.println(String.format("  mean : %.2f", StatUtils.mean(values)));
@@ -89,25 +95,30 @@ public class MessagePackDataformatTestBase {
         System.out.println("");
     }
 
-    public enum Suit {
+    public enum Suit
+    {
         SPADE, HEART, DIAMOND, CLUB;
     }
 
-    public static class NestedListPojo {
+    public static class NestedListPojo
+    {
         public String s;
         public List<String> strs;
     }
 
-    public static class TinyPojo {
+    public static class TinyPojo
+    {
         public String t;
     }
 
-    public static class NestedListComplexPojo {
+    public static class NestedListComplexPojo
+    {
         public String s;
         public List<TinyPojo> foos;
     }
 
-    public static class NormalPojo {
+    public static class NormalPojo
+    {
         String s;
         public boolean bool;
         public int i;
@@ -118,11 +129,13 @@ public class MessagePackDataformatTestBase {
         public BigInteger bi;
         public Suit suit;
 
-        public String getS() {
+        public String getS()
+        {
             return s;
         }
 
-        public void setS(String s) {
+        public void setS(String s)
+        {
             this.s = s;
         }
     }
@@ -138,19 +151,21 @@ public class MessagePackDataformatTestBase {
             this.age = age;
         }
 
-        public String getName() {
+        public String getName()
+        {
             return name;
         }
 
-        public int getAge() {
+        public int getAge()
+        {
             return age;
         }
     }
 
-    @JsonIgnoreProperties({ "foo", "bar" })
+    @JsonIgnoreProperties({"foo", "bar"})
     public static class IgnoringPropertiesPojo
     {
-        int _code;
+        int code;
 
         // will not be written as JSON; nor assigned from JSON:
         @JsonIgnore
@@ -160,34 +175,51 @@ public class MessagePackDataformatTestBase {
         public String external;
 
         @JsonIgnore
-        public void setCode(int c) { _code = c; }
+        public void setCode(int c)
+        {
+            code = c;
+        }
 
         // note: will also be ignored because setter has annotation!
-        public int getCode() { return _code; }
+        public int getCode()
+        {
+            return code;
+        }
     }
 
-    public static class ChangingPropertyNamesPojo {
-        String _name;
+    public static class ChangingPropertyNamesPojo
+    {
+        String name;
 
         // without annotation, we'd get "theName", but we want "name":
         @JsonProperty("name")
-        public String getTheName() { return _name; }
+        public String getTheName()
+        {
+            return name;
+        }
 
         // note: it is enough to add annotation on just getter OR setter;
         // so we can omit it here
-        public void setTheName(String n) { _name = n; }
+        public void setTheName(String n)
+        {
+            name = n;
+        }
     }
 
-    protected interface FileSetup {
-        void setup(File f) throws Exception;
+    protected interface FileSetup
+    {
+        void setup(File f)
+                throws Exception;
     }
 
-    protected File createTempFile() throws Exception
+    protected File createTempFile()
+            throws Exception
     {
         return createTempFile(null);
     }
 
-    protected File createTempFile(FileSetup fileSetup) throws Exception
+    protected File createTempFile(FileSetup fileSetup)
+            throws Exception
     {
         File tempFile = File.createTempFile("test", "msgpack");
         tempFile.deleteOnExit();
@@ -197,7 +229,9 @@ public class MessagePackDataformatTestBase {
         return tempFile;
     }
 
-    protected OutputStream createTempFileOutputStream() throws IOException {
+    protected OutputStream createTempFileOutputStream()
+            throws IOException
+    {
         File tempFile = File.createTempFile("test", "msgpack");
         tempFile.deleteOnExit();
         return new FileOutputStream(tempFile);

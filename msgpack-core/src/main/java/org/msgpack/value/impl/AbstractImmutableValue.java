@@ -16,117 +16,151 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessageTypeCastException;
-import org.msgpack.value.*;
+import org.msgpack.value.ImmutableArrayValue;
+import org.msgpack.value.ImmutableBinaryValue;
+import org.msgpack.value.ImmutableBooleanValue;
+import org.msgpack.value.ImmutableExtensionValue;
+import org.msgpack.value.ImmutableFloatValue;
+import org.msgpack.value.ImmutableIntegerValue;
+import org.msgpack.value.ImmutableMapValue;
+import org.msgpack.value.ImmutableNilValue;
+import org.msgpack.value.ImmutableNumberValue;
+import org.msgpack.value.ImmutableRawValue;
+import org.msgpack.value.ImmutableStringValue;
+import org.msgpack.value.ImmutableValue;
 
-
-abstract class AbstractImmutableValue implements ImmutableValue {
+abstract class AbstractImmutableValue
+        implements ImmutableValue
+{
     @Override
-    public boolean isNilValue() {
+    public boolean isNilValue()
+    {
         return getValueType().isNilType();
     }
 
     @Override
-    public boolean isBooleanValue() {
+    public boolean isBooleanValue()
+    {
         return getValueType().isBooleanType();
     }
 
     @Override
-    public boolean isNumberValue() {
+    public boolean isNumberValue()
+    {
         return getValueType().isNumberType();
     }
 
     @Override
-    public boolean isIntegerValue() {
+    public boolean isIntegerValue()
+    {
         return getValueType().isIntegerType();
     }
 
     @Override
-    public boolean isFloatValue() {
+    public boolean isFloatValue()
+    {
         return getValueType().isFloatType();
     }
 
     @Override
-    public boolean isRawValue() {
+    public boolean isRawValue()
+    {
         return getValueType().isRawType();
     }
 
     @Override
-    public boolean isBinaryValue() {
+    public boolean isBinaryValue()
+    {
         return getValueType().isBinaryType();
     }
 
     @Override
-    public boolean isStringValue() {
+    public boolean isStringValue()
+    {
         return getValueType().isStringType();
     }
 
     @Override
-    public boolean isArrayValue() {
+    public boolean isArrayValue()
+    {
         return getValueType().isArrayType();
     }
 
     @Override
-    public boolean isMapValue() {
+    public boolean isMapValue()
+    {
         return getValueType().isMapType();
     }
 
     @Override
-    public boolean isExtensionValue() {
+    public boolean isExtensionValue()
+    {
         return getValueType().isExtensionType();
     }
 
     @Override
-    public ImmutableNilValue asNilValue() {
+    public ImmutableNilValue asNilValue()
+    {
         throw new MessageTypeCastException();
     }
 
     @Override
-    public ImmutableBooleanValue asBooleanValue() {
+    public ImmutableBooleanValue asBooleanValue()
+    {
         throw new MessageTypeCastException();
     }
 
     @Override
-    public ImmutableNumberValue asNumberValue() {
+    public ImmutableNumberValue asNumberValue()
+    {
         throw new MessageTypeCastException();
     }
 
     @Override
-    public ImmutableIntegerValue asIntegerValue() {
+    public ImmutableIntegerValue asIntegerValue()
+    {
         throw new MessageTypeCastException();
     }
 
     @Override
-    public ImmutableFloatValue asFloatValue() {
+    public ImmutableFloatValue asFloatValue()
+    {
         throw new MessageTypeCastException();
     }
 
     @Override
-    public ImmutableRawValue asRawValue() {
+    public ImmutableRawValue asRawValue()
+    {
         throw new MessageTypeCastException();
     }
 
     @Override
-    public ImmutableBinaryValue asBinaryValue() {
+    public ImmutableBinaryValue asBinaryValue()
+    {
         throw new MessageTypeCastException();
     }
 
     @Override
-    public ImmutableStringValue asStringValue() {
+    public ImmutableStringValue asStringValue()
+    {
         throw new MessageTypeCastException();
     }
 
     @Override
-    public ImmutableArrayValue asArrayValue() {
+    public ImmutableArrayValue asArrayValue()
+    {
         throw new MessageTypeCastException();
     }
 
     @Override
-    public ImmutableMapValue asMapValue() {
+    public ImmutableMapValue asMapValue()
+    {
         throw new MessageTypeCastException();
     }
 
     @Override
-    public ImmutableExtensionValue asExtensionValue() {
+    public ImmutableExtensionValue asExtensionValue()
+    {
         throw new MessageTypeCastException();
     }
 }

@@ -15,16 +15,17 @@
 //
 package org.msgpack.value;
 
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * The interface {@code ArrayValue} represents MessagePack's Array type.
- *
+ * <p/>
  * MessagePack's Array type can represent sequence of values.
  */
-public interface ArrayValue extends Value, Iterable<Value> {
-
+public interface ArrayValue
+        extends Value, Iterable<Value>
+{
     /**
      * Returns number of elements in this array.
      */
@@ -33,9 +34,8 @@ public interface ArrayValue extends Value, Iterable<Value> {
     /**
      * Returns the element at the specified position in this array.
      *
-     * @throws IndexOutOfBoundsException
-     *         If the index is out of range
-     *         (<tt>index &lt; 0 || index &gt;= size()</tt>)
+     * @throws IndexOutOfBoundsException If the index is out of range
+     * (<tt>index &lt; 0 || index &gt;= size()</tt>)
      */
     Value get(int index);
 

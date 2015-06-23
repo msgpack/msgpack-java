@@ -16,52 +16,62 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
+import org.msgpack.value.ImmutableStringValue;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueType;
-import org.msgpack.value.ImmutableStringValue;
 
-import java.util.Arrays;
 import java.io.IOException;
-
+import java.util.Arrays;
 
 /**
  * {@code ImmutableStringValueImpl} Implements {@code ImmutableStringValue} using a {@code byte[]} field.
  * This implementation caches result of {@code stringValue()} and {@code getString()} using a private {@code String} field.
  *
- * @see  org.msgpack.value.StringValue
+ * @see org.msgpack.value.StringValue
  */
-public class ImmutableStringValueImpl extends AbstractImmutableRawValue implements ImmutableStringValue {
-    public ImmutableStringValueImpl(byte[] data) {
+public class ImmutableStringValueImpl
+        extends AbstractImmutableRawValue
+        implements ImmutableStringValue
+{
+    public ImmutableStringValueImpl(byte[] data)
+    {
         super(data);
     }
 
-    public ImmutableStringValueImpl(String string) {
+    public ImmutableStringValueImpl(String string)
+    {
         super(string);
     }
 
     @Override
-    public ValueType getValueType() {
+    public ValueType getValueType()
+    {
         return ValueType.STRING;
     }
 
     @Override
-    public ImmutableStringValue immutableValue() {
+    public ImmutableStringValue immutableValue()
+    {
         return this;
     }
 
     @Override
-    public ImmutableStringValue asStringValue() {
+    public ImmutableStringValue asStringValue()
+    {
         return this;
     }
 
     @Override
-    public void writeTo(MessagePacker pk) throws IOException {
+    public void writeTo(MessagePacker pk)
+            throws IOException
+    {
         pk.packRawStringHeader(data.length);
         pk.writePayload(data);
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (this == o) {
             return true;
         }
@@ -76,13 +86,15 @@ public class ImmutableStringValueImpl extends AbstractImmutableRawValue implemen
         if (v instanceof ImmutableStringValueImpl) {
             ImmutableStringValueImpl bv = (ImmutableStringValueImpl) v;
             return Arrays.equals(data, bv.data);
-        } else {
+        }
+        else {
             return Arrays.equals(data, v.asStringValue().getByteArray());
         }
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return Arrays.hashCode(data);
     }
 }

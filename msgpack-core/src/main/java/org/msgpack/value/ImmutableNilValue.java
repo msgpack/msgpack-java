@@ -15,5 +15,7 @@
 //
 package org.msgpack.value;
 
-public interface ImmutableNilValue extends NilValue, ImmutableValue {
+public interface ImmutableNilValue
+        extends NilValue, ImmutableValue
+{
 }

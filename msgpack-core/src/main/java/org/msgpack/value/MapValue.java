@@ -15,16 +15,18 @@
 //
 package org.msgpack.value;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collection;
 
 /**
  * The interface {@code ArrayValue} represents MessagePack's Map type.
- *
+ * <p/>
  * MessagePack's Map type can represent sequence of key-value pairs.
  */
-public interface MapValue extends Value {
+public interface MapValue
+        extends Value
+{
     /**
      * Returns number of key-value pairs in this array.
      */
@@ -43,9 +45,9 @@ public interface MapValue extends Value {
 
     /**
      * Returns the key-value pairs as an array of {@code Value}.
-     *
+     * <p/>
      * Odd elements are keys. Next element of an odd element is a value corresponding to the key.
-     *
+     * <p/>
      * For example, if this value represents <code>{"k1": "v1", "k2": "v2"}</code>, this method returns ["k1", "v1", "k2", "v2"].
      */
     Value[] getKeyValueArray();
