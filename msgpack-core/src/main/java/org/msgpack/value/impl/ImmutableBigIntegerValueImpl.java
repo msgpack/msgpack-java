@@ -15,6 +15,7 @@
 //
 package org.msgpack.value.impl;
 
+import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessageIntegerOverflowException;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.value.ImmutableIntegerValue;
@@ -35,6 +36,26 @@ public class ImmutableBigIntegerValueImpl
         extends AbstractImmutableValue
         implements ImmutableIntegerValue
 {
+    public static MessageFormat mostSuccinctMessageFormat(IntegerValue v)
+    {
+        if(v.isInByteRange()) {
+            return MessageFormat.INT8;
+        }
+        else if(v.isInShortRange()) {
+            return MessageFormat.INT16;
+        }
+        else if(v.isInIntRange()) {
+            return MessageFormat.INT32;
+        }
+        else if(v.isInLongRange()) {
+            return MessageFormat.INT64;
+        }
+        else {
+            return MessageFormat.UINT64;
+        }
+    }
+
+
     private final BigInteger value;
 
     public ImmutableBigIntegerValueImpl(BigInteger value)
@@ -139,6 +160,12 @@ public class ImmutableBigIntegerValueImpl
     public boolean isInLongRange()
     {
         return 0 <= value.compareTo(LONG_MIN) && value.compareTo(LONG_MAX) <= 0;
+    }
+
+    @Override
+    public MessageFormat mostSuccinctMessageFormat()
+    {
+        return mostSuccinctMessageFormat(this);
     }
 
     @Override
