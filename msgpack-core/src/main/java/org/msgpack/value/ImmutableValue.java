@@ -15,9 +15,9 @@
 //
 package org.msgpack.value;
 
-import java.io.Serializable;
-
-public interface ImmutableValue extends Value {
+public interface ImmutableValue
+        extends Value
+{
     @Override
     public ImmutableNilValue asNilValue();
 

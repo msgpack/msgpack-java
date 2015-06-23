@@ -1,23 +1,26 @@
 package org.msgpack.core.buffer
 
-import org.msgpack.core.{MessageUnpacker, MessagePack, MessagePackSpec}
 import java.io._
-import xerial.core.io.IOUtil._
-import scala.util.Random
-import java.util.zip.{GZIPOutputStream, GZIPInputStream}
 import java.nio.ByteBuffer
+import java.util.zip.{GZIPInputStream, GZIPOutputStream}
 
+import org.msgpack.core.{MessagePack, MessagePackSpec, MessageUnpacker}
+import xerial.core.io.IOUtil._
+
+import scala.util.Random
 
 /**
  * Created on 5/30/14.
  */
-class MessageBufferInputTest extends MessagePackSpec {
+class MessageBufferInputTest
+  extends MessagePackSpec {
 
   val targetInputSize = Seq(0, 10, 500, 1000, 2000, 4000, 8000, 10000, 30000, 50000, 100000)
 
-  def testData(size:Int) = {
+  def testData(size: Int) = {
     //debug(s"test data size: ${size}")
-    val b = new Array[Byte](size)
+    val b = new
+        Array[Byte](size)
     Random.nextBytes(b)
     b
   }
@@ -25,17 +28,19 @@ class MessageBufferInputTest extends MessagePackSpec {
   def testDataSet = {
     targetInputSize.map(testData)
   }
-  
-  def runTest(factory:Array[Byte] => MessageBufferInput) {
-    for(b <- testDataSet) {
+
+  def runTest(factory: Array[Byte] => MessageBufferInput) {
+    for (b <- testDataSet) {
       checkInputData(b, factory(b))
     }
   }
 
-  implicit class InputData(b:Array[Byte]) {
+  implicit class InputData(b: Array[Byte]) {
     def compress = {
-      val compressed = new ByteArrayOutputStream()
-      val out = new GZIPOutputStream(compressed)
+      val compressed = new
+          ByteArrayOutputStream()
+      val out = new
+          GZIPOutputStream(compressed)
       out.write(b)
       out.close()
       compressed.toByteArray
@@ -45,59 +50,66 @@ class MessageBufferInputTest extends MessagePackSpec {
       ByteBuffer.wrap(b)
     }
 
-    def saveToTmpFile : File = {
-      val tmp = File.createTempFile("testbuf", ".dat", new File("target"))
+    def saveToTmpFile: File = {
+      val tmp = File
+        .createTempFile("testbuf",
+          ".dat",
+          new
+              File("target"))
       tmp.getParentFile.mkdirs()
       tmp.deleteOnExit()
-      withResource(new FileOutputStream(tmp)) { out =>
+      withResource(new
+          FileOutputStream(tmp)) { out =>
         out.write(b)
       }
       tmp
     }
   }
 
-
-
-  def checkInputData(inputData:Array[Byte], in:MessageBufferInput) {
+  def checkInputData(inputData: Array[Byte], in: MessageBufferInput) {
     When(s"input data size = ${inputData.length}")
     var cursor = 0
-    for(m <- Iterator.continually(in.next).takeWhile(_ != null)) {
+    for (m <- Iterator.continually(in.next).takeWhile(_ != null)) {
       m.toByteArray() shouldBe inputData.slice(cursor, cursor + m.size())
       cursor += m.size()
     }
     cursor shouldBe inputData.length
-
   }
-
 
   "MessageBufferInput" should {
     "support byte arrays" in {
-      runTest(new ArrayBufferInput(_))
+      runTest(new
+          ArrayBufferInput(_))
     }
 
     "support ByteBuffers" in {
-      runTest(b => new ByteBufferInput(b.toByteBuffer))
+      runTest(b => new
+          ByteBufferInput(b.toByteBuffer))
     }
 
-    "support InputStreams" taggedAs("is") in {
-      runTest(b => 
-        new InputStreamBufferInput(
-          new GZIPInputStream(new ByteArrayInputStream(b.compress)))
+    "support InputStreams" taggedAs ("is") in {
+      runTest(b =>
+        new
+            InputStreamBufferInput(
+              new
+                  GZIPInputStream(new
+                      ByteArrayInputStream(b.compress)))
       )
     }
 
-    "support file input channel" taggedAs("fc") in {
+    "support file input channel" taggedAs ("fc") in {
       runTest { b =>
         val tmp = b.saveToTmpFile
         try {
-          InputStreamBufferInput.newBufferInput(new FileInputStream(tmp))
+          InputStreamBufferInput
+            .newBufferInput(new
+              FileInputStream(tmp))
         }
         finally {
           tmp.delete()
         }
       }
     }
-
   }
 
   def createTempFile = {
@@ -108,9 +120,12 @@ class MessageBufferInputTest extends MessagePackSpec {
 
   def createTempFileWithInputStream = {
     val f = createTempFile
-    val out = new FileOutputStream(f)
-    new MessagePack().newPacker(out).packInt(42).close
-    val in = new FileInputStream(f)
+    val out = new
+        FileOutputStream(f)
+    new
+        MessagePack().newPacker(out).packInt(42).close
+    val in = new
+        FileInputStream(f)
     (f, in)
   }
 
@@ -120,15 +135,17 @@ class MessageBufferInputTest extends MessagePackSpec {
     (f, ch)
   }
 
-  def readInt(buf:MessageBufferInput) : Int = {
-    val unpacker = new MessageUnpacker(buf)
+  def readInt(buf: MessageBufferInput): Int = {
+    val unpacker = new
+        MessageUnpacker(buf)
     unpacker.unpackInt
   }
 
   "InputStreamBufferInput" should {
     "reset buffer" in {
       val (f0, in0) = createTempFileWithInputStream
-      val buf = new InputStreamBufferInput(in0)
+      val buf = new
+          InputStreamBufferInput(in0)
       readInt(buf) shouldBe 42
 
       val (f1, in1) = createTempFileWithInputStream
@@ -136,10 +153,12 @@ class MessageBufferInputTest extends MessagePackSpec {
       readInt(buf) shouldBe 42
     }
 
-    "be non-blocking" taggedAs("non-blocking") in {
+    "be non-blocking" taggedAs ("non-blocking") in {
 
-      withResource(new PipedOutputStream()) { pipedOutputStream =>
-        withResource(new PipedInputStream()) { pipedInputStream =>
+      withResource(new
+          PipedOutputStream()) { pipedOutputStream =>
+        withResource(new
+            PipedInputStream()) { pipedInputStream =>
           pipedInputStream.connect(pipedOutputStream)
 
           val packer = MessagePack.newDefaultPacker(pipedOutputStream)
@@ -160,13 +179,13 @@ class MessageBufferInputTest extends MessagePackSpec {
         }
       }
     }
-
   }
 
   "ChannelBufferInput" should {
     "reset buffer" in {
       val (f0, in0) = createTempFileWithChannel
-      val buf = new ChannelBufferInput(in0)
+      val buf = new
+          ChannelBufferInput(in0)
       readInt(buf) shouldBe 42
 
       val (f1, in1) = createTempFileWithChannel
@@ -174,5 +193,4 @@ class MessageBufferInputTest extends MessagePackSpec {
       readInt(buf) shouldBe 42
     }
   }
-
 }

@@ -16,15 +16,14 @@
 package org.msgpack.value;
 
 import org.msgpack.core.MessagePacker;
-import org.msgpack.core.MessageTypeCastException;
 
 import java.io.IOException;
-
 
 /**
  * Value is an implementation of MessagePack type system.
  */
-public interface Value {
+public interface Value
+{
     /**
      * Returns type of this value.
      * <p/>
@@ -233,7 +232,8 @@ public interface Value {
      *
      * @see MessagePacker
      */
-    void writeTo(MessagePacker pk) throws IOException;
+    void writeTo(MessagePacker pk)
+            throws IOException;
 
     /**
      * Compares this value to the specified object.

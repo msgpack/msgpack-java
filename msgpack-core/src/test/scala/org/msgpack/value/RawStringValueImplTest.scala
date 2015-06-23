@@ -2,7 +2,8 @@ package org.msgpack.value
 
 import org.msgpack.core.MessagePackSpec
 
-class RawStringValueImplTest extends MessagePackSpec {
+class RawStringValueImplTest
+  extends MessagePackSpec {
 
   "StringValue" should {
     "return the same hash code if they are equal" in {

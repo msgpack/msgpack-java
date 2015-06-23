@@ -15,23 +15,30 @@
 //
 package org.msgpack.value.impl;
 
-import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageIntegerOverflowException;
-import org.msgpack.value.*;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.value.ImmutableIntegerValue;
+import org.msgpack.value.ImmutableNumberValue;
+import org.msgpack.value.IntegerValue;
+import org.msgpack.value.Value;
+import org.msgpack.value.ValueType;
 
 import java.io.IOException;
 import java.math.BigInteger;
 
-
 /**
  * {@code ImmutableBigIntegerValueImpl} Implements {@code ImmutableBigIntegerValue} using a {@code BigInteger} field.
  *
- * @see  org.msgpack.value.IntegerValue
+ * @see org.msgpack.value.IntegerValue
  */
-public class ImmutableBigIntegerValueImpl extends AbstractImmutableValue implements ImmutableIntegerValue {
+public class ImmutableBigIntegerValueImpl
+        extends AbstractImmutableValue
+        implements ImmutableIntegerValue
+{
     private final BigInteger value;
 
-    public ImmutableBigIntegerValueImpl(BigInteger value) {
+    public ImmutableBigIntegerValueImpl(BigInteger value)
+    {
         this.value = value;
     }
 
@@ -45,82 +52,98 @@ public class ImmutableBigIntegerValueImpl extends AbstractImmutableValue impleme
     private static final BigInteger LONG_MAX = BigInteger.valueOf((long) Long.MAX_VALUE);
 
     @Override
-    public ValueType getValueType() {
+    public ValueType getValueType()
+    {
         return ValueType.INTEGER;
     }
 
     @Override
-    public ImmutableIntegerValue immutableValue() {
+    public ImmutableIntegerValue immutableValue()
+    {
         return this;
     }
 
     @Override
-    public ImmutableNumberValue asNumberValue() {
+    public ImmutableNumberValue asNumberValue()
+    {
         return this;
     }
 
     @Override
-    public ImmutableIntegerValue asIntegerValue() {
+    public ImmutableIntegerValue asIntegerValue()
+    {
         return this;
     }
 
     @Override
-    public byte castAsByte() {
+    public byte castAsByte()
+    {
         return value.byteValue();
     }
 
     @Override
-    public short castAsShort() {
+    public short castAsShort()
+    {
         return value.shortValue();
     }
 
     @Override
-    public int castAsInt() {
+    public int castAsInt()
+    {
         return value.intValue();
     }
 
     @Override
-    public long castAsLong() {
+    public long castAsLong()
+    {
         return value.longValue();
     }
 
     @Override
-    public BigInteger castAsBigInteger() {
+    public BigInteger castAsBigInteger()
+    {
         return value;
     }
 
     @Override
-    public float castAsFloat() {
+    public float castAsFloat()
+    {
         return value.floatValue();
     }
 
     @Override
-    public double castAsDouble() {
+    public double castAsDouble()
+    {
         return value.doubleValue();
     }
 
     @Override
-    public boolean isInByteRange() {
+    public boolean isInByteRange()
+    {
         return 0 <= value.compareTo(BYTE_MIN) && value.compareTo(BYTE_MAX) <= 0;
     }
 
     @Override
-    public boolean isInShortRange() {
+    public boolean isInShortRange()
+    {
         return 0 <= value.compareTo(SHORT_MIN) && value.compareTo(SHORT_MAX) <= 0;
     }
 
     @Override
-    public boolean isInIntRange() {
+    public boolean isInIntRange()
+    {
         return 0 <= value.compareTo(INT_MIN) && value.compareTo(INT_MAX) <= 0;
     }
 
     @Override
-    public boolean isInLongRange() {
+    public boolean isInLongRange()
+    {
         return 0 <= value.compareTo(LONG_MIN) && value.compareTo(LONG_MAX) <= 0;
     }
 
     @Override
-    public byte getByte() {
+    public byte getByte()
+    {
         if (!isInByteRange()) {
             throw new MessageIntegerOverflowException(value);
         }
@@ -128,7 +151,8 @@ public class ImmutableBigIntegerValueImpl extends AbstractImmutableValue impleme
     }
 
     @Override
-    public short getShort() {
+    public short getShort()
+    {
         if (!isInShortRange()) {
             throw new MessageIntegerOverflowException(value);
         }
@@ -136,7 +160,8 @@ public class ImmutableBigIntegerValueImpl extends AbstractImmutableValue impleme
     }
 
     @Override
-    public int getInt() {
+    public int getInt()
+    {
         if (!isInIntRange()) {
             throw new MessageIntegerOverflowException(value);
         }
@@ -144,7 +169,8 @@ public class ImmutableBigIntegerValueImpl extends AbstractImmutableValue impleme
     }
 
     @Override
-    public long getLong() {
+    public long getLong()
+    {
         if (!isInLongRange()) {
             throw new MessageIntegerOverflowException(value);
         }
@@ -152,17 +178,21 @@ public class ImmutableBigIntegerValueImpl extends AbstractImmutableValue impleme
     }
 
     @Override
-    public BigInteger getBigInteger() {
+    public BigInteger getBigInteger()
+    {
         return value;
     }
 
     @Override
-    public void writeTo(MessagePacker pk) throws IOException {
+    public void writeTo(MessagePacker pk)
+            throws IOException
+    {
         pk.packBigInteger(value);
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (o == this) {
             return true;
         }
@@ -179,10 +209,12 @@ public class ImmutableBigIntegerValueImpl extends AbstractImmutableValue impleme
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         if (INT_MIN.compareTo(value) <= 0 && value.compareTo(INT_MAX) <= 0) {
             return (int) value.longValue();
-        } else if (LONG_MIN.compareTo(value) <= 0
+        }
+        else if (LONG_MIN.compareTo(value) <= 0
                 && value.compareTo(LONG_MAX) <= 0) {
             long v = value.longValue();
             return (int) (v ^ (v >>> 32));
@@ -191,7 +223,8 @@ public class ImmutableBigIntegerValueImpl extends AbstractImmutableValue impleme
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return value.toString();
     }
 }

@@ -22,7 +22,6 @@ import org.msgpack.value.ValueType;
 
 import java.io.IOException;
 
-
 /**
  * {@code ImmutableBooleanValueImpl} Implements {@code ImmutableBooleanValue} using a {@code boolean} field.
  * <p/>
@@ -30,55 +29,66 @@ import java.io.IOException;
  *
  * @see org.msgpack.value.BooleanValue
  */
-public class ImmutableBooleanValueImpl extends AbstractImmutableValue implements ImmutableBooleanValue {
-    public static ImmutableBooleanValue TRUE = new ImmutableBooleanValueImpl(true);
-    public static ImmutableBooleanValue FALSE = new ImmutableBooleanValueImpl(false);
+public class ImmutableBooleanValueImpl
+        extends AbstractImmutableValue
+        implements ImmutableBooleanValue
+{
+    public static final ImmutableBooleanValue TRUE = new ImmutableBooleanValueImpl(true);
+    public static final ImmutableBooleanValue FALSE = new ImmutableBooleanValueImpl(false);
 
     private final boolean value;
 
-    private ImmutableBooleanValueImpl(boolean value) {
+    private ImmutableBooleanValueImpl(boolean value)
+    {
         this.value = value;
     }
 
     @Override
-    public ValueType getValueType() {
+    public ValueType getValueType()
+    {
         return ValueType.BOOLEAN;
     }
 
     @Override
-    public ImmutableBooleanValue immutableValue() {
+    public ImmutableBooleanValue immutableValue()
+    {
         return this;
     }
 
     @Override
-    public boolean getBoolean() {
+    public boolean getBoolean()
+    {
         return value;
     }
 
     @Override
-    public void writeTo(MessagePacker packer) throws IOException {
+    public void writeTo(MessagePacker packer)
+            throws IOException
+    {
         packer.packBoolean(value);
     }
 
     @Override
-    public boolean equals(Object o) {
-        if(o == this) {
+    public boolean equals(Object o)
+    {
+        if (o == this) {
             return true;
         }
-        if(!(o instanceof Value)) {
+        if (!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
 
-        if(!v.isBooleanValue()) {
+        if (!v.isBooleanValue()) {
             return false;
         }
         return value == v.asBooleanValue().getBoolean();
     }
 
     @Override
-    public int hashCode() {
-        if(value) {
+    public int hashCode()
+    {
+        if (value) {
             return 1231;
         }
         else {
@@ -87,7 +97,8 @@ public class ImmutableBooleanValueImpl extends AbstractImmutableValue implements
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return Boolean.toString(value);
     }
 }

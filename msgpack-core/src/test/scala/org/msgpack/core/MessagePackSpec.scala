@@ -15,12 +15,14 @@
 //
 package org.msgpack.core
 
+import java.io.ByteArrayOutputStream
+
 import org.scalatest._
+import org.scalatest.prop.PropertyChecks
 import xerial.core.log.{LogLevel, Logger}
 import xerial.core.util.{TimeReport, Timer}
+
 import scala.language.implicitConversions
-import org.scalatest.prop.PropertyChecks
-import java.io.ByteArrayOutputStream
 
 trait MessagePackSpec
   extends WordSpec
@@ -32,43 +34,36 @@ trait MessagePackSpec
   with Benchmark
   with Logger {
 
-  implicit def toTag(s:String) : Tag = Tag(s)
+  implicit def toTag(s: String): Tag = Tag(s)
 
-  def toHex(arr:Array[Byte]) = arr.map(x => f"$x%02x").mkString(" ")
+  def toHex(arr: Array[Byte]) = arr.map(x => f"$x%02x").mkString(" ")
 
-
-  def createMessagePackData(f: MessagePacker => Unit) : Array[Byte] = {
-    val b = new ByteArrayOutputStream()
+  def createMessagePackData(f: MessagePacker => Unit): Array[Byte] = {
+    val b = new
+        ByteArrayOutputStream()
     val packer = MessagePack.newDefaultPacker(b)
     f(packer)
     packer.close()
     b.toByteArray
   }
-
-
-
-
 }
 
-
-trait Benchmark extends Timer {
+trait Benchmark
+  extends Timer {
 
   val numWarmUpRuns = 10
 
-
   override protected def time[A](blockName: String, logLevel: LogLevel, repeat: Int)(f: => A): TimeReport = {
-    super.time(blockName, logLevel=LogLevel.INFO, repeat)(f)
+    super.time(blockName, logLevel = LogLevel.INFO, repeat)(f)
   }
 
   override protected def block[A](name: String, repeat: Int)(f: => A): TimeReport = {
     var i = 0
-    while(i < numWarmUpRuns) {
+    while (i < numWarmUpRuns) {
       f
       i += 1
     }
 
     super.block(name, repeat)(f)
-
   }
-
 }

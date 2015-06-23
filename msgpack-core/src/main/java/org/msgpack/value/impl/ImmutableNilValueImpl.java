@@ -16,51 +16,62 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
+import org.msgpack.value.ImmutableNilValue;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueType;
-import org.msgpack.value.ImmutableNilValue;
 
 import java.io.IOException;
 
-
 /**
  * {@code ImmutableNilValueImpl} Implements {@code ImmutableNilValue}.
- *
+ * <p/>
  * This class is a singleton. {@code ImmutableNilValueImpl.get()} is the only instances of this class.
  *
- * @see  org.msgpack.value.NilValue
+ * @see org.msgpack.value.NilValue
  */
-public class ImmutableNilValueImpl extends AbstractImmutableValue implements ImmutableNilValue {
+public class ImmutableNilValueImpl
+        extends AbstractImmutableValue
+        implements ImmutableNilValue
+{
     private static ImmutableNilValue instance = new ImmutableNilValueImpl();
 
-    public static ImmutableNilValue get() {
+    public static ImmutableNilValue get()
+    {
         return instance;
     }
 
-    private ImmutableNilValueImpl() { }
+    private ImmutableNilValueImpl()
+    {
+    }
 
     @Override
-    public ValueType getValueType() {
+    public ValueType getValueType()
+    {
         return ValueType.NIL;
     }
 
     @Override
-    public ImmutableNilValue immutableValue() {
+    public ImmutableNilValue immutableValue()
+    {
         return this;
     }
 
     @Override
-    public ImmutableNilValue asNilValue() {
+    public ImmutableNilValue asNilValue()
+    {
         return this;
     }
 
     @Override
-    public void writeTo(MessagePacker pk) throws IOException {
+    public void writeTo(MessagePacker pk)
+            throws IOException
+    {
         pk.packNil();
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (o == this) {
             return true;
         }
@@ -71,12 +82,14 @@ public class ImmutableNilValueImpl extends AbstractImmutableValue implements Imm
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         return 0;
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return "null";
     }
 }

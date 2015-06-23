@@ -4,12 +4,11 @@ import org.msgpack.core.MessagePack.Code;
 import org.msgpack.core.annotations.VisibleForTesting;
 import org.msgpack.value.ValueType;
 
-
 /**
  * Describes the list of the message format types defined in the MessagePack specification.
  */
-public enum MessageFormat {
-
+public enum MessageFormat
+{
     // INT7
     POSFIXINT(ValueType.INTEGER),
     // MAP4
@@ -50,31 +49,34 @@ public enum MessageFormat {
     ARRAY32(ValueType.ARRAY),
     MAP16(ValueType.MAP),
     MAP32(ValueType.MAP),
-    NEGFIXINT(ValueType.INTEGER)
-    ;
+    NEGFIXINT(ValueType.INTEGER);
 
+    private static final MessageFormat[] formatTable = new MessageFormat[256];
     private final ValueType valueType;
 
-    private MessageFormat(ValueType valueType) {
+    private MessageFormat(ValueType valueType)
+    {
         this.valueType = valueType;
     }
 
     /**
      * Retruns the ValueType corresponding to this MessageFormat
+     *
      * @return value type
      * @throws MessageFormatException if this == NEVER_USED type
      */
-    public ValueType getValueType() throws MessageFormatException {
-        if(this == NEVER_USED)
+    public ValueType getValueType()
+            throws MessageFormatException
+    {
+        if (this == NEVER_USED) {
             throw new MessageFormatException("Cannot convert NEVER_USED to ValueType");
+        }
         return valueType;
     }
 
-    private final static MessageFormat[] formatTable = new MessageFormat[256];
-
     static {
         // Preparing a look up table for converting byte values into MessageFormat types
-        for(int b = 0; b <= 0xFF; ++b) {
+        for (int b = 0; b <= 0xFF; ++b) {
             MessageFormat mf = toMessageFormat((byte) b);
             formatTable[b] = mf;
         }
@@ -82,20 +84,24 @@ public enum MessageFormat {
 
     /**
      * Returns a MessageFormat type of the specified byte value
+     *
      * @param b MessageFormat of the given byte
      * @return
      */
-    public static MessageFormat valueOf(final byte b) {
+    public static MessageFormat valueOf(final byte b)
+    {
         return formatTable[b & 0xFF];
     }
 
     /**
      * Converting a byte value into MessageFormat. For faster performance, use {@link #valueOf}
+     *
      * @param b MessageFormat of the given byte
      * @return
      */
     @VisibleForTesting
-    static MessageFormat toMessageFormat(final byte b) {
+    static MessageFormat toMessageFormat(final byte b)
+    {
         if (Code.isPosFixInt(b)) {
             return POSFIXINT;
         }
@@ -177,5 +183,4 @@ public enum MessageFormat {
                 return NEVER_USED;
         }
     }
-
 }

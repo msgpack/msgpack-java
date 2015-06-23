@@ -16,61 +16,74 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
-import org.msgpack.value.*;
+import org.msgpack.value.ArrayValue;
+import org.msgpack.value.ImmutableArrayValue;
+import org.msgpack.value.Value;
+import org.msgpack.value.ValueType;
 
-import java.util.List;
+import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
-import java.io.IOException;
-
 
 /**
  * {@code ImmutableArrayValueImpl} Implements {@code ImmutableArrayValue} using a {@code Value[]} field.
  *
- * @see  org.msgpack.value.IntegerValue
+ * @see org.msgpack.value.IntegerValue
  */
-public class ImmutableArrayValueImpl extends AbstractImmutableValue implements ImmutableArrayValue {
-    private static ImmutableArrayValueImpl EMPTY = new ImmutableArrayValueImpl(new Value[0]);
+public class ImmutableArrayValueImpl
+        extends AbstractImmutableValue
+        implements ImmutableArrayValue
+{
+    private static final ImmutableArrayValueImpl EMPTY = new ImmutableArrayValueImpl(new Value[0]);
 
-    public static ImmutableArrayValue empty() {
+    public static ImmutableArrayValue empty()
+    {
         return EMPTY;
     }
 
     private final Value[] array;
 
-    public ImmutableArrayValueImpl(Value[] array) {
+    public ImmutableArrayValueImpl(Value[] array)
+    {
         this.array = array;
     }
 
     @Override
-    public ValueType getValueType() {
+    public ValueType getValueType()
+    {
         return ValueType.ARRAY;
     }
 
     @Override
-    public ImmutableArrayValue immutableValue() {
+    public ImmutableArrayValue immutableValue()
+    {
         return this;
     }
 
     @Override
-    public ImmutableArrayValue asArrayValue() {
+    public ImmutableArrayValue asArrayValue()
+    {
         return this;
     }
 
     @Override
-    public int size() {
+    public int size()
+    {
         return array.length;
     }
 
     @Override
-    public Value get(int index) {
+    public Value get(int index)
+    {
         return array[index];
     }
 
     @Override
-    public Value getOrNilValue(int index) {
+    public Value getOrNilValue(int index)
+    {
         if (index < array.length && index >= 0) {
             return array[index];
         }
@@ -78,29 +91,34 @@ public class ImmutableArrayValueImpl extends AbstractImmutableValue implements I
     }
 
     @Override
-    public Iterator<Value> iterator() {
+    public Iterator<Value> iterator()
+    {
         return new Ite(array);
     }
 
     @Override
-    public List<Value> list() {
+    public List<Value> list()
+    {
         return new ImmutableArrayValueList(array);
     }
 
     @Override
-    public void writeTo(MessagePacker pk) throws IOException {
+    public void writeTo(MessagePacker pk)
+            throws IOException
+    {
         pk.packArrayHeader(array.length);
-        for(int i = 0; i < array.length; i++) {
+        for (int i = 0; i < array.length; i++) {
             array[i].writeTo(pk);
         }
     }
 
     @Override
-    public boolean equals(Object o) {
-        if(o == this) {
+    public boolean equals(Object o)
+    {
+        if (o == this) {
             return true;
         }
-        if(!(o instanceof Value)) {
+        if (!(o instanceof Value)) {
             return false;
         }
         Value v = (Value) o;
@@ -108,8 +126,9 @@ public class ImmutableArrayValueImpl extends AbstractImmutableValue implements I
         if (v instanceof ImmutableArrayValueImpl) {
             ImmutableArrayValueImpl oa = (ImmutableArrayValueImpl) v;
             return Arrays.equals(array, oa.array);
-        } else {
-            if(!v.isArrayValue()) {
+        }
+        else {
+            if (!v.isArrayValue()) {
                 return false;
             }
             ArrayValue av = v.asArrayValue();
@@ -129,9 +148,10 @@ public class ImmutableArrayValueImpl extends AbstractImmutableValue implements I
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         int h = 1;
-        for(int i = 0; i < array.length; i++) {
+        for (int i = 0; i < array.length; i++) {
             Value obj = array[i];
             h = 31 * h + obj.hashCode();
         }
@@ -139,17 +159,19 @@ public class ImmutableArrayValueImpl extends AbstractImmutableValue implements I
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return toString(new StringBuilder()).toString();
     }
 
-    private StringBuilder toString(StringBuilder sb) {
-        if(array.length == 0) {
+    private StringBuilder toString(StringBuilder sb)
+    {
+        if (array.length == 0) {
             return sb.append("[]");
         }
         sb.append("[");
         sb.append(array[0]);
-        for(int i = 1; i < array.length; i++) {
+        for (int i = 1; i < array.length; i++) {
             sb.append(",");
             sb.append(array[i].toString());
         }
@@ -157,40 +179,50 @@ public class ImmutableArrayValueImpl extends AbstractImmutableValue implements I
         return sb;
     }
 
-    private static class ImmutableArrayValueList extends AbstractList<Value> {
+    private static class ImmutableArrayValueList
+            extends AbstractList<Value>
+    {
         private final Value[] array;
 
-        public ImmutableArrayValueList(Value[] array) {
+        public ImmutableArrayValueList(Value[] array)
+        {
             this.array = array;
         }
 
         @Override
-        public Value get(int index) {
+        public Value get(int index)
+        {
             return array[index];
         }
 
         @Override
-        public int size() {
+        public int size()
+        {
             return array.length;
         }
     }
 
-    private static class Ite implements Iterator<Value> {
+    private static class Ite
+            implements Iterator<Value>
+    {
         private final Value[] array;
         private int index;
 
-        public Ite(Value[] array) {
+        public Ite(Value[] array)
+        {
             this.array = array;
             this.index = 0;
         }
 
         @Override
-        public boolean hasNext() {
+        public boolean hasNext()
+        {
             return index != array.length;
         }
 
         @Override
-        public Value next() {
+        public Value next()
+        {
             int i = index;
             if (i >= array.length) {
                 throw new NoSuchElementException();
@@ -200,7 +232,8 @@ public class ImmutableArrayValueImpl extends AbstractImmutableValue implements I
         }
 
         @Override
-        public void remove() {
+        public void remove()
+        {
             throw new UnsupportedOperationException();
         }
     }

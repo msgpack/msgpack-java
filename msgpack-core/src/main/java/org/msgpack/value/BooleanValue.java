@@ -17,10 +17,12 @@ package org.msgpack.value;
 
 /**
  * The interface {@code BooleanValue} represents MessagePack's Boolean type.
- *
+ * <p/>
  * MessagePack's Boolean type can represent {@code true} or {@code false}.
  */
-public interface BooleanValue extends Value {
+public interface BooleanValue
+        extends Value
+{
     /**
      * Returns the value as a {@code boolean}.
      */

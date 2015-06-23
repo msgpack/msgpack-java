@@ -15,80 +15,103 @@
 //
 package org.msgpack.value;
 
-import org.msgpack.value.impl.ImmutableNilValueImpl;
-import org.msgpack.value.impl.ImmutableBooleanValueImpl;
-import org.msgpack.value.impl.ImmutableLongValueImpl;
+import org.msgpack.value.impl.ImmutableArrayValueImpl;
 import org.msgpack.value.impl.ImmutableBigIntegerValueImpl;
 import org.msgpack.value.impl.ImmutableBinaryValueImpl;
+import org.msgpack.value.impl.ImmutableBooleanValueImpl;
 import org.msgpack.value.impl.ImmutableDoubleValueImpl;
-import org.msgpack.value.impl.ImmutableStringValueImpl;
-import org.msgpack.value.impl.ImmutableArrayValueImpl;
-import org.msgpack.value.impl.ImmutableMapValueImpl;
 import org.msgpack.value.impl.ImmutableExtensionValueImpl;
+import org.msgpack.value.impl.ImmutableLongValueImpl;
+import org.msgpack.value.impl.ImmutableMapValueImpl;
+import org.msgpack.value.impl.ImmutableNilValueImpl;
+import org.msgpack.value.impl.ImmutableStringValueImpl;
 
-import java.util.*;
 import java.math.BigInteger;
+import java.util.AbstractMap;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
-public final class ValueFactory {
-    private ValueFactory() { }
+public final class ValueFactory
+{
+    private ValueFactory()
+    {
+    }
 
-    public static ImmutableNilValue newNil() {
+    public static ImmutableNilValue newNil()
+    {
         return ImmutableNilValueImpl.get();
     }
 
-    public static ImmutableBooleanValue newBoolean(boolean v) {
+    public static ImmutableBooleanValue newBoolean(boolean v)
+    {
         return v ? ImmutableBooleanValueImpl.TRUE : ImmutableBooleanValueImpl.FALSE;
     }
 
-    public static ImmutableIntegerValue newInteger(byte v) {
+    public static ImmutableIntegerValue newInteger(byte v)
+    {
         return new ImmutableLongValueImpl(v);
     }
 
-    public static ImmutableIntegerValue newInteger(short v) {
+    public static ImmutableIntegerValue newInteger(short v)
+    {
         return new ImmutableLongValueImpl(v);
     }
 
-    public static ImmutableIntegerValue newInteger(int v) {
+    public static ImmutableIntegerValue newInteger(int v)
+    {
         return new ImmutableLongValueImpl(v);
     }
 
-    public static ImmutableIntegerValue newInteger(long v) {
+    public static ImmutableIntegerValue newInteger(long v)
+    {
         return new ImmutableLongValueImpl(v);
     }
 
-    public static ImmutableIntegerValue newInteger(BigInteger v) {
+    public static ImmutableIntegerValue newInteger(BigInteger v)
+    {
         return new ImmutableBigIntegerValueImpl(v);
     }
 
-    public static ImmutableFloatValue newFloat(float v) {
+    public static ImmutableFloatValue newFloat(float v)
+    {
         return new ImmutableDoubleValueImpl(v);
     }
 
-    public static ImmutableFloatValue newFloat(double v) {
+    public static ImmutableFloatValue newFloat(double v)
+    {
         return new ImmutableDoubleValueImpl(v);
     }
 
-    public static ImmutableBinaryValue newBinary(byte[] b) {
+    public static ImmutableBinaryValue newBinary(byte[] b)
+    {
         return new ImmutableBinaryValueImpl(b);
     }
 
-    public static ImmutableBinaryValue newBinary(byte[] b, int off, int len) {
+    public static ImmutableBinaryValue newBinary(byte[] b, int off, int len)
+    {
         return new ImmutableBinaryValueImpl(Arrays.copyOfRange(b, off, len));
     }
 
-    public static ImmutableStringValue newString(String s) {
+    public static ImmutableStringValue newString(String s)
+    {
         return new ImmutableStringValueImpl(s);
     }
 
-    public static ImmutableStringValue newString(byte[] b) {
+    public static ImmutableStringValue newString(byte[] b)
+    {
         return new ImmutableStringValueImpl(b);
     }
 
-    public static ImmutableStringValue newString(byte[] b, int off, int len) {
+    public static ImmutableStringValue newString(byte[] b, int off, int len)
+    {
         return new ImmutableStringValueImpl(Arrays.copyOfRange(b, off, len));
     }
 
-    public static ImmutableArrayValue newArray(List<? extends Value> list) {
+    public static ImmutableArrayValue newArray(List<? extends Value> list)
+    {
         if (list.isEmpty()) {
             return ImmutableArrayValueImpl.empty();
         }
@@ -96,19 +119,22 @@ public final class ValueFactory {
         return new ImmutableArrayValueImpl(array);
     }
 
-    public static ImmutableArrayValue newArray(Value... array) {
+    public static ImmutableArrayValue newArray(Value... array)
+    {
         if (array.length == 0) {
             return ImmutableArrayValueImpl.empty();
         }
         return new ImmutableArrayValueImpl(Arrays.copyOf(array, array.length));
     }
 
-    public static ImmutableArrayValue emptyArray() {
+    public static ImmutableArrayValue emptyArray()
+    {
         return ImmutableArrayValueImpl.empty();
     }
 
     public static <K extends Value, V extends Value>
-    ImmutableMapValue newMap(Map<K, V> map) {
+    ImmutableMapValue newMap(Map<K, V> map)
+    {
         Value[] kvs = new Value[map.size() * 2];
         Iterator<Map.Entry<K, V>> ite = map.entrySet().iterator();
         int index = 0;
@@ -122,64 +148,76 @@ public final class ValueFactory {
         return newMap(kvs);
     }
 
-    public static ImmutableMapValue newMap(Value[] kvs) {
+    public static ImmutableMapValue newMap(Value[] kvs)
+    {
         if (kvs.length == 0) {
             return ImmutableMapValueImpl.empty();
         }
         return new ImmutableMapValueImpl(Arrays.copyOf(kvs, kvs.length));
     }
 
-    public static ImmutableMapValue emptyMap() {
+    public static ImmutableMapValue emptyMap()
+    {
         return ImmutableMapValueImpl.empty();
     }
 
-    public static MapValue newMap(Map.Entry<? extends Value, ? extends Value>... pairs) {
+    public static MapValue newMap(Map.Entry<? extends Value, ? extends Value>... pairs)
+    {
         MapBuilder b = new MapBuilder();
-        for(Map.Entry<? extends Value, ? extends Value> p : pairs) {
+        for (Map.Entry<? extends Value, ? extends Value> p : pairs) {
             b.put(p);
         }
         return b.build();
     }
 
-    public static MapBuilder newMapBuilder() {
+    public static MapBuilder newMapBuilder()
+    {
         return new MapBuilder();
     }
 
-    public static Map.Entry<Value, Value> newMapEntry(Value key, Value value) {
+    public static Map.Entry<Value, Value> newMapEntry(Value key, Value value)
+    {
         return new AbstractMap.SimpleEntry<Value, Value>(key, value);
     }
 
-    public static class MapBuilder {
+    public static class MapBuilder
+    {
         private final Map<Value, Value> map = new HashMap<Value, Value>();
 
         public MapBuilder() {}
 
-        public MapValue build() {
+        public MapValue build()
+        {
             return newMap(map);
         }
 
-        public void put(Map.Entry<? extends Value, ? extends Value> pair) {
+        public void put(Map.Entry<? extends Value, ? extends Value> pair)
+        {
             put(pair.getKey(), pair.getValue());
         }
 
-        public void put(Value key, Value value) {
+        public void put(Value key, Value value)
+        {
             map.put(key, value);
         }
 
-        public void putAll(Iterable<? extends Map.Entry<? extends Value,? extends Value>> entries){
-            for(Map.Entry<? extends Value, ? extends Value> entry : entries) {
+        public void putAll(Iterable<? extends Map.Entry<? extends Value, ? extends Value>> entries)
+        {
+            for (Map.Entry<? extends Value, ? extends Value> entry : entries) {
                 put(entry.getKey(), entry.getValue());
             }
         }
 
-        public void putAll(Map<? extends Value, ? extends Value> map) {
-            for(Map.Entry<? extends Value, ? extends Value> entry : map.entrySet()) {
+        public void putAll(Map<? extends Value, ? extends Value> map)
+        {
+            for (Map.Entry<? extends Value, ? extends Value> entry : map.entrySet()) {
                 put(entry);
             }
         }
     }
 
-    public static ImmutableExtensionValue newExtension(byte type, byte[] data) {
+    public static ImmutableExtensionValue newExtension(byte type, byte[] data)
+    {
         return new ImmutableExtensionValueImpl(type, data);
     }
 }

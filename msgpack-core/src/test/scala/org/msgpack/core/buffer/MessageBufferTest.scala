@@ -1,13 +1,16 @@
 package org.msgpack.core.buffer
 
 import java.nio.ByteBuffer
-import scala.util.Random
+
 import org.msgpack.core.MessagePackSpec
+
+import scala.util.Random
 
 /**
  * Created on 2014/05/01.
  */
-class MessageBufferTest extends MessagePackSpec {
+class MessageBufferTest
+  extends MessagePackSpec {
 
   "MessageBuffer" should {
 
@@ -16,8 +19,8 @@ class MessageBufferTest extends MessagePackSpec {
       info(s"MessageBuffer type: ${b.getClass.getName}")
     }
 
-    "wrap ByteBuffer considering position and remaining values" taggedAs("wrap-bb") in {
-      val d = Array[Byte](10,11,12,13,14,15,16,17,18,19)
+    "wrap ByteBuffer considering position and remaining values" taggedAs ("wrap-bb") in {
+      val d = Array[Byte](10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
       val subset = ByteBuffer.wrap(d, 2, 2)
       val mb = MessageBuffer.wrap(subset)
       mb.getByte(0) shouldBe 12
@@ -36,18 +39,20 @@ class MessageBufferTest extends MessagePackSpec {
 
       def bench(f: Int => Unit) {
         var i = 0
-        while(i < N) {
+        while (i < N) {
           f((i * 4) % M)
           i += 1
         }
       }
 
-      val r = new Random(0)
-      val rs = new Array[Int](N)
+      val r = new
+          Random(0)
+      val rs = new
+          Array[Int](N)
       (0 until N).map(i => rs(i) = r.nextInt(N))
       def randomBench(f: Int => Unit) {
         var i = 0
-        while(i < N) {
+        while (i < N) {
           f((rs(i) * 4) % M)
           i += 1
         }
@@ -58,7 +63,7 @@ class MessageBufferTest extends MessagePackSpec {
       time("sequential getInt", repeat = rep) {
         block("unsafe array") {
           var i = 0
-          while(i < N) {
+          while (i < N) {
             ub.getInt((i * 4) % M)
             i += 1
           }
@@ -66,7 +71,7 @@ class MessageBufferTest extends MessagePackSpec {
 
         block("unsafe direct") {
           var i = 0
-          while(i < N) {
+          while (i < N) {
             ud.getInt((i * 4) % M)
             i += 1
           }
@@ -74,7 +79,7 @@ class MessageBufferTest extends MessagePackSpec {
 
         block("allocate") {
           var i = 0
-          while(i < N) {
+          while (i < N) {
             hb.getInt((i * 4) % M)
             i += 1
           }
@@ -82,7 +87,7 @@ class MessageBufferTest extends MessagePackSpec {
 
         block("allocateDirect") {
           var i = 0
-          while(i < N) {
+          while (i < N) {
             db.getInt((i * 4) % M)
             i += 1
           }
@@ -92,7 +97,7 @@ class MessageBufferTest extends MessagePackSpec {
       time("random getInt", repeat = rep) {
         block("unsafe array") {
           var i = 0
-          while(i < N) {
+          while (i < N) {
             ub.getInt((rs(i) * 4) % M)
             i += 1
           }
@@ -100,7 +105,7 @@ class MessageBufferTest extends MessagePackSpec {
 
         block("unsafe direct") {
           var i = 0
-          while(i < N) {
+          while (i < N) {
             ud.getInt((rs(i) * 4) % M)
             i += 1
           }
@@ -108,7 +113,7 @@ class MessageBufferTest extends MessagePackSpec {
 
         block("allocate") {
           var i = 0
-          while(i < N) {
+          while (i < N) {
             hb.getInt((rs(i) * 4) % M)
             i += 1
           }
@@ -116,13 +121,12 @@ class MessageBufferTest extends MessagePackSpec {
 
         block("allocateDirect") {
           var i = 0
-           while(i < N) {
+          while (i < N) {
             db.getInt((rs(i) * 4) % M)
             i += 1
           }
         }
       }
-
     }
 
     "convert to ByteBuffer" in {

@@ -11,10 +11,13 @@ import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
 import org.msgpack.value.ExtensionValue;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,12 +25,16 @@ import java.util.Map;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
-public class MessagePackParserTest extends MessagePackDataformatTestBase {
+public class MessagePackParserTest
+        extends MessagePackDataformatTestBase
+{
     @Test
-    public void testParserShouldReadObject() throws IOException {
+    public void testParserShouldReadObject()
+            throws IOException
+    {
         MessagePacker packer = new MessagePacker(new OutputStreamBufferOutput(out));
         packer.packMapHeader(9);
         // #1
@@ -76,7 +83,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
 
         byte[] bytes = out.toByteArray();
 
-        TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>(){};
+        TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>() {};
         Map<String, Object> object = objectMapper.readValue(bytes, typeReference);
         assertEquals(9, object.keySet().size());
 
@@ -133,7 +140,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
                 // #7
                 bitmap |= 1 << 8;
                 @SuppressWarnings("unchecked")
-                List<? extends Serializable> expected = Arrays.asList((double)Float.MIN_VALUE, null, "array_child_str");
+                List<? extends Serializable> expected = Arrays.asList((double) Float.MIN_VALUE, null, "array_child_str");
                 assertEquals(expected, v);
             }
             else if (k.equals("bool")) {
@@ -153,7 +160,9 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testParserShouldReadArray() throws IOException {
+    public void testParserShouldReadArray()
+            throws IOException
+    {
         MessagePacker packer = new MessagePacker(new OutputStreamBufferOutput(out));
         packer.packArrayHeader(11);
         // #1
@@ -178,7 +187,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         bi = bi.add(BigInteger.ONE);
         packer.packBigInteger(bi);
         // #8
-        byte[] bytes = new byte[]{(byte) 0xFF, (byte) 0xFE, 0x01, 0x00};
+        byte[] bytes = new byte[] {(byte) 0xFF, (byte) 0xFE, 0x01, 0x00};
         packer.packBinaryHeader(bytes.length);
         packer.writePayload(bytes);
         // #9
@@ -200,7 +209,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
 
         bytes = out.toByteArray();
 
-        TypeReference<List<Object>> typeReference = new TypeReference<List<Object>>(){};
+        TypeReference<List<Object>> typeReference = new TypeReference<List<Object>>() {};
         List<Object> array = objectMapper.readValue(bytes, typeReference);
         assertEquals(11, array.size());
         int i = 0;
@@ -220,18 +229,18 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         // #4
         assertEquals(Long.MIN_VALUE, array.get(i++));
         // #5
-        assertEquals(Float.MAX_VALUE, (Double)array.get(i++), 0.001f);
+        assertEquals(Float.MAX_VALUE, (Double) array.get(i++), 0.001f);
         // #6
-        assertEquals(Double.MIN_VALUE, (Double)array.get(i++), 0.001f);
+        assertEquals(Double.MIN_VALUE, (Double) array.get(i++), 0.001f);
         // #7
         assertEquals(bi, array.get(i++));
         // #8
         byte[] bs = (byte[]) array.get(i++);
         assertEquals(4, bs.length);
-        assertEquals((byte)0xFF, bs[0]);
-        assertEquals((byte)0xFE, bs[1]);
-        assertEquals((byte)0x01, bs[2]);
-        assertEquals((byte)0x00, bs[3]);
+        assertEquals((byte) 0xFF, bs[0]);
+        assertEquals((byte) 0xFE, bs[1]);
+        assertEquals((byte) 0x01, bs[2]);
+        assertEquals((byte) 0x00, bs[3]);
         // #9
         @SuppressWarnings("unchecked")
         Map<String, Object> childMap = (Map<String, Object>) array.get(i++);
@@ -257,7 +266,9 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testMessagePackParserDirectly() throws IOException {
+    public void testMessagePackParserDirectly()
+            throws IOException
+    {
         MessagePackFactory messagePackFactory = new MessagePackFactory();
         File tempFile = File.createTempFile("msgpackTest", "msgpack");
         tempFile.deleteOnExit();
@@ -321,7 +332,8 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testReadPrimitives() throws Exception
+    public void testReadPrimitives()
+            throws Exception
     {
         MessagePackFactory messagePackFactory = new MessagePackFactory();
         File tempFile = createTempFile();
@@ -351,7 +363,9 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testBigDecimal() throws IOException {
+    public void testBigDecimal()
+            throws IOException
+    {
         double d0 = 1.23456789;
         double d1 = 1.23450000000000000000006789;
         MessagePacker packer = new MessagePacker(new OutputStreamBufferOutput(out));
@@ -365,7 +379,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
 
         ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
         mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
-        List<Object> objects = mapper.readValue(out.toByteArray(), new TypeReference<List<Object>>(){});
+        List<Object> objects = mapper.readValue(out.toByteArray(), new TypeReference<List<Object>>() {});
         assertEquals(5, objects.size());
         int idx = 0;
         assertEquals(BigDecimal.valueOf(d0), objects.get(idx++));
@@ -375,21 +389,28 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         assertEquals(BigDecimal.valueOf(Double.MIN_NORMAL), objects.get(idx++));
     }
 
-    private File createTestFile() throws Exception {
-        File tempFile = createTempFile(new FileSetup() {
+    private File createTestFile()
+            throws Exception
+    {
+        File tempFile = createTempFile(new FileSetup()
+        {
             @Override
-            public void setup(File f) throws IOException {
+            public void setup(File f)
+                    throws IOException
+            {
                 MessagePack.newDefaultPacker(new FileOutputStream(f))
-                    .packArrayHeader(1).packInt(1)
-                    .packArrayHeader(1).packInt(1)
-                    .close();
+                        .packArrayHeader(1).packInt(1)
+                        .packArrayHeader(1).packInt(1)
+                        .close();
             }
         });
         return tempFile;
     }
 
     @Test(expected = IOException.class)
-    public void testEnableFeatureAutoCloseSource() throws Exception {
+    public void testEnableFeatureAutoCloseSource()
+            throws Exception
+    {
         File tempFile = createTestFile();
         MessagePackFactory messagePackFactory = new MessagePackFactory();
         FileInputStream in = new FileInputStream(tempFile);
@@ -399,7 +420,9 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testDisableFeatureAutoCloseSource() throws Exception {
+    public void testDisableFeatureAutoCloseSource()
+            throws Exception
+    {
         File tempFile = createTestFile();
         FileInputStream in = new FileInputStream(tempFile);
         ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
@@ -409,7 +432,9 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testParseBigDecimal() throws IOException {
+    public void testParseBigDecimal()
+            throws IOException
+    {
         ArrayList<BigDecimal> list = new ArrayList<BigDecimal>();
         list.add(new BigDecimal(Long.MAX_VALUE));
         ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
@@ -421,7 +446,9 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testReadPrimitiveObjectViaObjectMapper() throws Exception {
+    public void testReadPrimitiveObjectViaObjectMapper()
+            throws Exception
+    {
         File tempFile = createTempFile();
         FileOutputStream out = new FileOutputStream(tempFile);
 
@@ -440,7 +467,7 @@ public class MessagePackParserTest extends MessagePackDataformatTestBase {
         assertEquals("foo", objectMapper.readValue(in, new TypeReference<String>() {}));
         assertEquals(Long.MAX_VALUE, objectMapper.readValue(in, new TypeReference<Long>() {}));
         assertEquals(3.14, objectMapper.readValue(in, new TypeReference<Double>() {}));
-        byte[] bs = objectMapper.readValue(in, new TypeReference<byte []>() {});
+        byte[] bs = objectMapper.readValue(in, new TypeReference<byte[]>() {});
         assertEquals(bytes.length, bs.length);
         assertEquals(bytes[0], bs[0]);
         assertEquals(bytes[1], bs[1]);

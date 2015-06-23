@@ -15,11 +15,12 @@
 //
 package org.msgpack.value;
 
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 
-
-public interface ImmutableArrayValue extends ArrayValue, ImmutableValue {
+public interface ImmutableArrayValue
+        extends ArrayValue, ImmutableValue
+{
     /**
      * Returns an iterator over elements.
      * Returned Iterator does not support {@code remove()} method since the value is immutable.

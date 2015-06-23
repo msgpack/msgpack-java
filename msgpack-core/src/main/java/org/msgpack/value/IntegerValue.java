@@ -16,14 +16,15 @@
 package org.msgpack.value;
 
 import java.math.BigInteger;
-import org.msgpack.core.MessageIntegerOverflowException;
 
 /**
  * The interface {@code IntegerValue} represents MessagePack's Integer type.
- *
+ * <p/>
  * MessagePack's Integer type can represent from -2<sup>63</sup> to 2<sup>64</sup>-1.
  */
-public interface IntegerValue extends NumberValue {
+public interface IntegerValue
+        extends NumberValue
+{
     /**
      * Returns true if the value is in the range of [-2<sup>7</sup> to 2<sup>7</sup>-1].
      */
@@ -47,32 +48,28 @@ public interface IntegerValue extends NumberValue {
     /**
      * Returns the value as a {@code byte}, otherwise throws an exception.
      *
-     * @throws  MessageIntegerOverflowException
-     *          If the value does not fit in the range of {@code byte} type.
+     * @throws MessageIntegerOverflowException If the value does not fit in the range of {@code byte} type.
      */
     byte getByte();
 
     /**
      * Returns the value as a {@code short}, otherwise throws an exception.
      *
-     * @throws  MessageIntegerOverflowException
-     *          If the value does not fit in the range of {@code short} type.
+     * @throws MessageIntegerOverflowException If the value does not fit in the range of {@code short} type.
      */
     short getShort();
 
     /**
      * Returns the value as an {@code int}, otherwise throws an exception.
      *
-     * @throws  MessageIntegerOverflowException
-     *          If the value does not fit in the range of {@code int} type.
+     * @throws MessageIntegerOverflowException If the value does not fit in the range of {@code int} type.
      */
     int getInt();
 
     /**
      * Returns the value as a {@code long}, otherwise throws an exception.
      *
-     * @throws  MessageIntegerOverflowException
-     *          If the value does not fit in the range of {@code long} type.
+     * @throws MessageIntegerOverflowException If the value does not fit in the range of {@code long} type.
      */
     long getLong();
 

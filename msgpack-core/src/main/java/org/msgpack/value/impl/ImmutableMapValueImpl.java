@@ -16,85 +16,103 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
-import org.msgpack.value.*;
+import org.msgpack.value.ImmutableMapValue;
+import org.msgpack.value.MapValue;
+import org.msgpack.value.Value;
+import org.msgpack.value.ValueType;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
-import java.util.Collection;
+import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
-import java.util.AbstractCollection;
-import java.util.Iterator;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
-
+import java.util.Set;
 
 /**
  * {@code ImmutableMapValueImpl} Implements {@code ImmutableMapValue} using a {@code Value[]} field.
  *
- * @see  org.msgpack.value.MapValue
+ * @see org.msgpack.value.MapValue
  */
-public class ImmutableMapValueImpl extends AbstractImmutableValue implements ImmutableMapValue {
-    private static ImmutableMapValueImpl EMPTY = new ImmutableMapValueImpl(new Value[0]);
+public class ImmutableMapValueImpl
+        extends AbstractImmutableValue
+        implements ImmutableMapValue
+{
+    private static final ImmutableMapValueImpl EMPTY = new ImmutableMapValueImpl(new Value[0]);
 
-    public static ImmutableMapValue empty() {
+    public static ImmutableMapValue empty()
+    {
         return EMPTY;
     }
 
     private final Value[] kvs;
 
-    public ImmutableMapValueImpl(Value[] kvs) {
+    public ImmutableMapValueImpl(Value[] kvs)
+    {
         this.kvs = kvs;
     }
 
     @Override
-    public ValueType getValueType() {
+    public ValueType getValueType()
+    {
         return ValueType.MAP;
     }
 
     @Override
-    public ImmutableMapValue immutableValue() {
+    public ImmutableMapValue immutableValue()
+    {
         return this;
     }
 
     @Override
-    public ImmutableMapValue asMapValue() {
+    public ImmutableMapValue asMapValue()
+    {
         return this;
     }
 
     @Override
-    public Value[] getKeyValueArray() {
+    public Value[] getKeyValueArray()
+    {
         return Arrays.copyOf(kvs, kvs.length);
     }
 
     @Override
-    public int size() {
+    public int size()
+    {
         return kvs.length / 2;
     }
 
     @Override
-    public Set<Value> keySet() {
+    public Set<Value> keySet()
+    {
         return new KeySet(kvs);
     }
 
     @Override
-    public Set<Map.Entry<Value, Value>> entrySet() {
+    public Set<Map.Entry<Value, Value>> entrySet()
+    {
         return new EntrySet(kvs);
     }
 
     @Override
-    public Collection<Value> values() {
+    public Collection<Value> values()
+    {
         return new ValueCollection(kvs);
     }
 
     @Override
-    public Map<Value, Value> map() {
+    public Map<Value, Value> map()
+    {
         return new ImmutableMapValueMap(kvs);
     }
 
     @Override
-    public void writeTo(MessagePacker pk) throws IOException {
+    public void writeTo(MessagePacker pk)
+            throws IOException
+    {
         pk.packMapHeader(kvs.length / 2);
         for (int i = 0; i < kvs.length; i++) {
             kvs[i].writeTo(pk);
@@ -102,7 +120,8 @@ public class ImmutableMapValueImpl extends AbstractImmutableValue implements Imm
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (o == this) {
             return true;
         }
@@ -119,7 +138,8 @@ public class ImmutableMapValueImpl extends AbstractImmutableValue implements Imm
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         int h = 0;
         for (int i = 0; i < kvs.length; i += 2) {
             h += kvs[i].hashCode() ^ kvs[i + 1].hashCode();
@@ -128,11 +148,13 @@ public class ImmutableMapValueImpl extends AbstractImmutableValue implements Imm
     }
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return toString(new StringBuilder()).toString();
     }
 
-    private StringBuilder toString(StringBuilder sb) {
+    private StringBuilder toString(StringBuilder sb)
+    {
         if (kvs.length == 0) {
             return sb.append("{}");
         }
@@ -150,53 +172,67 @@ public class ImmutableMapValueImpl extends AbstractImmutableValue implements Imm
         return sb;
     }
 
-    private static class ImmutableMapValueMap extends AbstractMap<Value, Value> {
+    private static class ImmutableMapValueMap
+            extends AbstractMap<Value, Value>
+    {
         private final Value[] kvs;
 
-        public ImmutableMapValueMap(Value[] kvs) {
+        public ImmutableMapValueMap(Value[] kvs)
+        {
             this.kvs = kvs;
         }
 
         @Override
-        public Set<Map.Entry<Value, Value>> entrySet() {
+        public Set<Map.Entry<Value, Value>> entrySet()
+        {
             return new EntrySet(kvs);
         }
     }
 
-    private static class EntrySet extends AbstractSet<Map.Entry<Value, Value>> {
+    private static class EntrySet
+            extends AbstractSet<Map.Entry<Value, Value>>
+    {
         private final Value[] kvs;
 
-        EntrySet(Value[] kvs) {
+        EntrySet(Value[] kvs)
+        {
             this.kvs = kvs;
         }
 
         @Override
-        public int size() {
+        public int size()
+        {
             return kvs.length / 2;
         }
 
         @Override
-        public Iterator<Map.Entry<Value, Value>> iterator() {
+        public Iterator<Map.Entry<Value, Value>> iterator()
+        {
             return new EntrySetIterator(kvs);
         }
     }
 
-    private static class EntrySetIterator implements Iterator<Map.Entry<Value, Value>> {
+    private static class EntrySetIterator
+            implements Iterator<Map.Entry<Value, Value>>
+    {
         private final Value[] kvs;
         private int index;
 
-        EntrySetIterator(Value[] kvs) {
+        EntrySetIterator(Value[] kvs)
+        {
             this.kvs = kvs;
             this.index = 0;
         }
 
         @Override
-        public boolean hasNext() {
+        public boolean hasNext()
+        {
             return index < kvs.length;
         }
 
         @Override
-        public Map.Entry<Value, Value> next() {
+        public Map.Entry<Value, Value> next()
+        {
             if (index >= kvs.length) {
                 throw new NoSuchElementException(); // TODO message
             }
@@ -210,63 +246,79 @@ public class ImmutableMapValueImpl extends AbstractImmutableValue implements Imm
         }
 
         @Override
-        public void remove() {
+        public void remove()
+        {
             throw new UnsupportedOperationException(); // TODO message
         }
     }
 
-    private static class KeySet extends AbstractSet<Value> {
+    private static class KeySet
+            extends AbstractSet<Value>
+    {
         private Value[] kvs;
 
-        KeySet(Value[] kvs) {
+        KeySet(Value[] kvs)
+        {
             this.kvs = kvs;
         }
 
         @Override
-        public int size() {
+        public int size()
+        {
             return kvs.length / 2;
         }
 
         @Override
-        public Iterator<Value> iterator() {
+        public Iterator<Value> iterator()
+        {
             return new EntryIterator(kvs, 0);
         }
     }
 
-    private static class ValueCollection extends AbstractCollection<Value> {
+    private static class ValueCollection
+            extends AbstractCollection<Value>
+    {
         private Value[] kvs;
 
-        ValueCollection(Value[] kvs) {
+        ValueCollection(Value[] kvs)
+        {
             this.kvs = kvs;
         }
 
         @Override
-        public int size() {
+        public int size()
+        {
             return kvs.length / 2;
         }
 
         @Override
-        public Iterator<Value> iterator() {
+        public Iterator<Value> iterator()
+        {
             return new EntryIterator(kvs, 1);
         }
     }
 
-    private static class EntryIterator implements Iterator<Value> {
+    private static class EntryIterator
+            implements Iterator<Value>
+    {
         private Value[] kvs;
         private int index;
 
-        public EntryIterator(Value[] kvs, int offset) {
+        public EntryIterator(Value[] kvs, int offset)
+        {
             this.kvs = kvs;
             this.index = offset;
         }
 
         @Override
-        public boolean hasNext() {
+        public boolean hasNext()
+        {
             return index < kvs.length;
         }
 
         @Override
-        public Value next() {
+        public Value next()
+        {
             int i = index;
             if (i >= kvs.length) {
                 throw new NoSuchElementException();
@@ -276,7 +328,8 @@ public class ImmutableMapValueImpl extends AbstractImmutableValue implements Imm
         }
 
         @Override
-        public void remove() {
+        public void remove()
+        {
             throw new UnsupportedOperationException();
         }
     }

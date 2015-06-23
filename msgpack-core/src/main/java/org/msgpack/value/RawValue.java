@@ -16,27 +16,28 @@
 package org.msgpack.value;
 
 import java.nio.ByteBuffer;
-import org.msgpack.core.MessageStringCodingException;
 
 /**
  * The interface {@code RawValue} represents MessagePack's Raw type, which means Binary or String type.
- *
+ * <p/>
  * MessagePack's Raw type can represent a byte array at most 2<sup>64</sup>-1 bytes.
  *
- * @see  org.msgpack.value.StringValue
- * @see  org.msgpack.value.BinaryValue
+ * @see org.msgpack.value.StringValue
+ * @see org.msgpack.value.BinaryValue
  */
-public interface RawValue extends Value {
+public interface RawValue
+        extends Value
+{
     /**
      * Returns the value as {@code byte[]}.
-     *
+     * <p/>
      * This method copies the byte array.
      */
     byte[] getByteArray();
 
     /**
      * Returns the value as {@code ByteBuffer}.
-     *
+     * <p/>
      * Returned ByteBuffer is read-only. See {@code#asReadOnlyBuffer()}.
      * This method doesn't copy the byte array as much as possible.
      */
@@ -44,17 +45,16 @@ public interface RawValue extends Value {
 
     /**
      * Returns the value as {@code String}.
-     *
+     * <p/>
      * This method throws an exception if the value includes invalid UTF-8 byte sequence.
      *
-     * @throws  MessageStringCodingException
-     *          If this value includes invalid UTF-8 byte sequence.
+     * @throws MessageStringCodingException If this value includes invalid UTF-8 byte sequence.
      */
     String getString();
 
     /**
      * Returns the value as {@code String}.
-     *
+     * <p/>
      * This method replaces an invalid UTF-8 byte sequence with <code>U+FFFD replacement character</code>.
      */
     String stringValue();
