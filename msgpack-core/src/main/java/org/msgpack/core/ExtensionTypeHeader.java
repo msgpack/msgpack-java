@@ -11,6 +11,16 @@ public class ExtensionTypeHeader {
 
     /**
      * Create an extension type header
+     * Example:
+     * <pre>
+     * {@code
+     * import org.msgpack.core.ExtensionTypeHeader;
+     * import static org.msgpack.core.ExtensionTypeHeader.checkedCastToByte;
+     * ...
+     * ExtensionTypeHeader header = new ExtensionTypeHeader(checkedCastToByte(0x01), 32);
+     * ...
+     * }
+     * </pre>
      * @param type extension type (byte). You can check the valid byte range with {@link #checkedCastToByte(int)} method.
      * @param length extension type data length
      */
