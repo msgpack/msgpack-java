@@ -133,7 +133,6 @@ public final class ValueFactory {
         return ImmutableMapValueImpl.empty();
     }
 
-
     public static MapValue newMap(Map.Entry<? extends Value, ? extends Value>... pairs) {
         MapBuilder b = new MapBuilder();
         for(Map.Entry<? extends Value, ? extends Value> p : pairs) {
@@ -142,18 +141,17 @@ public final class ValueFactory {
         return b.build();
     }
 
-
     public static MapBuilder newMapBuilder() {
         return new MapBuilder();
     }
 
     public static Map.Entry<Value, Value> newMapEntry(Value key, Value value) {
         return new AbstractMap.SimpleEntry<Value, Value>(key, value);
-
     }
 
     public static class MapBuilder {
         private final Map<Value, Value> map = new HashMap<Value, Value>();
+
         public MapBuilder() {}
 
         public MapValue build() {

@@ -535,7 +535,6 @@ public class Variable implements Value {
         public void writeTo(MessagePacker pk) throws IOException {
             pk.packDouble(doubleValue);
         }
-
     }
 
 
@@ -621,7 +620,6 @@ public class Variable implements Value {
             pk.packBinaryHeader(data.length);
             pk.writePayload(data);
         }
-
     }
 
 
