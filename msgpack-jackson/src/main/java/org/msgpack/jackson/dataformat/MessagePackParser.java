@@ -5,23 +5,21 @@ import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonReadContext;
-import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.core.buffer.ArrayBufferInput;
 import org.msgpack.core.buffer.InputStreamBufferInput;
 import org.msgpack.core.buffer.MessageBufferInput;
-import org.msgpack.value.ExtendedValue;
-import org.msgpack.value.ValueRef;
-import org.msgpack.value.NumberValue;
+import org.msgpack.value.Value;
+import org.msgpack.value.Variable;
+import org.msgpack.value.IntegerValue;
 import org.msgpack.value.ValueType;
-import org.msgpack.value.holder.ValueHolder;
+import org.msgpack.value.ValueFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.LinkedList;
-import java.util.logging.Logger;
 
 public class MessagePackParser extends ParserMinimalBase {
     private static final ThreadLocal<Tuple<Object, MessageUnpacker>> messageUnpackerHolder =
@@ -31,7 +29,8 @@ public class MessagePackParser extends ParserMinimalBase {
     private JsonReadContext parsingContext;
 
     private final LinkedList<StackItem> stack = new LinkedList<StackItem>();
-    private final ValueHolder valueHolder = new ValueHolder();
+    private Value value = ValueFactory.newNil();
+    private Variable var = new Variable();
     private boolean isClosed;
     private long tokenPosition;
     private long currentPosition;
@@ -134,33 +133,34 @@ public class MessagePackParser extends ParserMinimalBase {
             return null;
         }
 
-        MessageFormat nextFormat = messageUnpacker.getNextFormat();
-        ValueType valueType = nextFormat.getValueType();
+        ValueType type = messageUnpacker.getNextFormat().getValueType();
 
         // We should push a new StackItem lazily after updating the current stack.
         StackItem newStack = null;
 
-        switch (valueType) {
+        switch (type) {
             case NIL:
                 messageUnpacker.unpackNil();
+                value = ValueFactory.newNil();
                 nextToken = JsonToken.VALUE_NULL;
                 break;
             case BOOLEAN:
                 boolean b = messageUnpacker.unpackBoolean();
+                value = ValueFactory.newNil();
                 nextToken = b ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE;
                 break;
             case INTEGER:
-                messageUnpacker.unpackValue(valueHolder);
+                value = messageUnpacker.unpackValue(var);
                 nextToken = JsonToken.VALUE_NUMBER_INT;
                 break;
             case FLOAT:
-                messageUnpacker.unpackValue(valueHolder);
+                value = messageUnpacker.unpackValue(var);
                 nextToken = JsonToken.VALUE_NUMBER_FLOAT;
                 break;
             case STRING:
-                messageUnpacker.unpackValue(valueHolder);
+                value = messageUnpacker.unpackValue(var);
                 if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
-                    parsingContext.setCurrentName(valueHolder.getRef().asRaw().toString());
+                    parsingContext.setCurrentName(value.asRawValue().stringValue());
                     nextToken = JsonToken.FIELD_NAME;
                 }
                 else {
@@ -168,17 +168,25 @@ public class MessagePackParser extends ParserMinimalBase {
                 }
                 break;
             case BINARY:
-                messageUnpacker.unpackValue(valueHolder);
-                nextToken = JsonToken.VALUE_EMBEDDED_OBJECT;
+                value = messageUnpacker.unpackValue(var);
+                if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
+                    parsingContext.setCurrentName(value.asRawValue().stringValue());
+                    nextToken = JsonToken.FIELD_NAME;
+                }
+                else {
+                    nextToken = JsonToken.VALUE_EMBEDDED_OBJECT;
+                }
                 break;
             case ARRAY:
+                value = ValueFactory.newNil();
                 newStack = new StackItemForArray(messageUnpacker.unpackArrayHeader());
                 break;
             case MAP:
+                value = ValueFactory.newNil();
                 newStack = new StackItemForObject(messageUnpacker.unpackMapHeader());
                 break;
-            case EXTENDED:
-                messageUnpacker.unpackValue(valueHolder);
+            case EXTENSION:
+                value = messageUnpacker.unpackValue(var);
                 nextToken = JsonToken.VALUE_EMBEDDED_OBJECT;
                 break;
             default:
@@ -212,7 +220,12 @@ public class MessagePackParser extends ParserMinimalBase {
     @Override
     public String getText() throws IOException, JsonParseException {
         // This method can be called for new BigInteger(text)
-        return valueHolder.getRef().toString();
+        if (value.isRawValue()) {
+            return value.asRawValue().stringValue();
+        }
+        else {
+            return value.toString();
+        }
     }
 
     @Override
@@ -237,81 +250,78 @@ public class MessagePackParser extends ParserMinimalBase {
 
     @Override
     public byte[] getBinaryValue(Base64Variant b64variant) throws IOException, JsonParseException {
-        return valueHolder.getRef().asBinary().toByteArray();
+        return value.asRawValue().getByteArray();
     }
 
     @Override
     public Number getNumberValue() throws IOException, JsonParseException {
-        NumberValue numberValue = valueHolder.getRef().asNumber();
-        if (numberValue.isValidInt()) {
-            return numberValue.toInt();
-        }
-        else if (numberValue.isValidLong()) {
-            return numberValue.toLong();
-        }
-        else {
-            return numberValue.toBigInteger();
+        if (value.isIntegerValue()) {
+            IntegerValue integerValue = value.asIntegerValue();
+            if (integerValue.isInIntRange()) {
+                return integerValue.castAsInt();
+            }
+            else if (integerValue.isInLongRange()) {
+                return integerValue.castAsLong();
+            }
+            else {
+                return integerValue.castAsBigInteger();
+            }
+        } else {
+            return value.asNumberValue().castAsDouble();
         }
     }
 
     @Override
     public int getIntValue() throws IOException, JsonParseException {
-        return valueHolder.getRef().asNumber().toInt();
+        return value.asNumberValue().castAsInt();
     }
 
     @Override
     public long getLongValue() throws IOException, JsonParseException {
-        return valueHolder.getRef().asNumber().toLong();
+        return value.asNumberValue().castAsLong();
     }
 
     @Override
     public BigInteger getBigIntegerValue() throws IOException, JsonParseException {
-        return valueHolder.getRef().asNumber().toBigInteger();
+        return value.asNumberValue().castAsBigInteger();
     }
 
     @Override
     public float getFloatValue() throws IOException, JsonParseException {
-        return valueHolder.getRef().asFloat().toFloat();
+        return value.asNumberValue().castAsFloat();
     }
 
     @Override
     public double getDoubleValue() throws IOException, JsonParseException {
-        return valueHolder.getRef().asFloat().toDouble();
+        return value.asNumberValue().castAsDouble();
     }
 
     @Override
     public BigDecimal getDecimalValue() throws IOException {
-        ValueRef ref = valueHolder.getRef();
-
-        if (ref.isInteger()) {
-            NumberValue number = ref.asNumber();
+        if (value.isIntegerValue()) {
+            IntegerValue number = value.asIntegerValue();
             //optimization to not convert the value to BigInteger unnecessarily
-            if (number.isValidByte() || number.isValidShort() || number.isValidInt() || number.isValidLong()) {
-                return BigDecimal.valueOf(number.asLong());
+            if (number.isInLongRange()) {
+                return BigDecimal.valueOf(number.castAsLong());
             }
             else {
-                return new BigDecimal(number.asBigInteger());
+                return new BigDecimal(number.castAsBigInteger());
             }
         }
-        else if (ref.isFloat()) {
-            return BigDecimal.valueOf(ref.asFloat().toDouble());
+        else if (value.isFloatValue()) {
+            return BigDecimal.valueOf(value.asFloatValue().castAsDouble());
         }
         else {
-            throw new UnsupportedOperationException("Couldn't parse value as BigDecimal. " + ref);
+            throw new UnsupportedOperationException("Couldn't parse value as BigDecimal. " + value);
         }
     }
 
     @Override
     public Object getEmbeddedObject() throws IOException, JsonParseException {
-        ValueRef ref = valueHolder.getRef();
-
-        if (ref.isBinary()) {
-            return ref.asBinary().toByteArray();
-        } else if (ref.isExtended()) {
-            ExtendedValue extendedValue = ref.asExtended().toValue();
-            MessagePackExtendedType extendedType =
-                    new MessagePackExtendedType(extendedValue.getExtType(), extendedValue.toByteBuffer());
-            return extendedType;
+        if (value.isBinaryValue()) {
+            return value.asBinaryValue().getByteArray();
+        } else if (value.isExtensionValue()) {
+            return value.asExtensionValue();
         } else {
             throw new UnsupportedOperationException();
         }
@@ -319,15 +329,20 @@ public class MessagePackParser extends ParserMinimalBase {
 
     @Override
     public NumberType getNumberType() throws IOException, JsonParseException {
-        NumberValue numberValue = valueHolder.getRef().asNumber();
-        if (numberValue.isValidInt()) {
-            return NumberType.INT;
-        }
-        else if (numberValue.isValidLong()) {
-            return NumberType.LONG;
-        }
-        else {
-            return NumberType.BIG_INTEGER;
+        if (value.isIntegerValue()) {
+            IntegerValue integerValue = value.asIntegerValue();
+            if (integerValue.isInIntRange()) {
+                return NumberType.INT;
+            }
+            else if (integerValue.isInLongRange()) {
+                return NumberType.LONG;
+            }
+            else {
+                return NumberType.BIG_INTEGER;
+            }
+        } else {
+            value.asNumberValue();
+            return NumberType.DOUBLE;
         }
     }
 

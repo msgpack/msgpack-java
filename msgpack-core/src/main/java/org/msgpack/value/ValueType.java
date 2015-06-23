@@ -30,25 +30,14 @@ public enum ValueType {
     BINARY(false, true),
     ARRAY(false, false),
     MAP(false, false),
-    EXTENDED(false, true);
-
+    EXTENSION(false, true);
 
     private final boolean numberType;
     private final boolean rawType;
-    private final int bitMask;
 
     private ValueType(boolean numberType, boolean rawType) {
         this.numberType = numberType;
         this.rawType = rawType;
-        this.bitMask = 1 << this.ordinal();
-    }
-
-    public int getBitMask() {
-        return bitMask;
-    }
-
-    public boolean isTypeOf(int bitMask) {
-        return (this.bitMask & bitMask) != 0;
     }
 
     public boolean isNilType() {
@@ -91,16 +80,7 @@ public enum ValueType {
         return this == MAP;
     }
 
-    public boolean isExtendedType() {
-        return this == EXTENDED;
+    public boolean isExtensionType() {
+        return this == EXTENSION;
     }
-
-    public static ValueType valueOf(byte b) {
-        return MessageFormat.valueOf(b).getValueType();
-    }
-
-    public String toTypeName() {
-        return this.name().substring(0, 1) + this.name().substring(1).toLowerCase();
-    }
-
 }

@@ -7,7 +7,7 @@ class RawStringValueImplTest extends MessagePackSpec {
   "StringValue" should {
     "return the same hash code if they are equal" in {
       val str = "a"
-      val a1 = ValueFactory.newRawString(str.getBytes("UTF-8"))
+      val a1 = ValueFactory.newString(str.getBytes("UTF-8"))
       val a2 = ValueFactory.newString(str)
 
       a1.shouldEqual(a2)

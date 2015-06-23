@@ -15,14 +15,20 @@
 //
 package org.msgpack.value;
 
-/**
- * The interface {@code StringValue} represents MessagePack's String type.
- *
- * MessagePack's String type can represent a UTF-8 string at most 2<sup>64</sup>-1 bytes.
- *
- * Note that the value could include invalid byte sequences. {@code getString()} method throws {@code MessageTypeStringCodingException} if the value includes invalid byte sequence. {@code stringValue()} method replaces an invalid byte sequence with <code>U+FFFD replacement character</code>.
- *
- * @see  org.msgpack.value.RawValue
- */
-public interface StringValue extends RawValue {
+import java.util.List;
+import java.util.Iterator;
+
+
+public interface ImmutableArrayValue extends ArrayValue, ImmutableValue {
+    /**
+     * Returns an iterator over elements.
+     * Returned Iterator does not support {@code remove()} method since the value is immutable.
+     */
+    Iterator<Value> iterator();
+
+    /**
+     * Returns the value as {@code List}.
+     * Returned List is immutable. It does not support {@code put()}, {@code clear()}, or other methods that modify the value.
+     */
+    List<Value> list();
 }

@@ -15,6 +15,10 @@
 //
 package org.msgpack.core;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
@@ -30,12 +34,10 @@ import java.nio.charset.MalformedInputException;
 import org.msgpack.core.MessagePack.Code;
 import org.msgpack.core.buffer.MessageBuffer;
 import org.msgpack.core.buffer.MessageBufferInput;
-import org.msgpack.value.Cursor;
-import org.msgpack.value.ValueType;
-import org.msgpack.value.holder.FloatHolder;
-import org.msgpack.value.holder.IntegerHolder;
-import org.msgpack.value.holder.ValueHolder;
-import org.msgpack.value.impl.CursorImpl;
+import org.msgpack.value.Value;
+import org.msgpack.value.ImmutableValue;
+import org.msgpack.value.Variable;
+import org.msgpack.value.ValueFactory;
 
 import static org.msgpack.core.Preconditions.*;
 
@@ -79,6 +81,7 @@ public class MessageUnpacker implements Closeable {
      * Points to the current buffer to read
      */
     private MessageBuffer buffer = EMPTY_BUFFER;
+
     /**
      * Cursor position in the current buffer
      */
@@ -113,16 +116,6 @@ public class MessageUnpacker implements Closeable {
      * Buffer for decoding strings
      */
     private CharBuffer decodeBuffer;
-
-
-    /**
-     * Get a {@link org.msgpack.value.Cursor} for traversing message-packed values
-     * @return
-     */
-    public Cursor getCursor() {
-        return new CursorImpl(this);
-    }
-
 
 
     /**
@@ -531,57 +524,143 @@ public class MessageUnpacker implements Closeable {
      */
     private static MessageTypeException unexpected(String expected, byte b)
             throws MessageTypeException {
-        ValueType type = ValueType.valueOf(b);
-        return new MessageTypeException(String.format("Expected %s, but got %s (%02x)", expected, type.toTypeName(), b));
+        MessageFormat format = MessageFormat.valueOf(b);
+        String typeName;
+        if (format == MessageFormat.NEVER_USED) {
+            typeName = "NeverUsed";
+        } else {
+            String name = format.getValueType().name();
+            typeName = name.substring(0, 1) + name.substring(1).toLowerCase();
+        }
+        return new MessageTypeException(String.format("Expected %s, but got %s (%02x)", expected, typeName, b));
     }
 
-    public MessageFormat unpackValue(ValueHolder holder) throws IOException {
+    public ImmutableValue unpackValue() throws IOException {
         MessageFormat mf = getNextFormat();
         switch(mf.getValueType()) {
             case NIL:
                 unpackNil();
-                holder.setNil();
-                break;
+                return ValueFactory.newNil();
             case BOOLEAN:
-                holder.setBoolean(unpackBoolean());
-                break;
-            case INTEGER: {
-                unpackInteger(holder.getIntegerHolder());
-                holder.setToInteger();
-                break;
+                return ValueFactory.newBoolean(unpackBoolean());
+            case INTEGER:
+                switch (mf) {
+                    case UINT64:
+                        return ValueFactory.newInteger(unpackBigInteger());
+                    default:
+                        return ValueFactory.newInteger(unpackLong());
+                }
+            case FLOAT:
+                return ValueFactory.newFloat(unpackDouble());
+            case STRING: {
+                int length = unpackRawStringHeader();
+                return ValueFactory.newString(readPayload(length));
             }
-            case FLOAT: {
-                unpackFloat(holder.getFloatHolder());
-                holder.setToFloat();
-                break;
-            }
-            case STRING:
-                int strLen = unpackRawStringHeader();
-                holder.setString(readPayloadAsReference(strLen));
-                break;
             case BINARY: {
-                int binaryLen = unpackBinaryHeader();
-                holder.setBinary(readPayloadAsReference(binaryLen));
-                break;
+                int length = unpackBinaryHeader();
+                return ValueFactory.newBinary(readPayload(length));
             }
-            case ARRAY:
-                holder.prepareArrayCursor(this);
-                break;
-            case MAP:
-                holder.prepareMapCursor(this);
-                break;
-            case EXTENDED:
-                ExtendedTypeHeader extHeader = unpackExtendedTypeHeader();
-                holder.setExt(extHeader.getType(), readPayloadAsReference(extHeader.getLength()));
-                break;
+            case ARRAY: {
+                int size = unpackArrayHeader();
+                Value[] array = new Value[size];
+                for (int i=0; i < size; i++) {
+                    array[i] = unpackValue();
+                }
+                return ValueFactory.newArray(array);
+            }
+            case MAP: {
+                int size = unpackMapHeader();
+                Value[] kvs = new Value[size * 2];
+                for (int i=0; i < size * 2; ) {
+                    kvs[i] = unpackValue();
+                    i++;
+                    kvs[i] = unpackValue();
+                    i++;
+                }
+                return ValueFactory.newMap(kvs);
+            }
+            case EXTENSION: {
+                ExtensionTypeHeader extHeader = unpackExtensionTypeHeader();
+                return ValueFactory.newExtension(extHeader.getType(), readPayload(extHeader.getLength()));
+            }
+            default:
+                throw new MessageFormatException("Unknown value type");
         }
-        return mf;
     }
 
-    public Object unpackNil() throws IOException {
+    public Variable unpackValue(Variable var) throws IOException {
+        MessageFormat mf = getNextFormat();
+        switch(mf.getValueType()) {
+            case NIL:
+                unpackNil();
+                var.setNilValue();
+                return var;
+            case BOOLEAN:
+                var.setBooleanValue(unpackBoolean());
+                return var;
+            case INTEGER:
+                switch (mf) {
+                    case UINT64:
+                        var.setIntegerValue(unpackBigInteger());
+                        return var;
+                    default:
+                        var.setIntegerValue(unpackLong());
+                        return var;
+                }
+            case FLOAT:
+                var.setFloatValue(unpackDouble());
+                return var;
+            case STRING: {
+                int length = unpackRawStringHeader();
+                var.setStringValue(readPayload(length));
+                return var;
+            }
+            case BINARY: {
+                int length = unpackBinaryHeader();
+                var.setBinaryValue(readPayload(length));
+                return var;
+            }
+            case ARRAY: {
+                int size = unpackArrayHeader();
+                List<Value> list = new ArrayList<Value>(size);
+                for (int i=0; i < size; i++) {
+                    //Variable e = new Variable();
+                    //unpackValue(e);
+                    //list.add(e);
+                    list.add(unpackValue());
+                }
+                var.setArrayValue(list);
+                return var;
+            }
+            case MAP: {
+                int size = unpackMapHeader();
+                Map<Value,Value> map = new HashMap<Value,Value>();
+                for (int i=0; i < size; i++) {
+                    //Variable k = new Variable();
+                    //unpackValue(k);
+                    //Variable v = new Variable();
+                    //unpackValue(v);
+                    Value k = unpackValue();
+                    Value v = unpackValue();
+                    map.put(k, v);
+                }
+                var.setMapValue(map);
+                return var;
+            }
+            case EXTENSION: {
+                ExtensionTypeHeader extHeader = unpackExtensionTypeHeader();
+                var.setExtensionValue(extHeader.getType(), readPayload(extHeader.getLength()));
+                return var;
+            }
+            default:
+                throw new MessageFormatException("Unknown value type");
+        }
+    }
+
+    public void unpackNil() throws IOException {
         byte b = consume();
         if(b == Code.NIL) {
-            return null;
+            return;
         }
         throw unexpected("Nil", b);
     }
@@ -832,73 +911,6 @@ public class MessageUnpacker implements Closeable {
         throw unexpected("Integer", b);
     }
 
-
-    /**
-     * Unpack an integer, then store the read value to the given holder
-     * @param holder an integer holder to which the unpacked integer will be set.
-     * @throws IOException
-     */
-    public void unpackInteger(IntegerHolder holder) throws IOException {
-        byte b = consume();
-
-        if(Code.isFixInt(b)) {
-            holder.setByte(b);
-            return;
-        }
-
-        switch(b) {
-            case Code.INT8: // signed int 8
-                holder.setByte(readByte());
-                break;
-            case Code.INT16:
-                holder.setShort(readShort());
-                break;
-            case Code.INT32:
-                holder.setInt(readInt());
-                break;
-            case Code.INT64: // signed int 64
-                holder.setLong(readLong());
-                break;
-            case Code.UINT8: // unsigned int 8
-                byte u8 = readByte();
-                if(u8 < 0) {
-                    holder.setShort((short) (u8 & 0xFF));
-                }
-                else {
-                    holder.setByte(u8);
-                }
-                break;
-            case Code.UINT16: // unsigned int 16
-                short u16 = readShort();
-                if(u16 < 0) {
-                    holder.setInt(u16 & 0xFFFF);
-                }
-                else {
-                    holder.setShort(u16);
-                }
-                break;
-            case Code.UINT32: // unsigned int 32
-                int u32 = readInt();
-                if(u32 < 0) {
-                    holder.setLong((long) (u32 & 0x7fffffff) + 0x80000000L);
-                } else {
-                    holder.setInt(u32);
-                }
-                break;
-            case Code.UINT64: // unsigned int 64
-                long u64 = readLong();
-                if(u64 < 0L) {
-                    holder.setBigInteger(BigInteger.valueOf(u64 + Long.MAX_VALUE + 1L).setBit(63));
-                } else {
-                    holder.setLong(u64);
-                }
-                break;
-            default:
-                throw unexpected("Integer", b);
-        }
-    }
-
-
     public float unpackFloat() throws IOException {
         byte b = consume();
         switch(b) {
@@ -923,26 +935,6 @@ public class MessageUnpacker implements Closeable {
                 return dv;
         }
         throw unexpected("Float", b);
-    }
-
-    public void unpackFloat(ValueHolder holder) throws IOException {
-        unpackFloat(holder.getFloatHolder());
-    }
-
-    public void unpackFloat(FloatHolder holder) throws IOException {
-        byte b = consume();
-        switch(b) {
-            case Code.FLOAT32: // float
-                float fv = readFloat();
-                holder.setFloat(fv);
-                break;
-            case Code.FLOAT64: // double
-                double dv = readDouble();
-                holder.setDouble(dv);
-                break;
-            default:
-                throw unexpected("Float", b);
-        }
     }
 
 
@@ -1049,33 +1041,33 @@ public class MessageUnpacker implements Closeable {
         throw unexpected("Map", b);
     }
 
-    public ExtendedTypeHeader unpackExtendedTypeHeader() throws IOException {
+    public ExtensionTypeHeader unpackExtensionTypeHeader() throws IOException {
         byte b = consume();
         switch(b) {
             case Code.FIXEXT1:
-                return new ExtendedTypeHeader(1, readByte());
+                return new ExtensionTypeHeader(readByte(), 1);
             case Code.FIXEXT2:
-                return new ExtendedTypeHeader(2, readByte());
+                return new ExtensionTypeHeader(readByte(), 2);
             case Code.FIXEXT4:
-                return new ExtendedTypeHeader(4, readByte());
+                return new ExtensionTypeHeader(readByte(), 4);
             case Code.FIXEXT8:
-                return new ExtendedTypeHeader(8, readByte());
+                return new ExtensionTypeHeader(readByte(), 8);
             case Code.FIXEXT16:
-                return new ExtendedTypeHeader(16, readByte());
+                return new ExtensionTypeHeader(readByte(), 16);
             case Code.EXT8: {
-                int len = readNextLength8();
-                int t = readByte();
-                return new ExtendedTypeHeader(len, t);
+                int length = readNextLength8();
+                byte type = readByte();
+                return new ExtensionTypeHeader(type, length);
             }
             case Code.EXT16: {
-                int len = readNextLength16();
-                int t = readByte();
-                return new ExtendedTypeHeader(len, t);
+                int length = readNextLength16();
+                byte type = readByte();
+                return new ExtensionTypeHeader(type, length);
             }
             case Code.EXT32: {
-                int len = readNextLength32();
-                int t = readByte();
-                return new ExtendedTypeHeader(len, t);
+                int length = readNextLength32();
+                byte type = readByte();
+                return new ExtensionTypeHeader(type, length);
             }
         }
 
@@ -1159,6 +1151,12 @@ public class MessageUnpacker implements Closeable {
 
     public void readPayload(byte[] dst) throws IOException {
         readPayload(dst, 0, dst.length);
+    }
+
+    public byte[] readPayload(int length) throws IOException {
+        byte[] newArray = new byte[length];
+        readPayload(newArray);
+        return newArray;
     }
 
     /**

@@ -24,9 +24,9 @@ public enum MessageFormat {
     BIN8(ValueType.BINARY),
     BIN16(ValueType.BINARY),
     BIN32(ValueType.BINARY),
-    EXT8(ValueType.EXTENDED),
-    EXT16(ValueType.EXTENDED),
-    EXT32(ValueType.EXTENDED),
+    EXT8(ValueType.EXTENSION),
+    EXT16(ValueType.EXTENSION),
+    EXT32(ValueType.EXTENSION),
     FLOAT32(ValueType.FLOAT),
     FLOAT64(ValueType.FLOAT),
     UINT8(ValueType.INTEGER),
@@ -38,11 +38,11 @@ public enum MessageFormat {
     INT16(ValueType.INTEGER),
     INT32(ValueType.INTEGER),
     INT64(ValueType.INTEGER),
-    FIXEXT1(ValueType.EXTENDED),
-    FIXEXT2(ValueType.EXTENDED),
-    FIXEXT4(ValueType.EXTENDED),
-    FIXEXT8(ValueType.EXTENDED),
-    FIXEXT16(ValueType.EXTENDED),
+    FIXEXT1(ValueType.EXTENSION),
+    FIXEXT2(ValueType.EXTENSION),
+    FIXEXT4(ValueType.EXTENSION),
+    FIXEXT8(ValueType.EXTENSION),
+    FIXEXT16(ValueType.EXTENSION),
     STR8(ValueType.STRING),
     STR16(ValueType.STRING),
     STR32(ValueType.STRING),
@@ -95,7 +95,7 @@ public enum MessageFormat {
      * @return
      */
     @VisibleForTesting
-    public static MessageFormat toMessageFormat(final byte b) {
+    static MessageFormat toMessageFormat(final byte b) {
         if (Code.isPosFixInt(b)) {
             return POSFIXINT;
         }

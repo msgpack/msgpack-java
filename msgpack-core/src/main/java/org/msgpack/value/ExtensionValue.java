@@ -16,13 +16,15 @@
 package org.msgpack.value;
 
 /**
- * The interface {@code StringValue} represents MessagePack's String type.
+ * The interface {@code ExtensionValue} represents MessagePack's Extension type.
  *
- * MessagePack's String type can represent a UTF-8 string at most 2<sup>64</sup>-1 bytes.
+ * MessagePack's Extension type can represent represents a tuple of type information and a byte array where type information is an
+ * integer whose meaning is defined by applications.
  *
- * Note that the value could include invalid byte sequences. {@code getString()} method throws {@code MessageTypeStringCodingException} if the value includes invalid byte sequence. {@code stringValue()} method replaces an invalid byte sequence with <code>U+FFFD replacement character</code>.
- *
- * @see  org.msgpack.value.RawValue
+ * As the type information, applications can use 0 to 127 as the application-specific types. -1 to -128 is reserved for MessagePack's future extension.
  */
-public interface StringValue extends RawValue {
+public interface ExtensionValue extends Value {
+    byte getType();
+
+    byte[] getData();
 }
