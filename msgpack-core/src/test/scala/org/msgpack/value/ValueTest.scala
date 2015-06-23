@@ -24,11 +24,15 @@ class ValueTest extends MessagePackSpec
   def checkSuccinctType(pack:MessagePacker => Unit, expectedAtMost:MessageFormat) {
     val b = createMessagePackData(pack)
     val v1 = MessagePack.newDefaultUnpacker(b).unpackValue()
-    v1.asIntegerValue().mostSuccinctMessageFormat().ordinal() shouldBe <= (expectedAtMost.ordinal())
+    val mf = v1.asIntegerValue().mostSuccinctMessageFormat()
+    mf.getValueType shouldBe ValueType.INTEGER
+    mf.ordinal() shouldBe <= (expectedAtMost.ordinal())
 
     val v2 = new Variable
     MessagePack.newDefaultUnpacker(b).unpackValue(v2)
-    v2.asIntegerValue().mostSuccinctMessageFormat().ordinal() shouldBe <= (expectedAtMost.ordinal())
+    val mf2 = v2.asIntegerValue().mostSuccinctMessageFormat()
+    mf2.getValueType shouldBe ValueType.INTEGER
+    mf2.ordinal() shouldBe <= (expectedAtMost.ordinal())
   }
 
   "Value" should {
