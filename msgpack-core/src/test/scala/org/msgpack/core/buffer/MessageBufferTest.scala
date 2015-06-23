@@ -11,6 +11,11 @@ class MessageBufferTest extends MessagePackSpec {
 
   "MessageBuffer" should {
 
+    "check buffer type" in {
+      val b = MessageBuffer.newBuffer(0)
+      info(s"MessageBuffer type: ${b.getClass.getName}")
+    }
+
     "wrap ByteBuffer considering position and remaining values" taggedAs("wrap-bb") in {
       val d = Array[Byte](10,11,12,13,14,15,16,17,18,19)
       val subset = ByteBuffer.wrap(d, 2, 2)
