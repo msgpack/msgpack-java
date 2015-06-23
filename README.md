@@ -39,6 +39,10 @@ For details, see [msgpack-jackson/README.md](msgpack-jackson/README.md). The tem
 msgpack-java uses [sbt](http://www.scala-sbt.org/) for building the projects. For the basic usage of sbt, see:
  * [Building Java projects with sbt](http://xerial.org/blog/2014/03/24/sbt/)
 
+Coding style
+ * msgpack-java uses [the same coding style](https://github.com/airlift/codestyle) with Facebook Presto
+  * [IntelliJ setting file](https://raw.githubusercontent.com/airlift/codestyle/master/IntelliJIdea13/Airlift.xml)
+
 ### Basic sbt commands
 Enter the sbt console:
 ```
