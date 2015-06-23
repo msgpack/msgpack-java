@@ -1,6 +1,6 @@
 sonatypeProfileName := "org.msgpack"
 
-pomExtra := {
+pomExtra in Global := {
   <url>http://msgpack.org/</url>
     <licenses>
       <license>
