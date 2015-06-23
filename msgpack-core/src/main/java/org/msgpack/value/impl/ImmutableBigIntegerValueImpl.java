@@ -65,37 +65,37 @@ public class ImmutableBigIntegerValueImpl extends AbstractImmutableValue impleme
     }
 
     @Override
-    public byte toByte() {
+    public byte castAsByte() {
         return value.byteValue();
     }
 
     @Override
-    public short toShort() {
+    public short castAsShort() {
         return value.shortValue();
     }
 
     @Override
-    public int toInt() {
+    public int castAsInt() {
         return value.intValue();
     }
 
     @Override
-    public long toLong() {
+    public long castAsLong() {
         return value.longValue();
     }
 
     @Override
-    public BigInteger toBigInteger() {
+    public BigInteger castAsBigInteger() {
         return value;
     }
 
     @Override
-    public float toFloat() {
+    public float castAsFloat() {
         return value.floatValue();
     }
 
     @Override
-    public double toDouble() {
+    public double castAsDouble() {
         return value.doubleValue();
     }
 
@@ -175,7 +175,7 @@ public class ImmutableBigIntegerValueImpl extends AbstractImmutableValue impleme
             return false;
         }
         IntegerValue iv = v.asIntegerValue();
-        return value.equals(iv.toBigInteger());
+        return value.equals(iv.castAsBigInteger());
     }
 
     @Override

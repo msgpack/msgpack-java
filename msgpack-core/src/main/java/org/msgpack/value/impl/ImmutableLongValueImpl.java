@@ -63,37 +63,37 @@ public class ImmutableLongValueImpl extends AbstractImmutableValue implements Im
     }
 
     @Override
-    public byte toByte() {
+    public byte castAsByte() {
         return (byte) value;
     }
 
     @Override
-    public short toShort() {
+    public short castAsShort() {
         return (short) value;
     }
 
     @Override
-    public int toInt() {
+    public int castAsInt() {
         return (int) value;
     }
 
     @Override
-    public long toLong() {
+    public long castAsLong() {
         return value;
     }
 
     @Override
-    public BigInteger toBigInteger() {
+    public BigInteger castAsBigInteger() {
         return BigInteger.valueOf(value);
     }
 
     @Override
-    public float toFloat() {
+    public float castAsFloat() {
         return (float) value;
     }
 
     @Override
-    public double toDouble() {
+    public double castAsDouble() {
         return (double) value;
     }
 
@@ -173,7 +173,7 @@ public class ImmutableLongValueImpl extends AbstractImmutableValue implements Im
         if (!iv.isInLongRange()) {
             return false;
         }
-        return value == iv.toLong();
+        return value == iv.castAsLong();
     }
 
     @Override

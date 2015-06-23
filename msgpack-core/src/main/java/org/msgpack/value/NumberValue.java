@@ -18,7 +18,7 @@ package org.msgpack.value;
 import java.math.BigInteger;
 
 /**
- * The interface {@code NumberValue} is the interface of {@code IntegerValue} and {@code FloatValue}.
+ * The base interface {@code NumberValue} of {@code IntegerValue} and {@code FloatValue}.
  *
  * @see org.msgpack.value.IntegerValue
  * @see org.msgpack.value.FloatValue
@@ -26,37 +26,39 @@ import java.math.BigInteger;
 public interface NumberValue extends Value {
 
     /**
-     * Convert this value into a byte value. If this value is not within the range of Byte value, it will truncate or round the value.
+     * Represent this value as a byte value, which may involve rounding or truncation of the original value.
+     * the value.
      */
-    byte toByte();
+    byte castAsByte();
 
     /**
-     * Convert this value into a short value. If this value is not within the range of Short value, it will truncate or round the value.
+     * Represent this value as a short value, which may involve rounding or truncation of the original value.
      */
-    short toShort();
+    short castAsShort();
 
     /**
-     * Convert this value into an int value. If this value is not within the range of Int value, it will truncate or round the value.
+     * Represent this value as an int value, which may involve rounding or truncation of the original value.
+     * value.
      */
-    int toInt();
+    int castAsInt();
 
     /**
-     * Convert this value into a long value. If this value is not within the range of Long value, it will truncate or round the value.
+     * Represent this value as a long value, which may involve rounding or truncation of the original value.
      */
-    long toLong();
+    long castAsLong();
 
     /**
-     * Convert this value into a BigInteger. If value is Float type, it will round the value
+     * Represent this value as a BigInteger, which may involve rounding or truncation of the original value.
      */
-    BigInteger toBigInteger();
+    BigInteger castAsBigInteger();
 
     /**
-     * Converts this value into a 32-bit float
+     * Represent this value as a 32-bit float value, which may involve rounding or truncation of the original value.
      */
-    float toFloat();
+    float castAsFloat();
 
     /**
-     * Converts this value into a 64-bit double
+     * Represent this value as a 64-bit double value, which may involve rounding or truncation of the original value.
      */
-    double toDouble();
+    double castAsDouble();
 }

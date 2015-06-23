@@ -48,37 +48,37 @@ public class ImmutableDoubleValueImpl extends AbstractImmutableValue implements 
     }
 
     @Override
-    public byte toByte() {
+    public byte castAsByte() {
         return (byte) value;
     }
 
     @Override
-    public short toShort() {
+    public short castAsShort() {
         return (short) value;
     }
 
     @Override
-    public int toInt() {
+    public int castAsInt() {
         return (int) value;
     }
 
     @Override
-    public long toLong() {
+    public long castAsLong() {
         return (long) value;
     }
 
     @Override
-    public BigInteger toBigInteger() {
+    public BigInteger castAsBigInteger() {
         return new BigDecimal(value).toBigInteger();
     }
 
     @Override
-    public float toFloat() {
+    public float castAsFloat() {
         return (float) value;
     }
 
     @Override
-    public double toDouble() {
+    public double castAsDouble() {
         return value;
     }
 
@@ -100,7 +100,7 @@ public class ImmutableDoubleValueImpl extends AbstractImmutableValue implements 
         if(!v.isFloatValue()) {
             return false;
         }
-        return value == v.asFloatValue().toDouble();
+        return value == v.asFloatValue().castAsDouble();
     }
 
     @Override

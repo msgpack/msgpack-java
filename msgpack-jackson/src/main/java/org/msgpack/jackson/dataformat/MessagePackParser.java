@@ -258,42 +258,42 @@ public class MessagePackParser extends ParserMinimalBase {
         if (value.isIntegerValue()) {
             IntegerValue integerValue = value.asIntegerValue();
             if (integerValue.isInIntRange()) {
-                return integerValue.toInt();
+                return integerValue.castAsInt();
             }
             else if (integerValue.isInLongRange()) {
-                return integerValue.toLong();
+                return integerValue.castAsLong();
             }
             else {
-                return integerValue.toBigInteger();
+                return integerValue.castAsBigInteger();
             }
         } else {
-            return value.asNumberValue().toDouble();
+            return value.asNumberValue().castAsDouble();
         }
     }
 
     @Override
     public int getIntValue() throws IOException, JsonParseException {
-        return value.asNumberValue().toInt();
+        return value.asNumberValue().castAsInt();
     }
 
     @Override
     public long getLongValue() throws IOException, JsonParseException {
-        return value.asNumberValue().toLong();
+        return value.asNumberValue().castAsLong();
     }
 
     @Override
     public BigInteger getBigIntegerValue() throws IOException, JsonParseException {
-        return value.asNumberValue().toBigInteger();
+        return value.asNumberValue().castAsBigInteger();
     }
 
     @Override
     public float getFloatValue() throws IOException, JsonParseException {
-        return value.asNumberValue().toFloat();
+        return value.asNumberValue().castAsFloat();
     }
 
     @Override
     public double getDoubleValue() throws IOException, JsonParseException {
-        return value.asNumberValue().toDouble();
+        return value.asNumberValue().castAsDouble();
     }
 
     @Override
@@ -302,14 +302,14 @@ public class MessagePackParser extends ParserMinimalBase {
             IntegerValue number = value.asIntegerValue();
             //optimization to not convert the value to BigInteger unnecessarily
             if (number.isInLongRange()) {
-                return BigDecimal.valueOf(number.toLong());
+                return BigDecimal.valueOf(number.castAsLong());
             }
             else {
-                return new BigDecimal(number.toBigInteger());
+                return new BigDecimal(number.castAsBigInteger());
             }
         }
         else if (value.isFloatValue()) {
-            return BigDecimal.valueOf(value.asFloatValue().toDouble());
+            return BigDecimal.valueOf(value.asFloatValue().castAsDouble());
         }
         else {
             throw new UnsupportedOperationException("Couldn't parse value as BigDecimal. " + value);

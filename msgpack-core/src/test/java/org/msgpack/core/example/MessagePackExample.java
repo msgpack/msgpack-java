@@ -184,22 +184,22 @@ public class MessagePackExample {
                 case INTEGER:
                     IntegerValue iv = v.asIntegerValue();
                     if(iv.isInIntRange()) {
-                        int i = iv.toInt();
+                        int i = iv.castAsInt();
                         System.out.println("read int: " + i);
                     }
                     else if (iv.isInLongRange()) {
-                        long l = iv.toLong();
+                        long l = iv.castAsLong();
                         System.out.println("read long: " + l);
                     }
                     else {
-                        BigInteger i = iv.toBigInteger();
+                        BigInteger i = iv.castAsBigInteger();
                         System.out.println("read long: " + i);
                     }
                     break;
                 case FLOAT:
                     FloatValue fv = v.asFloatValue();
-                    float f = fv.toFloat();   // use as float
-                    double d = fv.toDouble(); // use as double
+                    float f = fv.castAsFloat();   // use as float
+                    double d = fv.castAsDouble(); // use as double
                     System.out.println("read float: " + d);
                     break;
                 case STRING:
