@@ -26,6 +26,7 @@ import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
 import org.msgpack.value.ExtensionValue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -487,5 +488,53 @@ public class MessagePackParserTest
         assertEquals(bytes[0], bs[0]);
         assertEquals(bytes[1], bs[1]);
         assertEquals(bytes[2], bs[2]);
+    }
+
+    @Test
+    public void testBinaryKey()
+            throws Exception
+    {
+        File tempFile = createTempFile();
+        FileOutputStream out = new FileOutputStream(tempFile);
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
+        packer.packMapHeader(2);
+        packer.packString("foo");
+        packer.packDouble(3.14);
+        byte[] bytes = "bar".getBytes();
+        packer.packBinaryHeader(bytes.length);
+        packer.writePayload(bytes);
+        packer.packLong(42);
+        packer.close();
+
+        ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
+        Map<String, Object> object = mapper.readValue(new FileInputStream(tempFile), new TypeReference<Map<String, Object>>() {});
+        assertEquals(2, object.size());
+        assertEquals(3.14, object.get("foo"));
+        assertEquals(42, object.get("bar"));
+    }
+
+    @Test
+    public void testBinaryKeyInNestedObject()
+            throws Exception
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
+        packer.packArrayHeader(2);
+        packer.packMapHeader(1);
+        byte[] bytes = "bar".getBytes();
+        packer.packBinaryHeader(bytes.length);
+        packer.writePayload(bytes);
+        packer.packInt(12);
+        packer.packInt(1);
+        packer.close();
+
+        ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
+        List<Object> objects = mapper.readValue(out.toByteArray(), new TypeReference<List<Object>>() {});
+        assertEquals(2, objects.size());
+        @SuppressWarnings(value="unchecked")
+        Map<String, Object> map = (Map<String, Object>) objects.get(0);
+        assertEquals(1, map.size());
+        assertEquals(12, map.get("bar"));
+        assertEquals(1, objects.get(1));
     }
 }
