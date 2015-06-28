@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
+import org.msgpack.core.ExtensionTypeHeader;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.core.buffer.ArrayBufferInput;
@@ -29,12 +30,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -71,6 +74,10 @@ public class MessagePackGeneratorTest
         childArray.add("child#1");
         childArray.add(1.23f);
         hashMap.put("childArray", childArray);
+        // #10
+        byte[] hello = "hello".getBytes("UTF-8");
+        ByteBuffer buffer = ByteBuffer.wrap(hello);
+        hashMap.put("ext", new MessagePackExtensionType(17, buffer));
 
         long bitmap = 0;
         byte[] bytes = objectMapper.writeValueAsBytes(hashMap);
@@ -142,11 +149,24 @@ public class MessagePackGeneratorTest
                 assertEquals(1.23f, messageUnpacker.unpackFloat(), 0.01f);
                 bitmap |= 0x1 << 9;
             }
+            else if (key.equals("ext")) {
+                // #10
+                ExtensionTypeHeader header = messageUnpacker.unpackExtensionTypeHeader();
+                assertEquals(17, header.getType());
+                assertEquals(5, header.getLength());
+                ByteBuffer payload = ByteBuffer.allocate(header.getLength());
+                payload.flip();
+                payload.limit(payload.capacity());
+                messageUnpacker.readPayload(payload);
+                payload.flip();
+                assertArrayEquals("hello".getBytes(), payload.array());
+                bitmap |= 0x1 << 10;
+            }
             else {
                 assertTrue(false);
             }
         }
-        assertEquals(0x03FF, bitmap);
+        assertEquals(0x07FF, bitmap);
     }
 
     @Test
