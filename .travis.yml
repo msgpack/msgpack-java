@@ -1,9 +1,6 @@
 language: scala
-scala:
-   - 2.11.1
 
 jdk:
-  - openjdk6
   - openjdk7
   - oraclejdk7
   - oraclejdk8
@@ -12,4 +9,6 @@ branches:
   only:
     - /^v07.*$/
 
-script: sbt ++$TRAVIS_SCALA_VERSION test
+script:
+  - sbt test
+  - sbt test -J-Dmsgpack.universal-buffer=true

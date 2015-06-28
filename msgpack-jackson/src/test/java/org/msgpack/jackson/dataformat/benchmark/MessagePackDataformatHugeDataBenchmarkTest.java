@@ -25,7 +25,9 @@ import org.msgpack.jackson.dataformat.MessagePackFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessagePackDataformatHugeDataBenchmarkTest extends MessagePackDataformatTestBase {
+public class MessagePackDataformatHugeDataBenchmarkTest
+        extends MessagePackDataformatTestBase
+{
     private static final int ELM_NUM = 1000000;
     private static final int SAMPLING_COUNT = 4;
     private final ObjectMapper origObjectMapper = new ObjectMapper();
@@ -33,13 +35,14 @@ public class MessagePackDataformatHugeDataBenchmarkTest extends MessagePackDataf
     private static final List<Object> value;
     private static final byte[] packedByOriginal;
     private static final byte[] packedByMsgPack;
+
     static {
         value = new ArrayList<Object>();
         for (int i = 0; i < ELM_NUM; i++) {
-            value.add((long)i);
+            value.add((long) i);
         }
         for (int i = 0; i < ELM_NUM; i++) {
-            value.add((double)i);
+            value.add((double) i);
         }
         for (int i = 0; i < ELM_NUM; i++) {
             value.add(String.valueOf(i));
@@ -48,25 +51,29 @@ public class MessagePackDataformatHugeDataBenchmarkTest extends MessagePackDataf
         byte[] bytes = null;
         try {
             bytes = new ObjectMapper().writeValueAsBytes(value);
-        } catch (JsonProcessingException e) {
+        }
+        catch (JsonProcessingException e) {
             e.printStackTrace();
         }
         packedByOriginal = bytes;
 
         try {
             bytes = new ObjectMapper(new MessagePackFactory()).writeValueAsBytes(value);
-        } catch (JsonProcessingException e) {
+        }
+        catch (JsonProcessingException e) {
             e.printStackTrace();
         }
         packedByMsgPack = bytes;
     }
 
     @Test
-    public void testBenchmark() throws Exception {
-        double durationOfSerializeWithJson[] = new double[SAMPLING_COUNT];
-        double durationOfSerializeWithMsgPack[] = new double[SAMPLING_COUNT];
-        double durationOfDeserializeWithJson[] = new double[SAMPLING_COUNT];
-        double durationOfDeserializeWithMsgPack[] = new double[SAMPLING_COUNT];
+    public void testBenchmark()
+            throws Exception
+    {
+        double[] durationOfSerializeWithJson = new double[SAMPLING_COUNT];
+        double[] durationOfSerializeWithMsgPack = new double[SAMPLING_COUNT];
+        double[] durationOfDeserializeWithJson = new double[SAMPLING_COUNT];
+        double[] durationOfDeserializeWithMsgPack = new double[SAMPLING_COUNT];
         for (int si = 0; si < SAMPLING_COUNT; si++) {
             long currentTimeMillis = System.currentTimeMillis();
             origObjectMapper.writeValueAsBytes(value);

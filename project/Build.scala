@@ -25,6 +25,7 @@ import sbtrelease.ReleasePlugin._
 import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.ReleaseStep
 import scala.util.Properties
+import xerial.sbt.jcheckstyle.JCheckStyle.JCheckStyleKeys._
 
 object Build extends Build {
 
@@ -77,7 +78,10 @@ object Build extends Build {
           opts
       },
       findbugsReportType := Some(ReportType.FancyHtml),
-      findbugsReportPath := Some(crossTarget.value / "findbugs" / "report.html")
+      findbugsReportPath := Some(crossTarget.value / "findbugs" / "report.html"),
+      jcheckStyleConfig := "facebook",
+      compile <<= (compile in Compile) dependsOn (jcheckStyle in Compile),
+      compile <<= (compile in Test) dependsOn (jcheckStyle in Test)
     )
 
   import Dependencies._

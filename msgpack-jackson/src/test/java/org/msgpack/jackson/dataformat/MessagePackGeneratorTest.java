@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
-import org.msgpack.core.ExtendedTypeHeader;
+import org.msgpack.core.ExtensionTypeHeader;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.core.buffer.ArrayBufferInput;
@@ -31,16 +31,24 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
+public class MessagePackGeneratorTest
+        extends MessagePackDataformatTestBase
+{
     @Test
-    public void testGeneratorShouldWriteObject() throws IOException {
+    public void testGeneratorShouldWriteObject()
+            throws IOException
+    {
         Map<String, Object> hashMap = new HashMap<String, Object>();
         // #1
         hashMap.put("str", "komamitsu");
@@ -55,7 +63,7 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
         // #6
         hashMap.put("double", 3.14159d);
         // #7
-        hashMap.put("bin", new byte[]{0x00, 0x01, (byte)0xFE, (byte)0xFF});
+        hashMap.put("bin", new byte[] {0x00, 0x01, (byte) 0xFE, (byte) 0xFF});
         // #8
         Map<String, Object> childObj = new HashMap<String, Object>();
         childObj.put("co_str", "child#0");
@@ -69,7 +77,7 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
         // #10
         byte[] hello = "hello".getBytes("UTF-8");
         ByteBuffer buffer = ByteBuffer.wrap(hello);
-        hashMap.put("ext", new MessagePackExtendedType(17, buffer));
+        hashMap.put("ext", new MessagePackExtensionType(17, buffer));
 
         long bitmap = 0;
         byte[] bytes = objectMapper.writeValueAsBytes(hashMap);
@@ -109,11 +117,11 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
             }
             else if (key.equals("bin")) {
                 // #7
-                assertEquals(4,  messageUnpacker.unpackBinaryHeader());
-                assertEquals((byte)0x00, messageUnpacker.unpackByte());
-                assertEquals((byte)0x01, messageUnpacker.unpackByte());
-                assertEquals((byte)0xFE, messageUnpacker.unpackByte());
-                assertEquals((byte)0xFF, messageUnpacker.unpackByte());
+                assertEquals(4, messageUnpacker.unpackBinaryHeader());
+                assertEquals((byte) 0x00, messageUnpacker.unpackByte());
+                assertEquals((byte) 0x01, messageUnpacker.unpackByte());
+                assertEquals((byte) 0xFE, messageUnpacker.unpackByte());
+                assertEquals((byte) 0xFF, messageUnpacker.unpackByte());
                 bitmap |= 0x1 << 6;
             }
             else if (key.equals("childObj")) {
@@ -143,7 +151,7 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
             }
             else if (key.equals("ext")) {
                 // #10
-                ExtendedTypeHeader header = messageUnpacker.unpackExtendedTypeHeader();
+                ExtensionTypeHeader header = messageUnpacker.unpackExtensionTypeHeader();
                 assertEquals(17, header.getType());
                 assertEquals(5, header.getLength());
                 ByteBuffer payload = ByteBuffer.allocate(header.getLength());
@@ -162,7 +170,9 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testGeneratorShouldWriteArray() throws IOException {
+    public void testGeneratorShouldWriteArray()
+            throws IOException
+    {
         List<Object> array = new ArrayList<Object>();
         // #1
         array.add("komamitsu");
@@ -218,7 +228,9 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testMessagePackGeneratorDirectly() throws Exception {
+    public void testMessagePackGeneratorDirectly()
+            throws Exception
+    {
         MessagePackFactory messagePackFactory = new MessagePackFactory();
         File tempFile = createTempFile();
 
@@ -243,7 +255,9 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testWritePrimitives() throws Exception {
+    public void testWritePrimitives()
+            throws Exception
+    {
         MessagePackFactory messagePackFactory = new MessagePackFactory();
         File tempFile = createTempFile();
 
@@ -264,7 +278,9 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testBigDecimal() throws IOException {
+    public void testBigDecimal()
+            throws IOException
+    {
         ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
 
         {
@@ -306,7 +322,9 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
     }
 
     @Test(expected = IOException.class)
-    public void testEnableFeatureAutoCloseTarget() throws IOException {
+    public void testEnableFeatureAutoCloseTarget()
+            throws IOException
+    {
         OutputStream out = createTempFileOutputStream();
         MessagePackFactory messagePackFactory = new MessagePackFactory();
         ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
@@ -316,7 +334,9 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testDisableFeatureAutoCloseTarget() throws Exception {
+    public void testDisableFeatureAutoCloseTarget()
+            throws Exception
+    {
         File tempFile = createTempFile();
         OutputStream out = new FileOutputStream(tempFile);
         MessagePackFactory messagePackFactory = new MessagePackFactory();
@@ -335,7 +355,9 @@ public class MessagePackGeneratorTest extends MessagePackDataformatTestBase {
     }
 
     @Test
-    public void testWritePrimitiveObjectViaObjectMapper() throws Exception {
+    public void testWritePrimitiveObjectViaObjectMapper()
+            throws Exception
+    {
         File tempFile = createTempFile();
         OutputStream out = new FileOutputStream(tempFile);
 

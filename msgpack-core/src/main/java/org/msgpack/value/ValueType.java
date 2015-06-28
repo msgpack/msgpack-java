@@ -15,13 +15,11 @@
 //
 package org.msgpack.value;
 
-import org.msgpack.core.MessageFormat;
-
 /**
  * MessageTypeFamily is a group of {@link org.msgpack.core.MessageFormat}s
  */
-public enum ValueType {
-
+public enum ValueType
+{
     NIL(false, false),
     BOOLEAN(false, false),
     INTEGER(true, false),
@@ -30,77 +28,69 @@ public enum ValueType {
     BINARY(false, true),
     ARRAY(false, false),
     MAP(false, false),
-    EXTENDED(false, true);
-
+    EXTENSION(false, true);
 
     private final boolean numberType;
     private final boolean rawType;
-    private final int bitMask;
 
-    private ValueType(boolean numberType, boolean rawType) {
+    private ValueType(boolean numberType, boolean rawType)
+    {
         this.numberType = numberType;
         this.rawType = rawType;
-        this.bitMask = 1 << this.ordinal();
     }
 
-    public int getBitMask() {
-        return bitMask;
-    }
-
-    public boolean isTypeOf(int bitMask) {
-        return (this.bitMask & bitMask) != 0;
-    }
-
-    public boolean isNilType() {
+    public boolean isNilType()
+    {
         return this == NIL;
     }
 
-    public boolean isBooleanType() {
+    public boolean isBooleanType()
+    {
         return this == BOOLEAN;
     }
 
-    public boolean isNumberType() {
+    public boolean isNumberType()
+    {
         return numberType;
     }
 
-    public boolean isIntegerType() {
+    public boolean isIntegerType()
+    {
         return this == INTEGER;
     }
 
-    public boolean isFloatType() {
+    public boolean isFloatType()
+    {
         return this == FLOAT;
     }
 
-    public boolean isRawType() {
+    public boolean isRawType()
+    {
         return rawType;
     }
 
-    public boolean isStringType() {
+    public boolean isStringType()
+    {
         return this == STRING;
     }
 
-    public boolean isBinaryType() {
+    public boolean isBinaryType()
+    {
         return this == BINARY;
     }
 
-    public boolean isArrayType() {
+    public boolean isArrayType()
+    {
         return this == ARRAY;
     }
 
-    public boolean isMapType() {
+    public boolean isMapType()
+    {
         return this == MAP;
     }
 
-    public boolean isExtendedType() {
-        return this == EXTENDED;
+    public boolean isExtensionType()
+    {
+        return this == EXTENSION;
     }
-
-    public static ValueType valueOf(byte b) {
-        return MessageFormat.valueOf(b).getValueType();
-    }
-
-    public String toTypeName() {
-        return this.name().substring(0, 1) + this.name().substring(1).toLowerCase();
-    }
-
 }

@@ -25,7 +25,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessagePackDataformatPojoBenchmarkTest extends MessagePackDataformatTestBase {
+public class MessagePackDataformatPojoBenchmarkTest
+        extends MessagePackDataformatTestBase
+{
     private static final int LOOP_MAX = 1000;
     private static final int LOOP_FACTOR = 50;
     private static final int SAMPLING_COUNT = 4;
@@ -69,7 +71,8 @@ public class MessagePackDataformatPojoBenchmarkTest extends MessagePackDataforma
         for (int i = 0; i < LOOP_MAX; i++) {
             try {
                 pojosSerWithOrig.add(origObjectMapper.writeValueAsBytes(pojos.get(i)));
-            } catch (JsonProcessingException e) {
+            }
+            catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
         }
@@ -77,45 +80,52 @@ public class MessagePackDataformatPojoBenchmarkTest extends MessagePackDataforma
         for (int i = 0; i < LOOP_MAX; i++) {
             try {
                 pojosSerWithMsgPack.add(msgpackObjectMapper.writeValueAsBytes(pojos.get(i)));
-            } catch (JsonProcessingException e) {
+            }
+            catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
         }
     }
 
     @Test
-    public void testBenchmark() throws Exception {
-        double durationOfSerializeWithJson[] = new double[SAMPLING_COUNT];
-        double durationOfSerializeWithMsgPack[] = new double[SAMPLING_COUNT];
-        double durationOfDeserializeWithJson[] = new double[SAMPLING_COUNT];
-        double durationOfDeserializeWithMsgPack[] = new double[SAMPLING_COUNT];
+    public void testBenchmark()
+            throws Exception
+    {
+        double[] durationOfSerializeWithJson = new double[SAMPLING_COUNT];
+        double[] durationOfSerializeWithMsgPack = new double[SAMPLING_COUNT];
+        double[] durationOfDeserializeWithJson = new double[SAMPLING_COUNT];
+        double[] durationOfDeserializeWithMsgPack = new double[SAMPLING_COUNT];
         for (int si = 0; si < SAMPLING_COUNT; si++) {
             long currentTimeMillis = System.currentTimeMillis();
-            for (int j = 0; j < LOOP_FACTOR; j++)
+            for (int j = 0; j < LOOP_FACTOR; j++) {
                 for (int i = 0; i < LOOP_MAX; i++) {
                     origObjectMapper.writeValueAsBytes(pojos.get(i));
                 }
+            }
             durationOfSerializeWithJson[si] = System.currentTimeMillis() - currentTimeMillis;
 
             currentTimeMillis = System.currentTimeMillis();
-            for (int j = 0; j < LOOP_FACTOR; j++)
+            for (int j = 0; j < LOOP_FACTOR; j++) {
                 for (int i = 0; i < LOOP_MAX; i++) {
                     msgpackObjectMapper.writeValueAsBytes(pojos.get(i));
                 }
+            }
             durationOfSerializeWithMsgPack[si] = System.currentTimeMillis() - currentTimeMillis;
 
             currentTimeMillis = System.currentTimeMillis();
-            for (int j = 0; j < LOOP_FACTOR; j++)
+            for (int j = 0; j < LOOP_FACTOR; j++) {
                 for (int i = 0; i < LOOP_MAX; i++) {
                     origObjectMapper.readValue(pojosSerWithOrig.get(i), NormalPojo.class);
                 }
+            }
             durationOfDeserializeWithJson[si] = System.currentTimeMillis() - currentTimeMillis;
 
             currentTimeMillis = System.currentTimeMillis();
-            for (int j = 0; j < LOOP_FACTOR; j++)
+            for (int j = 0; j < LOOP_FACTOR; j++) {
                 for (int i = 0; i < LOOP_MAX; i++) {
                     msgpackObjectMapper.readValue(pojosSerWithMsgPack.get(i), NormalPojo.class);
                 }
+            }
             durationOfDeserializeWithMsgPack[si] = System.currentTimeMillis() - currentTimeMillis;
         }
         printStat("serialize(pojo) with JSON", durationOfSerializeWithJson);

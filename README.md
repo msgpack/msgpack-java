@@ -5,7 +5,8 @@ MessagePack for Java
 
  * Message Pack specification: <https://github.com/msgpack/msgpack/blob/master/spec.md>
 
-MessagePack v7 (0.7.x) is a faster implementation of the previous version [v06](https://github.com/msgpack/msgpack-java/tree/v06), and supports all of the message pack types, including [extended format](https://github.com/msgpack/msgpack/blob/master/spec.md#formats-ext).
+MessagePack v7 (0.7.x) is a faster implementation of the previous version [v06](https://github.com/msgpack/msgpack-java/tree/v06), and
+supports all of the message pack types, including [extension format](https://github.com/msgpack/msgpack/blob/master/spec.md#formats-ext).
 
 ## Limitation
  - Value API is in a designing phase: https://github.com/msgpack/msgpack-java/pull/109
@@ -26,7 +27,7 @@ For sbt users:
 libraryDependencies += "org.msgpack" % "msgpack-core" % "0.7.0-p9"
 ```
 
-- [Usage examples](msgpack-core/src/main/java/org/msgpack/core/example/MessagePackExample.java)
+- [Usage examples](msgpack-core/src/test/java/org/msgpack/core/example/MessagePackExample.java)
 
 msgpack-java supports serialization and deserialization of Java objects through [jackson-databind](https://github.com/FasterXML/jackson-databind).
 For details, see [msgpack-jackson/README.md](msgpack-jackson/README.md). The template-based serialization mechanism used in v06 is deprecated.
@@ -37,6 +38,10 @@ For details, see [msgpack-jackson/README.md](msgpack-jackson/README.md). The tem
 
 msgpack-java uses [sbt](http://www.scala-sbt.org/) for building the projects. For the basic usage of sbt, see:
  * [Building Java projects with sbt](http://xerial.org/blog/2014/03/24/sbt/)
+
+Coding style
+ * msgpack-java uses [the same coding style](https://github.com/airlift/codestyle) with Facebook Presto
+  * [IntelliJ setting file](https://raw.githubusercontent.com/airlift/codestyle/master/IntelliJIdea13/Airlift.xml)
 
 ### Basic sbt commands
 Enter the sbt console:
@@ -55,6 +60,7 @@ Here is a list of sbt commands for daily development:
 > package                                  # Create a jar file in the target folder of each project
 > findbugs                                 # Produce findbugs report in target/findbugs
 > jacoco:cover                             # Report the code coverage of tests to target/jacoco folder
+> jcheckStyle                              # Run check style
 ```
 
 ### Publishing
