@@ -531,7 +531,7 @@ public class MessagePackParserTest
         ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
         List<Object> objects = mapper.readValue(out.toByteArray(), new TypeReference<List<Object>>() {});
         assertEquals(2, objects.size());
-        @SuppressWarnings(value="unchecked")
+        @SuppressWarnings(value = "unchecked")
         Map<String, Object> map = (Map<String, Object>) objects.get(0);
         assertEquals(1, map.size());
         assertEquals(12, map.get("bar"));
