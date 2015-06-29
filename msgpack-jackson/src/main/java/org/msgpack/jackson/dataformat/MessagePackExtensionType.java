@@ -7,32 +7,35 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 @JsonSerialize(using = MessagePackExtensionType.Serializer.class)
 public class MessagePackExtensionType
 {
-    private final int extType;
-    private final ByteBuffer byteBuffer;
+    private final byte type;
+    private final byte[] data;
 
-    public MessagePackExtensionType(int extType, ByteBuffer byteBuffer) {
-        this.extType = extType;
-        this.byteBuffer = byteBuffer.isReadOnly() ?
-                byteBuffer : byteBuffer.asReadOnlyBuffer();
+    public MessagePackExtensionType(byte type, byte[] data)
+    {
+        this.type = type;
+        this.data = data;
     }
 
-    public int extType() {
-        return extType;
+    public byte getType()
+    {
+        return type;
     }
 
-    public ByteBuffer byteBuffer() {
-        return byteBuffer;
+    public byte[] getData()
+    {
+        return data;
     }
 
-    public static class Serializer extends JsonSerializer<MessagePackExtensionType> {
+    public static class Serializer extends JsonSerializer<MessagePackExtensionType>
+    {
         @Override
         public void serialize(MessagePackExtensionType value, JsonGenerator gen, SerializerProvider serializers)
-                throws IOException, JsonProcessingException {
+                throws IOException, JsonProcessingException
+        {
             if (gen instanceof MessagePackGenerator) {
                 MessagePackGenerator msgpackGenerator = (MessagePackGenerator)gen;
                 msgpackGenerator.writeExtendedType(value);

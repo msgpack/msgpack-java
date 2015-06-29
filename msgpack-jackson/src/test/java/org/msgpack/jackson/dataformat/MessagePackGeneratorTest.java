@@ -76,8 +76,7 @@ public class MessagePackGeneratorTest
         hashMap.put("childArray", childArray);
         // #10
         byte[] hello = "hello".getBytes("UTF-8");
-        ByteBuffer buffer = ByteBuffer.wrap(hello);
-        hashMap.put("ext", new MessagePackExtensionType(17, buffer));
+        hashMap.put("ext", new MessagePackExtensionType((byte) 17, hello));
 
         long bitmap = 0;
         byte[] bytes = objectMapper.writeValueAsBytes(hashMap);
@@ -362,7 +361,7 @@ public class MessagePackGeneratorTest
         OutputStream out = new FileOutputStream(tempFile);
 
         ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
-        objectMapper.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+        objectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
         objectMapper.writeValue(out, 1);
         objectMapper.writeValue(out, "two");
         objectMapper.writeValue(out, 3.14);

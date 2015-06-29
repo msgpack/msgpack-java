@@ -215,9 +215,9 @@ public class MessagePackGenerator
         }
         else if (v instanceof MessagePackExtensionType) {
             MessagePackExtensionType extendedType = (MessagePackExtensionType) v;
-            ByteBuffer buf = extendedType.byteBuffer();
-            messagePacker.packExtensionTypeHeader((byte)extendedType.extType(), buf.remaining());
-            messagePacker.writePayload(buf);
+            byte[] extData = extendedType.getData();
+            messagePacker.packExtensionTypeHeader((byte)extendedType.getType(), extData.length);
+            messagePacker.writePayload(extData);
         }
         else {
             throw new IllegalArgumentException(v.toString());
