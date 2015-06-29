@@ -11,16 +11,16 @@ import java.io.IOException;
 @JsonSerialize(using = MessagePackExtensionType.Serializer.class)
 public class MessagePackExtensionType
 {
-    private final int type;
+    private final byte type;
     private final byte[] data;
 
-    public MessagePackExtensionType(int extType, byte[] extData)
+    public MessagePackExtensionType(byte extType, byte[] extData)
     {
         this.type = extType;
         this.data = extData;
     }
 
-    public int getType()
+    public byte getType()
     {
         return type;
     }
