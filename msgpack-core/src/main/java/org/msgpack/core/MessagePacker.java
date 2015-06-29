@@ -423,7 +423,7 @@ public class MessagePacker
             writeByteAndLong(UINT64, bi.longValue());
         }
         else {
-            throw new IllegalArgumentException("Messagepack cannot serialize BigInteger larger than 2^64-1");
+            throw new IllegalArgumentException("MessagePack cannot serialize BigInteger larger than 2^64-1");
         }
         return this;
     }

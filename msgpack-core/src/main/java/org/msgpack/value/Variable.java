@@ -15,11 +15,13 @@
 //
 package org.msgpack.value;
 
+import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessageIntegerOverflowException;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageStringCodingException;
 import org.msgpack.core.MessageTypeCastException;
+import org.msgpack.value.impl.ImmutableBigIntegerValueImpl;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -513,6 +515,12 @@ public class Variable
                 return false;
             }
             return true;
+        }
+
+        @Override
+        public MessageFormat mostSuccinctMessageFormat()
+        {
+            return ImmutableBigIntegerValueImpl.mostSuccinctMessageFormat(this);
         }
 
         @Override
