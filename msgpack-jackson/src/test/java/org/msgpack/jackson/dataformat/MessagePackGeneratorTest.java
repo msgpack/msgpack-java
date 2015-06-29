@@ -76,7 +76,7 @@ public class MessagePackGeneratorTest
         hashMap.put("childArray", childArray);
         // #10
         byte[] hello = "hello".getBytes("UTF-8");
-        hashMap.put("ext", new MessagePackExtensionType(17, hello));
+        hashMap.put("ext", new MessagePackExtensionType((byte) 17, hello));
 
         long bitmap = 0;
         byte[] bytes = objectMapper.writeValueAsBytes(hashMap);

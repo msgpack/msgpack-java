@@ -14,10 +14,10 @@ public class MessagePackExtensionType
     private final byte type;
     private final byte[] data;
 
-    public MessagePackExtensionType(byte extType, byte[] extData)
+    public MessagePackExtensionType(byte type, byte[] data)
     {
-        this.type = extType;
-        this.data = extData;
+        this.type = type;
+        this.data = data;
     }
 
     public byte getType()
