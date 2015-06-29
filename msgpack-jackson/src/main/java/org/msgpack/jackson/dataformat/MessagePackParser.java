@@ -32,11 +32,7 @@ import org.msgpack.core.MessageUnpacker;
 import org.msgpack.core.buffer.ArrayBufferInput;
 import org.msgpack.core.buffer.InputStreamBufferInput;
 import org.msgpack.core.buffer.MessageBufferInput;
-import org.msgpack.value.IntegerValue;
-import org.msgpack.value.Value;
-import org.msgpack.value.ValueFactory;
-import org.msgpack.value.ValueType;
-import org.msgpack.value.Variable;
+import org.msgpack.value.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -398,7 +394,8 @@ public class MessagePackParser
             return value.asBinaryValue().getByteArray();
         }
         else if (value.isExtensionValue()) {
-            return value.asExtensionValue();
+            ExtensionValue extensionValue = value.asExtensionValue();
+            return new MessagePackExtensionType(extensionValue.getType(), extensionValue.getData());
         }
         else {
             throw new UnsupportedOperationException();

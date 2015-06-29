@@ -167,9 +167,9 @@ public class MessagePackParserTest
             else if (k.equals("ext")) {
                 // #9
                 bitmap |= 1 << 10;
-                ExtensionValue extensionValue = (ExtensionValue) v;
-                assertEquals(0, extensionValue.getType());
-                assertArrayEquals(extPayload, extensionValue.getData());
+                MessagePackExtensionType extensionType = (MessagePackExtensionType) v;
+                assertEquals(0, extensionType.getType());
+                assertArrayEquals(extPayload, extensionType.getData());
             }
         }
         assertEquals(0x7FF, bitmap);
@@ -276,9 +276,9 @@ public class MessagePackParserTest
         // #10
         assertEquals(true, array.get(i++));
         // #11
-        ExtensionValue extensionValue = (ExtensionValue) array.get(i++);
-        assertEquals(-1, extensionValue.getType());
-        assertArrayEquals(extPayload, extensionValue.getData());
+        MessagePackExtensionType extensionType = (MessagePackExtensionType) array.get(i++);
+        assertEquals(-1, extensionType.getType());
+        assertArrayEquals(extPayload, extensionType.getData());
     }
 
     @Test
@@ -479,7 +479,7 @@ public class MessagePackParserTest
 
         FileInputStream in = new FileInputStream(tempFile);
         ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
-        objectMapper.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+        objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
         assertEquals("foo", objectMapper.readValue(in, new TypeReference<String>() {}));
         assertEquals(Long.MAX_VALUE, objectMapper.readValue(in, new TypeReference<Long>() {}));
         assertEquals(3.14, objectMapper.readValue(in, new TypeReference<Double>() {}));
