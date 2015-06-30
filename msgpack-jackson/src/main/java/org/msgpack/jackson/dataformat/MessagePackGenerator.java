@@ -214,9 +214,9 @@ public class MessagePackGenerator
             messagePacker.packBoolean((Boolean) v);
         }
         else if (v instanceof MessagePackExtensionType) {
-            MessagePackExtensionType extendedType = (MessagePackExtensionType) v;
-            byte[] extData = extendedType.getData();
-            messagePacker.packExtensionTypeHeader((byte)extendedType.getType(), extData.length);
+            MessagePackExtensionType extensionType = (MessagePackExtensionType) v;
+            byte[] extData = extensionType.getData();
+            messagePacker.packExtensionTypeHeader(extensionType.getType(), extData.length);
             messagePacker.writePayload(extData);
         }
         else {
@@ -414,8 +414,10 @@ public class MessagePackGenerator
         addValueToStackTop(null);
     }
 
-    public void writeExtendedType(MessagePackExtensionType extendedType) throws IOException {
-        addValueToStackTop(extendedType);
+    public void writeExtensionType(MessagePackExtensionType extensionType)
+            throws IOException
+    {
+        addValueToStackTop(extensionType);
     }
 
     @Override
