@@ -37,8 +37,8 @@ public class MessagePackExtensionType
                 throws IOException, JsonProcessingException
         {
             if (gen instanceof MessagePackGenerator) {
-                MessagePackGenerator msgpackGenerator = (MessagePackGenerator)gen;
-                msgpackGenerator.writeExtendedType(value);
+                MessagePackGenerator msgpackGenerator = (MessagePackGenerator) gen;
+                msgpackGenerator.writeExtensionType(value);
             }
             else {
                 throw new IllegalStateException("'gen' is expected to be MessagePackGenerator but it's " + gen.getClass());
