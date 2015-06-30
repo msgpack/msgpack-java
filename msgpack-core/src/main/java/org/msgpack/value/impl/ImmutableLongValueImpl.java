@@ -75,43 +75,43 @@ public class ImmutableLongValueImpl
     }
 
     @Override
-    public byte castAsByte()
+    public byte toByte()
     {
         return (byte) value;
     }
 
     @Override
-    public short castAsShort()
+    public short toShort()
     {
         return (short) value;
     }
 
     @Override
-    public int castAsInt()
+    public int toInt()
     {
         return (int) value;
     }
 
     @Override
-    public long castAsLong()
+    public long toLong()
     {
         return value;
     }
 
     @Override
-    public BigInteger castAsBigInteger()
+    public BigInteger toBigInteger()
     {
         return BigInteger.valueOf(value);
     }
 
     @Override
-    public float castAsFloat()
+    public float toFloat()
     {
         return (float) value;
     }
 
     @Override
-    public double castAsDouble()
+    public double toDouble()
     {
         return (double) value;
     }
@@ -147,7 +147,7 @@ public class ImmutableLongValueImpl
     }
 
     @Override
-    public byte getByte()
+    public byte asByte()
     {
         if (!isInByteRange()) {
             throw new MessageIntegerOverflowException(value);
@@ -156,7 +156,7 @@ public class ImmutableLongValueImpl
     }
 
     @Override
-    public short getShort()
+    public short asShort()
     {
         if (!isInByteRange()) {
             throw new MessageIntegerOverflowException(value);
@@ -165,7 +165,7 @@ public class ImmutableLongValueImpl
     }
 
     @Override
-    public int getInt()
+    public int asInt()
     {
         if (!isInIntRange()) {
             throw new MessageIntegerOverflowException(value);
@@ -174,13 +174,13 @@ public class ImmutableLongValueImpl
     }
 
     @Override
-    public long getLong()
+    public long asLong()
     {
         return value;
     }
 
     @Override
-    public BigInteger getBigInteger()
+    public BigInteger asBigInteger()
     {
         return BigInteger.valueOf((long) value);
     }
@@ -210,7 +210,7 @@ public class ImmutableLongValueImpl
         if (!iv.isInLongRange()) {
             return false;
         }
-        return value == iv.castAsLong();
+        return value == iv.toLong();
     }
 
     @Override
@@ -225,8 +225,14 @@ public class ImmutableLongValueImpl
     }
 
     @Override
-    public String toString()
+    public String toJson()
     {
         return Long.toString(value);
+    }
+
+    @Override
+    public String toString()
+    {
+        return toJson();
     }
 }

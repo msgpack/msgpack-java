@@ -25,7 +25,7 @@ import java.util.Arrays;
 
 /**
  * {@code ImmutableBinaryValueImpl} Implements {@code ImmutableBinaryValue} using a {@code byte[]} field.
- * This implementation caches result of {@code stringValue()} and {@code getString()} using a private {@code String} field.
+ * This implementation caches result of {@code toJson()} and {@code asString()} using a private {@code String} field.
  *
  * @see org.msgpack.value.StringValue
  */
@@ -83,7 +83,7 @@ public class ImmutableBinaryValueImpl
             return Arrays.equals(data, bv.data);
         }
         else {
-            return Arrays.equals(data, v.asBinaryValue().getByteArray());
+            return Arrays.equals(data, v.asBinaryValue().asByteArray());
         }
     }
 

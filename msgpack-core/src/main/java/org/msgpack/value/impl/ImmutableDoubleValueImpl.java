@@ -53,43 +53,43 @@ public class ImmutableDoubleValueImpl
     }
 
     @Override
-    public byte castAsByte()
+    public byte toByte()
     {
         return (byte) value;
     }
 
     @Override
-    public short castAsShort()
+    public short toShort()
     {
         return (short) value;
     }
 
     @Override
-    public int castAsInt()
+    public int toInt()
     {
         return (int) value;
     }
 
     @Override
-    public long castAsLong()
+    public long toLong()
     {
         return (long) value;
     }
 
     @Override
-    public BigInteger castAsBigInteger()
+    public BigInteger toBigInteger()
     {
         return new BigDecimal(value).toBigInteger();
     }
 
     @Override
-    public float castAsFloat()
+    public float toFloat()
     {
         return (float) value;
     }
 
     @Override
-    public double castAsDouble()
+    public double toDouble()
     {
         return value;
     }
@@ -115,7 +115,7 @@ public class ImmutableDoubleValueImpl
         if (!v.isFloatValue()) {
             return false;
         }
-        return value == v.asFloatValue().castAsDouble();
+        return value == v.asFloatValue().toDouble();
     }
 
     @Override
@@ -126,8 +126,14 @@ public class ImmutableDoubleValueImpl
     }
 
     @Override
-    public String toString()
+    public String toJson()
     {
         return Double.toString(value);
+    }
+
+    @Override
+    public String toString()
+    {
+        return toJson();
     }
 }

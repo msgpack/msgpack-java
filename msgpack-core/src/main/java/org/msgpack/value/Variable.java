@@ -187,9 +187,15 @@ public class Variable
         }
 
         @Override
+        public String toJson()
+        {
+            return Variable.this.toJson();
+        }
+
+        @Override
         public String toString()
         {
-            return Variable.this.toString();
+            return toJson();
         }
     }
 
@@ -357,7 +363,7 @@ public class Variable
         }
 
         @Override
-        public byte castAsByte()
+        public byte toByte()
         {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).byteValue();
@@ -366,7 +372,7 @@ public class Variable
         }
 
         @Override
-        public short castAsShort()
+        public short toShort()
         {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).shortValue();
@@ -375,7 +381,7 @@ public class Variable
         }
 
         @Override
-        public int castAsInt()
+        public int toInt()
         {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).intValue();
@@ -384,7 +390,7 @@ public class Variable
         }
 
         @Override
-        public long castAsLong()
+        public long toLong()
         {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).longValue();
@@ -393,7 +399,7 @@ public class Variable
         }
 
         @Override
-        public BigInteger castAsBigInteger()
+        public BigInteger toBigInteger()
         {
             if (type == Type.BIG_INTEGER) {
                 return (BigInteger) objectValue;
@@ -405,7 +411,7 @@ public class Variable
         }
 
         @Override
-        public float castAsFloat()
+        public float toFloat()
         {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).floatValue();
@@ -417,7 +423,7 @@ public class Variable
         }
 
         @Override
-        public double castAsDouble()
+        public double toDouble()
         {
             if (type == Type.BIG_INTEGER) {
                 return ((BigInteger) objectValue).doubleValue();
@@ -524,7 +530,7 @@ public class Variable
         }
 
         @Override
-        public byte getByte()
+        public byte asByte()
         {
             if (!isInByteRange()) {
                 throw new MessageIntegerOverflowException(longValue);
@@ -533,7 +539,7 @@ public class Variable
         }
 
         @Override
-        public short getShort()
+        public short asShort()
         {
             if (!isInByteRange()) {
                 throw new MessageIntegerOverflowException(longValue);
@@ -542,7 +548,7 @@ public class Variable
         }
 
         @Override
-        public int getInt()
+        public int asInt()
         {
             if (!isInIntRange()) {
                 throw new MessageIntegerOverflowException(longValue);
@@ -551,7 +557,7 @@ public class Variable
         }
 
         @Override
-        public long getLong()
+        public long asLong()
         {
             if (!isInLongRange()) {
                 throw new MessageIntegerOverflowException(longValue);
@@ -560,7 +566,7 @@ public class Variable
         }
 
         @Override
-        public BigInteger getBigInteger()
+        public BigInteger asBigInteger()
         {
             if (type == Type.BIG_INTEGER) {
                 return (BigInteger) objectValue;
@@ -592,7 +598,7 @@ public class Variable
         this.type = Type.DOUBLE;
         this.accessor = floatAccessor;
         this.doubleValue = v;
-        this.longValue = (long) v;  // AbstractNumberValueAccessor uses castAsLong
+        this.longValue = (long) v;  // AbstractNumberValueAccessor uses toLong
         return this;
     }
 
@@ -600,7 +606,7 @@ public class Variable
     {
         this.type = Type.DOUBLE;
         this.accessor = floatAccessor;
-        this.longValue = (long) v;  // AbstractNumberValueAccessor uses castAsLong
+        this.longValue = (long) v;  // AbstractNumberValueAccessor uses toLong
         return this;
     }
 
@@ -651,19 +657,19 @@ public class Variable
         }
 
         @Override
-        public byte[] getByteArray()
+        public byte[] asByteArray()
         {
             return (byte[]) objectValue;
         }
 
         @Override
-        public ByteBuffer getByteBuffer()
+        public ByteBuffer asByteBuffer()
         {
-            return ByteBuffer.wrap(getByteArray());
+            return ByteBuffer.wrap(asByteArray());
         }
 
         @Override
-        public String getString()
+        public String asString()
         {
             byte[] raw = (byte[]) objectValue;
             try {
@@ -678,7 +684,7 @@ public class Variable
         }
 
         @Override
-        public String stringValue()
+        public String toJson()
         {
             byte[] raw = (byte[]) objectValue;
             try {
@@ -724,7 +730,7 @@ public class Variable
         @Override
         public ImmutableBinaryValue immutableValue()
         {
-            return ValueFactory.newBinary(getByteArray());
+            return ValueFactory.newBinary(asByteArray());
         }
 
         @Override
@@ -1044,9 +1050,15 @@ public class Variable
     }
 
     @Override
-    public String toString()
+    public String toJson()
     {
         return immutableValue().toString();  // TODO optimize
+    }
+
+    @Override
+    public String toString()
+    {
+        return toJson();
     }
 
     @Override

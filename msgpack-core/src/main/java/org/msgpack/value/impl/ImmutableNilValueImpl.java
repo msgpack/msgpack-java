@@ -90,6 +90,12 @@ public class ImmutableNilValueImpl
     @Override
     public String toString()
     {
+        return toJson();
+    }
+
+    @Override
+    public String toJson()
+    {
         return "null";
     }
 }

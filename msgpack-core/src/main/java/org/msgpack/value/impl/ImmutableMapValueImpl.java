@@ -150,23 +150,29 @@ public class ImmutableMapValueImpl
     @Override
     public String toString()
     {
-        return toString(new StringBuilder()).toString();
+        return toJson();
     }
 
-    private StringBuilder toString(StringBuilder sb)
+    @Override
+    public String toJson()
+    {
+        return toJson(new StringBuilder()).toString();
+    }
+
+    private StringBuilder toJson(StringBuilder sb)
     {
         if (kvs.length == 0) {
             return sb.append("{}");
         }
         sb.append("{");
-        sb.append(kvs[0]);
+        sb.append(kvs[0].toJson());
         sb.append(":");
-        sb.append(kvs[1]);
+        sb.append(kvs[1].toJson());
         for (int i = 2; i < kvs.length; i += 2) {
             sb.append(",");
-            sb.append(kvs[i].toString());
+            sb.append(kvs[i].toJson());
             sb.append(":");
-            sb.append(kvs[i + 1].toString());
+            sb.append(kvs[i + 1].toJson());
         }
         sb.append("}");
         return sb;

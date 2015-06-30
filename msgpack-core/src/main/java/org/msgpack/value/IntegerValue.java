@@ -58,31 +58,31 @@ public interface IntegerValue
      *
      * @throws MessageIntegerOverflowException If the value does not fit in the range of {@code byte} type.
      */
-    byte getByte();
+    byte asByte();
 
     /**
      * Returns the value as a {@code short}, otherwise throws an exception.
      *
      * @throws MessageIntegerOverflowException If the value does not fit in the range of {@code short} type.
      */
-    short getShort();
+    short asShort();
 
     /**
      * Returns the value as an {@code int}, otherwise throws an exception.
      *
      * @throws MessageIntegerOverflowException If the value does not fit in the range of {@code int} type.
      */
-    int getInt();
+    int asInt();
 
     /**
      * Returns the value as a {@code long}, otherwise throws an exception.
      *
      * @throws MessageIntegerOverflowException If the value does not fit in the range of {@code long} type.
      */
-    long getLong();
+    long asLong();
 
     /**
      * Returns the value as a {@code BigInteger}.
      */
-    BigInteger getBigInteger();
+    BigInteger asBigInteger();
 }

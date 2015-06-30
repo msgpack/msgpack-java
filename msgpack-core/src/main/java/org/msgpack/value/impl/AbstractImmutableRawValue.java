@@ -51,19 +51,19 @@ public abstract class AbstractImmutableRawValue
     }
 
     @Override
-    public byte[] getByteArray()
+    public byte[] asByteArray()
     {
         return Arrays.copyOf(data, data.length);
     }
 
     @Override
-    public ByteBuffer getByteBuffer()
+    public ByteBuffer asByteBuffer()
     {
         return ByteBuffer.wrap(data).asReadOnlyBuffer();
     }
 
     @Override
-    public String getString()
+    public String asString()
     {
         if (decodedStringCache == null) {
             decodeString();
@@ -77,12 +77,9 @@ public abstract class AbstractImmutableRawValue
     }
 
     @Override
-    public String stringValue()
+    public String toJson()
     {
-        if (decodedStringCache == null) {
-            decodeString();
-        }
-        return decodedStringCache;
+        return toJson(new StringBuilder()).toString();
     }
 
     private void decodeString()
@@ -95,14 +92,14 @@ public abstract class AbstractImmutableRawValue
                 CharsetDecoder reportDecoder = MessagePack.UTF8.newDecoder()
                         .onMalformedInput(CodingErrorAction.REPORT)
                         .onUnmappableCharacter(CodingErrorAction.REPORT);
-                this.decodedStringCache = reportDecoder.decode(getByteBuffer()).toString();
+                this.decodedStringCache = reportDecoder.decode(asByteBuffer()).toString();
             }
             catch (CharacterCodingException ex) {
                 try {
                     CharsetDecoder replaceDecoder = MessagePack.UTF8.newDecoder()
                             .onMalformedInput(CodingErrorAction.REPLACE)
                             .onUnmappableCharacter(CodingErrorAction.REPLACE);
-                    this.decodedStringCache = replaceDecoder.decode(getByteBuffer()).toString();
+                    this.decodedStringCache = replaceDecoder.decode(asByteBuffer()).toString();
                 }
                 catch (CharacterCodingException neverThrown) {
                     throw new MessageStringCodingException(neverThrown);
@@ -115,12 +112,15 @@ public abstract class AbstractImmutableRawValue
     @Override
     public String toString()
     {
-        return toString(new StringBuilder()).toString();
+        if (decodedStringCache == null) {
+            decodeString();
+        }
+        return decodedStringCache;
     }
 
-    private StringBuilder toString(StringBuilder sb)
+    private StringBuilder toJson(StringBuilder sb)
     {
-        String s = stringValue();
+        String s = toString();
         sb.append("\"");
         for (int i = 0; i < s.length(); i++) {
             char ch = s.charAt(i);

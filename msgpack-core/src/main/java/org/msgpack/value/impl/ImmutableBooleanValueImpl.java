@@ -97,8 +97,14 @@ public class ImmutableBooleanValueImpl
     }
 
     @Override
-    public String toString()
+    public String toJson()
     {
         return Boolean.toString(value);
+    }
+
+    @Override
+    public String toString()
+    {
+        return toJson();
     }
 }

@@ -109,7 +109,7 @@ public class ImmutableExtensionValueImpl
     }
 
     @Override
-    public String toString()
+    public String toJson()
     {
         StringBuilder sb = new StringBuilder();
         sb.append('(');
@@ -120,5 +120,11 @@ public class ImmutableExtensionValueImpl
         }
         sb.append(")");
         return sb.toString();
+    }
+
+    @Override
+    public String toString()
+    {
+        return toJson();
     }
 }

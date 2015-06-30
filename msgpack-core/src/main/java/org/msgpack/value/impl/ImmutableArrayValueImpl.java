@@ -159,24 +159,30 @@ public class ImmutableArrayValueImpl
     }
 
     @Override
-    public String toString()
+    public String toJson()
     {
-        return toString(new StringBuilder()).toString();
+        return toJson(new StringBuilder()).toString();
     }
 
-    private StringBuilder toString(StringBuilder sb)
+    private StringBuilder toJson(StringBuilder sb)
     {
         if (array.length == 0) {
             return sb.append("[]");
         }
         sb.append("[");
-        sb.append(array[0]);
+        sb.append(array[0].toJson());
         for (int i = 1; i < array.length; i++) {
             sb.append(",");
-            sb.append(array[i].toString());
+            sb.append(array[i].toJson());
         }
         sb.append("]");
         return sb;
+    }
+
+    @Override
+    public String toString()
+    {
+        return toJson();
     }
 
     private static class ImmutableArrayValueList

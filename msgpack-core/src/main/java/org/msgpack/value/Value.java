@@ -20,7 +20,11 @@ import org.msgpack.core.MessagePacker;
 import java.io.IOException;
 
 /**
- * Value is an implementation of MessagePack type system.
+ * Value is an implementation of MessagePack type system. To retrieve values from a Value object,
+ * You need to check its {@link ValueType} then call an appropriate asXXXValue method.
+ *
+ *
+ *
  */
 public interface Value
 {
@@ -242,4 +246,12 @@ public interface Value
      * If this value is {@code MapValue} or {@code ArrayValue}, this method check equivalence of elements recursively.
      */
     boolean equals(Object obj);
+
+    /**
+     * Returns json representation of this Value for debugging purpose.
+     * This output json format is subject to change in future.
+     * Do not write code that depends on the resulting json format.
+     */
+    String toJson();
+
 }
