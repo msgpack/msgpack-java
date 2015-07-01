@@ -195,7 +195,7 @@ public class Variable
         @Override
         public String toString()
         {
-            return toJson();
+            return Variable.this.toString();
         }
     }
 
@@ -683,8 +683,9 @@ public class Variable
             }
         }
 
+        // override for performance optimization
         @Override
-        public String toJson()
+        public String toString()
         {
             byte[] raw = (byte[]) objectValue;
             try {
@@ -1052,13 +1053,13 @@ public class Variable
     @Override
     public String toJson()
     {
-        return immutableValue().toString();  // TODO optimize
+        return immutableValue().toJson();  // TODO optimize
     }
 
     @Override
     public String toString()
     {
-        return toJson();
+        return immutableValue().toString();  // TODO optimize
     }
 
     @Override

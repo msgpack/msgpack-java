@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * The interface {@code ArrayValue} represents MessagePack's Array type.
- * <p/>
+ *
  * MessagePack's Array type can represent sequence of values.
  */
 public interface ArrayValue

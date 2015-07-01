@@ -25,7 +25,7 @@ import java.util.Arrays;
 
 /**
  * {@code ImmutableStringValueImpl} Implements {@code ImmutableStringValue} using a {@code byte[]} field.
- * This implementation caches result of {@code toJson()} and {@code asString()} using a private {@code String} field.
+ * This implementation caches result of {@code toString()} and {@code asString()} using a private {@code String} field.
  *
  * @see org.msgpack.value.StringValue
  */

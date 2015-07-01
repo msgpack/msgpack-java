@@ -128,12 +128,16 @@ public class ImmutableDoubleValueImpl
     @Override
     public String toJson()
     {
-        return Double.toString(value);
+        if (Double.isNaN(value) || Double.isInfinite(value)) {
+            return "null";
+        } else {
+            return Double.toString(value);
+        }
     }
 
     @Override
     public String toString()
     {
-        return toJson();
+        return Double.toString(value);
     }
 }

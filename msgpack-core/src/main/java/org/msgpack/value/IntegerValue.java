@@ -21,7 +21,7 @@ import java.math.BigInteger;
 
 /**
  * The interface {@code IntegerValue} represents MessagePack's Integer type.
- * <p/>
+ *
  * MessagePack's Integer type can represent from -2<sup>63</sup> to 2<sup>64</sup>-1.
  */
 public interface IntegerValue
