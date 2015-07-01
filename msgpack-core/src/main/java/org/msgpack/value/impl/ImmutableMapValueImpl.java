@@ -148,34 +148,63 @@ public class ImmutableMapValueImpl
     }
 
     @Override
-    public String toString()
-    {
-        return toJson();
-    }
-
-    @Override
     public String toJson()
     {
-        return toJson(new StringBuilder()).toString();
-    }
-
-    private StringBuilder toJson(StringBuilder sb)
-    {
         if (kvs.length == 0) {
-            return sb.append("{}");
+            return "{}";
         }
+        StringBuilder sb = new StringBuilder();
         sb.append("{");
-        sb.append(kvs[0].toJson());
+        appendJsonKey(sb, kvs[0]);
         sb.append(":");
         sb.append(kvs[1].toJson());
         for (int i = 2; i < kvs.length; i += 2) {
             sb.append(",");
-            sb.append(kvs[i].toJson());
+            appendJsonKey(sb, kvs[i]);
             sb.append(":");
             sb.append(kvs[i + 1].toJson());
         }
         sb.append("}");
-        return sb;
+        return sb.toString();
+    }
+
+    private static void appendJsonKey(StringBuilder sb, Value key)
+    {
+        if (key.isRawValue()) {
+            sb.append(key.toJson());
+        } else {
+            ImmutableStringValueImpl.appendJsonString(sb, key.toString());
+        }
+    }
+
+    @Override
+    public String toString()
+    {
+        if (kvs.length == 0) {
+            return "{}";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        appendString(sb, kvs[0]);
+        sb.append(":");
+        appendString(sb, kvs[1]);
+        for (int i = 2; i < kvs.length; i += 2) {
+            sb.append(",");
+            appendString(sb, kvs[i]);
+            sb.append(":");
+            appendString(sb, kvs[i + 1]);
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
+    private static void appendString(StringBuilder sb, Value value)
+    {
+        if (value.isRawValue()) {
+            sb.append(value.toJson());
+        } else {
+            sb.append(value.toString());
+        }
     }
 
     private static class ImmutableMapValueMap

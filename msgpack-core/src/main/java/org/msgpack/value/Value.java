@@ -30,21 +30,21 @@ public interface Value
 {
     /**
      * Returns type of this value.
-     * <p/>
+     *
      * Note that you can't use <code>instanceof</code> to check type of a value because type of a mutable value is variable.
      */
     ValueType getValueType();
 
     /**
      * Returns immutable copy of this value.
-     * <p/>
+     *
      * This method simply returns <code>this</code> without copying the value if this value is already immutable.
      */
     ImmutableValue immutableValue();
 
     /**
      * Returns true if type of this value is Nil.
-     * <p/>
+     *
      * If this method returns true, {@code asNilValue} never throws exceptions.
      * Note that you can't use <code>instanceof</code> or cast <code>((NilValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      */
@@ -52,7 +52,7 @@ public interface Value
 
     /**
      * Returns true if type of this value is Boolean.
-     * <p/>
+     *
      * If this method returns true, {@code asBooleanValue} never throws exceptions.
      * Note that you can't use <code>instanceof</code> or cast <code>((BooleanValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      */
@@ -60,7 +60,7 @@ public interface Value
 
     /**
      * Returns true if type of this value is Integer or Float.
-     * <p/>
+     *
      * If this method returns true, {@code asNumberValue} never throws exceptions.
      * Note that you can't use <code>instanceof</code> or cast <code>((NumberValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      */
@@ -68,7 +68,7 @@ public interface Value
 
     /**
      * Returns true if type of this value is Integer.
-     * <p/>
+     *
      * If this method returns true, {@code asIntegerValue} never throws exceptions.
      * Note that you can't use <code>instanceof</code> or cast <code>((IntegerValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      */
@@ -76,7 +76,7 @@ public interface Value
 
     /**
      * Returns true if type of this value is Float.
-     * <p/>
+     *
      * If this method returns true, {@code asFloatValue} never throws exceptions.
      * Note that you can't use <code>instanceof</code> or cast <code>((FloatValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      */
@@ -84,7 +84,7 @@ public interface Value
 
     /**
      * Returns true if type of this value is String or Binary.
-     * <p/>
+     *
      * If this method returns true, {@code asRawValue} never throws exceptions.
      * Note that you can't use <code>instanceof</code> or cast <code>((RawValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      */
@@ -92,7 +92,7 @@ public interface Value
 
     /**
      * Returns true if type of this value is Binary.
-     * <p/>
+     *
      * If this method returns true, {@code asBinaryValue} never throws exceptions.
      * Note that you can't use <code>instanceof</code> or cast <code>((BinaryValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      */
@@ -100,7 +100,7 @@ public interface Value
 
     /**
      * Returns true if type of this value is String.
-     * <p/>
+     *
      * If this method returns true, {@code asStringValue} never throws exceptions.
      * Note that you can't use <code>instanceof</code> or cast <code>((StringValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      */
@@ -108,7 +108,7 @@ public interface Value
 
     /**
      * Returns true if type of this value is Array.
-     * <p/>
+     *
      * If this method returns true, {@code asArrayValue} never throws exceptions.
      * Note that you can't use <code>instanceof</code> or cast <code>((ArrayValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      */
@@ -116,7 +116,7 @@ public interface Value
 
     /**
      * Returns true if type of this value is Map.
-     * <p/>
+     *
      * If this method returns true, {@code asMapValue} never throws exceptions.
      * Note that you can't use <code>instanceof</code> or cast <code>((MapValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      */
@@ -124,7 +124,7 @@ public interface Value
 
     /**
      * Returns true if type of this an Extension.
-     * <p/>
+     *
      * If this method returns true, {@code asExtensionValue} never throws exceptions.
      * Note that you can't use <code>instanceof</code> or cast <code>((ExtensionValue) thisValue)</code> to check type of a value because
      * type of a mutable value is variable.
@@ -133,7 +133,7 @@ public interface Value
 
     /**
      * Returns the value as {@code NilValue}. Otherwise throws {@code MessageTypeCastException}.
-     * <p/>
+     *
      * Note that you can't use <code>instanceof</code> or cast <code>((NilValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      *
      * @throws MessageTypeCastException If type of this value is not Nil.
@@ -142,7 +142,7 @@ public interface Value
 
     /**
      * Returns the value as {@code BooleanValue}. Otherwise throws {@code MessageTypeCastException}.
-     * <p/>
+     *
      * Note that you can't use <code>instanceof</code> or cast <code>((BooleanValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      *
      * @throws MessageTypeCastException If type of this value is not Boolean.
@@ -151,7 +151,7 @@ public interface Value
 
     /**
      * Returns the value as {@code NumberValue}. Otherwise throws {@code MessageTypeCastException}.
-     * <p/>
+     *
      * Note that you can't use <code>instanceof</code> or cast <code>((NumberValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      *
      * @throws MessageTypeCastException If type of this value is not Integer or Float.
@@ -160,7 +160,7 @@ public interface Value
 
     /**
      * Returns the value as {@code IntegerValue}. Otherwise throws {@code MessageTypeCastException}.
-     * <p/>
+     *
      * Note that you can't use <code>instanceof</code> or cast <code>((IntegerValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      *
      * @throws MessageTypeCastException If type of this value is not Integer.
@@ -169,7 +169,7 @@ public interface Value
 
     /**
      * Returns the value as {@code FloatValue}. Otherwise throws {@code MessageTypeCastException}.
-     * <p/>
+     *
      * Note that you can't use <code>instanceof</code> or cast <code>((FloatValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      *
      * @throws MessageTypeCastException If type of this value is not Float.
@@ -178,7 +178,7 @@ public interface Value
 
     /**
      * Returns the value as {@code RawValue}. Otherwise throws {@code MessageTypeCastException}.
-     * <p/>
+     *
      * Note that you can't use <code>instanceof</code> or cast <code>((RawValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      *
      * @throws MessageTypeCastException If type of this value is not Binary or String.
@@ -187,7 +187,7 @@ public interface Value
 
     /**
      * Returns the value as {@code BinaryValue}. Otherwise throws {@code MessageTypeCastException}.
-     * <p/>
+     *
      * Note that you can't use <code>instanceof</code> or cast <code>((BinaryValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      *
      * @throws MessageTypeCastException If type of this value is not Binary.
@@ -196,7 +196,7 @@ public interface Value
 
     /**
      * Returns the value as {@code StringValue}. Otherwise throws {@code MessageTypeCastException}.
-     * <p/>
+     *
      * Note that you can't use <code>instanceof</code> or cast <code>((StringValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      *
      * @throws MessageTypeCastException If type of this value is not String.
@@ -205,7 +205,7 @@ public interface Value
 
     /**
      * Returns the value as {@code ArrayValue}. Otherwise throws {@code MessageTypeCastException}.
-     * <p/>
+     *
      * Note that you can't use <code>instanceof</code> or cast <code>((ArrayValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      *
      * @throws MessageTypeCastException If type of this value is not Array.
@@ -214,7 +214,7 @@ public interface Value
 
     /**
      * Returns the value as {@code MapValue}. Otherwise throws {@code MessageTypeCastException}.
-     * <p/>
+     *
      * Note that you can't use <code>instanceof</code> or cast <code>((MapValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
      *
      * @throws MessageTypeCastException If type of this value is not Map.
@@ -223,7 +223,7 @@ public interface Value
 
     /**
      * Returns the value as {@code ExtensionValue}. Otherwise throws {@code MessageTypeCastException}.
-     * <p/>
+     *
      * Note that you can't use <code>instanceof</code> or cast <code>((ExtensionValue) thisValue)</code> to check type of a value
      * because type of a mutable value is variable.
      *
@@ -241,17 +241,22 @@ public interface Value
 
     /**
      * Compares this value to the specified object.
-     * <p/>
+     *
      * This method returns {@code true} if type and value are equivalent.
      * If this value is {@code MapValue} or {@code ArrayValue}, this method check equivalence of elements recursively.
      */
     boolean equals(Object obj);
 
     /**
-     * Returns json representation of this Value for debugging purpose.
-     * This output json format is subject to change in future.
-     * Do not write code that depends on the resulting json format.
+     * Returns json representation of this Value.
+     *
+     * Following behavior is not configurable at this release and they might be changed at future releases:
+     *
+     * * if a key of MapValue is not string, the key is converted to a string using toString method.
+     * * NaN and Infinity of DoubleValue are converted to null.
+     * * ExtensionValue is converted to a 2-element array where first element is a number and second element is the data encoded in hex.
+     * * BinaryValue is converted to a string using UTF-8 encoding. Invalid byte sequence is replaced with <code>U+FFFD replacement character</code>.
+     * * Invalid UTF-8 byte sequences in StringValue is replaced with <code>U+FFFD replacement character</code>
      */
     String toJson();
-
 }

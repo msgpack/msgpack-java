@@ -79,7 +79,9 @@ public abstract class AbstractImmutableRawValue
     @Override
     public String toJson()
     {
-        return toJson(new StringBuilder()).toString();
+        StringBuilder sb = new StringBuilder();
+        appendJsonString(sb, toString());
+        return sb.toString();
     }
 
     private void decodeString()
@@ -118,12 +120,11 @@ public abstract class AbstractImmutableRawValue
         return decodedStringCache;
     }
 
-    private StringBuilder toJson(StringBuilder sb)
+    static void appendJsonString(StringBuilder sb, String string)
     {
-        String s = toString();
         sb.append("\"");
-        for (int i = 0; i < s.length(); i++) {
-            char ch = s.charAt(i);
+        for (int i = 0; i < string.length(); i++) {
+            char ch = string.charAt(i);
             if (ch < 0x20) {
                 switch (ch) {
                     case '\n':
@@ -169,13 +170,11 @@ public abstract class AbstractImmutableRawValue
             }
         }
         sb.append("\"");
-
-        return sb;
     }
 
     private static final char[] HEX_TABLE = "0123456789ABCDEF".toCharArray();
 
-    private void escapeChar(StringBuilder sb, int ch)
+    private static void escapeChar(StringBuilder sb, int ch)
     {
         sb.append("\\u");
         sb.append(HEX_TABLE[(ch >> 12) & 0x0f]);
