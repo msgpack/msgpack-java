@@ -32,6 +32,11 @@ public class MessageBufferBE
         super(bb);
     }
 
+    MessageBufferBE(byte[] arr)
+    {
+        super(arr);
+    }
+
     private MessageBufferBE(Object base, long address, int length, ByteBuffer reference)
     {
         super(base, address, length, reference);
