@@ -18,13 +18,13 @@ For Maven users:
 <dependency>
    <groupId>org.msgpack</groupId>
    <artifactId>msgpack-core</artifactId>
-   <version>0.7.0-p9</version>
+   <version>0.7.0-M6</version>
 </dependency>
 ```
 
 For sbt users:
 ```
-libraryDependencies += "org.msgpack" % "msgpack-core" % "0.7.0-p9"
+libraryDependencies += "org.msgpack" % "msgpack-core" % "0.7.0-M6"
 ```
 
 - [Usage examples](msgpack-core/src/test/java/org/msgpack/core/example/MessagePackExample.java)
