@@ -202,7 +202,7 @@ public class MessagePackParser
             case STRING:
                 value = messageUnpacker.unpackValue(var);
                 if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
-                    parsingContext.setCurrentName(value.asRawValue().toJson());
+                    parsingContext.setCurrentName(value.asRawValue().toString());
                     nextToken = JsonToken.FIELD_NAME;
                 }
                 else {
@@ -212,7 +212,7 @@ public class MessagePackParser
             case BINARY:
                 value = messageUnpacker.unpackValue(var);
                 if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
-                    parsingContext.setCurrentName(value.asRawValue().toJson());
+                    parsingContext.setCurrentName(value.asRawValue().toString());
                     nextToken = JsonToken.FIELD_NAME;
                 }
                 else {
@@ -267,7 +267,7 @@ public class MessagePackParser
     {
         // This method can be called for new BigInteger(text)
         if (value.isRawValue()) {
-            return value.asRawValue().toJson();
+            return value.asRawValue().toString();
         }
         else {
             return value.toString();
