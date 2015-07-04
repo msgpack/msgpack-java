@@ -109,6 +109,20 @@ public class ImmutableExtensionValueImpl
     }
 
     @Override
+    public String toJson()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        sb.append(Byte.toString(type));
+        sb.append(",\"");
+        for (byte e : data) {
+            sb.append(Integer.toString((int) e, 16));
+        }
+        sb.append("\"]");
+        return sb.toString();
+    }
+
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder();

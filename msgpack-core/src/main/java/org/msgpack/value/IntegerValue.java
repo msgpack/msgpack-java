@@ -21,7 +21,7 @@ import java.math.BigInteger;
 
 /**
  * The interface {@code IntegerValue} represents MessagePack's Integer type.
- * <p/>
+ *
  * MessagePack's Integer type can represent from -2<sup>63</sup> to 2<sup>64</sup>-1.
  */
 public interface IntegerValue
@@ -58,31 +58,31 @@ public interface IntegerValue
      *
      * @throws MessageIntegerOverflowException If the value does not fit in the range of {@code byte} type.
      */
-    byte getByte();
+    byte asByte();
 
     /**
      * Returns the value as a {@code short}, otherwise throws an exception.
      *
      * @throws MessageIntegerOverflowException If the value does not fit in the range of {@code short} type.
      */
-    short getShort();
+    short asShort();
 
     /**
      * Returns the value as an {@code int}, otherwise throws an exception.
      *
      * @throws MessageIntegerOverflowException If the value does not fit in the range of {@code int} type.
      */
-    int getInt();
+    int asInt();
 
     /**
      * Returns the value as a {@code long}, otherwise throws an exception.
      *
      * @throws MessageIntegerOverflowException If the value does not fit in the range of {@code long} type.
      */
-    long getLong();
+    long asLong();
 
     /**
      * Returns the value as a {@code BigInteger}.
      */
-    BigInteger getBigInteger();
+    BigInteger asBigInteger();
 }

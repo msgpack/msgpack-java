@@ -202,7 +202,7 @@ public class MessagePackParser
             case STRING:
                 value = messageUnpacker.unpackValue(var);
                 if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
-                    parsingContext.setCurrentName(value.asRawValue().stringValue());
+                    parsingContext.setCurrentName(value.asRawValue().toString());
                     nextToken = JsonToken.FIELD_NAME;
                 }
                 else {
@@ -212,7 +212,7 @@ public class MessagePackParser
             case BINARY:
                 value = messageUnpacker.unpackValue(var);
                 if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
-                    parsingContext.setCurrentName(value.asRawValue().stringValue());
+                    parsingContext.setCurrentName(value.asRawValue().toString());
                     nextToken = JsonToken.FIELD_NAME;
                 }
                 else {
@@ -267,7 +267,7 @@ public class MessagePackParser
     {
         // This method can be called for new BigInteger(text)
         if (value.isRawValue()) {
-            return value.asRawValue().stringValue();
+            return value.asRawValue().toString();
         }
         else {
             return value.toString();
@@ -305,7 +305,7 @@ public class MessagePackParser
     public byte[] getBinaryValue(Base64Variant b64variant)
             throws IOException, JsonParseException
     {
-        return value.asRawValue().getByteArray();
+        return value.asRawValue().asByteArray();
     }
 
     @Override
@@ -315,17 +315,17 @@ public class MessagePackParser
         if (value.isIntegerValue()) {
             IntegerValue integerValue = value.asIntegerValue();
             if (integerValue.isInIntRange()) {
-                return integerValue.castAsInt();
+                return integerValue.toInt();
             }
             else if (integerValue.isInLongRange()) {
-                return integerValue.castAsLong();
+                return integerValue.toLong();
             }
             else {
-                return integerValue.castAsBigInteger();
+                return integerValue.toBigInteger();
             }
         }
         else {
-            return value.asNumberValue().castAsDouble();
+            return value.asNumberValue().toDouble();
         }
     }
 
@@ -333,35 +333,35 @@ public class MessagePackParser
     public int getIntValue()
             throws IOException, JsonParseException
     {
-        return value.asNumberValue().castAsInt();
+        return value.asNumberValue().toInt();
     }
 
     @Override
     public long getLongValue()
             throws IOException, JsonParseException
     {
-        return value.asNumberValue().castAsLong();
+        return value.asNumberValue().toLong();
     }
 
     @Override
     public BigInteger getBigIntegerValue()
             throws IOException, JsonParseException
     {
-        return value.asNumberValue().castAsBigInteger();
+        return value.asNumberValue().toBigInteger();
     }
 
     @Override
     public float getFloatValue()
             throws IOException, JsonParseException
     {
-        return value.asNumberValue().castAsFloat();
+        return value.asNumberValue().toFloat();
     }
 
     @Override
     public double getDoubleValue()
             throws IOException, JsonParseException
     {
-        return value.asNumberValue().castAsDouble();
+        return value.asNumberValue().toDouble();
     }
 
     @Override
@@ -372,14 +372,14 @@ public class MessagePackParser
             IntegerValue number = value.asIntegerValue();
             //optimization to not convert the value to BigInteger unnecessarily
             if (number.isInLongRange()) {
-                return BigDecimal.valueOf(number.castAsLong());
+                return BigDecimal.valueOf(number.toLong());
             }
             else {
-                return new BigDecimal(number.castAsBigInteger());
+                return new BigDecimal(number.toBigInteger());
             }
         }
         else if (value.isFloatValue()) {
-            return BigDecimal.valueOf(value.asFloatValue().castAsDouble());
+            return BigDecimal.valueOf(value.asFloatValue().toDouble());
         }
         else {
             throw new UnsupportedOperationException("Couldn't parse value as BigDecimal. " + value);
@@ -391,7 +391,7 @@ public class MessagePackParser
             throws IOException, JsonParseException
     {
         if (value.isBinaryValue()) {
-            return value.asBinaryValue().getByteArray();
+            return value.asBinaryValue().asByteArray();
         }
         else if (value.isExtensionValue()) {
             ExtensionValue extensionValue = value.asExtensionValue();

@@ -18,7 +18,7 @@ package org.msgpack.value;
 import java.math.BigInteger;
 
 /**
- * The base interface {@code NumberValue} of {@code IntegerValue} and {@code FloatValue}.
+ * The base interface {@code NumberValue} of {@code IntegerValue} and {@code FloatValue}. To extract primitive type values, call toXXX methods, which may lose some information by rounding or truncation.
  *
  * @see org.msgpack.value.IntegerValue
  * @see org.msgpack.value.FloatValue
@@ -30,36 +30,36 @@ public interface NumberValue
      * Represent this value as a byte value, which may involve rounding or truncation of the original value.
      * the value.
      */
-    byte castAsByte();
+    byte toByte();
 
     /**
      * Represent this value as a short value, which may involve rounding or truncation of the original value.
      */
-    short castAsShort();
+    short toShort();
 
     /**
      * Represent this value as an int value, which may involve rounding or truncation of the original value.
      * value.
      */
-    int castAsInt();
+    int toInt();
 
     /**
      * Represent this value as a long value, which may involve rounding or truncation of the original value.
      */
-    long castAsLong();
+    long toLong();
 
     /**
      * Represent this value as a BigInteger, which may involve rounding or truncation of the original value.
      */
-    BigInteger castAsBigInteger();
+    BigInteger toBigInteger();
 
     /**
      * Represent this value as a 32-bit float value, which may involve rounding or truncation of the original value.
      */
-    float castAsFloat();
+    float toFloat();
 
     /**
      * Represent this value as a 64-bit double value, which may involve rounding or truncation of the original value.
      */
-    double castAsDouble();
+    double toDouble();
 }

@@ -159,24 +159,46 @@ public class ImmutableArrayValueImpl
     }
 
     @Override
-    public String toString()
-    {
-        return toString(new StringBuilder()).toString();
-    }
-
-    private StringBuilder toString(StringBuilder sb)
+    public String toJson()
     {
         if (array.length == 0) {
-            return sb.append("[]");
+            return "[]";
         }
+        StringBuilder sb = new StringBuilder();
         sb.append("[");
-        sb.append(array[0]);
+        sb.append(array[0].toJson());
         for (int i = 1; i < array.length; i++) {
             sb.append(",");
-            sb.append(array[i].toString());
+            sb.append(array[i].toJson());
         }
         sb.append("]");
-        return sb;
+        return sb.toString();
+    }
+
+    @Override
+    public String toString()
+    {
+        if (array.length == 0) {
+            return "[]";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        appendString(sb, array[0]);
+        for (int i = 1; i < array.length; i++) {
+            sb.append(",");
+            appendString(sb, array[i]);
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    private static void appendString(StringBuilder sb, Value value)
+    {
+        if (value.isRawValue()) {
+            sb.append(value.toJson());
+        } else {
+            sb.append(value.toString());
+        }
     }
 
     private static class ImmutableArrayValueList

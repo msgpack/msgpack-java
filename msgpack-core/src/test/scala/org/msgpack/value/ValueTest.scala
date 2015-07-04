@@ -19,6 +19,8 @@ import java.math.BigInteger
 
 import org.msgpack.core._
 
+import scala.util.parsing.json.JSON
+
 class ValueTest extends MessagePackSpec
 {
   def checkSuccinctType(pack:MessagePacker => Unit, expectedAtMost:MessageFormat) {
@@ -49,5 +51,51 @@ class ValueTest extends MessagePackSpec
         }
       }
     }
+
+    "produce json strings" in {
+
+      import ValueFactory._
+
+      newNil().toJson shouldBe "null"
+      newNil().toString shouldBe "null"
+
+      newBoolean(true).toJson shouldBe "true"
+      newBoolean(false).toJson shouldBe "false"
+      newBoolean(true).toString shouldBe "true"
+      newBoolean(false).toString shouldBe "false"
+
+      newInteger(3).toJson shouldBe "3"
+      newInteger(3).toString shouldBe "3"
+      newInteger(BigInteger.valueOf(1324134134134L)).toJson shouldBe "1324134134134"
+      newInteger(BigInteger.valueOf(1324134134134L)).toString shouldBe "1324134134134"
+
+      newFloat(0.1).toJson shouldBe "0.1"
+      newFloat(0.1).toString shouldBe "0.1"
+
+      newArray(newInteger(0), newString("hello")).toJson shouldBe "[0,\"hello\"]"
+      newArray(newInteger(0), newString("hello")).toString shouldBe "[0,\"hello\"]"
+      newArray(newArray(newString("Apple"), newFloat(0.2)), newNil()).toJson shouldBe """[["Apple",0.2],null]"""
+
+      // Map value
+      val m = newMapBuilder()
+              .put(newString("id"), newInteger(1001))
+              .put(newString("name"), newString("leo"))
+              .put(newString("address"), newArray(newString("xxx-xxxx"), newString("yyy-yyyy")))
+              .put(newString("name"), newString("mitsu"))
+              .build()
+      val i1 = JSON.parseFull(m.toJson)
+      val i2 = JSON.parseFull(m.toString) // expect json value
+      val a1 = JSON.parseFull("""{"id":1001,"name":"mitsu","address":["xxx-xxxx","yyy-yyyy"]}""")
+      // Equals as JSON map
+      i1 shouldBe a1
+      i2 shouldBe a1
+
+      // toJson should quote strings
+      newString("1").toJson shouldBe "\"1\""
+      // toString is for extracting string values
+      newString("1").toString shouldBe "1"
+
+    }
+
   }
 }

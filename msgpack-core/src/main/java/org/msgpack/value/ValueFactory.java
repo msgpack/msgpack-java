@@ -191,28 +191,32 @@ public final class ValueFactory
             return newMap(map);
         }
 
-        public void put(Map.Entry<? extends Value, ? extends Value> pair)
+        public MapBuilder put(Map.Entry<? extends Value, ? extends Value> pair)
         {
             put(pair.getKey(), pair.getValue());
+            return this;
         }
 
-        public void put(Value key, Value value)
+        public MapBuilder put(Value key, Value value)
         {
             map.put(key, value);
+            return this;
         }
 
-        public void putAll(Iterable<? extends Map.Entry<? extends Value, ? extends Value>> entries)
+        public MapBuilder putAll(Iterable<? extends Map.Entry<? extends Value, ? extends Value>> entries)
         {
             for (Map.Entry<? extends Value, ? extends Value> entry : entries) {
                 put(entry.getKey(), entry.getValue());
             }
+            return this;
         }
 
-        public void putAll(Map<? extends Value, ? extends Value> map)
+        public MapBuilder putAll(Map<? extends Value, ? extends Value> map)
         {
             for (Map.Entry<? extends Value, ? extends Value> entry : map.entrySet()) {
                 put(entry);
             }
+            return this;
         }
     }
 

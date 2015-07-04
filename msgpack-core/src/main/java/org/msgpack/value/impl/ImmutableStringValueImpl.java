@@ -25,7 +25,7 @@ import java.util.Arrays;
 
 /**
  * {@code ImmutableStringValueImpl} Implements {@code ImmutableStringValue} using a {@code byte[]} field.
- * This implementation caches result of {@code stringValue()} and {@code getString()} using a private {@code String} field.
+ * This implementation caches result of {@code toString()} and {@code asString()} using a private {@code String} field.
  *
  * @see org.msgpack.value.StringValue
  */
@@ -88,7 +88,7 @@ public class ImmutableStringValueImpl
             return Arrays.equals(data, bv.data);
         }
         else {
-            return Arrays.equals(data, v.asStringValue().getByteArray());
+            return Arrays.equals(data, v.asStringValue().asByteArray());
         }
     }
 

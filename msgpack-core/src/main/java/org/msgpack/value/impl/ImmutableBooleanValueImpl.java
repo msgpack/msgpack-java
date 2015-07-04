@@ -24,7 +24,7 @@ import java.io.IOException;
 
 /**
  * {@code ImmutableBooleanValueImpl} Implements {@code ImmutableBooleanValue} using a {@code boolean} field.
- * <p/>
+ *
  * This class is a singleton. {@code ImmutableBooleanValueImpl.trueInstance()} and {@code ImmutableBooleanValueImpl.falseInstance()} are the only instances of this class.
  *
  * @see org.msgpack.value.BooleanValue
@@ -97,8 +97,14 @@ public class ImmutableBooleanValueImpl
     }
 
     @Override
-    public String toString()
+    public String toJson()
     {
         return Boolean.toString(value);
+    }
+
+    @Override
+    public String toString()
+    {
+        return toJson();
     }
 }

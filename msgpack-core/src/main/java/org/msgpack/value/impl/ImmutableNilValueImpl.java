@@ -24,7 +24,7 @@ import java.io.IOException;
 
 /**
  * {@code ImmutableNilValueImpl} Implements {@code ImmutableNilValue}.
- * <p/>
+ *
  * This class is a singleton. {@code ImmutableNilValueImpl.get()} is the only instances of this class.
  *
  * @see org.msgpack.value.NilValue
@@ -89,6 +89,12 @@ public class ImmutableNilValueImpl
 
     @Override
     public String toString()
+    {
+        return toJson();
+    }
+
+    @Override
+    public String toJson()
     {
         return "null";
     }

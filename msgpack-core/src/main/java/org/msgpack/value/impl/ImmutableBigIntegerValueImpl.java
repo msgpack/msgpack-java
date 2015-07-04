@@ -97,43 +97,43 @@ public class ImmutableBigIntegerValueImpl
     }
 
     @Override
-    public byte castAsByte()
+    public byte toByte()
     {
         return value.byteValue();
     }
 
     @Override
-    public short castAsShort()
+    public short toShort()
     {
         return value.shortValue();
     }
 
     @Override
-    public int castAsInt()
+    public int toInt()
     {
         return value.intValue();
     }
 
     @Override
-    public long castAsLong()
+    public long toLong()
     {
         return value.longValue();
     }
 
     @Override
-    public BigInteger castAsBigInteger()
+    public BigInteger toBigInteger()
     {
         return value;
     }
 
     @Override
-    public float castAsFloat()
+    public float toFloat()
     {
         return value.floatValue();
     }
 
     @Override
-    public double castAsDouble()
+    public double toDouble()
     {
         return value.doubleValue();
     }
@@ -169,7 +169,7 @@ public class ImmutableBigIntegerValueImpl
     }
 
     @Override
-    public byte getByte()
+    public byte asByte()
     {
         if (!isInByteRange()) {
             throw new MessageIntegerOverflowException(value);
@@ -178,7 +178,7 @@ public class ImmutableBigIntegerValueImpl
     }
 
     @Override
-    public short getShort()
+    public short asShort()
     {
         if (!isInShortRange()) {
             throw new MessageIntegerOverflowException(value);
@@ -187,7 +187,7 @@ public class ImmutableBigIntegerValueImpl
     }
 
     @Override
-    public int getInt()
+    public int asInt()
     {
         if (!isInIntRange()) {
             throw new MessageIntegerOverflowException(value);
@@ -196,7 +196,7 @@ public class ImmutableBigIntegerValueImpl
     }
 
     @Override
-    public long getLong()
+    public long asLong()
     {
         if (!isInLongRange()) {
             throw new MessageIntegerOverflowException(value);
@@ -205,7 +205,7 @@ public class ImmutableBigIntegerValueImpl
     }
 
     @Override
-    public BigInteger getBigInteger()
+    public BigInteger asBigInteger()
     {
         return value;
     }
@@ -232,7 +232,7 @@ public class ImmutableBigIntegerValueImpl
             return false;
         }
         IntegerValue iv = v.asIntegerValue();
-        return value.equals(iv.castAsBigInteger());
+        return value.equals(iv.toBigInteger());
     }
 
     @Override
@@ -250,8 +250,14 @@ public class ImmutableBigIntegerValueImpl
     }
 
     @Override
-    public String toString()
+    public String toJson()
     {
         return value.toString();
+    }
+
+    @Override
+    public String toString()
+    {
+        return toJson();
     }
 }
