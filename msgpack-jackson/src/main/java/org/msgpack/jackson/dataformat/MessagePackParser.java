@@ -95,23 +95,24 @@ public class MessagePackParser
         }
     }
 
-    public MessagePackParser(IOContext ctxt, int features, InputStream in)
+    public MessagePackParser(IOContext ctxt, int features, ObjectCodec objectCodec, InputStream in)
             throws IOException
     {
-        this(ctxt, features, new InputStreamBufferInput(in), in);
+        this(ctxt, features, new InputStreamBufferInput(in), objectCodec, in);
     }
 
-    public MessagePackParser(IOContext ctxt, int features, byte[] bytes)
+    public MessagePackParser(IOContext ctxt, int features, ObjectCodec objectCodec, byte[] bytes)
             throws IOException
     {
-        this(ctxt, features, new ArrayBufferInput(bytes), bytes);
+        this(ctxt, features, new ArrayBufferInput(bytes), objectCodec, bytes);
     }
 
-    private MessagePackParser(IOContext ctxt, int features, MessageBufferInput input, Object src)
+    private MessagePackParser(IOContext ctxt, int features, MessageBufferInput input, ObjectCodec objectCodec, Object src)
             throws IOException
     {
         super(features);
 
+        this.codec = objectCodec;
         ioContext = ctxt;
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
