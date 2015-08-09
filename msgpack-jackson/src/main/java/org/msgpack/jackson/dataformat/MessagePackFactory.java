@@ -76,7 +76,7 @@ public class MessagePackFactory
     protected MessagePackParser _createParser(InputStream in, IOContext ctxt)
             throws IOException
     {
-        MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, in);
+        MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, _objectCodec, in);
         return parser;
     }
 
@@ -87,7 +87,7 @@ public class MessagePackFactory
         if (offset != 0 || len != data.length) {
             data = Arrays.copyOfRange(data, offset, offset + len);
         }
-        MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, data);
+        MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, _objectCodec, data);
         return parser;
     }
 }
