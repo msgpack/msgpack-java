@@ -16,10 +16,14 @@
 package org.msgpack.jackson.dataformat;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.junit.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
@@ -537,4 +541,135 @@ public class MessagePackParserTest
         assertEquals(12, map.get("bar"));
         assertEquals(1, objects.get(1));
     }
+
+    @Test
+    public void testByteArrayKey()
+            throws IOException
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        MessagePacker messagePacker = MessagePack.newDefaultPacker(out).packMapHeader(2);
+        byte[] k0 = new byte[] {0};
+        byte[] k1 = new byte[] {1};
+        messagePacker.packBinaryHeader(1).writePayload(k0).packInt(2);
+        messagePacker.packBinaryHeader(1).writePayload(k1).packInt(3);
+        messagePacker.close();
+
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        SimpleModule module = new SimpleModule();
+        module.addKeyDeserializer(byte[].class, new KeyDeserializer()
+        {
+            @Override
+            public Object deserializeKey(String key, DeserializationContext ctxt)
+                    throws IOException, JsonProcessingException
+            {
+                return key.getBytes();
+            }
+        });
+        objectMapper.registerModule(module);
+
+        Map<byte[], Integer> map = objectMapper.readValue(
+                out.toByteArray(), new TypeReference<Map<byte[], Integer>>() {});
+        assertEquals(2, map.size());
+        for (Map.Entry<byte[], Integer> entry : map.entrySet()) {
+            if (Arrays.equals(entry.getKey(), k0)) {
+                assertEquals((Integer) 2, entry.getValue());
+            }
+            else if (Arrays.equals(entry.getKey(), k1)) {
+                assertEquals((Integer) 3, entry.getValue());
+            }
+        }
+    }
+
+    @Test
+    public void testIntegerKey()
+            throws IOException
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        MessagePacker messagePacker = MessagePack.newDefaultPacker(out).packMapHeader(3);
+        for (int i = 0; i < 2; i++) {
+            messagePacker.packInt(i).packInt(i + 2);
+        }
+        messagePacker.close();
+
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        SimpleModule module = new SimpleModule();
+        module.addKeyDeserializer(Integer.class, new KeyDeserializer()
+        {
+            @Override
+            public Object deserializeKey(String key, DeserializationContext ctxt)
+                    throws IOException, JsonProcessingException
+            {
+                return Integer.valueOf(key);
+            }
+        });
+        objectMapper.registerModule(module);
+
+        Map<Integer, Integer> map = objectMapper.readValue(
+                out.toByteArray(), new TypeReference<Map<Integer, Integer>>() {});
+        assertEquals(2, map.size());
+        assertEquals((Integer) 2, map.get(0));
+        assertEquals((Integer) 3, map.get(1));
+    }
+
+    @Test
+    public void testFloatKey()
+            throws IOException
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        MessagePacker messagePacker = MessagePack.newDefaultPacker(out).packMapHeader(3);
+        for (int i = 0; i < 2; i++) {
+            messagePacker.packFloat(i).packInt(i + 2);
+        }
+        messagePacker.close();
+
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        SimpleModule module = new SimpleModule();
+        module.addKeyDeserializer(Float.class, new KeyDeserializer()
+        {
+            @Override
+            public Object deserializeKey(String key, DeserializationContext ctxt)
+                    throws IOException, JsonProcessingException
+            {
+                return Float.valueOf(key);
+            }
+        });
+        objectMapper.registerModule(module);
+
+        Map<Float, Integer> map = objectMapper.readValue(
+                out.toByteArray(), new TypeReference<Map<Float, Integer>>() {});
+        assertEquals(2, map.size());
+        assertEquals((Integer) 2, map.get(0f));
+        assertEquals((Integer) 3, map.get(1f));
+    }
+
+    @Test
+    public void testBooleanKey()
+            throws IOException
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        MessagePacker messagePacker = MessagePack.newDefaultPacker(out).packMapHeader(3);
+        messagePacker.packBoolean(true).packInt(2);
+        messagePacker.packBoolean(false).packInt(3);
+        messagePacker.close();
+
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        SimpleModule module = new SimpleModule();
+        module.addKeyDeserializer(Boolean.class, new KeyDeserializer()
+        {
+            @Override
+            public Object deserializeKey(String key, DeserializationContext ctxt)
+                    throws IOException, JsonProcessingException
+            {
+                return Boolean.valueOf(key);
+            }
+        });
+        objectMapper.registerModule(module);
+
+        Map<Boolean, Integer> map = objectMapper.readValue(
+                out.toByteArray(), new TypeReference<Map<Boolean, Integer>>() {});
+        assertEquals(2, map.size());
+        assertEquals((Integer) 2, map.get(true));
+        assertEquals((Integer) 3, map.get(false));
+    }
 }
+
