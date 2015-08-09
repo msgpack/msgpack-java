@@ -190,15 +190,33 @@ public class MessagePackParser
             case BOOLEAN:
                 boolean b = messageUnpacker.unpackBoolean();
                 value = ValueFactory.newNil();
-                nextToken = b ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE;
+                if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
+                    parsingContext.setCurrentName(Boolean.toString(b));
+                    nextToken = JsonToken.FIELD_NAME;
+                }
+                else {
+                    nextToken = b ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE;
+                }
                 break;
             case INTEGER:
                 value = messageUnpacker.unpackValue(var);
-                nextToken = JsonToken.VALUE_NUMBER_INT;
+                if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
+                    parsingContext.setCurrentName(value.asIntegerValue().toString());
+                    nextToken = JsonToken.FIELD_NAME;
+                }
+                else {
+                    nextToken = JsonToken.VALUE_NUMBER_INT;
+                }
                 break;
             case FLOAT:
                 value = messageUnpacker.unpackValue(var);
-                nextToken = JsonToken.VALUE_NUMBER_FLOAT;
+                if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
+                    parsingContext.setCurrentName(value.asFloatValue().toString());
+                    nextToken = JsonToken.FIELD_NAME;
+                }
+                else {
+                    nextToken = JsonToken.VALUE_NUMBER_FLOAT;
+                }
                 break;
             case STRING:
                 value = messageUnpacker.unpackValue(var);
