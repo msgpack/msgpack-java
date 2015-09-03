@@ -671,4 +671,3 @@ public class MessagePackParserTest
         assertEquals((Integer) 3, map.get(false));
     }
 }
-

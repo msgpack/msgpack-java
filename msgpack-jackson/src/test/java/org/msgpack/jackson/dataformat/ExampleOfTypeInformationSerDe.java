@@ -72,9 +72,8 @@ public class ExampleOfTypeInformationSerDe
         }
     }
 
-
-    @JsonSerialize(using=ObjectContainerSerializer.class)
-    @JsonDeserialize(using=ObjectContainerDeserializer.class)
+    @JsonSerialize(using = ObjectContainerSerializer.class)
+    @JsonDeserialize(using = ObjectContainerDeserializer.class)
     static class ObjectContainer
     {
         private final Map<String, Object> objects;
