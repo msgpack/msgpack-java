@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
-import org.msgpack.value.ExtensionValue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
