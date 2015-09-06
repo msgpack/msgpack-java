@@ -27,6 +27,17 @@ For sbt users:
 libraryDependencies += "org.msgpack" % "msgpack-core" % "0.7.0-M6"
 ```
 
+For gradle users:
+```
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.msgpack:msgpack-core:0.7.0-M6'
+}
+```
+
 - [Usage examples](msgpack-core/src/test/java/org/msgpack/core/example/MessagePackExample.java)
 
 msgpack-java supports serialization and deserialization of Java objects through [jackson-databind](https://github.com/FasterXML/jackson-databind).
