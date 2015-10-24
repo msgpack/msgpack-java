@@ -15,7 +15,6 @@
 //
 package org.msgpack.core.buffer
 
-import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
 
 import org.msgpack.core.MessagePackSpec
