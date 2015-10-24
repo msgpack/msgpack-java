@@ -15,6 +15,7 @@
 //
 package org.msgpack.core.buffer
 
+import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
 
 import org.msgpack.core.MessagePackSpec
@@ -183,6 +184,47 @@ class MessageBufferTest
           t.getByte(3) shouldBe 0x03
         }
       }
+    }
+
+    "copy sliced buffer" in {
+      def prepareBytes : Array[Byte] = {
+        Array[Byte](0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07)
+      }
+
+      def prepareDirectBuffer : ByteBuffer = {
+        val directBuffer = ByteBuffer.allocateDirect(prepareBytes.length)
+        directBuffer.put(prepareBytes)
+        directBuffer
+      }
+
+      def checkSliceAndCopyTo(srcBuffer: MessageBuffer, dstBuffer: MessageBuffer) = {
+        val sliced = srcBuffer.slice(2, 5)
+
+        sliced.size() shouldBe 5
+        sliced.getByte(0) shouldBe 0x02
+        sliced.getByte(1) shouldBe 0x03
+        sliced.getByte(2) shouldBe 0x04
+        sliced.getByte(3) shouldBe 0x05
+        sliced.getByte(4) shouldBe 0x06
+
+        sliced.copyTo(3, dstBuffer, 1, 2) // copy 0x05 and 0x06 to dstBuffer[1] and [2]
+
+        dstBuffer.getByte(0) shouldBe 0x00
+        dstBuffer.getByte(1) shouldBe 0x05 // copied by sliced.getByte(3)
+        dstBuffer.getByte(2) shouldBe 0x06 // copied by sliced.getByte(4)
+        dstBuffer.getByte(3) shouldBe 0x03
+        dstBuffer.getByte(4) shouldBe 0x04
+        dstBuffer.getByte(5) shouldBe 0x05
+        dstBuffer.getByte(6) shouldBe 0x06
+        dstBuffer.getByte(7) shouldBe 0x07
+      }
+
+      checkSliceAndCopyTo(new MessageBufferU(prepareBytes), new MessageBufferU(prepareBytes))
+      checkSliceAndCopyTo(new MessageBufferU(ByteBuffer.wrap(prepareBytes)), new MessageBufferU(ByteBuffer.wrap(prepareBytes)))
+      checkSliceAndCopyTo(new MessageBufferU(prepareDirectBuffer), new MessageBufferU(prepareDirectBuffer))
+      checkSliceAndCopyTo(new MessageBufferBE(prepareBytes), new MessageBufferBE(prepareBytes))
+      checkSliceAndCopyTo(new MessageBufferBE(ByteBuffer.wrap(prepareBytes)), new MessageBufferBE(ByteBuffer.wrap(prepareBytes)))
+      checkSliceAndCopyTo(new MessageBufferBE(prepareDirectBuffer), new MessageBufferBE(prepareDirectBuffer))
     }
   }
 }

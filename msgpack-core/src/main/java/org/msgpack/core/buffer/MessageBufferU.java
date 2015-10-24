@@ -198,7 +198,7 @@ public class MessageBufferU
         assert (len <= src.remaining());
 
         if (src.hasArray()) {
-            putBytes(index, src.array(), src.position(), len);
+            putBytes(index, src.array(), src.position() + src.arrayOffset(), len);
             src.position(src.position() + len);
         }
         else {
