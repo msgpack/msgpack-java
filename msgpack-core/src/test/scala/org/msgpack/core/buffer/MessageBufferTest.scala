@@ -193,6 +193,7 @@ class MessageBufferTest
       def prepareDirectBuffer : ByteBuffer = {
         val directBuffer = ByteBuffer.allocateDirect(prepareBytes.length)
         directBuffer.put(prepareBytes)
+        directBuffer.flip
         directBuffer
       }
 
@@ -218,12 +219,9 @@ class MessageBufferTest
         dstBuffer.getByte(7) shouldBe 0x07
       }
 
-      checkSliceAndCopyTo(new MessageBufferU(prepareBytes), new MessageBufferU(prepareBytes))
-      checkSliceAndCopyTo(new MessageBufferU(ByteBuffer.wrap(prepareBytes)), new MessageBufferU(ByteBuffer.wrap(prepareBytes)))
-      checkSliceAndCopyTo(new MessageBufferU(prepareDirectBuffer), new MessageBufferU(prepareDirectBuffer))
-      checkSliceAndCopyTo(new MessageBufferBE(prepareBytes), new MessageBufferBE(prepareBytes))
-      checkSliceAndCopyTo(new MessageBufferBE(ByteBuffer.wrap(prepareBytes)), new MessageBufferBE(ByteBuffer.wrap(prepareBytes)))
-      checkSliceAndCopyTo(new MessageBufferBE(prepareDirectBuffer), new MessageBufferBE(prepareDirectBuffer))
+      checkSliceAndCopyTo(MessageBuffer.wrap(prepareBytes), MessageBuffer.wrap(prepareBytes))
+      checkSliceAndCopyTo(MessageBuffer.wrap(ByteBuffer.wrap(prepareBytes)), MessageBuffer.wrap(ByteBuffer.wrap(prepareBytes)))
+      checkSliceAndCopyTo(MessageBuffer.wrap(prepareDirectBuffer), MessageBuffer.wrap(prepareDirectBuffer))
     }
   }
 }
