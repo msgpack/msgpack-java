@@ -685,7 +685,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         got shouldBe expected
       }
 
-      Seq("あ", "aあ", "あa", "あいうえおかきくけこさしすせそ").foreach { s =>
+      Seq("\u3042", "a\u3042", "\u3042a", "\u3042\u3044\u3046\u3048\u304A\u304B\u304D\u304F\u3051\u3053\u3055\u3057\u3059\u305B\u305D").foreach { s =>
         Seq(8185, 8186, 8187, 8188, 16377, 16378, 16379, 16380).foreach { n => check(s, n)}
       }
     }

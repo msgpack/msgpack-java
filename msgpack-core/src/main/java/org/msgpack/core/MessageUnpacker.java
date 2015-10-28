@@ -1025,10 +1025,10 @@ public class MessageUnpacker
                 decodeBuffer.clear();
                 StringBuilder sb = new StringBuilder();
 
-                boolean incompleteMultiBytes = false;
+                boolean hasIncompleteMultiBytes = false;
                 while (cursor < strLen) {
                     int readLen = Math.min(position < buffer.size() ? buffer.size() - position : buffer.size(), strLen - cursor);
-                    if (incompleteMultiBytes) {
+                    if (hasIncompleteMultiBytes) {
                         // Prepare enough buffer for decoding multi-bytes character right after running into incomplete one
                         readLen = Math.min(config.getStringDecoderBufferSize(), strLen - cursor);
                     }
@@ -1036,7 +1036,7 @@ public class MessageUnpacker
                         throw new EOFException();
                     }
 
-                    incompleteMultiBytes = false;
+                    hasIncompleteMultiBytes = false;
                     ByteBuffer bb = buffer.toByteBuffer(position, readLen);
                     int startPos = bb.position();
 
@@ -1058,7 +1058,7 @@ public class MessageUnpacker
                             if (config.getActionOnMalFormedInput() == CodingErrorAction.REPORT) {
                                 throw new MalformedInputException(strLen);
                             }
-                            incompleteMultiBytes = true;
+                            hasIncompleteMultiBytes = true;
                             // Proceed the cursor with the length already decoded successfully.
                             readLen = bb.position() - startPos;
                         }
@@ -1075,7 +1075,7 @@ public class MessageUnpacker
 
                         decodeBuffer.clear();
 
-                        if (incompleteMultiBytes) {
+                        if (hasIncompleteMultiBytes) {
                             break;
                         }
                     }
