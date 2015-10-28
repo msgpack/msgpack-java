@@ -1025,13 +1025,20 @@ public class MessageUnpacker
                 decodeBuffer.clear();
                 StringBuilder sb = new StringBuilder();
 
+                boolean hasIncompleteMultiBytes = false;
                 while (cursor < strLen) {
                     int readLen = Math.min(position < buffer.size() ? buffer.size() - position : buffer.size(), strLen - cursor);
+                    if (hasIncompleteMultiBytes) {
+                        // Prepare enough buffer for decoding multi-bytes character right after running into incomplete one
+                        readLen = Math.min(config.getStringDecoderBufferSize(), strLen - cursor);
+                    }
                     if (!ensure(readLen)) {
                         throw new EOFException();
                     }
 
+                    hasIncompleteMultiBytes = false;
                     ByteBuffer bb = buffer.toByteBuffer(position, readLen);
+                    int startPos = bb.position();
 
                     while (bb.hasRemaining()) {
                         boolean endOfInput = (cursor + readLen) >= strLen;
@@ -1051,10 +1058,9 @@ public class MessageUnpacker
                             if (config.getActionOnMalFormedInput() == CodingErrorAction.REPORT) {
                                 throw new MalformedInputException(strLen);
                             }
-                            // trash truncated bytes
-                            while (bb.hasRemaining()) {
-                                bb.get();
-                            }
+                            hasIncompleteMultiBytes = true;
+                            // Proceed the cursor with the length already decoded successfully.
+                            readLen = bb.position() - startPos;
                         }
 
                         if (cr.isError()) {
@@ -1068,6 +1074,10 @@ public class MessageUnpacker
                         sb.append(decodeBuffer);
 
                         decodeBuffer.clear();
+
+                        if (hasIncompleteMultiBytes) {
+                            break;
+                        }
                     }
 
                     cursor += readLen;

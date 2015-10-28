@@ -16,6 +16,7 @@
 package org.msgpack.core
 
 import java.io._
+import java.nio.ByteBuffer
 
 import org.msgpack.core.buffer._
 import org.msgpack.value.ValueType
@@ -661,6 +662,31 @@ class MessageUnpackerTest extends MessagePackSpec {
         unpacker.unpackInt shouldBe 1
 
         unpacker.getTotalReadBytes shouldBe arr.length
+      }
+    }
+
+    "unpack string crossing end of buffer" in {
+      def check(expected: String, strLen: Int) = {
+        val bytes = new Array[Byte](strLen)
+        val out = new ByteArrayOutputStream
+
+        val packer = MessagePack.newDefaultPacker(out)
+        packer.packBinaryHeader(bytes.length)
+        packer.writePayload(bytes)
+        packer.packString(expected)
+        packer.close
+
+        val unpacker = new MessageUnpacker(new InputStreamBufferInput(new ByteArrayInputStream(out.toByteArray)))
+        val len = unpacker.unpackBinaryHeader
+        unpacker.readPayload(len)
+        val got = unpacker.unpackString
+        unpacker.close
+
+        got shouldBe expected
+      }
+
+      Seq("\u3042", "a\u3042", "\u3042a", "\u3042\u3044\u3046\u3048\u304A\u304B\u304D\u304F\u3051\u3053\u3055\u3057\u3059\u305B\u305D").foreach { s =>
+        Seq(8185, 8186, 8187, 8188, 16377, 16378, 16379, 16380).foreach { n => check(s, n)}
       }
     }
   }
