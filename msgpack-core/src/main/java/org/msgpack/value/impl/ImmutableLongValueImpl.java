@@ -158,7 +158,7 @@ public class ImmutableLongValueImpl
     @Override
     public short asShort()
     {
-        if (!isInByteRange()) {
+        if (!isInShortRange()) {
             throw new MessageIntegerOverflowException(value);
         }
         return (short) value;
