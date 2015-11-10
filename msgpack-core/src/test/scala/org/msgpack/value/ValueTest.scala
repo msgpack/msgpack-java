@@ -16,7 +16,6 @@
 package org.msgpack.value
 
 import java.math.BigInteger
-
 import org.msgpack.core._
 
 import scala.util.parsing.json.JSON
@@ -97,5 +96,35 @@ class ValueTest extends MessagePackSpec
 
     }
 
+    "check appropriate range for integers" in {
+      import ValueFactory._
+      import java.lang.Byte
+      import java.lang.Short
+
+      newInteger(Byte.MAX_VALUE).asByte() shouldBe Byte.MAX_VALUE
+      newInteger(Byte.MIN_VALUE).asByte() shouldBe Byte.MIN_VALUE
+      newInteger(Short.MAX_VALUE).asShort() shouldBe Short.MAX_VALUE
+      newInteger(Short.MIN_VALUE).asShort() shouldBe Short.MIN_VALUE
+      newInteger(Integer.MAX_VALUE).asInt() shouldBe Integer.MAX_VALUE
+      newInteger(Integer.MIN_VALUE).asInt() shouldBe Integer.MIN_VALUE
+      intercept[MessageIntegerOverflowException] {
+        newInteger(Byte.MAX_VALUE+1).asByte()
+      }
+      intercept[MessageIntegerOverflowException] {
+        newInteger(Byte.MIN_VALUE-1).asByte()
+      }
+      intercept[MessageIntegerOverflowException] {
+        newInteger(Short.MAX_VALUE+1).asShort()
+      }
+      intercept[MessageIntegerOverflowException] {
+        newInteger(Short.MIN_VALUE-1).asShort()
+      }
+      intercept[MessageIntegerOverflowException] {
+        newInteger(Integer.MAX_VALUE+1).asInt()
+      }
+      intercept[MessageIntegerOverflowException] {
+        newInteger(Integer.MIN_VALUE-1).asInt()
+      }
+    }
   }
 }
