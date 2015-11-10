@@ -120,10 +120,10 @@ class ValueTest extends MessagePackSpec
         newInteger(Short.MIN_VALUE-1).asShort()
       }
       intercept[MessageIntegerOverflowException] {
-        newInteger(Integer.MAX_VALUE+1).asInt()
+        newInteger(Integer.MAX_VALUE+1.toLong).asInt()
       }
       intercept[MessageIntegerOverflowException] {
-        newInteger(Integer.MIN_VALUE-1).asInt()
+        newInteger(Integer.MIN_VALUE-1.toLong).asInt()
       }
     }
   }
