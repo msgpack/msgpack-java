@@ -1,5 +1,8 @@
 # Release Notes
 
+* 0.7.1
+ * Fix ImmutableLongValueImpl#asShort [#287](https://github.com/msgpack/msgpack-java/pull/287)
+
 * 0.7.0
  * Support non-string key in jackson-dataformat-msgpack
  * Update the version of jackson-databind to 2.6.3
