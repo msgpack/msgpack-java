@@ -1,5 +1,10 @@
 # Release Notes
 
+* 0.7.0
+ * Support non-string key in jackson-dataformat-msgpack
+ * Update the version of jackson-databind to 2.6.3
+ * Several bug fixes
+
 * 0.7.0-M6
  * Add a prototype of Value implementation
  * Apply strict coding style
