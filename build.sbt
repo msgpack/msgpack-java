@@ -2,8 +2,7 @@ import de.johoop.findbugs4sbt.ReportType
 
 organization := "org.msgpack"
 organizationName := "MessagePack"
-organizationHomepage := Some(new
-                URL("http://msgpack.org/"))
+organizationHomepage := Some(new URL("http://msgpack.org/"))
 description := "MessagePack for Java"
 scalaVersion in Global := "2.11.7"
 logBuffered in Test := false
@@ -78,11 +77,9 @@ lazy val msgpackJackson = Project(id = "msgpack-jackson", base = file("msgpack-j
 
 // Release settings
 
-import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
+import ReleaseTransformations._
 
-releaseTagName := {
-  (version in ThisBuild).value
-}
+releaseTagName := { (version in ThisBuild).value }
 releaseProcess := Seq[ReleaseStep](
         checkSnapshotDependencies,
         inquireVersions,
