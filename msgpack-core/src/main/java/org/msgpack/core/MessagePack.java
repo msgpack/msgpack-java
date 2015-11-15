@@ -50,6 +50,7 @@ public class MessagePack
         private final int stringEncoderBufferSize;
         private final int stringDecoderBufferSize;
         private final int packerBufferSize;
+        private final int packerLargeStringThreshold;
         private final int packerRawDataCopyingThreshold;
 
         public Config(
@@ -61,6 +62,7 @@ public class MessagePack
                 int stringEncoderBufferSize,
                 int stringDecoderBufferSize,
                 int packerBufferSize,
+                int packerLargeStringLengthThreshold,
                 int packerRawDataCopyingThreshold)
         {
             checkArgument(packerBufferSize > 0, "packer buffer size must be larger than 0: " + packerBufferSize);
@@ -75,6 +77,7 @@ public class MessagePack
             this.stringEncoderBufferSize = stringEncoderBufferSize;
             this.stringDecoderBufferSize = stringDecoderBufferSize;
             this.packerBufferSize = packerBufferSize;
+            this.packerLargeStringThreshold = packerLargeStringLengthThreshold;
             this.packerRawDataCopyingThreshold = packerRawDataCopyingThreshold;
         }
 
@@ -133,6 +136,11 @@ public class MessagePack
             return packerBufferSize;
         }
 
+        public int getPackerLargeStringLengthThreshold()
+        {
+            return packerLargeStringThreshold;
+        }
+
         public int getPackerRawDataCopyingThreshold()
         {
             return packerRawDataCopyingThreshold;
@@ -154,6 +162,7 @@ public class MessagePack
         private int stringEncoderBufferSize = 8192;
         private int stringDecoderBufferSize = 8192;
         private int packerBufferSize = 8192;
+        private int packerLargeStringLengthThreshold = 512;
         private int packerRawDataCopyingThreshold = 512;
 
         public Config build()
@@ -167,6 +176,7 @@ public class MessagePack
                     stringEncoderBufferSize,
                     stringDecoderBufferSize,
                     packerBufferSize,
+                    packerLargeStringLengthThreshold,
                     packerRawDataCopyingThreshold
             );
         }
@@ -216,6 +226,12 @@ public class MessagePack
         public ConfigBuilder packerBufferSize(int size)
         {
             this.packerBufferSize = size;
+            return this;
+        }
+
+        public ConfigBuilder packerLargeStringThreshold(int threshold)
+        {
+            this.packerLargeStringLengthThreshold = threshold;
             return this;
         }
 

@@ -442,6 +442,14 @@ public class MessagePacker
         return this;
     }
 
+    private void packSmallString(String s)
+            throws IOException
+    {
+        byte[] bytes = s.getBytes("UTF-8");
+        packRawStringHeader(bytes.length);
+        writePayload(bytes);
+    }
+
     /**
      * Pack the input String in UTF-8 encoding
      *
@@ -454,6 +462,12 @@ public class MessagePacker
     {
         if (s.length() <= 0) {
             packRawStringHeader(0);
+            return this;
+        }
+
+        if (s.length() < config.getPackerLargeStringLengthThreshold()) {
+            // Write the length and payload of small string to the buffer so that it avoids an extra flush of buffer
+            packSmallString(s);
             return this;
         }
 

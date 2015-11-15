@@ -22,6 +22,7 @@ import org.msgpack.core.buffer.{ChannelBufferOutput, OutputStreamBufferOutput}
 import org.msgpack.value.ValueFactory
 import xerial.core.io.IOUtil
 
+import scala.compat.Platform
 import scala.util.Random
 
 /**
@@ -234,6 +235,25 @@ class MessagePackerTest
       up1.unpackString shouldBe "hello"
       up1.hasNext shouldBe false
       up1.close
+    }
+
+    "pack a lot of String within expected time" in {
+      val count = 500000
+
+      def measureDuration(outputStream: java.io.OutputStream) : Long = {
+        val packer = MessagePack.newDefaultPacker(outputStream)
+        val start = Platform.currentTime
+        for (i <- 0 to count) {
+          packer.packString("0123456789ABCDEF")
+        }
+        packer.close
+        Platform.currentTime - start
+      }
+
+      val baseDuration = measureDuration(new ByteArrayOutputStream())
+      val (_, fileOutput) = createTempFileWithOutputStream
+      val targetDuration = measureDuration(fileOutput)
+      targetDuration shouldBe <= (baseDuration * 3)
     }
   }
 
