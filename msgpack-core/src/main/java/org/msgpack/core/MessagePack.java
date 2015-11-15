@@ -42,21 +42,36 @@ public class MessagePack
      */
     public static class Config
     {
-        private final boolean readStringAsBinary;
-        private final boolean readBinaryAsString;
-        private final CodingErrorAction onMalFormedInput;
-        private final CodingErrorAction onUnmappableCharacter;
-        private final int maxUnpackStringSize;
-        private final int stringEncoderBufferSize;
-        private final int stringDecoderBufferSize;
-        private final int packerBufferSize;
-        private final int packerRawDataCopyingThreshold;
+        /**
+         * allow unpackBinaryHeader to read str format family  (default:true)
+         */
+        public final boolean readStringAsBinary;
+        /**
+         * allow unpackRawStringHeader and unpackString to read bin format family (default: true)
+         */
+        public final boolean readBinaryAsString;
+        /**
+         * Action when encountered a malformed input
+         */
+        public final CodingErrorAction actionOnMalFormedInput;
+        /**
+         * Action when an unmappable character is found
+         */
+        public final CodingErrorAction actionOnUnmappableCharacter;
+        /**
+         * unpackString size limit. (default: Integer.MAX_VALUE)
+         */
+        public final int maxUnpackStringSize;
+        public final int stringEncoderBufferSize;
+        public final int stringDecoderBufferSize;
+        public final int packerBufferSize;
+        public final int packerRawDataCopyingThreshold;
 
         public Config(
                 boolean readStringAsBinary,
                 boolean readBinaryAsString,
-                CodingErrorAction onMalFormedInput,
-                CodingErrorAction onUnmappableCharacter,
+                CodingErrorAction actionOnMalFormedInput,
+                CodingErrorAction actionOnUnmappableCharacter,
                 int maxUnpackStringSize,
                 int stringEncoderBufferSize,
                 int stringDecoderBufferSize,
@@ -69,73 +84,13 @@ public class MessagePack
 
             this.readStringAsBinary = readStringAsBinary;
             this.readBinaryAsString = readBinaryAsString;
-            this.onMalFormedInput = onMalFormedInput;
-            this.onUnmappableCharacter = onUnmappableCharacter;
+            this.actionOnMalFormedInput = actionOnMalFormedInput;
+            this.actionOnUnmappableCharacter = actionOnUnmappableCharacter;
             this.maxUnpackStringSize = maxUnpackStringSize;
             this.stringEncoderBufferSize = stringEncoderBufferSize;
             this.stringDecoderBufferSize = stringDecoderBufferSize;
             this.packerBufferSize = packerBufferSize;
             this.packerRawDataCopyingThreshold = packerRawDataCopyingThreshold;
-        }
-
-        /**
-         * allow unpackBinaryHeader to read str format family  (default:true)
-         */
-        public boolean isReadStringAsBinary()
-        {
-            return readStringAsBinary;
-        }
-
-        /**
-         * allow unpackRawStringHeader and unpackString to read bin format family (default: true)
-         */
-        public boolean isReadBinaryAsString()
-        {
-            return readBinaryAsString;
-        }
-
-        /**
-         * Action when encountered a malformed input
-         */
-        public CodingErrorAction getActionOnMalFormedInput()
-        {
-            return onMalFormedInput;
-        }
-
-        /**
-         * Action when an unmappable character is found
-         */
-        public CodingErrorAction getActionOnUnmappableCharacter()
-        {
-            return onUnmappableCharacter;
-        }
-
-        /**
-         * unpackString size limit. (default: Integer.MAX_VALUE)
-         */
-        public int getMaxUnpackStringSize()
-        {
-            return maxUnpackStringSize;
-        }
-
-        public int getStringEncoderBufferSize()
-        {
-            return stringEncoderBufferSize;
-        }
-
-        public int getStringDecoderBufferSize()
-        {
-            return stringDecoderBufferSize;
-        }
-
-        public int getPackerBufferSize()
-        {
-            return packerBufferSize;
-        }
-
-        public int getPackerRawDataCopyingThreshold()
-        {
-            return packerRawDataCopyingThreshold;
         }
     }
 

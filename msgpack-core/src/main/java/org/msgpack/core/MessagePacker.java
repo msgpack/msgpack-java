@@ -150,7 +150,7 @@ public class MessagePacker
     private void prepareEncoder()
     {
         if (encoder == null) {
-            this.encoder = MessagePack.UTF8.newEncoder().onMalformedInput(config.getActionOnMalFormedInput()).onUnmappableCharacter(config.getActionOnMalFormedInput());
+            this.encoder = MessagePack.UTF8.newEncoder().onMalformedInput(config.actionOnMalFormedInput).onUnmappableCharacter(config.actionOnMalFormedInput);
         }
     }
 
@@ -158,7 +158,7 @@ public class MessagePacker
             throws IOException
     {
         if (buffer == null) {
-            buffer = out.next(config.getPackerBufferSize());
+            buffer = out.next(config.packerBufferSize);
         }
     }
 
@@ -196,7 +196,7 @@ public class MessagePacker
     {
         if (buffer == null || position + numBytesToWrite >= buffer.size()) {
             flush();
-            buffer = out.next(Math.max(config.getPackerBufferSize(), numBytesToWrite));
+            buffer = out.next(Math.max(config.packerBufferSize, numBytesToWrite));
         }
     }
 
@@ -490,8 +490,8 @@ public class MessagePacker
                 }
 
                 if (cr.isError()) {
-                    if ((cr.isMalformed() && config.getActionOnMalFormedInput() == CodingErrorAction.REPORT) ||
-                            (cr.isUnmappable() && config.getActionOnUnmappableCharacter() == CodingErrorAction.REPORT)) {
+                    if ((cr.isMalformed() && config.actionOnMalFormedInput == CodingErrorAction.REPORT) ||
+                            (cr.isUnmappable() && config.actionOnUnmappableCharacter == CodingErrorAction.REPORT)) {
                         cr.throwException();
                     }
                 }
@@ -649,7 +649,7 @@ public class MessagePacker
             throws IOException
     {
         int len = src.remaining();
-        if (len >= config.getPackerRawDataCopyingThreshold()) {
+        if (len >= config.packerRawDataCopyingThreshold) {
             // Use the source ByteBuffer directly to avoid memory copy
 
             // First, flush the current buffer contents
@@ -687,7 +687,7 @@ public class MessagePacker
     public MessagePacker writePayload(byte[] src, int off, int len)
             throws IOException
     {
-        if (len >= config.getPackerRawDataCopyingThreshold()) {
+        if (len >= config.packerRawDataCopyingThreshold) {
             // Use the input array directory to avoid memory copy
 
             // Flush the current buffer contents
