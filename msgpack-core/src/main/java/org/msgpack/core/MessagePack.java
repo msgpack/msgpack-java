@@ -50,7 +50,7 @@ public class MessagePack
         private final int stringEncoderBufferSize;
         private final int stringDecoderBufferSize;
         private final int packerBufferSize;
-        private final int packerLargeStringThreshold;
+        private final int packerSmallStringOptimizationThreshold; // This parameter is subject to change
         private final int packerRawDataCopyingThreshold;
 
         public Config(
@@ -62,7 +62,7 @@ public class MessagePack
                 int stringEncoderBufferSize,
                 int stringDecoderBufferSize,
                 int packerBufferSize,
-                int packerLargeStringLengthThreshold,
+                int packerSmallStringOptimizationThreshold,
                 int packerRawDataCopyingThreshold)
         {
             checkArgument(packerBufferSize > 0, "packer buffer size must be larger than 0: " + packerBufferSize);
@@ -77,7 +77,7 @@ public class MessagePack
             this.stringEncoderBufferSize = stringEncoderBufferSize;
             this.stringDecoderBufferSize = stringDecoderBufferSize;
             this.packerBufferSize = packerBufferSize;
-            this.packerLargeStringThreshold = packerLargeStringLengthThreshold;
+            this.packerSmallStringOptimizationThreshold = packerSmallStringOptimizationThreshold;
             this.packerRawDataCopyingThreshold = packerRawDataCopyingThreshold;
         }
 
@@ -136,9 +136,9 @@ public class MessagePack
             return packerBufferSize;
         }
 
-        public int getPackerLargeStringLengthThreshold()
+        public int getPackerSmallStringOptimizationThreshold()
         {
-            return packerLargeStringThreshold;
+            return packerSmallStringOptimizationThreshold;
         }
 
         public int getPackerRawDataCopyingThreshold()
@@ -162,7 +162,7 @@ public class MessagePack
         private int stringEncoderBufferSize = 8192;
         private int stringDecoderBufferSize = 8192;
         private int packerBufferSize = 8192;
-        private int packerLargeStringLengthThreshold = 512;
+        private int packerSmallStringOptimizationThreshold = 512; // This parameter is subject to change
         private int packerRawDataCopyingThreshold = 512;
 
         public Config build()
@@ -176,7 +176,7 @@ public class MessagePack
                     stringEncoderBufferSize,
                     stringDecoderBufferSize,
                     packerBufferSize,
-                    packerLargeStringLengthThreshold,
+                    packerSmallStringOptimizationThreshold,
                     packerRawDataCopyingThreshold
             );
         }
@@ -229,9 +229,9 @@ public class MessagePack
             return this;
         }
 
-        public ConfigBuilder packerLargeStringThreshold(int threshold)
+        public ConfigBuilder packerSmallStringOptimizationThreshold(int threshold)
         {
-            this.packerLargeStringLengthThreshold = threshold;
+            this.packerSmallStringOptimizationThreshold = threshold;
             return this;
         }
 
