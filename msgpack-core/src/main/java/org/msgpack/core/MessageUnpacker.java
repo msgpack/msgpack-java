@@ -172,10 +172,10 @@ public class MessageUnpacker
     private void prepareDecoder()
     {
         if (decoder == null) {
-            decodeBuffer = CharBuffer.allocate(config.getStringDecoderBufferSize());
+            decodeBuffer = CharBuffer.allocate(config.stringDecoderBufferSize);
             decoder = MessagePack.UTF8.newDecoder()
-                    .onMalformedInput(config.getActionOnMalFormedInput())
-                    .onUnmappableCharacter(config.getActionOnUnmappableCharacter());
+                    .onMalformedInput(config.actionOnMalFormedInput)
+                    .onUnmappableCharacter(config.actionOnUnmappableCharacter);
         }
     }
 
@@ -1011,8 +1011,8 @@ public class MessageUnpacker
     {
         int strLen = unpackRawStringHeader();
         if (strLen > 0) {
-            if (strLen > config.getMaxUnpackStringSize()) {
-                throw new MessageSizeException(String.format("cannot unpack a String of size larger than %,d: %,d", config.getMaxUnpackStringSize(), strLen), strLen);
+            if (strLen > config.maxUnpackStringSize) {
+                throw new MessageSizeException(String.format("cannot unpack a String of size larger than %,d: %,d", config.maxUnpackStringSize, strLen), strLen);
             }
 
             prepareDecoder();
@@ -1030,7 +1030,7 @@ public class MessageUnpacker
                     int readLen = Math.min(position < buffer.size() ? buffer.size() - position : buffer.size(), strLen - cursor);
                     if (hasIncompleteMultiBytes) {
                         // Prepare enough buffer for decoding multi-bytes character right after running into incomplete one
-                        readLen = Math.min(config.getStringDecoderBufferSize(), strLen - cursor);
+                        readLen = Math.min(config.stringDecoderBufferSize, strLen - cursor);
                     }
                     if (!ensure(readLen)) {
                         throw new EOFException();
@@ -1055,7 +1055,7 @@ public class MessageUnpacker
 
                         if (cr.isUnderflow() && bb.hasRemaining()) {
                             // input buffer doesn't have enough bytes for multi bytes characters
-                            if (config.getActionOnMalFormedInput() == CodingErrorAction.REPORT) {
+                            if (config.actionOnMalFormedInput == CodingErrorAction.REPORT) {
                                 throw new MalformedInputException(strLen);
                             }
                             hasIncompleteMultiBytes = true;
@@ -1064,8 +1064,8 @@ public class MessageUnpacker
                         }
 
                         if (cr.isError()) {
-                            if ((cr.isMalformed() && config.getActionOnMalFormedInput() == CodingErrorAction.REPORT) ||
-                                    (cr.isUnmappable() && config.getActionOnUnmappableCharacter() == CodingErrorAction.REPORT)) {
+                            if ((cr.isMalformed() && config.actionOnMalFormedInput == CodingErrorAction.REPORT) ||
+                                    (cr.isUnmappable() && config.actionOnUnmappableCharacter == CodingErrorAction.REPORT)) {
                                 cr.throwException();
                             }
                         }
@@ -1204,7 +1204,7 @@ public class MessageUnpacker
             return len;
         }
 
-        if (config.isReadBinaryAsString()) {
+        if (config.readBinaryAsString) {
             len = readBinaryHeader(b);
             if (len >= 0) {
                 return len;
@@ -1225,7 +1225,7 @@ public class MessageUnpacker
             return len;
         }
 
-        if (config.isReadStringAsBinary()) {
+        if (config.readStringAsBinary) {
             len = readStringHeader(b);
             if (len >= 0) {
                 return len;
