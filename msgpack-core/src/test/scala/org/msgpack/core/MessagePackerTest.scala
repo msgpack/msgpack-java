@@ -235,6 +235,32 @@ class MessagePackerTest
       up1.hasNext shouldBe false
       up1.close
     }
+
+    "pack a lot of String within expected time" in {
+      val count = 20000
+
+      def measureDuration(outputStream: java.io.OutputStream) = {
+        val packer = MessagePack.newDefaultPacker(outputStream)
+        var i = 0
+        while (i < count) {
+          packer.packString("0123456789ABCDEF")
+          i +=  1
+        }
+        packer.close
+      }
+
+      val t = time("packString into OutputStream", repeat = 10) {
+        block("byte-array-output-stream") {
+          measureDuration(new ByteArrayOutputStream())
+        }
+
+        block("file-output-stream") {
+          val (_, fileOutput) = createTempFileWithOutputStream
+          measureDuration(fileOutput)
+        }
+      }
+      t("file-output-stream").averageWithoutMinMax shouldBe < (t("byte-array-output-stream").averageWithoutMinMax * 4)
+    }
   }
 
   "compute totalWrittenBytes" in {

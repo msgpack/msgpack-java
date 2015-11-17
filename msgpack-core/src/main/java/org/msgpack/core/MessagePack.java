@@ -66,6 +66,11 @@ public class MessagePack
         public final int stringDecoderBufferSize;
         public final int packerBufferSize;
         public final int packerRawDataCopyingThreshold;
+        /**
+         * Use String.getBytes() for strings smaller than this threshold.
+         * Note that this parameter is subject to change.
+         */
+        public final int packerSmallStringOptimizationThreshold;
 
         public Config(
                 boolean readStringAsBinary,
@@ -76,6 +81,7 @@ public class MessagePack
                 int stringEncoderBufferSize,
                 int stringDecoderBufferSize,
                 int packerBufferSize,
+                int packerSmallStringOptimizationThreshold,
                 int packerRawDataCopyingThreshold)
         {
             checkArgument(packerBufferSize > 0, "packer buffer size must be larger than 0: " + packerBufferSize);
@@ -90,6 +96,7 @@ public class MessagePack
             this.stringEncoderBufferSize = stringEncoderBufferSize;
             this.stringDecoderBufferSize = stringDecoderBufferSize;
             this.packerBufferSize = packerBufferSize;
+            this.packerSmallStringOptimizationThreshold = packerSmallStringOptimizationThreshold;
             this.packerRawDataCopyingThreshold = packerRawDataCopyingThreshold;
         }
     }
@@ -109,6 +116,7 @@ public class MessagePack
         private int stringEncoderBufferSize = 8192;
         private int stringDecoderBufferSize = 8192;
         private int packerBufferSize = 8192;
+        private int packerSmallStringOptimizationThreshold = 512; // This parameter is subject to change
         private int packerRawDataCopyingThreshold = 512;
 
         public Config build()
@@ -122,6 +130,7 @@ public class MessagePack
                     stringEncoderBufferSize,
                     stringDecoderBufferSize,
                     packerBufferSize,
+                    packerSmallStringOptimizationThreshold,
                     packerRawDataCopyingThreshold
             );
         }
@@ -171,6 +180,12 @@ public class MessagePack
         public ConfigBuilder packerBufferSize(int size)
         {
             this.packerBufferSize = size;
+            return this;
+        }
+
+        public ConfigBuilder packerSmallStringOptimizationThreshold(int threshold)
+        {
+            this.packerSmallStringOptimizationThreshold = threshold;
             return this;
         }
 
