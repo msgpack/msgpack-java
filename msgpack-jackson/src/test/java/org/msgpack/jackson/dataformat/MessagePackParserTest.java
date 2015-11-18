@@ -484,8 +484,10 @@ public class MessagePackParserTest
         ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
         objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
         assertEquals("foo", objectMapper.readValue(in, new TypeReference<String>() {}));
-        assertEquals(Long.MAX_VALUE, objectMapper.readValue(in, new TypeReference<Long>() {}));
-        assertEquals(3.14, objectMapper.readValue(in, new TypeReference<Double>() {}));
+        long l = objectMapper.readValue(in, new TypeReference<Long>() {});
+        assertEquals(Long.MAX_VALUE, l);
+        double d = objectMapper.readValue(in, new TypeReference<Double>() {});
+        assertEquals(3.14, d, 0.001);
         byte[] bs = objectMapper.readValue(in, new TypeReference<byte[]>() {});
         assertEquals(bytes.length, bs.length);
         assertEquals(bytes[0], bs[0]);
