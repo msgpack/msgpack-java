@@ -28,7 +28,7 @@ import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonReadContext;
-import org.msgpack.core.MessageUnpacker;
+import org.msgpack.core.*;
 import org.msgpack.core.buffer.ArrayBufferInput;
 import org.msgpack.core.buffer.InputStreamBufferInput;
 import org.msgpack.core.buffer.MessageBufferInput;
@@ -46,16 +46,30 @@ public class MessagePackParser
     private static final ThreadLocal<Tuple<Object, MessageUnpacker>> messageUnpackerHolder =
             new ThreadLocal<Tuple<Object, MessageUnpacker>>();
 
+    private static final BigInteger LONG_MIN = BigInteger.valueOf((long) Long.MIN_VALUE);
+    private static final BigInteger LONG_MAX = BigInteger.valueOf((long) Long.MAX_VALUE);
+
     private ObjectCodec codec;
     private JsonReadContext parsingContext;
 
     private final LinkedList<StackItem> stack = new LinkedList<StackItem>();
-    private Value value = ValueFactory.newNil();
-    private Variable var = new Variable();
     private boolean isClosed;
     private long tokenPosition;
     private long currentPosition;
     private final IOContext ioContext;
+
+    private enum Type
+    {
+        INT, LONG, DOUBLE, STRING, BYTES, BIG_INT, EXT
+    }
+    private Type type;
+    private int intValue;
+    private long longValue;
+    private double doubleValue;
+    private byte[] bytesValue;
+    private String stringValue;
+    private BigInteger biValue;
+    private MessagePackExtensionType extensionTypeValue;
 
     private abstract static class StackItem
     {
@@ -176,20 +190,19 @@ public class MessagePackParser
             return null;
         }
 
-        ValueType type = messageUnpacker.getNextFormat().getValueType();
+        MessageFormat format = messageUnpacker.getNextFormat();
+        ValueType valueType = messageUnpacker.getNextFormat().getValueType();
 
         // We should push a new StackItem lazily after updating the current stack.
         StackItem newStack = null;
 
-        switch (type) {
+        switch (valueType) {
             case NIL:
                 messageUnpacker.unpackNil();
-                value = ValueFactory.newNil();
                 nextToken = JsonToken.VALUE_NULL;
                 break;
             case BOOLEAN:
                 boolean b = messageUnpacker.unpackBoolean();
-                value = ValueFactory.newNil();
                 if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
                     parsingContext.setCurrentName(Boolean.toString(b));
                     nextToken = JsonToken.FIELD_NAME;
@@ -199,9 +212,38 @@ public class MessagePackParser
                 }
                 break;
             case INTEGER:
-                value = messageUnpacker.unpackValue(var);
+                Object v;
+                switch (format) {
+                    case UINT64:
+                        BigInteger bi = messageUnpacker.unpackBigInteger();
+                        if (0 <= bi.compareTo(LONG_MIN) && bi.compareTo(LONG_MAX) <= 0) {
+                            type = Type.LONG;
+                            longValue = bi.longValue();
+                            v = longValue;
+                        }
+                        else {
+                            type = Type.BIG_INT;
+                            biValue = bi;
+                            v = biValue;
+                        }
+                        break;
+                    default:
+                        long l = messageUnpacker.unpackLong();
+                        if (Integer.MIN_VALUE <= l && l <= Integer.MAX_VALUE) {
+                            type = Type.INT;
+                            intValue = (int)l;
+                            v = intValue;
+                        }
+                        else {
+                            type = Type.LONG;
+                            longValue = l;
+                            v = longValue;
+                        }
+                        break;
+                }
+
                 if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
-                    parsingContext.setCurrentName(value.asIntegerValue().toString());
+                    parsingContext.setCurrentName(String.valueOf(v));
                     nextToken = JsonToken.FIELD_NAME;
                 }
                 else {
@@ -209,9 +251,10 @@ public class MessagePackParser
                 }
                 break;
             case FLOAT:
-                value = messageUnpacker.unpackValue(var);
+                type = Type.DOUBLE;
+                doubleValue = messageUnpacker.unpackDouble();
                 if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
-                    parsingContext.setCurrentName(value.asFloatValue().toString());
+                    parsingContext.setCurrentName(String.valueOf(doubleValue));
                     nextToken = JsonToken.FIELD_NAME;
                 }
                 else {
@@ -219,9 +262,10 @@ public class MessagePackParser
                 }
                 break;
             case STRING:
-                value = messageUnpacker.unpackValue(var);
+                type = Type.STRING;
+                stringValue = messageUnpacker.unpackString();
                 if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
-                    parsingContext.setCurrentName(value.asRawValue().toString());
+                    parsingContext.setCurrentName(stringValue);
                     nextToken = JsonToken.FIELD_NAME;
                 }
                 else {
@@ -229,9 +273,12 @@ public class MessagePackParser
                 }
                 break;
             case BINARY:
-                value = messageUnpacker.unpackValue(var);
+                type = Type.BYTES;
+                int len = messageUnpacker.unpackBinaryHeader();
+                // TODO: Optimize
+                bytesValue = messageUnpacker.readPayload(len);
                 if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
-                    parsingContext.setCurrentName(value.asRawValue().toString());
+                    parsingContext.setCurrentName(new String(bytesValue, MessagePack.UTF8));
                     nextToken = JsonToken.FIELD_NAME;
                 }
                 else {
@@ -239,15 +286,15 @@ public class MessagePackParser
                 }
                 break;
             case ARRAY:
-                value = ValueFactory.newNil();
                 newStack = new StackItemForArray(messageUnpacker.unpackArrayHeader());
                 break;
             case MAP:
-                value = ValueFactory.newNil();
                 newStack = new StackItemForObject(messageUnpacker.unpackMapHeader());
                 break;
             case EXTENSION:
-                value = messageUnpacker.unpackValue(var);
+                type = Type.EXT;
+                ExtensionTypeHeader header = messageUnpacker.unpackExtensionTypeHeader();
+                extensionTypeValue = new MessagePackExtensionType(header.getType(), messageUnpacker.readPayload(header.getLength()));
                 nextToken = JsonToken.VALUE_EMBEDDED_OBJECT;
                 break;
             default:
@@ -284,12 +331,13 @@ public class MessagePackParser
     public String getText()
             throws IOException, JsonParseException
     {
-        // This method can be called for new BigInteger(text)
-        if (value.isRawValue()) {
-            return value.asRawValue().toString();
-        }
-        else {
-            return value.toString();
+        switch (type) {
+            case STRING:
+                return stringValue;
+            case BYTES:
+                return new String(bytesValue, MessagePack.UTF8);
+            default:
+                throw new IllegalStateException("Invalid type=" + type);
         }
     }
 
@@ -324,27 +372,25 @@ public class MessagePackParser
     public byte[] getBinaryValue(Base64Variant b64variant)
             throws IOException, JsonParseException
     {
-        return value.asRawValue().asByteArray();
+        Preconditions.checkArgument(type == Type.BYTES);
+        return bytesValue;
     }
 
     @Override
     public Number getNumberValue()
             throws IOException, JsonParseException
     {
-        if (value.isIntegerValue()) {
-            IntegerValue integerValue = value.asIntegerValue();
-            if (integerValue.isInIntRange()) {
-                return integerValue.toInt();
-            }
-            else if (integerValue.isInLongRange()) {
-                return integerValue.toLong();
-            }
-            else {
-                return integerValue.toBigInteger();
-            }
-        }
-        else {
-            return value.asNumberValue().toDouble();
+        switch (type) {
+            case INT:
+                return intValue;
+            case LONG:
+                return longValue;
+            case DOUBLE:
+                return doubleValue;
+            case BIG_INT:
+                return biValue;
+            default:
+                throw new IllegalStateException("Invalid type=" + type);
         }
     }
 
@@ -352,56 +398,107 @@ public class MessagePackParser
     public int getIntValue()
             throws IOException, JsonParseException
     {
-        return value.asNumberValue().toInt();
+        switch (type) {
+            case INT:
+                return intValue;
+            case LONG:
+                return (int) longValue;
+            case DOUBLE:
+                return (int) doubleValue;
+            case BIG_INT:
+                return biValue.intValue();
+            default:
+                throw new IllegalStateException("Invalid type=" + type);
+        }
     }
 
     @Override
     public long getLongValue()
             throws IOException, JsonParseException
     {
-        return value.asNumberValue().toLong();
+        switch (type) {
+            case INT:
+                return intValue;
+            case LONG:
+                return longValue;
+            case DOUBLE:
+                return (long) doubleValue;
+            case BIG_INT:
+                return biValue.longValue();
+            default:
+                throw new IllegalStateException("Invalid type=" + type);
+        }
     }
 
     @Override
     public BigInteger getBigIntegerValue()
             throws IOException, JsonParseException
     {
-        return value.asNumberValue().toBigInteger();
+        switch (type) {
+            case INT:
+                return BigInteger.valueOf(intValue);
+            case LONG:
+                return BigInteger.valueOf(longValue);
+            case DOUBLE:
+                return BigInteger.valueOf((long)doubleValue);
+            case BIG_INT:
+                return biValue;
+            default:
+                throw new IllegalStateException("Invalid type=" + type);
+        }
     }
 
     @Override
     public float getFloatValue()
             throws IOException, JsonParseException
     {
-        return value.asNumberValue().toFloat();
+        switch (type) {
+            case INT:
+                return (float) intValue;
+            case LONG:
+                return (float) longValue;
+            case DOUBLE:
+                return (float) doubleValue;
+            case BIG_INT:
+                return biValue.floatValue();
+            default:
+                throw new IllegalStateException("Invalid type=" + type);
+        }
     }
 
     @Override
     public double getDoubleValue()
             throws IOException, JsonParseException
     {
-        return value.asNumberValue().toDouble();
+         switch (type) {
+             case INT:
+                 return (double) intValue;
+            case LONG:
+                return (double) longValue;
+            case DOUBLE:
+                return doubleValue;
+            case BIG_INT:
+                return biValue.doubleValue();
+            default:
+                throw new IllegalStateException("Invalid type=" + type);
+        }
     }
 
     @Override
     public BigDecimal getDecimalValue()
             throws IOException
     {
-        if (value.isIntegerValue()) {
-            IntegerValue number = value.asIntegerValue();
-            //optimization to not convert the value to BigInteger unnecessarily
-            if (number.isInLongRange()) {
-                return BigDecimal.valueOf(number.toLong());
-            }
-            else {
-                return new BigDecimal(number.toBigInteger());
-            }
-        }
-        else if (value.isFloatValue()) {
-            return BigDecimal.valueOf(value.asFloatValue().toDouble());
-        }
-        else {
-            throw new UnsupportedOperationException("Couldn't parse value as BigDecimal. " + value);
+         switch (type) {
+             case INT:
+                 return BigDecimal.valueOf(intValue);
+            case LONG:
+                return BigDecimal.valueOf(longValue);
+            case DOUBLE:
+                 return BigDecimal.valueOf(doubleValue);
+            case BIG_INT:
+                return new BigDecimal(biValue);
+            default:
+                throw new IllegalStateException("Invalid type=" + type);
         }
     }
 
@@ -409,15 +506,13 @@ public class MessagePackParser
     public Object getEmbeddedObject()
             throws IOException, JsonParseException
     {
-        if (value.isBinaryValue()) {
-            return value.asBinaryValue().asByteArray();
-        }
-        else if (value.isExtensionValue()) {
-            ExtensionValue extensionValue = value.asExtensionValue();
-            return new MessagePackExtensionType(extensionValue.getType(), extensionValue.getData());
-        }
-        else {
-            throw new UnsupportedOperationException();
+        switch (type) {
+            case BYTES:
+                return bytesValue;
+            case EXT:
+                return extensionTypeValue;
+            default:
+                throw new IllegalStateException("Invalid type=" + type);
         }
     }
 
@@ -425,21 +520,17 @@ public class MessagePackParser
     public NumberType getNumberType()
             throws IOException, JsonParseException
     {
-        if (value.isIntegerValue()) {
-            IntegerValue integerValue = value.asIntegerValue();
-            if (integerValue.isInIntRange()) {
+        switch (type) {
+            case INT:
                 return NumberType.INT;
-            }
-            else if (integerValue.isInLongRange()) {
+            case LONG:
                 return NumberType.LONG;
-            }
-            else {
+            case DOUBLE:
+                return NumberType.DOUBLE;
+            case BIG_INT:
                 return NumberType.BIG_INTEGER;
-            }
-        }
-        else {
-            value.asNumberValue();
-            return NumberType.DOUBLE;
+            default:
+                throw new IllegalStateException("Invalid type=" + type);
         }
     }
 
