@@ -85,4 +85,9 @@ public class ChannelBufferInput
     {
         channel.close();
     }
+
+    // TODO
+    public void release(MessageBuffer buffer)
+    {
+    }
 }

@@ -261,6 +261,8 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
       }
 
+      override def release(buffer: MessageBuffer): Unit = {}
+
       override def close(): Unit = {}
     }
 

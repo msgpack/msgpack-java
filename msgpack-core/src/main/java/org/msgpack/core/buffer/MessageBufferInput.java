@@ -27,9 +27,14 @@ public interface MessageBufferInput
     /**
      * Get a next buffer to read.
      *
-     * @return the next MessageBuffer, or null if no more buffer is available.
+     * @return the next MessageBuffer, or return null if no more buffer is available.
      * @throws IOException when error occurred when reading the data
      */
     public MessageBuffer next()
             throws IOException;
+
+    /**
+     * Release an unused buffer formerly returned by next() method.
+     */
+    public void release(MessageBuffer buffer);
 }

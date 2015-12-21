@@ -39,6 +39,8 @@ class ByteStringTest
           messageBuffer
         }
 
+      override def release(buffer: MessageBuffer): Unit = {}
+
       override def close(): Unit = {}
     }
 

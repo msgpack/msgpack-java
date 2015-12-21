@@ -93,4 +93,9 @@ public class InputStreamBufferInput
     {
         in.close();
     }
+
+    // TODO
+    public void release(MessageBuffer buffer)
+    {
+    }
 }

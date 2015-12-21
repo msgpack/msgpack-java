@@ -66,4 +66,9 @@ public class ByteBufferInput
     {
         // Nothing to do
     }
+
+    // TODO
+    public void release(MessageBuffer buffer)
+    {
+    }
 }
