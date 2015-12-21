@@ -64,7 +64,7 @@ class JacksonPerfTest
 
   "msgpack-jackson" should {
 
-    "be faster than msgpack-json binding" in {
+    "be faster than the jackson-databind (json)" in {
       val jsonMapper = new ObjectMapper()
       val msgpackMapper = new ObjectMapper(new MessagePackFactory())
 
