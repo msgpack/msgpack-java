@@ -62,6 +62,11 @@ val buildSettings = findbugsSettings ++ jacoco.settings ++ Seq[Setting[_]](
 
 val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
 
+val scalatestLib = Seq(
+  "org.scalatest" %% "scalatest" % "2.2.4" % "test",
+  "org.scalacheck" %% "scalacheck" % "1.12.2" % "test"
+)
+
 // Project settings
 lazy val root = Project(id = "msgpack-java", base = file("."))
         .settings(
@@ -79,11 +84,9 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
         .settings(
           buildSettings,
           description := "Core library of the MessagePack for Java",
-          libraryDependencies ++= Seq(
+          libraryDependencies ++= scalatestLib ++ Seq(
             // msgpack-core should have no external dependencies
             junitInterface,
-            "org.scalatest" %% "scalatest" % "2.2.4" % "test",
-            "org.scalacheck" %% "scalacheck" % "1.12.2" % "test",
             "org.xerial" % "xerial-core" % "3.3.6" % "test",
             "org.msgpack" % "msgpack" % "0.6.11" % "test",
             "commons-codec" % "commons-codec" % "1.10" % "test",
@@ -96,10 +99,10 @@ lazy val msgpackJackson = Project(id = "msgpack-jackson", base = file("msgpack-j
           buildSettings,
           name := "jackson-dataformat-msgpack",
           description := "Jackson extension that adds support for MessagePack",
-          libraryDependencies ++= Seq(
+          libraryDependencies ++= scalatestLib ++ Seq(
             "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.3",
             junitInterface,
             "org.apache.commons" % "commons-math3" % "3.4.1" % "test"
           ),
           testOptions += Tests.Argument(TestFrameworks.JUnit, "-v")
-        ).dependsOn(msgpackCore)
+        ).dependsOn(msgpackCore % "compile->compile;test->test")
