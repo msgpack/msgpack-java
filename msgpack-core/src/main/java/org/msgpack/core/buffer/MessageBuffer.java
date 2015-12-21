@@ -328,6 +328,11 @@ public class MessageBuffer
         this.reference = reference;
     }
 
+    public MessageBufferReader newReader()
+    {
+        return new MessageBufferReader(this);
+    }
+
     /**
      * byte size of the buffer
      *

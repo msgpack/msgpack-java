@@ -87,4 +87,9 @@ public class ArrayBufferInput
         buffer = null;
         isRead = false;
     }
+
+    // TODO
+    public void release(MessageBuffer buffer)
+    {
+    }
 }
