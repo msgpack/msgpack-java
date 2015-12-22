@@ -1,5 +1,13 @@
 language: scala
 
+cache:
+  directories:
+    - $HOME/.m2/repository/
+    - $HOME/.ivy2/cache/
+    - $HOME/.sbt/boot/
+
+sudo: false
+
 jdk:
   - openjdk7
   - oraclejdk7
@@ -10,5 +18,5 @@ branches:
     - /^v07.*$/
 
 script:
-  - sbt test
-  - sbt test -J-Dmsgpack.universal-buffer=true
+  - ./sbt test
+  - ./sbt test -J-Dmsgpack.universal-buffer=true
