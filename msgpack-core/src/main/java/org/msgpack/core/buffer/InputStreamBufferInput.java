@@ -29,8 +29,7 @@ public class InputStreamBufferInput
         implements MessageBufferInput
 {
     private InputStream in;
-    private final int bufferSize;
-    private boolean reachedEOF = false;
+    private final byte[] buffer;
 
     public static MessageBufferInput newBufferInput(InputStream in)
     {
@@ -52,7 +51,7 @@ public class InputStreamBufferInput
     public InputStreamBufferInput(InputStream in, int bufferSize)
     {
         this.in = checkNotNull(in, "input is null");
-        this.bufferSize = bufferSize;
+        this.buffer = new byte[bufferSize];
     }
 
     /**
@@ -66,7 +65,6 @@ public class InputStreamBufferInput
     {
         InputStream old = this.in;
         this.in = in;
-        reachedEOF = false;
         return old;
     }
 
@@ -74,14 +72,8 @@ public class InputStreamBufferInput
     public MessageBuffer next()
             throws IOException
     {
-        if (reachedEOF) {
-            return null;
-        }
-
-        byte[] buffer = new byte[bufferSize];
         int readLen = in.read(buffer);
         if (readLen == -1) {
-            reachedEOF = true;
             return null;
         }
         return MessageBuffer.wrap(buffer).slice(0, readLen);
@@ -92,10 +84,5 @@ public class InputStreamBufferInput
             throws IOException
     {
         in.close();
-    }
-
-    // TODO
-    public void release(MessageBuffer buffer)
-    {
     }
 }

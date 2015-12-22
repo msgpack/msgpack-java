@@ -204,9 +204,6 @@ public class MessageUnpacker
             throw new MessageInsufficientBufferException();
         }
         totalReadBytes += buffer.size();
-        if (buffer != EMPTY_BUFFER) {
-            in.release(buffer);
-        }
         buffer = next;
         position = 0;
     }
@@ -233,9 +230,6 @@ public class MessageUnpacker
             castBuffer.putBytes(remaining, next.getArray(), next.offset(), length - remaining);
 
             totalReadBytes += buffer.size();
-            if (buffer != EMPTY_BUFFER) {
-                in.release(buffer);
-            }
 
             buffer = next;
             position = length - remaining;
@@ -266,9 +260,6 @@ public class MessageUnpacker
                 return false;
             }
             totalReadBytes += buffer.size();
-            if (buffer != EMPTY_BUFFER) {
-                in.release(buffer);
-            }
             buffer = next;
             position = 0;
         }
@@ -1429,11 +1420,8 @@ public class MessageUnpacker
     public void close()
             throws IOException
     {
-        if (buffer != EMPTY_BUFFER) {
-            in.release(buffer);
-            buffer = EMPTY_BUFFER;
-            position = 0;
-        }
+        buffer = EMPTY_BUFFER;
+        position = 0;
         in.close();
     }
 
