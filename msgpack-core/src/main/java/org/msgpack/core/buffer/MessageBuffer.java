@@ -328,11 +328,6 @@ public class MessageBuffer
         this.reference = reference;
     }
 
-    public MessageBufferReader newReader()
-    {
-        return new MessageBufferReader(this);
-    }
-
     /**
      * byte size of the buffer
      *
@@ -408,7 +403,7 @@ public class MessageBuffer
 
     public void getBytes(int index, int len, ByteBuffer dst)
     {
-        if (dst.remaining() > len) {
+        if (dst.remaining() < len) {
             throw new BufferOverflowException();
         }
         ByteBuffer src = toByteBuffer(index, len);
