@@ -38,9 +38,6 @@ class ByteStringTest
           isRead = true
           messageBuffer
         }
-
-      override def release(buffer: MessageBuffer): Unit = {}
-
       override def close(): Unit = {}
     }
 
