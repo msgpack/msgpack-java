@@ -10,5 +10,5 @@ branches:
     - /^v07.*$/
 
 script:
-  - sbt test
-  - sbt test -J-Dmsgpack.universal-buffer=true
+  - ./sbt test
+  - ./sbt test -J-Dmsgpack.universal-buffer=true
