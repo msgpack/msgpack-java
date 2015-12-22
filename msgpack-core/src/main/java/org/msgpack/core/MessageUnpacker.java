@@ -17,7 +17,6 @@ package org.msgpack.core;
 
 import org.msgpack.core.MessagePack.Code;
 import org.msgpack.core.buffer.MessageBuffer;
-import org.msgpack.core.buffer.MessageBufferReader;
 import org.msgpack.core.buffer.MessageBufferInput;
 import org.msgpack.value.ImmutableValue;
 import org.msgpack.value.Value;
@@ -186,7 +185,7 @@ public class MessageUnpacker
         if (b == HEAD_BYTE_REQUIRED) {
             b = headByte = readByte();
             if (b == HEAD_BYTE_REQUIRED) {
-                throw new MessageNeverUsedFormatException("Encountered 0xC1 NEVER_USED byte");
+                throw new MessageNeverUsedFormatException("Encountered 0xC1 \"NEVER_USED\" byte");
             }
         }
         return b;
@@ -205,7 +204,9 @@ public class MessageUnpacker
             throw new MessageInsufficientBufferException();
         }
         totalReadBytes += buffer.size();
-        in.release(buffer);
+        if (buffer != EMPTY_BUFFER) {
+            in.release(buffer);
+        }
         buffer = next;
         position = 0;
     }
@@ -232,7 +233,9 @@ public class MessageUnpacker
             castBuffer.putBytes(remaining, next.getArray(), next.offset(), length - remaining);
 
             totalReadBytes += buffer.size();
-            in.release(buffer);
+            if (buffer != EMPTY_BUFFER) {
+                in.release(buffer);
+            }
 
             buffer = next;
             position = length - remaining;
@@ -244,8 +247,7 @@ public class MessageUnpacker
 
     private static int utf8MultibyteCharacterSize(byte firstByte)
     {
-        System.out.println("first byte: "+(firstByte & 0xff));
-        return Integer.numberOfLeadingZeros(~(firstByte & 0xff));
+        return Integer.numberOfLeadingZeros(~(firstByte & 0xff) << 24);
     }
 
     /**
@@ -264,7 +266,9 @@ public class MessageUnpacker
                 return false;
             }
             totalReadBytes += buffer.size();
-            in.release(buffer);
+            if (buffer != EMPTY_BUFFER) {
+                in.release(buffer);
+            }
             buffer = next;
             position = 0;
         }
@@ -490,7 +494,7 @@ public class MessageUnpacker
         MessageFormat mf = getNextFormat();
         switch (mf.getValueType()) {
             case NIL:
-                unpackNil();
+                readByte();
                 return ValueFactory.newNil();
             case BOOLEAN:
                 return ValueFactory.newBoolean(unpackBoolean());
@@ -1070,7 +1074,7 @@ public class MessageUnpacker
                         if (cr.isError()) {
                             handleCoderError(cr);
                         }
-                        if (cr.isUnderflow() || cr.isOverflow()) {
+                        if (cr.isOverflow() || (cr.isUnderflow() && multiByteBuffer.position() < multiByteBuffer.limit())) {
                             // isOverflow or isOverflow must not happen. if happened, throw exception
                             try {
                                 cr.throwException();
@@ -1106,7 +1110,7 @@ public class MessageUnpacker
         if (config.actionOnMalFormedInput == CodingErrorAction.REPLACE &&
                 config.actionOnUnmappableCharacter == CodingErrorAction.REPLACE &&
                 buffer.hasArray()) {
-            String s = new String(buffer.getArray(), position, length, MessagePack.UTF8);
+            String s = new String(buffer.getArray(), buffer.offset() + position, length, MessagePack.UTF8);
             position += length;
             return s;
         }
@@ -1425,6 +1429,11 @@ public class MessageUnpacker
     public void close()
             throws IOException
     {
+        if (buffer != EMPTY_BUFFER) {
+            in.release(buffer);
+            buffer = EMPTY_BUFFER;
+            position = 0;
+        }
         in.close();
     }
 
