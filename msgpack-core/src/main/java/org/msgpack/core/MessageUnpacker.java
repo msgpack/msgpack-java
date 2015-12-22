@@ -1326,6 +1326,7 @@ public class MessageUnpacker
             }
             else {
                 position += bufferRemaining;
+                numBytes -= bufferRemaining;
             }
             nextBuffer();
         }
