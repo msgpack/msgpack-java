@@ -15,12 +15,16 @@
 //
 package org.msgpack.jackson.dataformat.benchmark;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.msgpack.jackson.dataformat.MessagePackFactory;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,18 +69,32 @@ public class MessagePackDataformatHugeDataBenchmarkTest
         packedByMsgPack = bytes;
     }
 
+    public MessagePackDataformatHugeDataBenchmarkTest()
+    {
+        origObjectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
+        msgpackObjectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
+    }
+
     @Test
     public void testBenchmark()
             throws Exception
     {
         Benchmarker benchmarker = new Benchmarker();
 
+        File tempFileJackson = File.createTempFile("msgpack-jackson-", "-huge-jackson");
+        tempFileJackson.deleteOnExit();
+        final OutputStream outputStreamJackson = new FileOutputStream(tempFileJackson);
+
+        File tempFileMsgpack = File.createTempFile("msgpack-jackson-", "-huge-msgpack");
+        tempFileMsgpack.deleteOnExit();
+        final OutputStream outputStreamMsgpack = new FileOutputStream(tempFileMsgpack);
+
         benchmarker.addBenchmark(new Benchmarker.Benchmarkable("serialize(huge) with JSON") {
             @Override
             public void run()
                     throws Exception
             {
-                origObjectMapper.writeValueAsBytes(value);
+                origObjectMapper.writeValue(outputStreamJackson, value);
             }
         });
 
@@ -85,7 +103,7 @@ public class MessagePackDataformatHugeDataBenchmarkTest
             public void run()
                     throws Exception
             {
-                msgpackObjectMapper.writeValueAsBytes(value);
+                msgpackObjectMapper.writeValue(outputStreamMsgpack, value);
             }
         });
 
@@ -107,6 +125,12 @@ public class MessagePackDataformatHugeDataBenchmarkTest
             }
         });
 
-        benchmarker.run(COUNT, WARMUP_COUNT);
+        try {
+            benchmarker.run(COUNT, WARMUP_COUNT);
+        }
+        finally {
+            outputStreamJackson.close();
+            outputStreamMsgpack.close();
+        }
     }
 }
