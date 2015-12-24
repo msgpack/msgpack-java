@@ -997,29 +997,9 @@ public class MessageUnpacker
             while (readingRawRemaining > 0) {
                 int bufferRemaining = buffer.size() - position;
                 if (bufferRemaining >= readingRawRemaining) {
-                    ByteBuffer bb = buffer.toByteBuffer(position, readingRawRemaining);
-                    int bbStartPosition = bb.position();
-                    decodeBuffer.clear();
-
-                    CoderResult cr = decoder.decode(bb, decodeBuffer, true);
-                    int readLen = bb.position() - bbStartPosition;
-                    position += readLen;
-                    readingRawRemaining -= readLen;
-                    decodeStringBuffer.append(decodeBuffer.flip());
-
-                    if (cr.isError()) {
-                        handleCoderError(cr);
-                    }
-                    if (cr.isUnderflow() && config.actionOnMalFormedInput == CodingErrorAction.REPORT) {
-                        throw new MalformedInputException(cr.length());
-                    }
-
-                    if (cr.isOverflow()) {
-                        // go to next loop
-                    }
-                    else {
-                        break;
-                    }
+                    decodeStringBuffer.append(decodeStringFastPath(readingRawRemaining));
+                    readingRawRemaining = 0;
+                    break;
                 }
                 else if (bufferRemaining == 0) {
                     nextBuffer();
