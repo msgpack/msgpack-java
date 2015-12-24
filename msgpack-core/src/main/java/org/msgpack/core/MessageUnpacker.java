@@ -449,7 +449,7 @@ public class MessageUnpacker
                     remainingValues += readNextLength32() * 2; // TODO check int overflow
                     break;
                 case NEVER_USED:
-                    throw new MessageFormatException(String.format("unknown code: %02x is found", b));
+                    throw new MessageNeverUsedFormatException("Encountered 0xC1 \"NEVER_USED\" byte");
             }
 
             remainingValues--;
@@ -464,19 +464,17 @@ public class MessageUnpacker
      * @return
      * @throws MessageFormatException
      */
-    private static MessageTypeException unexpected(String expected, byte b)
-            throws MessageTypeException
+    private static MessagePackException unexpected(String expected, byte b)
     {
         MessageFormat format = MessageFormat.valueOf(b);
-        String typeName;
         if (format == MessageFormat.NEVER_USED) {
-            typeName = "NeverUsed";
+            return new MessageNeverUsedFormatException(String.format("Expected %s, but encountered 0xC1 \"NEVER_USED\" byte", expected));
         }
         else {
             String name = format.getValueType().name();
-            typeName = name.substring(0, 1) + name.substring(1).toLowerCase();
+            String typeName = name.substring(0, 1) + name.substring(1).toLowerCase();
+            return new MessageTypeException(String.format("Expected %s, but got %s (%02x)", expected, typeName, b));
         }
-        return new MessageTypeException(String.format("Expected %s, but got %s (%02x)", expected, typeName, b));
     }
 
     public ImmutableValue unpackValue()
@@ -530,7 +528,7 @@ public class MessageUnpacker
                 return ValueFactory.newExtension(extHeader.getType(), readPayload(extHeader.getLength()));
             }
             default:
-                throw new MessageFormatException("Unknown value type");
+                throw new MessageNeverUsedFormatException("Unknown value type");
         }
     }
 
