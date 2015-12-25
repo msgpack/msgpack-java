@@ -98,9 +98,10 @@ public class MessageUnpacker
     private long totalReadBytes;
 
     /**
-     * Extra buffer for fixed-length data at the buffer boundary. At most 17-byte buffer (for FIXEXT16) is required.
+     * Extra buffer for fixed-length data at the buffer boundary.
+     * At most 8-byte buffer (for readLong used by uint 64 and UTF-8 character decoding) is required.
      */
-    private final MessageBuffer castBuffer = MessageBuffer.newBuffer(24);
+    private final MessageBuffer castBuffer = MessageBuffer.newBuffer(8);
 
     /**
      * Variable by ensureHeader method. Caller of the method should use this variable to read from returned MessageBuffer.
