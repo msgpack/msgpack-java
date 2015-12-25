@@ -28,15 +28,18 @@ import static org.msgpack.core.Preconditions.checkNotNull;
 public class MessageBufferU
         extends MessageBuffer
 {
-    public MessageBufferU(ByteBuffer bb)
+    private final ByteBuffer wrap;
+
+    MessageBufferU(byte[] arr, int offset, int length)
     {
-        super(null, 0L, bb.capacity(), bb.order(ByteOrder.BIG_ENDIAN));
-        checkNotNull(reference);
+        super(arr, offset, length);
+        this.wrap = ByteBuffer.wrap(arr, offset, length);
     }
 
-    MessageBufferU(byte[] arr)
+    private MessageBufferU(Object base, long address, int length, ByteBuffer wrap)
     {
-        this(ByteBuffer.wrap(arr));
+        super(base, address, length);
+        this.wrap = wrap;
     }
 
     @Override
@@ -48,9 +51,9 @@ public class MessageBufferU
         else {
             checkArgument(offset + length <= size());
             try {
-                reference.position(offset);
-                reference.limit(offset + length);
-                return new MessageBufferU(reference.slice());
+                wrap.position(offset);
+                wrap.limit(offset + length);
+                return new MessageBufferU(base, address + offset, length, wrap.slice());
             }
             finally {
                 resetBufferPosition();
@@ -60,59 +63,59 @@ public class MessageBufferU
 
     private void resetBufferPosition()
     {
-        reference.position(0);
-        reference.limit(size);
+        wrap.position(0);
+        wrap.limit(size);
     }
 
     @Override
     public byte getByte(int index)
     {
-        return reference.get(index);
+        return wrap.get(index);
     }
 
     @Override
     public boolean getBoolean(int index)
     {
-        return reference.get(index) != 0;
+        return wrap.get(index) != 0;
     }
 
     @Override
     public short getShort(int index)
     {
-        return reference.getShort(index);
+        return wrap.getShort(index);
     }
 
     @Override
     public int getInt(int index)
     {
-        return reference.getInt(index);
+        return wrap.getInt(index);
     }
 
     @Override
     public float getFloat(int index)
     {
-        return reference.getFloat(index);
+        return wrap.getFloat(index);
     }
 
     @Override
     public long getLong(int index)
     {
-        return reference.getLong(index);
+        return wrap.getLong(index);
     }
 
     @Override
     public double getDouble(int index)
     {
-        return reference.getDouble(index);
+        return wrap.getDouble(index);
     }
 
     @Override
     public void getBytes(int index, int len, ByteBuffer dst)
     {
         try {
-            reference.position(index);
-            reference.limit(index + len);
-            dst.put(reference);
+            wrap.position(index);
+            wrap.limit(index + len);
+            dst.put(wrap);
         }
         finally {
             resetBufferPosition();
@@ -122,52 +125,52 @@ public class MessageBufferU
     @Override
     public void putByte(int index, byte v)
     {
-        reference.put(index, v);
+        wrap.put(index, v);
     }
 
     @Override
     public void putBoolean(int index, boolean v)
     {
-        reference.put(index, v ? (byte) 1 : (byte) 0);
+        wrap.put(index, v ? (byte) 1 : (byte) 0);
     }
 
     @Override
     public void putShort(int index, short v)
     {
-        reference.putShort(index, v);
+        wrap.putShort(index, v);
     }
 
     @Override
     public void putInt(int index, int v)
     {
-        reference.putInt(index, v);
+        wrap.putInt(index, v);
     }
 
     @Override
     public void putFloat(int index, float v)
     {
-        reference.putFloat(index, v);
+        wrap.putFloat(index, v);
     }
 
     @Override
     public void putLong(int index, long l)
     {
-        reference.putLong(index, l);
+        wrap.putLong(index, l);
     }
 
     @Override
     public void putDouble(int index, double v)
     {
-        reference.putDouble(index, v);
+        wrap.putDouble(index, v);
     }
 
     @Override
-    public ByteBuffer toByteBuffer(int index, int length)
+    public ByteBuffer sliceAsByteBuffer(int index, int length)
     {
         try {
-            reference.position(index);
-            reference.limit(index + length);
-            return reference.slice();
+            wrap.position(index);
+            wrap.limit(index + length);
+            return wrap.slice();
         }
         finally {
             resetBufferPosition();
@@ -175,17 +178,17 @@ public class MessageBufferU
     }
 
     @Override
-    public ByteBuffer toByteBuffer()
+    public ByteBuffer sliceAsByteBuffer()
     {
-        return toByteBuffer(0, size);
+        return sliceAsByteBuffer(0, size);
     }
 
     @Override
     public void getBytes(int index, byte[] dst, int dstOffset, int length)
     {
         try {
-            reference.position(index);
-            reference.get(dst, dstOffset, length);
+            wrap.position(index);
+            wrap.get(dst, dstOffset, length);
         }
         finally {
             resetBufferPosition();
@@ -205,8 +208,8 @@ public class MessageBufferU
             int prevSrcLimit = src.limit();
             try {
                 src.limit(src.position() + len);
-                reference.position(index);
-                reference.put(src);
+                wrap.position(index);
+                wrap.put(src);
             }
             finally {
                 src.limit(prevSrcLimit);
@@ -218,8 +221,8 @@ public class MessageBufferU
     public void putBytes(int index, byte[] src, int srcOffset, int length)
     {
         try {
-            reference.position(index);
-            reference.put(src, srcOffset, length);
+            wrap.position(index);
+            wrap.put(src, srcOffset, length);
         }
         finally {
             resetBufferPosition();
@@ -230,8 +233,8 @@ public class MessageBufferU
     public void copyTo(int index, MessageBuffer dst, int offset, int length)
     {
         try {
-            reference.position(index);
-            dst.putByteBuffer(offset, reference, length);
+            wrap.position(index);
+            dst.putByteBuffer(offset, wrap, length);
         }
         finally {
             resetBufferPosition();

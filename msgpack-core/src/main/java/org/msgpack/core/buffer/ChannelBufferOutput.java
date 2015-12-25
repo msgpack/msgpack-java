@@ -38,7 +38,7 @@ public class ChannelBufferOutput
     public ChannelBufferOutput(WritableByteChannel channel, int bufferSize)
     {
         this.channel = checkNotNull(channel, "output channel is null");
-        this.buffer = MessageBuffer.newBuffer(bufferSize);
+        this.buffer = MessageBuffer.allocate(bufferSize);
     }
 
     /**
@@ -60,7 +60,7 @@ public class ChannelBufferOutput
             throws IOException
     {
         if (buffer.size() < mimimumSize) {
-            buffer = MessageBuffer.newBuffer(mimimumSize);
+            buffer = MessageBuffer.allocate(mimimumSize);
         }
         return buffer;
     }
@@ -69,7 +69,7 @@ public class ChannelBufferOutput
     public void writeBuffer(int length)
             throws IOException
     {
-        ByteBuffer bb = buffer.toByteBuffer(0, length);
+        ByteBuffer bb = buffer.sliceAsByteBuffer(0, length);
         while (bb.hasRemaining()) {
             channel.write(bb);
         }

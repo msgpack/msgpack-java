@@ -106,7 +106,7 @@ public class MessageUnpacker
      * Extra buffer for fixed-length data at the buffer boundary.
      * At most 8-byte buffer (for readLong used by uint 64 and UTF-8 character decoding) is required.
      */
-    private final MessageBuffer castBuffer = MessageBuffer.newBuffer(8);
+    private final MessageBuffer castBuffer = MessageBuffer.allocate(8);
 
     /**
      * Variable by ensureHeader method. Caller of the method should use this variable to read from returned MessageBuffer.
@@ -1032,7 +1032,7 @@ public class MessageUnpacker
                     nextBuffer();
                 }
                 else {
-                    ByteBuffer bb = buffer.toByteBuffer(position, bufferRemaining);
+                    ByteBuffer bb = buffer.sliceAsByteBuffer(position, bufferRemaining);
                     int bbStartPosition = bb.position();
                     decodeBuffer.clear();
 
@@ -1114,7 +1114,7 @@ public class MessageUnpacker
         }
         else {
             resetDecoder();
-            ByteBuffer bb = buffer.toByteBuffer();
+            ByteBuffer bb = buffer.sliceAsByteBuffer();
             bb.limit(position + length);
             bb.position(position);
             CharBuffer cb;
@@ -1395,8 +1395,8 @@ public class MessageUnpacker
             position += length;
             return slice;
         }
-        MessageBuffer dst = MessageBuffer.newBuffer(length);
-        readPayload(dst.getReference());
+        MessageBuffer dst = MessageBuffer.allocate(length);
+        readPayload(dst.sliceAsByteBuffer());
         return dst;
     }
 

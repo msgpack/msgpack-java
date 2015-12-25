@@ -27,19 +27,14 @@ import static org.msgpack.core.Preconditions.checkArgument;
 public class MessageBufferBE
         extends MessageBuffer
 {
-    MessageBufferBE(ByteBuffer bb)
+    MessageBufferBE(byte[] arr, int offset, int length)
     {
-        super(bb);
+        super(arr, offset, length);
     }
 
-    MessageBufferBE(byte[] arr)
+    private MessageBufferBE(Object base, long address, int length)
     {
-        super(arr);
-    }
-
-    private MessageBufferBE(Object base, long address, int length, ByteBuffer reference)
-    {
-        super(base, address, length, reference);
+        super(base, address, length);
     }
 
     @Override
@@ -50,7 +45,7 @@ public class MessageBufferBE
         }
         else {
             checkArgument(offset + length <= size());
-            return new MessageBufferBE(base, address + offset, length, reference);
+            return new MessageBufferBE(base, address + offset, length);
         }
     }
 
