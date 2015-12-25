@@ -28,18 +28,23 @@ public class OutputStreamBufferOutput
 {
     private OutputStream out;
     private MessageBuffer buffer;
-    private byte[] tmpBuf;
 
     public OutputStreamBufferOutput(OutputStream out)
     {
+        this(out, 8192);
+    }
+
+    public OutputStreamBufferOutput(OutputStream out, int bufferSize)
+    {
         this.out = checkNotNull(out, "output is null");
+        this.buffer = MessageBuffer.newBuffer(bufferSize);
     }
 
     /**
-     * Reset Stream. This method doesn't close the old resource.
+     * Reset Stream. This method doesn't close the old stream.
      *
      * @param out new stream
-     * @return the old resource
+     * @return the old stream
      */
     public OutputStream reset(OutputStream out)
             throws IOException
@@ -50,41 +55,47 @@ public class OutputStreamBufferOutput
     }
 
     @Override
-    public MessageBuffer next(int bufferSize)
+    public MessageBuffer next(int mimimumSize)
             throws IOException
     {
-        if (buffer == null || buffer.size != bufferSize) {
-            buffer = MessageBuffer.newBuffer(bufferSize);
+        if (buffer.size() < mimimumSize) {
+            buffer = MessageBuffer.newBuffer(mimimumSize);
         }
         return buffer;
     }
 
     @Override
-    public void flush(MessageBuffer buf)
+    public void writeBuffer(int length)
             throws IOException
     {
-        int writeLen = buf.size();
-        if (buf.hasArray()) {
-            out.write(buf.getArray(), buf.offset(), writeLen);
-        }
-        else {
-            if (tmpBuf == null || tmpBuf.length < writeLen) {
-                tmpBuf = new byte[writeLen];
-            }
-            buf.getBytes(0, tmpBuf, 0, writeLen);
-            out.write(tmpBuf, 0, writeLen);
-        }
+        write(buffer.getArray(), buffer.offset(), length);
+    }
+
+    @Override
+    public void write(byte[] buffer, int offset, int length)
+            throws IOException
+    {
+        out.write(buffer, offset, length);
+    }
+
+    @Override
+    public void add(byte[] buffer, int offset, int length)
+            throws IOException
+    {
+        write(buffer, offset, length);
     }
 
     @Override
     public void close()
             throws IOException
     {
-        try {
-            out.flush();
-        }
-        finally {
-            out.close();
-        }
+        out.close();
+    }
+
+    @Override
+    public void flush()
+            throws IOException
+    {
+        out.flush();
     }
 }

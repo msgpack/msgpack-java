@@ -183,8 +183,17 @@ public class MessagePackGenerator
         }
         else if (v instanceof ByteBuffer) {
             ByteBuffer bb = (ByteBuffer) v;
-            messagePacker.packBinaryHeader(bb.limit());
-            messagePacker.writePayload(bb);
+            int len = bb.remaining();
+            if (bb.hasArray()) {
+                messagePacker.packBinaryHeader(len);
+                messagePacker.writePayload(bb.array(), bb.arrayOffset(), len);
+            }
+            else {
+                byte[] data = new byte[len];
+                bb.get(data);
+                messagePacker.packBinaryHeader(len);
+                messagePacker.addPayload(data);
+            }
         }
         else if (v instanceof String) {
             messagePacker.packString((String) v);

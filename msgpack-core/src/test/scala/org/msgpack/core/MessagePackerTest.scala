@@ -283,12 +283,11 @@ class MessagePackerTest
 
   "support read-only buffer" taggedAs ("read-only") in {
     val payload = Array[Byte](1)
-    val buffer = ByteBuffer.wrap(payload).asReadOnlyBuffer()
     val out = new
         ByteArrayOutputStream()
     val packer = MessagePack.newDefaultPacker(out)
       .packBinaryHeader(1)
-      .writePayload(buffer)
+      .writePayload(payload)
       .close()
   }
 }
