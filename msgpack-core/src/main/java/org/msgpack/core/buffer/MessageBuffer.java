@@ -210,6 +210,11 @@ public class MessageBuffer
         return newMessageBuffer(array);
     }
 
+    public static MessageBuffer wrap(byte[] array, int offset, int length)
+    {
+        return newMessageBuffer(array).slice(offset, length);
+    }
+
     public static MessageBuffer wrap(ByteBuffer bb)
     {
         return newMessageBuffer(bb).slice(bb.position(), bb.remaining());
