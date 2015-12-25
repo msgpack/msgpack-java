@@ -68,7 +68,7 @@ public class OutputStreamBufferOutput
     public void writeBuffer(int length)
             throws IOException
     {
-        write(buffer.getArray(), buffer.offset(), length);
+        write(buffer.array(), buffer.arrayOffset(), length);
     }
 
     @Override

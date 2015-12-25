@@ -13,11 +13,11 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.core.annotations;
+package org.msgpack.core;
 
 /**
  * Annotates a field which can be null
  */
-public @interface Nullable
+@interface Nullable
 {
 }

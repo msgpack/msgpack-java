@@ -255,8 +255,8 @@ public class MessageUnpacker
 
             // TODO this doesn't work if MessageBuffer is allocated by newDirectBuffer.
             //      add copy method to MessageBuffer to solve this issue.
-            castBuffer.putBytes(0, buffer.getArray(), buffer.offset() + position, remaining);
-            castBuffer.putBytes(remaining, next.getArray(), next.offset(), length - remaining);
+            castBuffer.putBytes(0, buffer.array(), buffer.arrayOffset() + position, remaining);
+            castBuffer.putBytes(remaining, next.array(), next.arrayOffset(), length - remaining);
 
             totalReadBytes += buffer.size();
 
@@ -1106,9 +1106,8 @@ public class MessageUnpacker
     private String decodeStringFastPath(int length)
     {
         if (actionOnMalformedString == CodingErrorAction.REPLACE &&
-                actionOnUnmappableString == CodingErrorAction.REPLACE &&
-                buffer.hasArray()) {
-            String s = new String(buffer.getArray(), buffer.offset() + position, length, MessagePack.UTF8);
+                actionOnUnmappableString == CodingErrorAction.REPLACE) {
+            String s = new String(buffer.array(), buffer.arrayOffset() + position, length, MessagePack.UTF8);
             position += length;
             return s;
         }
