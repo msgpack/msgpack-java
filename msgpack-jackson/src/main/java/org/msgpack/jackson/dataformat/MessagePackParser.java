@@ -237,13 +237,11 @@ public class MessagePackParser
                         long l = messageUnpacker.unpackLong();
                         if (Integer.MIN_VALUE <= l && l <= Integer.MAX_VALUE) {
                             type = Type.INT;
-                            intValue = (int)l;
-                            v = intValue;
+                            v = intValue = (int) l;
                         }
                         else {
                             type = Type.LONG;
-                            longValue = l;
-                            v = longValue;
+                            v = longValue = l;
                         }
                         break;
                 }
@@ -281,7 +279,6 @@ public class MessagePackParser
             case BINARY:
                 type = Type.BYTES;
                 int len = messageUnpacker.unpackBinaryHeader();
-                // TODO: Optimize
                 bytesValue = messageUnpacker.readPayload(len);
                 if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
                     parsingContext.setCurrentName(new String(bytesValue, MessagePack.UTF8));
