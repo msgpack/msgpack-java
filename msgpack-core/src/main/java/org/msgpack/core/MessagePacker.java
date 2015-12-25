@@ -448,7 +448,7 @@ public class MessagePacker
     private int encodeStringToBufferAt(int pos, String s)
     {
         prepareEncoder();
-        ByteBuffer bb = buffer.toByteBuffer(pos, buffer.size() - pos);
+        ByteBuffer bb = buffer.sliceAsByteBuffer(pos, buffer.size() - pos);
         int startPosition = bb.position();
         CharBuffer in = CharBuffer.wrap(s);
         CoderResult cr = encoder.encode(in, bb, true);

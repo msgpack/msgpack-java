@@ -40,7 +40,7 @@ public class ChannelBufferInput
     {
         this.channel = checkNotNull(channel, "input channel is null");
         checkArgument(bufferSize > 0, "buffer size must be > 0: " + bufferSize);
-        this.m = MessageBuffer.newBuffer(bufferSize);
+        this.m = MessageBuffer.allocate(bufferSize);
     }
 
     /**
@@ -61,7 +61,7 @@ public class ChannelBufferInput
     public MessageBuffer next()
             throws IOException
     {
-        ByteBuffer b = m.toByteBuffer();
+        ByteBuffer b = m.sliceAsByteBuffer();
         while (b.remaining() > 0) {
             int ret = channel.read(b);
             if (ret == -1) {

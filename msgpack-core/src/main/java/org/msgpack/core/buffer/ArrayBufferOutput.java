@@ -65,7 +65,7 @@ public class ArrayBufferOutput
             return list.get(0);
         }
         else if (list.isEmpty()) {
-            return MessageBuffer.newBuffer(0);
+            return MessageBuffer.allocate(0);
         }
         else {
             return MessageBuffer.wrap(toByteArray());
@@ -93,7 +93,7 @@ public class ArrayBufferOutput
         }
         else {
             int size = Math.max(bufferSize, mimimumSize);
-            MessageBuffer buffer = MessageBuffer.newBuffer(size);
+            MessageBuffer buffer = MessageBuffer.allocate(size);
             lastBuffer = buffer;
             return buffer;
         }
@@ -114,7 +114,7 @@ public class ArrayBufferOutput
     @Override
     public void write(byte[] buffer, int offset, int length)
     {
-        MessageBuffer copy = MessageBuffer.newBuffer(length);
+        MessageBuffer copy = MessageBuffer.allocate(length);
         copy.putBytes(0, buffer, offset, length);
         list.add(copy);
     }

@@ -37,7 +37,7 @@ public class OutputStreamBufferOutput
     public OutputStreamBufferOutput(OutputStream out, int bufferSize)
     {
         this.out = checkNotNull(out, "output is null");
-        this.buffer = MessageBuffer.newBuffer(bufferSize);
+        this.buffer = MessageBuffer.allocate(bufferSize);
     }
 
     /**
@@ -59,7 +59,7 @@ public class OutputStreamBufferOutput
             throws IOException
     {
         if (buffer.size() < mimimumSize) {
-            buffer = MessageBuffer.newBuffer(mimimumSize);
+            buffer = MessageBuffer.allocate(mimimumSize);
         }
         return buffer;
     }

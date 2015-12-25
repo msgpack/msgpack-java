@@ -133,6 +133,4 @@ public class MessagePack
     {
         return defaultFactory.newUnpacker(contents, offset, length);
     }
-
-    // TODO add convenient methods here to pack/unpack objects with byte array/stream
 }
