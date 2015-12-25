@@ -19,6 +19,7 @@ import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Benchmarker
@@ -58,23 +59,20 @@ public class Benchmarker
             throws Exception
     {
         List<Tuple<String, double[]>> benchmarksResults = new ArrayList<Tuple<String, double[]>>(benchmarkableList.size());
-
         for (Benchmarkable benchmark : benchmarkableList) {
-            double[] durations = new double[count];
+            benchmarksResults.add(new Tuple<String, double[]>(benchmark.label, new double[count]));
+        }
 
-            for (int i = 0; i < count + warmupCount; i++) {
-                if (i >= warmupCount) {
-                    System.gc();
-                }
-
+        for (int i = 0; i < count + warmupCount; i++) {
+            for (int bi = 0; bi < benchmarkableList.size(); bi++) {
+                Benchmarkable benchmark = benchmarkableList.get(bi);
                 long currentTimeNanos = System.nanoTime();
                 benchmark.run();
 
                 if (i >= warmupCount) {
-                    durations[i - warmupCount] = (System.nanoTime() - currentTimeNanos) / 1000000.0;
+                    benchmarksResults.get(bi).second[i - warmupCount] = (System.nanoTime() - currentTimeNanos) / 1000000.0;
                 }
             }
-            benchmarksResults.add(new Tuple<String, double[]>(benchmark.label, durations));
         }
 
         for (Tuple<String, double[]> benchmarkResult : benchmarksResults) {
@@ -82,8 +80,13 @@ public class Benchmarker
         }
     }
 
-    private void printStat(String label, double[] values)
+    private void printStat(String label, double[] origValues)
     {
+        double[] values = origValues;
+        Arrays.sort(origValues);
+        if (origValues.length > 2) {
+            values = Arrays.copyOfRange(origValues, 1, origValues.length - 1);
+        }
         StandardDeviation standardDeviation = new StandardDeviation();
         System.out.println(label + ":");
         System.out.println(String.format("  mean : %8.3f", StatUtils.mean(values)));
