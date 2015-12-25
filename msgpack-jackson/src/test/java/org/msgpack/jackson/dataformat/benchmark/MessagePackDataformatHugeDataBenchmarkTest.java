@@ -15,21 +15,24 @@
 //
 package org.msgpack.jackson.dataformat.benchmark;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
-import org.msgpack.jackson.dataformat.MessagePackDataformatTestBase;
 import org.msgpack.jackson.dataformat.MessagePackFactory;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MessagePackDataformatHugeDataBenchmarkTest
-        extends MessagePackDataformatTestBase
 {
-    private static final int ELM_NUM = 1000000;
-    private static final int SAMPLING_COUNT = 4;
+    private static final int ELM_NUM = 100000;
+    private static final int COUNT = 6;
+    private static final int WARMUP_COUNT = 4;
     private final ObjectMapper origObjectMapper = new ObjectMapper();
     private final ObjectMapper msgpackObjectMapper = new ObjectMapper(new MessagePackFactory());
     private static final List<Object> value;
@@ -66,34 +69,68 @@ public class MessagePackDataformatHugeDataBenchmarkTest
         packedByMsgPack = bytes;
     }
 
+    public MessagePackDataformatHugeDataBenchmarkTest()
+    {
+        origObjectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
+        msgpackObjectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
+    }
+
     @Test
     public void testBenchmark()
             throws Exception
     {
-        double[] durationOfSerializeWithJson = new double[SAMPLING_COUNT];
-        double[] durationOfSerializeWithMsgPack = new double[SAMPLING_COUNT];
-        double[] durationOfDeserializeWithJson = new double[SAMPLING_COUNT];
-        double[] durationOfDeserializeWithMsgPack = new double[SAMPLING_COUNT];
-        for (int si = 0; si < SAMPLING_COUNT; si++) {
-            long currentTimeMillis = System.currentTimeMillis();
-            origObjectMapper.writeValueAsBytes(value);
-            durationOfSerializeWithJson[si] = System.currentTimeMillis() - currentTimeMillis;
+        Benchmarker benchmarker = new Benchmarker();
 
-            currentTimeMillis = System.currentTimeMillis();
-            msgpackObjectMapper.writeValueAsBytes(value);
-            durationOfSerializeWithMsgPack[si] = System.currentTimeMillis() - currentTimeMillis;
+        File tempFileJackson = File.createTempFile("msgpack-jackson-", "-huge-jackson");
+        tempFileJackson.deleteOnExit();
+        final OutputStream outputStreamJackson = new FileOutputStream(tempFileJackson);
 
-            currentTimeMillis = System.currentTimeMillis();
-            origObjectMapper.readValue(packedByOriginal, new TypeReference<List<Object>>() {});
-            durationOfDeserializeWithJson[si] = System.currentTimeMillis() - currentTimeMillis;
+        File tempFileMsgpack = File.createTempFile("msgpack-jackson-", "-huge-msgpack");
+        tempFileMsgpack.deleteOnExit();
+        final OutputStream outputStreamMsgpack = new FileOutputStream(tempFileMsgpack);
 
-            currentTimeMillis = System.currentTimeMillis();
-            msgpackObjectMapper.readValue(packedByMsgPack, new TypeReference<List<Object>>() {});
-            durationOfDeserializeWithMsgPack[si] = System.currentTimeMillis() - currentTimeMillis;
+        benchmarker.addBenchmark(new Benchmarker.Benchmarkable("serialize(huge) with JSON") {
+            @Override
+            public void run()
+                    throws Exception
+            {
+                origObjectMapper.writeValue(outputStreamJackson, value);
+            }
+        });
+
+        benchmarker.addBenchmark(new Benchmarker.Benchmarkable("serialize(huge) with MessagePack") {
+            @Override
+            public void run()
+                    throws Exception
+            {
+                msgpackObjectMapper.writeValue(outputStreamMsgpack, value);
+            }
+        });
+
+        benchmarker.addBenchmark(new Benchmarker.Benchmarkable("deserialize(huge) with JSON") {
+            @Override
+            public void run()
+                    throws Exception
+            {
+                origObjectMapper.readValue(packedByOriginal, new TypeReference<List<Object>>() {});
+            }
+        });
+
+        benchmarker.addBenchmark(new Benchmarker.Benchmarkable("deserialize(huge) with MessagePack") {
+            @Override
+            public void run()
+                    throws Exception
+            {
+                msgpackObjectMapper.readValue(packedByMsgPack, new TypeReference<List<Object>>() {});
+            }
+        });
+
+        try {
+            benchmarker.run(COUNT, WARMUP_COUNT);
         }
-        printStat("serialize(huge) with JSON", durationOfSerializeWithJson);
-        printStat("serialize(huge) with MessagePack", durationOfSerializeWithMsgPack);
-        printStat("deserialize(huge) with JSON", durationOfDeserializeWithJson);
-        printStat("deserialize(huge) with MessagePack", durationOfDeserializeWithMsgPack);
+        finally {
+            outputStreamJackson.close();
+            outputStreamMsgpack.close();
+        }
     }
 }
