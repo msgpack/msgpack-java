@@ -44,7 +44,7 @@ class MessageBufferOutputTest
   def writeIntToBuf(buf: MessageBufferOutput) = {
     val mb0 = buf.next(8)
     mb0.putInt(0, 42)
-    buf.flush(mb0)
+    buf.writeBuffer(4)
     buf.close
   }
 
