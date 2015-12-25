@@ -33,7 +33,10 @@ public class MessageBufferU
     MessageBufferU(byte[] arr, int offset, int length)
     {
         super(arr, offset, length);
-        this.wrap = ByteBuffer.wrap(arr, offset, length);
+        ByteBuffer bb = ByteBuffer.wrap(arr);
+        bb.position(offset);
+        bb.limit(offset + length);
+        this.wrap = bb.slice();
     }
 
     private MessageBufferU(Object base, long address, int length, ByteBuffer wrap)

@@ -15,7 +15,6 @@
 //
 package org.msgpack.core.buffer;
 
-import org.msgpack.core.annotations.Insecure;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Constructor;
@@ -428,39 +427,14 @@ public class MessageBuffer
         return b;
     }
 
-    @Insecure
-    public boolean hasArray()
-    {
-        return base instanceof byte[];
-    }
-
-    @Insecure
-    public byte[] getArray()
+    public byte[] array()
     {
         return (byte[]) base;
     }
 
-    @Insecure
-    public Object getBase()
+    public int arrayOffset()
     {
-        return base;
-    }
-
-    @Insecure
-    public long getAddress()
-    {
-        return address;
-    }
-
-    @Insecure
-    public int offset()
-    {
-        if (hasArray()) {
-            return (int) address - ARRAY_BYTE_BASE_OFFSET;
-        }
-        else {
-            return 0;
-        }
+        return (int) address - ARRAY_BYTE_BASE_OFFSET;
     }
 
     /**
