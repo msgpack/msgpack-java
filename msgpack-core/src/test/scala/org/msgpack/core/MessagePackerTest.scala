@@ -30,10 +30,10 @@ import scala.util.Random
 class MessagePackerTest
   extends MessagePackSpec {
 
-  val msgpack = MessagePack.DEFAULT
+  val factory = new MessagePackFactory()
 
   def verifyIntSeq(answer: Array[Int], packed: Array[Byte]) {
-    val unpacker = msgpack.newUnpacker(packed)
+    val unpacker = factory.newUnpacker(packed)
     val b = Array.newBuilder[Int]
     while (unpacker.hasNext) {
       b += unpacker.unpackInt()
@@ -69,7 +69,7 @@ class MessagePackerTest
 
       val b = new
           ByteArrayOutputStream
-      val packer = msgpack.newPacker(b)
+      val packer = factory.newPacker(b)
       intSeq foreach packer.packInt
       packer.close
       verifyIntSeq(intSeq, b.toByteArray)
@@ -102,7 +102,7 @@ class MessagePackerTest
         block("no-buffer-reset") {
           val out = new
               ByteArrayOutputStream
-          IOUtil.withResource(msgpack.newPacker(out)) { packer =>
+          IOUtil.withResource(factory.newPacker(out)) { packer =>
             for (i <- 0 until N) {
               val outputStream = new
                   ByteArrayOutputStream()
@@ -118,7 +118,7 @@ class MessagePackerTest
         block("buffer-reset") {
           val out = new
               ByteArrayOutputStream
-          IOUtil.withResource(msgpack.newPacker(out)) { packer =>
+          IOUtil.withResource(factory.newPacker(out)) { packer =>
             val bufferOut = new
                 OutputStreamBufferOutput(new
                     ByteArrayOutputStream())
@@ -142,15 +142,14 @@ class MessagePackerTest
 
       // TODO: Refactor this test code to fit other ones.
       def test(bufferSize: Int, stringSize: Int): Boolean = {
-        val msgpack = new
-            MessagePack(new
-                MessagePack.ConfigBuilder().packerBufferSize(bufferSize).build)
+        val factory = new MessagePackFactory()
+            .outputBufferSize(bufferSize);
         val str = "a" * stringSize
         val rawString = ValueFactory.newString(str.getBytes("UTF-8"))
         val array = ValueFactory.newArray(rawString)
         val out = new
             ByteArrayOutputStream()
-        val packer = msgpack.newPacker(out)
+        val packer = factory.newPacker(out)
         packer.packValue(array)
         packer.close()
         out.toByteArray
@@ -266,7 +265,7 @@ class MessagePackerTest
   "compute totalWrittenBytes" in {
     val out = new
         ByteArrayOutputStream
-    val packerTotalWrittenBytes = IOUtil.withResource(msgpack.newPacker(out)) { packer =>
+    val packerTotalWrittenBytes = IOUtil.withResource(factory.newPacker(out)) { packer =>
       packer.packByte(0) // 1
         .packBoolean(true) // 1
         .packShort(12) // 1
@@ -283,12 +282,11 @@ class MessagePackerTest
 
   "support read-only buffer" taggedAs ("read-only") in {
     val payload = Array[Byte](1)
-    val buffer = ByteBuffer.wrap(payload).asReadOnlyBuffer()
     val out = new
         ByteArrayOutputStream()
     val packer = MessagePack.newDefaultPacker(out)
       .packBinaryHeader(1)
-      .writePayload(buffer)
+      .writePayload(payload)
       .close()
   }
 }

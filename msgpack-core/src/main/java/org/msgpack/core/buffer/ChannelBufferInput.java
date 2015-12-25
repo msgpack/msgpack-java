@@ -29,8 +29,7 @@ public class ChannelBufferInput
         implements MessageBufferInput
 {
     private ReadableByteChannel channel;
-    private boolean reachedEOF = false;
-    private final int bufferSize;
+    private final MessageBuffer m;
 
     public ChannelBufferInput(ReadableByteChannel channel)
     {
@@ -41,7 +40,7 @@ public class ChannelBufferInput
     {
         this.channel = checkNotNull(channel, "input channel is null");
         checkArgument(bufferSize > 0, "buffer size must be > 0: " + bufferSize);
-        this.bufferSize = bufferSize;
+        this.m = MessageBuffer.allocate(bufferSize);
     }
 
     /**
@@ -55,7 +54,6 @@ public class ChannelBufferInput
     {
         ReadableByteChannel old = this.channel;
         this.channel = channel;
-        this.reachedEOF = false;
         return old;
     }
 
@@ -63,16 +61,11 @@ public class ChannelBufferInput
     public MessageBuffer next()
             throws IOException
     {
-        if (reachedEOF) {
-            return null;
-        }
-
-        MessageBuffer m = MessageBuffer.newBuffer(bufferSize);
-        ByteBuffer b = m.toByteBuffer();
-        while (!reachedEOF && b.remaining() > 0) {
+        ByteBuffer b = m.sliceAsByteBuffer();
+        while (b.remaining() > 0) {
             int ret = channel.read(b);
             if (ret == -1) {
-                reachedEOF = true;
+                break;
             }
         }
         b.flip();
@@ -85,4 +78,5 @@ public class ChannelBufferInput
     {
         channel.close();
     }
+
 }

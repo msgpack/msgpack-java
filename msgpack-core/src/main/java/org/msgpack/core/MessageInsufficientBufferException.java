@@ -13,11 +13,28 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.core.annotations;
+package org.msgpack.core;
 
-/**
- * Annotates a code which must be used carefully.
- */
-public @interface Insecure
+public class MessageInsufficientBufferException
+        extends MessagePackException
 {
+    public MessageInsufficientBufferException()
+    {
+        super();
+    }
+
+    public MessageInsufficientBufferException(String message)
+    {
+        super(message);
+    }
+
+    public MessageInsufficientBufferException(Throwable cause)
+    {
+        super(cause);
+    }
+
+    public MessageInsufficientBufferException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
 }

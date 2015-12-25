@@ -32,14 +32,20 @@ public class ChannelBufferOutput
 
     public ChannelBufferOutput(WritableByteChannel channel)
     {
+        this(channel, 8192);
+    }
+
+    public ChannelBufferOutput(WritableByteChannel channel, int bufferSize)
+    {
         this.channel = checkNotNull(channel, "output channel is null");
+        this.buffer = MessageBuffer.allocate(bufferSize);
     }
 
     /**
-     * Reset channel. This method doesn't close the old resource.
+     * Reset channel. This method doesn't close the old channel.
      *
      * @param channel new channel
-     * @return the old resource
+     * @return the old channel
      */
     public WritableByteChannel reset(WritableByteChannel channel)
             throws IOException
@@ -50,21 +56,40 @@ public class ChannelBufferOutput
     }
 
     @Override
-    public MessageBuffer next(int bufferSize)
+    public MessageBuffer next(int mimimumSize)
             throws IOException
     {
-        if (buffer == null || buffer.size() != bufferSize) {
-            buffer = MessageBuffer.newBuffer(bufferSize);
+        if (buffer.size() < mimimumSize) {
+            buffer = MessageBuffer.allocate(mimimumSize);
         }
         return buffer;
     }
 
     @Override
-    public void flush(MessageBuffer buf)
+    public void writeBuffer(int length)
             throws IOException
     {
-        ByteBuffer bb = buf.toByteBuffer();
-        channel.write(bb);
+        ByteBuffer bb = buffer.sliceAsByteBuffer(0, length);
+        while (bb.hasRemaining()) {
+            channel.write(bb);
+        }
+    }
+
+    @Override
+    public void write(byte[] buffer, int offset, int length)
+            throws IOException
+    {
+        ByteBuffer bb = ByteBuffer.wrap(buffer, offset, length);
+        while (bb.hasRemaining()) {
+            channel.write(bb);
+        }
+    }
+
+    @Override
+    public void add(byte[] buffer, int offset, int length)
+            throws IOException
+    {
+        write(buffer, offset, length);
     }
 
     @Override
@@ -73,4 +98,9 @@ public class ChannelBufferOutput
     {
         channel.close();
     }
+
+    @Override
+    public void flush()
+            throws IOException
+    { }
 }

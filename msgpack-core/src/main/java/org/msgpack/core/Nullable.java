@@ -13,26 +13,11 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.core.buffer;
-
-import java.io.Closeable;
-import java.io.IOException;
+package org.msgpack.core;
 
 /**
- * Provides a sequence of MessageBuffers that contains message packed data.
+ * Annotates a field which can be null
  */
-public interface MessageBufferInput
-        extends Closeable
+@interface Nullable
 {
-    /**
-     * Get a next buffer to read.
-     *
-     * When this method is called twice, the formally allocated buffer can be safely discarded.
-     *
-     * @return the next MessageBuffer, or return null if no more buffer is available.
-     * @throws IOException when error occurred when reading the data
-     */
-    public MessageBuffer next()
-            throws IOException;
-
 }

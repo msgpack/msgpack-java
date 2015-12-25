@@ -15,7 +15,6 @@
 //
 package org.msgpack.core.buffer;
 
-import org.msgpack.core.annotations.Insecure;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Constructor;
@@ -39,11 +38,11 @@ public class MessageBuffer
 {
     static final boolean isUniversalBuffer;
     static final Unsafe unsafe;
+
     /**
      * Reference to MessageBuffer Constructors
      */
     private static final Constructor<?> mbArrConstructor;
-    private static final Constructor<?> mbBBConstructor;
 
     /**
      * The offset from the object memory header to its byte array data
@@ -143,14 +142,9 @@ public class MessageBuffer
                 Class<?> bufferCls = Class.forName(bufferClsName);
 
                 // MessageBufferX(byte[]) constructor
-                Constructor<?> mbArrCstr = bufferCls.getDeclaredConstructor(byte[].class);
+                Constructor<?> mbArrCstr = bufferCls.getDeclaredConstructor(byte[].class, int.class, int.class);
                 mbArrCstr.setAccessible(true);
                 mbArrConstructor = mbArrCstr;
-
-                // MessageBufferX(ByteBuffer) constructor
-                Constructor<?> mbBBCstr = bufferCls.getDeclaredConstructor(ByteBuffer.class);
-                mbBBCstr.setAccessible(true);
-                mbBBConstructor = mbBBCstr;
             }
             catch (Exception e) {
                 e.printStackTrace(System.err);
@@ -176,62 +170,19 @@ public class MessageBuffer
      */
     protected final int size;
 
-    /**
-     * Reference is used to hold a reference to an object that holds the underlying memory so that it cannot be
-     * released by the garbage collector.
-     */
-    protected final ByteBuffer reference;
-
-    static MessageBuffer newOffHeapBuffer(int length)
+    public static MessageBuffer allocate(int length)
     {
-        // This method is not available in Android OS
-        if (!isUniversalBuffer) {
-            long address = unsafe.allocateMemory(length);
-            return new MessageBuffer(address, length);
-        }
-        else {
-            return newDirectBuffer(length);
-        }
-    }
-
-    public static MessageBuffer newDirectBuffer(int length)
-    {
-        ByteBuffer m = ByteBuffer.allocateDirect(length);
-        return newMessageBuffer(m);
-    }
-
-    public static MessageBuffer newBuffer(int length)
-    {
-        return newMessageBuffer(new byte[length]);
+        return wrap(new byte[length]);
     }
 
     public static MessageBuffer wrap(byte[] array)
     {
-        return newMessageBuffer(array);
+        return newMessageBuffer(array, 0, array.length);
     }
 
-    public static MessageBuffer wrap(ByteBuffer bb)
+    public static MessageBuffer wrap(byte[] array, int offset, int length)
     {
-        return newMessageBuffer(bb).slice(bb.position(), bb.remaining());
-    }
-
-    /**
-     * Creates a new MessageBuffer instance backed by ByteBuffer
-     *
-     * @param bb
-     * @return
-     */
-    private static MessageBuffer newMessageBuffer(ByteBuffer bb)
-    {
-        checkNotNull(bb);
-        try {
-            // We need to use reflection to create MessageBuffer instances in order to prevent TypeProfile generation for getInt method. TypeProfile will be
-            // generated to resolve one of the method references when two or more classes overrides the method.
-            return (MessageBuffer) mbBBConstructor.newInstance(bb);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return newMessageBuffer(array, offset, length);
     }
 
     /**
@@ -240,11 +191,11 @@ public class MessageBuffer
      * @param arr
      * @return
      */
-    private static MessageBuffer newMessageBuffer(byte[] arr)
+    private static MessageBuffer newMessageBuffer(byte[] arr, int off, int len)
     {
         checkNotNull(arr);
         try {
-            return (MessageBuffer) mbArrConstructor.newInstance(arr);
+            return (MessageBuffer) mbArrConstructor.newInstance(arr, off, len);
         }
         catch (Throwable e) {
             throw new RuntimeException(e);
@@ -256,9 +207,6 @@ public class MessageBuffer
         if (isUniversalBuffer || buffer.base instanceof byte[]) {
             // We have nothing to do. Wait until the garbage-collector collects this array object
         }
-        else if (DirectBufferAccess.isDirectByteBufferInstance(buffer.base)) {
-            DirectBufferAccess.clean(buffer.base);
-        }
         else {
             // Maybe cannot reach here
             unsafe.freeMemory(buffer.address);
@@ -266,66 +214,24 @@ public class MessageBuffer
     }
 
     /**
-     * Create a MessageBuffer instance from a given memory address and length
-     *
-     * @param address
-     * @param length
-     */
-    MessageBuffer(long address, int length)
-    {
-        this.base = null;
-        this.address = address;
-        this.size = length;
-        this.reference = null;
-    }
-
-    /**
-     * Create a MessageBuffer instance from a given ByteBuffer instance
-     *
-     * @param bb
-     */
-    MessageBuffer(ByteBuffer bb)
-    {
-        if (bb.isDirect()) {
-            if (isUniversalBuffer) {
-                throw new IllegalStateException("Cannot create MessageBuffer from DirectBuffer");
-            }
-            // Direct buffer or off-heap memory
-            this.base = null;
-            this.address = DirectBufferAccess.getAddress(bb);
-            this.size = bb.capacity();
-            this.reference = bb;
-        }
-        else if (bb.hasArray()) {
-            this.base = bb.array();
-            this.address = ARRAY_BYTE_BASE_OFFSET;
-            this.size = bb.array().length;
-            this.reference = null;
-        }
-        else {
-            throw new IllegalArgumentException("Only the array-backed ByteBuffer or DirectBuffer are supported");
-        }
-    }
-
-    /**
      * Create a MessageBuffer instance from an java heap array
      *
      * @param arr
+     * @param offset
+     * @param length
      */
-    MessageBuffer(byte[] arr)
+    MessageBuffer(byte[] arr, int offset, int length)
     {
         this.base = arr;
-        this.address = ARRAY_BYTE_BASE_OFFSET;
-        this.size = arr.length;
-        this.reference = null;
+        this.address = ARRAY_BYTE_BASE_OFFSET + offset;
+        this.size = length;
     }
 
-    MessageBuffer(Object base, long address, int length, ByteBuffer reference)
+    protected MessageBuffer(Object base, long address, int length)
     {
         this.base = base;
         this.address = address;
         this.size = length;
-        this.reference = reference;
     }
 
     /**
@@ -346,7 +252,7 @@ public class MessageBuffer
         }
         else {
             checkArgument(offset + length <= size());
-            return new MessageBuffer(base, address + offset, length, reference);
+            return new MessageBuffer(base, address + offset, length);
         }
     }
 
@@ -403,10 +309,10 @@ public class MessageBuffer
 
     public void getBytes(int index, int len, ByteBuffer dst)
     {
-        if (dst.remaining() > len) {
+        if (dst.remaining() < len) {
             throw new BufferOverflowException();
         }
-        ByteBuffer src = toByteBuffer(index, len);
+        ByteBuffer src = sliceAsByteBuffer(index, len);
         dst.put(src);
     }
 
@@ -494,15 +400,9 @@ public class MessageBuffer
      * @param length
      * @return
      */
-    public ByteBuffer toByteBuffer(int index, int length)
+    public ByteBuffer sliceAsByteBuffer(int index, int length)
     {
-        if (hasArray()) {
-            return ByteBuffer.wrap((byte[]) base, (int) ((address - ARRAY_BYTE_BASE_OFFSET) + index), length);
-        }
-        else {
-            assert (!isUniversalBuffer);
-            return DirectBufferAccess.newByteBuffer(address, index, length, reference);
-        }
+        return ByteBuffer.wrap((byte[]) base, (int) ((address - ARRAY_BYTE_BASE_OFFSET) + index), length);
     }
 
     /**
@@ -510,9 +410,9 @@ public class MessageBuffer
      *
      * @return
      */
-    public ByteBuffer toByteBuffer()
+    public ByteBuffer sliceAsByteBuffer()
     {
-        return toByteBuffer(0, size());
+        return sliceAsByteBuffer(0, size());
     }
 
     /**
@@ -527,45 +427,14 @@ public class MessageBuffer
         return b;
     }
 
-    @Insecure
-    public boolean hasArray()
-    {
-        return base instanceof byte[];
-    }
-
-    @Insecure
-    public byte[] getArray()
+    public byte[] array()
     {
         return (byte[]) base;
     }
 
-    @Insecure
-    public Object getBase()
+    public int arrayOffset()
     {
-        return base;
-    }
-
-    @Insecure
-    public long getAddress()
-    {
-        return address;
-    }
-
-    @Insecure
-    public int offset()
-    {
-        if (hasArray()) {
-            return (int) address - ARRAY_BYTE_BASE_OFFSET;
-        }
-        else {
-            return 0;
-        }
-    }
-
-    @Insecure
-    public ByteBuffer getReference()
-    {
-        return reference;
+        return (int) address - ARRAY_BYTE_BASE_OFFSET;
     }
 
     /**

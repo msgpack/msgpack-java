@@ -30,14 +30,13 @@ class MessageBufferTest
   "MessageBuffer" should {
 
     "check buffer type" in {
-      val b = MessageBuffer.newBuffer(0)
+      val b = MessageBuffer.allocate(0)
       info(s"MessageBuffer type: ${b.getClass.getName}")
     }
 
     "wrap ByteBuffer considering position and remaining values" taggedAs ("wrap-bb") in {
       val d = Array[Byte](10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
-      val subset = ByteBuffer.wrap(d, 2, 2)
-      val mb = MessageBuffer.wrap(subset)
+      val mb = MessageBuffer.wrap(d, 2, 2)
       mb.getByte(0) shouldBe 12
       mb.size() shouldBe 2
     }
@@ -47,8 +46,7 @@ class MessageBufferTest
       val N = 1000000
       val M = 64 * 1024 * 1024
 
-      val ub = MessageBuffer.newBuffer(M)
-      val ud = MessageBuffer.newDirectBuffer(M)
+      val ub = MessageBuffer.allocate(M)
       val hb = ByteBuffer.allocate(M)
       val db = ByteBuffer.allocateDirect(M)
 
@@ -84,14 +82,6 @@ class MessageBufferTest
           }
         }
 
-        block("unsafe direct") {
-          var i = 0
-          while (i < N) {
-            ud.getInt((i * 4) % M)
-            i += 1
-          }
-        }
-
         block("allocate") {
           var i = 0
           while (i < N) {
@@ -118,14 +108,6 @@ class MessageBufferTest
           }
         }
 
-        block("unsafe direct") {
-          var i = 0
-          while (i < N) {
-            ud.getInt((rs(i) * 4) % M)
-            i += 1
-          }
-        }
-
         block("allocate") {
           var i = 0
           while (i < N) {
@@ -146,11 +128,9 @@ class MessageBufferTest
 
     "convert to ByteBuffer" in {
       for (t <- Seq(
-        MessageBuffer.newBuffer(10),
-        MessageBuffer.newDirectBuffer(10),
-        MessageBuffer.newOffHeapBuffer(10))
+        MessageBuffer.allocate(10))
       ) {
-        val bb = t.toByteBuffer
+        val bb = t.sliceAsByteBuffer
         bb.position shouldBe 0
         bb.limit shouldBe 10
         bb.capacity shouldBe 10
@@ -159,9 +139,7 @@ class MessageBufferTest
 
     "put ByteBuffer on itself" in {
       for (t <- Seq(
-        MessageBuffer.newBuffer(10),
-        MessageBuffer.newDirectBuffer(10),
-        MessageBuffer.newOffHeapBuffer(10))
+        MessageBuffer.allocate(10))
       ) {
         val b = Array[Byte](0x02, 0x03)
         val srcArray = ByteBuffer.wrap(b)
@@ -190,13 +168,6 @@ class MessageBufferTest
         Array[Byte](0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07)
       }
 
-      def prepareDirectBuffer : ByteBuffer = {
-        val directBuffer = ByteBuffer.allocateDirect(prepareBytes.length)
-        directBuffer.put(prepareBytes)
-        directBuffer.flip
-        directBuffer
-      }
-
       def checkSliceAndCopyTo(srcBuffer: MessageBuffer, dstBuffer: MessageBuffer) = {
         val sliced = srcBuffer.slice(2, 5)
 
@@ -220,8 +191,6 @@ class MessageBufferTest
       }
 
       checkSliceAndCopyTo(MessageBuffer.wrap(prepareBytes), MessageBuffer.wrap(prepareBytes))
-      checkSliceAndCopyTo(MessageBuffer.wrap(ByteBuffer.wrap(prepareBytes)), MessageBuffer.wrap(ByteBuffer.wrap(prepareBytes)))
-      checkSliceAndCopyTo(MessageBuffer.wrap(prepareDirectBuffer), MessageBuffer.wrap(prepareDirectBuffer))
     }
   }
 }

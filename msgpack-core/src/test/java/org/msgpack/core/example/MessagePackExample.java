@@ -17,6 +17,7 @@ package org.msgpack.core.example;
 
 import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessagePack;
+import org.msgpack.core.MessagePackFactory;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.value.ArrayValue;
@@ -31,7 +32,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.nio.charset.CodingErrorAction;
 
 /**
@@ -153,11 +153,6 @@ public class MessagePackExample
                 .packArrayHeader(2)
                 .packString("xxx-xxxx")
                 .packString("yyy-yyyy");
-
-        // [Advanced] write data using ByteBuffer
-        ByteBuffer bb = ByteBuffer.wrap(new byte[] {'b', 'i', 'n', 'a', 'r', 'y', 'd', 'a', 't', 'a'});
-        packer.packBinaryHeader(bb.remaining());
-        packer.writePayload(bb);
     }
 
     /**
@@ -251,24 +246,22 @@ public class MessagePackExample
             throws IOException
     {
         // Build a conifiguration
-        MessagePack.Config config = new MessagePack.ConfigBuilder()
-                .onMalFormedInput(CodingErrorAction.REPLACE)         // Drop malformed and unmappable UTF-8 characters
-                .onUnmappableCharacter(CodingErrorAction.REPLACE)
-                .packerBufferSize(8192 * 2)
-                .build();
+        MessagePackFactory factory = new MessagePackFactory()
+                .unpackActionOnMalformedString(CodingErrorAction.REPLACE)         // Drop malformed and unmappable UTF-8 characters
+                .unpackActionOnUnmappableString(CodingErrorAction.REPLACE)
+                .outputBufferSize(8192 * 2);
         // Create a  that uses this configuration
-        MessagePack msgpack = new MessagePack(config);
 
         // Pack data
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        MessagePacker packer = msgpack.newPacker(out);
+        MessagePacker packer = factory.newPacker(out);
         packer.packInt(10);
         packer.packBoolean(true);
         packer.close();
 
         // Unpack data
         byte[] packedData = out.toByteArray();
-        MessageUnpacker unpacker = msgpack.newUnpacker(packedData);
+        MessageUnpacker unpacker = factory.newUnpacker(packedData);
         int i = unpacker.unpackInt();  // 10
         boolean b = unpacker.unpackBoolean(); // true
         unpacker.close();
