@@ -37,406 +37,102 @@ public class MessagePack
 {
     public static final Charset UTF8 = Charset.forName("UTF-8");
 
+    private static MessagePackFactory defaultFactory = new MessagePackFactory();
+
     /**
-     * Message packer/unpacker configuration object
+     * Sets the default configuration used for the static constructor methods of this MessagePack class.
      */
-    public static class Config
+    public static void setDefaultFactory(MessagePackFactory newDefaultFactory)
     {
-        /**
-         * allow unpackBinaryHeader to read str format family  (default:true)
-         */
-        public final boolean readStringAsBinary;
-        /**
-         * allow unpackRawStringHeader and unpackString to read bin format family (default: true)
-         */
-        public final boolean readBinaryAsString;
-        /**
-         * Action when encountered a malformed input
-         */
-        public final CodingErrorAction actionOnMalFormedInput;
-        /**
-         * Action when an unmappable character is found
-         */
-        public final CodingErrorAction actionOnUnmappableCharacter;
-        /**
-         * unpackString size limit. (default: Integer.MAX_VALUE)
-         */
-        public final int maxUnpackStringSize;
-        public final int stringEncoderBufferSize;
-        public final int stringDecoderBufferSize;
-        public final int packerBufferSize;
-        public final int packerRawDataCopyingThreshold;
-        /**
-         * Use String.getBytes() for strings smaller than this threshold.
-         * Note that this parameter is subject to change.
-         */
-        public final int packerSmallStringOptimizationThreshold;
-
-        public Config(
-                boolean readStringAsBinary,
-                boolean readBinaryAsString,
-                CodingErrorAction actionOnMalFormedInput,
-                CodingErrorAction actionOnUnmappableCharacter,
-                int maxUnpackStringSize,
-                int stringEncoderBufferSize,
-                int stringDecoderBufferSize,
-                int packerBufferSize,
-                int packerSmallStringOptimizationThreshold,
-                int packerRawDataCopyingThreshold)
-        {
-            checkArgument(packerBufferSize > 0, "packer buffer size must be larger than 0: " + packerBufferSize);
-            checkArgument(stringEncoderBufferSize > 0, "string encoder buffer size must be larger than 0: " + stringEncoderBufferSize);
-            checkArgument(stringDecoderBufferSize > 0, "string decoder buffer size must be larger than 0: " + stringDecoderBufferSize);
-
-            this.readStringAsBinary = readStringAsBinary;
-            this.readBinaryAsString = readBinaryAsString;
-            this.actionOnMalFormedInput = actionOnMalFormedInput;
-            this.actionOnUnmappableCharacter = actionOnUnmappableCharacter;
-            this.maxUnpackStringSize = maxUnpackStringSize;
-            this.stringEncoderBufferSize = stringEncoderBufferSize;
-            this.stringDecoderBufferSize = stringDecoderBufferSize;
-            this.packerBufferSize = packerBufferSize;
-            this.packerSmallStringOptimizationThreshold = packerSmallStringOptimizationThreshold;
-            this.packerRawDataCopyingThreshold = packerRawDataCopyingThreshold;
-        }
+        defaultFactory = newDefaultFactory;
     }
 
-    /**
-     * Builder of the configuration object
-     */
-    public static class ConfigBuilder
+    public static MessagePackFactory getDefaultFactory()
     {
-        private boolean readStringAsBinary = true;
-        private boolean readBinaryAsString = true;
-
-        private CodingErrorAction onMalFormedInput = CodingErrorAction.REPLACE;
-        private CodingErrorAction onUnmappableCharacter = CodingErrorAction.REPLACE;
-
-        private int maxUnpackStringSize = Integer.MAX_VALUE;
-        private int stringEncoderBufferSize = 8192;
-        private int stringDecoderBufferSize = 8192;
-        private int packerBufferSize = 8192;
-        private int packerSmallStringOptimizationThreshold = 512; // This parameter is subject to change
-        private int packerRawDataCopyingThreshold = 512;
-
-        public Config build()
-        {
-            return new Config(
-                    readStringAsBinary,
-                    readBinaryAsString,
-                    onMalFormedInput,
-                    onUnmappableCharacter,
-                    maxUnpackStringSize,
-                    stringEncoderBufferSize,
-                    stringDecoderBufferSize,
-                    packerBufferSize,
-                    packerSmallStringOptimizationThreshold,
-                    packerRawDataCopyingThreshold
-            );
-        }
-
-        public ConfigBuilder readStringAsBinary(boolean enable)
-        {
-            this.readStringAsBinary = enable;
-            return this;
-        }
-
-        public ConfigBuilder readBinaryAsString(boolean enable)
-        {
-            this.readBinaryAsString = enable;
-            return this;
-        }
-
-        public ConfigBuilder onMalFormedInput(CodingErrorAction action)
-        {
-            this.onMalFormedInput = action;
-            return this;
-        }
-
-        public ConfigBuilder onUnmappableCharacter(CodingErrorAction action)
-        {
-            this.onUnmappableCharacter = action;
-            return this;
-        }
-
-        public ConfigBuilder maxUnpackStringSize(int size)
-        {
-            this.maxUnpackStringSize = size;
-            return this;
-        }
-
-        public ConfigBuilder stringEncoderBufferSize(int size)
-        {
-            this.stringEncoderBufferSize = size;
-            return this;
-        }
-
-        public ConfigBuilder stringDecoderBufferSize(int size)
-        {
-            this.stringDecoderBufferSize = size;
-            return this;
-        }
-
-        public ConfigBuilder packerBufferSize(int size)
-        {
-            this.packerBufferSize = size;
-            return this;
-        }
-
-        public ConfigBuilder packerSmallStringOptimizationThreshold(int threshold)
-        {
-            this.packerSmallStringOptimizationThreshold = threshold;
-            return this;
-        }
-
-        public ConfigBuilder packerRawDataCopyingThreshold(int threshold)
-        {
-            this.packerRawDataCopyingThreshold = threshold;
-            return this;
-        }
+        return defaultFactory;
     }
 
-    /**
-     * Default configuration, which is visible only from classes in the core package.
-     */
-    static final Config DEFAULT_CONFIG = new ConfigBuilder().build();
+    private MessagePack()
+    { }
 
     /**
-     * The prefix code set of MessagePack. See also https://github.com/msgpack/msgpack/blob/master/spec.md for details.
-     */
-    public static final class Code
-    {
-        public static final boolean isFixInt(byte b)
-        {
-            int v = b & 0xFF;
-            return v <= 0x7f || v >= 0xe0;
-        }
-
-        public static final boolean isPosFixInt(byte b)
-        {
-            return (b & POSFIXINT_MASK) == 0;
-        }
-
-        public static final boolean isNegFixInt(byte b)
-        {
-            return (b & NEGFIXINT_PREFIX) == NEGFIXINT_PREFIX;
-        }
-
-        public static final boolean isFixStr(byte b)
-        {
-            return (b & (byte) 0xe0) == Code.FIXSTR_PREFIX;
-        }
-
-        public static final boolean isFixedArray(byte b)
-        {
-            return (b & (byte) 0xf0) == Code.FIXARRAY_PREFIX;
-        }
-
-        public static final boolean isFixedMap(byte b)
-        {
-            return (b & (byte) 0xe0) == Code.FIXMAP_PREFIX;
-        }
-
-        public static final boolean isFixedRaw(byte b)
-        {
-            return (b & (byte) 0xe0) == Code.FIXSTR_PREFIX;
-        }
-
-        public static final byte POSFIXINT_MASK = (byte) 0x80;
-
-        public static final byte FIXMAP_PREFIX = (byte) 0x80;
-        public static final byte FIXARRAY_PREFIX = (byte) 0x90;
-        public static final byte FIXSTR_PREFIX = (byte) 0xa0;
-
-        public static final byte NIL = (byte) 0xc0;
-        public static final byte NEVER_USED = (byte) 0xc1;
-        public static final byte FALSE = (byte) 0xc2;
-        public static final byte TRUE = (byte) 0xc3;
-        public static final byte BIN8 = (byte) 0xc4;
-        public static final byte BIN16 = (byte) 0xc5;
-        public static final byte BIN32 = (byte) 0xc6;
-        public static final byte EXT8 = (byte) 0xc7;
-        public static final byte EXT16 = (byte) 0xc8;
-        public static final byte EXT32 = (byte) 0xc9;
-        public static final byte FLOAT32 = (byte) 0xca;
-        public static final byte FLOAT64 = (byte) 0xcb;
-        public static final byte UINT8 = (byte) 0xcc;
-        public static final byte UINT16 = (byte) 0xcd;
-        public static final byte UINT32 = (byte) 0xce;
-        public static final byte UINT64 = (byte) 0xcf;
-
-        public static final byte INT8 = (byte) 0xd0;
-        public static final byte INT16 = (byte) 0xd1;
-        public static final byte INT32 = (byte) 0xd2;
-        public static final byte INT64 = (byte) 0xd3;
-
-        public static final byte FIXEXT1 = (byte) 0xd4;
-        public static final byte FIXEXT2 = (byte) 0xd5;
-        public static final byte FIXEXT4 = (byte) 0xd6;
-        public static final byte FIXEXT8 = (byte) 0xd7;
-        public static final byte FIXEXT16 = (byte) 0xd8;
-
-        public static final byte STR8 = (byte) 0xd9;
-        public static final byte STR16 = (byte) 0xda;
-        public static final byte STR32 = (byte) 0xdb;
-
-        public static final byte ARRAY16 = (byte) 0xdc;
-        public static final byte ARRAY32 = (byte) 0xdd;
-
-        public static final byte MAP16 = (byte) 0xde;
-        public static final byte MAP32 = (byte) 0xdf;
-
-        public static final byte NEGFIXINT_PREFIX = (byte) 0xe0;
-    }
-
-    // Packer/Unpacker factory methods
-
-    private final MessagePack.Config config;
-
-    public MessagePack()
-    {
-        this(MessagePack.DEFAULT_CONFIG);
-    }
-
-    public MessagePack(MessagePack.Config config)
-    {
-        this.config = config;
-    }
-
-    /**
-     * Default MessagePack packer/unpacker factory
-     */
-    public static final MessagePack DEFAULT = new MessagePack(MessagePack.DEFAULT_CONFIG);
-
-    /**
-     * Create a MessagePacker that outputs the packed data to the specified stream, using the default configuration
+     * Equivalent to getDefaultFactory().newPacker(out).
      *
      * @param out
      * @return
      */
     public static MessagePacker newDefaultPacker(OutputStream out)
     {
-        return DEFAULT.newPacker(out);
+        return defaultFactory.newPacker(out);
     }
 
     /**
-     * Create a MessagePacker that outputs the packed data to the specified channel, using the default configuration
+     * Equivalent to getDefaultFactory().newPacker(channel).
      *
      * @param channel
      * @return
      */
     public static MessagePacker newDefaultPacker(WritableByteChannel channel)
     {
-        return DEFAULT.newPacker(channel);
+        return defaultFactory.newPacker(channel);
     }
 
     /**
-     * Create a MessageUnpacker that reads data from then given InputStream, using the default configuration
+     * Equivalent to getDefaultFactory().newBufferPacker()
+     *
+     * @param channel
+     * @return
+     */
+    public static MessageBufferPacker newDefaultBufferPacker()
+    {
+        return defaultFactory.newBufferPacker();
+    }
+
+    /**
+     * Equivalent to getDefaultFactory().newUnpacker(in).
      *
      * @param in
      * @return
      */
     public static MessageUnpacker newDefaultUnpacker(InputStream in)
     {
-        return DEFAULT.newUnpacker(in);
+        return defaultFactory.newUnpacker(in);
     }
 
     /**
-     * Create a MessageUnpacker that reads data from the given channel, using the default configuration
+     * Equivalent to getDefaultFactory().newUnpacker(channel).
      *
      * @param channel
      * @return
      */
     public static MessageUnpacker newDefaultUnpacker(ReadableByteChannel channel)
     {
-        return DEFAULT.newUnpacker(channel);
+        return defaultFactory.newUnpacker(channel);
     }
 
     /**
-     * Create a MessageUnpacker that reads data from the given byte array, using the default configuration
+     * Equivalent to getDefaultFactory().newUnpacker(contents).
      *
-     * @param arr
+     * @param contents
      * @return
      */
-    public static MessageUnpacker newDefaultUnpacker(byte[] arr)
+    public static MessageUnpacker newDefaultUnpacker(byte[] contents)
     {
-        return DEFAULT.newUnpacker(arr);
+        return defaultFactory.newUnpacker(contents);
     }
 
     /**
-     * Create a MessageUnpacker that reads data form the given byte array [offset, .. offset+length), using the default
-     * configuration.
+     * Equivalent to getDefaultFactory().newUnpacker(contents, offset, length).
      *
-     * @param arr
+     * @param contents
      * @param offset
      * @param length
      * @return
      */
-    public static MessageUnpacker newDefaultUnpacker(byte[] arr, int offset, int length)
+    public static MessageUnpacker newDefaultUnpacker(byte[] contents, int offset, int length)
     {
-        return DEFAULT.newUnpacker(arr, offset, length);
+        return defaultFactory.newUnpacker(contents, offset, length);
     }
 
-    /**
-     * Create a MessagePacker that outputs the packed data to the specified stream
-     *
-     * @param out
-     */
-    public MessagePacker newPacker(OutputStream out)
-    {
-        return new MessagePacker(new OutputStreamBufferOutput(out), config);
-    }
-
-    /**
-     * Create a MessagePacker that outputs the packed data to the specified channel
-     *
-     * @param channel
-     */
-    public MessagePacker newPacker(WritableByteChannel channel)
-    {
-        return new MessagePacker(new ChannelBufferOutput(channel), config);
-    }
-
-    /**
-     * Create a MessageUnpacker that reads data from the given InputStream.
-     * For reading data efficiently from byte[], use {@link MessageUnpacker(byte[])} or {@link MessageUnpacker(byte[], int, int)} instead of this constructor.
-     *
-     * @param in
-     */
-    public MessageUnpacker newUnpacker(InputStream in)
-    {
-        return new MessageUnpacker(InputStreamBufferInput.newBufferInput(in), config);
-    }
-
-    /**
-     * Create a MessageUnpacker that reads data from the given ReadableByteChannel.
-     *
-     * @param in
-     */
-    public MessageUnpacker newUnpacker(ReadableByteChannel in)
-    {
-        return new MessageUnpacker(new ChannelBufferInput(in), config);
-    }
-
-    /**
-     * Create a MessageUnpacker that reads data from the given byte array.
-     *
-     * @param arr
-     */
-    public MessageUnpacker newUnpacker(byte[] arr)
-    {
-        return new MessageUnpacker(new ArrayBufferInput(arr), config);
-    }
-
-    /**
-     * Create a MessageUnpacker that reads data from the given byte array [offset, offset+length)
-     *
-     * @param arr
-     * @param offset
-     * @param length
-     */
-    public MessageUnpacker newUnpacker(byte[] arr, int offset, int length)
-    {
-        return new MessageUnpacker(new ArrayBufferInput(arr, offset, length), config);
-    }
+    // TODO add convenient methods here to pack/unpack objects with byte array/stream
 }

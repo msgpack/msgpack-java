@@ -29,40 +29,40 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
-import static org.msgpack.core.MessagePack.Code.ARRAY16;
-import static org.msgpack.core.MessagePack.Code.ARRAY32;
-import static org.msgpack.core.MessagePack.Code.BIN16;
-import static org.msgpack.core.MessagePack.Code.BIN32;
-import static org.msgpack.core.MessagePack.Code.BIN8;
-import static org.msgpack.core.MessagePack.Code.EXT16;
-import static org.msgpack.core.MessagePack.Code.EXT32;
-import static org.msgpack.core.MessagePack.Code.EXT8;
-import static org.msgpack.core.MessagePack.Code.FALSE;
-import static org.msgpack.core.MessagePack.Code.FIXARRAY_PREFIX;
-import static org.msgpack.core.MessagePack.Code.FIXEXT1;
-import static org.msgpack.core.MessagePack.Code.FIXEXT16;
-import static org.msgpack.core.MessagePack.Code.FIXEXT2;
-import static org.msgpack.core.MessagePack.Code.FIXEXT4;
-import static org.msgpack.core.MessagePack.Code.FIXEXT8;
-import static org.msgpack.core.MessagePack.Code.FIXMAP_PREFIX;
-import static org.msgpack.core.MessagePack.Code.FIXSTR_PREFIX;
-import static org.msgpack.core.MessagePack.Code.FLOAT32;
-import static org.msgpack.core.MessagePack.Code.FLOAT64;
-import static org.msgpack.core.MessagePack.Code.INT16;
-import static org.msgpack.core.MessagePack.Code.INT32;
-import static org.msgpack.core.MessagePack.Code.INT64;
-import static org.msgpack.core.MessagePack.Code.INT8;
-import static org.msgpack.core.MessagePack.Code.MAP16;
-import static org.msgpack.core.MessagePack.Code.MAP32;
-import static org.msgpack.core.MessagePack.Code.NIL;
-import static org.msgpack.core.MessagePack.Code.STR16;
-import static org.msgpack.core.MessagePack.Code.STR32;
-import static org.msgpack.core.MessagePack.Code.STR8;
-import static org.msgpack.core.MessagePack.Code.TRUE;
-import static org.msgpack.core.MessagePack.Code.UINT16;
-import static org.msgpack.core.MessagePack.Code.UINT32;
-import static org.msgpack.core.MessagePack.Code.UINT64;
-import static org.msgpack.core.MessagePack.Code.UINT8;
+import static org.msgpack.core.MessageFormat.Code.ARRAY16;
+import static org.msgpack.core.MessageFormat.Code.ARRAY32;
+import static org.msgpack.core.MessageFormat.Code.BIN16;
+import static org.msgpack.core.MessageFormat.Code.BIN32;
+import static org.msgpack.core.MessageFormat.Code.BIN8;
+import static org.msgpack.core.MessageFormat.Code.EXT16;
+import static org.msgpack.core.MessageFormat.Code.EXT32;
+import static org.msgpack.core.MessageFormat.Code.EXT8;
+import static org.msgpack.core.MessageFormat.Code.FALSE;
+import static org.msgpack.core.MessageFormat.Code.FIXARRAY_PREFIX;
+import static org.msgpack.core.MessageFormat.Code.FIXEXT1;
+import static org.msgpack.core.MessageFormat.Code.FIXEXT16;
+import static org.msgpack.core.MessageFormat.Code.FIXEXT2;
+import static org.msgpack.core.MessageFormat.Code.FIXEXT4;
+import static org.msgpack.core.MessageFormat.Code.FIXEXT8;
+import static org.msgpack.core.MessageFormat.Code.FIXMAP_PREFIX;
+import static org.msgpack.core.MessageFormat.Code.FIXSTR_PREFIX;
+import static org.msgpack.core.MessageFormat.Code.FLOAT32;
+import static org.msgpack.core.MessageFormat.Code.FLOAT64;
+import static org.msgpack.core.MessageFormat.Code.INT16;
+import static org.msgpack.core.MessageFormat.Code.INT32;
+import static org.msgpack.core.MessageFormat.Code.INT64;
+import static org.msgpack.core.MessageFormat.Code.INT8;
+import static org.msgpack.core.MessageFormat.Code.MAP16;
+import static org.msgpack.core.MessageFormat.Code.MAP32;
+import static org.msgpack.core.MessageFormat.Code.NIL;
+import static org.msgpack.core.MessageFormat.Code.STR16;
+import static org.msgpack.core.MessageFormat.Code.STR32;
+import static org.msgpack.core.MessageFormat.Code.STR8;
+import static org.msgpack.core.MessageFormat.Code.TRUE;
+import static org.msgpack.core.MessageFormat.Code.UINT16;
+import static org.msgpack.core.MessageFormat.Code.UINT32;
+import static org.msgpack.core.MessageFormat.Code.UINT64;
+import static org.msgpack.core.MessageFormat.Code.UINT8;
 import static org.msgpack.core.Preconditions.checkNotNull;
 
 /**
@@ -85,9 +85,9 @@ import static org.msgpack.core.Preconditions.checkNotNull;
 public class MessagePacker
         implements Closeable
 {
-    private final MessagePack.Config config;
+    private int smallStringOptimizationThreshold = 512;
 
-    private MessageBufferOutput out;
+    protected MessageBufferOutput out;
 
     private MessageBuffer buffer;
 
@@ -111,15 +111,15 @@ public class MessagePacker
      */
     public MessagePacker(MessageBufferOutput out)
     {
-        this(out, MessagePack.DEFAULT_CONFIG);
-    }
-
-    public MessagePacker(MessageBufferOutput out, MessagePack.Config config)
-    {
-        this.config = checkNotNull(config, "config is null");
         this.out = checkNotNull(out, "MessageBufferOutput is null");
         this.position = 0;
         this.totalFlushBytes = 0;
+    }
+
+    public MessagePacker setSmallStringOptimizationThreshold(int bytes)
+    {
+        this.smallStringOptimizationThreshold = bytes;
+        return this;
     }
 
     /**
@@ -441,7 +441,7 @@ public class MessagePacker
     private void prepareEncoder()
     {
         if (encoder == null) {
-            this.encoder = MessagePack.UTF8.newEncoder().onMalformedInput(config.actionOnMalFormedInput).onUnmappableCharacter(config.actionOnMalFormedInput);
+            this.encoder = MessagePack.UTF8.newEncoder();
         }
     }
 
@@ -482,7 +482,7 @@ public class MessagePacker
             packRawStringHeader(0);
             return this;
         }
-        else if (s.length() < config.packerSmallStringOptimizationThreshold) {
+        else if (s.length() < smallStringOptimizationThreshold) {
             // Write the length and payload of small string to the buffer so that it avoids an extra flush of buffer
             packStringByGetBytes(s);
             return this;

@@ -135,10 +135,8 @@ class MessageBufferInputTest
 
   def createTempFileWithInputStream = {
     val f = createTempFile
-    val out = new
-        FileOutputStream(f)
-    new
-        MessagePack().newPacker(out).packInt(42).close
+    val out = new FileOutputStream(f)
+    MessagePack.newDefaultPacker(out).packInt(42).close
     val in = new
         FileInputStream(f)
     (f, in)

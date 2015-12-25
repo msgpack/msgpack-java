@@ -15,7 +15,7 @@
 //
 package org.msgpack.core;
 
-import org.msgpack.core.MessagePack.Code;
+import org.msgpack.core.MessageFormat.Code;
 import org.msgpack.core.buffer.MessageBuffer;
 import org.msgpack.core.buffer.MessageBufferInput;
 import org.msgpack.value.ImmutableValue;
@@ -48,7 +48,7 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  * <p/>
  * <pre>
  * <code>
- *     MessageUnpacker unpacker = MessagePackFactory.DEFAULT.newUnpacker(...);
+ *     MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(...);
  *     while(unpacker.hasNext()) {
  *         MessageFormat f = unpacker.getNextFormat();
  *         switch(f) {
@@ -76,7 +76,12 @@ public class MessageUnpacker
 
     private static final byte HEAD_BYTE_REQUIRED = (byte) 0xc1;
 
-    private final MessagePack.Config config;
+    private boolean allowStringAsBinary = true;
+    private boolean allowBinaryAsString = true;
+    private CodingErrorAction actionOnMalformedString = CodingErrorAction.REPLACE;
+    private CodingErrorAction actionOnUnmappableString = CodingErrorAction.REPLACE;
+    private int stringSizeLimit = Integer.MAX_VALUE;
+    private int stringDecoderBufferSize = 8192;
 
     private MessageBufferInput in;
 
@@ -135,20 +140,43 @@ public class MessageUnpacker
      */
     public MessageUnpacker(MessageBufferInput in)
     {
-        this(in, MessagePack.DEFAULT_CONFIG);
+        this.in = checkNotNull(in, "MessageBufferInput is null");
     }
 
-    /**
-     * Create an MessageUnpacker
-     *
-     * @param in
-     * @param config configuration
-     */
-    public MessageUnpacker(MessageBufferInput in, MessagePack.Config config)
+    public MessageUnpacker setAllowStringAsBinary(boolean enabled)
     {
-        // Root constructor. All of the constructors must call this constructor.
-        this.in = checkNotNull(in, "MessageBufferInput is null");
-        this.config = checkNotNull(config, "Config");
+        this.allowStringAsBinary = enabled;
+        return this;
+    }
+
+    public MessageUnpacker setAllowBinaryAsString(boolean enabled)
+    {
+        this.allowBinaryAsString = enabled;
+        return this;
+    }
+
+    public MessageUnpacker setActionOnMalformedString(CodingErrorAction action)
+    {
+        this.actionOnMalformedString = action;
+        return this;
+    }
+
+    public MessageUnpacker setActionOnUnmappableString(CodingErrorAction action)
+    {
+        this.actionOnUnmappableString = action;
+        return this;
+    }
+
+    public MessageUnpacker setStringSizeLimit(int bytes)
+    {
+        this.stringSizeLimit = bytes;
+        return this;
+    }
+
+    public MessageUnpacker setStringDecoderBufferSize(int bytes)
+    {
+        this.stringDecoderBufferSize = bytes;
+        return this;
     }
 
     /**
@@ -958,10 +986,10 @@ public class MessageUnpacker
     private void resetDecoder()
     {
         if (decoder == null) {
-            decodeBuffer = CharBuffer.allocate(config.stringDecoderBufferSize);
+            decodeBuffer = CharBuffer.allocate(stringDecoderBufferSize);
             decoder = MessagePack.UTF8.newDecoder()
-                    .onMalformedInput(config.actionOnMalFormedInput)
-                    .onUnmappableCharacter(config.actionOnUnmappableCharacter);
+                    .onMalformedInput(actionOnMalformedString)
+                    .onUnmappableCharacter(actionOnUnmappableString);
         }
         else {
             decoder.reset();
@@ -980,8 +1008,8 @@ public class MessageUnpacker
             if (len == 0) {
                 return EMPTY_STRING;
             }
-            if (len > config.maxUnpackStringSize) {
-                throw new MessageSizeException(String.format("cannot unpack a String of size larger than %,d: %,d", config.maxUnpackStringSize, len), len);
+            if (len > stringSizeLimit) {
+                throw new MessageSizeException(String.format("cannot unpack a String of size larger than %,d: %,d", stringSizeLimit, len), len);
             }
             if (buffer.size() - position >= len) {
                 return decodeStringFastPath(len);
@@ -1069,16 +1097,16 @@ public class MessageUnpacker
     private void handleCoderError(CoderResult cr)
         throws CharacterCodingException
     {
-        if ((cr.isMalformed() && config.actionOnMalFormedInput == CodingErrorAction.REPORT) ||
-                (cr.isUnmappable() && config.actionOnUnmappableCharacter == CodingErrorAction.REPORT)) {
+        if ((cr.isMalformed() && actionOnMalformedString == CodingErrorAction.REPORT) ||
+                (cr.isUnmappable() && actionOnUnmappableString == CodingErrorAction.REPORT)) {
             cr.throwException();
         }
     }
 
     private String decodeStringFastPath(int length)
     {
-        if (config.actionOnMalFormedInput == CodingErrorAction.REPLACE &&
-                config.actionOnUnmappableCharacter == CodingErrorAction.REPLACE &&
+        if (actionOnMalformedString == CodingErrorAction.REPLACE &&
+                actionOnUnmappableString == CodingErrorAction.REPLACE &&
                 buffer.hasArray()) {
             String s = new String(buffer.getArray(), buffer.offset() + position, length, MessagePack.UTF8);
             position += length;
@@ -1253,7 +1281,7 @@ public class MessageUnpacker
             return len;
         }
 
-        if (config.readBinaryAsString) {
+        if (allowBinaryAsString) {
             len = tryReadBinaryHeader(b);
             if (len >= 0) {
                 resetHeadByte();
@@ -1277,7 +1305,7 @@ public class MessageUnpacker
             return len;
         }
 
-        if (config.readStringAsBinary) {
+        if (allowStringAsBinary) {
             len = tryReadStringHeader(b);
             if (len >= 0) {
                 resetHeadByte();

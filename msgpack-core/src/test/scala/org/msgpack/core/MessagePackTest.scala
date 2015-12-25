@@ -20,7 +20,7 @@ import java.math.BigInteger
 import java.nio.CharBuffer
 import java.nio.charset.{CodingErrorAction, UnmappableCharacterException}
 
-import org.msgpack.core.MessagePack.Code
+import org.msgpack.core.MessageFormat.Code
 import org.msgpack.value.{Value, Variable}
 
 import scala.util.Random
@@ -117,17 +117,17 @@ class MessagePackTest extends MessagePackSpec {
     }
 
 
-    def check[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A, msgpack: MessagePack = MessagePack.DEFAULT): Unit = {
+    def check[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A, factory: MessagePackFactory = new MessagePackFactory()): Unit = {
       var b: Array[Byte] = null
       try {
         val bs = new ByteArrayOutputStream()
-        val packer = msgpack.newPacker(bs)
+        val packer = factory.newPacker(bs)
         pack(packer)
         packer.close()
 
         b = bs.toByteArray
 
-        val unpacker = msgpack.newUnpacker(b)
+        val unpacker = factory.newUnpacker(b)
         val ret = unpack(unpacker)
         ret shouldBe v
       }
@@ -142,16 +142,16 @@ class MessagePackTest extends MessagePackSpec {
     }
 
     def checkException[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A,
-                          msgpack: MessagePack = MessagePack.DEFAULT): Unit = {
+                          factory: MessagePackFactory = new MessagePackFactory()): Unit = {
       var b: Array[Byte] = null
       val bs = new ByteArrayOutputStream()
-      val packer = msgpack.newPacker(bs)
+      val packer = factory.newPacker(bs)
       pack(packer)
       packer.close()
 
       b = bs.toByteArray
 
-      val unpacker = msgpack.newUnpacker(b)
+      val unpacker = factory.newUnpacker(b)
       val ret = unpack(unpacker)
 
       fail("cannot not reach here")
@@ -297,11 +297,9 @@ class MessagePackTest extends MessagePackSpec {
       //val unmappableChar = Array[Char](new Character(0xfc0a).toChar)
 
       // Report error on unmappable character
-      val config = new MessagePack.ConfigBuilder()
-        .onMalFormedInput(CodingErrorAction.REPORT)
-        .onUnmappableCharacter(CodingErrorAction.REPORT)
-        .build()
-      val msgpack = new MessagePack(config)
+      val factory = new MessagePackFactory()
+        .unpackActionOnMalformedString(CodingErrorAction.REPORT)
+        .unpackActionOnUnmappableString(CodingErrorAction.REPORT);
 
       for (bytes <- Seq(unmappable)) {
         When("unpacking")
@@ -311,7 +309,7 @@ class MessagePackTest extends MessagePackSpec {
             packer.writePayload(bytes)
           },
           _.unpackString(),
-          msgpack)
+          factory)
         }
         catch {
           case e: MessageStringCodingException => // OK

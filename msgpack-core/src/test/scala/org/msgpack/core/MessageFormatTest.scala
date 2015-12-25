@@ -15,7 +15,7 @@
 //
 package org.msgpack.core
 
-import org.msgpack.core.MessagePack.Code
+import org.msgpack.core.MessageFormat.Code
 import org.msgpack.value.ValueType
 import org.scalatest.exceptions.TestFailedException
 

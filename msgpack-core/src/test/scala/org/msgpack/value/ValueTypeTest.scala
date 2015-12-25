@@ -15,7 +15,7 @@
 //
 package org.msgpack.value
 
-import org.msgpack.core.MessagePack.Code._
+import org.msgpack.core.MessageFormat.Code._
 import org.msgpack.core.{MessageFormat, MessageFormatException, MessagePackSpec}
 
 /**
