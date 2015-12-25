@@ -28,11 +28,15 @@ import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonReadContext;
-import org.msgpack.core.*;
+import org.msgpack.core.MessageUnpacker;
+import org.msgpack.core.MessageFormat;
+import org.msgpack.core.MessagePack;
+import org.msgpack.core.Preconditions;
+import org.msgpack.core.ExtensionTypeHeader;
 import org.msgpack.core.buffer.ArrayBufferInput;
 import org.msgpack.core.buffer.InputStreamBufferInput;
 import org.msgpack.core.buffer.MessageBufferInput;
-import org.msgpack.value.*;
+import org.msgpack.value.ValueType;
 
 import java.io.IOException;
 import java.io.InputStream;
