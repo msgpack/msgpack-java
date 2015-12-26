@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
-import org.msgpack.jackson.dataformat.MessagePackFactory;
+import org.msgpack.jackson.dataformat.MessagePackFormatFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,7 +34,7 @@ public class MessagePackDataformatHugeDataBenchmarkTest
     private static final int COUNT = 6;
     private static final int WARMUP_COUNT = 4;
     private final ObjectMapper origObjectMapper = new ObjectMapper();
-    private final ObjectMapper msgpackObjectMapper = new ObjectMapper(new MessagePackFactory());
+    private final ObjectMapper msgpackObjectMapper = new ObjectMapper(new MessagePackFormatFactory());
     private static final List<Object> value;
     private static final byte[] packedByOriginal;
     private static final byte[] packedByMsgPack;
@@ -61,7 +61,7 @@ public class MessagePackDataformatHugeDataBenchmarkTest
         packedByOriginal = bytes;
 
         try {
-            bytes = new ObjectMapper(new MessagePackFactory()).writeValueAsBytes(value);
+            bytes = new ObjectMapper(new MessagePackFormatFactory()).writeValueAsBytes(value);
         }
         catch (JsonProcessingException e) {
             e.printStackTrace();

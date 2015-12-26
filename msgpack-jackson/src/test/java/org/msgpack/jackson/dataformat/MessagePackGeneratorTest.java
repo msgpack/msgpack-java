@@ -230,7 +230,7 @@ public class MessagePackGeneratorTest
     public void testMessagePackGeneratorDirectly()
             throws Exception
     {
-        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        MessagePackFormatFactory messagePackFactory = new MessagePackFormatFactory();
         File tempFile = createTempFile();
 
         JsonGenerator generator = messagePackFactory.createGenerator(tempFile, JsonEncoding.UTF8);
@@ -257,7 +257,7 @@ public class MessagePackGeneratorTest
     public void testWritePrimitives()
             throws Exception
     {
-        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        MessagePackFormatFactory messagePackFactory = new MessagePackFormatFactory();
         File tempFile = createTempFile();
 
         JsonGenerator generator = messagePackFactory.createGenerator(tempFile, JsonEncoding.UTF8);
@@ -280,7 +280,7 @@ public class MessagePackGeneratorTest
     public void testBigDecimal()
             throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
+        ObjectMapper mapper = new ObjectMapper(new MessagePackFormatFactory());
 
         {
             double d0 = 1.23456789;
@@ -328,7 +328,7 @@ public class MessagePackGeneratorTest
             throws IOException
     {
         OutputStream out = createTempFileOutputStream();
-        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        MessagePackFormatFactory messagePackFactory = new MessagePackFormatFactory();
         ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
         List<Integer> integers = Arrays.asList(1);
         objectMapper.writeValue(out, integers);
@@ -341,7 +341,7 @@ public class MessagePackGeneratorTest
     {
         File tempFile = createTempFile();
         OutputStream out = new FileOutputStream(tempFile);
-        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        MessagePackFormatFactory messagePackFactory = new MessagePackFormatFactory();
         ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
         objectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
         List<Integer> integers = Arrays.asList(1);
@@ -363,7 +363,7 @@ public class MessagePackGeneratorTest
         File tempFile = createTempFile();
         OutputStream out = new FileOutputStream(tempFile);
 
-        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFormatFactory());
         objectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
         objectMapper.writeValue(out, 1);
         objectMapper.writeValue(out, "two");
