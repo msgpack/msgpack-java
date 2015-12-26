@@ -151,7 +151,7 @@ public class ExampleOfTypeInformationSerDe
             objectContainer.getObjects().put("pi", pi);
         }
 
-        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFormatFactory());
         byte[] bytes = objectMapper.writeValueAsBytes(objectContainer);
         ObjectContainer restored = objectMapper.readValue(bytes, ObjectContainer.class);
 

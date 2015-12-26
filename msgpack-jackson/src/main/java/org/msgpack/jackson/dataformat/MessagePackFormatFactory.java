@@ -30,7 +30,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Arrays;
 
-public class MessagePackFactory
+public class MessagePackFormatFactory
         extends JsonFactory
 {
     private static final long serialVersionUID = 2578263992015504347L;

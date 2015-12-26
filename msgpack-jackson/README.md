@@ -29,10 +29,10 @@ dependencies {
 
 ## Usage
 
-Only thing you need to do is to instantiate MessagePackFactory and pass it to the constructor of ObjectMapper.
+Only thing you need to do is to instantiate MessagePackFormatFactory and pass it to the constructor of ObjectMapper.
 
 ```
-  ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+  ObjectMapper objectMapper = new ObjectMapper(new MessagePackFormatFactory());
   ExamplePojo orig = new ExamplePojo("komamitsu");
   byte[] bytes = objectMapper.writeValueAsBytes(orig);
   ExamplePojo value = objectMapper.readValue(bytes, ExamplePojo.class);

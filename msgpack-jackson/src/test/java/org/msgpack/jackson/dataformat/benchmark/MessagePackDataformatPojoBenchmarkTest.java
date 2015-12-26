@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
-import org.msgpack.jackson.dataformat.MessagePackFactory;
+import org.msgpack.jackson.dataformat.MessagePackFormatFactory;
 import static org.msgpack.jackson.dataformat.MessagePackDataformatTestBase.NormalPojo;
 import static org.msgpack.jackson.dataformat.MessagePackDataformatTestBase.Suit;
 
@@ -40,11 +40,11 @@ public class MessagePackDataformatPojoBenchmarkTest
     private static final List<byte[]> pojosSerWithOrig = new ArrayList<byte[]>(LOOP_MAX);
     private static final List<byte[]> pojosSerWithMsgPack = new ArrayList<byte[]>(LOOP_MAX);
     private final ObjectMapper origObjectMapper = new ObjectMapper();
-    private final ObjectMapper msgpackObjectMapper = new ObjectMapper(new MessagePackFactory());
+    private final ObjectMapper msgpackObjectMapper = new ObjectMapper(new MessagePackFormatFactory());
 
     static {
         final ObjectMapper origObjectMapper = new ObjectMapper();
-        final ObjectMapper msgpackObjectMapper = new ObjectMapper(new MessagePackFactory());
+        final ObjectMapper msgpackObjectMapper = new ObjectMapper(new MessagePackFormatFactory());
 
         for (int i = 0; i < LOOP_MAX; i++) {
             NormalPojo pojo = new NormalPojo();
