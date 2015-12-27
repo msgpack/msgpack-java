@@ -253,18 +253,26 @@ public class MessageUnpacker
                 throw new MessageInsufficientBufferException();
             }
 
-            // TODO this doesn't work if MessageBuffer is allocated by newDirectBuffer.
-            //      add copy method to MessageBuffer to solve this issue.
-            castBuffer.putBytes(0, buffer.array(), buffer.arrayOffset() + position, remaining);
-            castBuffer.putBytes(remaining, next.array(), next.arrayOffset(), length - remaining);
-
             totalReadBytes += buffer.size();
 
-            buffer = next;
-            position = length - remaining;
-            readCastBufferPosition = 0;
+            if (remaining > 0) {
+                // TODO this doesn't work if MessageBuffer is allocated by newDirectBuffer.
+                //      add copy method to MessageBuffer to solve this issue.
+                castBuffer.putBytes(0, buffer.array(), buffer.arrayOffset() + position, remaining);
+                castBuffer.putBytes(remaining, next.array(), next.arrayOffset(), length - remaining);
 
-            return castBuffer;
+                buffer = next;
+                position = length - remaining;
+                readCastBufferPosition = 0;
+
+                return castBuffer;
+            }
+            else {
+                buffer = next;
+                position = length;
+                readCastBufferPosition = 0;
+                return buffer;
+            }
         }
     }
 
