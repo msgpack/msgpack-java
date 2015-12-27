@@ -32,8 +32,9 @@ import java.util.List;
 
 public class MessagePackDataformatPojoBenchmarkTest
 {
-    private static final int LOOP_MAX = 600;
-    private static final int LOOP_FACTOR = 40;
+    private static final int LOOP_MAX = 200;
+    private static final int LOOP_FACTOR_SER = 40;
+    private static final int LOOP_FACTOR_DESER = 200;
     private static final int COUNT = 6;
     private static final int WARMUP_COUNT = 4;
     private static final List<NormalPojo> pojos = new ArrayList<NormalPojo>(LOOP_MAX);
@@ -52,7 +53,11 @@ public class MessagePackDataformatPojoBenchmarkTest
             pojo.l = i;
             pojo.f = Float.valueOf(i);
             pojo.d = Double.valueOf(i);
-            pojo.setS(String.valueOf(i));
+            StringBuilder sb = new StringBuilder();
+            for (int sbi = 0; sbi < i * 40; sbi++) {
+                sb.append("x");
+            }
+            pojo.setS(sb.toString());
             pojo.bool = i % 2 == 0;
             pojo.bi = BigInteger.valueOf(i);
             switch (i % 4) {
@@ -117,7 +122,7 @@ public class MessagePackDataformatPojoBenchmarkTest
             public void run()
                     throws Exception
             {
-                for (int j = 0; j < LOOP_FACTOR; j++) {
+                for (int j = 0; j < LOOP_FACTOR_SER; j++) {
                     for (int i = 0; i < LOOP_MAX; i++) {
                         origObjectMapper.writeValue(outputStreamJackson, pojos.get(i));
                     }
@@ -130,7 +135,7 @@ public class MessagePackDataformatPojoBenchmarkTest
             public void run()
                     throws Exception
             {
-                for (int j = 0; j < LOOP_FACTOR; j++) {
+                for (int j = 0; j < LOOP_FACTOR_SER; j++) {
                     for (int i = 0; i < LOOP_MAX; i++) {
                         msgpackObjectMapper.writeValue(outputStreamMsgpack, pojos.get(i));
                     }
@@ -143,7 +148,7 @@ public class MessagePackDataformatPojoBenchmarkTest
             public void run()
                     throws Exception
             {
-                for (int j = 0; j < LOOP_FACTOR; j++) {
+                for (int j = 0; j < LOOP_FACTOR_DESER; j++) {
                     for (int i = 0; i < LOOP_MAX; i++) {
                         origObjectMapper.readValue(pojosSerWithOrig.get(i), NormalPojo.class);
                     }
@@ -156,7 +161,7 @@ public class MessagePackDataformatPojoBenchmarkTest
             public void run()
                     throws Exception
             {
-                for (int j = 0; j < LOOP_FACTOR; j++) {
+                for (int j = 0; j < LOOP_FACTOR_DESER; j++) {
                     for (int i = 0; i < LOOP_MAX; i++) {
                         msgpackObjectMapper.readValue(pojosSerWithMsgPack.get(i), NormalPojo.class);
                     }
