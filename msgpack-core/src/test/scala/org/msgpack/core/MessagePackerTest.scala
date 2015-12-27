@@ -258,7 +258,7 @@ class MessagePackerTest
           measureDuration(fileOutput)
         }
       }
-      t("file-output-stream").averageWithoutMinMax shouldBe < (t("byte-array-output-stream").averageWithoutMinMax * 4)
+      t("file-output-stream").averageWithoutMinMax shouldBe < (t("byte-array-output-stream").averageWithoutMinMax * 5)
     }
   }
 
