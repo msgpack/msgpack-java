@@ -55,7 +55,7 @@ public class MessagePackDataformatPojoBenchmarkTest
             pojo.f = Float.valueOf(i);
             pojo.d = Double.valueOf(i);
             StringBuilder sb = new StringBuilder();
-            for (int sbi = 0; sbi < i * 40; sbi++) {
+            for (int sbi = 0; sbi < i * 50; sbi++) {
                 sb.append("x");
             }
             pojo.setS(sb.toString());
