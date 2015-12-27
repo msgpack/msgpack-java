@@ -121,11 +121,6 @@ public class MessageUnpacker
     /**
      * For decoding String in unpackString.
      */
-    private int readingRawRemaining = 0;
-
-    /**
-     * For decoding String in unpackString.
-     */
     private CharsetDecoder decoder;
 
     /**
@@ -196,7 +191,6 @@ public class MessageUnpacker
         this.buffer = EMPTY_BUFFER;
         this.position = 0;
         this.totalReadBytes = 0;
-        this.readingRawRemaining = 0;
         // No need to initialize the already allocated string decoder here since we can reuse it.
 
         return old;
@@ -205,24 +199,6 @@ public class MessageUnpacker
     public long getTotalReadBytes()
     {
         return totalReadBytes + position;
-    }
-
-    private byte getHeadByte()
-            throws IOException
-    {
-        byte b = headByte;
-        if (b == HEAD_BYTE_REQUIRED) {
-            b = headByte = readByte();
-            if (b == HEAD_BYTE_REQUIRED) {
-                throw new MessageNeverUsedFormatException("Encountered 0xC1 \"NEVER_USED\" byte");
-            }
-        }
-        return b;
-    }
-
-    private void resetHeadByte()
-    {
-        headByte = HEAD_BYTE_REQUIRED;
     }
 
     private void nextBuffer()
@@ -291,7 +267,7 @@ public class MessageUnpacker
     public boolean hasNext()
             throws IOException
     {
-        if (buffer.size() <= position) {
+        while (buffer.size() <= position) {
             MessageBuffer next = in.next();
             if (next == null) {
                 return false;
@@ -316,13 +292,12 @@ public class MessageUnpacker
     public MessageFormat getNextFormat()
             throws IOException
     {
-        try {
-            byte b = getHeadByte();
-            return MessageFormat.valueOf(b);
+        // makes sure that buffer has at leat 1 byte
+        if (!hasNext()) {
+            throw new MessageInsufficientBufferException();
         }
-        catch (MessageNeverUsedFormatException ex) {
-            return MessageFormat.NEVER_USED;
-        }
+        byte b = buffer.getByte(position);
+        return MessageFormat.valueOf(b);
     }
 
     /**
@@ -395,9 +370,8 @@ public class MessageUnpacker
     {
         int remainingValues = 1;
         while (remainingValues > 0) {
-            byte b = getHeadByte();
+            byte b = readByte();
             MessageFormat f = MessageFormat.valueOf(b);
-            resetHeadByte();
             switch (f) {
                 case POSFIXINT:
                 case NEGFIXINT:
@@ -643,9 +617,8 @@ public class MessageUnpacker
     public void unpackNil()
             throws IOException
     {
-        byte b = getHeadByte();
+        byte b = readByte();
         if (b == Code.NIL) {
-            resetHeadByte();
             return;
         }
         throw unexpected("Nil", b);
@@ -654,13 +627,11 @@ public class MessageUnpacker
     public boolean unpackBoolean()
             throws IOException
     {
-        byte b = getHeadByte();
+        byte b = readByte();
         if (b == Code.FALSE) {
-            resetHeadByte();
             return false;
         }
         else if (b == Code.TRUE) {
-            resetHeadByte();
             return true;
         }
         throw unexpected("boolean", b);
@@ -669,61 +640,52 @@ public class MessageUnpacker
     public byte unpackByte()
             throws IOException
     {
-        byte b = getHeadByte();
+        byte b = readByte();
         if (Code.isFixInt(b)) {
-            resetHeadByte();
             return b;
         }
         switch (b) {
             case Code.UINT8: // unsigned int 8
                 byte u8 = readByte();
-                resetHeadByte();
                 if (u8 < (byte) 0) {
                     throw overflowU8(u8);
                 }
                 return u8;
             case Code.UINT16: // unsigned int 16
                 short u16 = readShort();
-                resetHeadByte();
                 if (u16 < 0 || u16 > Byte.MAX_VALUE) {
                     throw overflowU16(u16);
                 }
                 return (byte) u16;
             case Code.UINT32: // unsigned int 32
                 int u32 = readInt();
-                resetHeadByte();
                 if (u32 < 0 || u32 > Byte.MAX_VALUE) {
                     throw overflowU32(u32);
                 }
                 return (byte) u32;
             case Code.UINT64: // unsigned int 64
                 long u64 = readLong();
-                resetHeadByte();
                 if (u64 < 0L || u64 > Byte.MAX_VALUE) {
                     throw overflowU64(u64);
                 }
                 return (byte) u64;
             case Code.INT8: // signed int 8
                 byte i8 = readByte();
-                resetHeadByte();
                 return i8;
             case Code.INT16: // signed int 16
                 short i16 = readShort();
-                resetHeadByte();
                 if (i16 < Byte.MIN_VALUE || i16 > Byte.MAX_VALUE) {
                     throw overflowI16(i16);
                 }
                 return (byte) i16;
             case Code.INT32: // signed int 32
                 int i32 = readInt();
-                resetHeadByte();
                 if (i32 < Byte.MIN_VALUE || i32 > Byte.MAX_VALUE) {
                     throw overflowI32(i32);
                 }
                 return (byte) i32;
             case Code.INT64: // signed int 64
                 long i64 = readLong();
-                resetHeadByte();
                 if (i64 < Byte.MIN_VALUE || i64 > Byte.MAX_VALUE) {
                     throw overflowI64(i64);
                 }
@@ -735,32 +697,27 @@ public class MessageUnpacker
     public short unpackShort()
             throws IOException
     {
-        byte b = getHeadByte();
+        byte b = readByte();
         if (Code.isFixInt(b)) {
-            resetHeadByte();
             return (short) b;
         }
         switch (b) {
             case Code.UINT8: // unsigned int 8
                 byte u8 = readByte();
-                resetHeadByte();
                 return (short) (u8 & 0xff);
             case Code.UINT16: // unsigned int 16
                 short u16 = readShort();
-                resetHeadByte();
                 if (u16 < (short) 0) {
                     throw overflowU16(u16);
                 }
                 return u16;
             case Code.UINT32: // unsigned int 32
                 int u32 = readInt();
-                resetHeadByte();
                 if (u32 < 0 || u32 > Short.MAX_VALUE) {
                     throw overflowU32(u32);
                 }
                 return (short) u32;
             case Code.UINT64: // unsigned int 64
-                resetHeadByte();
                 long u64 = readLong();
                 if (u64 < 0L || u64 > Short.MAX_VALUE) {
                     throw overflowU64(u64);
@@ -768,22 +725,18 @@ public class MessageUnpacker
                 return (short) u64;
             case Code.INT8: // signed int 8
                 byte i8 = readByte();
-                resetHeadByte();
                 return (short) i8;
             case Code.INT16: // signed int 16
                 short i16 = readShort();
-                resetHeadByte();
                 return i16;
             case Code.INT32: // signed int 32
                 int i32 = readInt();
-                resetHeadByte();
                 if (i32 < Short.MIN_VALUE || i32 > Short.MAX_VALUE) {
                     throw overflowI32(i32);
                 }
                 return (short) i32;
             case Code.INT64: // signed int 64
                 long i64 = readLong();
-                resetHeadByte();
                 if (i64 < Short.MIN_VALUE || i64 > Short.MAX_VALUE) {
                     throw overflowI64(i64);
                 }
@@ -795,49 +748,40 @@ public class MessageUnpacker
     public int unpackInt()
             throws IOException
     {
-        byte b = getHeadByte();
+        byte b = readByte();
         if (Code.isFixInt(b)) {
-            resetHeadByte();
             return (int) b;
         }
         switch (b) {
             case Code.UINT8: // unsigned int 8
                 byte u8 = readByte();
-                resetHeadByte();
                 return u8 & 0xff;
             case Code.UINT16: // unsigned int 16
                 short u16 = readShort();
-                resetHeadByte();
                 return u16 & 0xffff;
             case Code.UINT32: // unsigned int 32
                 int u32 = readInt();
                 if (u32 < 0) {
                     throw overflowU32(u32);
                 }
-                resetHeadByte();
                 return u32;
             case Code.UINT64: // unsigned int 64
                 long u64 = readLong();
-                resetHeadByte();
                 if (u64 < 0L || u64 > (long) Integer.MAX_VALUE) {
                     throw overflowU64(u64);
                 }
                 return (int) u64;
             case Code.INT8: // signed int 8
                 byte i8 = readByte();
-                resetHeadByte();
                 return i8;
             case Code.INT16: // signed int 16
                 short i16 = readShort();
-                resetHeadByte();
                 return i16;
             case Code.INT32: // signed int 32
                 int i32 = readInt();
-                resetHeadByte();
                 return i32;
             case Code.INT64: // signed int 64
                 long i64 = readLong();
-                resetHeadByte();
                 if (i64 < (long) Integer.MIN_VALUE || i64 > (long) Integer.MAX_VALUE) {
                     throw overflowI64(i64);
                 }
@@ -849,23 +793,19 @@ public class MessageUnpacker
     public long unpackLong()
             throws IOException
     {
-        byte b = getHeadByte();
+        byte b = readByte();
         if (Code.isFixInt(b)) {
-            resetHeadByte();
             return (long) b;
         }
         switch (b) {
             case Code.UINT8: // unsigned int 8
                 byte u8 = readByte();
-                resetHeadByte();
                 return (long) (u8 & 0xff);
             case Code.UINT16: // unsigned int 16
                 short u16 = readShort();
-                resetHeadByte();
                 return (long) (u16 & 0xffff);
             case Code.UINT32: // unsigned int 32
                 int u32 = readInt();
-                resetHeadByte();
                 if (u32 < 0) {
                     return (long) (u32 & 0x7fffffff) + 0x80000000L;
                 }
@@ -874,26 +814,21 @@ public class MessageUnpacker
                 }
             case Code.UINT64: // unsigned int 64
                 long u64 = readLong();
-                resetHeadByte();
                 if (u64 < 0L) {
                     throw overflowU64(u64);
                 }
                 return u64;
             case Code.INT8: // signed int 8
                 byte i8 = readByte();
-                resetHeadByte();
                 return (long) i8;
             case Code.INT16: // signed int 16
                 short i16 = readShort();
-                resetHeadByte();
                 return (long) i16;
             case Code.INT32: // signed int 32
                 int i32 = readInt();
-                resetHeadByte();
                 return (long) i32;
             case Code.INT64: // signed int 64
                 long i64 = readLong();
-                resetHeadByte();
                 return i64;
         }
         throw unexpected("Integer", b);
@@ -902,23 +837,19 @@ public class MessageUnpacker
     public BigInteger unpackBigInteger()
             throws IOException
     {
-        byte b = getHeadByte();
+        byte b = readByte();
         if (Code.isFixInt(b)) {
-            resetHeadByte();
             return BigInteger.valueOf((long) b);
         }
         switch (b) {
             case Code.UINT8: // unsigned int 8
                 byte u8 = readByte();
-                resetHeadByte();
                 return BigInteger.valueOf((long) (u8 & 0xff));
             case Code.UINT16: // unsigned int 16
                 short u16 = readShort();
-                resetHeadByte();
                 return BigInteger.valueOf((long) (u16 & 0xffff));
             case Code.UINT32: // unsigned int 32
                 int u32 = readInt();
-                resetHeadByte();
                 if (u32 < 0) {
                     return BigInteger.valueOf((long) (u32 & 0x7fffffff) + 0x80000000L);
                 }
@@ -927,7 +858,6 @@ public class MessageUnpacker
                 }
             case Code.UINT64: // unsigned int 64
                 long u64 = readLong();
-                resetHeadByte();
                 if (u64 < 0L) {
                     BigInteger bi = BigInteger.valueOf(u64 + Long.MAX_VALUE + 1L).setBit(63);
                     return bi;
@@ -937,19 +867,15 @@ public class MessageUnpacker
                 }
             case Code.INT8: // signed int 8
                 byte i8 = readByte();
-                resetHeadByte();
                 return BigInteger.valueOf((long) i8);
             case Code.INT16: // signed int 16
                 short i16 = readShort();
-                resetHeadByte();
                 return BigInteger.valueOf((long) i16);
             case Code.INT32: // signed int 32
                 int i32 = readInt();
-                resetHeadByte();
                 return BigInteger.valueOf((long) i32);
             case Code.INT64: // signed int 64
                 long i64 = readLong();
-                resetHeadByte();
                 return BigInteger.valueOf(i64);
         }
         throw unexpected("Integer", b);
@@ -958,15 +884,13 @@ public class MessageUnpacker
     public float unpackFloat()
             throws IOException
     {
-        byte b = getHeadByte();
+        byte b = readByte();
         switch (b) {
             case Code.FLOAT32: // float
                 float fv = readFloat();
-                resetHeadByte();
                 return fv;
             case Code.FLOAT64: // double
                 double dv = readDouble();
-                resetHeadByte();
                 return (float) dv;
         }
         throw unexpected("Float", b);
@@ -975,15 +899,13 @@ public class MessageUnpacker
     public double unpackDouble()
             throws IOException
     {
-        byte b = getHeadByte();
+        byte b = readByte();
         switch (b) {
             case Code.FLOAT32: // float
                 float fv = readFloat();
-                resetHeadByte();
                 return (double) fv;
             case Code.FLOAT64: // double
                 double dv = readDouble();
-                resetHeadByte();
                 return dv;
         }
         throw unexpected("Float", b);
@@ -1005,35 +927,29 @@ public class MessageUnpacker
         decodeStringBuffer = new StringBuilder();
     }
 
-    /**
-     * This method is not repeatable.
-     */
     public String unpackString()
             throws IOException
     {
-        if (readingRawRemaining == 0) {
-            int len = unpackRawStringHeader();
-            if (len == 0) {
-                return EMPTY_STRING;
-            }
-            if (len > stringSizeLimit) {
-                throw new MessageSizeException(String.format("cannot unpack a String of size larger than %,d: %,d", stringSizeLimit, len), len);
-            }
-            if (buffer.size() - position >= len) {
-                return decodeStringFastPath(len);
-            }
-            readingRawRemaining = len;
-            resetDecoder();
+        int len = unpackRawStringHeader();
+        if (len == 0) {
+            return EMPTY_STRING;
+        }
+        if (len > stringSizeLimit) {
+            throw new MessageSizeException(String.format("cannot unpack a String of size larger than %,d: %,d", stringSizeLimit, len), len);
+        }
+        if (buffer.size() - position >= len) {
+            return decodeStringFastPath(len);
         }
 
-        assert (decoder != null);
+        resetDecoder();
 
         try {
-            while (readingRawRemaining > 0) {
+            int rawRemaining = len;
+            while (rawRemaining > 0) {
                 int bufferRemaining = buffer.size() - position;
-                if (bufferRemaining >= readingRawRemaining) {
-                    decodeStringBuffer.append(decodeStringFastPath(readingRawRemaining));
-                    readingRawRemaining = 0;
+                if (bufferRemaining >= rawRemaining) {
+                    decodeStringBuffer.append(decodeStringFastPath(rawRemaining));
+                    rawRemaining = 0;
                     break;
                 }
                 else if (bufferRemaining == 0) {
@@ -1047,7 +963,7 @@ public class MessageUnpacker
                     CoderResult cr = decoder.decode(bb, decodeBuffer, false);
                     int readLen = bb.position() - bbStartPosition;
                     position += readLen;
-                    readingRawRemaining -= readLen;
+                    rawRemaining -= readLen;
                     decodeStringBuffer.append(decodeBuffer.flip());
 
                     if (cr.isError()) {
@@ -1090,7 +1006,7 @@ public class MessageUnpacker
                                 throw new MessageFormatException("Unexpected UTF-8 multibyte sequence", ex);
                             }
                         }
-                        readingRawRemaining -= multiByteBuffer.limit();
+                        rawRemaining -= multiByteBuffer.limit();
                         decodeStringBuffer.append(decodeBuffer.flip());
                     }
                 }
@@ -1139,20 +1055,17 @@ public class MessageUnpacker
     public int unpackArrayHeader()
             throws IOException
     {
-        byte b = getHeadByte();
+        byte b = readByte();
         if (Code.isFixedArray(b)) { // fixarray
-            resetHeadByte();
             return b & 0x0f;
         }
         switch (b) {
             case Code.ARRAY16: { // array 16
                 int len = readNextLength16();
-                resetHeadByte();
                 return len;
             }
             case Code.ARRAY32: { // array 32
                 int len = readNextLength32();
-                resetHeadByte();
                 return len;
             }
         }
@@ -1162,20 +1075,17 @@ public class MessageUnpacker
     public int unpackMapHeader()
             throws IOException
     {
-        byte b = getHeadByte();
+        byte b = readByte();
         if (Code.isFixedMap(b)) { // fixmap
-            resetHeadByte();
             return b & 0x0f;
         }
         switch (b) {
             case Code.MAP16: { // map 16
                 int len = readNextLength16();
-                resetHeadByte();
                 return len;
             }
             case Code.MAP32: { // map 32
                 int len = readNextLength32();
-                resetHeadByte();
                 return len;
             }
         }
@@ -1185,36 +1095,30 @@ public class MessageUnpacker
     public ExtensionTypeHeader unpackExtensionTypeHeader()
             throws IOException
     {
-        byte b = getHeadByte();
+        byte b = readByte();
         switch (b) {
             case Code.FIXEXT1: {
                 byte type = readByte();
-                resetHeadByte();
                 return new ExtensionTypeHeader(type, 1);
             }
             case Code.FIXEXT2: {
                 byte type = readByte();
-                resetHeadByte();
                 return new ExtensionTypeHeader(type, 2);
             }
             case Code.FIXEXT4: {
                 byte type = readByte();
-                resetHeadByte();
                 return new ExtensionTypeHeader(type, 4);
             }
             case Code.FIXEXT8: {
                 byte type = readByte();
-                resetHeadByte();
                 return new ExtensionTypeHeader(type, 8);
             }
             case Code.FIXEXT16: {
                 byte type = readByte();
-                resetHeadByte();
                 return new ExtensionTypeHeader(type, 16);
             }
             case Code.EXT8: {
                 MessageBuffer castBuffer = readCastBuffer(2);
-                resetHeadByte();
                 int u8 = castBuffer.getByte(readCastBufferPosition);
                 int length = u8 & 0xff;
                 byte type = castBuffer.getByte(readCastBufferPosition + 1);
@@ -1222,7 +1126,6 @@ public class MessageUnpacker
             }
             case Code.EXT16: {
                 MessageBuffer castBuffer = readCastBuffer(3);
-                resetHeadByte();
                 int u16 = castBuffer.getShort(readCastBufferPosition);
                 int length = u16 & 0xffff;
                 byte type = castBuffer.getByte(readCastBufferPosition + 2);
@@ -1230,7 +1133,6 @@ public class MessageUnpacker
             }
             case Code.EXT32: {
                 MessageBuffer castBuffer = readCastBuffer(5);
-                resetHeadByte();
                 int u32 = castBuffer.getInt(readCastBufferPosition);
                 if (u32 < 0) {
                     throw overflowU32Size(u32);
@@ -1277,21 +1179,18 @@ public class MessageUnpacker
     public int unpackRawStringHeader()
             throws IOException
     {
-        byte b = getHeadByte();
+        byte b = readByte();
         if (Code.isFixedRaw(b)) { // FixRaw
-            resetHeadByte();
             return b & 0x1f;
         }
         int len = tryReadStringHeader(b);
         if (len >= 0) {
-            resetHeadByte();
             return len;
         }
 
         if (allowBinaryAsString) {
             len = tryReadBinaryHeader(b);
             if (len >= 0) {
-                resetHeadByte();
                 return len;
             }
         }
@@ -1301,21 +1200,18 @@ public class MessageUnpacker
     public int unpackBinaryHeader()
             throws IOException
     {
-        byte b = getHeadByte();
+        byte b = readByte();
         if (Code.isFixedRaw(b)) { // FixRaw
-            resetHeadByte();
             return b & 0x1f;
         }
         int len = tryReadBinaryHeader(b);
         if (len >= 0) {
-            resetHeadByte();
             return len;
         }
 
         if (allowStringAsBinary) {
             len = tryReadStringHeader(b);
             if (len >= 0) {
-                resetHeadByte();
                 return len;
             }
         }
