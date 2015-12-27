@@ -76,7 +76,7 @@ public class InputStreamBufferInput
         if (readLen == -1) {
             return null;
         }
-        return MessageBuffer.wrap(buffer).slice(0, readLen);
+        return MessageBuffer.wrap(buffer, 0, readLen);
     }
 
     @Override
