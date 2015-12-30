@@ -214,9 +214,9 @@ public class MessagePack
     }
 
     /**
-     * Default configuration, which is visible only from classes in the core package.
+     * Default configuration
      */
-    static final Config DEFAULT_CONFIG = new ConfigBuilder().build();
+    public static final Config DEFAULT_CONFIG = new ConfigBuilder().build();
 
     /**
      * The prefix code set of MessagePack. See also https://github.com/msgpack/msgpack/blob/master/spec.md for details.
