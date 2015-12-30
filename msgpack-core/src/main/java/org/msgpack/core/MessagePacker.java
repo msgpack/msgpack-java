@@ -647,7 +647,7 @@ public class MessagePacker
         if (len < (1 << 5)) {
             writeByte((byte) (FIXSTR_PREFIX | len));
         }
-        else if (len < (1 << 8)) {
+        else if (config.supportStr8Format && len < (1 << 8)) {
             writeByteAndByte(STR8, (byte) len);
         }
         else if (len < (1 << 16)) {

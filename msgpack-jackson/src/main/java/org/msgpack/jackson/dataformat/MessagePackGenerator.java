@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
+import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
@@ -37,8 +38,8 @@ public class MessagePackGenerator
         extends GeneratorBase
 {
     private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
-    private static ThreadLocal<MessagePacker> messagePackersHolder = new ThreadLocal<MessagePacker>();
     private static ThreadLocal<OutputStreamBufferOutput> messageBufferOutputHolder = new ThreadLocal<OutputStreamBufferOutput>();
+    private final MessagePacker messagePacker;
     private LinkedList<StackItem> stack;
     private StackItem rootStackItem;
 
@@ -94,11 +95,10 @@ public class MessagePackGenerator
         }
     }
 
-    public MessagePackGenerator(int features, ObjectCodec codec, OutputStream out)
+    public MessagePackGenerator(int features, ObjectCodec codec, OutputStream out, MessagePack.Config config)
             throws IOException
     {
         super(features, codec);
-        MessagePacker messagePacker = messagePackersHolder.get();
         OutputStreamBufferOutput messageBufferOutput = messageBufferOutputHolder.get();
         if (messageBufferOutput == null) {
             messageBufferOutput = new OutputStreamBufferOutput(out);
@@ -108,14 +108,7 @@ public class MessagePackGenerator
         }
         messageBufferOutputHolder.set(messageBufferOutput);
 
-        if (messagePacker == null) {
-            messagePacker = new MessagePacker(messageBufferOutput);
-        }
-        else {
-            messagePacker.reset(messageBufferOutput);
-        }
-        messagePackersHolder.set(messagePacker);
-
+        this.messagePacker = new MessagePacker(messageBufferOutput, config);
         this.stack = new LinkedList<StackItem>();
     }
 
@@ -538,10 +531,6 @@ public class MessagePackGenerator
 
     private MessagePacker getMessagePacker()
     {
-        MessagePacker messagePacker = messagePackersHolder.get();
-        if (messagePacker == null) {
-            throw new IllegalStateException("messagePacker is null");
-        }
         return messagePacker;
     }
 }
