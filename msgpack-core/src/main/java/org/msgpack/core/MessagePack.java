@@ -71,6 +71,12 @@ public class MessagePack
          * Note that this parameter is subject to change.
          */
         public final int packerSmallStringOptimizationThreshold;
+        /**
+         * disable str8 format when needed backward compatibility between
+         * different serializer versions.
+         * default true, which means no BC.
+         */
+        public final boolean supportStr8Format;
 
         public Config(
                 boolean readStringAsBinary,
@@ -82,7 +88,8 @@ public class MessagePack
                 int stringDecoderBufferSize,
                 int packerBufferSize,
                 int packerSmallStringOptimizationThreshold,
-                int packerRawDataCopyingThreshold)
+                int packerRawDataCopyingThreshold,
+                boolean supportStr8Format)
         {
             checkArgument(packerBufferSize > 0, "packer buffer size must be larger than 0: " + packerBufferSize);
             checkArgument(stringEncoderBufferSize > 0, "string encoder buffer size must be larger than 0: " + stringEncoderBufferSize);
@@ -98,6 +105,7 @@ public class MessagePack
             this.packerBufferSize = packerBufferSize;
             this.packerSmallStringOptimizationThreshold = packerSmallStringOptimizationThreshold;
             this.packerRawDataCopyingThreshold = packerRawDataCopyingThreshold;
+            this.supportStr8Format = supportStr8Format;
         }
     }
 
@@ -119,6 +127,8 @@ public class MessagePack
         private int packerSmallStringOptimizationThreshold = 512; // This parameter is subject to change
         private int packerRawDataCopyingThreshold = 512;
 
+        private boolean supportStr8Format = true;
+
         public Config build()
         {
             return new Config(
@@ -131,7 +141,8 @@ public class MessagePack
                     stringDecoderBufferSize,
                     packerBufferSize,
                     packerSmallStringOptimizationThreshold,
-                    packerRawDataCopyingThreshold
+                    packerRawDataCopyingThreshold,
+                    supportStr8Format
             );
         }
 
@@ -192,6 +203,12 @@ public class MessagePack
         public ConfigBuilder packerRawDataCopyingThreshold(int threshold)
         {
             this.packerRawDataCopyingThreshold = threshold;
+            return this;
+        }
+
+        public ConfigBuilder supportStr8Format(boolean support)
+        {
+            this.supportStr8Format = support;
             return this;
         }
     }
