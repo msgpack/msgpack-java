@@ -15,8 +15,6 @@
 //
 package org.msgpack.core.buffer;
 
-import java.nio.ByteBuffer;
-
 import static org.msgpack.core.Preconditions.checkArgument;
 
 /**

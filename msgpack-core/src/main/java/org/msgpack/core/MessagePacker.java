@@ -27,7 +27,6 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
-import java.nio.charset.CodingErrorAction;
 
 import static org.msgpack.core.MessageFormat.Code.ARRAY16;
 import static org.msgpack.core.MessageFormat.Code.ARRAY32;

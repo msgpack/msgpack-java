@@ -78,5 +78,4 @@ public class ChannelBufferInput
     {
         channel.close();
     }
-
 }

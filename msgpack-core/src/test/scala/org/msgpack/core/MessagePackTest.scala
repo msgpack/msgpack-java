@@ -60,7 +60,6 @@ class MessagePackTest extends MessagePackSpec {
     }
 
     "detect fixarray values" in {
-
       val packer = new MessagePackFactory().newBufferPacker()
       packer.packArrayHeader(0)
       packer.close
@@ -76,7 +75,6 @@ class MessagePackTest extends MessagePackSpec {
     }
 
     "detect fixmap values" in {
-
       val packer = new MessagePackFactory().newBufferPacker()
       packer.packMapHeader(0)
       packer.close

@@ -196,7 +196,8 @@ public class ImmutableArrayValueImpl
     {
         if (value.isRawValue()) {
             sb.append(value.toJson());
-        } else {
+        }
+        else {
             sb.append(value.toString());
         }
     }

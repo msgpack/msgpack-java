@@ -24,7 +24,6 @@ import org.msgpack.value.ValueFactory;
 import org.msgpack.value.Variable;
 
 import java.io.Closeable;
-import java.io.EOFException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -33,13 +32,11 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
-import java.nio.charset.MalformedInputException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.msgpack.core.Preconditions.checkArgument;
 import static org.msgpack.core.Preconditions.checkNotNull;
 
 /**
@@ -1019,7 +1016,7 @@ public class MessageUnpacker
     }
 
     private void handleCoderError(CoderResult cr)
-        throws CharacterCodingException
+            throws CharacterCodingException
     {
         if ((cr.isMalformed() && actionOnMalformedString == CodingErrorAction.REPORT) ||
                 (cr.isUnmappable() && actionOnUnmappableString == CodingErrorAction.REPORT)) {

@@ -26,13 +26,12 @@ public interface MessageBufferInput
 {
     /**
      * Get a next buffer to read.
-     *
-     * When this method is called twice, the formally allocated buffer can be safely discarded.
+     * <p>
+     * When this method is called, the formally allocated buffer can be safely discarded.
      *
      * @return the next MessageBuffer, or return null if no more buffer is available.
      * @throws IOException when error occurred when reading the data
      */
     public MessageBuffer next()
             throws IOException;
-
 }

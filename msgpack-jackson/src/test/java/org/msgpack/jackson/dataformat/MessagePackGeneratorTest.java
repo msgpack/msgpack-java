@@ -24,6 +24,7 @@ import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.core.buffer.ArrayBufferInput;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -36,6 +37,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -378,5 +384,55 @@ public class MessagePackGeneratorTest
         assertEquals(1, unpacker.unpackArrayHeader());
         assertEquals(4, unpacker.unpackInt());
         assertEquals(5, unpacker.unpackLong());
+    }
+
+    @Test
+    public void testInMultiThreads()
+            throws Exception
+    {
+        int threadCount = 8;
+        final int loopCount = 4000;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        final ObjectMapper objectMapper = new ObjectMapper(new MessagePackFormatFactory());
+        objectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
+        final List<ByteArrayOutputStream> buffers = new ArrayList<ByteArrayOutputStream>(threadCount);
+        List<Future<Exception>> results = new ArrayList<Future<Exception>>();
+
+        for (int ti = 0; ti < threadCount; ti++) {
+            buffers.add(new ByteArrayOutputStream());
+            final int threadIndex = ti;
+            results.add(executorService.submit(new Callable<Exception>()
+            {
+                @Override
+                public Exception call()
+                        throws Exception
+                {
+                    try {
+                        for (int i = 0; i < loopCount; i++) {
+                            objectMapper.writeValue(buffers.get(threadIndex), threadIndex);
+                        }
+                        return null;
+                    }
+                    catch (IOException e) {
+                        return e;
+                    }
+                }
+            }));
+        }
+
+        for (int ti = 0; ti < threadCount; ti++) {
+            Future<Exception> exceptionFuture = results.get(ti);
+            Exception exception = exceptionFuture.get(20, TimeUnit.SECONDS);
+            if (exception != null) {
+                throw exception;
+            }
+            else {
+                ByteArrayOutputStream outputStream = buffers.get(ti);
+                MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(outputStream.toByteArray());
+                for (int i = 0; i < loopCount; i++) {
+                    assertEquals(ti, unpacker.unpackInt());
+                }
+            }
+        }
     }
 }

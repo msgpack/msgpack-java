@@ -19,17 +19,15 @@ import org.msgpack.core.buffer.ArrayBufferInput;
 import org.msgpack.core.buffer.ChannelBufferInput;
 import org.msgpack.core.buffer.ChannelBufferOutput;
 import org.msgpack.core.buffer.InputStreamBufferInput;
-import org.msgpack.core.buffer.OutputStreamBufferOutput;
 import org.msgpack.core.buffer.MessageBufferInput;
 import org.msgpack.core.buffer.MessageBufferOutput;
+import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.channels.WritableByteChannel;
 import java.nio.channels.ReadableByteChannel;
-
+import java.nio.channels.WritableByteChannel;
 import java.nio.charset.CodingErrorAction;
-import static org.msgpack.core.Preconditions.checkArgument;
 
 public class MessagePackFactory
 {
@@ -42,8 +40,8 @@ public class MessagePackFactory
     private int unpackStringSizeLimit = Integer.MAX_VALUE;
     private int unpackStringDecoderBufferSize = 8192;
 
-    private int inputBufferSize = 16*1024;
-    private int outputBufferSize = 16*1024;
+    private int inputBufferSize = 16 * 1024;
+    private int outputBufferSize = 16 * 1024;
 
     public MessagePacker newPacker(OutputStream out)
     {
@@ -58,13 +56,13 @@ public class MessagePackFactory
     public MessagePacker newPacker(MessageBufferOutput output)
     {
         return new MessagePacker(output)
-            .setSmallStringOptimizationThreshold(packerSmallStringOptimizationThreshold);
+                .setSmallStringOptimizationThreshold(packerSmallStringOptimizationThreshold);
     }
 
     public MessageBufferPacker newBufferPacker()
     {
         return new MessageBufferPacker()
-            .setSmallStringOptimizationThreshold(packerSmallStringOptimizationThreshold);
+                .setSmallStringOptimizationThreshold(packerSmallStringOptimizationThreshold);
     }
 
     public MessageUnpacker newUnpacker(byte[] contents)
@@ -90,12 +88,12 @@ public class MessagePackFactory
     public MessageUnpacker newUnpacker(MessageBufferInput input)
     {
         return new MessageUnpacker(input)
-            .setAllowStringAsBinary(unpackAllowStringAsBinary)
-            .setAllowBinaryAsString(unpackAllowBinaryAsString)
-            .setActionOnMalformedString(unpackActionOnMalformedString)
-            .setActionOnUnmappableString(unpackActionOnUnmappableString)
-            .setStringSizeLimit(unpackStringSizeLimit)
-            .setStringDecoderBufferSize(unpackStringDecoderBufferSize);
+                .setAllowStringAsBinary(unpackAllowStringAsBinary)
+                .setAllowBinaryAsString(unpackAllowBinaryAsString)
+                .setActionOnMalformedString(unpackActionOnMalformedString)
+                .setActionOnUnmappableString(unpackActionOnUnmappableString)
+                .setStringSizeLimit(unpackStringSizeLimit)
+                .setStringDecoderBufferSize(unpackStringDecoderBufferSize);
     }
 
     /**

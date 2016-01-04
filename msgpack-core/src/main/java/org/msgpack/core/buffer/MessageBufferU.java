@@ -16,10 +16,8 @@
 package org.msgpack.core.buffer;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 import static org.msgpack.core.Preconditions.checkArgument;
-import static org.msgpack.core.Preconditions.checkNotNull;
 
 /**
  * Universal MessageBuffer implementation supporting Java6 and Android.

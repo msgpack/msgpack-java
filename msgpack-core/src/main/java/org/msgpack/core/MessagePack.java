@@ -15,20 +15,11 @@
 //
 package org.msgpack.core;
 
-import org.msgpack.core.buffer.ArrayBufferInput;
-import org.msgpack.core.buffer.ChannelBufferInput;
-import org.msgpack.core.buffer.ChannelBufferOutput;
-import org.msgpack.core.buffer.InputStreamBufferInput;
-import org.msgpack.core.buffer.OutputStreamBufferOutput;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
-import java.nio.charset.CodingErrorAction;
-
-import static org.msgpack.core.Preconditions.checkArgument;
 
 /**
  * This class has MessagePack prefix code definitions and packer/unpacker factory methods.
@@ -53,7 +44,8 @@ public class MessagePack
     }
 
     private MessagePack()
-    { }
+    {
+    }
 
     /**
      * Equivalent to getDefaultFactory().newPacker(out).
@@ -80,7 +72,6 @@ public class MessagePack
     /**
      * Equivalent to getDefaultFactory().newBufferPacker()
      *
-     * @param channel
      * @return
      */
     public static MessageBufferPacker newDefaultBufferPacker()
