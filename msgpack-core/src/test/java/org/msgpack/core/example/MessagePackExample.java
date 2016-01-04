@@ -153,11 +153,6 @@ public class MessagePackExample
                 .packArrayHeader(2)
                 .packString("xxx-xxxx")
                 .packString("yyy-yyyy");
-
-        // [Advanced] write data using ByteBuffer
-        ByteBuffer bb = ByteBuffer.wrap(new byte[] {'b', 'i', 'n', 'a', 'r', 'y', 'd', 'a', 't', 'a'});
-        packer.packBinaryHeader(bb.remaining());
-        packer.writePayload(bb);
     }
 
     /**
