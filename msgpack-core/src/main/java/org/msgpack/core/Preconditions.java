@@ -31,6 +31,7 @@
  */
 package org.msgpack.core;
 
+import org.msgpack.core.annotations.Nullable;
 import org.msgpack.core.annotations.VisibleForTesting;
 
 /**
