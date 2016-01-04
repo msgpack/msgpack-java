@@ -549,9 +549,6 @@ public class MessageUnpacker
                 int size = unpackArrayHeader();
                 List<Value> list = new ArrayList<Value>(size);
                 for (int i = 0; i < size; i++) {
-                    //Variable e = new Variable();
-                    //unpackValue(e);
-                    //list.add(e);
                     list.add(unpackValue());
                 }
                 var.setArrayValue(list);
@@ -561,10 +558,6 @@ public class MessageUnpacker
                 int size = unpackMapHeader();
                 Map<Value, Value> map = new HashMap<Value, Value>();
                 for (int i = 0; i < size; i++) {
-                    //Variable k = new Variable();
-                    //unpackValue(k);
-                    //Variable v = new Variable();
-                    //unpackValue(v);
                     Value k = unpackValue();
                     Value v = unpackValue();
                     map.put(k, v);
