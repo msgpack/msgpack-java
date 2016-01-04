@@ -28,27 +28,14 @@ public class MessagePack
 {
     public static final Charset UTF8 = Charset.forName("UTF-8");
 
-    private static MessagePackFactory defaultFactory = new MessagePackFactory();
-
-    /**
-     * Sets the default configuration used for the static constructor methods of this MessagePack class.
-     */
-    public static void setDefaultFactory(MessagePackFactory newDefaultFactory)
-    {
-        defaultFactory = newDefaultFactory;
-    }
-
-    public static MessagePackFactory getDefaultFactory()
-    {
-        return defaultFactory;
-    }
+    private final static MessagePackFactory defaultFactory = new MessagePackFactory();
 
     private MessagePack()
     {
     }
 
     /**
-     * Equivalent to getDefaultFactory().newPacker(out).
+     * Equivalent to defaultFactory().newPacker(out).
      *
      * @param out
      * @return
@@ -59,7 +46,7 @@ public class MessagePack
     }
 
     /**
-     * Equivalent to getDefaultFactory().newPacker(channel).
+     * Equivalent to defaultFactory().newPacker(channel).
      *
      * @param channel
      * @return
@@ -70,7 +57,7 @@ public class MessagePack
     }
 
     /**
-     * Equivalent to getDefaultFactory().newBufferPacker()
+     * Equivalent to defaultFactory().newBufferPacker()
      *
      * @return
      */
@@ -80,7 +67,7 @@ public class MessagePack
     }
 
     /**
-     * Equivalent to getDefaultFactory().newUnpacker(in).
+     * Equivalent to defaultFactory().newUnpacker(in).
      *
      * @param in
      * @return
@@ -91,7 +78,7 @@ public class MessagePack
     }
 
     /**
-     * Equivalent to getDefaultFactory().newUnpacker(channel).
+     * Equivalent to defaultFactory().newUnpacker(channel).
      *
      * @param channel
      * @return
@@ -102,7 +89,7 @@ public class MessagePack
     }
 
     /**
-     * Equivalent to getDefaultFactory().newUnpacker(contents).
+     * Equivalent to defaultFactory().newUnpacker(contents).
      *
      * @param contents
      * @return
@@ -113,7 +100,7 @@ public class MessagePack
     }
 
     /**
-     * Equivalent to getDefaultFactory().newUnpacker(contents, offset, length).
+     * Equivalent to defaultFactory().newUnpacker(contents, offset, length).
      *
      * @param contents
      * @param offset
