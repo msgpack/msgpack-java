@@ -86,6 +86,8 @@ public class MessagePacker
 {
     private final int smallStringOptimizationThreshold;
 
+    private final int bufferFlushThreshold;
+
     protected MessageBufferOutput out;
 
     private MessageBuffer buffer;
@@ -113,6 +115,7 @@ public class MessagePacker
         this.out = checkNotNull(out, "MessageBufferOutput is null");
         // We must copy the configuration parameters here since the config object is mutable
         this.smallStringOptimizationThreshold = config.smallStringOptimizationThreshold;
+        this.bufferFlushThreshold = config.bufferFlushThreshold;
         this.position = 0;
         this.totalFlushBytes = 0;
     }
@@ -703,7 +706,7 @@ public class MessagePacker
     public MessagePacker writePayload(byte[] src, int off, int len)
             throws IOException
     {
-        if (buffer.size() - position < len || len > 8192) {
+        if (buffer.size() - position < len || len > bufferFlushThreshold) {
             flush();  // call flush before write
             out.write(src, off, len);
             totalFlushBytes += len;
@@ -744,7 +747,7 @@ public class MessagePacker
     public MessagePacker addPayload(byte[] src, int off, int len)
             throws IOException
     {
-        if (buffer.size() - position < len || len > 8192) {
+        if (buffer.size() - position < len || len > bufferFlushThreshold) {
             flush();  // call flush before add
             out.add(src, off, len);
             totalFlushBytes += len;

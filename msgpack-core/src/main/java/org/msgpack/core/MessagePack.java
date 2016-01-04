@@ -242,6 +242,12 @@ public class MessagePack
         public int smallStringOptimizationThreshold = 512;
 
         /**
+         * When the next payload size exceeds this threshold, MessagePacker will call MessageBufferOutput.flush() before
+         * packing the data.
+         */
+        public int bufferFlushThreshold = 8192;
+
+        /**
          * Create a packer that outputs the packed data to a given output
          *
          * @param out
