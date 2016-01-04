@@ -506,7 +506,7 @@ public class MessagePacker
                     // move 1 byte backward to expand 3-byte header region to 3 bytes
                     buffer.putBytes(position + 3,
                             buffer.array(), buffer.arrayOffset() + position + 2, written);
-                    // write 3-byte header header
+                    // write 3-byte header
                     buffer.putByte(position++, STR16);
                     buffer.putShort(position, (short) written);
                     position += 2;
@@ -516,7 +516,7 @@ public class MessagePacker
             }
         }
         else if (s.length() < (1 << 16)) {
-            // ensure capacity for 3-byte raw string header + the maximum string size (+ 2 bytes for falback code)
+            // ensure capacity for 3-byte raw string header + the maximum string size (+ 2 bytes for fallback code)
             ensureCapacity(3 + s.length() * UTF_8_MAX_CHAR_SIZE + 2);
             // keep 3-byte header region and write raw string
             int written = encodeStringToBufferAt(position + 3, s);
