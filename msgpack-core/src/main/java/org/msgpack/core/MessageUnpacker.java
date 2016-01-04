@@ -932,7 +932,6 @@ public class MessageUnpacker
                 int bufferRemaining = buffer.size() - position;
                 if (bufferRemaining >= rawRemaining) {
                     decodeStringBuffer.append(decodeStringFastPath(rawRemaining));
-                    rawRemaining = 0;
                     break;
                 }
                 else if (bufferRemaining == 0) {
