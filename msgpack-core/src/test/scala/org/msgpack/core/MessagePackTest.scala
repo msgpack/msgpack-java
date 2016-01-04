@@ -59,6 +59,38 @@ class MessagePackTest extends MessagePackSpec {
       }
     }
 
+    "detect fixarray values" in {
+
+      val packer = new MessagePackFactory().newBufferPacker()
+      packer.packArrayHeader(0)
+      packer.close
+      val bytes = packer.toByteArray
+      new MessagePackFactory().newUnpacker(bytes).unpackArrayHeader() shouldBe 0
+      try {
+        new MessagePackFactory().newUnpacker(bytes).unpackMapHeader()
+        fail("Shouldn't reach here")
+      }
+      catch {
+        case e: MessageTypeException => // OK
+      }
+    }
+
+    "detect fixmap values" in {
+
+      val packer = new MessagePackFactory().newBufferPacker()
+      packer.packMapHeader(0)
+      packer.close
+      val bytes = packer.toByteArray
+      new MessagePackFactory().newUnpacker(bytes).unpackMapHeader() shouldBe 0
+      try {
+        new MessagePackFactory().newUnpacker(bytes).unpackArrayHeader()
+        fail("Shouldn't reach here")
+      }
+      catch {
+        case e: MessageTypeException => // OK
+      }
+    }
+
     "detect fixint quickly" in {
 
       val N = 100000
