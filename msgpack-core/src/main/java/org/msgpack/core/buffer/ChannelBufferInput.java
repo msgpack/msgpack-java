@@ -29,7 +29,7 @@ public class ChannelBufferInput
         implements MessageBufferInput
 {
     private ReadableByteChannel channel;
-    private final MessageBuffer m;
+    private final MessageBuffer buffer;
 
     public ChannelBufferInput(ReadableByteChannel channel)
     {
@@ -40,7 +40,7 @@ public class ChannelBufferInput
     {
         this.channel = checkNotNull(channel, "input channel is null");
         checkArgument(bufferSize > 0, "buffer size must be > 0: " + bufferSize);
-        this.m = MessageBuffer.allocate(bufferSize);
+        this.buffer = MessageBuffer.allocate(bufferSize);
     }
 
     /**
@@ -61,7 +61,7 @@ public class ChannelBufferInput
     public MessageBuffer next()
             throws IOException
     {
-        ByteBuffer b = m.sliceAsByteBuffer();
+        ByteBuffer b = buffer.sliceAsByteBuffer();
         while (b.remaining() > 0) {
             int ret = channel.read(b);
             if (ret == -1) {
@@ -69,7 +69,7 @@ public class ChannelBufferInput
             }
         }
         b.flip();
-        return b.remaining() == 0 ? null : m.slice(0, b.limit());
+        return b.remaining() == 0 ? null : buffer.slice(0, b.limit());
     }
 
     @Override
