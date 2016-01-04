@@ -125,7 +125,6 @@ public class MessagePack
         public static final byte NEGFIXINT_PREFIX = (byte) 0xe0;
     }
 
-
     private MessagePack()
     {
         // Prohibit instantiation of this class

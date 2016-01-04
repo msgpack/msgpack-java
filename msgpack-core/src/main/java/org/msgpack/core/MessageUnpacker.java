@@ -100,15 +100,15 @@ public class MessageUnpacker
     private long totalReadBytes;
 
     /**
-     * Extra buffer for fixed-length data at the buffer boundary.
+     * An extra buffer for reading a small number value across the input buffer boundary.
      * At most 8-byte buffer (for readLong used by uint 64 and UTF-8 character decoding) is required.
      */
-    private final MessageBuffer castBuffer = MessageBuffer.allocate(8);
+    private final MessageBuffer numberBuffer = MessageBuffer.allocate(8);
 
     /**
-     * Variable by ensureHeader method. Caller of the method should use this variable to read from returned MessageBuffer.
+     * After calling prepareNumberBuffer(), the caller should use this variable to read from the returned MessageBuffer.
      */
-    private int readCastBufferPosition;
+    private int nextReadPosition;
 
     /**
      * For decoding String in unpackString.
@@ -169,7 +169,12 @@ public class MessageUnpacker
         return totalReadBytes + position;
     }
 
-    private void nextBuffer()
+    /**
+     * Get the next buffer without changing the position
+     * @return
+     * @throws IOException
+     */
+    private MessageBuffer getNextBuffer()
             throws IOException
     {
         MessageBuffer next = in.next();
@@ -177,44 +182,57 @@ public class MessageUnpacker
             throw new MessageInsufficientBufferException();
         }
         totalReadBytes += buffer.size();
-        buffer = next;
+        return next;
+    }
+
+    private void nextBuffer()
+            throws IOException
+    {
+        buffer = getNextBuffer();
         position = 0;
     }
 
-    private MessageBuffer readCastBuffer(int length)
+    /**
+     * Returns a short size buffer (upto 8 bytes) to read a number value
+     * @param readLength
+     * @return
+     * @throws IOException
+     * @throws MessageInsufficientBufferException If no more buffer can be acquired from the input source for reading the specified data length
+     */
+    private MessageBuffer prepareNumberBuffer(int readLength)
             throws IOException
     {
         int remaining = buffer.size() - position;
-        if (remaining >= length) {
-            readCastBufferPosition = position;
-            position += length;  // here assumes following buffer.getXxx never throws exception
-            return buffer;
+        if (remaining >= readLength) {
+            // When the data is contained inside the default buffer
+            nextReadPosition = position;
+            position += readLength;  // here assumes following buffer.getXxx never throws exception
+            return buffer; // Return the default buffer
         }
         else {
-            // TODO loop this method until castBuffer is filled
-            MessageBuffer next = in.next();
-            if (next == null) {
-                throw new MessageInsufficientBufferException();
-            }
+            // When the default buffer doesn't contain the whole length
 
-            totalReadBytes += buffer.size();
+            // TODO loop this method until castBuffer is filled
+            MessageBuffer next = getNextBuffer();
 
             if (remaining > 0) {
-                // TODO this doesn't work if MessageBuffer is allocated by newDirectBuffer.
-                //      add copy method to MessageBuffer to solve this issue.
-                castBuffer.putBytes(0, buffer.array(), buffer.arrayOffset() + position, remaining);
-                castBuffer.putBytes(remaining, next.array(), next.arrayOffset(), length - remaining);
+                // TODO This doesn't work if MessageBuffer is allocated by newDirectBuffer.
+                //      Add copy method to MessageBuffer to solve this issue.
+
+                // Copy the data fragment from the current buffer
+                numberBuffer.putBytes(0, buffer.array(), buffer.arrayOffset() + position, remaining);
+                numberBuffer.putBytes(remaining, next.array(), next.arrayOffset(), readLength - remaining);
 
                 buffer = next;
-                position = length - remaining;
-                readCastBufferPosition = 0;
+                position = readLength - remaining;
+                nextReadPosition = 0;
 
-                return castBuffer;
+                return numberBuffer; // Return the numberBuffer
             }
             else {
                 buffer = next;
-                position = length;
-                readCastBufferPosition = 0;
+                position = readLength;
+                nextReadPosition = 0;
                 return buffer;
             }
         }
@@ -296,36 +314,36 @@ public class MessageUnpacker
     private short readShort()
             throws IOException
     {
-        MessageBuffer castBuffer = readCastBuffer(2);
-        return castBuffer.getShort(readCastBufferPosition);
+        MessageBuffer numberBuffer = prepareNumberBuffer(2);
+        return numberBuffer.getShort(nextReadPosition);
     }
 
     private int readInt()
             throws IOException
     {
-        MessageBuffer castBuffer = readCastBuffer(4);
-        return castBuffer.getInt(readCastBufferPosition);
+        MessageBuffer numberBuffer = prepareNumberBuffer(4);
+        return numberBuffer.getInt(nextReadPosition);
     }
 
     private long readLong()
             throws IOException
     {
-        MessageBuffer castBuffer = readCastBuffer(8);
-        return castBuffer.getLong(readCastBufferPosition);
+        MessageBuffer numberBuffer = prepareNumberBuffer(8);
+        return numberBuffer.getLong(nextReadPosition);
     }
 
     private float readFloat()
             throws IOException
     {
-        MessageBuffer castBuffer = readCastBuffer(4);
-        return castBuffer.getFloat(readCastBufferPosition);
+        MessageBuffer numberBuffer = prepareNumberBuffer(4);
+        return numberBuffer.getFloat(nextReadPosition);
     }
 
     private double readDouble()
             throws IOException
     {
-        MessageBuffer castBuffer = readCastBuffer(8);
-        return castBuffer.getDouble(readCastBufferPosition);
+        MessageBuffer numberBuffer = prepareNumberBuffer(8);
+        return numberBuffer.getDouble(nextReadPosition);
     }
 
     /**
@@ -1079,27 +1097,27 @@ public class MessageUnpacker
                 return new ExtensionTypeHeader(type, 16);
             }
             case Code.EXT8: {
-                MessageBuffer castBuffer = readCastBuffer(2);
-                int u8 = castBuffer.getByte(readCastBufferPosition);
+                MessageBuffer numberBuffer = prepareNumberBuffer(2);
+                int u8 = numberBuffer.getByte(nextReadPosition);
                 int length = u8 & 0xff;
-                byte type = castBuffer.getByte(readCastBufferPosition + 1);
+                byte type = numberBuffer.getByte(nextReadPosition + 1);
                 return new ExtensionTypeHeader(type, length);
             }
             case Code.EXT16: {
-                MessageBuffer castBuffer = readCastBuffer(3);
-                int u16 = castBuffer.getShort(readCastBufferPosition);
+                MessageBuffer numberBuffer = prepareNumberBuffer(3);
+                int u16 = numberBuffer.getShort(nextReadPosition);
                 int length = u16 & 0xffff;
-                byte type = castBuffer.getByte(readCastBufferPosition + 2);
+                byte type = numberBuffer.getByte(nextReadPosition + 2);
                 return new ExtensionTypeHeader(type, length);
             }
             case Code.EXT32: {
-                MessageBuffer castBuffer = readCastBuffer(5);
-                int u32 = castBuffer.getInt(readCastBufferPosition);
+                MessageBuffer numberBuffer = prepareNumberBuffer(5);
+                int u32 = numberBuffer.getInt(nextReadPosition);
                 if (u32 < 0) {
                     throw overflowU32Size(u32);
                 }
                 int length = u32;
-                byte type = castBuffer.getByte(readCastBufferPosition + 4);
+                byte type = numberBuffer.getByte(nextReadPosition + 4);
                 return new ExtensionTypeHeader(type, length);
             }
         }

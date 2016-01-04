@@ -15,9 +15,9 @@
 //
 package org.msgpack.core;
 
+import org.msgpack.core.buffer.ArrayBufferOutput;
 import org.msgpack.core.buffer.MessageBuffer;
 import org.msgpack.core.buffer.MessageBufferOutput;
-import org.msgpack.core.buffer.ArrayBufferOutput;
 
 import java.io.IOException;
 import java.util.List;
@@ -47,7 +47,8 @@ public class MessageBufferPacker
         return super.reset(out);
     }
 
-    private ArrayBufferOutput getArrayBufferOut() {
+    private ArrayBufferOutput getArrayBufferOut()
+    {
         return (ArrayBufferOutput) out;
     }
 
