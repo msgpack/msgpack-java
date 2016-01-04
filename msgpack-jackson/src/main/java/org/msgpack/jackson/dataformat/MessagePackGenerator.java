@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
+import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
@@ -109,7 +110,7 @@ public class MessagePackGenerator
         messageBufferOutputHolder.set(messageBufferOutput);
 
         if (messagePacker == null) {
-            messagePacker = new MessagePacker(messageBufferOutput);
+            messagePacker = MessagePack.newDefaultPacker(messageBufferOutput);
         }
         else {
             messagePacker.reset(messageBufferOutput);
@@ -183,8 +184,17 @@ public class MessagePackGenerator
         }
         else if (v instanceof ByteBuffer) {
             ByteBuffer bb = (ByteBuffer) v;
-            messagePacker.packBinaryHeader(bb.limit());
-            messagePacker.writePayload(bb);
+            int len = bb.remaining();
+            if (bb.hasArray()) {
+                messagePacker.packBinaryHeader(len);
+                messagePacker.writePayload(bb.array(), bb.arrayOffset(), len);
+            }
+            else {
+                byte[] data = new byte[len];
+                bb.get(data);
+                messagePacker.packBinaryHeader(len);
+                messagePacker.addPayload(data);
+            }
         }
         else if (v instanceof String) {
             messagePacker.packString((String) v);

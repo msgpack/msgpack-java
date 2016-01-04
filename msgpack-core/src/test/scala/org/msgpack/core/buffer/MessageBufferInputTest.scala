@@ -24,9 +24,6 @@ import xerial.core.io.IOUtil._
 
 import scala.util.Random
 
-/**
- * Created on 5/30/14.
- */
 class MessageBufferInputTest
   extends MessagePackSpec {
 
@@ -97,11 +94,6 @@ class MessageBufferInputTest
           ArrayBufferInput(_))
     }
 
-    "support ByteBuffers" in {
-      runTest(b => new
-          ByteBufferInput(b.toByteBuffer))
-    }
-
     "support InputStreams" taggedAs ("is") in {
       runTest(b =>
         new
@@ -135,10 +127,8 @@ class MessageBufferInputTest
 
   def createTempFileWithInputStream = {
     val f = createTempFile
-    val out = new
-        FileOutputStream(f)
-    new
-        MessagePack().newPacker(out).packInt(42).close
+    val out = new FileOutputStream(f)
+    MessagePack.newDefaultPacker(out).packInt(42).close
     val in = new
         FileInputStream(f)
     (f, in)
@@ -151,8 +141,7 @@ class MessageBufferInputTest
   }
 
   def readInt(buf: MessageBufferInput): Int = {
-    val unpacker = new
-        MessageUnpacker(buf)
+    val unpacker = MessagePack.newDefaultUnpacker(buf)
     unpacker.unpackInt
   }
 

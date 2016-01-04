@@ -27,7 +27,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.junit.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
-import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -54,7 +53,7 @@ public class MessagePackParserTest
     public void testParserShouldReadObject()
             throws IOException
     {
-        MessagePacker packer = new MessagePacker(new OutputStreamBufferOutput(out));
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
         packer.packMapHeader(9);
         // #1
         packer.packString("str");
@@ -182,7 +181,7 @@ public class MessagePackParserTest
     public void testParserShouldReadArray()
             throws IOException
     {
-        MessagePacker packer = new MessagePacker(new OutputStreamBufferOutput(out));
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
         packer.packArrayHeader(11);
         // #1
         packer.packArrayHeader(3);
@@ -288,7 +287,7 @@ public class MessagePackParserTest
     public void testMessagePackParserDirectly()
             throws IOException
     {
-        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        MessagePackFactory factory = new MessagePackFactory();
         File tempFile = File.createTempFile("msgpackTest", "msgpack");
         tempFile.deleteOnExit();
 
@@ -301,7 +300,7 @@ public class MessagePackParserTest
         packer.packFloat(1.0f);
         packer.close();
 
-        JsonParser parser = messagePackFactory.createParser(tempFile);
+        JsonParser parser = factory.createParser(tempFile);
         assertTrue(parser instanceof MessagePackParser);
 
         JsonToken jsonToken = parser.nextToken();
@@ -354,7 +353,7 @@ public class MessagePackParserTest
     public void testReadPrimitives()
             throws Exception
     {
-        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        MessagePackFactory factory = new MessagePackFactory();
         File tempFile = createTempFile();
 
         FileOutputStream out = new FileOutputStream(tempFile);
@@ -367,7 +366,7 @@ public class MessagePackParserTest
         packer.writePayload(bytes);
         packer.close();
 
-        JsonParser parser = messagePackFactory.createParser(new FileInputStream(tempFile));
+        JsonParser parser = factory.createParser(new FileInputStream(tempFile));
         assertEquals(JsonToken.VALUE_STRING, parser.nextToken());
         assertEquals("foo", parser.getText());
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, parser.nextToken());
@@ -387,7 +386,7 @@ public class MessagePackParserTest
     {
         double d0 = 1.23456789;
         double d1 = 1.23450000000000000000006789;
-        MessagePacker packer = new MessagePacker(new OutputStreamBufferOutput(out));
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
         packer.packArrayHeader(5);
         packer.packDouble(d0);
         packer.packDouble(d1);
@@ -431,9 +430,9 @@ public class MessagePackParserTest
             throws Exception
     {
         File tempFile = createTestFile();
-        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        MessagePackFactory factory = new MessagePackFactory();
         FileInputStream in = new FileInputStream(tempFile);
-        ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
+        ObjectMapper objectMapper = new ObjectMapper(factory);
         objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
         objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
     }

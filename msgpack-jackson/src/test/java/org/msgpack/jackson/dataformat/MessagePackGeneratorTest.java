@@ -86,7 +86,7 @@ public class MessagePackGeneratorTest
 
         long bitmap = 0;
         byte[] bytes = objectMapper.writeValueAsBytes(hashMap);
-        MessageUnpacker messageUnpacker = new MessageUnpacker(new ArrayBufferInput(bytes));
+        MessageUnpacker messageUnpacker = MessagePack.newDefaultUnpacker(new ArrayBufferInput(bytes));
         assertEquals(hashMap.size(), messageUnpacker.unpackMapHeader());
         for (int i = 0; i < hashMap.size(); i++) {
             String key = messageUnpacker.unpackString();
@@ -199,7 +199,7 @@ public class MessagePackGeneratorTest
 
         long bitmap = 0;
         byte[] bytes = objectMapper.writeValueAsBytes(array);
-        MessageUnpacker messageUnpacker = new MessageUnpacker(new ArrayBufferInput(bytes));
+        MessageUnpacker messageUnpacker = MessagePack.newDefaultUnpacker(new ArrayBufferInput(bytes));
         assertEquals(array.size(), messageUnpacker.unpackArrayHeader());
         // #1
         assertEquals("komamitsu", messageUnpacker.unpackString());

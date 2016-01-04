@@ -38,23 +38,22 @@ public class ImmutableBigIntegerValueImpl
 {
     public static MessageFormat mostSuccinctMessageFormat(IntegerValue v)
     {
-        if(v.isInByteRange()) {
+        if (v.isInByteRange()) {
             return MessageFormat.INT8;
         }
-        else if(v.isInShortRange()) {
+        else if (v.isInShortRange()) {
             return MessageFormat.INT16;
         }
-        else if(v.isInIntRange()) {
+        else if (v.isInIntRange()) {
             return MessageFormat.INT32;
         }
-        else if(v.isInLongRange()) {
+        else if (v.isInLongRange()) {
             return MessageFormat.INT64;
         }
         else {
             return MessageFormat.UINT64;
         }
     }
-
 
     private final BigInteger value;
 

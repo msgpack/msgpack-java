@@ -130,7 +130,8 @@ public class ImmutableDoubleValueImpl
     {
         if (Double.isNaN(value) || Double.isInfinite(value)) {
             return "null";
-        } else {
+        }
+        else {
             return Double.toString(value);
         }
     }

@@ -24,7 +24,6 @@ import org.msgpack.value.ValueFactory;
 import org.msgpack.value.Variable;
 
 import java.io.Closeable;
-import java.io.EOFException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -33,13 +32,11 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
-import java.nio.charset.MalformedInputException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.msgpack.core.Preconditions.checkArgument;
 import static org.msgpack.core.Preconditions.checkNotNull;
 
 /**
@@ -48,7 +45,7 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  * <p/>
  * <pre>
  * <code>
- *     MessageUnpacker unpacker = MessagePackFactory.DEFAULT.newUnpacker(...);
+ *     MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(...);
  *     while(unpacker.hasNext()) {
  *         MessageFormat f = unpacker.getNextFormat();
  *         switch(f) {
@@ -74,7 +71,12 @@ public class MessageUnpacker
 {
     private static final MessageBuffer EMPTY_BUFFER = MessageBuffer.wrap(new byte[0]);
 
-    private final MessagePack.Config config;
+    private final boolean allowReadingStringAsBinary;
+    private final boolean allowReadingBinaryAsString;
+    private final CodingErrorAction actionOnMalformedString;
+    private final CodingErrorAction actionOnUnmappableString;
+    private final int stringSizeLimit;
+    private final int stringDecoderBufferSize;
 
     private MessageBufferInput in;
 
@@ -94,19 +96,20 @@ public class MessageUnpacker
     private long totalReadBytes;
 
     /**
-     * For preserving the next buffer to use
+     * An extra buffer for reading a small number value across the input buffer boundary.
+     * At most 8-byte buffer (for readLong used by uint 64 and UTF-8 character decoding) is required.
      */
-    private MessageBuffer secondaryBuffer = null;
+    private final MessageBuffer numberBuffer = MessageBuffer.allocate(8);
 
     /**
-     * Extra buffer for string data at the buffer boundary. Using 17-byte buffer (for FIXEXT16) is sufficient.
+     * After calling prepareNumberBuffer(), the caller should use this variable to read from the returned MessageBuffer.
      */
-    private final MessageBuffer extraBuffer = MessageBuffer.wrap(new byte[24]);
+    private int nextReadPosition;
 
     /**
-     * True if no more data is available from the MessageBufferInput
+     * For decoding String in unpackString.
      */
-    private boolean reachedEOF = false;
+    private StringBuilder decodeStringBuffer;
 
     /**
      * For decoding String in unpackString.
@@ -123,22 +126,16 @@ public class MessageUnpacker
      *
      * @param in
      */
-    public MessageUnpacker(MessageBufferInput in)
+    public MessageUnpacker(MessageBufferInput in, MessagePack.UnpackerConfig config)
     {
-        this(in, MessagePack.DEFAULT_CONFIG);
-    }
-
-    /**
-     * Create an MessageUnpacker
-     *
-     * @param in
-     * @param config configuration
-     */
-    public MessageUnpacker(MessageBufferInput in, MessagePack.Config config)
-    {
-        // Root constructor. All of the constructors must call this constructor.
         this.in = checkNotNull(in, "MessageBufferInput is null");
-        this.config = checkNotNull(config, "Config");
+        // We need to copy the configuration parameters since the config object is mutable
+        this.allowReadingStringAsBinary = config.allowReadingStringAsBinary;
+        this.allowReadingBinaryAsString = config.allowReadingBinaryAsString;
+        this.actionOnMalformedString = config.actionOnMalformedString;
+        this.actionOnUnmappableString = config.actionOnUnmappableString;
+        this.stringSizeLimit = config.stringSizeLimit;
+        this.stringDecoderBufferSize = config.stringDecoderBufferSize;
     }
 
     /**
@@ -158,9 +155,8 @@ public class MessageUnpacker
         this.buffer = EMPTY_BUFFER;
         this.position = 0;
         this.totalReadBytes = 0;
-        this.secondaryBuffer = null;
-        this.reachedEOF = false;
         // No need to initialize the already allocated string decoder here since we can reuse it.
+
         return old;
     }
 
@@ -169,195 +165,124 @@ public class MessageUnpacker
         return totalReadBytes + position;
     }
 
-    private void prepareDecoder()
-    {
-        if (decoder == null) {
-            decodeBuffer = CharBuffer.allocate(config.stringDecoderBufferSize);
-            decoder = MessagePack.UTF8.newDecoder()
-                    .onMalformedInput(config.actionOnMalFormedInput)
-                    .onUnmappableCharacter(config.actionOnUnmappableCharacter);
-        }
-    }
-
     /**
-     * Relocate the cursor position so that it points to the real buffer
+     * Get the next buffer without changing the position
      *
-     * @return true if it succeeds to move the cursor, or false if there is no more buffer to read
-     * @throws IOException when failed to retrieve next buffer
-     */
-    private boolean ensureBuffer()
-            throws IOException
-    {
-        while (buffer != null && position >= buffer.size()) {
-            // Fetch the next buffer
-            int bufferSize = buffer.size();
-            position -= bufferSize;
-            totalReadBytes += bufferSize;
-            buffer = takeNextBuffer();
-        }
-        return buffer != null;
-    }
-
-    private MessageBuffer takeNextBuffer()
-            throws IOException
-    {
-        if (reachedEOF) {
-            return null;
-        }
-
-        MessageBuffer nextBuffer = null;
-        if (secondaryBuffer == null) {
-            nextBuffer = in.next();
-        }
-        else {
-            nextBuffer = secondaryBuffer;
-            secondaryBuffer = null;
-        }
-
-        if (nextBuffer == null) {
-            reachedEOF = true;
-        }
-        return nextBuffer;
-    }
-
-    /**
-     * Ensure that the buffer has the data of at least the specified size.
-     *
-     * @param byteSizeToRead the data size to be read
-     * @return if the buffer can have the data of the specified size returns true, or if the input source reached an EOF, it returns false.
+     * @return
      * @throws IOException
      */
-    private boolean ensure(int byteSizeToRead)
+    private MessageBuffer getNextBuffer()
             throws IOException
     {
-        if (byteSizeToRead == 0) {
-            return true;
+        MessageBuffer next = in.next();
+        if (next == null) {
+            throw new MessageInsufficientBufferException();
         }
+        assert (buffer != null);
+        totalReadBytes += buffer.size();
+        return next;
+    }
 
-        if (!ensureBuffer()) {
-            return false;
-        }
-
-        // The buffer contains the data
-        if (position + byteSizeToRead <= buffer.size()) {
-            // OK
-            return true;
-        }
-
-        // When the data is at the boundary
-        /*
-             |---(byte size to read) ----|
-             -- current buffer --|
-             |--- extra buffer (slice) --|----|
-                                 |-------|---------- secondary buffer (slice) ----------------|
-
-             */
-
-        // If the byte size to read fits within the extra buffer, use the extraBuffer
-        MessageBuffer newBuffer = byteSizeToRead <= extraBuffer.size() ? extraBuffer : MessageBuffer.newBuffer(byteSizeToRead);
-
-        // Copy the remaining buffer contents to the new buffer
-        int firstHalfSize = buffer.size() - position;
-        if (firstHalfSize > 0) {
-            buffer.copyTo(position, newBuffer, 0, firstHalfSize);
-        }
-
-        // Read the last half contents from the next buffers
-        int cursor = firstHalfSize;
-        while (cursor < byteSizeToRead) {
-            secondaryBuffer = takeNextBuffer();
-            if (secondaryBuffer == null) {
-                return false; // No more buffer to read
-            }
-
-            // Copy the contents from the secondary buffer to the new buffer
-            int copyLen = Math.min(byteSizeToRead - cursor, secondaryBuffer.size());
-            secondaryBuffer.copyTo(0, newBuffer, cursor, copyLen);
-
-            // Truncate the copied part from the secondaryBuffer
-            secondaryBuffer = copyLen == secondaryBuffer.size() ? null : secondaryBuffer.slice(copyLen, secondaryBuffer.size() - copyLen);
-            cursor += copyLen;
-        }
-
-        // Replace the current buffer with the new buffer
-        totalReadBytes += position;
-        buffer = byteSizeToRead == newBuffer.size() ? newBuffer : newBuffer.slice(0, byteSizeToRead);
+    private void nextBuffer()
+            throws IOException
+    {
+        buffer = getNextBuffer();
         position = 0;
+    }
 
-        return true;
+    /**
+     * Returns a short size buffer (upto 8 bytes) to read a number value
+     *
+     * @param readLength
+     * @return
+     * @throws IOException
+     * @throws MessageInsufficientBufferException If no more buffer can be acquired from the input source for reading the specified data length
+     */
+    private MessageBuffer prepareNumberBuffer(int readLength)
+            throws IOException
+    {
+        int remaining = buffer.size() - position;
+        if (remaining >= readLength) {
+            // When the data is contained inside the default buffer
+            nextReadPosition = position;
+            position += readLength;  // here assumes following buffer.getXxx never throws exception
+            return buffer; // Return the default buffer
+        }
+        else {
+            // When the default buffer doesn't contain the whole length
+
+            // TODO loop this method until castBuffer is filled
+            MessageBuffer next = getNextBuffer();
+
+            if (remaining > 0) {
+                // TODO This doesn't work if MessageBuffer is allocated by newDirectBuffer.
+                //      Add copy method to MessageBuffer to solve this issue.
+
+                // Copy the data fragment from the current buffer
+                numberBuffer.putBytes(0, buffer.array(), buffer.arrayOffset() + position, remaining);
+                numberBuffer.putBytes(remaining, next.array(), next.arrayOffset(), readLength - remaining);
+
+                buffer = next;
+                position = readLength - remaining;
+                nextReadPosition = 0;
+
+                return numberBuffer; // Return the numberBuffer
+            }
+            else {
+                buffer = next;
+                position = readLength;
+                nextReadPosition = 0;
+                return buffer;
+            }
+        }
+    }
+
+    private static int utf8MultibyteCharacterSize(byte firstByte)
+    {
+        return Integer.numberOfLeadingZeros(~(firstByte & 0xff) << 24);
     }
 
     /**
      * Returns true true if this unpacker has more elements.
      * When this returns true, subsequent call to {@link #getNextFormat()} returns an
-     * MessageFormat instance. If false, {@link #getNextFormat()} will throw an EOFException.
+     * MessageFormat instance. If false, next {@link #getNextFormat()} call will throw an MessageInsufficientBufferException.
      *
      * @return true if this unpacker has more elements to read
      */
     public boolean hasNext()
             throws IOException
     {
-        return ensure(1);
+        while (buffer.size() <= position) {
+            MessageBuffer next = in.next();
+            if (next == null) {
+                return false;
+            }
+            totalReadBytes += buffer.size();
+            buffer = next;
+            position = 0;
+        }
+        return true;
     }
 
     /**
      * Returns the next MessageFormat type. This method should be called after {@link #hasNext()} returns true.
-     * If {@link #hasNext()} returns false, calling this method throws {@link java.io.EOFException}.
+     * If {@link #hasNext()} returns false, calling this method throws {@link MessageInsufficientBufferException}.
      * <p/>
      * This method does not proceed the internal cursor.
      *
      * @return the next MessageFormat
      * @throws IOException when failed to read the input data.
-     * @throws EOFException when the end of file reached, i.e. {@link #hasNext()} == false.
+     * @throws MessageInsufficientBufferException when the end of file reached, i.e. {@link #hasNext()} == false.
      */
     public MessageFormat getNextFormat()
             throws IOException
     {
-        byte b = lookAhead();
+        // makes sure that buffer has at leat 1 byte
+        if (!hasNext()) {
+            throw new MessageInsufficientBufferException();
+        }
+        byte b = buffer.getByte(position);
         return MessageFormat.valueOf(b);
-    }
-
-    /**
-     * Look-ahead a byte value at the current cursor position.
-     * This method does not proceed the cursor.
-     *
-     * @return
-     * @throws IOException
-     */
-    private byte lookAhead()
-            throws IOException
-    {
-        if (ensure(1)) {
-            return buffer.getByte(position);
-        }
-        else {
-            throw new EOFException();
-        }
-    }
-
-    /**
-     * Get the head byte value and proceeds the cursor by 1
-     */
-    private byte consume()
-            throws IOException
-    {
-        byte b = lookAhead();
-        position += 1;
-        return b;
-    }
-
-    /**
-     * Proceeds the cursor by the specified byte length
-     */
-    private void consume(int numBytes)
-            throws IOException
-    {
-        assert (numBytes >= 0);
-        // If position + numBytes becomes negative, it indicates an overflow from Integer.MAX_VALUE.
-        if (position + numBytes < 0) {
-            ensureBuffer();
-        }
-        position += numBytes;
     }
 
     /**
@@ -369,81 +294,55 @@ public class MessageUnpacker
     private byte readByte()
             throws IOException
     {
-        if (!ensure(1)) {
-            throw new EOFException("insufficient data length for reading byte value");
+        if (buffer.size() > position) {
+            byte b = buffer.getByte(position);
+            position++;
+            return b;
         }
-        byte b = buffer.getByte(position);
-        consume(1);
-        return b;
+        else {
+            nextBuffer();
+            if (buffer.size() > 0) {
+                byte b = buffer.getByte(0);
+                position = 1;
+                return b;
+            }
+            return readByte();
+        }
     }
 
     private short readShort()
             throws IOException
     {
-        if (!ensure(2)) {
-            throw new EOFException("insufficient data length for reading short value");
-        }
-        short s = buffer.getShort(position);
-        consume(2);
-        return s;
+        MessageBuffer numberBuffer = prepareNumberBuffer(2);
+        return numberBuffer.getShort(nextReadPosition);
     }
 
     private int readInt()
             throws IOException
     {
-        if (!ensure(4)) {
-            throw new EOFException("insufficient data length for reading int value");
-        }
-        int i = buffer.getInt(position);
-        consume(4);
-        return i;
-    }
-
-    private float readFloat()
-            throws IOException
-    {
-        if (!ensure(4)) {
-            throw new EOFException("insufficient data length for reading float value");
-        }
-        float f = buffer.getFloat(position);
-        consume(4);
-        return f;
+        MessageBuffer numberBuffer = prepareNumberBuffer(4);
+        return numberBuffer.getInt(nextReadPosition);
     }
 
     private long readLong()
             throws IOException
     {
-        if (!ensure(8)) {
-            throw new EOFException("insufficient data length for reading long value");
-        }
-        long l = buffer.getLong(position);
-        consume(8);
-        return l;
+        MessageBuffer numberBuffer = prepareNumberBuffer(8);
+        return numberBuffer.getLong(nextReadPosition);
+    }
+
+    private float readFloat()
+            throws IOException
+    {
+        MessageBuffer numberBuffer = prepareNumberBuffer(4);
+        return numberBuffer.getFloat(nextReadPosition);
     }
 
     private double readDouble()
             throws IOException
     {
-        if (!ensure(8)) {
-            throw new EOFException("insufficient data length for reading double value");
-        }
-        double d = buffer.getDouble(position);
-        consume(8);
-        return d;
-    }
-
-    /**
-     * Skip reading the specified number of bytes. Use this method only if you know skipping data is safe.
-     * For simply skipping the next value, use {@link #skipValue()}.
-     *
-     * @param numBytes
-     * @throws IOException
-     */
-    public void skipBytes(int numBytes)
-            throws IOException
-    {
-        checkArgument(numBytes >= 0, "skip length must be >= 0: " + numBytes);
-        consume(numBytes);
+        MessageBuffer numberBuffer = prepareNumberBuffer(8);
+        return numberBuffer.getDouble(nextReadPosition);
     }
 
     /**
@@ -456,12 +355,8 @@ public class MessageUnpacker
     {
         int remainingValues = 1;
         while (remainingValues > 0) {
-            if (reachedEOF) {
-                throw new EOFException();
-            }
-
-            MessageFormat f = getNextFormat();
-            byte b = consume();
+            byte b = readByte();
+            MessageFormat f = MessageFormat.valueOf(b);
             switch (f) {
                 case POSFIXINT:
                 case NEGFIXINT:
@@ -480,62 +375,62 @@ public class MessageUnpacker
                 }
                 case FIXSTR: {
                     int strLen = b & 0x1f;
-                    consume(strLen);
+                    skipPayload(strLen);
                     break;
                 }
                 case INT8:
                 case UINT8:
-                    consume(1);
+                    skipPayload(1);
                     break;
                 case INT16:
                 case UINT16:
-                    consume(2);
+                    skipPayload(2);
                     break;
                 case INT32:
                 case UINT32:
                 case FLOAT32:
-                    consume(4);
+                    skipPayload(4);
                     break;
                 case INT64:
                 case UINT64:
                 case FLOAT64:
-                    consume(8);
+                    skipPayload(8);
                     break;
                 case BIN8:
                 case STR8:
-                    consume(readNextLength8());
+                    skipPayload(readNextLength8());
                     break;
                 case BIN16:
                 case STR16:
-                    consume(readNextLength16());
+                    skipPayload(readNextLength16());
                     break;
                 case BIN32:
                 case STR32:
-                    consume(readNextLength32());
+                    skipPayload(readNextLength32());
                     break;
                 case FIXEXT1:
-                    consume(2);
+                    skipPayload(2);
                     break;
                 case FIXEXT2:
-                    consume(3);
+                    skipPayload(3);
                     break;
                 case FIXEXT4:
-                    consume(5);
+                    skipPayload(5);
                     break;
                 case FIXEXT8:
-                    consume(9);
+                    skipPayload(9);
                     break;
                 case FIXEXT16:
-                    consume(17);
+                    skipPayload(17);
                     break;
                 case EXT8:
-                    consume(readNextLength8() + 1);
+                    skipPayload(readNextLength8() + 1);
                     break;
                 case EXT16:
-                    consume(readNextLength16() + 1);
+                    skipPayload(readNextLength16() + 1);
                     break;
                 case EXT32:
-                    consume(readNextLength32() + 1);
+                    skipPayload(readNextLength32() + 1);
                     break;
                 case ARRAY16:
                     remainingValues += readNextLength16();
@@ -550,7 +445,7 @@ public class MessageUnpacker
                     remainingValues += readNextLength32() * 2; // TODO check int overflow
                     break;
                 case NEVER_USED:
-                    throw new MessageFormatException(String.format("unknown code: %02x is found", b));
+                    throw new MessageNeverUsedFormatException("Encountered 0xC1 \"NEVER_USED\" byte");
             }
 
             remainingValues--;
@@ -565,19 +460,17 @@ public class MessageUnpacker
      * @return
      * @throws MessageFormatException
      */
-    private static MessageTypeException unexpected(String expected, byte b)
-            throws MessageTypeException
+    private static MessagePackException unexpected(String expected, byte b)
     {
         MessageFormat format = MessageFormat.valueOf(b);
-        String typeName;
         if (format == MessageFormat.NEVER_USED) {
-            typeName = "NeverUsed";
+            return new MessageNeverUsedFormatException(String.format("Expected %s, but encountered 0xC1 \"NEVER_USED\" byte", expected));
         }
         else {
             String name = format.getValueType().name();
-            typeName = name.substring(0, 1) + name.substring(1).toLowerCase();
+            String typeName = name.substring(0, 1) + name.substring(1).toLowerCase();
+            return new MessageTypeException(String.format("Expected %s, but got %s (%02x)", expected, typeName, b));
         }
-        return new MessageTypeException(String.format("Expected %s, but got %s (%02x)", expected, typeName, b));
     }
 
     public ImmutableValue unpackValue()
@@ -586,7 +479,7 @@ public class MessageUnpacker
         MessageFormat mf = getNextFormat();
         switch (mf.getValueType()) {
             case NIL:
-                unpackNil();
+                readByte();
                 return ValueFactory.newNil();
             case BOOLEAN:
                 return ValueFactory.newBoolean(unpackBoolean());
@@ -631,7 +524,7 @@ public class MessageUnpacker
                 return ValueFactory.newExtension(extHeader.getType(), readPayload(extHeader.getLength()));
             }
             default:
-                throw new MessageFormatException("Unknown value type");
+                throw new MessageNeverUsedFormatException("Unknown value type");
         }
     }
 
@@ -641,7 +534,7 @@ public class MessageUnpacker
         MessageFormat mf = getNextFormat();
         switch (mf.getValueType()) {
             case NIL:
-                unpackNil();
+                readByte();
                 var.setNilValue();
                 return var;
             case BOOLEAN:
@@ -673,9 +566,6 @@ public class MessageUnpacker
                 int size = unpackArrayHeader();
                 List<Value> list = new ArrayList<Value>(size);
                 for (int i = 0; i < size; i++) {
-                    //Variable e = new Variable();
-                    //unpackValue(e);
-                    //list.add(e);
                     list.add(unpackValue());
                 }
                 var.setArrayValue(list);
@@ -685,10 +575,6 @@ public class MessageUnpacker
                 int size = unpackMapHeader();
                 Map<Value, Value> map = new HashMap<Value, Value>();
                 for (int i = 0; i < size; i++) {
-                    //Variable k = new Variable();
-                    //unpackValue(k);
-                    //Variable v = new Variable();
-                    //unpackValue(v);
                     Value k = unpackValue();
                     Value v = unpackValue();
                     map.put(k, v);
@@ -709,7 +595,7 @@ public class MessageUnpacker
     public void unpackNil()
             throws IOException
     {
-        byte b = consume();
+        byte b = readByte();
         if (b == Code.NIL) {
             return;
         }
@@ -719,21 +605,20 @@ public class MessageUnpacker
     public boolean unpackBoolean()
             throws IOException
     {
-        byte b = consume();
+        byte b = readByte();
         if (b == Code.FALSE) {
             return false;
         }
         else if (b == Code.TRUE) {
             return true;
         }
-
         throw unexpected("boolean", b);
     }
 
     public byte unpackByte()
             throws IOException
     {
-        byte b = consume();
+        byte b = readByte();
         if (Code.isFixInt(b)) {
             return b;
         }
@@ -790,7 +675,7 @@ public class MessageUnpacker
     public short unpackShort()
             throws IOException
     {
-        byte b = consume();
+        byte b = readByte();
         if (Code.isFixInt(b)) {
             return (short) b;
         }
@@ -841,7 +726,7 @@ public class MessageUnpacker
     public int unpackInt()
             throws IOException
     {
-        byte b = consume();
+        byte b = readByte();
         if (Code.isFixInt(b)) {
             return (int) b;
         }
@@ -886,7 +771,7 @@ public class MessageUnpacker
     public long unpackLong()
             throws IOException
     {
-        byte b = consume();
+        byte b = readByte();
         if (Code.isFixInt(b)) {
             return (long) b;
         }
@@ -930,7 +815,7 @@ public class MessageUnpacker
     public BigInteger unpackBigInteger()
             throws IOException
     {
-        byte b = consume();
+        byte b = readByte();
         if (Code.isFixInt(b)) {
             return BigInteger.valueOf((long) b);
         }
@@ -977,7 +862,7 @@ public class MessageUnpacker
     public float unpackFloat()
             throws IOException
     {
-        byte b = consume();
+        byte b = readByte();
         switch (b) {
             case Code.FLOAT32: // float
                 float fv = readFloat();
@@ -992,7 +877,7 @@ public class MessageUnpacker
     public double unpackDouble()
             throws IOException
     {
-        byte b = consume();
+        byte b = readByte();
         switch (b) {
             case Code.FLOAT32: // float
                 float fv = readFloat();
@@ -1006,107 +891,165 @@ public class MessageUnpacker
 
     private static final String EMPTY_STRING = "";
 
+    private void resetDecoder()
+    {
+        if (decoder == null) {
+            decodeBuffer = CharBuffer.allocate(stringDecoderBufferSize);
+            decoder = MessagePack.UTF8.newDecoder()
+                    .onMalformedInput(actionOnMalformedString)
+                    .onUnmappableCharacter(actionOnUnmappableString);
+        }
+        else {
+            decoder.reset();
+        }
+        if (decodeStringBuffer == null) {
+            decodeStringBuffer = new StringBuilder();
+        }
+        else {
+            decodeStringBuffer.setLength(0);
+        }
+    }
+
     public String unpackString()
             throws IOException
     {
-        int strLen = unpackRawStringHeader();
-        if (strLen > 0) {
-            if (strLen > config.maxUnpackStringSize) {
-                throw new MessageSizeException(String.format("cannot unpack a String of size larger than %,d: %,d", config.maxUnpackStringSize, strLen), strLen);
-            }
+        int len = unpackRawStringHeader();
+        if (len == 0) {
+            return EMPTY_STRING;
+        }
+        if (len > stringSizeLimit) {
+            throw new MessageSizeException(String.format("cannot unpack a String of size larger than %,d: %,d", stringSizeLimit, len), len);
+        }
+        if (buffer.size() - position >= len) {
+            return decodeStringFastPath(len);
+        }
 
-            prepareDecoder();
-            assert (decoder != null);
+        resetDecoder();
 
-            decoder.reset();
-
-            try {
-                int cursor = 0;
-                decodeBuffer.clear();
-                StringBuilder sb = new StringBuilder();
-
-                boolean hasIncompleteMultiBytes = false;
-                while (cursor < strLen) {
-                    int readLen = Math.min(position < buffer.size() ? buffer.size() - position : buffer.size(), strLen - cursor);
-                    if (hasIncompleteMultiBytes) {
-                        // Prepare enough buffer for decoding multi-bytes character right after running into incomplete one
-                        readLen = Math.min(config.stringDecoderBufferSize, strLen - cursor);
-                    }
-                    if (!ensure(readLen)) {
-                        throw new EOFException();
-                    }
-
-                    hasIncompleteMultiBytes = false;
-                    ByteBuffer bb = buffer.toByteBuffer(position, readLen);
-                    int startPos = bb.position();
-
-                    while (bb.hasRemaining()) {
-                        boolean endOfInput = (cursor + readLen) >= strLen;
-                        CoderResult cr = decoder.decode(bb, decodeBuffer, endOfInput);
-
-                        if (endOfInput && cr.isUnderflow()) {
-                            cr = decoder.flush(decodeBuffer);
-                        }
-
-                        if (cr.isOverflow()) {
-                            // The output CharBuffer has insufficient space
-                            decoder.reset();
-                        }
-
-                        if (cr.isUnderflow() && bb.hasRemaining()) {
-                            // input buffer doesn't have enough bytes for multi bytes characters
-                            if (config.actionOnMalFormedInput == CodingErrorAction.REPORT) {
-                                throw new MalformedInputException(strLen);
-                            }
-                            hasIncompleteMultiBytes = true;
-                            // Proceed the cursor with the length already decoded successfully.
-                            readLen = bb.position() - startPos;
-                        }
-
-                        if (cr.isError()) {
-                            if ((cr.isMalformed() && config.actionOnMalFormedInput == CodingErrorAction.REPORT) ||
-                                    (cr.isUnmappable() && config.actionOnUnmappableCharacter == CodingErrorAction.REPORT)) {
-                                cr.throwException();
-                            }
-                        }
-
-                        decodeBuffer.flip();
-                        sb.append(decodeBuffer);
-
-                        decodeBuffer.clear();
-
-                        if (hasIncompleteMultiBytes) {
-                            break;
-                        }
-                    }
-
-                    cursor += readLen;
-                    consume(readLen);
+        try {
+            int rawRemaining = len;
+            while (rawRemaining > 0) {
+                int bufferRemaining = buffer.size() - position;
+                if (bufferRemaining >= rawRemaining) {
+                    decodeStringBuffer.append(decodeStringFastPath(rawRemaining));
+                    break;
                 }
+                else if (bufferRemaining == 0) {
+                    nextBuffer();
+                }
+                else {
+                    ByteBuffer bb = buffer.sliceAsByteBuffer(position, bufferRemaining);
+                    int bbStartPosition = bb.position();
+                    decodeBuffer.clear();
 
-                return sb.toString();
+                    CoderResult cr = decoder.decode(bb, decodeBuffer, false);
+                    int readLen = bb.position() - bbStartPosition;
+                    position += readLen;
+                    rawRemaining -= readLen;
+                    decodeStringBuffer.append(decodeBuffer.flip());
+
+                    if (cr.isError()) {
+                        handleCoderError(cr);
+                    }
+                    if (cr.isUnderflow() && readLen < bufferRemaining) {
+                        // handle incomplete multibyte character
+                        int incompleteMultiBytes = utf8MultibyteCharacterSize(buffer.getByte(position));
+                        ByteBuffer multiByteBuffer = ByteBuffer.allocate(incompleteMultiBytes);
+                        buffer.getBytes(position, buffer.size() - position, multiByteBuffer);
+
+                        // read until multiByteBuffer is filled
+                        while (true) {
+                            nextBuffer();
+
+                            int more = multiByteBuffer.remaining();
+                            if (buffer.size() >= more) {
+                                buffer.getBytes(0, more, multiByteBuffer);
+                                position = more;
+                                break;
+                            }
+                            else {
+                                buffer.getBytes(0, buffer.size(), multiByteBuffer);
+                                position = buffer.size();
+                            }
+                        }
+                        multiByteBuffer.position(0);
+                        decodeBuffer.clear();
+                        cr = decoder.decode(multiByteBuffer, decodeBuffer, false);
+                        if (cr.isError()) {
+                            handleCoderError(cr);
+                        }
+                        if (cr.isOverflow() || (cr.isUnderflow() && multiByteBuffer.position() < multiByteBuffer.limit())) {
+                            // isOverflow or isOverflow must not happen. if happened, throw exception
+                            try {
+                                cr.throwException();
+                                throw new MessageFormatException("Unexpected UTF-8 multibyte sequence");
+                            }
+                            catch (Exception ex) {
+                                throw new MessageFormatException("Unexpected UTF-8 multibyte sequence", ex);
+                            }
+                        }
+                        rawRemaining -= multiByteBuffer.limit();
+                        decodeStringBuffer.append(decodeBuffer.flip());
+                    }
+                }
+            }
+            return decodeStringBuffer.toString();
+        }
+        catch (CharacterCodingException e) {
+            throw new MessageStringCodingException(e);
+        }
+    }
+
+    private void handleCoderError(CoderResult cr)
+            throws CharacterCodingException
+    {
+        if ((cr.isMalformed() && actionOnMalformedString == CodingErrorAction.REPORT) ||
+                (cr.isUnmappable() && actionOnUnmappableString == CodingErrorAction.REPORT)) {
+            cr.throwException();
+        }
+    }
+
+    private String decodeStringFastPath(int length)
+    {
+        if (actionOnMalformedString == CodingErrorAction.REPLACE &&
+                actionOnUnmappableString == CodingErrorAction.REPLACE) {
+            String s = new String(buffer.array(), buffer.arrayOffset() + position, length, MessagePack.UTF8);
+            position += length;
+            return s;
+        }
+        else {
+            resetDecoder();
+            ByteBuffer bb = buffer.sliceAsByteBuffer();
+            bb.limit(position + length);
+            bb.position(position);
+            CharBuffer cb;
+            try {
+                cb = decoder.decode(bb);
             }
             catch (CharacterCodingException e) {
                 throw new MessageStringCodingException(e);
             }
-        }
-        else {
-            return EMPTY_STRING;
+            position += length;
+            return cb.toString();
         }
     }
 
     public int unpackArrayHeader()
             throws IOException
     {
-        byte b = consume();
+        byte b = readByte();
         if (Code.isFixedArray(b)) { // fixarray
             return b & 0x0f;
         }
         switch (b) {
-            case Code.ARRAY16: // array 16
-                return readNextLength16();
-            case Code.ARRAY32: // array 32
-                return readNextLength32();
+            case Code.ARRAY16: { // array 16
+                int len = readNextLength16();
+                return len;
+            }
+            case Code.ARRAY32: { // array 32
+                int len = readNextLength32();
+                return len;
+            }
         }
         throw unexpected("Array", b);
     }
@@ -1114,15 +1057,19 @@ public class MessageUnpacker
     public int unpackMapHeader()
             throws IOException
     {
-        byte b = consume();
+        byte b = readByte();
         if (Code.isFixedMap(b)) { // fixmap
             return b & 0x0f;
         }
         switch (b) {
-            case Code.MAP16: // map 16
-                return readNextLength16();
-            case Code.MAP32: // map 32
-                return readNextLength32();
+            case Code.MAP16: { // map 16
+                int len = readNextLength16();
+                return len;
+            }
+            case Code.MAP32: { // map 32
+                int len = readNextLength32();
+                return len;
+            }
         }
         throw unexpected("Map", b);
     }
@@ -1130,31 +1077,50 @@ public class MessageUnpacker
     public ExtensionTypeHeader unpackExtensionTypeHeader()
             throws IOException
     {
-        byte b = consume();
+        byte b = readByte();
         switch (b) {
-            case Code.FIXEXT1:
-                return new ExtensionTypeHeader(readByte(), 1);
-            case Code.FIXEXT2:
-                return new ExtensionTypeHeader(readByte(), 2);
-            case Code.FIXEXT4:
-                return new ExtensionTypeHeader(readByte(), 4);
-            case Code.FIXEXT8:
-                return new ExtensionTypeHeader(readByte(), 8);
-            case Code.FIXEXT16:
-                return new ExtensionTypeHeader(readByte(), 16);
-            case Code.EXT8: {
-                int length = readNextLength8();
+            case Code.FIXEXT1: {
                 byte type = readByte();
+                return new ExtensionTypeHeader(type, 1);
+            }
+            case Code.FIXEXT2: {
+                byte type = readByte();
+                return new ExtensionTypeHeader(type, 2);
+            }
+            case Code.FIXEXT4: {
+                byte type = readByte();
+                return new ExtensionTypeHeader(type, 4);
+            }
+            case Code.FIXEXT8: {
+                byte type = readByte();
+                return new ExtensionTypeHeader(type, 8);
+            }
+            case Code.FIXEXT16: {
+                byte type = readByte();
+                return new ExtensionTypeHeader(type, 16);
+            }
+            case Code.EXT8: {
+                MessageBuffer numberBuffer = prepareNumberBuffer(2);
+                int u8 = numberBuffer.getByte(nextReadPosition);
+                int length = u8 & 0xff;
+                byte type = numberBuffer.getByte(nextReadPosition + 1);
                 return new ExtensionTypeHeader(type, length);
             }
             case Code.EXT16: {
-                int length = readNextLength16();
-                byte type = readByte();
+                MessageBuffer numberBuffer = prepareNumberBuffer(3);
+                int u16 = numberBuffer.getShort(nextReadPosition);
+                int length = u16 & 0xffff;
+                byte type = numberBuffer.getByte(nextReadPosition + 2);
                 return new ExtensionTypeHeader(type, length);
             }
             case Code.EXT32: {
-                int length = readNextLength32();
-                byte type = readByte();
+                MessageBuffer numberBuffer = prepareNumberBuffer(5);
+                int u32 = numberBuffer.getInt(nextReadPosition);
+                if (u32 < 0) {
+                    throw overflowU32Size(u32);
+                }
+                int length = u32;
+                byte type = numberBuffer.getByte(nextReadPosition + 4);
                 return new ExtensionTypeHeader(type, length);
             }
         }
@@ -1162,7 +1128,7 @@ public class MessageUnpacker
         throw unexpected("Ext", b);
     }
 
-    private int readStringHeader(byte b)
+    private int tryReadStringHeader(byte b)
             throws IOException
     {
         switch (b) {
@@ -1177,7 +1143,7 @@ public class MessageUnpacker
         }
     }
 
-    private int readBinaryHeader(byte b)
+    private int tryReadBinaryHeader(byte b)
             throws IOException
     {
         switch (b) {
@@ -1195,17 +1161,17 @@ public class MessageUnpacker
     public int unpackRawStringHeader()
             throws IOException
     {
-        byte b = consume();
+        byte b = readByte();
         if (Code.isFixedRaw(b)) { // FixRaw
             return b & 0x1f;
         }
-        int len = readStringHeader(b);
+        int len = tryReadStringHeader(b);
         if (len >= 0) {
             return len;
         }
 
-        if (config.readBinaryAsString) {
-            len = readBinaryHeader(b);
+        if (allowReadingBinaryAsString) {
+            len = tryReadBinaryHeader(b);
             if (len >= 0) {
                 return len;
             }
@@ -1216,17 +1182,17 @@ public class MessageUnpacker
     public int unpackBinaryHeader()
             throws IOException
     {
-        byte b = consume();
+        byte b = readByte();
         if (Code.isFixedRaw(b)) { // FixRaw
             return b & 0x1f;
         }
-        int len = readBinaryHeader(b);
+        int len = tryReadBinaryHeader(b);
         if (len >= 0) {
             return len;
         }
 
-        if (config.readStringAsBinary) {
-            len = readStringHeader(b);
+        if (allowReadingStringAsBinary) {
+            len = tryReadStringHeader(b);
             if (len >= 0) {
                 return len;
             }
@@ -1234,18 +1200,45 @@ public class MessageUnpacker
         throw unexpected("Binary", b);
     }
 
-    // TODO returns a buffer reference to the payload (zero-copy)
+    /**
+     * Skip reading the specified number of bytes. Use this method only if you know skipping data is safe.
+     * For simply skipping the next value, use {@link #skipValue()}.
+     *
+     * @param numBytes
+     * @throws IOException
+     */
+    private void skipPayload(int numBytes)
+            throws IOException
+    {
+        while (true) {
+            int bufferRemaining = buffer.size() - position;
+            if (bufferRemaining >= numBytes) {
+                position += numBytes;
+                return;
+            }
+            else {
+                position += bufferRemaining;
+                numBytes -= bufferRemaining;
+            }
+            nextBuffer();
+        }
+    }
 
     public void readPayload(ByteBuffer dst)
             throws IOException
     {
-        while (dst.remaining() > 0) {
-            if (!ensureBuffer()) {
-                throw new EOFException();
+        while (true) {
+            int dstRemaining = dst.remaining();
+            int bufferRemaining = buffer.size() - position;
+            if (bufferRemaining >= dstRemaining) {
+                buffer.getBytes(position, dstRemaining, dst);
+                position += dstRemaining;
+                return;
             }
-            int l = Math.min(buffer.size() - position, dst.remaining());
-            buffer.getBytes(position, l, dst);
-            consume(l);
+            buffer.getBytes(position, bufferRemaining, dst);
+            position += bufferRemaining;
+
+            nextBuffer();
         }
     }
 
@@ -1274,29 +1267,22 @@ public class MessageUnpacker
     public void readPayload(byte[] dst, int off, int len)
             throws IOException
     {
-        int writtenLen = 0;
-        while (writtenLen < len) {
-            if (!ensureBuffer()) {
-                throw new EOFException();
-            }
-            int l = Math.min(buffer.size() - position, len - writtenLen);
-            buffer.getBytes(position, dst, off + writtenLen, l);
-            consume(l);
-            writtenLen += l;
-        }
+        // TODO optimize
+        readPayload(ByteBuffer.wrap(dst, off, len));
     }
 
     public MessageBuffer readPayloadAsReference(int length)
             throws IOException
     {
-        checkArgument(length >= 0);
-        if (!ensure(length)) {
-            throw new EOFException();
+        int bufferRemaining = buffer.size() - position;
+        if (bufferRemaining >= length) {
+            MessageBuffer slice = buffer.slice(position, length);
+            position += length;
+            return slice;
         }
-
-        MessageBuffer ref = buffer.slice(position, length);
-        position += length;
-        return ref;
+        MessageBuffer dst = MessageBuffer.allocate(length);
+        readPayload(dst.sliceAsByteBuffer());
+        return dst;
     }
 
     private int readNextLength8()
@@ -1327,6 +1313,8 @@ public class MessageUnpacker
     public void close()
             throws IOException
     {
+        buffer = EMPTY_BUFFER;
+        position = 0;
         in.close();
     }
 

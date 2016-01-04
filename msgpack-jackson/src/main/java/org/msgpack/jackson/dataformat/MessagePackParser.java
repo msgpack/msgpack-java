@@ -28,11 +28,17 @@ import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonReadContext;
+import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.core.buffer.ArrayBufferInput;
 import org.msgpack.core.buffer.InputStreamBufferInput;
 import org.msgpack.core.buffer.MessageBufferInput;
-import org.msgpack.value.*;
+import org.msgpack.value.ExtensionValue;
+import org.msgpack.value.IntegerValue;
+import org.msgpack.value.Value;
+import org.msgpack.value.ValueFactory;
+import org.msgpack.value.ValueType;
+import org.msgpack.value.Variable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -121,7 +127,7 @@ public class MessagePackParser
         MessageUnpacker messageUnpacker;
         Tuple<Object, MessageUnpacker> messageUnpackerTuple = messageUnpackerHolder.get();
         if (messageUnpackerTuple == null) {
-            messageUnpacker = new MessageUnpacker(input);
+            messageUnpacker = MessagePack.newDefaultUnpacker(input);
         }
         else {
             // Considering to reuse InputStream with JsonParser.Feature.AUTO_CLOSE_SOURCE,
@@ -278,7 +284,8 @@ public class MessagePackParser
     @Override
     protected void _handleEOF()
             throws JsonParseException
-    {}
+    {
+    }
 
     @Override
     public String getText()

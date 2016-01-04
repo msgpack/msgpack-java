@@ -19,16 +19,18 @@ import org.msgpack.core.MessagePack.Code._
 import org.msgpack.core.{MessageFormat, MessageFormatException, MessagePackSpec}
 
 /**
- * Created on 2014/05/06.
- */
+  * Created on 2014/05/06.
+  */
 class ValueTypeTest
-  extends MessagePackSpec {
+        extends MessagePackSpec
+{
 
   "ValueType" should {
 
     "lookup ValueType from a byte value" taggedAs ("code") in {
 
-      def check(b: Byte, tpe: ValueType) {
+      def check(b: Byte, tpe: ValueType)
+      {
         MessageFormat.valueOf(b).getValueType shouldBe tpe
       }
 

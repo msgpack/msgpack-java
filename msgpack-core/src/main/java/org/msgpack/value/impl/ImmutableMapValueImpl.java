@@ -172,7 +172,8 @@ public class ImmutableMapValueImpl
     {
         if (key.isRawValue()) {
             sb.append(key.toJson());
-        } else {
+        }
+        else {
             ImmutableStringValueImpl.appendJsonString(sb, key.toString());
         }
     }
@@ -202,7 +203,8 @@ public class ImmutableMapValueImpl
     {
         if (value.isRawValue()) {
             sb.append(value.toJson());
-        } else {
+        }
+        else {
             sb.append(value.toString());
         }
     }

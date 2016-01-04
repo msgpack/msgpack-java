@@ -17,30 +17,60 @@ package org.msgpack.core.buffer;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.Flushable;
 
 /**
- * Provides a sequence of MessageBuffers for packing the input data
+ * Provides a buffered output stream for packing objects
  */
 public interface MessageBufferOutput
-        extends Closeable
+        extends Closeable, Flushable
 {
     /**
-     * Retrieves the next buffer for writing message packed data
+     * Allocates the next buffer for writing message packed data.
+     * If the previously allocated buffer is not flushed yet, this next method should discard
+     * it without writing it.
      *
-     * @param bufferSize the buffer size to retrieve
+     * @param minimumSize the mimium required buffer size to allocate
      * @return
      * @throws IOException
      */
-    public MessageBuffer next(int bufferSize)
+    MessageBuffer next(int minimumSize)
             throws IOException;
 
     /**
-     * Output the buffer contents. If you need to output a part of the
-     * buffer use {@link MessageBuffer#slice(int, int)}
+     * Flushes the previously allocated buffer.
+     * This method is not always called because next method also flushes previously allocated buffer.
+     * This method is called when write method is called or application wants to control the timing of flush.
      *
-     * @param buf
+     * @param length the size of buffer to flush
      * @throws IOException
      */
-    public void flush(MessageBuffer buf)
+    void writeBuffer(int length)
+            throws IOException;
+
+    /**
+     * Writes an external payload data.
+     * This method should follow semantics of OutputStream.
+     *
+     * @param buffer the data to write
+     * @param offset the start offset in the data
+     * @param length the number of bytes to write
+     * @return
+     * @throws IOException
+     */
+    void write(byte[] buffer, int offset, int length)
+            throws IOException;
+
+    /**
+     * Writes an external payload data.
+     * This buffer is given - this MessageBufferOutput owns the buffer and may modify contents of the buffer. Contents of this buffer won't be modified by the caller.
+     *
+     * @param buffer the data to add
+     * @param offset the start offset in the data
+     * @param length the number of bytes to add
+     * @return
+     * @throws IOException
+     */
+    void add(byte[] buffer, int offset, int length)
             throws IOException;
 }

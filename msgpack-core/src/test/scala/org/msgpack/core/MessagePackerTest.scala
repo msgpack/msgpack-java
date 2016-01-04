@@ -16,8 +16,8 @@
 package org.msgpack.core
 
 import java.io.{ByteArrayOutputStream, File, FileInputStream, FileOutputStream}
-import java.nio.ByteBuffer
 
+import org.msgpack.core.MessagePack.{UnpackerConfig, PackerConfig}
 import org.msgpack.core.buffer.{ChannelBufferOutput, OutputStreamBufferOutput}
 import org.msgpack.value.ValueFactory
 import xerial.core.io.IOUtil
@@ -27,13 +27,10 @@ import scala.util.Random
 /**
  *
  */
-class MessagePackerTest
-  extends MessagePackSpec {
-
-  val msgpack = MessagePack.DEFAULT
+class MessagePackerTest extends MessagePackSpec {
 
   def verifyIntSeq(answer: Array[Int], packed: Array[Byte]) {
-    val unpacker = msgpack.newUnpacker(packed)
+    val unpacker = MessagePack.newDefaultUnpacker(packed)
     val b = Array.newBuilder[Int]
     while (unpacker.hasNext) {
       b += unpacker.unpackInt()
@@ -69,7 +66,7 @@ class MessagePackerTest
 
       val b = new
           ByteArrayOutputStream
-      val packer = msgpack.newPacker(b)
+      val packer = MessagePack.newDefaultPacker(b)
       intSeq foreach packer.packInt
       packer.close
       verifyIntSeq(intSeq, b.toByteArray)
@@ -102,7 +99,7 @@ class MessagePackerTest
         block("no-buffer-reset") {
           val out = new
               ByteArrayOutputStream
-          IOUtil.withResource(msgpack.newPacker(out)) { packer =>
+          IOUtil.withResource(MessagePack.newDefaultPacker(out)) { packer =>
             for (i <- 0 until N) {
               val outputStream = new
                   ByteArrayOutputStream()
@@ -118,7 +115,7 @@ class MessagePackerTest
         block("buffer-reset") {
           val out = new
               ByteArrayOutputStream
-          IOUtil.withResource(msgpack.newPacker(out)) { packer =>
+          IOUtil.withResource(MessagePack.newDefaultPacker(out)) { packer =>
             val bufferOut = new
                 OutputStreamBufferOutput(new
                     ByteArrayOutputStream())
@@ -140,24 +137,19 @@ class MessagePackerTest
     "pack larger string array than byte buf" taggedAs ("larger-string-array-than-byte-buf") in {
       // Based on https://github.com/msgpack/msgpack-java/issues/154
 
-      // TODO: Refactor this test code to fit other ones.
       def test(bufferSize: Int, stringSize: Int): Boolean = {
-        val msgpack = new
-            MessagePack(new
-                MessagePack.ConfigBuilder().packerBufferSize(bufferSize).build)
         val str = "a" * stringSize
         val rawString = ValueFactory.newString(str.getBytes("UTF-8"))
         val array = ValueFactory.newArray(rawString)
-        val out = new
-            ByteArrayOutputStream()
-        val packer = msgpack.newPacker(out)
+        val out = new ByteArrayOutputStream(bufferSize)
+        val packer = MessagePack.newDefaultPacker(out)
         packer.packValue(array)
         packer.close()
         out.toByteArray
         true
       }
 
-      val testCases = List(
+      val testCases = Seq(
         32 -> 30,
         33 -> 31,
         32 -> 31,
@@ -266,7 +258,7 @@ class MessagePackerTest
   "compute totalWrittenBytes" in {
     val out = new
         ByteArrayOutputStream
-    val packerTotalWrittenBytes = IOUtil.withResource(msgpack.newPacker(out)) { packer =>
+    val packerTotalWrittenBytes = IOUtil.withResource(MessagePack.newDefaultPacker(out)) { packer =>
       packer.packByte(0) // 1
         .packBoolean(true) // 1
         .packShort(12) // 1
@@ -283,12 +275,11 @@ class MessagePackerTest
 
   "support read-only buffer" taggedAs ("read-only") in {
     val payload = Array[Byte](1)
-    val buffer = ByteBuffer.wrap(payload).asReadOnlyBuffer()
     val out = new
         ByteArrayOutputStream()
     val packer = MessagePack.newDefaultPacker(out)
       .packBinaryHeader(1)
-      .writePayload(buffer)
+      .writePayload(payload)
       .close()
   }
 }

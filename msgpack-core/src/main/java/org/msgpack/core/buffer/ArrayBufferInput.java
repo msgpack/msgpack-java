@@ -17,7 +17,6 @@ package org.msgpack.core.buffer;
 
 import java.io.IOException;
 
-import static org.msgpack.core.Preconditions.checkArgument;
 import static org.msgpack.core.Preconditions.checkNotNull;
 
 /**
@@ -41,8 +40,7 @@ public class ArrayBufferInput
 
     public ArrayBufferInput(byte[] arr, int offset, int length)
     {
-        checkArgument(offset + length <= arr.length);
-        this.buffer = MessageBuffer.wrap(checkNotNull(arr, "input array is null")).slice(offset, length);
+        this(MessageBuffer.wrap(checkNotNull(arr, "input array is null")).slice(offset, length));
     }
 
     /**

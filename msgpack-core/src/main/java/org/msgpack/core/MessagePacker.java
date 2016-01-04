@@ -27,7 +27,6 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
-import java.nio.charset.CodingErrorAction;
 
 import static org.msgpack.core.MessagePack.Code.ARRAY16;
 import static org.msgpack.core.MessagePack.Code.ARRAY32;
@@ -85,18 +84,20 @@ import static org.msgpack.core.Preconditions.checkNotNull;
 public class MessagePacker
         implements Closeable
 {
-    private final MessagePack.Config config;
+    private final int smallStringOptimizationThreshold;
 
-    private MessageBufferOutput out;
+    private final int bufferFlushThreshold;
+
+    protected MessageBufferOutput out;
+
     private MessageBuffer buffer;
-    private MessageBuffer strLenBuffer;
 
     private int position;
 
     /**
      * Total written byte size
      */
-    private long flushedBytes;
+    private long totalFlushBytes;
 
     /**
      * String encoder
@@ -109,17 +110,14 @@ public class MessagePacker
      * @param out MessageBufferOutput. Use {@link org.msgpack.core.buffer.OutputStreamBufferOutput}, {@link org.msgpack.core.buffer.ChannelBufferOutput} or
      * your own implementation of {@link org.msgpack.core.buffer.MessageBufferOutput} interface.
      */
-    public MessagePacker(MessageBufferOutput out)
+    public MessagePacker(MessageBufferOutput out, MessagePack.PackerConfig config)
     {
-        this(out, MessagePack.DEFAULT_CONFIG);
-    }
-
-    public MessagePacker(MessageBufferOutput out, MessagePack.Config config)
-    {
-        this.config = checkNotNull(config, "config is null");
         this.out = checkNotNull(out, "MessageBufferOutput is null");
+        // We must copy the configuration parameters here since the config object is mutable
+        this.smallStringOptimizationThreshold = config.smallStringOptimizationThreshold;
+        this.bufferFlushThreshold = config.bufferFlushThreshold;
         this.position = 0;
-        this.flushedBytes = 0;
+        this.totalFlushBytes = 0;
     }
 
     /**
@@ -134,50 +132,29 @@ public class MessagePacker
         // Validate the argument
         MessageBufferOutput newOut = checkNotNull(out, "MessageBufferOutput is null");
 
-        // Reset the internal states
+        // Flush before reset
+        flush();
         MessageBufferOutput old = this.out;
         this.out = newOut;
-        this.position = 0;
-        this.flushedBytes = 0;
+
+        // Reset totalFlushBytes
+        this.totalFlushBytes = 0;
+
         return old;
     }
 
     public long getTotalWrittenBytes()
     {
-        return flushedBytes + position;
-    }
-
-    private void prepareEncoder()
-    {
-        if (encoder == null) {
-            this.encoder = MessagePack.UTF8.newEncoder().onMalformedInput(config.actionOnMalFormedInput).onUnmappableCharacter(config.actionOnMalFormedInput);
-        }
-    }
-
-    private void prepareBuffer()
-            throws IOException
-    {
-        if (buffer == null) {
-            buffer = out.next(config.packerBufferSize);
-        }
+        return totalFlushBytes + position;
     }
 
     public void flush()
             throws IOException
     {
-        if (buffer == null) {
-            return;
+        if (position > 0) {
+            flushBuffer();
         }
-
-        if (position == buffer.size()) {
-            out.flush(buffer);
-        }
-        else {
-            out.flush(buffer.slice(0, position));
-        }
-        buffer = null;
-        flushedBytes += position;
-        position = 0;
+        out.flush();
     }
 
     public void close()
@@ -191,12 +168,24 @@ public class MessagePacker
         }
     }
 
-    private void ensureCapacity(int numBytesToWrite)
+    private void flushBuffer()
             throws IOException
     {
-        if (buffer == null || position + numBytesToWrite >= buffer.size()) {
-            flush();
-            buffer = out.next(Math.max(config.packerBufferSize, numBytesToWrite));
+        out.writeBuffer(position);
+        buffer = null;
+        totalFlushBytes += position;
+        position = 0;
+    }
+
+    private void ensureCapacity(int minimumSize)
+            throws IOException
+    {
+        if (buffer == null) {
+            buffer = out.next(minimumSize);
+        }
+        else if (position + minimumSize >= buffer.size()) {
+            flushBuffer();
+            buffer = out.next(minimumSize);
         }
     }
 
@@ -442,13 +431,45 @@ public class MessagePacker
         return this;
     }
 
-    private void packSmallString(String s)
+    private void packStringWithGetBytes(String s)
             throws IOException
     {
+        // JVM performs various optimizations (memory allocation, reusing encoder etc.) when String.getBytes is used
         byte[] bytes = s.getBytes(MessagePack.UTF8);
+        // Write the length and payload of small string to the buffer so that it avoids an extra flush of buffer
         packRawStringHeader(bytes.length);
-        writePayload(bytes);
+        addPayload(bytes);
     }
+
+    private void prepareEncoder()
+    {
+        if (encoder == null) {
+            this.encoder = MessagePack.UTF8.newEncoder();
+        }
+    }
+
+    private int encodeStringToBufferAt(int pos, String s)
+    {
+        prepareEncoder();
+        ByteBuffer bb = buffer.sliceAsByteBuffer(pos, buffer.size() - pos);
+        int startPosition = bb.position();
+        CharBuffer in = CharBuffer.wrap(s);
+        CoderResult cr = encoder.encode(in, bb, true);
+        if (cr.isError()) {
+            try {
+                cr.throwException();
+            }
+            catch (CharacterCodingException e) {
+                throw new MessageStringCodingException(e);
+            }
+        }
+        if (cr.isUnderflow() || cr.isOverflow()) {
+            return -1;
+        }
+        return bb.position() - startPosition;
+    }
+
+    private static final int UTF_8_MAX_CHAR_SIZE = 6;
 
     /**
      * Pack the input String in UTF-8 encoding
@@ -464,77 +485,76 @@ public class MessagePacker
             packRawStringHeader(0);
             return this;
         }
-
-        if (s.length() < config.packerSmallStringOptimizationThreshold) {
-            // Write the length and payload of small string to the buffer so that it avoids an extra flush of buffer
-            packSmallString(s);
+        else if (s.length() < smallStringOptimizationThreshold) {
+            // Using String.getBytes is generally faster for small strings
+            packStringWithGetBytes(s);
             return this;
         }
-
-        CharBuffer in = CharBuffer.wrap(s);
-        prepareEncoder();
-
-        flush();
-
-        prepareBuffer();
-        boolean isExtension = false;
-        ByteBuffer encodeBuffer = buffer.toByteBuffer(position, buffer.size() - position);
-        encoder.reset();
-        while (in.hasRemaining()) {
-            try {
-                CoderResult cr = encoder.encode(in, encodeBuffer, true);
-
-                // Input data is insufficient
-                if (cr.isUnderflow()) {
-                    cr = encoder.flush(encodeBuffer);
+        else if (s.length() < (1 << 8)) {
+            // ensure capacity for 2-byte raw string header + the maximum string size (+ 1 byte for falback code)
+            ensureCapacity(2 + s.length() * UTF_8_MAX_CHAR_SIZE + 1);
+            // keep 2-byte header region and write raw string
+            int written = encodeStringToBufferAt(position + 2, s);
+            if (written >= 0) {
+                if (written < (1 << 8)) {
+                    buffer.putByte(position++, STR8);
+                    buffer.putByte(position++, (byte) written);
+                    position += written;
                 }
-
-                // encodeBuffer is too small
-                if (cr.isOverflow()) {
-                    // Allocate a larger buffer
-                    int estimatedRemainingSize = Math.max(1, (int) (in.remaining() * encoder.averageBytesPerChar()));
-                    encodeBuffer.flip();
-                    ByteBuffer newBuffer = ByteBuffer.allocate(Math.max((int) (encodeBuffer.capacity() * 1.5), encodeBuffer.remaining() + estimatedRemainingSize));
-                    // Coy the current encodeBuffer contents to the new buffer
-                    newBuffer.put(encodeBuffer);
-                    encodeBuffer = newBuffer;
-                    isExtension = true;
-                    encoder.reset();
-                    continue;
-                }
-
-                if (cr.isError()) {
-                    if ((cr.isMalformed() && config.actionOnMalFormedInput == CodingErrorAction.REPORT) ||
-                            (cr.isUnmappable() && config.actionOnUnmappableCharacter == CodingErrorAction.REPORT)) {
-                        cr.throwException();
+                else {
+                    if (written >= (1 << 16)) {
+                        // this must not happen because s.length() is less than 2^8 and (2^8) * UTF_8_MAX_CHAR_SIZE is less than 2^16
+                        throw new IllegalArgumentException("Unexpected UTF-8 encoder state");
                     }
+                    // move 1 byte backward to expand 3-byte header region to 3 bytes
+                    buffer.putBytes(position + 3,
+                            buffer.array(), buffer.arrayOffset() + position + 2, written);
+                    // write 3-byte header
+                    buffer.putByte(position++, STR16);
+                    buffer.putShort(position, (short) written);
+                    position += 2;
+                    position += written;
                 }
+                return this;
             }
-            catch (CharacterCodingException e) {
-                throw new MessageStringCodingException(e);
+        }
+        else if (s.length() < (1 << 16)) {
+            // ensure capacity for 3-byte raw string header + the maximum string size (+ 2 bytes for fallback code)
+            ensureCapacity(3 + s.length() * UTF_8_MAX_CHAR_SIZE + 2);
+            // keep 3-byte header region and write raw string
+            int written = encodeStringToBufferAt(position + 3, s);
+            if (written >= 0) {
+                if (written < (1 << 16)) {
+                    buffer.putByte(position++, STR16);
+                    buffer.putShort(position, (short) written);
+                    position += 2;
+                    position += written;
+                }
+                else {
+                    if (written >= (1 << 32)) {
+                        // this must not happen because s.length() is less than 2^16 and (2^16) * UTF_8_MAX_CHAR_SIZE is less than 2^32
+                        throw new IllegalArgumentException("Unexpected UTF-8 encoder state");
+                    }
+                    // move 2 bytes backward to expand 3-byte header region to 5 bytes
+                    buffer.putBytes(position + 5,
+                            buffer.array(), buffer.arrayOffset() + position + 3, written);
+                    // write 3-byte header header
+                    buffer.putByte(position++, STR32);
+                    buffer.putInt(position, written);
+                    position += 4;
+                    position += written;
+                }
+                return this;
             }
         }
 
-        encodeBuffer.flip();
-        int strLen = encodeBuffer.remaining();
+        // Here doesn't use above optimized code for s.length() < (1 << 32) so that
+        // ensureCapacity is not called with an integer larger than (3 + ((1 << 16) * UTF_8_MAX_CHAR_SIZE) + 2).
+        // This makes it sure that MessageBufferOutput.next won't be called a size larger than
+        // 384KB, which is OK size to keep in memory.
 
-        // Preserve the current buffer
-        MessageBuffer tmpBuf = buffer;
-
-        // Switch the buffer to write the string length
-        if (strLenBuffer == null) {
-            strLenBuffer = MessageBuffer.newBuffer(5);
-        }
-        buffer = strLenBuffer;
-        position = 0;
-        // pack raw string header (string binary size)
-        packRawStringHeader(strLen);
-        flush(); // We need to dump the data here to MessageBufferOutput so that we can switch back to the original buffer
-
-        // Reset to the original buffer (or encodeBuffer if new buffer is allocated)
-        buffer = isExtension ? MessageBuffer.wrap(encodeBuffer) : tmpBuf;
-        // No need exists to write payload since the encoded string (payload) is already written to the buffer
-        position = strLen;
+        // fallback
+        packStringWithGetBytes(s);
         return this;
     }
 
@@ -659,72 +679,82 @@ public class MessagePacker
         return this;
     }
 
-    public MessagePacker writePayload(ByteBuffer src)
-            throws IOException
-    {
-        int len = src.remaining();
-        if (len >= config.packerRawDataCopyingThreshold) {
-            // Use the source ByteBuffer directly to avoid memory copy
-
-            // First, flush the current buffer contents
-            flush();
-
-            // Wrap the input source as a MessageBuffer
-            MessageBuffer wrapped = MessageBuffer.wrap(src);
-            // Then, dump the source data to the output
-            out.flush(wrapped);
-            src.position(src.limit());
-            flushedBytes += len;
-        }
-        else {
-            // If the input source is small, simply copy the contents to the buffer
-            while (src.remaining() > 0) {
-                if (position >= buffer.size()) {
-                    flush();
-                }
-                prepareBuffer();
-                int writeLen = Math.min(buffer.size() - position, src.remaining());
-                buffer.putByteBuffer(position, src, writeLen);
-                position += writeLen;
-            }
-        }
-
-        return this;
-    }
-
+    /**
+     * Writes buffer to the output.
+     * This method is used with packRawStringHeader or packBinaryHeader.
+     *
+     * @param src the data to add
+     * @return this
+     * @throws IOException
+     */
     public MessagePacker writePayload(byte[] src)
             throws IOException
     {
         return writePayload(src, 0, src.length);
     }
 
+    /**
+     * Writes buffer to the output.
+     * This method is used with packRawStringHeader or packBinaryHeader.
+     *
+     * @param src the data to add
+     * @param off the start offset in the data
+     * @param len the number of bytes to add
+     * @return this
+     * @throws IOException
+     */
     public MessagePacker writePayload(byte[] src, int off, int len)
             throws IOException
     {
-        if (len >= config.packerRawDataCopyingThreshold) {
-            // Use the input array directory to avoid memory copy
-
-            // Flush the current buffer contents
-            flush();
-
-            // Wrap the input array as a MessageBuffer
-            MessageBuffer wrapped = MessageBuffer.wrap(src).slice(off, len);
-            // Dump the source data to the output
-            out.flush(wrapped);
-            flushedBytes += len;
+        if (buffer.size() - position < len || len > bufferFlushThreshold) {
+            flush();  // call flush before write
+            out.write(src, off, len);
+            totalFlushBytes += len;
         }
         else {
-            int cursor = 0;
-            while (cursor < len) {
-                if (buffer != null && position >= buffer.size()) {
-                    flush();
-                }
-                prepareBuffer();
-                int writeLen = Math.min(buffer.size() - position, len - cursor);
-                buffer.putBytes(position, src, off + cursor, writeLen);
-                position += writeLen;
-                cursor += writeLen;
-            }
+            buffer.putBytes(position, src, off, len);
+            position += len;
+        }
+        return this;
+    }
+
+    /**
+     * Writes buffer to the output.
+     * Unlike writePayload method, addPayload method doesn't copy the source data. It means that the caller
+     * must not modify the data after calling this method.
+     *
+     * @param src the data to add
+     * @return this
+     * @throws IOException
+     */
+    public MessagePacker addPayload(byte[] src)
+            throws IOException
+    {
+        return addPayload(src, 0, src.length);
+    }
+
+    /**
+     * Writes buffer to the output.
+     * Unlike writePayload method, addPayload method doesn't copy the source data. It means that the caller
+     * must not modify the data after calling this method.
+     *
+     * @param src the data to add
+     * @param off the start offset in the data
+     * @param len the number of bytes to add
+     * @return this
+     * @throws IOException
+     */
+    public MessagePacker addPayload(byte[] src, int off, int len)
+            throws IOException
+    {
+        if (buffer.size() - position < len || len > bufferFlushThreshold) {
+            flush();  // call flush before add
+            out.add(src, off, len);
+            totalFlushBytes += len;
+        }
+        else {
+            buffer.putBytes(position, src, off, len);
+            position += len;
         }
         return this;
     }

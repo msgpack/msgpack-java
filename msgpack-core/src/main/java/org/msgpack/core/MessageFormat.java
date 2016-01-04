@@ -15,9 +15,9 @@
 //
 package org.msgpack.core;
 
-import org.msgpack.core.MessagePack.Code;
 import org.msgpack.core.annotations.VisibleForTesting;
 import org.msgpack.value.ValueType;
+import org.msgpack.core.MessagePack.Code;
 
 /**
  * Describes the list of the message format types defined in the MessagePack specification.

@@ -13,11 +13,26 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.core.annotations;
+package org.msgpack.core;
 
 /**
- * Annotates a code which must be used carefully.
+ * Thrown when the input message pack format is invalid
  */
-public @interface Insecure
+public class MessageNeverUsedFormatException
+        extends MessageFormatException
 {
+    public MessageNeverUsedFormatException(Throwable e)
+    {
+        super(e);
+    }
+
+    public MessageNeverUsedFormatException(String message)
+    {
+        super(message);
+    }
+
+    public MessageNeverUsedFormatException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
 }
