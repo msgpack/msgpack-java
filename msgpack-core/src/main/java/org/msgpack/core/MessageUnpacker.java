@@ -15,7 +15,7 @@
 //
 package org.msgpack.core;
 
-import org.msgpack.core.MessageFormat.Code;
+import org.msgpack.core.MessagePack.Code;
 import org.msgpack.core.buffer.MessageBuffer;
 import org.msgpack.core.buffer.MessageBufferInput;
 import org.msgpack.value.ImmutableValue;

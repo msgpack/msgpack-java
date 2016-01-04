@@ -20,7 +20,7 @@ import java.math.BigInteger
 import java.nio.CharBuffer
 import java.nio.charset.{CodingErrorAction, UnmappableCharacterException}
 
-import org.msgpack.core.MessageFormat.Code
+import org.msgpack.core.MessagePack.Code
 import org.msgpack.core.MessagePack.{UnpackerConfig, PackerConfig}
 import org.msgpack.value.{Value, Variable}
 
