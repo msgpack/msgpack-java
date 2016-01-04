@@ -234,7 +234,7 @@ public class MessagePack
 
         public static final boolean isFixedMap(byte b)
         {
-            return (b & (byte) 0xe0) == Code.FIXMAP_PREFIX;
+            return (b & (byte) 0xf0) == Code.FIXMAP_PREFIX;
         }
 
         public static final boolean isFixedRaw(byte b)
