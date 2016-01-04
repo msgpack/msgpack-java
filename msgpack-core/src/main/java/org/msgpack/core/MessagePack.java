@@ -147,6 +147,10 @@ public class MessagePack
      */
     public static class PackerConfig
     {
+        /**
+         * Use String.getBytes() for converting Java Strings that are smaller than this threshold into UTF8.
+         * Note that this parameter is subject to change.
+         */
         public int smallStringOptimizationThreshold = 512;
 
         /**
@@ -155,7 +159,8 @@ public class MessagePack
          * @param out
          * @return
          */
-        public MessagePacker newPacker(MessageBufferOutput out) {
+        public MessagePacker newPacker(MessageBufferOutput out)
+        {
             return new MessagePacker(out, this);
         }
 
@@ -165,7 +170,8 @@ public class MessagePack
          * @param out
          * @return
          */
-        public MessagePacker newPacker(OutputStream out) {
+        public MessagePacker newPacker(OutputStream out)
+        {
             return newPacker(new OutputStreamBufferOutput(out));
         }
 
@@ -175,7 +181,8 @@ public class MessagePack
          * @param channel
          * @return
          */
-        public MessagePacker newPacker(WritableByteChannel channel) {
+        public MessagePacker newPacker(WritableByteChannel channel)
+        {
             return newPacker(new ChannelBufferOutput(channel));
         }
 
@@ -184,7 +191,8 @@ public class MessagePack
          *
          * @return
          */
-        public MessageBufferPacker newBufferPacker() {
+        public MessageBufferPacker newBufferPacker()
+        {
             return new MessageBufferPacker(this);
         }
     }
@@ -194,11 +202,34 @@ public class MessagePack
      */
     public static class UnpackerConfig
     {
-        public boolean allowStringAsBinary = true;
-        public boolean allowBinaryAsString = true;
+        /**
+         * Allow unpackBinaryHeader to read str format family  (default:true)
+         */
+        public boolean allowReadingStringAsBinary = true;
+
+        /**
+         * Allow unpackRawStringHeader and unpackString to read bin format family (default: true)
+         */
+        public boolean allowReadingBinaryAsString = true;
+
+        /**
+         * Action when encountered a malformed input
+         */
         public CodingErrorAction actionOnMalformedString = CodingErrorAction.REPLACE;
+
+        /**
+         * Action when an unmappable character is found
+         */
         public CodingErrorAction actionOnUnmappableString = CodingErrorAction.REPLACE;
+
+        /**
+         * unpackString size limit. (default: Integer.MAX_VALUE)
+         */
         public int stringSizeLimit = Integer.MAX_VALUE;
+
+        /**
+         *
+         */
         public int stringDecoderBufferSize = 8192;
 
         /**
@@ -207,7 +238,8 @@ public class MessagePack
          * @param in
          * @return
          */
-        public MessageUnpacker newUnpacker(MessageBufferInput in) {
+        public MessageUnpacker newUnpacker(MessageBufferInput in)
+        {
             return new MessageUnpacker(in, this);
         }
 
@@ -217,7 +249,8 @@ public class MessagePack
          * @param in
          * @return
          */
-        public MessageUnpacker newUnpacker(InputStream in) {
+        public MessageUnpacker newUnpacker(InputStream in)
+        {
             return newUnpacker(new InputStreamBufferInput(in));
         }
 
@@ -227,7 +260,8 @@ public class MessagePack
          * @param channel
          * @return
          */
-        public MessageUnpacker newUnpacker(ReadableByteChannel channel) {
+        public MessageUnpacker newUnpacker(ReadableByteChannel channel)
+        {
             return newUnpacker(new ChannelBufferInput(channel));
         }
 
@@ -237,7 +271,8 @@ public class MessagePack
          * @param contents
          * @return
          */
-        public MessageUnpacker newUnpacker(byte[] contents) {
+        public MessageUnpacker newUnpacker(byte[] contents)
+        {
             return newUnpacker(new ArrayBufferInput(contents));
         }
 
@@ -247,9 +282,9 @@ public class MessagePack
          * @param contents
          * @return
          */
-        public MessageUnpacker newUnpacker(byte[] contents, int offset, int length) {
+        public MessageUnpacker newUnpacker(byte[] contents, int offset, int length)
+        {
             return newUnpacker(new ArrayBufferInput(contents, offset, length));
         }
-
     }
 }

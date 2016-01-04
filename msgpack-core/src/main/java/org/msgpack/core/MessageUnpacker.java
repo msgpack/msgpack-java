@@ -73,8 +73,8 @@ public class MessageUnpacker
 
     private static final byte HEAD_BYTE_REQUIRED = (byte) 0xc1;
 
-    private final boolean allowStringAsBinary;
-    private final boolean allowBinaryAsString;
+    private final boolean allowReadingStringAsBinary;
+    private final boolean allowReadingBinaryAsString;
     private final CodingErrorAction actionOnMalformedString;
     private final CodingErrorAction actionOnUnmappableString;
     private final int stringSizeLimit;
@@ -134,10 +134,10 @@ public class MessageUnpacker
     {
         this.in = checkNotNull(in, "MessageBufferInput is null");
         // We need to copy the configuration parameters since the config object is mutable
-        this.allowStringAsBinary = config.allowStringAsBinary;
-        this.allowBinaryAsString = config.allowBinaryAsString;
+        this.allowReadingStringAsBinary = config.allowReadingStringAsBinary;
+        this.allowReadingBinaryAsString = config.allowReadingBinaryAsString;
         this.actionOnMalformedString = config.actionOnMalformedString;
-        this.actionOnUnmappableString =  config.actionOnUnmappableString;
+        this.actionOnUnmappableString = config.actionOnUnmappableString;
         this.stringSizeLimit = config.stringSizeLimit;
         this.stringDecoderBufferSize = config.stringDecoderBufferSize;
     }
@@ -1149,7 +1149,7 @@ public class MessageUnpacker
             return len;
         }
 
-        if (allowBinaryAsString) {
+        if (allowReadingBinaryAsString) {
             len = tryReadBinaryHeader(b);
             if (len >= 0) {
                 return len;
@@ -1170,7 +1170,7 @@ public class MessageUnpacker
             return len;
         }
 
-        if (allowStringAsBinary) {
+        if (allowReadingStringAsBinary) {
             len = tryReadStringHeader(b);
             if (len >= 0) {
                 return len;
