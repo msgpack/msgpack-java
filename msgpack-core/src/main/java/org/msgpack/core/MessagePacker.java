@@ -428,10 +428,12 @@ public class MessagePacker
         return this;
     }
 
-    private void packStringByGetBytes(String s)
+    private void packStringWithGetBytes(String s)
             throws IOException
     {
+        // JVM performs various optimizations (memory allocation, reusing encoder etc.) when String.getBytes is used
         byte[] bytes = s.getBytes(MessagePack.UTF8);
+        // Write the length and payload of small string to the buffer so that it avoids an extra flush of buffer
         packRawStringHeader(bytes.length);
         addPayload(bytes);
     }
@@ -481,8 +483,8 @@ public class MessagePacker
             return this;
         }
         else if (s.length() < smallStringOptimizationThreshold) {
-            // Write the length and payload of small string to the buffer so that it avoids an extra flush of buffer
-            packStringByGetBytes(s);
+            // Using String.getBytes is generally faster for small strings
+            packStringWithGetBytes(s);
             return this;
         }
         else if (s.length() < (1 << 8)) {
@@ -549,7 +551,7 @@ public class MessagePacker
         // 384KB, which is OK size to keep in memory.
 
         // fallback
-        packStringByGetBytes(s);
+        packStringWithGetBytes(s);
         return this;
     }
 
