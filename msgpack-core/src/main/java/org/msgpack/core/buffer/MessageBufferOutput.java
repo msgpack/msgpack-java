@@ -30,11 +30,11 @@ public interface MessageBufferOutput
      * If the previously allocated buffer is not flushed yet, this next method should discard
      * it without writing it.
      *
-     * @param mimimumSize the mimium required buffer size to allocate
+     * @param minimumSize the mimium required buffer size to allocate
      * @return
      * @throws IOException
      */
-    public MessageBuffer next(int mimimumSize)
+    public MessageBuffer next(int minimumSize)
             throws IOException;
 
     /**
