@@ -174,15 +174,15 @@ public class MessagePacker
         position = 0;
     }
 
-    private void ensureCapacity(int mimimumSize)
+    private void ensureCapacity(int minimumSize)
             throws IOException
     {
         if (buffer == null) {
-            buffer = out.next(mimimumSize);
+            buffer = out.next(minimumSize);
         }
-        else if (position + mimimumSize >= buffer.size()) {
+        else if (position + minimumSize >= buffer.size()) {
             flushBuffer();
-            buffer = out.next(mimimumSize);
+            buffer = out.next(minimumSize);
         }
     }
 
