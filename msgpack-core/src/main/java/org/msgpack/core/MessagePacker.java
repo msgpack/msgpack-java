@@ -153,10 +153,7 @@ public class MessagePacker
             throws IOException
     {
         if (position > 0) {
-            out.writeBuffer(position);
-            buffer = null;
-            totalFlushBytes += position;
-            position = 0;
+            flushBuffer();
         }
         out.flush();
     }
@@ -172,6 +169,15 @@ public class MessagePacker
         }
     }
 
+    private void flushBuffer()
+            throws IOException
+    {
+        out.writeBuffer(position);
+        buffer = null;
+        totalFlushBytes += position;
+        position = 0;
+    }
+
     private void ensureCapacity(int mimimumSize)
             throws IOException
     {
@@ -179,10 +185,7 @@ public class MessagePacker
             buffer = out.next(mimimumSize);
         }
         else if (position + mimimumSize >= buffer.size()) {
-            out.writeBuffer(position);
-            buffer = null;
-            totalFlushBytes += position;
-            position = 0;
+            flushBuffer();
             buffer = out.next(mimimumSize);
         }
     }
