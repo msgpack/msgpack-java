@@ -71,8 +71,6 @@ public class MessageUnpacker
 {
     private static final MessageBuffer EMPTY_BUFFER = MessageBuffer.wrap(new byte[0]);
 
-    private static final byte HEAD_BYTE_REQUIRED = (byte) 0xc1;
-
     private final boolean allowReadingStringAsBinary;
     private final boolean allowReadingBinaryAsString;
     private final CodingErrorAction actionOnMalformedString;
@@ -81,8 +79,6 @@ public class MessageUnpacker
     private final int stringDecoderBufferSize;
 
     private MessageBufferInput in;
-
-    private byte headByte = HEAD_BYTE_REQUIRED;
 
     /**
      * Points to the current buffer to read
