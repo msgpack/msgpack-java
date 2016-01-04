@@ -171,6 +171,7 @@ public class MessageUnpacker
 
     /**
      * Get the next buffer without changing the position
+     *
      * @return
      * @throws IOException
      */
@@ -181,6 +182,7 @@ public class MessageUnpacker
         if (next == null) {
             throw new MessageInsufficientBufferException();
         }
+        assert (buffer != null);
         totalReadBytes += buffer.size();
         return next;
     }
@@ -194,6 +196,7 @@ public class MessageUnpacker
 
     /**
      * Returns a short size buffer (upto 8 bytes) to read a number value
+     *
      * @param readLength
      * @return
      * @throws IOException
