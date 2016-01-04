@@ -18,6 +18,7 @@ package org.msgpack.core.example;
 import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePack.PackerConfig;
+import org.msgpack.core.MessagePack.UnpackerConfig;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.value.ArrayValue;
@@ -255,7 +256,7 @@ public class MessagePackExample
         packer.close();
 
         // Unpack data
-        MessagePack.UnpackerConfig unpackerConfig = new MessagePack.UnpackerConfig();
+        UnpackerConfig unpackerConfig = new UnpackerConfig();
         unpackerConfig.stringDecoderBufferSize = 16 * 1024; // If your data contains many large strings (the default is 8k)
 
         byte[] packedData = out.toByteArray();
