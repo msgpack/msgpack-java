@@ -32,6 +32,6 @@ public interface MessageBufferInput
      * @return the next MessageBuffer, or return null if no more buffer is available.
      * @throws IOException when error occurred when reading the data
      */
-    public MessageBuffer next()
+    MessageBuffer next()
             throws IOException;
 }

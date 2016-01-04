@@ -34,7 +34,7 @@ public interface MessageBufferOutput
      * @return
      * @throws IOException
      */
-    public MessageBuffer next(int minimumSize)
+    MessageBuffer next(int minimumSize)
             throws IOException;
 
     /**
@@ -45,7 +45,7 @@ public interface MessageBufferOutput
      * @param length the size of buffer to flush
      * @throws IOException
      */
-    public void writeBuffer(int length)
+    void writeBuffer(int length)
             throws IOException;
 
     /**
@@ -58,7 +58,7 @@ public interface MessageBufferOutput
      * @return
      * @throws IOException
      */
-    public void write(byte[] buffer, int offset, int length)
+    void write(byte[] buffer, int offset, int length)
             throws IOException;
 
     /**
@@ -71,6 +71,6 @@ public interface MessageBufferOutput
      * @return
      * @throws IOException
      */
-    public void add(byte[] buffer, int offset, int length)
+    void add(byte[] buffer, int offset, int length)
             throws IOException;
 }
