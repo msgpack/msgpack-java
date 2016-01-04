@@ -24,7 +24,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
-public class MessagePackFormatFactoryTest
+public class MessagePackFactoryTest
         extends MessagePackDataformatTestBase
 {
     @Test

@@ -35,7 +35,7 @@ import java.util.List;
 
 public class MessagePackDataformatTestBase
 {
-    protected MessagePackFormatFactory factory;
+    protected MessagePackFactory factory;
     protected ByteArrayOutputStream out;
     protected ByteArrayInputStream in;
     protected ObjectMapper objectMapper;
@@ -47,7 +47,7 @@ public class MessagePackDataformatTestBase
     @Before
     public void setup()
     {
-        factory = new MessagePackFormatFactory();
+        factory = new MessagePackFactory();
         objectMapper = new ObjectMapper(factory);
         out = new ByteArrayOutputStream();
         in = new ByteArrayInputStream(new byte[4096]);

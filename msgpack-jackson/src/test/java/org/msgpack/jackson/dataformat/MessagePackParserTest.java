@@ -27,7 +27,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.junit.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
-import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -288,7 +287,7 @@ public class MessagePackParserTest
     public void testMessagePackParserDirectly()
             throws IOException
     {
-        MessagePackFormatFactory factory = new MessagePackFormatFactory();
+        MessagePackFactory factory = new MessagePackFactory();
         File tempFile = File.createTempFile("msgpackTest", "msgpack");
         tempFile.deleteOnExit();
 
@@ -354,7 +353,7 @@ public class MessagePackParserTest
     public void testReadPrimitives()
             throws Exception
     {
-        MessagePackFormatFactory factory = new MessagePackFormatFactory();
+        MessagePackFactory factory = new MessagePackFactory();
         File tempFile = createTempFile();
 
         FileOutputStream out = new FileOutputStream(tempFile);
@@ -396,7 +395,7 @@ public class MessagePackParserTest
         packer.packDouble(Double.MIN_NORMAL);
         packer.flush();
 
-        ObjectMapper mapper = new ObjectMapper(new MessagePackFormatFactory());
+        ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
         mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
         List<Object> objects = mapper.readValue(out.toByteArray(), new TypeReference<List<Object>>() {});
         assertEquals(5, objects.size());
@@ -431,7 +430,7 @@ public class MessagePackParserTest
             throws Exception
     {
         File tempFile = createTestFile();
-        MessagePackFormatFactory factory = new MessagePackFormatFactory();
+        MessagePackFactory factory = new MessagePackFactory();
         FileInputStream in = new FileInputStream(tempFile);
         ObjectMapper objectMapper = new ObjectMapper(factory);
         objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
@@ -444,7 +443,7 @@ public class MessagePackParserTest
     {
         File tempFile = createTestFile();
         FileInputStream in = new FileInputStream(tempFile);
-        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFormatFactory());
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
         objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
         objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
         objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
@@ -456,7 +455,7 @@ public class MessagePackParserTest
     {
         ArrayList<BigDecimal> list = new ArrayList<BigDecimal>();
         list.add(new BigDecimal(Long.MAX_VALUE));
-        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFormatFactory());
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
         byte[] bytes = objectMapper.writeValueAsBytes(list);
 
         ArrayList<BigDecimal> result = objectMapper.readValue(
@@ -481,7 +480,7 @@ public class MessagePackParserTest
         packer.close();
 
         FileInputStream in = new FileInputStream(tempFile);
-        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFormatFactory());
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
         objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
         assertEquals("foo", objectMapper.readValue(in, new TypeReference<String>() {}));
         long l = objectMapper.readValue(in, new TypeReference<Long>() {});
@@ -511,7 +510,7 @@ public class MessagePackParserTest
         packer.packLong(42);
         packer.close();
 
-        ObjectMapper mapper = new ObjectMapper(new MessagePackFormatFactory());
+        ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
         Map<String, Object> object = mapper.readValue(new FileInputStream(tempFile), new TypeReference<Map<String, Object>>() {});
         assertEquals(2, object.size());
         assertEquals(3.14, object.get("foo"));
@@ -533,7 +532,7 @@ public class MessagePackParserTest
         packer.packInt(1);
         packer.close();
 
-        ObjectMapper mapper = new ObjectMapper(new MessagePackFormatFactory());
+        ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
         List<Object> objects = mapper.readValue(out.toByteArray(), new TypeReference<List<Object>>() {});
         assertEquals(2, objects.size());
         @SuppressWarnings(value = "unchecked")
@@ -555,7 +554,7 @@ public class MessagePackParserTest
         messagePacker.packBinaryHeader(1).writePayload(k1).packInt(3);
         messagePacker.close();
 
-        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFormatFactory());
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
         SimpleModule module = new SimpleModule();
         module.addKeyDeserializer(byte[].class, new KeyDeserializer()
         {
@@ -592,7 +591,7 @@ public class MessagePackParserTest
         }
         messagePacker.close();
 
-        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFormatFactory());
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
         SimpleModule module = new SimpleModule();
         module.addKeyDeserializer(Integer.class, new KeyDeserializer()
         {
@@ -623,7 +622,7 @@ public class MessagePackParserTest
         }
         messagePacker.close();
 
-        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFormatFactory());
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
         SimpleModule module = new SimpleModule();
         module.addKeyDeserializer(Float.class, new KeyDeserializer()
         {
@@ -653,7 +652,7 @@ public class MessagePackParserTest
         messagePacker.packBoolean(false).packInt(3);
         messagePacker.close();
 
-        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFormatFactory());
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
         SimpleModule module = new SimpleModule();
         module.addKeyDeserializer(Boolean.class, new KeyDeserializer()
         {
