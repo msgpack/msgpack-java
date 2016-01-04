@@ -16,7 +16,7 @@
 package org.msgpack.core.buffer
 
 import akka.util.ByteString
-import org.msgpack.core.{MessagePackSpec, MessageUnpacker}
+import org.msgpack.core.{MessagePack, MessagePackSpec, MessageUnpacker}
 
 class ByteStringTest
   extends MessagePackSpec {
@@ -41,7 +41,6 @@ class ByteStringTest
       override def close(): Unit = {}
     }
 
-    new
-        MessageUnpacker(input).unpackString()
+    MessagePack.newDefaultUnpacker(input).unpackString()
   }
 }

@@ -21,6 +21,7 @@ import java.nio.CharBuffer
 import java.nio.charset.{CodingErrorAction, UnmappableCharacterException}
 
 import org.msgpack.core.MessageFormat.Code
+import org.msgpack.core.MessagePack.{UnpackerConfig, PackerConfig}
 import org.msgpack.value.{Value, Variable}
 
 import scala.util.Random
@@ -60,13 +61,13 @@ class MessagePackTest extends MessagePackSpec {
     }
 
     "detect fixarray values" in {
-      val packer = new MessagePackFactory().newBufferPacker()
+      val packer = MessagePack.newDefaultBufferPacker()
       packer.packArrayHeader(0)
       packer.close
       val bytes = packer.toByteArray
-      new MessagePackFactory().newUnpacker(bytes).unpackArrayHeader() shouldBe 0
+      MessagePack.newDefaultUnpacker(bytes).unpackArrayHeader() shouldBe 0
       try {
-        new MessagePackFactory().newUnpacker(bytes).unpackMapHeader()
+        MessagePack.newDefaultUnpacker(bytes).unpackMapHeader()
         fail("Shouldn't reach here")
       }
       catch {
@@ -75,13 +76,13 @@ class MessagePackTest extends MessagePackSpec {
     }
 
     "detect fixmap values" in {
-      val packer = new MessagePackFactory().newBufferPacker()
+      val packer = MessagePack.newDefaultBufferPacker()
       packer.packMapHeader(0)
       packer.close
       val bytes = packer.toByteArray
-      new MessagePackFactory().newUnpacker(bytes).unpackMapHeader() shouldBe 0
+      MessagePack.newDefaultUnpacker(bytes).unpackMapHeader() shouldBe 0
       try {
-        new MessagePackFactory().newUnpacker(bytes).unpackArrayHeader()
+        MessagePack.newDefaultUnpacker(bytes).unpackArrayHeader()
         fail("Shouldn't reach here")
       }
       catch {
@@ -147,17 +148,23 @@ class MessagePackTest extends MessagePackSpec {
     }
 
 
-    def check[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A, factory: MessagePackFactory = new MessagePackFactory()): Unit = {
+    def check[A](
+            v: A,
+            pack: MessagePacker => Unit,
+            unpack: MessageUnpacker => A,
+            packerConfig: PackerConfig = new PackerConfig(),
+            unpackerConfig: UnpackerConfig = new UnpackerConfig()
+    ): Unit = {
       var b: Array[Byte] = null
       try {
         val bs = new ByteArrayOutputStream()
-        val packer = factory.newPacker(bs)
+        val packer = packerConfig.newPacker(bs)
         pack(packer)
         packer.close()
 
         b = bs.toByteArray
 
-        val unpacker = factory.newUnpacker(b)
+        val unpacker = unpackerConfig.newUnpacker(b)
         val ret = unpack(unpacker)
         ret shouldBe v
       }
@@ -171,17 +178,22 @@ class MessagePackTest extends MessagePackSpec {
       }
     }
 
-    def checkException[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A,
-                          factory: MessagePackFactory = new MessagePackFactory()): Unit = {
+    def checkException[A](
+            v: A,
+            pack: MessagePacker => Unit,
+            unpack: MessageUnpacker => A,
+            packerConfig: PackerConfig = new PackerConfig(),
+            unpaackerConfig: UnpackerConfig = new UnpackerConfig()
+    ): Unit = {
       var b: Array[Byte] = null
       val bs = new ByteArrayOutputStream()
-      val packer = factory.newPacker(bs)
+      val packer = packerConfig.newPacker(bs)
       pack(packer)
       packer.close()
 
       b = bs.toByteArray
 
-      val unpacker = factory.newUnpacker(b)
+      val unpacker = unpaackerConfig.newUnpacker(b)
       val ret = unpack(unpacker)
 
       fail("cannot not reach here")
@@ -195,9 +207,6 @@ class MessagePackTest extends MessagePackSpec {
         case e: MessageIntegerOverflowException => // OK
       }
     }
-
-
-
 
     "pack/unpack primitive values" taggedAs ("prim") in {
       forAll { (v: Boolean) => check(v, _.packBoolean(v), _.unpackBoolean) }
@@ -327,9 +336,9 @@ class MessagePackTest extends MessagePackSpec {
       //val unmappableChar = Array[Char](new Character(0xfc0a).toChar)
 
       // Report error on unmappable character
-      val factory = new MessagePackFactory()
-        .unpackActionOnMalformedString(CodingErrorAction.REPORT)
-        .unpackActionOnUnmappableString(CodingErrorAction.REPORT);
+      val unpackerConfig = new UnpackerConfig()
+      unpackerConfig.actionOnMalformedString = CodingErrorAction.REPORT
+      unpackerConfig.actionOnUnmappableString = CodingErrorAction.REPORT
 
       for (bytes <- Seq(unmappable)) {
         When("unpacking")
@@ -339,20 +348,12 @@ class MessagePackTest extends MessagePackSpec {
             packer.writePayload(bytes)
           },
           _.unpackString(),
-          factory)
+          new PackerConfig(),
+          unpackerConfig)
         }
         catch {
           case e: MessageStringCodingException => // OK
         }
-
-        //        When("packing")
-        //        try {
-        //          val s = new String(unmappableChar)
-        //          checkException(s, _.packString(s), _.unpackString())
-        //        }
-        //        catch {
-        //          case e:MessageStringCodingException => // OK
-        //        }
       }
     }
 

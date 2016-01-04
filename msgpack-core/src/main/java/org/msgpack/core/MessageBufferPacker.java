@@ -22,24 +22,20 @@ import org.msgpack.core.buffer.ArrayBufferOutput;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * MessagePacker that is useful to produce byte array output
+ */
 public class MessageBufferPacker
         extends MessagePacker
 {
-    public MessageBufferPacker()
+    public MessageBufferPacker(MessagePack.PackerConfig config)
     {
-        this(new ArrayBufferOutput());
+        this(new ArrayBufferOutput(), config);
     }
 
-    public MessageBufferPacker(ArrayBufferOutput out)
+    public MessageBufferPacker(ArrayBufferOutput out, MessagePack.PackerConfig config)
     {
-        super(out);
-    }
-
-    @Override
-    public MessageBufferPacker setSmallStringOptimizationThreshold(int bytes)
-    {
-        super.setSmallStringOptimizationThreshold(bytes);
-        return this;
+        super(out, config);
     }
 
     public MessageBufferOutput reset(MessageBufferOutput out)
@@ -51,23 +47,27 @@ public class MessageBufferPacker
         return super.reset(out);
     }
 
+    private ArrayBufferOutput getArrayBufferOut() {
+        return (ArrayBufferOutput) out;
+    }
+
     public void clear()
     {
-        ((ArrayBufferOutput) out).clear();
+        getArrayBufferOut().clear();
     }
 
     public byte[] toByteArray()
     {
-        return ((ArrayBufferOutput) out).toByteArray();
+        return getArrayBufferOut().toByteArray();
     }
 
     public MessageBuffer toMessageBuffer()
     {
-        return ((ArrayBufferOutput) out).toMessageBuffer();
+        return getArrayBufferOut().toMessageBuffer();
     }
 
     public List<MessageBuffer> toBufferList()
     {
-        return ((ArrayBufferOutput) out).toBufferList();
+        return getArrayBufferOut().toBufferList();
     }
 }

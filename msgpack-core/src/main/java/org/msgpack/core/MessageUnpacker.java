@@ -73,12 +73,12 @@ public class MessageUnpacker
 
     private static final byte HEAD_BYTE_REQUIRED = (byte) 0xc1;
 
-    private boolean allowStringAsBinary = true;
-    private boolean allowBinaryAsString = true;
-    private CodingErrorAction actionOnMalformedString = CodingErrorAction.REPLACE;
-    private CodingErrorAction actionOnUnmappableString = CodingErrorAction.REPLACE;
-    private int stringSizeLimit = Integer.MAX_VALUE;
-    private int stringDecoderBufferSize = 8192;
+    private final boolean allowStringAsBinary;
+    private final boolean allowBinaryAsString;
+    private final CodingErrorAction actionOnMalformedString;
+    private final CodingErrorAction actionOnUnmappableString;
+    private final int stringSizeLimit;
+    private final int stringDecoderBufferSize;
 
     private MessageBufferInput in;
 
@@ -130,45 +130,16 @@ public class MessageUnpacker
      *
      * @param in
      */
-    public MessageUnpacker(MessageBufferInput in)
+    public MessageUnpacker(MessageBufferInput in, MessagePack.UnpackerConfig config)
     {
         this.in = checkNotNull(in, "MessageBufferInput is null");
-    }
-
-    public MessageUnpacker setAllowStringAsBinary(boolean enabled)
-    {
-        this.allowStringAsBinary = enabled;
-        return this;
-    }
-
-    public MessageUnpacker setAllowBinaryAsString(boolean enabled)
-    {
-        this.allowBinaryAsString = enabled;
-        return this;
-    }
-
-    public MessageUnpacker setActionOnMalformedString(CodingErrorAction action)
-    {
-        this.actionOnMalformedString = action;
-        return this;
-    }
-
-    public MessageUnpacker setActionOnUnmappableString(CodingErrorAction action)
-    {
-        this.actionOnUnmappableString = action;
-        return this;
-    }
-
-    public MessageUnpacker setStringSizeLimit(int bytes)
-    {
-        this.stringSizeLimit = bytes;
-        return this;
-    }
-
-    public MessageUnpacker setStringDecoderBufferSize(int bytes)
-    {
-        this.stringDecoderBufferSize = bytes;
-        return this;
+        // We need to copy the configuration parameters since the config object is mutable
+        this.allowStringAsBinary = config.allowStringAsBinary;
+        this.allowBinaryAsString = config.allowBinaryAsString;
+        this.actionOnMalformedString = config.actionOnMalformedString;
+        this.actionOnUnmappableString =  config.actionOnUnmappableString;
+        this.stringSizeLimit = config.stringSizeLimit;
+        this.stringDecoderBufferSize = config.stringDecoderBufferSize;
     }
 
     /**

@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
+import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
@@ -109,7 +110,7 @@ public class MessagePackGenerator
         messageBufferOutputHolder.set(messageBufferOutput);
 
         if (messagePacker == null) {
-            messagePacker = new MessagePacker(messageBufferOutput);
+            messagePacker = MessagePack.newDefaultPacker(messageBufferOutput);
         }
         else {
             messagePacker.reset(messageBufferOutput);

@@ -84,7 +84,7 @@ import static org.msgpack.core.Preconditions.checkNotNull;
 public class MessagePacker
         implements Closeable
 {
-    private int smallStringOptimizationThreshold = 512;
+    private final int smallStringOptimizationThreshold;
 
     protected MessageBufferOutput out;
 
@@ -108,17 +108,13 @@ public class MessagePacker
      * @param out MessageBufferOutput. Use {@link org.msgpack.core.buffer.OutputStreamBufferOutput}, {@link org.msgpack.core.buffer.ChannelBufferOutput} or
      * your own implementation of {@link org.msgpack.core.buffer.MessageBufferOutput} interface.
      */
-    public MessagePacker(MessageBufferOutput out)
+    public MessagePacker(MessageBufferOutput out, MessagePack.PackerConfig config)
     {
         this.out = checkNotNull(out, "MessageBufferOutput is null");
+        // We must copy the configuration parameters here since the config object is mutable
+        this.smallStringOptimizationThreshold = config.smallStringOptimizationThreshold;
         this.position = 0;
         this.totalFlushBytes = 0;
-    }
-
-    public MessagePacker setSmallStringOptimizationThreshold(int bytes)
-    {
-        this.smallStringOptimizationThreshold = bytes;
-        return this;
     }
 
     /**

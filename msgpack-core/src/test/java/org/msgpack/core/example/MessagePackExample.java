@@ -17,7 +17,7 @@ package org.msgpack.core.example;
 
 import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessagePack;
-import org.msgpack.core.MessagePackFactory;
+import org.msgpack.core.MessagePack.PackerConfig;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.value.ArrayValue;
@@ -245,23 +245,21 @@ public class MessagePackExample
     public static void configuration()
             throws IOException
     {
-        // Build a conifiguration
-        MessagePackFactory factory = new MessagePackFactory()
-                .unpackActionOnMalformedString(CodingErrorAction.REPLACE)         // Drop malformed and unmappable UTF-8 characters
-                .unpackActionOnUnmappableString(CodingErrorAction.REPLACE)
-                .outputBufferSize(8192 * 2);
-        // Create a  that uses this configuration
-
-        // Pack data
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        MessagePacker packer = factory.newPacker(out);
+        PackerConfig packerConfig = new PackerConfig();
+        packerConfig.smallStringOptimizationThreshold = 256; // String
+        MessagePacker packer = packerConfig.newPacker(out);
+
         packer.packInt(10);
         packer.packBoolean(true);
         packer.close();
 
         // Unpack data
+        MessagePack.UnpackerConfig unpackerConfig = new MessagePack.UnpackerConfig();
+        unpackerConfig.stringDecoderBufferSize = 16 * 1024; // If your data contains many large strings (the default is 8k)
+
         byte[] packedData = out.toByteArray();
-        MessageUnpacker unpacker = factory.newUnpacker(packedData);
+        MessageUnpacker unpacker = unpackerConfig.newUnpacker(packedData);
         int i = unpacker.unpackInt();  // 10
         boolean b = unpacker.unpackBoolean(); // true
         unpacker.close();

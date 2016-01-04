@@ -24,9 +24,6 @@ import xerial.core.io.IOUtil._
 
 import scala.util.Random
 
-/**
- * Created on 5/30/14.
- */
 class MessageBufferInputTest
   extends MessagePackSpec {
 
@@ -144,8 +141,7 @@ class MessageBufferInputTest
   }
 
   def readInt(buf: MessageBufferInput): Int = {
-    val unpacker = new
-        MessageUnpacker(buf)
+    val unpacker = MessagePack.newDefaultUnpacker(buf)
     unpacker.unpackInt
   }
 

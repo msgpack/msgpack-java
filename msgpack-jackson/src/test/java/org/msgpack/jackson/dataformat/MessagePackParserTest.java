@@ -54,7 +54,7 @@ public class MessagePackParserTest
     public void testParserShouldReadObject()
             throws IOException
     {
-        MessagePacker packer = new MessagePacker(new OutputStreamBufferOutput(out));
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
         packer.packMapHeader(9);
         // #1
         packer.packString("str");
@@ -182,7 +182,7 @@ public class MessagePackParserTest
     public void testParserShouldReadArray()
             throws IOException
     {
-        MessagePacker packer = new MessagePacker(new OutputStreamBufferOutput(out));
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
         packer.packArrayHeader(11);
         // #1
         packer.packArrayHeader(3);
@@ -387,7 +387,7 @@ public class MessagePackParserTest
     {
         double d0 = 1.23456789;
         double d1 = 1.23450000000000000000006789;
-        MessagePacker packer = new MessagePacker(new OutputStreamBufferOutput(out));
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
         packer.packArrayHeader(5);
         packer.packDouble(d0);
         packer.packDouble(d1);

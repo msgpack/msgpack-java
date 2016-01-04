@@ -15,11 +15,20 @@
 //
 package org.msgpack.core;
 
+import org.msgpack.core.buffer.ArrayBufferInput;
+import org.msgpack.core.buffer.ChannelBufferInput;
+import org.msgpack.core.buffer.ChannelBufferOutput;
+import org.msgpack.core.buffer.InputStreamBufferInput;
+import org.msgpack.core.buffer.MessageBufferInput;
+import org.msgpack.core.buffer.MessageBufferOutput;
+import org.msgpack.core.buffer.OutputStreamBufferOutput;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.CodingErrorAction;
 
 /**
  * This class has MessagePack prefix code definitions and packer/unpacker factory methods.
@@ -28,79 +37,100 @@ public class MessagePack
 {
     public static final Charset UTF8 = Charset.forName("UTF-8");
 
-    private final static MessagePackFactory defaultFactory = new MessagePackFactory();
-
     private MessagePack()
     {
+        // Prohibit instantiation of this class
     }
 
     /**
-     * Equivalent to defaultFactory().newPacker(out).
+     * Create a packer that outputs the packed data to the specified output
+     *
+     * @param out
+     * @return
+     */
+    public static MessagePacker newDefaultPacker(MessageBufferOutput out)
+    {
+        return new PackerConfig().newPacker(out);
+    }
+
+    /**
+     * Create a packer that outputs the packed data to a target output stream
      *
      * @param out
      * @return
      */
     public static MessagePacker newDefaultPacker(OutputStream out)
     {
-        return defaultFactory.newPacker(out);
+        return new PackerConfig().newPacker(out);
     }
 
     /**
-     * Equivalent to defaultFactory().newPacker(channel).
+     * Create a packer that outputs the packed data to a channel
      *
      * @param channel
      * @return
      */
     public static MessagePacker newDefaultPacker(WritableByteChannel channel)
     {
-        return defaultFactory.newPacker(channel);
+        return new PackerConfig().newPacker(channel);
     }
 
     /**
-     * Equivalent to defaultFactory().newBufferPacker()
+     * Create a packer for storing packed data into a byte array
      *
      * @return
      */
     public static MessageBufferPacker newDefaultBufferPacker()
     {
-        return defaultFactory.newBufferPacker();
+        return new PackerConfig().newBufferPacker();
     }
 
     /**
-     * Equivalent to defaultFactory().newUnpacker(in).
+     * Create an unpacker that reads the data from a given input
+     *
+     * @param in
+     * @return
+     */
+    public static MessageUnpacker newDefaultUnpacker(MessageBufferInput in)
+    {
+        return new UnpackerConfig().newUnpacker(in);
+    }
+
+    /**
+     * Create an unpacker that reads the data from a given input stream
      *
      * @param in
      * @return
      */
     public static MessageUnpacker newDefaultUnpacker(InputStream in)
     {
-        return defaultFactory.newUnpacker(in);
+        return new UnpackerConfig().newUnpacker(in);
     }
 
     /**
-     * Equivalent to defaultFactory().newUnpacker(channel).
+     * Create an unpacker that reads the data from a given channel
      *
      * @param channel
      * @return
      */
     public static MessageUnpacker newDefaultUnpacker(ReadableByteChannel channel)
     {
-        return defaultFactory.newUnpacker(channel);
+        return new UnpackerConfig().newUnpacker(channel);
     }
 
     /**
-     * Equivalent to defaultFactory().newUnpacker(contents).
+     * Create an unpacker that reads the data from a given byte array
      *
      * @param contents
      * @return
      */
     public static MessageUnpacker newDefaultUnpacker(byte[] contents)
     {
-        return defaultFactory.newUnpacker(contents);
+        return new UnpackerConfig().newUnpacker(contents);
     }
 
     /**
-     * Equivalent to defaultFactory().newUnpacker(contents, offset, length).
+     * Create an unpacker that reads the data from a given byte array [offset, offset+length)
      *
      * @param contents
      * @param offset
@@ -109,6 +139,117 @@ public class MessagePack
      */
     public static MessageUnpacker newDefaultUnpacker(byte[] contents, int offset, int length)
     {
-        return defaultFactory.newUnpacker(contents, offset, length);
+        return new UnpackerConfig().newUnpacker(contents, offset, length);
+    }
+
+    /**
+     * MessagePacker configuration.
+     */
+    public static class PackerConfig
+    {
+        public int smallStringOptimizationThreshold = 512;
+
+        /**
+         * Create a packer that outputs the packed data to a given output
+         *
+         * @param out
+         * @return
+         */
+        public MessagePacker newPacker(MessageBufferOutput out) {
+            return new MessagePacker(out, this);
+        }
+
+        /**
+         * Create a packer that outputs the packed data to a given output stream
+         *
+         * @param out
+         * @return
+         */
+        public MessagePacker newPacker(OutputStream out) {
+            return newPacker(new OutputStreamBufferOutput(out));
+        }
+
+        /**
+         * Create a packer that outputs the packed data to a given output channel
+         *
+         * @param channel
+         * @return
+         */
+        public MessagePacker newPacker(WritableByteChannel channel) {
+            return newPacker(new ChannelBufferOutput(channel));
+        }
+
+        /**
+         * Create a packer for storing packed data into a byte array
+         *
+         * @return
+         */
+        public MessageBufferPacker newBufferPacker() {
+            return new MessageBufferPacker(this);
+        }
+    }
+
+    /**
+     * MessageUnpacker configuration.
+     */
+    public static class UnpackerConfig
+    {
+        public boolean allowStringAsBinary = true;
+        public boolean allowBinaryAsString = true;
+        public CodingErrorAction actionOnMalformedString = CodingErrorAction.REPLACE;
+        public CodingErrorAction actionOnUnmappableString = CodingErrorAction.REPLACE;
+        public int stringSizeLimit = Integer.MAX_VALUE;
+        public int stringDecoderBufferSize = 8192;
+
+        /**
+         * Create an unpacker that reads the data from a given input
+         *
+         * @param in
+         * @return
+         */
+        public MessageUnpacker newUnpacker(MessageBufferInput in) {
+            return new MessageUnpacker(in, this);
+        }
+
+        /**
+         * Create an unpacker that reads the data from a given input stream
+         *
+         * @param in
+         * @return
+         */
+        public MessageUnpacker newUnpacker(InputStream in) {
+            return newUnpacker(new InputStreamBufferInput(in));
+        }
+
+        /**
+         * Create an unpacker that reads the data from a given channel
+         *
+         * @param channel
+         * @return
+         */
+        public MessageUnpacker newUnpacker(ReadableByteChannel channel) {
+            return newUnpacker(new ChannelBufferInput(channel));
+        }
+
+        /**
+         * Create an unpacker that reads the data from a given byte array
+         *
+         * @param contents
+         * @return
+         */
+        public MessageUnpacker newUnpacker(byte[] contents) {
+            return newUnpacker(new ArrayBufferInput(contents));
+        }
+
+        /**
+         * Create an unpacker that reads the data from a given byte array [offset, offset+size)
+         *
+         * @param contents
+         * @return
+         */
+        public MessageUnpacker newUnpacker(byte[] contents, int offset, int length) {
+            return newUnpacker(new ArrayBufferInput(contents, offset, length));
+        }
+
     }
 }
