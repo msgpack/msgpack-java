@@ -534,7 +534,7 @@ public class MessageUnpacker
         MessageFormat mf = getNextFormat();
         switch (mf.getValueType()) {
             case NIL:
-                unpackNil();
+                readByte();
                 var.setNilValue();
                 return var;
             case BOOLEAN:
@@ -902,7 +902,12 @@ public class MessageUnpacker
         else {
             decoder.reset();
         }
-        decodeStringBuffer = new StringBuilder();
+        if (decodeStringBuffer == null) {
+            decodeStringBuffer = new StringBuilder();
+        }
+        else {
+            decodeStringBuffer.setLength(0);
+        }
     }
 
     public String unpackString()
