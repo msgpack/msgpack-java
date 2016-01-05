@@ -87,12 +87,32 @@ public final class ValueFactory
 
     public static ImmutableBinaryValue newBinary(byte[] b)
     {
-        return new ImmutableBinaryValueImpl(b);
+        return newBinary(b, false);
+    }
+
+    public static ImmutableBinaryValue newBinary(byte[] b, boolean ref)
+    {
+        if (ref) {
+            return new ImmutableBinaryValueImpl(b);
+        }
+        else {
+            return new ImmutableBinaryValueImpl(Arrays.copyOf(b, b.length));
+        }
     }
 
     public static ImmutableBinaryValue newBinary(byte[] b, int off, int len)
     {
-        return new ImmutableBinaryValueImpl(Arrays.copyOfRange(b, off, len));
+        return newBinary(b, off, len, false);
+    }
+
+    public static ImmutableBinaryValue newBinary(byte[] b, int off, int len, boolean ref)
+    {
+        if (ref && off == 0 && len == b.length) {
+            return new ImmutableBinaryValueImpl(b);
+        }
+        else {
+            return new ImmutableBinaryValueImpl(Arrays.copyOfRange(b, off, len));
+        }
     }
 
     public static ImmutableStringValue newString(String s)
@@ -105,9 +125,29 @@ public final class ValueFactory
         return new ImmutableStringValueImpl(b);
     }
 
+    public static ImmutableStringValue newString(byte[] b, boolean ref)
+    {
+        if (ref) {
+            return new ImmutableStringValueImpl(b);
+        }
+        else {
+            return new ImmutableStringValueImpl(Arrays.copyOf(b, b.length));
+        }
+    }
+
     public static ImmutableStringValue newString(byte[] b, int off, int len)
     {
-        return new ImmutableStringValueImpl(Arrays.copyOfRange(b, off, len));
+        return newString(b, off, len, false);
+    }
+
+    public static ImmutableStringValue newString(byte[] b, int off, int len, boolean ref)
+    {
+        if (ref && off == 0 && len == b.length) {
+            return new ImmutableStringValueImpl(b);
+        }
+        else {
+            return new ImmutableStringValueImpl(Arrays.copyOfRange(b, off, len));
+        }
     }
 
     public static ImmutableArrayValue newArray(List<? extends Value> list)
@@ -124,7 +164,22 @@ public final class ValueFactory
         if (array.length == 0) {
             return ImmutableArrayValueImpl.empty();
         }
-        return new ImmutableArrayValueImpl(Arrays.copyOf(array, array.length));
+        else {
+            return new ImmutableArrayValueImpl(Arrays.copyOf(array, array.length));
+        }
+    }
+
+    public static ImmutableArrayValue newArray(Value[] array, boolean ref)
+    {
+        if (array.length == 0) {
+            return ImmutableArrayValueImpl.empty();
+        }
+        else if (ref) {
+            return new ImmutableArrayValueImpl(array);
+        }
+        else {
+            return new ImmutableArrayValueImpl(Arrays.copyOf(array, array.length));
+        }
     }
 
     public static ImmutableArrayValue emptyArray()
@@ -145,15 +200,30 @@ public final class ValueFactory
             kvs[index] = pair.getValue();
             index++;
         }
-        return newMap(kvs);
+        return new ImmutableMapValueImpl(kvs);
     }
 
-    public static ImmutableMapValue newMap(Value[] kvs)
+    public static ImmutableMapValue newMap(Value... kvs)
     {
         if (kvs.length == 0) {
             return ImmutableMapValueImpl.empty();
         }
-        return new ImmutableMapValueImpl(Arrays.copyOf(kvs, kvs.length));
+        else {
+            return new ImmutableMapValueImpl(Arrays.copyOf(kvs, kvs.length));
+        }
+    }
+
+    public static ImmutableMapValue newMap(Value[] kvs, boolean ref)
+    {
+        if (kvs.length == 0) {
+            return ImmutableMapValueImpl.empty();
+        }
+        else if (ref) {
+            return new ImmutableMapValueImpl(kvs);
+        }
+        else {
+            return new ImmutableMapValueImpl(Arrays.copyOf(kvs, kvs.length));
+        }
     }
 
     public static ImmutableMapValue emptyMap()
