@@ -26,11 +26,17 @@ public class ArrayBufferInput
         implements MessageBufferInput
 {
     private MessageBuffer buffer;
-    private boolean isRead = false;
+    private boolean isEmpty;
 
     public ArrayBufferInput(MessageBuffer buf)
     {
-        this.buffer = checkNotNull(buf, "input buffer is null");
+        this.buffer = buf;
+        if (buf == null) {
+            isEmpty = true;
+        }
+        else {
+            isEmpty = false;
+        }
     }
 
     public ArrayBufferInput(byte[] arr)
@@ -54,10 +60,10 @@ public class ArrayBufferInput
         MessageBuffer old = this.buffer;
         this.buffer = buf;
         if (buf == null) {
-            this.isRead = true;
+            isEmpty = true;
         }
         else {
-            this.isRead = false;
+            isEmpty = false;
         }
         return old;
     }
@@ -76,10 +82,10 @@ public class ArrayBufferInput
     public MessageBuffer next()
             throws IOException
     {
-        if (isRead) {
+        if (isEmpty) {
             return null;
         }
-        isRead = true;
+        isEmpty = true;
         return buffer;
     }
 
@@ -88,6 +94,6 @@ public class ArrayBufferInput
             throws IOException
     {
         buffer = null;
-        isRead = true;
+        isEmpty = true;
     }
 }
