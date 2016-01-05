@@ -1,7 +1,7 @@
 # Release Notes
 
 * 0.8.0
- * Changed MessageBuffer API to alloww releasing the previously allocated buffers upon MessageBufferInput.next() call.
+ * Changed MessageBuffer API to allow releasing the previously allocated buffers upon MessageBufferInput.next() call.
  * Split MessagePack.Config into MessagePack.Packer/UnpackerConfig 
  * Performance improvement of packString
 
