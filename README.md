@@ -5,7 +5,7 @@ MessagePack for Java
 
  * Message Pack specification: <https://github.com/msgpack/msgpack/blob/master/spec.md>
 
-MessagePack v7 (0.7.x) is a faster implementation of the previous version [v06](https://github.com/msgpack/msgpack-java/tree/v06), and
+MessagePack v7 (or later) is a faster implementation of the previous version [v06](https://github.com/msgpack/msgpack-java/tree/v06), and
 supports all of the message pack types, including [extension format](https://github.com/msgpack/msgpack/blob/master/spec.md#formats-ext).
 
 ## Limitation
@@ -18,13 +18,13 @@ For Maven users:
 <dependency>
    <groupId>org.msgpack</groupId>
    <artifactId>msgpack-core</artifactId>
-   <version>0.7.1</version>
+   <version>0.8.0</version>
 </dependency>
 ```
 
 For sbt users:
 ```
-libraryDependencies += "org.msgpack" % "msgpack-core" % "0.7.1"
+libraryDependencies += "org.msgpack" % "msgpack-core" % "0.8.0"
 ```
 
 For gradle users:
@@ -34,7 +34,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.msgpack:msgpack-core:0.7.1'
+    compile 'org.msgpack:msgpack-core:0.8.0'
 }
 ```
 
