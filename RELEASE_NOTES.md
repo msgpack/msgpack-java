@@ -1,5 +1,10 @@
 # Release Notes
 
+* 0.8.0
+ * Changed MessageBuffer API to alloww releasing the previously allocated buffers upon MessageBufferInput.next() call.
+ * Split MessagePack.Config into MessagePack.Packer/UnpackerConfig 
+ * Performance improvement of packString
+
 * 0.7.1
  * Fix ImmutableLongValueImpl#asShort [#287](https://github.com/msgpack/msgpack-java/pull/287)
 
