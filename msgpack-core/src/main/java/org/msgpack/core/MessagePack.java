@@ -239,6 +239,8 @@ public class MessagePack
 
         private int bufferFlushThreshold = 8192;
 
+        private int bufferSize = 8192;
+
         /**
          * Create a packer that outputs the packed data to a given output
          *
@@ -258,7 +260,7 @@ public class MessagePack
          */
         public MessagePacker newPacker(OutputStream out)
         {
-            return newPacker(new OutputStreamBufferOutput(out));
+            return newPacker(new OutputStreamBufferOutput(out, bufferSize));
         }
 
         /**
@@ -269,7 +271,7 @@ public class MessagePack
          */
         public MessagePacker newPacker(WritableByteChannel channel)
         {
-            return newPacker(new ChannelBufferOutput(channel));
+            return newPacker(new ChannelBufferOutput(channel, bufferSize));
         }
 
         /**
@@ -299,7 +301,7 @@ public class MessagePack
 
         /**
          * When the next payload size exceeds this threshold, MessagePacker will call MessageBufferOutput.flush() before
-         * packing the data.
+         * packing the data (default: 8192).
          */
         public PackerConfig setBufferFlushThreshold(int bytes)
         {
@@ -310,6 +312,21 @@ public class MessagePack
         public int getBufferFlushThreshold()
         {
             return bufferFlushThreshold;
+        }
+
+        /**
+         * When a packer is created with newPacker(OutputStream) or newPacker(WritableByteChannel), the stream will be
+         * buffered with this size of buffer (default: 8192).
+         */
+        public PackerConfig setBufferSize(int bytes)
+        {
+            this.bufferSize = bytes;
+            return this;
+        }
+
+        public int getBufferSize()
+        {
+            return bufferSize;
         }
     }
 
@@ -327,6 +344,8 @@ public class MessagePack
         private CodingErrorAction actionOnUnmappableString = CodingErrorAction.REPLACE;
 
         private int stringSizeLimit = Integer.MAX_VALUE;
+
+        private int bufferSize = 8192;
 
         /**
          *
@@ -352,7 +371,7 @@ public class MessagePack
          */
         public MessageUnpacker newUnpacker(InputStream in)
         {
-            return newUnpacker(new InputStreamBufferInput(in));
+            return newUnpacker(new InputStreamBufferInput(in, bufferSize));
         }
 
         /**
@@ -363,7 +382,7 @@ public class MessagePack
          */
         public MessageUnpacker newUnpacker(ReadableByteChannel channel)
         {
-            return newUnpacker(new ChannelBufferInput(channel));
+            return newUnpacker(new ChannelBufferInput(channel, bufferSize));
         }
 
         /**
@@ -389,7 +408,7 @@ public class MessagePack
         }
 
         /**
-         * Allow unpackBinaryHeader to read str format family  (default:true)
+         * Allow unpackBinaryHeader to read str format family  (default: true)
          */
         public UnpackerConfig setAllowReadingStringAsBinary(boolean enable)
         {
@@ -445,7 +464,7 @@ public class MessagePack
         }
 
         /**
-         * unpackString size limit. (default: Integer.MAX_VALUE)
+         * unpackString size limit (default: Integer.MAX_VALUE).
          */
         public UnpackerConfig setStringSizeLimit(int bytes)
         {
@@ -470,6 +489,21 @@ public class MessagePack
         public int getStringDecoderBufferSize()
         {
             return stringDecoderBufferSize;
+        }
+
+        /**
+         * When a packer is created with newUnpacker(OutputStream) or newUnpacker(WritableByteChannel), the stream will be
+         * buffered with this size of buffer (default: 8192).
+         */
+        public UnpackerConfig setBufferSize(int bytes)
+        {
+            this.bufferSize = bytes;
+            return this;
+        }
+
+        public int getBufferSize()
+        {
+            return bufferSize;
         }
     }
 }
