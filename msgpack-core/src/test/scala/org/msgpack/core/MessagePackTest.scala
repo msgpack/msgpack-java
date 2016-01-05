@@ -337,8 +337,9 @@ class MessagePackTest extends MessagePackSpec {
 
       // Report error on unmappable character
       val unpackerConfig = new UnpackerConfig()
-      unpackerConfig.actionOnMalformedString = CodingErrorAction.REPORT
-      unpackerConfig.actionOnUnmappableString = CodingErrorAction.REPORT
+      unpackerConfig
+          .setActionOnMalformedString(CodingErrorAction.REPORT)
+          .setActionOnUnmappableString(CodingErrorAction.REPORT)
 
       for (bytes <- Seq(unmappable)) {
         When("unpacking")

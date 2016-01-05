@@ -114,8 +114,8 @@ public class MessagePacker
     {
         this.out = checkNotNull(out, "MessageBufferOutput is null");
         // We must copy the configuration parameters here since the config object is mutable
-        this.smallStringOptimizationThreshold = config.smallStringOptimizationThreshold;
-        this.bufferFlushThreshold = config.bufferFlushThreshold;
+        this.smallStringOptimizationThreshold = config.getSmallStringOptimizationThreshold();
+        this.bufferFlushThreshold = config.getBufferFlushThreshold();
         this.position = 0;
         this.totalFlushBytes = 0;
     }
