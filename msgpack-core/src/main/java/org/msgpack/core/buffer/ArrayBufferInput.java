@@ -40,20 +40,25 @@ public class ArrayBufferInput
 
     public ArrayBufferInput(byte[] arr, int offset, int length)
     {
-        this(MessageBuffer.wrap(checkNotNull(arr, "input array is null")).slice(offset, length));
+        this(MessageBuffer.wrap(checkNotNull(arr, "input array is null"), offset, length));
     }
 
     /**
-     * Reset buffer. This method doesn't close the old resource.
+     * Reset buffer. This method returns the old buffer.
      *
-     * @param buf new buffer
-     * @return the old resource
+     * @param buf new buffer. This can be null to make this input empty.
+     * @return the old buffer.
      */
     public MessageBuffer reset(MessageBuffer buf)
     {
         MessageBuffer old = this.buffer;
         this.buffer = buf;
-        this.isRead = false;
+        if (buf == null) {
+            this.isRead = true;
+        }
+        else {
+            this.isRead = false;
+        }
         return old;
     }
 
@@ -64,7 +69,7 @@ public class ArrayBufferInput
 
     public void reset(byte[] arr, int offset, int len)
     {
-        reset(MessageBuffer.wrap(checkNotNull(arr, "input array is null")).slice(offset, len));
+        reset(MessageBuffer.wrap(checkNotNull(arr, "input array is null"), offset, len));
     }
 
     @Override
@@ -83,6 +88,6 @@ public class ArrayBufferInput
             throws IOException
     {
         buffer = null;
-        isRead = false;
+        isRead = true;
     }
 }
