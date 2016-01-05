@@ -1,8 +1,12 @@
 # Release Notes
 
 * 0.8.0
- * Changed MessageBuffer API to allow releasing the previously allocated buffers upon MessageBufferInput.next() call.
  * Split MessagePack.Config into MessagePack.Packer/UnpackerConfig 
+ * Changed MessageBuffer API 
+   * It allows releasing the previously allocated buffers upon MessageBufferInput.next() call.
+   * MessageBufferOutput now can read data from external byte arrays
+ * MessagePacker supports addPayload(byte[]) to feed the data from an external data source 
+   * This saves the cost of copying large data to the internal message buffer
  * Performance improvement of packString
 
 * 0.7.1
