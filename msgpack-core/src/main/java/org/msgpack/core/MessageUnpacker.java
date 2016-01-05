@@ -122,11 +122,12 @@ public class MessageUnpacker
     private CharBuffer decodeBuffer;
 
     /**
-     * Create an MessageUnpacker that reads data from the given MessageBufferInput
+     * Create an MessageUnpacker that reads data from the given MessageBufferInput.
+     * This method is available for subclasses to override. Use MessagePack.UnpackerConfig.newUnpacker method to instanciate this implementation.
      *
      * @param in
      */
-    public MessageUnpacker(MessageBufferInput in, MessagePack.UnpackerConfig config)
+    protected MessageUnpacker(MessageBufferInput in, MessagePack.UnpackerConfig config)
     {
         this.in = checkNotNull(in, "MessageBufferInput is null");
         // We need to copy the configuration parameters since the config object is mutable

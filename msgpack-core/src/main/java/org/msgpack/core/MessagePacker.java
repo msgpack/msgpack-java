@@ -105,12 +105,13 @@ public class MessagePacker
     private CharsetEncoder encoder;
 
     /**
-     * Create an MessagePacker that outputs the packed data to the given {@link org.msgpack.core.buffer.MessageBufferOutput}
+     * Create an MessagePacker that outputs the packed data to the given {@link org.msgpack.core.buffer.MessageBufferOutput}.
+     * This method is available for subclasses to override. Use MessagePack.PackerConfig.newPacker method to instanciate this implementation.
      *
      * @param out MessageBufferOutput. Use {@link org.msgpack.core.buffer.OutputStreamBufferOutput}, {@link org.msgpack.core.buffer.ChannelBufferOutput} or
      * your own implementation of {@link org.msgpack.core.buffer.MessageBufferOutput} interface.
      */
-    public MessagePacker(MessageBufferOutput out, MessagePack.PackerConfig config)
+    protected MessagePacker(MessageBufferOutput out, MessagePack.PackerConfig config)
     {
         this.out = checkNotNull(out, "MessageBufferOutput is null");
         // We must copy the configuration parameters here since the config object is mutable
