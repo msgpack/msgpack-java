@@ -90,9 +90,9 @@ public final class ValueFactory
         return newBinary(b, false);
     }
 
-    public static ImmutableBinaryValue newBinary(byte[] b, boolean ref)
+    public static ImmutableBinaryValue newBinary(byte[] b, boolean omitCopy)
     {
-        if (ref) {
+        if (omitCopy) {
             return new ImmutableBinaryValueImpl(b);
         }
         else {
@@ -105,9 +105,9 @@ public final class ValueFactory
         return newBinary(b, off, len, false);
     }
 
-    public static ImmutableBinaryValue newBinary(byte[] b, int off, int len, boolean ref)
+    public static ImmutableBinaryValue newBinary(byte[] b, int off, int len, boolean omitCopy)
     {
-        if (ref && off == 0 && len == b.length) {
+        if (omitCopy && off == 0 && len == b.length) {
             return new ImmutableBinaryValueImpl(b);
         }
         else {
@@ -125,9 +125,9 @@ public final class ValueFactory
         return new ImmutableStringValueImpl(b);
     }
 
-    public static ImmutableStringValue newString(byte[] b, boolean ref)
+    public static ImmutableStringValue newString(byte[] b, boolean omitCopy)
     {
-        if (ref) {
+        if (omitCopy) {
             return new ImmutableStringValueImpl(b);
         }
         else {
@@ -140,9 +140,9 @@ public final class ValueFactory
         return newString(b, off, len, false);
     }
 
-    public static ImmutableStringValue newString(byte[] b, int off, int len, boolean ref)
+    public static ImmutableStringValue newString(byte[] b, int off, int len, boolean omitCopy)
     {
-        if (ref && off == 0 && len == b.length) {
+        if (omitCopy && off == 0 && len == b.length) {
             return new ImmutableStringValueImpl(b);
         }
         else {
@@ -169,12 +169,12 @@ public final class ValueFactory
         }
     }
 
-    public static ImmutableArrayValue newArray(Value[] array, boolean ref)
+    public static ImmutableArrayValue newArray(Value[] array, boolean omitCopy)
     {
         if (array.length == 0) {
             return ImmutableArrayValueImpl.empty();
         }
-        else if (ref) {
+        else if (omitCopy) {
             return new ImmutableArrayValueImpl(array);
         }
         else {
@@ -213,12 +213,12 @@ public final class ValueFactory
         }
     }
 
-    public static ImmutableMapValue newMap(Value[] kvs, boolean ref)
+    public static ImmutableMapValue newMap(Value[] kvs, boolean omitCopy)
     {
         if (kvs.length == 0) {
             return ImmutableMapValueImpl.empty();
         }
-        else if (ref) {
+        else if (omitCopy) {
             return new ImmutableMapValueImpl(kvs);
         }
         else {
