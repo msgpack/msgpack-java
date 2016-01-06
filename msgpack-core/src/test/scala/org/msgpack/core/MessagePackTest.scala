@@ -47,7 +47,6 @@ class MessagePackTest extends MessagePackSpec {
     }
   }
 
-
   "MessagePack" should {
     "detect fixint values" in {
 
@@ -497,5 +496,43 @@ class MessagePackTest extends MessagePackSpec {
       })
     }
 
+  }
+
+  "MessagePack.PackerConfig" should {
+    "be immutable" in {
+      val a = new MessagePack.PackerConfig()
+      val b = a.withBufferSize(64*1024)
+      a.equals(b) shouldBe false
+    }
+
+    "implement equals" in {
+      val a = new MessagePack.PackerConfig()
+      val b = new MessagePack.PackerConfig()
+      a.equals(b) shouldBe true
+      a.withBufferSize(64*1024).equals(b) shouldBe false
+      a.withSmallStringOptimizationThreshold(64).equals(b) shouldBe false
+      a.withBufferFlushThreshold(64*1024).equals(b) shouldBe false
+    }
+  }
+
+  "MessagePack.UnpackerConfig" should {
+    "be immutable" in {
+      val a = new MessagePack.UnpackerConfig()
+      val b = a.withBufferSize(64*1024)
+      a.equals(b) shouldBe false
+    }
+
+    "implement equals" in {
+      val a = new MessagePack.UnpackerConfig()
+      val b = new MessagePack.UnpackerConfig()
+      a.equals(b) shouldBe true
+      a.withBufferSize(64*1024).equals(b) shouldBe false
+      a.withAllowReadingStringAsBinary(false).equals(b) shouldBe false
+      a.withAllowReadingBinaryAsString(false).equals(b) shouldBe false
+      a.withActionOnMalformedString(CodingErrorAction.REPORT).equals(b) shouldBe false
+      a.withActionOnUnmappableString(CodingErrorAction.REPORT).equals(b) shouldBe false
+      a.withStringSizeLimit(32).equals(b) shouldBe false
+      a.withStringDecoderBufferSize(32).equals(b) shouldBe false
+    }
   }
 }

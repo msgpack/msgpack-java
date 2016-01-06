@@ -380,9 +380,6 @@ public class MessagePack
 
         private int bufferSize = 8192;
 
-        /**
-         *
-         */
         private int stringDecoderBufferSize = 8192;
 
         public UnpackerConfig()
@@ -416,6 +413,7 @@ public class MessagePack
                     && this.actionOnMalformedString == o.actionOnMalformedString
                     && this.actionOnUnmappableString == o.actionOnUnmappableString
                     && this.stringSizeLimit == o.stringSizeLimit
+                    && this.stringDecoderBufferSize == o.stringDecoderBufferSize
                     && this.bufferSize == o.bufferSize;
         }
 
