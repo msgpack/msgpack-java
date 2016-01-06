@@ -131,12 +131,12 @@ public class MessageUnpacker
     {
         this.in = checkNotNull(in, "MessageBufferInput is null");
         // We need to copy the configuration parameters since the config object is mutable
-        this.allowReadingStringAsBinary = config.allowReadingStringAsBinary;
-        this.allowReadingBinaryAsString = config.allowReadingBinaryAsString;
-        this.actionOnMalformedString = config.actionOnMalformedString;
-        this.actionOnUnmappableString = config.actionOnUnmappableString;
-        this.stringSizeLimit = config.stringSizeLimit;
-        this.stringDecoderBufferSize = config.stringDecoderBufferSize;
+        this.allowReadingStringAsBinary = config.getAllowReadingStringAsBinary();
+        this.allowReadingBinaryAsString = config.getAllowReadingBinaryAsString();
+        this.actionOnMalformedString = config.getActionOnMalformedString();
+        this.actionOnUnmappableString = config.getActionOnUnmappableString();
+        this.stringSizeLimit = config.getStringSizeLimit();
+        this.stringDecoderBufferSize = config.getStringDecoderBufferSize();
     }
 
     /**

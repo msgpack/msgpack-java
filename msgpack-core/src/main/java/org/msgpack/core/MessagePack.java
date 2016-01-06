@@ -235,17 +235,11 @@ public class MessagePack
      */
     public static class PackerConfig
     {
-        /**
-         * Use String.getBytes() for converting Java Strings that are smaller than this threshold into UTF8.
-         * Note that this parameter is subject to change.
-         */
-        public int smallStringOptimizationThreshold = 512;
+        private int smallStringOptimizationThreshold = 512;
 
-        /**
-         * When the next payload size exceeds this threshold, MessagePacker will call MessageBufferOutput.flush() before
-         * packing the data.
-         */
-        public int bufferFlushThreshold = 8192;
+        private int bufferFlushThreshold = 8192;
+
+        private int bufferSize = 8192;
 
         /**
          * Create a packer that outputs the packed data to a given output
@@ -266,7 +260,7 @@ public class MessagePack
          */
         public MessagePacker newPacker(OutputStream out)
         {
-            return newPacker(new OutputStreamBufferOutput(out));
+            return newPacker(new OutputStreamBufferOutput(out, bufferSize));
         }
 
         /**
@@ -277,7 +271,7 @@ public class MessagePack
          */
         public MessagePacker newPacker(WritableByteChannel channel)
         {
-            return newPacker(new ChannelBufferOutput(channel));
+            return newPacker(new ChannelBufferOutput(channel, bufferSize));
         }
 
         /**
@@ -289,6 +283,51 @@ public class MessagePack
         {
             return new MessageBufferPacker(this);
         }
+
+        /**
+         * Use String.getBytes() for converting Java Strings that are smaller than this threshold into UTF8.
+         * Note that this parameter is subject to change.
+         */
+        public PackerConfig setSmallStringOptimizationThreshold(int bytes)
+        {
+            this.smallStringOptimizationThreshold = bytes;
+            return this;
+        }
+
+        public int getSmallStringOptimizationThreshold()
+        {
+            return smallStringOptimizationThreshold;
+        }
+
+        /**
+         * When the next payload size exceeds this threshold, MessagePacker will call MessageBufferOutput.flush() before
+         * packing the data (default: 8192).
+         */
+        public PackerConfig setBufferFlushThreshold(int bytes)
+        {
+            this.bufferFlushThreshold = bytes;
+            return this;
+        }
+
+        public int getBufferFlushThreshold()
+        {
+            return bufferFlushThreshold;
+        }
+
+        /**
+         * When a packer is created with newPacker(OutputStream) or newPacker(WritableByteChannel), the stream will be
+         * buffered with this size of buffer (default: 8192).
+         */
+        public PackerConfig setBufferSize(int bytes)
+        {
+            this.bufferSize = bytes;
+            return this;
+        }
+
+        public int getBufferSize()
+        {
+            return bufferSize;
+        }
     }
 
     /**
@@ -296,35 +335,22 @@ public class MessagePack
      */
     public static class UnpackerConfig
     {
-        /**
-         * Allow unpackBinaryHeader to read str format family  (default:true)
-         */
-        public boolean allowReadingStringAsBinary = true;
+        private boolean allowReadingStringAsBinary = true;
 
-        /**
-         * Allow unpackRawStringHeader and unpackString to read bin format family (default: true)
-         */
-        public boolean allowReadingBinaryAsString = true;
+        private boolean allowReadingBinaryAsString = true;
 
-        /**
-         * Action when encountered a malformed input
-         */
-        public CodingErrorAction actionOnMalformedString = CodingErrorAction.REPLACE;
+        private CodingErrorAction actionOnMalformedString = CodingErrorAction.REPLACE;
 
-        /**
-         * Action when an unmappable character is found
-         */
-        public CodingErrorAction actionOnUnmappableString = CodingErrorAction.REPLACE;
+        private CodingErrorAction actionOnUnmappableString = CodingErrorAction.REPLACE;
 
-        /**
-         * unpackString size limit. (default: Integer.MAX_VALUE)
-         */
-        public int stringSizeLimit = Integer.MAX_VALUE;
+        private int stringSizeLimit = Integer.MAX_VALUE;
+
+        private int bufferSize = 8192;
 
         /**
          *
          */
-        public int stringDecoderBufferSize = 8192;
+        private int stringDecoderBufferSize = 8192;
 
         /**
          * Create an unpacker that reads the data from a given input
@@ -345,7 +371,7 @@ public class MessagePack
          */
         public MessageUnpacker newUnpacker(InputStream in)
         {
-            return newUnpacker(new InputStreamBufferInput(in));
+            return newUnpacker(new InputStreamBufferInput(in, bufferSize));
         }
 
         /**
@@ -356,7 +382,7 @@ public class MessagePack
          */
         public MessageUnpacker newUnpacker(ReadableByteChannel channel)
         {
-            return newUnpacker(new ChannelBufferInput(channel));
+            return newUnpacker(new ChannelBufferInput(channel, bufferSize));
         }
 
         /**
@@ -379,6 +405,105 @@ public class MessagePack
         public MessageUnpacker newUnpacker(byte[] contents, int offset, int length)
         {
             return newUnpacker(new ArrayBufferInput(contents, offset, length));
+        }
+
+        /**
+         * Allow unpackBinaryHeader to read str format family  (default: true)
+         */
+        public UnpackerConfig setAllowReadingStringAsBinary(boolean enable)
+        {
+            this.allowReadingStringAsBinary = enable;
+            return this;
+        }
+
+        public boolean getAllowReadingStringAsBinary()
+        {
+            return allowReadingStringAsBinary;
+        }
+
+        /**
+         * Allow unpackString and unpackRawStringHeader and unpackString to read bin format family (default: true)
+         */
+        public UnpackerConfig setAllowReadingBinaryAsString(boolean enable)
+        {
+            this.allowReadingBinaryAsString = enable;
+            return this;
+        }
+
+        public boolean getAllowReadingBinaryAsString()
+        {
+            return allowReadingBinaryAsString;
+        }
+
+        /**
+         * Action when encountered a malformed input (default: REPLACE)
+         */
+        public UnpackerConfig setActionOnMalformedString(CodingErrorAction action)
+        {
+            this.actionOnMalformedString = action;
+            return this;
+        }
+
+        public CodingErrorAction getActionOnMalformedString()
+        {
+            return actionOnMalformedString;
+        }
+
+        /**
+         * Action when an unmappable character is found (default: REPLACE)
+         */
+        public UnpackerConfig setActionOnUnmappableString(CodingErrorAction action)
+        {
+            this.actionOnUnmappableString = action;
+            return this;
+        }
+
+        public CodingErrorAction getActionOnUnmappableString()
+        {
+            return actionOnUnmappableString;
+        }
+
+        /**
+         * unpackString size limit (default: Integer.MAX_VALUE).
+         */
+        public UnpackerConfig setStringSizeLimit(int bytes)
+        {
+            this.stringSizeLimit = bytes;
+            return this;
+        }
+
+        public int getStringSizeLimit()
+        {
+            return stringSizeLimit;
+        }
+
+        /**
+         *
+         */
+        public UnpackerConfig setStringDecoderBufferSize(int bytes)
+        {
+            this.stringDecoderBufferSize = bytes;
+            return this;
+        }
+
+        public int getStringDecoderBufferSize()
+        {
+            return stringDecoderBufferSize;
+        }
+
+        /**
+         * When a packer is created with newUnpacker(OutputStream) or newUnpacker(WritableByteChannel), the stream will be
+         * buffered with this size of buffer (default: 8192).
+         */
+        public UnpackerConfig setBufferSize(int bytes)
+        {
+            this.bufferSize = bytes;
+            return this;
+        }
+
+        public int getBufferSize()
+        {
+            return bufferSize;
         }
     }
 }
