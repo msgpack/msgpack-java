@@ -234,12 +234,41 @@ public class MessagePack
      * MessagePacker configuration.
      */
     public static class PackerConfig
+            implements Cloneable
     {
         private int smallStringOptimizationThreshold = 512;
 
         private int bufferFlushThreshold = 8192;
 
         private int bufferSize = 8192;
+
+        public PackerConfig()
+        { }
+
+        private PackerConfig(PackerConfig copy)
+        {
+            this.smallStringOptimizationThreshold = smallStringOptimizationThreshold;
+            this.bufferFlushThreshold = bufferFlushThreshold;
+            this.bufferSize = bufferSize;
+        }
+
+        @Override
+        public PackerConfig clone()
+        {
+            return new PackerConfig(this);
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (!(obj instanceof PackerConfig)) {
+                return false;
+            }
+            PackerConfig o = (PackerConfig) obj;
+            return this.smallStringOptimizationThreshold == o.smallStringOptimizationThreshold
+                    && this.bufferFlushThreshold == o.bufferFlushThreshold
+                    && this.bufferSize == o.bufferSize;
+        }
 
         /**
          * Create a packer that outputs the packed data to a given output
@@ -288,10 +317,11 @@ public class MessagePack
          * Use String.getBytes() for converting Java Strings that are smaller than this threshold into UTF8.
          * Note that this parameter is subject to change.
          */
-        public PackerConfig setSmallStringOptimizationThreshold(int bytes)
+        public PackerConfig withSmallStringOptimizationThreshold(int bytes)
         {
-            this.smallStringOptimizationThreshold = bytes;
-            return this;
+            PackerConfig copy = clone();
+            copy.smallStringOptimizationThreshold = bytes;
+            return copy;
         }
 
         public int getSmallStringOptimizationThreshold()
@@ -303,10 +333,11 @@ public class MessagePack
          * When the next payload size exceeds this threshold, MessagePacker will call MessageBufferOutput.flush() before
          * packing the data (default: 8192).
          */
-        public PackerConfig setBufferFlushThreshold(int bytes)
+        public PackerConfig withBufferFlushThreshold(int bytes)
         {
-            this.bufferFlushThreshold = bytes;
-            return this;
+            PackerConfig copy = clone();
+            copy.bufferFlushThreshold = bytes;
+            return copy;
         }
 
         public int getBufferFlushThreshold()
@@ -318,10 +349,11 @@ public class MessagePack
          * When a packer is created with newPacker(OutputStream) or newPacker(WritableByteChannel), the stream will be
          * buffered with this size of buffer (default: 8192).
          */
-        public PackerConfig setBufferSize(int bytes)
+        public PackerConfig withBufferSize(int bytes)
         {
-            this.bufferSize = bytes;
-            return this;
+            PackerConfig copy = clone();
+            copy.bufferSize = bytes;
+            return copy;
         }
 
         public int getBufferSize()
@@ -334,6 +366,7 @@ public class MessagePack
      * MessageUnpacker configuration.
      */
     public static class UnpackerConfig
+            implements Cloneable
     {
         private boolean allowReadingStringAsBinary = true;
 
@@ -351,6 +384,40 @@ public class MessagePack
          *
          */
         private int stringDecoderBufferSize = 8192;
+
+        public UnpackerConfig()
+        { }
+
+        private UnpackerConfig(UnpackerConfig copy)
+        {
+            this.allowReadingStringAsBinary = copy.allowReadingStringAsBinary;
+            this.allowReadingBinaryAsString = copy.allowReadingBinaryAsString;
+            this.actionOnMalformedString = copy.actionOnMalformedString;
+            this.actionOnUnmappableString = copy.actionOnUnmappableString;
+            this.stringSizeLimit = copy.stringSizeLimit;
+            this.bufferSize = copy.bufferSize;
+        }
+
+        @Override
+        public UnpackerConfig clone()
+        {
+            return new UnpackerConfig(this);
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (!(obj instanceof UnpackerConfig)) {
+                return false;
+            }
+            UnpackerConfig o = (UnpackerConfig) obj;
+            return this.allowReadingStringAsBinary == o.allowReadingStringAsBinary
+                    && this.allowReadingBinaryAsString == o.allowReadingBinaryAsString
+                    && this.actionOnMalformedString == o.actionOnMalformedString
+                    && this.actionOnUnmappableString == o.actionOnUnmappableString
+                    && this.stringSizeLimit == o.stringSizeLimit
+                    && this.bufferSize == o.bufferSize;
+        }
 
         /**
          * Create an unpacker that reads the data from a given input
@@ -410,10 +477,11 @@ public class MessagePack
         /**
          * Allow unpackBinaryHeader to read str format family  (default: true)
          */
-        public UnpackerConfig setAllowReadingStringAsBinary(boolean enable)
+        public UnpackerConfig withAllowReadingStringAsBinary(boolean enable)
         {
-            this.allowReadingStringAsBinary = enable;
-            return this;
+            UnpackerConfig copy = clone();
+            copy.allowReadingStringAsBinary = enable;
+            return copy;
         }
 
         public boolean getAllowReadingStringAsBinary()
@@ -424,10 +492,11 @@ public class MessagePack
         /**
          * Allow unpackString and unpackRawStringHeader and unpackString to read bin format family (default: true)
          */
-        public UnpackerConfig setAllowReadingBinaryAsString(boolean enable)
+        public UnpackerConfig withAllowReadingBinaryAsString(boolean enable)
         {
-            this.allowReadingBinaryAsString = enable;
-            return this;
+            UnpackerConfig copy = clone();
+            copy.allowReadingBinaryAsString = enable;
+            return copy;
         }
 
         public boolean getAllowReadingBinaryAsString()
@@ -438,10 +507,11 @@ public class MessagePack
         /**
          * Action when encountered a malformed input (default: REPLACE)
          */
-        public UnpackerConfig setActionOnMalformedString(CodingErrorAction action)
+        public UnpackerConfig withActionOnMalformedString(CodingErrorAction action)
         {
-            this.actionOnMalformedString = action;
-            return this;
+            UnpackerConfig copy = clone();
+            copy.actionOnMalformedString = action;
+            return copy;
         }
 
         public CodingErrorAction getActionOnMalformedString()
@@ -452,10 +522,11 @@ public class MessagePack
         /**
          * Action when an unmappable character is found (default: REPLACE)
          */
-        public UnpackerConfig setActionOnUnmappableString(CodingErrorAction action)
+        public UnpackerConfig withActionOnUnmappableString(CodingErrorAction action)
         {
-            this.actionOnUnmappableString = action;
-            return this;
+            UnpackerConfig copy = clone();
+            copy.actionOnUnmappableString = action;
+            return copy;
         }
 
         public CodingErrorAction getActionOnUnmappableString()
@@ -466,10 +537,11 @@ public class MessagePack
         /**
          * unpackString size limit (default: Integer.MAX_VALUE).
          */
-        public UnpackerConfig setStringSizeLimit(int bytes)
+        public UnpackerConfig withStringSizeLimit(int bytes)
         {
-            this.stringSizeLimit = bytes;
-            return this;
+            UnpackerConfig copy = clone();
+            copy.stringSizeLimit = bytes;
+            return copy;
         }
 
         public int getStringSizeLimit()
@@ -480,10 +552,11 @@ public class MessagePack
         /**
          *
          */
-        public UnpackerConfig setStringDecoderBufferSize(int bytes)
+        public UnpackerConfig withStringDecoderBufferSize(int bytes)
         {
-            this.stringDecoderBufferSize = bytes;
-            return this;
+            UnpackerConfig copy = clone();
+            copy.stringDecoderBufferSize = bytes;
+            return copy;
         }
 
         public int getStringDecoderBufferSize()
@@ -495,10 +568,11 @@ public class MessagePack
          * When a packer is created with newUnpacker(OutputStream) or newUnpacker(WritableByteChannel), the stream will be
          * buffered with this size of buffer (default: 8192).
          */
-        public UnpackerConfig setBufferSize(int bytes)
+        public UnpackerConfig withBufferSize(int bytes)
         {
-            this.bufferSize = bytes;
-            return this;
+            UnpackerConfig copy = clone();
+            copy.bufferSize = bytes;
+            return copy;
         }
 
         public int getBufferSize()

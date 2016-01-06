@@ -129,7 +129,6 @@ public class MessageUnpacker
     public MessageUnpacker(MessageBufferInput in, MessagePack.UnpackerConfig config)
     {
         this.in = checkNotNull(in, "MessageBufferInput is null");
-        // We need to copy the configuration parameters since the config object is mutable
         this.allowReadingStringAsBinary = config.getAllowReadingStringAsBinary();
         this.allowReadingBinaryAsString = config.getAllowReadingBinaryAsString();
         this.actionOnMalformedString = config.getActionOnMalformedString();

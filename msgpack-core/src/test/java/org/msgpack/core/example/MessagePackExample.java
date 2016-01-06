@@ -247,7 +247,7 @@ public class MessagePackExample
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         MessagePacker packer = new PackerConfig()
-            .setSmallStringOptimizationThreshold(256) // String
+            .withSmallStringOptimizationThreshold(256) // String
             .newPacker(out);
 
         packer.packInt(10);
@@ -257,7 +257,7 @@ public class MessagePackExample
         // Unpack data
         byte[] packedData = out.toByteArray();
         MessageUnpacker unpacker = new UnpackerConfig()
-            .setStringDecoderBufferSize(16 * 1024) // If your data contains many large strings (the default is 8k)
+            .withStringDecoderBufferSize(16 * 1024) // If your data contains many large strings (the default is 8k)
             .newUnpacker(packedData);
         int i = unpacker.unpackInt();  // 10
         boolean b = unpacker.unpackBoolean(); // true

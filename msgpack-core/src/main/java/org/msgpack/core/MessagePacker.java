@@ -113,7 +113,6 @@ public class MessagePacker
     public MessagePacker(MessageBufferOutput out, MessagePack.PackerConfig config)
     {
         this.out = checkNotNull(out, "MessageBufferOutput is null");
-        // We must copy the configuration parameters here since the config object is mutable
         this.smallStringOptimizationThreshold = config.getSmallStringOptimizationThreshold();
         this.bufferFlushThreshold = config.getBufferFlushThreshold();
         this.position = 0;
