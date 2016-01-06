@@ -28,12 +28,12 @@ import java.util.List;
 public class MessageBufferPacker
         extends MessagePacker
 {
-    public MessageBufferPacker(MessagePack.PackerConfig config)
+    protected MessageBufferPacker(MessagePack.PackerConfig config)
     {
         this(new ArrayBufferOutput(), config);
     }
 
-    public MessageBufferPacker(ArrayBufferOutput out, MessagePack.PackerConfig config)
+    protected MessageBufferPacker(ArrayBufferOutput out, MessagePack.PackerConfig config)
     {
         super(out, config);
     }
