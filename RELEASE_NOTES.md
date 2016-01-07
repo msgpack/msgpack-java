@@ -1,5 +1,11 @@
 # Release Notes
 
+* 0.8.1
+ * MessagePack.Packer/UnpackerConfig are now immuable and configurable with withXXX methods.
+ * Allow setting null to ArrayBufferInput for advanced applications that require dedicated memory management.
+ * Fix MessageBufferPacker.toXXX to properly flush the output
+ * Modify ValueFactory methods to produce a copy of the input data. To omit the copy, use `omitCopy` flag.
+
 * 0.8.0
  * Split MessagePack.Config into MessagePack.Packer/UnpackerConfig 
  * Changed MessageBuffer API 
@@ -8,6 +14,7 @@
  * MessagePacker supports addPayload(byte[]) to feed the data from an external data source 
    * This saves the cost of copying large data to the internal message buffer
  * Performance improvement of packString
+ * Add MessageBufferPacker for efficiently generating byte array(s) of message packed data
 
 * 0.7.1
  * Fix ImmutableLongValueImpl#asShort [#287](https://github.com/msgpack/msgpack-java/pull/287)
