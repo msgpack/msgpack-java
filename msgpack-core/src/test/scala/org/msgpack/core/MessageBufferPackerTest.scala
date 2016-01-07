@@ -17,22 +17,21 @@ package org.msgpack.core
 
 import java.io.ByteArrayOutputStream
 
-import org.msgpack.value.Value
 import org.msgpack.value.ValueFactory._
 
 class MessageBufferPackerTest extends MessagePackSpec {
   "MessageBufferPacker" should {
     "be equivalent to ByteArrayOutputStream" in {
       val packer1 = MessagePack.newDefaultBufferPacker
-      packer1.packValue(newMap(Array[Value](
+      packer1.packValue(newMap(
         newString("a"), newInteger(1),
-        newString("b"), newString("s"))))
+        newString("b"), newString("s")))
 
       val stream = new ByteArrayOutputStream
       val packer2 = MessagePack.newDefaultPacker(stream)
-      packer2.packValue(newMap(Array[Value](
+      packer2.packValue(newMap(
         newString("a"), newInteger(1),
-        newString("b"), newString("s"))))
+        newString("b"), newString("s")))
       packer2.flush
 
       packer1.toByteArray shouldBe stream.toByteArray
