@@ -15,13 +15,13 @@ For Maven users:
 <dependency>
    <groupId>org.msgpack</groupId>
    <artifactId>msgpack-core</artifactId>
-   <version>0.8.0</version>
+   <version>0.8.1</version>
 </dependency>
 ```
 
 For sbt users:
 ```
-libraryDependencies += "org.msgpack" % "msgpack-core" % "0.8.0"
+libraryDependencies += "org.msgpack" % "msgpack-core" % "0.8.1"
 ```
 
 For gradle users:
@@ -31,7 +31,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.msgpack:msgpack-core:0.8.0'
+    compile 'org.msgpack:msgpack-core:0.8.1'
 }
 ```
 
