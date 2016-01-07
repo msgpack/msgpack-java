@@ -15,7 +15,7 @@ jdk:
 
 branches:
   only:
-    - /^v07.*$/
+    - develop
 
 script:
   - ./sbt test
