@@ -494,11 +494,11 @@ public class MessageUnpacker
                 return ValueFactory.newFloat(unpackDouble());
             case STRING: {
                 int length = unpackRawStringHeader();
-                return ValueFactory.newString(readPayload(length));
+                return ValueFactory.newString(readPayload(length), true);
             }
             case BINARY: {
                 int length = unpackBinaryHeader();
-                return ValueFactory.newBinary(readPayload(length));
+                return ValueFactory.newBinary(readPayload(length), true);
             }
             case ARRAY: {
                 int size = unpackArrayHeader();
@@ -506,7 +506,7 @@ public class MessageUnpacker
                 for (int i = 0; i < size; i++) {
                     array[i] = unpackValue();
                 }
-                return ValueFactory.newArray(array);
+                return ValueFactory.newArray(array, true);
             }
             case MAP: {
                 int size = unpackMapHeader();
@@ -517,7 +517,7 @@ public class MessageUnpacker
                     kvs[i] = unpackValue();
                     i++;
                 }
-                return ValueFactory.newMap(kvs);
+                return ValueFactory.newMap(kvs, true);
             }
             case EXTENSION: {
                 ExtensionTypeHeader extHeader = unpackExtensionTypeHeader();
