@@ -11,4 +11,4 @@ build
 lib
 .idea
 atlassian-ide-plugin.xml
-
+.idea/copyright/msgpack.xml
