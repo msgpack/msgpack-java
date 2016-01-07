@@ -5,7 +5,7 @@
  * Allow setting null to ArrayBufferInput for advanced applications that require dedicated memory management.
  * Fix MessageBufferPacker.toXXX to properly flush the output
  * Modify ValueFactory methods to produce a copy of the input data. To omit the copy, use `omitCopy` flag.
- * Improve the performance of MessagePackParser by unpacking data without org.msgpack.value.Value.
+ * Improve the performance of MessagePackParser by unpacking data without using org.msgpack.value.Value.
 
 * 0.8.0
  * Split MessagePack.Config into MessagePack.Packer/UnpackerConfig 
