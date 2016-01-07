@@ -246,20 +246,19 @@ public class MessagePackExample
             throws IOException
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        PackerConfig packerConfig = new PackerConfig();
-        packerConfig.smallStringOptimizationThreshold = 256; // String
-        MessagePacker packer = packerConfig.newPacker(out);
+        MessagePacker packer = new PackerConfig()
+            .withSmallStringOptimizationThreshold(256) // String
+            .newPacker(out);
 
         packer.packInt(10);
         packer.packBoolean(true);
         packer.close();
 
         // Unpack data
-        UnpackerConfig unpackerConfig = new UnpackerConfig();
-        unpackerConfig.stringDecoderBufferSize = 16 * 1024; // If your data contains many large strings (the default is 8k)
-
         byte[] packedData = out.toByteArray();
-        MessageUnpacker unpacker = unpackerConfig.newUnpacker(packedData);
+        MessageUnpacker unpacker = new UnpackerConfig()
+            .withStringDecoderBufferSize(16 * 1024) // If your data contains many large strings (the default is 8k)
+            .newUnpacker(packedData);
         int i = unpacker.unpackInt();  // 10
         boolean b = unpacker.unpackBoolean(); // true
         unpacker.close();
