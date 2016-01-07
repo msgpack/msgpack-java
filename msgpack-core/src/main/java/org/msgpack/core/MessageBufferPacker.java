@@ -59,16 +59,37 @@ public class MessageBufferPacker
 
     public byte[] toByteArray()
     {
+        try {
+            flush();
+        }
+        catch (IOException ex) {
+            // IOException must not happen because underlaying ArrayBufferOutput never throws IOException
+            throw new RuntimeException(ex);
+        }
         return getArrayBufferOut().toByteArray();
     }
 
     public MessageBuffer toMessageBuffer()
     {
+        try {
+            flush();
+        }
+        catch (IOException ex) {
+            // IOException must not happen because underlaying ArrayBufferOutput never throws IOException
+            throw new RuntimeException(ex);
+        }
         return getArrayBufferOut().toMessageBuffer();
     }
 
     public List<MessageBuffer> toBufferList()
     {
+        try {
+            flush();
+        }
+        catch (IOException ex) {
+            // IOException must not happen because underlaying ArrayBufferOutput never throws IOException
+            throw new RuntimeException(ex);
+        }
         return getArrayBufferOut().toBufferList();
     }
 }
