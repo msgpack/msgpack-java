@@ -29,7 +29,7 @@ import org.msgpack.value.impl.ImmutableStringValueImpl;
 import java.math.BigInteger;
 import java.util.AbstractMap;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -191,10 +191,8 @@ public final class ValueFactory
     ImmutableMapValue newMap(Map<K, V> map)
     {
         Value[] kvs = new Value[map.size() * 2];
-        Iterator<Map.Entry<K, V>> ite = map.entrySet().iterator();
         int index = 0;
-        while (ite.hasNext()) {
-            Map.Entry<K, V> pair = ite.next();
+        for (Map.Entry<K, V> pair : map.entrySet()) {
             kvs[index] = pair.getKey();
             index++;
             kvs[index] = pair.getValue();
@@ -252,7 +250,7 @@ public final class ValueFactory
 
     public static class MapBuilder
     {
-        private final Map<Value, Value> map = new HashMap<Value, Value>();
+        private final Map<Value, Value> map = new LinkedHashMap<Value, Value>();
 
         public MapBuilder() {}
 
