@@ -16,6 +16,7 @@
 package org.msgpack.value.impl;
 
 import org.msgpack.core.MessagePacker;
+import org.msgpack.value.ImmutableNumberValue;
 import org.msgpack.value.ImmutableFloatValue;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueType;
@@ -48,6 +49,18 @@ public class ImmutableDoubleValueImpl
 
     @Override
     public ImmutableDoubleValueImpl immutableValue()
+    {
+        return this;
+    }
+
+    @Override
+    public ImmutableNumberValue asNumberValue()
+    {
+        return this;
+    }
+
+    @Override
+    public ImmutableFloatValue asFloatValue()
     {
         return this;
     }

@@ -50,6 +50,12 @@ public class ImmutableBooleanValueImpl
     }
 
     @Override
+    public ImmutableBooleanValue asBooleanValue()
+    {
+        return this;
+    }
+
+    @Override
     public ImmutableBooleanValue immutableValue()
     {
         return this;
