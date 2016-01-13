@@ -28,7 +28,7 @@ public enum ValueType
     BINARY(false, true),
     ARRAY(false, false),
     MAP(false, false),
-    EXTENSION(false, true);
+    EXTENSION(false, false);
 
     private final boolean numberType;
     private final boolean rawType;
