@@ -62,7 +62,7 @@ class ValueFactoryTest
       isValid(ValueFactory.emptyArray(), expected = ValueType.ARRAY, isArray = true)
       isValid(ValueFactory.emptyMap(), expected = ValueType.MAP, isMap = true)
       forAll { (v: Array[Byte]) => isValid(ValueFactory.newExtension(0, v), expected = ValueType
-        .EXTENSION, isExtension = true, isRaw = true)
+        .EXTENSION, isExtension = true, isRaw = false)
       }
     }
   }
