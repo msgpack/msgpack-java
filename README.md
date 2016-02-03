@@ -52,7 +52,7 @@ msgpack-java uses [sbt](http://www.scala-sbt.org/) for building the projects. Fo
 
 Coding style
  * msgpack-java uses [the same coding style](https://github.com/airlift/codestyle) with Facebook Presto
-  * [IntelliJ setting file](https://raw.githubusercontent.com/airlift/codestyle/master/IntelliJIdea13/Airlift.xml)
+  * [IntelliJ setting file](https://raw.githubusercontent.com/airlift/codestyle/master/IntelliJIdea14/Airlift.xml)
 
 ### Basic sbt commands
 Enter the sbt console:
