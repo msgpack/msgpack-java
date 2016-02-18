@@ -97,7 +97,7 @@ lazy val msgpackJackson = Project(id = "msgpack-jackson", base = file("msgpack-j
           name := "jackson-dataformat-msgpack",
           description := "Jackson extension that adds support for MessagePack",
           libraryDependencies ++= Seq(
-            "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.3",
+            "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.1",
             junitInterface,
             "org.apache.commons" % "commons-math3" % "3.4.1" % "test"
           ),
