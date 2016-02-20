@@ -17,6 +17,7 @@ package org.msgpack.core
 
 import java.io._
 import java.nio.ByteBuffer
+import java.util.concurrent.{Callable, Executors}
 
 import org.msgpack.core.buffer._
 import org.msgpack.value.ValueType
@@ -686,6 +687,35 @@ class MessageUnpackerTest extends MessagePackSpec {
       Seq("\u3042", "a\u3042", "\u3042a", "\u3042\u3044\u3046\u3048\u304A\u304B\u304D\u304F\u3051\u3053\u3055\u3057\u3059\u305B\u305D").foreach { s =>
         Seq(8185, 8186, 8187, 8188, 16377, 16378, 16379, 16380).foreach { n => check(s, n)}
       }
+    }
+
+    "unpack" in {
+      val output = new PipedOutputStream
+      val input = new PipedInputStream(output)
+      val executor = Executors.newCachedThreadPool
+
+      val msgpack06 = new org.msgpack.MessagePack
+      val packer06 = msgpack06.createPacker(output)
+      val future = executor.submit(new Callable[Void]
+      {
+        override def call(): Void = {
+          try {
+            for (i <- 0 to 500) {
+              packer06.write(0x0011223344556677L)
+            }
+          }
+          finally {
+            packer06.close
+          }
+          return null
+        }
+      })
+
+      val unpacker = MessagePack.newDefaultUnpacker(input)
+      for (i <- 0 to 500) {
+        unpacker.unpackLong shouldBe 0x0011223344556677L
+      }
+      unpacker.close
     }
   }
 }
