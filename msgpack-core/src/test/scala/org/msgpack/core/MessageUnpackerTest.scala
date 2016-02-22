@@ -147,7 +147,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         val mapLen = unpacker.unpackMapHeader()
         debug(s"map size: $mapLen")
       case ValueType.INTEGER =>
-        val i = unpacker.unpackInt()
+        val i = unpacker.unpackLong()
         debug(s"int value: $i")
       case ValueType.STRING =>
         val s = unpacker.unpackString()
@@ -296,7 +296,23 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       new SplitTest {val data = testData}.run
       new SplitTest {val data = testData3(30)}.run
+    }
 
+    "read numeric data at buffer boundary" taggedAs("boundary2") in {
+      val packer = MessagePack.newDefaultBufferPacker()
+      (0 until 1170).foreach{i =>
+        packer.packLong(0x0011223344556677L)
+        packer.packString("hello")
+      }
+      packer.close
+      val data = packer.toByteArray
+
+      val unpacker = MessagePack.newDefaultUnpacker(new InputStreamBufferInput(new ByteArrayInputStream(data), 8192))
+      (0 until 1170).foreach { i =>
+        unpacker.unpackLong() shouldBe 0x0011223344556677L
+        unpacker.unpackString() shouldBe "hello"
+      }
+      unpacker.close()
     }
 
     "be faster then msgpack-v6 skip" taggedAs ("cmp-skip") in {
