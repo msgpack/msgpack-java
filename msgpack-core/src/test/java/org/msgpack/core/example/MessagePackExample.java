@@ -15,19 +15,15 @@
 //
 package org.msgpack.core.example;
 
-import org.msgpack.core.MessageFormat;
-import org.msgpack.core.MessagePack;
+import org.msgpack.core.*;
 import org.msgpack.core.MessagePack.PackerConfig;
 import org.msgpack.core.MessagePack.UnpackerConfig;
-import org.msgpack.core.MessagePacker;
-import org.msgpack.core.MessageUnpacker;
 import org.msgpack.value.ArrayValue;
 import org.msgpack.value.ExtensionValue;
 import org.msgpack.value.FloatValue;
 import org.msgpack.value.IntegerValue;
 import org.msgpack.value.Value;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -35,7 +31,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 
 /**
- * This class describes the usage of MessagePack v07
+ * This class describes the usage of MessagePack
  */
 public class MessagePackExample
 {
@@ -51,19 +47,19 @@ public class MessagePackExample
     public static void basicUsage()
             throws IOException
     {
-        // Serialize with MessagePacker
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        MessagePacker packer = MessagePack.newDefaultPacker(out);
+        // Serialize with MessagePacker.
+        // MessageBufferPacker is an optimized version of MessagePacker for packing data into a byte array
+        MessageBufferPacker packer = MessagePack.newDefaultBufferPacker();
         packer
                 .packInt(1)
                 .packString("leo")
                 .packArrayHeader(2)
                 .packString("xxx-xxxx")
                 .packString("yyy-yyyy");
-        packer.close();
+        packer.close(); // Never forget to close (or flush) the buffer
 
         // Deserialize with MessageUnpacker
-        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(out.toByteArray());
+        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(packer.toByteArray());
         int id = unpacker.unpackInt();             // 1
         String name = unpacker.unpackString();     // "leo"
         int numPhones = unpacker.unpackArrayHeader();  // 2
@@ -97,8 +93,7 @@ public class MessagePackExample
             throws IOException
     {
         // Create a MesagePacker (encoder) instance
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        MessagePacker packer = MessagePack.newDefaultPacker(out);
+        MessageBufferPacker packer = MessagePack.newDefaultBufferPacker();
 
         // pack (encode) primitive values in message pack format
         packer.packBoolean(true);
@@ -181,8 +176,7 @@ public class MessagePackExample
             // Here is a list of message pack data format: https://github.com/msgpack/msgpack/blob/master/spec.md#overview
             MessageFormat format = unpacker.getNextFormat();
 
-            // Alternatively you can use ValueHolder to extract a value of any type
-            // NOTE: Value interface is in a preliminary state, so the following code might change in future releases
+            // You can also use unpackValue to extract a value of any type
             Value v = unpacker.unpackValue();
             switch (v.getValueType()) {
                 case NIL:
@@ -245,17 +239,16 @@ public class MessagePackExample
     public static void configuration()
             throws IOException
     {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        MessagePacker packer = new PackerConfig()
+        MessageBufferPacker packer = new PackerConfig()
             .withSmallStringOptimizationThreshold(256) // String
-            .newPacker(out);
+            .newBufferPacker();
 
         packer.packInt(10);
         packer.packBoolean(true);
         packer.close();
 
         // Unpack data
-        byte[] packedData = out.toByteArray();
+        byte[] packedData = packer.toByteArray();
         MessageUnpacker unpacker = new UnpackerConfig()
             .withStringDecoderBufferSize(16 * 1024) // If your data contains many large strings (the default is 8k)
             .newUnpacker(packedData);
