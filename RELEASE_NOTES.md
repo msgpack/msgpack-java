@@ -1,5 +1,8 @@
 # Release Notes
 
+## 0.8.3 
+ * Fix a bug (#348), which wrongly overwrites the buffer before reading numeric data at the buffer boundary
+
 ## 0.8.2
  * Add some missing asXXX methods in Value
  * ValueFactory.MapBuilder now preserves the original element order (by using LinkedHashMap)
