@@ -208,32 +208,36 @@ public class MessageUnpacker
             position += readLength;  // here assumes following buffer.getXxx never throws exception
             return buffer; // Return the default buffer
         }
+        else if(remaining == 0) {
+            buffer = getNextBuffer();
+            position = readLength;
+            nextReadPosition = 0;
+            return buffer;
+        }
         else {
             // When the default buffer doesn't contain the whole length
+
+            // TODO This doesn't work if MessageBuffer is allocated by newDirectBuffer.
+            //      Add copy method to MessageBuffer to solve this issue.
+
+            // Copy the data fragment from the current buffer
+
+            numberBuffer.putBytes(0,
+                                  buffer.array(), buffer.arrayOffset() + position,
+                                  remaining);
 
             // TODO loop this method until castBuffer is filled
             MessageBuffer next = getNextBuffer();
 
-            if (remaining > 0) {
-                // TODO This doesn't work if MessageBuffer is allocated by newDirectBuffer.
-                //      Add copy method to MessageBuffer to solve this issue.
+            numberBuffer.putBytes(remaining,
+                                  next.array(), next.arrayOffset(),
+                                  readLength - remaining);
 
-                // Copy the data fragment from the current buffer
-                numberBuffer.putBytes(0, buffer.array(), buffer.arrayOffset() + position, remaining);
-                numberBuffer.putBytes(remaining, next.array(), next.arrayOffset(), readLength - remaining);
+            buffer = next;
+            position = readLength - remaining;
+            nextReadPosition = 0;
 
-                buffer = next;
-                position = readLength - remaining;
-                nextReadPosition = 0;
-
-                return numberBuffer; // Return the numberBuffer
-            }
-            else {
-                buffer = next;
-                position = readLength;
-                nextReadPosition = 0;
-                return buffer;
-            }
+            return numberBuffer; // Return the numberBuffer
         }
     }
 
