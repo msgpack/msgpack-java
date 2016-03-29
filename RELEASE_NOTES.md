@@ -1,5 +1,8 @@
 # Release Notes
 
+## 0.8.4
+ * Embed bundle paramters for OSGi
+
 ## 0.8.3 
  * Fix a bug (#348), which wrongly overwrites the buffer before reading numeric data at the buffer boundary
 
