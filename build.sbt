@@ -81,12 +81,14 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
         .settings(
           buildSettings,
           description := "Core library of the MessagePack for Java",
+          OsgiKeys.bundleSymbolicName := "org.msgpack.msgpack-core",
           OsgiKeys.exportPackage := Seq(
             // TODO enumerate used packages automatically
             "org.msgpack.core",
             "org.msgpack.core.annotations",
             "org.msgpack.core.buffer",
-            "org.msgpack.value"
+            "org.msgpack.value",
+            "org.msgpack.value.impl"
           ),
           libraryDependencies ++= Seq(
             // msgpack-core should have no external dependencies
@@ -105,7 +107,11 @@ lazy val msgpackJackson = Project(id = "msgpack-jackson", base = file("msgpack-j
           buildSettings,
           name := "jackson-dataformat-msgpack",
           description := "Jackson extension that adds support for MessagePack",
-          OsgiKeys.exportPackage := Seq("org.msgpack.jackson", "org.msgpack.jackson.dataformat"),
+          OsgiKeys.bundleSymbolicName := "org.msgpack.jackson-dataformat-msgpack",
+          OsgiKeys.exportPackage := Seq(
+            "org.msgpack.jackson",
+            "org.msgpack.jackson.dataformat"
+          ),
           libraryDependencies ++= Seq(
             "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.1",
             junitInterface,
