@@ -28,8 +28,6 @@ val buildSettings = findbugsSettings ++ jacoco.settings ++ osgiSettings ++ Seq[S
       opts
     }
   },
-  // OSGi settings
-  OsgiKeys.importPackage := Seq("""org.osgi.framework;version="[1.5,2)""""),
   // Release settings
   releaseTagName := { (version in ThisBuild).value },
   releaseProcess := Seq[ReleaseStep](
@@ -107,7 +105,7 @@ lazy val msgpackJackson = Project(id = "msgpack-jackson", base = file("msgpack-j
           buildSettings,
           name := "jackson-dataformat-msgpack",
           description := "Jackson extension that adds support for MessagePack",
-          OsgiKeys.bundleSymbolicName := "org.msgpack.jackson-dataformat-msgpack",
+          OsgiKeys.bundleSymbolicName := "org.msgpack.msgpack-jackson",
           OsgiKeys.exportPackage := Seq(
             "org.msgpack.jackson",
             "org.msgpack.jackson.dataformat"
