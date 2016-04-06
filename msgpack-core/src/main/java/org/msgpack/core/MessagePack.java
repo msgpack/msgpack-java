@@ -38,6 +38,12 @@ public class MessagePack
     public static final Charset UTF8 = Charset.forName("UTF-8");
 
     /**
+     * Default packer/unpacker configurations
+     */
+    public static final PackerConfig DEFAULT_PACKER_CONFIG = new PackerConfig();
+    public static final UnpackerConfig DEFAULT_UNPACKER_CONFIG = new UnpackerConfig();
+
+    /**
      * The prefix code set of MessagePack. See also https://github.com/msgpack/msgpack/blob/master/spec.md for details.
      */
     public static final class Code
@@ -138,7 +144,7 @@ public class MessagePack
      */
     public static MessagePacker newDefaultPacker(MessageBufferOutput out)
     {
-        return new PackerConfig().newPacker(out);
+        return DEFAULT_PACKER_CONFIG.newPacker(out);
     }
 
     /**
@@ -149,7 +155,7 @@ public class MessagePack
      */
     public static MessagePacker newDefaultPacker(OutputStream out)
     {
-        return new PackerConfig().newPacker(out);
+        return DEFAULT_PACKER_CONFIG.newPacker(out);
     }
 
     /**
@@ -160,7 +166,7 @@ public class MessagePack
      */
     public static MessagePacker newDefaultPacker(WritableByteChannel channel)
     {
-        return new PackerConfig().newPacker(channel);
+        return DEFAULT_PACKER_CONFIG.newPacker(channel);
     }
 
     /**
@@ -170,7 +176,7 @@ public class MessagePack
      */
     public static MessageBufferPacker newDefaultBufferPacker()
     {
-        return new PackerConfig().newBufferPacker();
+        return DEFAULT_PACKER_CONFIG.newBufferPacker();
     }
 
     /**
@@ -181,7 +187,7 @@ public class MessagePack
      */
     public static MessageUnpacker newDefaultUnpacker(MessageBufferInput in)
     {
-        return new UnpackerConfig().newUnpacker(in);
+        return DEFAULT_UNPACKER_CONFIG.newUnpacker(in);
     }
 
     /**
@@ -192,7 +198,7 @@ public class MessagePack
      */
     public static MessageUnpacker newDefaultUnpacker(InputStream in)
     {
-        return new UnpackerConfig().newUnpacker(in);
+        return DEFAULT_UNPACKER_CONFIG.newUnpacker(in);
     }
 
     /**
@@ -203,7 +209,7 @@ public class MessagePack
      */
     public static MessageUnpacker newDefaultUnpacker(ReadableByteChannel channel)
     {
-        return new UnpackerConfig().newUnpacker(channel);
+        return DEFAULT_UNPACKER_CONFIG.newUnpacker(channel);
     }
 
     /**
@@ -214,7 +220,7 @@ public class MessagePack
      */
     public static MessageUnpacker newDefaultUnpacker(byte[] contents)
     {
-        return new UnpackerConfig().newUnpacker(contents);
+        return DEFAULT_UNPACKER_CONFIG.newUnpacker(contents);
     }
 
     /**
@@ -227,7 +233,7 @@ public class MessagePack
      */
     public static MessageUnpacker newDefaultUnpacker(byte[] contents, int offset, int length)
     {
-        return new UnpackerConfig().newUnpacker(contents, offset, length);
+        return DEFAULT_UNPACKER_CONFIG.newUnpacker(contents, offset, length);
     }
 
     /**
