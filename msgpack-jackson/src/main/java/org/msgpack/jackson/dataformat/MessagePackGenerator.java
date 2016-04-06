@@ -38,7 +38,7 @@ public class MessagePackGenerator
         extends GeneratorBase
 {
     private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
-    private static ThreadLocal<MessagePacker> messagePackersHolder = new ThreadLocal<MessagePacker>();
+    private final MessagePacker messagePacker;
     private static ThreadLocal<OutputStreamBufferOutput> messageBufferOutputHolder = new ThreadLocal<OutputStreamBufferOutput>();
     private LinkedList<StackItem> stack;
     private StackItem rootStackItem;
@@ -95,11 +95,10 @@ public class MessagePackGenerator
         }
     }
 
-    public MessagePackGenerator(int features, ObjectCodec codec, OutputStream out)
+    public MessagePackGenerator(int features, ObjectCodec codec, OutputStream out, final MessagePack.PackerConfig packerConfig)
             throws IOException
     {
         super(features, codec);
-        MessagePacker messagePacker = messagePackersHolder.get();
         OutputStreamBufferOutput messageBufferOutput = messageBufferOutputHolder.get();
         if (messageBufferOutput == null) {
             messageBufferOutput = new OutputStreamBufferOutput(out);
@@ -109,14 +108,7 @@ public class MessagePackGenerator
         }
         messageBufferOutputHolder.set(messageBufferOutput);
 
-        if (messagePacker == null) {
-            messagePacker = MessagePack.newDefaultPacker(messageBufferOutput);
-        }
-        else {
-            messagePacker.reset(messageBufferOutput);
-        }
-        messagePackersHolder.set(messagePacker);
-
+        this.messagePacker = packerConfig.newPacker(messageBufferOutput);
         this.stack = new LinkedList<StackItem>();
     }
 
@@ -548,10 +540,6 @@ public class MessagePackGenerator
 
     private MessagePacker getMessagePacker()
     {
-        MessagePacker messagePacker = messagePackersHolder.get();
-        if (messagePacker == null) {
-            throw new IllegalStateException("messagePacker is null");
-        }
         return messagePacker;
     }
 }

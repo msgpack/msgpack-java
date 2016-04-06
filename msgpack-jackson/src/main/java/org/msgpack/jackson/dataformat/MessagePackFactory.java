@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.io.IOContext;
+import org.msgpack.core.MessagePack;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,11 +36,21 @@ public class MessagePackFactory
 {
     private static final long serialVersionUID = 2578263992015504347L;
 
+    private final MessagePack.PackerConfig packerConfig;
+
+    public MessagePackFactory() {
+        this(MessagePack.DEFAULT_PACKER_CONFIG);
+    }
+
+    public MessagePackFactory(final MessagePack.PackerConfig packerConfig) {
+        this.packerConfig = packerConfig;
+    }
+
     @Override
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
             throws IOException
     {
-        return new MessagePackGenerator(_generatorFeatures, _objectCodec, out);
+        return new MessagePackGenerator(_generatorFeatures, _objectCodec, out, packerConfig);
     }
 
     @Override
