@@ -248,6 +248,8 @@ public class MessagePack
 
         private int bufferSize = 8192;
 
+        private boolean str8FormatSupport = true;
+
         public PackerConfig()
         { }
 
@@ -365,6 +367,23 @@ public class MessagePack
         public int getBufferSize()
         {
             return bufferSize;
+        }
+
+        /**
+         * Disable str8 format when needed backward compatibility between
+         * different msgpack serializer versions.
+         * default true (str8 supported enabled)
+         */
+        public PackerConfig withStr8FormatSupport(boolean str8FormatSupport)
+        {
+            PackerConfig copy = clone();
+            copy.str8FormatSupport = str8FormatSupport;
+            return copy;
+        }
+
+        public boolean isStr8FormatSupport()
+        {
+            return str8FormatSupport;
         }
     }
 

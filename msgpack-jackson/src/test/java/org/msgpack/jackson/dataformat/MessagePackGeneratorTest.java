@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 public class MessagePackGeneratorTest
@@ -434,5 +435,23 @@ public class MessagePackGeneratorTest
                 }
             }
         }
+    }
+
+    @Test
+    public void testDisableStr8Support()
+      throws Exception
+    {
+        String str8LengthString = new String(new char[32]).replace("\0", "a");
+
+        // Test that produced value having str8 format
+        ObjectMapper defaultMapper = new ObjectMapper(new MessagePackFactory());
+        byte[] resultWithStr8Format = defaultMapper.writeValueAsBytes(str8LengthString);
+        assertEquals(resultWithStr8Format[0], MessagePack.Code.STR8);
+
+        // Test that produced value does not having str8 format
+        MessagePack.PackerConfig config = new MessagePack.PackerConfig().withStr8FormatSupport(false);
+        ObjectMapper mapperWithConfig = new ObjectMapper(new MessagePackFactory(config));
+        byte[] resultWithoutStr8Format = mapperWithConfig.writeValueAsBytes(str8LengthString);
+        assertNotEquals(resultWithoutStr8Format[0], MessagePack.Code.STR8);
     }
 }

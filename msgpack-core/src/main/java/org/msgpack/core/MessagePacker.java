@@ -88,6 +88,8 @@ public class MessagePacker
 
     private final int bufferFlushThreshold;
 
+    private final boolean str8FormatSupport;
+
     protected MessageBufferOutput out;
 
     private MessageBuffer buffer;
@@ -116,6 +118,7 @@ public class MessagePacker
         this.out = checkNotNull(out, "MessageBufferOutput is null");
         this.smallStringOptimizationThreshold = config.getSmallStringOptimizationThreshold();
         this.bufferFlushThreshold = config.getBufferFlushThreshold();
+        this.str8FormatSupport = config.isStr8FormatSupport();
         this.position = 0;
         this.totalFlushBytes = 0;
     }
@@ -667,7 +670,7 @@ public class MessagePacker
         if (len < (1 << 5)) {
             writeByte((byte) (FIXSTR_PREFIX | len));
         }
-        else if (len < (1 << 8)) {
+        else if (str8FormatSupport && len < (1 << 8)) {
             writeByteAndByte(STR8, (byte) len);
         }
         else if (len < (1 << 16)) {
