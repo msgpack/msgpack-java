@@ -38,11 +38,13 @@ public class MessagePackFactory
 
     private final MessagePack.PackerConfig packerConfig;
 
-    public MessagePackFactory() {
+    public MessagePackFactory()
+    {
         this(MessagePack.DEFAULT_PACKER_CONFIG);
     }
 
-    public MessagePackFactory(final MessagePack.PackerConfig packerConfig) {
+    public MessagePackFactory(final MessagePack.PackerConfig packerConfig)
+    {
         this.packerConfig = packerConfig;
     }
 
