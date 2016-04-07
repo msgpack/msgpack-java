@@ -48,6 +48,28 @@ class MessagePackTest extends MessagePackSpec {
   }
 
   "MessagePack" should {
+
+    "clone packer config" in {
+      val config = new PackerConfig().withBufferSize(10).withBufferFlushThreshold(32 * 1024).withSmallStringOptimizationThreshold(142)
+      val copy = config.clone()
+
+      copy shouldBe config
+    }
+
+    "clone unpacker config" in {
+      val config = new UnpackerConfig()
+              .withBufferSize(1)
+              .withActionOnMalformedString(CodingErrorAction.IGNORE)
+              .withActionOnUnmappableString(CodingErrorAction.REPORT)
+              .withAllowReadingBinaryAsString(false)
+              .withStringDecoderBufferSize(34)
+              .withStringSizeLimit(4324)
+
+      val copy = config.clone()
+      copy shouldBe config
+    }
+
+
     "detect fixint values" in {
 
       for (i <- 0 until 0x79) {
