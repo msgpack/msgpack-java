@@ -258,6 +258,7 @@ public class MessagePack
             this.smallStringOptimizationThreshold = copy.smallStringOptimizationThreshold;
             this.bufferFlushThreshold = copy.bufferFlushThreshold;
             this.bufferSize = copy.bufferSize;
+            this.str8FormatSupport = copy.str8FormatSupport;
         }
 
         @Override
@@ -275,7 +276,8 @@ public class MessagePack
             PackerConfig o = (PackerConfig) obj;
             return this.smallStringOptimizationThreshold == o.smallStringOptimizationThreshold
                     && this.bufferFlushThreshold == o.bufferFlushThreshold
-                    && this.bufferSize == o.bufferSize;
+                    && this.bufferSize == o.bufferSize
+                    && this.str8FormatSupport == o.str8FormatSupport;
         }
 
         /**
