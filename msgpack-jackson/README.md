@@ -83,3 +83,15 @@ Java
   // xs => [zero, 1, 2.0, null]
 ```
 
+### Serialization format
+
+By default, the serialization format is object, which means it includes the schema of the serialized entity (POJO).
+To serialize an entity without the schema, only as array, you can add the annotation `@JsonFormat(shape=JsonFormat.Shape.ARRAY)` to the entity definition.
+Also, it's possible to set the serialization format for the object mapper instance to be array by changing the annotation inspector of object mapper to `JsonArrayFormat`:
+
+```
+  ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+  objectMapper.setAnnotationIntrospector(new JsonArrayFormat());
+```
+
+This format provides compatibility with msgpack-java 0.6.x serialization api.

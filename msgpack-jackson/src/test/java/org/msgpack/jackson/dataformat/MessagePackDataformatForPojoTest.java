@@ -15,12 +15,18 @@
 //
 package org.msgpack.jackson.dataformat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.containsString;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class MessagePackDataformatForPojoTest
@@ -98,5 +104,19 @@ public class MessagePackDataformatForPojoTest
         byte[] bytes = objectMapper.writeValueAsBytes(orig);
         ChangingPropertyNamesPojo value = objectMapper.readValue(bytes, ChangingPropertyNamesPojo.class);
         assertEquals("komamitsu", value.getTheName());
+    }
+
+    @Test
+    public void testSerializationWithoutSchema()
+            throws IOException
+    {
+        ObjectMapper objectMapper = new ObjectMapper(factory); // to not affect shared objectMapper state
+        UsingCustomConstructorPojo orig = new UsingCustomConstructorPojo("komamitsu", 55);
+        objectMapper.setAnnotationIntrospector(new JsonArrayFormat());
+        byte[] bytes = objectMapper.writeValueAsBytes(orig);
+        String scheme = new String(bytes, Charset.forName("UTF-8"));
+        assertThat(scheme, not(containsString("name")));
+        UsingCustomConstructorPojo value = objectMapper.readValue(bytes, UsingCustomConstructorPojo.class);
+        assertEquals("komamitsu", value.name);
     }
 }
