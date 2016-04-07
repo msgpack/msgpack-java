@@ -255,9 +255,9 @@ public class MessagePack
 
         private PackerConfig(PackerConfig copy)
         {
-            this.smallStringOptimizationThreshold = smallStringOptimizationThreshold;
-            this.bufferFlushThreshold = bufferFlushThreshold;
-            this.bufferSize = bufferSize;
+            this.smallStringOptimizationThreshold = copy.smallStringOptimizationThreshold;
+            this.bufferFlushThreshold = copy.bufferFlushThreshold;
+            this.bufferSize = copy.bufferSize;
         }
 
         @Override
