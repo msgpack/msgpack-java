@@ -95,7 +95,7 @@ public class MessagePackGenerator
         }
     }
 
-    public MessagePackGenerator(int features, ObjectCodec codec, OutputStream out, final MessagePack.PackerConfig packerConfig)
+    public MessagePackGenerator(int features, ObjectCodec codec, OutputStream out, MessagePack.PackerConfig packerConfig)
             throws IOException
     {
         super(features, codec);
