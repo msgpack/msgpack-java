@@ -16,7 +16,6 @@
 package org.msgpack.core;
 
 import org.msgpack.core.buffer.ArrayBufferInput;
-import org.msgpack.core.buffer.ArrayBufferOutput;
 import org.msgpack.core.buffer.ChannelBufferInput;
 import org.msgpack.core.buffer.ChannelBufferOutput;
 import org.msgpack.core.buffer.InputStreamBufferInput;
