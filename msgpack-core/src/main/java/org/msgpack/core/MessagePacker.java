@@ -471,6 +471,11 @@ public class MessagePacker
             // Underflow should be on to ensure all of the input string is encoded
             return -1;
         }
+        // NOTE: This flush method does nothing if we use UTR8 encoder, but other general encoders require this
+        cr = encoder.flush(bb);
+        if (!cr.isUnderflow()) {
+            return -1;
+        }
         return bb.position() - startPosition;
     }
 
