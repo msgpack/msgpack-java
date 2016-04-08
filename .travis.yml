@@ -18,5 +18,6 @@ branches:
     - develop
 
 script:
+  - ./sbt jcheckStyle
   - ./sbt test
   - ./sbt test -J-Dmsgpack.universal-buffer=true
