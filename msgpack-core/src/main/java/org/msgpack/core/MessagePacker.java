@@ -457,6 +457,7 @@ public class MessagePacker
         ByteBuffer bb = buffer.sliceAsByteBuffer(pos, buffer.size() - pos);
         int startPosition = bb.position();
         CharBuffer in = CharBuffer.wrap(s);
+        encoder.reset();
         CoderResult cr = encoder.encode(in, bb, true);
         if (cr.isError()) {
             try {
@@ -466,7 +467,8 @@ public class MessagePacker
                 throw new MessageStringCodingException(e);
             }
         }
-        if (cr.isUnderflow() || cr.isOverflow()) {
+        if (!cr.isUnderflow() || cr.isOverflow()) {
+            // Underflow should be on to ensure all of the input string is encoded
             return -1;
         }
         return bb.position() - startPosition;
@@ -499,7 +501,7 @@ public class MessagePacker
             // keep 2-byte header region and write raw string
             int written = encodeStringToBufferAt(position + 2, s);
             if (written >= 0) {
-                if (written < (1 << 8)) {
+                if (str8FormatSupport && written < (1 << 8)) {
                     buffer.putByte(position++, STR8);
                     buffer.putByte(position++, (byte) written);
                     position += written;
