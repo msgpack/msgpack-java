@@ -208,7 +208,7 @@ public class MessageUnpacker
             position += readLength;  // here assumes following buffer.getXxx never throws exception
             return buffer; // Return the default buffer
         }
-        else if(remaining == 0) {
+        else if (remaining == 0) {
             buffer = getNextBuffer();
             position = readLength;
             nextReadPosition = 0;

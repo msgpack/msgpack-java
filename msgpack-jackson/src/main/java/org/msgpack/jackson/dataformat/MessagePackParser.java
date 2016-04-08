@@ -235,11 +235,13 @@ public class MessagePackParser
                         long l = messageUnpacker.unpackLong();
                         if (Integer.MIN_VALUE <= l && l <= Integer.MAX_VALUE) {
                             type = Type.INT;
-                            v = intValue = (int) l;
+                            intValue = (int) l;
+                            v = intValue;
                         }
                         else {
                             type = Type.LONG;
-                            v = longValue = l;
+                            longValue = l;
+                            v = longValue;
                         }
                         break;
                 }
@@ -442,7 +444,7 @@ public class MessagePackParser
             case LONG:
                 return BigInteger.valueOf(longValue);
             case DOUBLE:
-                return BigInteger.valueOf((long)doubleValue);
+                return BigInteger.valueOf((long) doubleValue);
             case BIG_INT:
                 return biValue;
             default:
