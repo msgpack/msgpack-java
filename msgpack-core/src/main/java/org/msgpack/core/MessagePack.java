@@ -251,7 +251,8 @@ public class MessagePack
         private boolean str8FormatSupport = true;
 
         public PackerConfig()
-        { }
+        {
+        }
 
         private PackerConfig(PackerConfig copy)
         {
@@ -265,6 +266,16 @@ public class MessagePack
         public PackerConfig clone()
         {
             return new PackerConfig(this);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = smallStringOptimizationThreshold;
+            result = 31 * result + bufferFlushThreshold;
+            result = 31 * result + bufferSize;
+            result = 31 * result + (str8FormatSupport ? 1 : 0);
+            return result;
         }
 
         @Override
@@ -410,7 +421,8 @@ public class MessagePack
         private int stringDecoderBufferSize = 8192;
 
         public UnpackerConfig()
-        { }
+        {
+        }
 
         private UnpackerConfig(UnpackerConfig copy)
         {
@@ -426,6 +438,19 @@ public class MessagePack
         public UnpackerConfig clone()
         {
             return new UnpackerConfig(this);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = (allowReadingStringAsBinary ? 1 : 0);
+            result = 31 * result + (allowReadingBinaryAsString ? 1 : 0);
+            result = 31 * result + (actionOnMalformedString != null ? actionOnMalformedString.hashCode() : 0);
+            result = 31 * result + (actionOnUnmappableString != null ? actionOnUnmappableString.hashCode() : 0);
+            result = 31 * result + stringSizeLimit;
+            result = 31 * result + bufferSize;
+            result = 31 * result + stringDecoderBufferSize;
+            return result;
         }
 
         @Override
