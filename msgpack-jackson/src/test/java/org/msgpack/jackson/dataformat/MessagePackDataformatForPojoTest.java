@@ -111,8 +111,8 @@ public class MessagePackDataformatForPojoTest
             throws IOException
     {
         ObjectMapper objectMapper = new ObjectMapper(factory); // to not affect shared objectMapper state
-        UsingCustomConstructorPojo orig = new UsingCustomConstructorPojo("komamitsu", 55);
         objectMapper.setAnnotationIntrospector(new JsonArrayFormat());
+        UsingCustomConstructorPojo orig = new UsingCustomConstructorPojo("komamitsu", 55);
         byte[] bytes = objectMapper.writeValueAsBytes(orig);
         String scheme = new String(bytes, Charset.forName("UTF-8"));
         assertThat(scheme, not(containsString("name")));
