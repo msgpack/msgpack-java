@@ -282,4 +282,39 @@ class MessagePackerTest extends MessagePackSpec {
       .writePayload(payload)
       .close()
   }
+
+  "pack small string with STR8" in {
+    val packer = new PackerConfig().newBufferPacker()
+    packer.packString("Hello. This is a string longer than 32 characters!")
+    val b = packer.toByteArray
+
+    val unpacker = MessagePack.newDefaultUnpacker(b)
+    val f = unpacker.getNextFormat
+    f shouldBe MessageFormat.STR8
+  }
+
+  "be able to disable STR8 for backward compatibility" in {
+    val config = new PackerConfig()
+            .withStr8FormatSupport(false)
+
+    val packer = config.newBufferPacker()
+    packer.packString("Hello. This is a string longer than 32 characters!")
+    val unpacker = MessagePack.newDefaultUnpacker(packer.toByteArray)
+    val f = unpacker.getNextFormat
+    f shouldBe MessageFormat.STR16
+  }
+
+  "be able to disable STR8 when using CharsetEncoder" in {
+    val config = new PackerConfig()
+            .withStr8FormatSupport(false)
+            .withSmallStringOptimizationThreshold(0) // Disable small string optimization
+
+    val packer = config.newBufferPacker()
+    packer.packString("small string")
+    val unpacker = MessagePack.newDefaultUnpacker(packer.toByteArray)
+    val f = unpacker.getNextFormat
+    f shouldNot be (MessageFormat.STR8)
+    val s = unpacker.unpackString()
+    s shouldBe "small string"
+  }
 }

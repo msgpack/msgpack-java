@@ -449,6 +449,7 @@ public class MessagePacker
         if (encoder == null) {
             this.encoder = MessagePack.UTF8.newEncoder();
         }
+        encoder.reset();
     }
 
     private int encodeStringToBufferAt(int pos, String s)
@@ -466,7 +467,13 @@ public class MessagePacker
                 throw new MessageStringCodingException(e);
             }
         }
-        if (cr.isUnderflow() || cr.isOverflow()) {
+        if (!cr.isUnderflow() || cr.isOverflow()) {
+            // Underflow should be on to ensure all of the input string is encoded
+            return -1;
+        }
+        // NOTE: This flush method does nothing if we use UTF8 encoder, but other general encoders require this
+        cr = encoder.flush(bb);
+        if (!cr.isUnderflow()) {
             return -1;
         }
         return bb.position() - startPosition;
@@ -499,7 +506,7 @@ public class MessagePacker
             // keep 2-byte header region and write raw string
             int written = encodeStringToBufferAt(position + 2, s);
             if (written >= 0) {
-                if (written < (1 << 8)) {
+                if (str8FormatSupport && written < (1 << 8)) {
                     buffer.putByte(position++, STR8);
                     buffer.putByte(position++, (byte) written);
                     position += written;

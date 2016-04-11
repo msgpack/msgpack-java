@@ -1,5 +1,8 @@
 # Release Notes
 
+## 0.8.5
+ * Add PackerConfig.withStr8FormatSupport (default: true) for backward compatibility with earier versions of msgpack v0.6, which doesn't have STR8 type.
+
 ## 0.8.4
  * Embed bundle paramters for OSGi
 
