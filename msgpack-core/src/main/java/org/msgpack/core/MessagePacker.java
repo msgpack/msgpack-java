@@ -449,6 +449,7 @@ public class MessagePacker
         if (encoder == null) {
             this.encoder = MessagePack.UTF8.newEncoder();
         }
+        encoder.reset();
     }
 
     private int encodeStringToBufferAt(int pos, String s)
@@ -457,7 +458,6 @@ public class MessagePacker
         ByteBuffer bb = buffer.sliceAsByteBuffer(pos, buffer.size() - pos);
         int startPosition = bb.position();
         CharBuffer in = CharBuffer.wrap(s);
-        encoder.reset();
         CoderResult cr = encoder.encode(in, bb, true);
         if (cr.isError()) {
             try {
@@ -471,7 +471,7 @@ public class MessagePacker
             // Underflow should be on to ensure all of the input string is encoded
             return -1;
         }
-        // NOTE: This flush method does nothing if we use UTR8 encoder, but other general encoders require this
+        // NOTE: This flush method does nothing if we use UTF8 encoder, but other general encoders require this
         cr = encoder.flush(bb);
         if (!cr.isUnderflow()) {
             return -1;
