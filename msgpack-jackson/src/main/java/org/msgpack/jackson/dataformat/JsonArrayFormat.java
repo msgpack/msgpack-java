@@ -15,7 +15,7 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.ARRAY;
  */
 public class JsonArrayFormat extends JacksonAnnotationIntrospector
 {
-  private final static JsonFormat.Value ARRAY_FORMAT = new JsonFormat.Value().withShape(ARRAY);
+  private static final JsonFormat.Value ARRAY_FORMAT = new JsonFormat.Value().withShape(ARRAY);
 
   @Override
   public JsonFormat.Value findFormat(Annotated ann)
