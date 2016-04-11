@@ -118,5 +118,6 @@ public class MessagePackDataformatForPojoTest
         assertThat(scheme, not(containsString("name")));
         UsingCustomConstructorPojo value = objectMapper.readValue(bytes, UsingCustomConstructorPojo.class);
         assertEquals("komamitsu", value.name);
+        assertEquals(55, value.age);
     }
 }

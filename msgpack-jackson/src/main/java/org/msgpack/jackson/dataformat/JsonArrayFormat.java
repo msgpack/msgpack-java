@@ -12,8 +12,6 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.ARRAY;
  * way.
  *
  * This also provides same behavior as msgpack-java 0.6.x serialization api.
- *
- * @author marenzo
  */
 public class JsonArrayFormat extends JacksonAnnotationIntrospector {
 
