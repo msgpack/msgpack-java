@@ -13,8 +13,8 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.ARRAY;
  *
  * This also provides same behavior as msgpack-java 0.6.x serialization api.
  */
-public class JsonArrayFormat extends JacksonAnnotationIntrospector {
-
+public class JsonArrayFormat extends JacksonAnnotationIntrospector
+{
   private final static JsonFormat.Value ARRAY_FORMAT = new JsonFormat.Value().withShape(ARRAY);
 
   @Override
