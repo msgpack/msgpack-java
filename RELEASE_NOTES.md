@@ -3,6 +3,7 @@
 ## 0.8.5
  * Add PackerConfig.withStr8FormatSupport (default: true) for backward compatibility with earier versions of msgpack v0.6, which doesn't have STR8 type.
  * msgpack-jackson now supports `@JsonFormat(shape=JsonFormat.Shape.ARRAY)` to serialize POJOs in an array format. See also https://github.com/msgpack/msgpack-java/tree/develop/msgpack-jackson#serialization-format
+ * Small performance optimization of packString when the String size is larger than 512 bytes.
 
 ## 0.8.4
  * Embed bundle paramters for OSGi
