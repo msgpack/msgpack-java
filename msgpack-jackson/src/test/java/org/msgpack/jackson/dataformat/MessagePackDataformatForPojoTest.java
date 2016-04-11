@@ -15,13 +15,18 @@
 //
 package org.msgpack.jackson.dataformat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.nio.charset.Charset;
+
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.containsString;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertArrayEquals;
 
 public class MessagePackDataformatForPojoTest
         extends MessagePackDataformatTestBase
@@ -38,7 +43,7 @@ public class MessagePackDataformatForPojoTest
         assertEquals(normalPojo.l, value.l);
         assertEquals(normalPojo.f, value.f, 0.000001f);
         assertEquals(normalPojo.d, value.d, 0.000001f);
-        assertTrue(Arrays.equals(normalPojo.b, value.b));
+        assertArrayEquals(normalPojo.b, value.b);
         assertEquals(normalPojo.bi, value.bi);
         assertEquals(normalPojo.suit, Suit.HEART);
     }
@@ -50,7 +55,7 @@ public class MessagePackDataformatForPojoTest
         byte[] bytes = objectMapper.writeValueAsBytes(nestedListPojo);
         NestedListPojo value = objectMapper.readValue(bytes, NestedListPojo.class);
         assertEquals(nestedListPojo.s, value.s);
-        assertTrue(Arrays.equals(nestedListPojo.strs.toArray(), value.strs.toArray()));
+        assertArrayEquals(nestedListPojo.strs.toArray(), value.strs.toArray());
     }
 
     @Test
@@ -98,5 +103,21 @@ public class MessagePackDataformatForPojoTest
         byte[] bytes = objectMapper.writeValueAsBytes(orig);
         ChangingPropertyNamesPojo value = objectMapper.readValue(bytes, ChangingPropertyNamesPojo.class);
         assertEquals("komamitsu", value.getTheName());
+    }
+
+    @Test
+    public void testSerializationWithoutSchema()
+            throws IOException
+    {
+        ObjectMapper objectMapper = new ObjectMapper(factory); // to not affect shared objectMapper state
+        objectMapper.setAnnotationIntrospector(new JsonArrayFormat());
+        byte[] bytes = objectMapper.writeValueAsBytes(complexPojo);
+        String scheme = new String(bytes, Charset.forName("UTF-8"));
+        assertThat(scheme, not(containsString("name"))); // validating schema doesn't contains keys, that's just array
+        ComplexPojo value = objectMapper.readValue(bytes, ComplexPojo.class);
+        assertEquals("komamitsu", value.name);
+        assertEquals(20, value.age);
+        assertArrayEquals(complexPojo.values.toArray(), value.values.toArray());
+        assertEquals(complexPojo.grades.get("math"), value.grades.get("math"));
     }
 }

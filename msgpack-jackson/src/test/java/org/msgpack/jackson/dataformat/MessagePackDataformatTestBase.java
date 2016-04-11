@@ -32,6 +32,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Collections;
 
 public class MessagePackDataformatTestBase
 {
@@ -43,6 +45,7 @@ public class MessagePackDataformatTestBase
     protected NestedListPojo nestedListPojo;
     protected NestedListComplexPojo nestedListComplexPojo;
     protected TinyPojo tinyPojo;
+    protected ComplexPojo complexPojo;
 
     @Before
     public void setup()
@@ -65,14 +68,21 @@ public class MessagePackDataformatTestBase
 
         nestedListPojo = new NestedListPojo();
         nestedListPojo.s = "a string";
-        nestedListPojo.strs = Arrays.asList(new String[] {"string", "another string", "another string"});
+        nestedListPojo.strs = Arrays.asList("string", "another string", "another string");
 
         tinyPojo = new TinyPojo();
         tinyPojo.t = "t string";
+
         nestedListComplexPojo = new NestedListComplexPojo();
         nestedListComplexPojo.s = "a string";
         nestedListComplexPojo.foos = new ArrayList<TinyPojo>();
         nestedListComplexPojo.foos.add(tinyPojo);
+
+        complexPojo = new ComplexPojo();
+        complexPojo.name = "komamitsu";
+        complexPojo.age = 20;
+        complexPojo.grades = Collections.singletonMap("math", 97);
+        complexPojo.values = Arrays.asList("one", "two", "three");
     }
 
     @After
@@ -106,6 +116,14 @@ public class MessagePackDataformatTestBase
     {
         public String s;
         public List<String> strs;
+    }
+
+    public static class ComplexPojo
+    {
+        public String name;
+        public int age;
+        public List<String> values;
+        public Map<String, Integer> grades;
     }
 
     public static class TinyPojo
