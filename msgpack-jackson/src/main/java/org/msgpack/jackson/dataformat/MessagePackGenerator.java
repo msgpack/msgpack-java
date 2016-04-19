@@ -18,7 +18,9 @@ package org.msgpack.jackson.dataformat;
 import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.base.GeneratorBase;
+import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
@@ -45,17 +47,17 @@ public class MessagePackGenerator
 
     private abstract static class StackItem
     {
-        protected List<String> objectKeys = new ArrayList<String>();
+        protected List<Object> objectKeys = new ArrayList<Object>();
         protected List<Object> objectValues = new ArrayList<Object>();
 
-        abstract void addKey(String key);
+        abstract void addKey(Object key);
 
         void addValue(Object value)
         {
             objectValues.add(value);
         }
 
-        abstract List<String> getKeys();
+        abstract List<Object> getKeys();
 
         List<Object> getValues()
         {
@@ -67,13 +69,13 @@ public class MessagePackGenerator
             extends StackItem
     {
         @Override
-        void addKey(String key)
+        void addKey(Object key)
         {
             objectKeys.add(key);
         }
 
         @Override
-        List<String> getKeys()
+        List<Object> getKeys()
         {
             return objectKeys;
         }
@@ -83,13 +85,13 @@ public class MessagePackGenerator
             extends StackItem
     {
         @Override
-        void addKey(String key)
+        void addKey(Object key)
         {
             throw new IllegalStateException("This method shouldn't be called");
         }
 
         @Override
-        List<String> getKeys()
+        List<Object> getKeys()
         {
             throw new IllegalStateException("This method shouldn't be called");
         }
@@ -164,7 +166,7 @@ public class MessagePackGenerator
         popStackAndStoreTheItemAsValue();
     }
 
-    private void packValue(Object v)
+    private void pack(Object v)
             throws IOException
     {
         MessagePacker messagePacker = getMessagePacker();
@@ -256,16 +258,15 @@ public class MessagePackGenerator
     private void packObject(StackItemForObject stackItem)
             throws IOException
     {
-        List<String> keys = stackItem.getKeys();
+        List<Object> keys = stackItem.getKeys();
         List<Object> values = stackItem.getValues();
 
         MessagePacker messagePacker = getMessagePacker();
         messagePacker.packMapHeader(keys.size());
 
         for (int i = 0; i < keys.size(); i++) {
-            messagePacker.packString(keys.get(i));
-            Object v = values.get(i);
-            packValue(v);
+            pack(keys.get(i));
+            pack(values.get(i));
         }
     }
 
@@ -279,7 +280,7 @@ public class MessagePackGenerator
 
         for (int i = 0; i < values.size(); i++) {
             Object v = values.get(i);
-            packValue(v);
+            pack(v);
         }
     }
 
@@ -288,6 +289,22 @@ public class MessagePackGenerator
             throws IOException, JsonGenerationException
     {
         addKeyToStackTop(name);
+    }
+
+    @Override
+    public void writeFieldName(SerializableString name)
+            throws IOException
+    {
+        if (name instanceof MessagePackSerializedString) {
+            addKeyToStackTop(((MessagePackSerializedString) name).getRawValue());
+        }
+        else if (name instanceof SerializedString) {
+            addKeyToStackTop(name.getValue());
+        }
+        else {
+            System.out.println(name.getClass());
+            throw new IllegalArgumentException("Unsupported key: " + name);
+        }
     }
 
     @Override
@@ -504,7 +521,7 @@ public class MessagePackGenerator
         return (StackItemForArray) stackTop;
     }
 
-    private void addKeyToStackTop(String key)
+    private void addKeyToStackTop(Object key)
     {
         getStackTop().addKey(key);
     }
@@ -513,7 +530,7 @@ public class MessagePackGenerator
             throws IOException
     {
         if (stack.isEmpty()) {
-            packValue(value);
+            pack(value);
             flushMessagePacker();
         }
         else {
