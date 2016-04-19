@@ -15,9 +15,10 @@
 //
 package org.msgpack.jackson.dataformat;
 
-import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.junit.Test;
 import org.msgpack.core.ExtensionTypeHeader;
 import org.msgpack.core.MessagePack;
@@ -30,7 +31,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,11 +46,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class MessagePackGeneratorTest
         extends MessagePackDataformatTestBase
@@ -453,5 +459,235 @@ public class MessagePackGeneratorTest
         ObjectMapper mapperWithConfig = new ObjectMapper(new MessagePackFactory(config));
         byte[] resultWithoutStr8Format = mapperWithConfig.writeValueAsBytes(str8LengthString);
         assertNotEquals(resultWithoutStr8Format[0], MessagePack.Code.STR8);
+    }
+
+    interface NonStringKeyMapHolder
+    {
+        Map<Integer, String> getIntMap();
+
+        void setIntMap(Map<Integer, String> intMap);
+
+        Map<Long, String> getLongMap();
+
+        void setLongMap(Map<Long, String> longMap);
+
+        Map<Float, String> getFloatMap();
+
+        void setFloatMap(Map<Float, String> floatMap);
+
+        Map<Double, String> getDoubleMap();
+
+        void setDoubleMap(Map<Double, String> doubleMap);
+
+        Map<BigInteger, String> getBigIntMap();
+
+        void setBigIntMap(Map<BigInteger, String> doubleMap);
+    }
+
+    public static class NonStringKeyMapHolderWithAnnotation
+            implements NonStringKeyMapHolder
+    {
+        @JsonSerialize(keyUsing = MessagePackKeySerializer.class)
+        private Map<Integer, String> intMap = new HashMap<Integer, String>();
+
+        @JsonSerialize(keyUsing = MessagePackKeySerializer.class)
+        private Map<Long, String> longMap = new HashMap<Long, String>();
+
+        @JsonSerialize(keyUsing = MessagePackKeySerializer.class)
+        private Map<Float, String> floatMap = new HashMap<Float, String>();
+
+        @JsonSerialize(keyUsing = MessagePackKeySerializer.class)
+        private Map<Double, String> doubleMap = new HashMap<Double, String>();
+
+        @JsonSerialize(keyUsing = MessagePackKeySerializer.class)
+        private Map<BigInteger, String> bigIntMap = new HashMap<BigInteger, String>();
+
+        @Override
+        public Map<Integer, String> getIntMap()
+        {
+            return intMap;
+        }
+
+        @Override
+        public void setIntMap(Map<Integer, String> intMap)
+        {
+            this.intMap = intMap;
+        }
+
+        @Override
+        public Map<Long, String> getLongMap()
+        {
+            return longMap;
+        }
+
+        @Override
+        public void setLongMap(Map<Long, String> longMap)
+        {
+            this.longMap = longMap;
+        }
+
+        @Override
+        public Map<Float, String> getFloatMap()
+        {
+            return floatMap;
+        }
+
+        @Override
+        public void setFloatMap(Map<Float, String> floatMap)
+        {
+            this.floatMap = floatMap;
+        }
+
+        @Override
+        public Map<Double, String> getDoubleMap()
+        {
+            return doubleMap;
+        }
+
+        @Override
+        public void setDoubleMap(Map<Double, String> doubleMap)
+        {
+            this.doubleMap = doubleMap;
+        }
+
+        @Override
+        public Map<BigInteger, String> getBigIntMap()
+        {
+            return bigIntMap;
+        }
+
+        @Override
+        public void setBigIntMap(Map<BigInteger, String> bigIntMap)
+        {
+            this.bigIntMap = bigIntMap;
+        }
+    }
+
+    public static class NonStringKeyMapHolderWithoutAnnotation
+            implements NonStringKeyMapHolder
+    {
+        private Map<Integer, String> intMap = new HashMap<Integer, String>();
+
+        private Map<Long, String> longMap = new HashMap<Long, String>();
+
+        private Map<Float, String> floatMap = new HashMap<Float, String>();
+
+        private Map<Double, String> doubleMap = new HashMap<Double, String>();
+
+        private Map<BigInteger, String> bigIntMap = new HashMap<BigInteger, String>();
+
+        @Override
+        public Map<Integer, String> getIntMap()
+        {
+            return intMap;
+        }
+
+        @Override
+        public void setIntMap(Map<Integer, String> intMap)
+        {
+            this.intMap = intMap;
+        }
+
+        @Override
+        public Map<Long, String> getLongMap()
+        {
+            return longMap;
+        }
+
+        @Override
+        public void setLongMap(Map<Long, String> longMap)
+        {
+            this.longMap = longMap;
+        }
+
+        @Override
+        public Map<Float, String> getFloatMap()
+        {
+            return floatMap;
+        }
+
+        @Override
+        public void setFloatMap(Map<Float, String> floatMap)
+        {
+            this.floatMap = floatMap;
+        }
+
+        @Override
+        public Map<Double, String> getDoubleMap()
+        {
+            return doubleMap;
+        }
+
+        @Override
+        public void setDoubleMap(Map<Double, String> doubleMap)
+        {
+            this.doubleMap = doubleMap;
+        }
+
+        @Override
+        public Map<BigInteger, String> getBigIntMap()
+        {
+            return bigIntMap;
+        }
+
+        @Override
+        public void setBigIntMap(Map<BigInteger, String> bigIntMap)
+        {
+            this.bigIntMap = bigIntMap;
+        }
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testNonStringKey()
+            throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException
+    {
+        for (Class<? extends NonStringKeyMapHolder> clazz :
+                Arrays.asList(
+                        NonStringKeyMapHolderWithAnnotation.class,
+                        NonStringKeyMapHolderWithoutAnnotation.class)) {
+            NonStringKeyMapHolder mapHolder = clazz.getConstructor().newInstance();
+            mapHolder.getIntMap().put(Integer.MAX_VALUE, "i");
+            mapHolder.getLongMap().put(Long.MIN_VALUE, "l");
+            mapHolder.getFloatMap().put(Float.MAX_VALUE, "f");
+            mapHolder.getDoubleMap().put(Double.MIN_VALUE, "d");
+            mapHolder.getBigIntMap().put(BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE), "bi");
+
+            ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+            if (mapHolder instanceof NonStringKeyMapHolderWithoutAnnotation) {
+                objectMapper.setSerializerFactory(new MessagePackSerializerFactory(null));
+            }
+
+            byte[] bytes = objectMapper.writeValueAsBytes(mapHolder);
+            MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes);
+            assertEquals(5, unpacker.unpackMapHeader());
+            for (int i = 0; i < 5; i++) {
+                String keyName = unpacker.unpackString();
+                assertThat(unpacker.unpackMapHeader(), is(1));
+                if (keyName.equals("intMap")) {
+                    assertThat(unpacker.unpackInt(), is(Integer.MAX_VALUE));
+                    assertThat(unpacker.unpackString(), is("i"));
+                }
+                else if (keyName.equals("longMap")) {
+                    assertThat(unpacker.unpackLong(), is(Long.MIN_VALUE));
+                    assertThat(unpacker.unpackString(), is("l"));
+                }
+                else if (keyName.equals("floatMap")) {
+                    assertThat(unpacker.unpackFloat(), is(Float.MAX_VALUE));
+                    assertThat(unpacker.unpackString(), is("f"));
+                }
+                else if (keyName.equals("doubleMap")) {
+                    assertThat(unpacker.unpackDouble(), is(Double.MIN_VALUE));
+                    assertThat(unpacker.unpackString(), is("d"));
+                }
+                else if (keyName.equals("bigIntMap")) {
+                    assertThat(unpacker.unpackBigInteger(), is(BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE)));
+                    assertThat(unpacker.unpackString(), is("bi"));
+                }
+                else {
+                    fail("Unexpected key name: " + keyName);
+                }
+            }
+        }
     }
 }
