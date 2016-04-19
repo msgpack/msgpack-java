@@ -23,14 +23,17 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
 
 public class MessagePackKeySerializer
-        extends StdSerializer<Object> {
-    public MessagePackKeySerializer() {
+        extends StdSerializer<Object>
+{
+    public MessagePackKeySerializer()
+    {
         super(Object.class);
     }
 
     @Override
     public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
-            throws JsonGenerationException, IOException {
+            throws JsonGenerationException, IOException
+    {
         jgen.writeFieldName(new MessagePackSerializedString(value));
     }
 }
