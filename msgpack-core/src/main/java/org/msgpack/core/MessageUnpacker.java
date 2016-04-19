@@ -208,36 +208,44 @@ public class MessageUnpacker
             position += readLength;  // here assumes following buffer.getXxx never throws exception
             return buffer; // Return the default buffer
         }
-        else if (remaining == 0) {
-            buffer = getNextBuffer();
-            position = readLength;
-            nextReadPosition = 0;
-            return buffer;
-        }
         else {
-            // When the default buffer doesn't contain the whole length
+            // When the default buffer doesn't contain the whole length,
+            // fill the temporary buffer from the current data fragment and
+            // next fragment(s).
 
-            // TODO This doesn't work if MessageBuffer is allocated by newDirectBuffer.
-            //      Add copy method to MessageBuffer to solve this issue.
+            // TODO buffer.array() doesn't work if MessageBuffer is allocated by
+            //      newDirectBuffer. dd copy method to MessageBuffer to solve this issue.
 
-            // Copy the data fragment from the current buffer
+            int off = 0;
+            if (remaining > 0) {
+                numberBuffer.putBytes(0,
+                        buffer.array(), buffer.arrayOffset() + position,
+                        remaining);
+                readLength -= remaining;
+                off += remaining;
+            }
 
-            numberBuffer.putBytes(0,
-                                  buffer.array(), buffer.arrayOffset() + position,
-                                  remaining);
+            while (true) {
+                nextBuffer();
+                int nextSize = buffer.size();
+                if (nextSize >= readLength) {
+                    numberBuffer.putBytes(off,
+                            buffer.array(), buffer.arrayOffset(),
+                            readLength);
+                    position = readLength;
+                    break;
+                }
+                else {
+                    numberBuffer.putBytes(off,
+                            buffer.array(), buffer.arrayOffset(),
+                            nextSize);
+                    readLength -= nextSize;
+                    off += nextSize;
+                }
+            }
 
-            // TODO loop this method until castBuffer is filled
-            MessageBuffer next = getNextBuffer();
-
-            numberBuffer.putBytes(remaining,
-                                  next.array(), next.arrayOffset(),
-                                  readLength - remaining);
-
-            buffer = next;
-            position = readLength - remaining;
             nextReadPosition = 0;
-
-            return numberBuffer; // Return the numberBuffer
+            return numberBuffer;
         }
     }
 
