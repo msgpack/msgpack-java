@@ -1,5 +1,8 @@
 # Release Notes
 
+## 0.8.6
+ * Fixed a bug that causes IndexOutOfBoundsException when reading a variable length code at the buffer boundary.
+
 ## 0.8.5
  * Add PackerConfig.withStr8FormatSupport (default: true) for backward compatibility with earier versions of msgpack v0.6, which doesn't have STR8 type.
  * msgpack-jackson now supports `@JsonFormat(shape=JsonFormat.Shape.ARRAY)` to serialize POJOs in an array format. See also https://github.com/msgpack/msgpack-java/tree/develop/msgpack-jackson#serialization-format
