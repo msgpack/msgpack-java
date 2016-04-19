@@ -655,7 +655,7 @@ public class MessagePackGeneratorTest
 
             ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
             if (mapHolder instanceof NonStringKeyMapHolderWithoutAnnotation) {
-                objectMapper.setSerializerFactory(new MessagePackSerializerFactory(null));
+                objectMapper.setSerializerFactory(new MessagePackSerializerFactory());
             }
 
             byte[] bytes = objectMapper.writeValueAsBytes(mapHolder);

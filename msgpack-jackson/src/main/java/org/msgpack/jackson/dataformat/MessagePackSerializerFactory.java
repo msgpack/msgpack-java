@@ -25,11 +25,19 @@ public class MessagePackSerializerFactory
         extends BeanSerializerFactory
 {
     /**
+     * Constructor for creating instances without configuration.
+     */
+    public MessagePackSerializerFactory()
+    {
+        super(null);
+    }
+
+    /**
      * Constructor for creating instances with specified configuration.
      *
      * @param config
      */
-    protected MessagePackSerializerFactory(SerializerFactoryConfig config)
+    public MessagePackSerializerFactory(SerializerFactoryConfig config)
     {
         super(config);
     }
