@@ -79,6 +79,11 @@ Here is a list of sbt commands for daily development:
 ```
 > publishLocal            # Install to local .ivy2 repository
 > publishM2               # Install to local .m2 Maven repository
+> publish                 # Publishing a snapshot version to the Sonatype repository
+
+> release                 # Run the release procedure (set a new version, run tests, upload artifacts, then deploy to Sonatype)
+
+# If you need to perform the individual release steps manually, use the following commands:
 > publishSigned           # Publish GPG signed artifacts to the Sonatype repository
 > sonatypeRelease         # Publish to the Maven Central (It will be synched within less than 4 hours)
 ```
