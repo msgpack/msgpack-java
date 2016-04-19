@@ -17,16 +17,35 @@ package org.msgpack.core
 
 import java.io._
 import java.nio.ByteBuffer
+import java.nio.charset.StandardCharsets
 
+import org.msgpack.core.MessageUnpackerTest.SplitMessageBufferInput
 import org.msgpack.core.buffer._
 import org.msgpack.value.ValueType
 import xerial.core.io.IOUtil
 
 import scala.util.Random
 
-/**
- * Created on 2014/05/07.
- */
+object MessageUnpackerTest {
+  class SplitMessageBufferInput(array: Array[Array[Byte]]) extends MessageBufferInput {
+    var cursor = 0
+    override def next(): MessageBuffer = {
+      if (cursor < array.length) {
+        val a = array(cursor)
+        cursor += 1
+        MessageBuffer.wrap(a)
+      }
+      else {
+        null
+      }
+    }
+
+    override def close(): Unit = {}
+  }
+}
+
+import MessageUnpackerTest._
+
 class MessageUnpackerTest extends MessagePackSpec {
 
   def testData: Array[Byte] = {
@@ -246,21 +265,6 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     }
 
-    class SplitMessageBufferInput(array: Array[Array[Byte]]) extends MessageBufferInput {
-      var cursor = 0
-      override def next(): MessageBuffer = {
-        if (cursor < array.length) {
-          val a = array(cursor)
-          cursor += 1
-          MessageBuffer.wrap(a)
-        }
-        else {
-          null
-        }
-      }
-
-      override def close(): Unit = {}
-    }
 
     "read data at the buffer boundary" taggedAs ("boundary") in {
 
@@ -701,6 +705,19 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       Seq("\u3042", "a\u3042", "\u3042a", "\u3042\u3044\u3046\u3048\u304A\u304B\u304D\u304F\u3051\u3053\u3055\u3057\u3059\u305B\u305D").foreach { s =>
         Seq(8185, 8186, 8187, 8188, 16377, 16378, 16379, 16380).foreach { n => check(s, n)}
+      }
+    }
+
+    "read value length at buffer boundary" taggedAs("number-boundary") in {
+      val input = new SplitMessageBufferInput(Array(
+        Array[Byte](MessagePack.Code.STR16),
+        Array[Byte](0x00),
+        Array[Byte](0x05), // STR16 length at the boundary
+        "hello".getBytes(MessagePack.UTF8))
+      )
+      val unpacker = MessagePack.newDefaultUnpacker(input)
+      while(unpacker.hasNext) {
+        unpacker.unpackValue()
       }
     }
   }
