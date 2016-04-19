@@ -16,13 +16,10 @@
 package org.msgpack.core
 
 import java.io._
-import java.nio.ByteBuffer
-import java.nio.charset.StandardCharsets
 
-import org.msgpack.core.MessageUnpackerTest.SplitMessageBufferInput
 import org.msgpack.core.buffer._
 import org.msgpack.value.ValueType
-import xerial.core.io.IOUtil
+import xerial.core.io.IOUtil._
 
 import scala.util.Random
 
@@ -591,7 +588,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       val N = 1000
       val t = time("unpacker", repeat = 10) {
         block("no-buffer-reset") {
-          IOUtil.withResource(MessagePack.newDefaultUnpacker(arr)) { unpacker =>
+          withResource(MessagePack.newDefaultUnpacker(arr)) { unpacker =>
             for (i <- 0 until N) {
               val buf = new ArrayBufferInput(arr)
               unpacker.reset(buf)
@@ -602,7 +599,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
 
         block("reuse-array-input") {
-          IOUtil.withResource(MessagePack.newDefaultUnpacker(arr)) { unpacker =>
+          withResource(MessagePack.newDefaultUnpacker(arr)) { unpacker =>
             val buf = new ArrayBufferInput(arr)
             for (i <- 0 until N) {
               buf.reset(arr)
@@ -614,7 +611,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
 
         block("reuse-message-buffer") {
-          IOUtil.withResource(MessagePack.newDefaultUnpacker(arr)) { unpacker =>
+          withResource(MessagePack.newDefaultUnpacker(arr)) { unpacker =>
             val buf = new ArrayBufferInput(arr)
             for (i <- 0 until N) {
               buf.reset(mb)
@@ -708,6 +705,14 @@ class MessageUnpackerTest extends MessagePackSpec {
       }
     }
 
+    def readTest(input:MessageBufferInput): Unit = {
+      withResource(MessagePack.newDefaultUnpacker(input)) { unpacker =>
+        while (unpacker.hasNext) {
+          unpacker.unpackValue()
+        }
+      }
+    }
+
     "read value length at buffer boundary" taggedAs("number-boundary") in {
       val input = new SplitMessageBufferInput(Array(
         Array[Byte](MessagePack.Code.STR16),
@@ -715,10 +720,16 @@ class MessageUnpackerTest extends MessagePackSpec {
         Array[Byte](0x05), // STR16 length at the boundary
         "hello".getBytes(MessagePack.UTF8))
       )
-      val unpacker = MessagePack.newDefaultUnpacker(input)
-      while(unpacker.hasNext) {
-        unpacker.unpackValue()
-      }
+      readTest(input)
+
+      val input2 = new SplitMessageBufferInput(Array(
+        Array[Byte](MessagePack.Code.STR32),
+        Array[Byte](0x00),
+        Array[Byte](0x00, 0x00),
+        Array[Byte](0x05), // STR32 length at the boundary
+        "hello".getBytes(MessagePack.UTF8))
+      )
+      readTest(input2)
     }
   }
 }
