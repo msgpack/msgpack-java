@@ -1,7 +1,7 @@
 MessagePack for Java 
 === 
 
-[MessagePack](http://msgpack.org) is an efficient binary serialization format. It lets you exchange data among multiple languages like JSON. But it's faster and smaller. Small integers are encoded into a single byte, and typical short strings require only one extra byte in addition to the strings themselves.
+[MessagePack](http://msgpack.org) is a binary serialization format. If you need a fast and compact alternative of JSON, MessagePack is your friend. For example, a small integer can be encoded in a single byte, and short strings only need a single byte prefix + the original byte array. MessagePack implementation is already available in various lanaguages (See also the list in http://msgpack.org) and works as a universal data format.
 
  * Message Pack specification: <https://github.com/msgpack/msgpack/blob/master/spec.md>
 
