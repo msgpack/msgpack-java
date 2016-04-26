@@ -22,11 +22,11 @@ import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.base.GeneratorBase;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -243,10 +243,10 @@ public class MessagePackGenerator
         }
         else {
             messagePacker.flush();
-            MessagePackFactory messagePackFactory = new MessagePackFactory(packerConfig);
-            messagePackFactory.setReuseResourceInGenerator(false);
-            ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
-            output.write(objectMapper.writeValueAsBytes(v));
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            MessagePackGenerator messagePackGenerator = new MessagePackGenerator(getFeatureMask(), getCodec(), outputStream, packerConfig, false);
+            getCodec().writeValue(messagePackGenerator, v);
+            output.write(outputStream.toByteArray());
         }
     }
 
