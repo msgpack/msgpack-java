@@ -690,4 +690,46 @@ public class MessagePackGeneratorTest
             }
         }
     }
+
+    @Test
+    public void testComplexTypeKey()
+            throws IOException
+    {
+        HashMap<TinyPojo, Integer> map = new HashMap<TinyPojo, Integer>();
+        TinyPojo pojo = new TinyPojo();
+        pojo.t = "foo";
+        map.put(pojo, 42);
+
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.setSerializerFactory(new MessagePackSerializerFactory());
+        byte[] bytes = objectMapper.writeValueAsBytes(map);
+
+        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes);
+        assertThat(unpacker.unpackMapHeader(), is(1));
+        assertThat(unpacker.unpackMapHeader(), is(1));
+        assertThat(unpacker.unpackString(), is("t"));
+        assertThat(unpacker.unpackString(), is("foo"));
+        assertThat(unpacker.unpackInt(), is(42));
+    }
+
+    @Test
+    public void testComplexTypeKeyWithV06Format()
+            throws IOException
+    {
+        HashMap<TinyPojo, Integer> map = new HashMap<TinyPojo, Integer>();
+        TinyPojo pojo = new TinyPojo();
+        pojo.t = "foo";
+        map.put(pojo, 42);
+
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.setAnnotationIntrospector(new JsonArrayFormat());
+        objectMapper.setSerializerFactory(new MessagePackSerializerFactory());
+        byte[] bytes = objectMapper.writeValueAsBytes(map);
+
+        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes);
+        assertThat(unpacker.unpackMapHeader(), is(1));
+        assertThat(unpacker.unpackArrayHeader(), is(1));
+        assertThat(unpacker.unpackString(), is("foo"));
+        assertThat(unpacker.unpackInt(), is(42));
+    }
 }

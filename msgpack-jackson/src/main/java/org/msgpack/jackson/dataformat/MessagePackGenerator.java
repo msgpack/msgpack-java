@@ -26,6 +26,7 @@ import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -42,6 +43,8 @@ public class MessagePackGenerator
     private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
     private final MessagePacker messagePacker;
     private static ThreadLocal<OutputStreamBufferOutput> messageBufferOutputHolder = new ThreadLocal<OutputStreamBufferOutput>();
+    private final OutputStream output;
+    private final MessagePack.PackerConfig packerConfig;
     private LinkedList<StackItem> stack;
     private StackItem rootStackItem;
 
@@ -97,20 +100,35 @@ public class MessagePackGenerator
         }
     }
 
-    public MessagePackGenerator(int features, ObjectCodec codec, OutputStream out, MessagePack.PackerConfig packerConfig)
+    public MessagePackGenerator(
+            int features,
+            ObjectCodec codec,
+            OutputStream out,
+            MessagePack.PackerConfig packerConfig,
+            boolean reuseResourceInGenerator)
             throws IOException
     {
         super(features, codec);
-        OutputStreamBufferOutput messageBufferOutput = messageBufferOutputHolder.get();
-        if (messageBufferOutput == null) {
-            messageBufferOutput = new OutputStreamBufferOutput(out);
+        this.output = out;
+
+        OutputStreamBufferOutput messageBufferOutput;
+        if (reuseResourceInGenerator) {
+            messageBufferOutput = messageBufferOutputHolder.get();
+            if (messageBufferOutput == null) {
+                messageBufferOutput = new OutputStreamBufferOutput(out);
+                messageBufferOutputHolder.set(messageBufferOutput);
+            }
+            else {
+                messageBufferOutput.reset(out);
+            }
         }
         else {
-            messageBufferOutput.reset(out);
+            messageBufferOutput = new OutputStreamBufferOutput(out);
         }
-        messageBufferOutputHolder.set(messageBufferOutput);
-
         this.messagePacker = packerConfig.newPacker(messageBufferOutput);
+
+        this.packerConfig = packerConfig;
+
         this.stack = new LinkedList<StackItem>();
     }
 
@@ -224,7 +242,11 @@ public class MessagePackGenerator
             messagePacker.writePayload(extData);
         }
         else {
-            throw new IllegalArgumentException(v.toString());
+            messagePacker.flush();
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            MessagePackGenerator messagePackGenerator = new MessagePackGenerator(getFeatureMask(), getCodec(), outputStream, packerConfig, false);
+            getCodec().writeValue(messagePackGenerator, v);
+            output.write(outputStream.toByteArray());
         }
     }
 

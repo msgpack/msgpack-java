@@ -37,6 +37,7 @@ public class MessagePackFactory
     private static final long serialVersionUID = 2578263992015504347L;
 
     private final MessagePack.PackerConfig packerConfig;
+    private boolean reuseResourceInGenerator = true;
 
     public MessagePackFactory()
     {
@@ -48,11 +49,16 @@ public class MessagePackFactory
         this.packerConfig = packerConfig;
     }
 
+    public void setReuseResourceInGenerator(boolean reuseResourceInGenerator)
+    {
+        this.reuseResourceInGenerator = reuseResourceInGenerator;
+    }
+
     @Override
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
             throws IOException
     {
-        return new MessagePackGenerator(_generatorFeatures, _objectCodec, out, packerConfig);
+        return new MessagePackGenerator(_generatorFeatures, _objectCodec, out, packerConfig, reuseResourceInGenerator);
     }
 
     @Override
