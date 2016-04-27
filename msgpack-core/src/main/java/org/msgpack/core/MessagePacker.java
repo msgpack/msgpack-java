@@ -448,6 +448,17 @@ public class MessagePacker
     private void prepareEncoder()
     {
         if (encoder == null) {
+            /**
+             * Even if String object contains invalid UTF-8 characters, we should not throw any exception.
+             *
+             * The following exception has happened before:
+             *
+             * org.msgpack.core.MessageStringCodingException: java.nio.charset.MalformedInputException: Input length = 1
+             *     at org.msgpack.core.MessagePacker.encodeStringToBufferAt(MessagePacker.java:467) ~[msgpack-core-0.8.6.jar:na]
+             *     at org.msgpack.core.MessagePacker.packString(MessagePacker.java:535) ~[msgpack-core-0.8.6.jar:na]
+             *
+             * This happened on JVM 7. But no ideas how to reproduce.
+             */
             this.encoder = MessagePack.UTF8.newEncoder()
                     .onMalformedInput(CodingErrorAction.REPLACE)
                     .onUnmappableCharacter(CodingErrorAction.REPLACE);
