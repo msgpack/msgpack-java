@@ -27,6 +27,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
+import java.nio.charset.CodingErrorAction;
 
 import static org.msgpack.core.MessagePack.Code.ARRAY16;
 import static org.msgpack.core.MessagePack.Code.ARRAY32;
@@ -447,7 +448,9 @@ public class MessagePacker
     private void prepareEncoder()
     {
         if (encoder == null) {
-            this.encoder = MessagePack.UTF8.newEncoder();
+            this.encoder = MessagePack.UTF8.newEncoder()
+                    .onMalformedInput(CodingErrorAction.REPLACE)
+                    .onUnmappableCharacter(CodingErrorAction.REPLACE);
         }
         encoder.reset();
     }
