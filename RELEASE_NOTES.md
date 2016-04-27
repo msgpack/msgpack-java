@@ -1,5 +1,9 @@
 # Release Notes
 
+## 0.8.7
+ * Fixed a problem when reading malformed UTF-8 characters in packString. This problem happens only if you are using an older version of Java (e.g., Java 6 or 7)
+ * Support complex-type keys in msgpack-jackson
+
 ## 0.8.6
  * Fixed a bug that causes IndexOutOfBoundsException when reading a variable length code at the buffer boundary.
 
