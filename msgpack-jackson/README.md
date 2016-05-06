@@ -14,8 +14,14 @@ It extends standard Jackson streaming API (`JsonFactory`, `JsonParser`, `JsonGen
 <dependency>
   <groupId>org.msgpack</groupId>
   <artifactId>jackson-dataformat-msgpack</artifactId>
-  <version>0.8.1</version>
+  <version>(version)</version>
 </dependency>
+```
+
+### Sbt
+
+```
+libraryDependencies += "org.msgpack" % "jackson-dataformat-msgpack" % "(version)"
 ```
 
 ### Gradle
@@ -25,7 +31,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.msgpack:jackson-dataformat-msgpack:0.8.1'
+    compile 'org.msgpack:jackson-dataformat-msgpack:(version)'
 }
 ```
 
