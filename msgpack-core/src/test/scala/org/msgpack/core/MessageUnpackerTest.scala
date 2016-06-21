@@ -233,6 +233,14 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
       }
 
+      time("bulk skip performance", repeat = 100) {
+        block("switch") {
+          val unpacker = MessagePack.newDefaultUnpacker(data)
+          unpacker.skipValue(N)
+          unpacker.hasNext shouldBe false
+        }
+      }
+
     }
 
     "parse int data" in {
