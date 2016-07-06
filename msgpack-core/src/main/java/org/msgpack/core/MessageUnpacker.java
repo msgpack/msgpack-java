@@ -365,8 +365,19 @@ public class MessageUnpacker
     public void skipValue()
             throws IOException
     {
-        int remainingValues = 1;
-        while (remainingValues > 0) {
+        skipValue(1);
+    }
+
+    /**
+     * Skip next values, then move the cursor at the end of the value
+     *
+     * @param count number of values to skip
+     * @throws IOException
+     */
+    public void skipValue(int count)
+            throws IOException
+    {
+        while (count > 0) {
             byte b = readByte();
             MessageFormat f = MessageFormat.valueOf(b);
             switch (f) {
@@ -377,12 +388,12 @@ public class MessageUnpacker
                     break;
                 case FIXMAP: {
                     int mapLen = b & 0x0f;
-                    remainingValues += mapLen * 2;
+                    count += mapLen * 2;
                     break;
                 }
                 case FIXARRAY: {
                     int arrayLen = b & 0x0f;
-                    remainingValues += arrayLen;
+                    count += arrayLen;
                     break;
                 }
                 case FIXSTR: {
@@ -445,22 +456,22 @@ public class MessageUnpacker
                     skipPayload(readNextLength32() + 1);
                     break;
                 case ARRAY16:
-                    remainingValues += readNextLength16();
+                    count += readNextLength16();
                     break;
                 case ARRAY32:
-                    remainingValues += readNextLength32();
+                    count += readNextLength32();
                     break;
                 case MAP16:
-                    remainingValues += readNextLength16() * 2;
+                    count += readNextLength16() * 2;
                     break;
                 case MAP32:
-                    remainingValues += readNextLength32() * 2; // TODO check int overflow
+                    count += readNextLength32() * 2; // TODO check int overflow
                     break;
                 case NEVER_USED:
                     throw new MessageNeverUsedFormatException("Encountered 0xC1 \"NEVER_USED\" byte");
             }
 
-            remainingValues--;
+            count--;
         }
     }
 
