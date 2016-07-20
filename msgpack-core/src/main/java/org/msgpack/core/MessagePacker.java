@@ -555,7 +555,7 @@ public class MessagePacker
                     position += written;
                 }
                 else {
-                    if (written >= (1 << 32)) {
+                    if (written >= (1L << 32)) {  // this check does nothing because (1L << 32) is larger than Integer.MAX_VALUE
                         // this must not happen because s.length() is less than 2^16 and (2^16) * UTF_8_MAX_CHAR_SIZE is less than 2^32
                         throw new IllegalArgumentException("Unexpected UTF-8 encoder state");
                     }
