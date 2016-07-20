@@ -264,6 +264,12 @@ public class MessageUnpacker
     public boolean hasNext()
             throws IOException
     {
+        return ensureBuffer();
+    }
+
+    private boolean ensureBuffer()
+            throws IOException
+    {
         while (buffer.size() <= position) {
             MessageBuffer next = in.next();
             if (next == null) {
@@ -290,7 +296,7 @@ public class MessageUnpacker
             throws IOException
     {
         // makes sure that buffer has at leat 1 byte
-        if (!hasNext()) {
+        if (!ensureBuffer()) {
             throw new MessageInsufficientBufferException();
         }
         byte b = buffer.getByte(position);
