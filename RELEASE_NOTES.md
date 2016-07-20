@@ -1,5 +1,9 @@
 # Release Notes
 
+## 0.8.8
+ * [Fix Unexpected UTF-8 encoder state](https://github.com/msgpack/msgpack-java/issues/371)
+ * Make MessageUnpacker.hasNext extensible
+
 ## 0.8.7
  * Fixed a problem when reading malformed UTF-8 characters in packString. This problem happens only if you are using an older version of Java (e.g., Java 6 or 7)
  * Support complex-type keys in msgpack-jackson
