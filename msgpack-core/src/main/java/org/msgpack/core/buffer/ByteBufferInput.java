@@ -31,19 +31,19 @@ public class ByteBufferInput
 
     public ByteBufferInput(ByteBuffer input)
     {
-        this.input = checkNotNull(input, "input ByteBuffer is null");
+        this.input = checkNotNull(input, "input ByteBuffer is null").slice();
     }
 
     /**
-     * Reset buffer. This method doesn't close the old resource.
+     * Reset buffer.
      *
      * @param input new buffer
-     * @return the old resource
+     * @return the old buffer
      */
     public ByteBuffer reset(ByteBuffer input)
     {
         ByteBuffer old = this.input;
-        this.input = input;
+        this.input = checkNotNull(input, "input ByteBuffer is null").slice();
         isRead = false;
         return old;
     }
@@ -55,8 +55,9 @@ public class ByteBufferInput
             return null;
         }
 
+        MessageBuffer b = MessageBuffer.wrap(input);
         isRead = true;
-        return MessageBuffer.wrap(input);
+        return b;
     }
 
     @Override
