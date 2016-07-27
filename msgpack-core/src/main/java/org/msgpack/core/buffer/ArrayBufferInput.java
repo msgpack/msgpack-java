@@ -80,7 +80,6 @@ public class ArrayBufferInput
 
     @Override
     public MessageBuffer next()
-            throws IOException
     {
         if (isEmpty) {
             return null;
@@ -91,7 +90,6 @@ public class ArrayBufferInput
 
     @Override
     public void close()
-            throws IOException
     {
         buffer = null;
         isEmpty = true;

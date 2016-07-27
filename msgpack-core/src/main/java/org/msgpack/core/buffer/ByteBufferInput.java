@@ -50,7 +50,6 @@ public class ByteBufferInput
 
     @Override
     public MessageBuffer next()
-            throws IOException
     {
         if (isRead) {
             return null;
@@ -62,7 +61,6 @@ public class ByteBufferInput
 
     @Override
     public void close()
-            throws IOException
     {
         // Nothing to do
     }
