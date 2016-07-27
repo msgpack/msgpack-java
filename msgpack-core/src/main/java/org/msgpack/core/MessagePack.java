@@ -16,6 +16,7 @@
 package org.msgpack.core;
 
 import org.msgpack.core.buffer.ArrayBufferInput;
+import org.msgpack.core.buffer.ByteBufferInput;
 import org.msgpack.core.buffer.ChannelBufferInput;
 import org.msgpack.core.buffer.ChannelBufferOutput;
 import org.msgpack.core.buffer.InputStreamBufferInput;
@@ -25,6 +26,7 @@ import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
@@ -234,6 +236,17 @@ public class MessagePack
     public static MessageUnpacker newDefaultUnpacker(byte[] contents, int offset, int length)
     {
         return DEFAULT_UNPACKER_CONFIG.newUnpacker(contents, offset, length);
+    }
+
+    /**
+     * Create an unpacker that reads the data from a given ByteBuffer
+     *
+     * @param contents
+     * @return
+     */
+    public static MessageUnpacker newDefaultUnpacker(ByteBuffer contents)
+    {
+        return DEFAULT_UNPACKER_CONFIG.newUnpacker(contents);
     }
 
     /**
@@ -522,6 +535,17 @@ public class MessagePack
         public MessageUnpacker newUnpacker(byte[] contents, int offset, int length)
         {
             return newUnpacker(new ArrayBufferInput(contents, offset, length));
+        }
+
+        /**
+         * Create an unpacker that reads the data from a given ByteBuffer
+         *
+         * @param contents
+         * @return
+         */
+        public MessageUnpacker newUnpacker(ByteBuffer contents)
+        {
+            return newUnpacker(new ByteBufferInput(contents));
         }
 
         /**

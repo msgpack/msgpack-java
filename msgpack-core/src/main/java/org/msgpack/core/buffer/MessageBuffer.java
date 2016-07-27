@@ -43,6 +43,7 @@ public class MessageBuffer
      * Reference to MessageBuffer Constructors
      */
     private static final Constructor<?> mbArrConstructor;
+    private static final Constructor<?> mbBBConstructor;
 
     /**
      * The offset from the object memory header to its byte array data
@@ -145,6 +146,11 @@ public class MessageBuffer
                 Constructor<?> mbArrCstr = bufferCls.getDeclaredConstructor(byte[].class, int.class, int.class);
                 mbArrCstr.setAccessible(true);
                 mbArrConstructor = mbArrCstr;
+
+                // MessageBufferX(ByteBuffer) constructor
+                Constructor<?> mbBBCstr = bufferCls.getDeclaredConstructor(ByteBuffer.class);
+                mbBBCstr.setAccessible(true);
+                mbBBConstructor = mbBBCstr;
             }
             catch (Exception e) {
                 e.printStackTrace(System.err);
@@ -170,6 +176,12 @@ public class MessageBuffer
      */
     protected final int size;
 
+    /**
+     * Reference is used to hold a reference to an object that holds the underlying memory so that it cannot be
+     * released by the garbage collector.
+     */
+    protected final ByteBuffer reference;
+
     public static MessageBuffer allocate(int length)
     {
         return wrap(new byte[length]);
@@ -183,6 +195,11 @@ public class MessageBuffer
     public static MessageBuffer wrap(byte[] array, int offset, int length)
     {
         return newMessageBuffer(array, offset, length);
+    }
+
+    public static MessageBuffer wrap(ByteBuffer bb)
+    {
+        return newMessageBuffer(bb).slice(bb.position(), bb.remaining());
     }
 
     /**
@@ -202,10 +219,31 @@ public class MessageBuffer
         }
     }
 
+    /**
+     * Creates a new MessageBuffer instance backed by ByteBuffer
+     *
+     * @param bb
+     * @return
+     */
+    private static MessageBuffer newMessageBuffer(ByteBuffer bb)
+    {
+        checkNotNull(bb);
+        try {
+            // We need to use reflection to create MessageBuffer instances in order to prevent TypeProfile generation for getInt method. TypeProfile will be
+            // generated to resolve one of the method references when two or more classes overrides the method.
+            return (MessageBuffer) mbBBConstructor.newInstance(bb);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void releaseBuffer(MessageBuffer buffer)
     {
         if (isUniversalBuffer || buffer.base instanceof byte[]) {
             // We have nothing to do. Wait until the garbage-collector collects this array object
+        }
+        else if (DirectBufferAccess.isDirectByteBufferInstance(buffer.base)) {
+            DirectBufferAccess.clean(buffer.base);
         }
         else {
             // Maybe cannot reach here
@@ -225,6 +263,35 @@ public class MessageBuffer
         this.base = arr;
         this.address = ARRAY_BYTE_BASE_OFFSET + offset;
         this.size = length;
+        this.reference = null;
+    }
+
+    /**
+     * Create a MessageBuffer instance from a given ByteBuffer instance
+     *
+     * @param bb
+     */
+    MessageBuffer(ByteBuffer bb)
+    {
+        if (bb.isDirect()) {
+            if (isUniversalBuffer) {
+                throw new IllegalStateException("Cannot create MessageBuffer from DirectBuffer");
+            }
+            // Direct buffer or off-heap memory
+            this.base = null;
+            this.address = DirectBufferAccess.getAddress(bb);
+            this.size = bb.capacity();
+            this.reference = bb;
+        }
+        else if (bb.hasArray()) {
+            this.base = bb.array();
+            this.address = ARRAY_BYTE_BASE_OFFSET;
+            this.size = bb.array().length;
+            this.reference = null;
+        }
+        else {
+            throw new IllegalArgumentException("Only the array-backed ByteBuffer or DirectBuffer are supported");
+        }
     }
 
     protected MessageBuffer(Object base, long address, int length)
@@ -232,6 +299,7 @@ public class MessageBuffer
         this.base = base;
         this.address = address;
         this.size = length;
+        this.reference = null;
     }
 
     /**
@@ -393,6 +461,11 @@ public class MessageBuffer
         }
     }
 
+    public void putMessageBuffer(int index, MessageBuffer src, int srcOffset, int len)
+    {
+        unsafe.copyMemory(src.base, src.address + srcOffset, base, address + index, len);
+    }
+
     /**
      * Create a ByteBuffer view of the range [index, index+length) of this memory
      *
@@ -402,7 +475,13 @@ public class MessageBuffer
      */
     public ByteBuffer sliceAsByteBuffer(int index, int length)
     {
-        return ByteBuffer.wrap((byte[]) base, (int) ((address - ARRAY_BYTE_BASE_OFFSET) + index), length);
+        if (hasArray()) {
+            return ByteBuffer.wrap((byte[]) base, (int) ((address - ARRAY_BYTE_BASE_OFFSET) + index), length);
+        }
+        else {
+            assert (!isUniversalBuffer);
+            return DirectBufferAccess.newByteBuffer(address, index, length, reference);
+        }
     }
 
     /**
@@ -413,6 +492,11 @@ public class MessageBuffer
     public ByteBuffer sliceAsByteBuffer()
     {
         return sliceAsByteBuffer(0, size());
+    }
+
+    public boolean hasArray()
+    {
+        return base instanceof byte[];
     }
 
     /**
