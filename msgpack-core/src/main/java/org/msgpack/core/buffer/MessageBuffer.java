@@ -325,7 +325,7 @@ public class MessageBuffer
 
     public static void releaseBuffer(MessageBuffer buffer)
     {
-        if (isUniversalBuffer || buffer.base != null) {
+        if (isUniversalBuffer || buffer.hasArray()) {
             // We have nothing to do. Wait until the garbage-collector collects this array object
         }
         else if (DirectBufferAccess.isDirectByteBufferInstance(buffer.reference)) {
@@ -536,7 +536,7 @@ public class MessageBuffer
             src.position(src.position() + len);
         }
         else {
-            if (base != null) {
+            if (hasArray()) {
                 src.get((byte[]) base, index, len);
             }
             else {
@@ -561,7 +561,7 @@ public class MessageBuffer
      */
     public ByteBuffer sliceAsByteBuffer(int index, int length)
     {
-        if (base != null) {
+        if (hasArray()) {
             return ByteBuffer.wrap((byte[]) base, (int) ((address - ARRAY_BYTE_BASE_OFFSET) + index), length);
         }
         else {
