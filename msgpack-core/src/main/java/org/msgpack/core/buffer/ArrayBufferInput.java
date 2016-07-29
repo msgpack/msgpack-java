@@ -15,8 +15,6 @@
 //
 package org.msgpack.core.buffer;
 
-import java.io.IOException;
-
 import static org.msgpack.core.Preconditions.checkNotNull;
 
 /**
