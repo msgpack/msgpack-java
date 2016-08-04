@@ -198,7 +198,7 @@ public class MessageBuffer
     }
 
     /**
-     * Wraps a ByteBuffer into a MessageBuffer.
+     * Wraps a byte array into a MessageBuffer.
      *
      * The new MessageBuffer will be backed by the given byte array. Modifications to the new MessageBuffer will cause the byte array to be modified and vice versa.
      *
@@ -214,7 +214,7 @@ public class MessageBuffer
     }
 
     /**
-     * Wraps a ByteBuffer into a MessageBuffer.
+     * Wraps a byte array into a MessageBuffer.
      *
      * The new MessageBuffer will be backed by the given byte array. Modifications to the new MessageBuffer will cause the byte array to be modified and vice versa.
      *
@@ -264,28 +264,7 @@ public class MessageBuffer
     private static MessageBuffer newMessageBuffer(byte[] arr, int off, int len)
     {
         checkNotNull(arr);
-        try {
-            return (MessageBuffer) mbArrConstructor.newInstance(arr, off, len);
-        }
-        catch (InstantiationException e) {
-            // should never happen
-            throw new IllegalStateException(e);
-        }
-        catch (IllegalAccessException e) {
-            // should never happen unless security manager restricts this reflection
-            throw new IllegalStateException(e);
-        }
-        catch (InvocationTargetException e) {
-            if (e.getCause() instanceof RuntimeException) {
-                // underlaying constructor may throw RuntimeException
-                throw (RuntimeException) e.getCause();
-            }
-            else if (e.getCause() instanceof Error) {
-                throw (Error) e.getCause();
-            }
-            // should never happen
-            throw new IllegalStateException(e.getCause());
-        }
+        return newInstance(mbArrConstructor, arr, off, len);
     }
 
     /**
@@ -297,10 +276,21 @@ public class MessageBuffer
     private static MessageBuffer newMessageBuffer(ByteBuffer bb)
     {
         checkNotNull(bb);
+        return newInstance(mbBBConstructor, bb);
+    }
+
+    /**
+     * Creates a new MessageBuffer instance
+     *
+     * @param constructor A MessageBuffer constructor
+     * @return new MessageBuffer instance
+     */
+    private static MessageBuffer newInstance(Constructor<?> constructor, Object... args)
+    {
         try {
             // We need to use reflection to create MessageBuffer instances in order to prevent TypeProfile generation for getInt method. TypeProfile will be
             // generated to resolve one of the method references when two or more classes overrides the method.
-            return (MessageBuffer) mbBBConstructor.newInstance(bb);
+            return (MessageBuffer) constructor.newInstance(args);
         }
         catch (InstantiationException e) {
             // should never happen
