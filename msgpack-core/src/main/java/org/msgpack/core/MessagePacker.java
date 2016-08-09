@@ -20,6 +20,7 @@ import org.msgpack.core.buffer.MessageBufferOutput;
 import org.msgpack.value.Value;
 
 import java.io.Closeable;
+import java.io.Flushable;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -83,7 +84,7 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  * </p>
  */
 public class MessagePacker
-        implements Closeable
+        implements Closeable, Flushable
 {
     private final int smallStringOptimizationThreshold;
 
