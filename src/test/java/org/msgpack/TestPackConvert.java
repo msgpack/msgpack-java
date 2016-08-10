@@ -151,6 +151,27 @@ public class TestPackConvert extends TestSet {
     }
 
     @Test @Override
+    public void testFloatViaInteger() throws Exception {
+	super.testFloatViaInteger();
+    }
+
+    @Override
+    public void testFloatViaInteger(float v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	packer.write((long)v);
+	byte[] bytes = out.toByteArray();
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
+	Value value = unpacker.readValue();
+	assertTrue(value.isIntegerValue());
+	float ret = new Converter(value).readFloat();
+	assertEquals(v, ret, 10e-10);
+    assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+
+    @Test @Override
     public void testDouble() throws Exception {
 	super.testDouble();
     }
@@ -170,6 +191,28 @@ public class TestPackConvert extends TestSet {
 	assertEquals(v, ret, 10e-10);
 	assertEquals(bytes.length, unpacker.getReadByteCount());
     }
+
+    @Test @Override
+    public void testDoubleViaInteger() throws Exception {
+	super.testDoubleViaInteger();
+    }
+
+    @Override
+    public void testDoubleViaInteger(double v) throws Exception {
+	MessagePack msgpack = new MessagePack();
+	ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Packer packer = msgpack.createPacker(out);
+	packer.write((long)v);
+	byte[] bytes = out.toByteArray();
+	BufferUnpacker unpacker = msgpack.createBufferUnpacker(bytes);
+	unpacker.resetReadByteCount();
+	Value value = unpacker.readValue();
+	assertTrue(value.isIntegerValue());
+	double ret = new Converter(value).readFloat();
+	assertEquals(v, ret, 10e-10);
+    assertEquals(bytes.length, unpacker.getReadByteCount());
+    }
+
 
     @Test @Override
     public void testNil() throws Exception {

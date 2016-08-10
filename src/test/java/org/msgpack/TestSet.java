@@ -205,6 +205,30 @@ public class TestSet {
     public void testFloat(float v) throws Exception {
     }
 
+    public void testFloatViaInteger() throws Exception {
+	testFloatViaInteger((float)Math.round(0.0));
+	testFloatViaInteger((float)Math.round(-0.0));
+	testFloatViaInteger((float)Math.round(1.0));
+	testFloatViaInteger((float)Math.round(-1.0));
+	assert Long.MAX_VALUE < Float.MAX_VALUE;
+	float max_round_val = (float)Long.MAX_VALUE;
+	testFloatViaInteger(max_round_val);
+	assert Long.MIN_VALUE > -Float.MAX_VALUE;
+	float min_round_val = (float)Long.MIN_VALUE;
+	testFloatViaInteger(min_round_val);
+	Random rand = new Random();
+	for (int i = 0; i < 1000; i++) {
+	    float f = rand.nextFloat();
+	    if (f > max_round_val) f = max_round_val;
+	    else if (f < min_round_val) f = min_round_val;
+	    else f = (float)Math.round(f);
+	    testFloatViaInteger(f);
+	}
+    }
+
+    public void testFloatViaInteger(float v) throws Exception {
+    }
+
     public void testFloatArray() throws Exception {
         testFloatArray(null);
         testFloatArray(new float[0]);
@@ -247,6 +271,115 @@ public class TestSet {
     }
 
     public void testDouble(double v) throws Exception {
+    }
+
+    public void testDoubleViaInteger() throws Exception {
+	testDoubleViaInteger(Math.round(0.0));
+	testDoubleViaInteger(Math.round(-0.0));
+	testDoubleViaInteger(Math.round(1.0));
+	testDoubleViaInteger(Math.round(-1.0));
+	assert Long.MAX_VALUE < Double.MAX_VALUE;
+	double max_round_val = (double)Long.MAX_VALUE;
+	testDoubleViaInteger(max_round_val);
+	assert Long.MIN_VALUE > -Double.MAX_VALUE;
+	double min_round_val = (double)Long.MIN_VALUE;
+	testDoubleViaInteger(min_round_val);
+	Random rand = new Random();
+	for (int i = 0; i < 1000; i++) {
+	    double f = rand.nextDouble();
+	    if (f > max_round_val) f = max_round_val;
+	    else if (f < min_round_val) f = min_round_val;
+	    else f = Math.round(f);
+	    testDoubleViaInteger(f);
+	}
+    }
+
+    public void testDoubleViaInteger(double v) throws Exception {
+    }
+
+    public void testNumber() throws Exception {
+	testNumber((byte)0);
+	testNumber((short)0);
+	testNumber((int)0);
+	testNumber((long)0);
+	testNumber(BigInteger.valueOf(0));
+	testNumber((float)0.0);
+	testNumber((double)0.0);
+	testNumber((byte)1);
+	testNumber((short)1);
+	testNumber((int)1);
+	testNumber((long)1);
+	testNumber(BigInteger.valueOf(1));
+	testNumber((float)1.0);
+	testNumber((double)1.0);
+	testNumber((byte)-1);
+	testNumber((short)-1);
+	testNumber((int)-1);
+	testNumber((long)-1);
+	testNumber(BigInteger.valueOf(-1));
+	testNumber((float)-1.0);
+	testNumber((double)-1.0);
+	testNumber(Byte.MIN_VALUE);
+	testNumber(Byte.MAX_VALUE);
+	testNumber(Short.MIN_VALUE);
+	testNumber(Short.MAX_VALUE);
+	testNumber(Integer.MIN_VALUE);
+	testNumber(Integer.MAX_VALUE);
+	testNumber(Long.MIN_VALUE);
+	testNumber(Long.MAX_VALUE);
+	testNumber(BigInteger.valueOf(Long.MIN_VALUE));
+	testNumber(BigInteger.valueOf(Long.MAX_VALUE));
+	testNumber(Float.MAX_VALUE);
+	testNumber(Float.MIN_VALUE);
+	testNumber(Float.NaN);
+	testNumber(Float.NEGATIVE_INFINITY);
+	testNumber(Float.POSITIVE_INFINITY);
+	testNumber(Double.MAX_VALUE);
+	testNumber(Double.MIN_VALUE);
+	testNumber(Double.NaN);
+	testNumber(Double.NEGATIVE_INFINITY);
+	testNumber(Double.POSITIVE_INFINITY);
+	Random rand = new Random();
+	byte[] bytes = new byte[2000];
+	rand.nextBytes(bytes);
+	for (int i = 0; i < bytes.length; ++i) {
+	    testNumber(bytes[i]);
+	}
+	rand.nextBytes(bytes);
+	for (int i = 0; i < bytes.length; i = i + 2) {
+	    testNumber((short) ((bytes[i] << 8) | (bytes[i + 1] & 0xff)));
+	}
+	for (int i = 0; i < 1000; i++) {
+	    testNumber(rand.nextInt());
+	}
+	for (int i = 0; i < 1000; i++) {
+	    testNumber(rand.nextLong());
+	}
+	BigInteger max = BigInteger.valueOf(Long.MAX_VALUE).setBit(63);
+	for (int i = 0; i < 1000; i++) {
+	    testNumber(max.subtract(BigInteger.valueOf(Math.abs(rand.nextLong()))));
+	}
+	for (int i = 0; i < 1000; i++) {
+	    testNumber(rand.nextFloat());
+	}
+	for (int i = 0; i < 1000; i++) {
+	    testNumber(rand.nextDouble());
+	}
+    }
+
+    public void testNumber(byte v) throws Exception {
+    }
+    public void testNumber(int v) throws Exception {
+    }
+    public void testNumber(short v) throws Exception {
+    }
+    public void testNumber(long v) throws Exception {
+    }
+    public void testNumber(BigInteger v) throws Exception {
+    }
+    public void testNumber(float v) throws Exception {
+    }
+    public void testNumber(double v) throws Exception {
     }
 
     public void testDoubleArray() throws Exception {
