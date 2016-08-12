@@ -29,6 +29,7 @@ class MessageBufferTest
 
   "MessageBuffer" should {
 
+    val universal = MessageBuffer.allocate(0).isInstanceOf[MessageBufferU]
     "check buffer type" in {
       val b = MessageBuffer.allocate(0)
       info(s"MessageBuffer type: ${b.getClass.getName}")
@@ -55,7 +56,7 @@ class MessageBufferTest
       val M = 64 * 1024 * 1024
 
       val ub = MessageBuffer.allocate(M)
-      val ud = MessageBuffer.wrap(ByteBuffer.allocateDirect(M))
+      val ud = if (universal) MessageBuffer.wrap(ByteBuffer.allocate(M)) else MessageBuffer.wrap(ByteBuffer.allocateDirect(M))
       val hb = ByteBuffer.allocate(M)
       val db = ByteBuffer.allocateDirect(M)
 
@@ -150,13 +151,14 @@ class MessageBufferTest
         }
       }
     }
+    val builder = Seq.newBuilder[MessageBuffer]
+    builder += MessageBuffer.allocate(10)
+    builder += MessageBuffer.wrap(ByteBuffer.allocate(10))
+    if (!universal) builder += MessageBuffer.wrap(ByteBuffer.allocateDirect(10))
+    val buffers = builder.result()
 
     "convert to ByteBuffer" in {
-      for (t <- Seq(
-        MessageBuffer.allocate(10),
-        MessageBuffer.wrap(ByteBuffer.allocate(10)),
-        MessageBuffer.wrap(ByteBuffer.allocateDirect(10)))
-      ) {
+      for (t <- buffers) {
         val bb = t.sliceAsByteBuffer
         bb.position shouldBe 0
         bb.limit shouldBe 10
@@ -165,11 +167,7 @@ class MessageBufferTest
     }
 
     "put ByteBuffer on itself" in {
-      for (t <- Seq(
-        MessageBuffer.allocate(10),
-        MessageBuffer.wrap(ByteBuffer.allocate(10)),
-        MessageBuffer.wrap(ByteBuffer.allocateDirect(10)))
-      ) {
+      for (t <- buffers) {
         val b = Array[Byte](0x02, 0x03)
         val srcArray = ByteBuffer.wrap(b)
         val srcHeap = ByteBuffer.allocate(b.length)
@@ -193,19 +191,18 @@ class MessageBufferTest
     }
 
     "put MessageBuffer on itself" in {
-      for (t <- Seq(
-        MessageBuffer.allocate(10),
-        MessageBuffer.wrap(ByteBuffer.allocate(10)),
-        MessageBuffer.wrap(ByteBuffer.allocateDirect(10)))
-      ) {
+      for (t <- buffers) {
         val b = Array[Byte](0x02, 0x03)
         val srcArray = ByteBuffer.wrap(b)
         val srcHeap = ByteBuffer.allocate(b.length)
         srcHeap.put(b).flip
         val srcOffHeap = ByteBuffer.allocateDirect(b.length)
         srcOffHeap.put(b).flip
+        val builder = Seq.newBuilder[ByteBuffer]
+        builder ++= Seq(srcArray, srcHeap)
+        if (!universal) builder += srcOffHeap
 
-        for (src <- Seq(MessageBuffer.wrap(srcArray), MessageBuffer.wrap(srcHeap), MessageBuffer.wrap(srcOffHeap))) {
+        for (src <- builder.result().map(d => MessageBuffer.wrap(d))) {
           // Write header bytes
           val header = Array[Byte](0x00, 0x01)
           t.putBytes(0, header, 0, header.length)
@@ -256,7 +253,9 @@ class MessageBufferTest
 
       checkSliceAndCopyTo(MessageBuffer.wrap(prepareBytes), MessageBuffer.wrap(prepareBytes))
       checkSliceAndCopyTo(MessageBuffer.wrap(ByteBuffer.wrap(prepareBytes)), MessageBuffer.wrap(ByteBuffer.wrap(prepareBytes)))
-      checkSliceAndCopyTo(MessageBuffer.wrap(prepareDirectBuffer), MessageBuffer.wrap(prepareDirectBuffer))
+      if (!universal) {
+        checkSliceAndCopyTo(MessageBuffer.wrap(prepareDirectBuffer), MessageBuffer.wrap(prepareDirectBuffer))
+      }
     }
   }
 }

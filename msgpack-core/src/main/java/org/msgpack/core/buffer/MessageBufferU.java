@@ -31,10 +31,7 @@ public class MessageBufferU
     MessageBufferU(byte[] arr, int offset, int length)
     {
         super(arr, offset, length);
-        ByteBuffer bb = ByteBuffer.wrap(arr);
-        bb.position(offset);
-        bb.limit(offset + length);
-        this.wrap = bb.slice();
+        this.wrap = ByteBuffer.wrap(arr, offset, length).slice();
     }
 
     MessageBufferU(ByteBuffer bb)
@@ -246,6 +243,12 @@ public class MessageBufferU
         finally {
             resetBufferPosition();
         }
+    }
+
+    @Override
+    public void putMessageBuffer(int index, MessageBuffer src, int srcOffset, int len)
+    {
+        putBytes(index, src.toByteArray(), srcOffset, len);
     }
 
     @Override

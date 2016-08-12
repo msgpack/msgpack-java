@@ -46,6 +46,7 @@ import MessageUnpackerTest._
 
 class MessageUnpackerTest extends MessagePackSpec {
 
+  val universal = MessageBuffer.allocate(0).isInstanceOf[MessageBufferU]
   def testData: Array[Byte] = {
     val out = new ByteArrayOutputStream()
     val packer = MessagePack.newDefaultPacker(out)
@@ -194,11 +195,14 @@ class MessageUnpackerTest extends MessagePackSpec {
     val db = ByteBuffer.allocateDirect(data.length)
     bb.put(data).flip()
     db.put(data).flip()
-    Seq(
-      MessagePack.newDefaultUnpacker(data),
-      MessagePack.newDefaultUnpacker(bb),
-      MessagePack.newDefaultUnpacker(db)
-    )
+    val builder = Seq.newBuilder[MessageUnpacker]
+    builder += MessagePack.newDefaultUnpacker(data)
+    builder +=  MessagePack.newDefaultUnpacker(bb)
+    if (!universal) {
+      builder += MessagePack.newDefaultUnpacker(db)
+    }
+
+    builder.result()
   }
 
   "MessageUnpacker" should {
@@ -394,7 +398,7 @@ class MessageUnpackerTest extends MessagePackSpec {
             override val unpacker = MessagePack.newDefaultUnpacker(bb)
           }.run
         }
-        block("v7-direct-buffer") {
+        if (!universal) block("v7-direct-buffer") {
           new Fixture {
             val db = ByteBuffer.allocateDirect(data.length)
             db.put(data).flip()
@@ -405,7 +409,7 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       t("v7-array").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
       t("v7-array-buffer").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
-      t("v7-direct-buffer").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
+      if (!universal) t("v7-direct-buffer").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
     }
 
     import org.msgpack.`type`.{ValueType => ValueTypeV6}
@@ -518,7 +522,8 @@ class MessageUnpackerTest extends MessagePackSpec {
             override val unpacker = MessagePack.newDefaultUnpacker(bb)
           }.run
         }
-        block("v7-direct-buffer") {
+
+        if (!universal) block("v7-direct-buffer") {
           new Fixture {
             val db = ByteBuffer.allocateDirect(data.length)
             db.put(data).flip()
@@ -529,7 +534,7 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       t("v7-array").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
       t("v7-array-buffer").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
-      t("v7-direct-buffer").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
+      if (!universal) t("v7-direct-buffer").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
 
     }
 
@@ -603,7 +608,7 @@ class MessageUnpackerTest extends MessagePackSpec {
           }.run
         }
 
-        block("v7-direct-buffer") {
+        if (!universal) block("v7-direct-buffer") {
           new Fixture {
             val db = ByteBuffer.allocateDirect(b.length)
             db.put(b).flip()
@@ -628,7 +633,7 @@ class MessageUnpackerTest extends MessagePackSpec {
           }.run
         }
 
-        block("v7-ref-direct-buffer") {
+        if (!universal) block("v7-ref-direct-buffer") {
           new Fixture {
             val db = ByteBuffer.allocateDirect(b.length)
             db.put(b).flip()
