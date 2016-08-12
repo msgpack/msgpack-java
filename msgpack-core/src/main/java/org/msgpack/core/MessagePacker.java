@@ -532,8 +532,7 @@ public class MessagePacker
                         throw new IllegalArgumentException("Unexpected UTF-8 encoder state");
                     }
                     // move 1 byte backward to expand 3-byte header region to 3 bytes
-                    buffer.putBytes(position + 3,
-                            buffer.array(), buffer.arrayOffset() + position + 2, written);
+                    buffer.putMessageBuffer(position + 3, buffer, position + 2, written);
                     // write 3-byte header
                     buffer.putByte(position++, STR16);
                     buffer.putShort(position, (short) written);
@@ -561,8 +560,7 @@ public class MessagePacker
                         throw new IllegalArgumentException("Unexpected UTF-8 encoder state");
                     }
                     // move 2 bytes backward to expand 3-byte header region to 5 bytes
-                    buffer.putBytes(position + 5,
-                            buffer.array(), buffer.arrayOffset() + position + 3, written);
+                    buffer.putMessageBuffer(position + 5, buffer, position + 3, written);
                     // write 3-byte header header
                     buffer.putByte(position++, STR32);
                     buffer.putInt(position, written);

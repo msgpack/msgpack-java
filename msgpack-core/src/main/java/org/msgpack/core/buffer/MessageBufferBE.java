@@ -15,6 +15,8 @@
 //
 package org.msgpack.core.buffer;
 
+import java.nio.ByteBuffer;
+
 import static org.msgpack.core.Preconditions.checkArgument;
 
 /**
@@ -28,6 +30,11 @@ public class MessageBufferBE
     MessageBufferBE(byte[] arr, int offset, int length)
     {
         super(arr, offset, length);
+    }
+
+    MessageBufferBE(ByteBuffer bb)
+    {
+        super(bb);
     }
 
     private MessageBufferBE(Object base, long address, int length)

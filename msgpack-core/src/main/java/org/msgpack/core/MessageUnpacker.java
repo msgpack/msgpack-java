@@ -213,14 +213,9 @@ public class MessageUnpacker
             // fill the temporary buffer from the current data fragment and
             // next fragment(s).
 
-            // TODO buffer.array() doesn't work if MessageBuffer is allocated by
-            //      newDirectBuffer. dd copy method to MessageBuffer to solve this issue.
-
             int off = 0;
             if (remaining > 0) {
-                numberBuffer.putBytes(0,
-                        buffer.array(), buffer.arrayOffset() + position,
-                        remaining);
+                numberBuffer.putMessageBuffer(0, buffer, position, remaining);
                 readLength -= remaining;
                 off += remaining;
             }
@@ -229,16 +224,12 @@ public class MessageUnpacker
                 nextBuffer();
                 int nextSize = buffer.size();
                 if (nextSize >= readLength) {
-                    numberBuffer.putBytes(off,
-                            buffer.array(), buffer.arrayOffset(),
-                            readLength);
+                    numberBuffer.putMessageBuffer(off, buffer, 0, readLength);
                     position = readLength;
                     break;
                 }
                 else {
-                    numberBuffer.putBytes(off,
-                            buffer.array(), buffer.arrayOffset(),
-                            nextSize);
+                    numberBuffer.putMessageBuffer(off, buffer, 0, nextSize);
                     readLength -= nextSize;
                     off += nextSize;
                 }
@@ -1041,7 +1032,8 @@ public class MessageUnpacker
     private String decodeStringFastPath(int length)
     {
         if (actionOnMalformedString == CodingErrorAction.REPLACE &&
-                actionOnUnmappableString == CodingErrorAction.REPLACE) {
+                actionOnUnmappableString == CodingErrorAction.REPLACE &&
+                buffer.hasArray()) {
             String s = new String(buffer.array(), buffer.arrayOffset() + position, length, MessagePack.UTF8);
             position += length;
             return s;

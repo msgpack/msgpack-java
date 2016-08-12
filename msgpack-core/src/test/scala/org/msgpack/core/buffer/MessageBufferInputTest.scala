@@ -94,6 +94,11 @@ class MessageBufferInputTest
           ArrayBufferInput(_))
     }
 
+    "support ByteBuffers" in {
+      runTest(b => new
+          ByteBufferInput(b.toByteBuffer))
+    }
+
     "support InputStreams" taggedAs ("is") in {
       runTest(b =>
         new

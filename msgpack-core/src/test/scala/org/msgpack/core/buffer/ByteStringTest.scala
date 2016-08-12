@@ -43,4 +43,14 @@ class ByteStringTest
 
     MessagePack.newDefaultUnpacker(input).unpackString()
   }
+
+  "Unpacking a ByteString's ByteBuffer" should {
+    "fail with a regular MessageBuffer" in {
+
+      // can't demonstrate with new ByteBufferInput(byteString.asByteBuffer)
+      // as Travis tests run with JDK6 that picks up MessageBufferU
+      a[RuntimeException] shouldBe thrownBy(unpackString(new
+          MessageBuffer(byteString.asByteBuffer)))
+    }
+  }
 }

@@ -15,8 +15,6 @@
 //
 package org.msgpack.core.buffer;
 
-import java.io.IOException;
-
 import static org.msgpack.core.Preconditions.checkNotNull;
 
 /**
@@ -80,7 +78,6 @@ public class ArrayBufferInput
 
     @Override
     public MessageBuffer next()
-            throws IOException
     {
         if (isEmpty) {
             return null;
@@ -91,7 +88,6 @@ public class ArrayBufferInput
 
     @Override
     public void close()
-            throws IOException
     {
         buffer = null;
         isEmpty = true;

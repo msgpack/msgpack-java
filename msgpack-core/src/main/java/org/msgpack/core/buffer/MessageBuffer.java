@@ -19,6 +19,7 @@ import sun.misc.Unsafe;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -43,6 +44,7 @@ public class MessageBuffer
      * Reference to MessageBuffer Constructors
      */
     private static final Constructor<?> mbArrConstructor;
+    private static final Constructor<?> mbBBConstructor;
 
     /**
      * The offset from the object memory header to its byte array data
@@ -145,6 +147,11 @@ public class MessageBuffer
                 Constructor<?> mbArrCstr = bufferCls.getDeclaredConstructor(byte[].class, int.class, int.class);
                 mbArrCstr.setAccessible(true);
                 mbArrConstructor = mbArrCstr;
+
+                // MessageBufferX(ByteBuffer) constructor
+                Constructor<?> mbBBCstr = bufferCls.getDeclaredConstructor(ByteBuffer.class);
+                mbBBCstr.setAccessible(true);
+                mbBBConstructor = mbBBCstr;
             }
             catch (Exception e) {
                 e.printStackTrace(System.err);
@@ -170,19 +177,76 @@ public class MessageBuffer
      */
     protected final int size;
 
-    public static MessageBuffer allocate(int length)
+    /**
+     * Reference is used to hold a reference to an object that holds the underlying memory so that it cannot be
+     * released by the garbage collector.
+     */
+    protected final ByteBuffer reference;
+
+    /**
+     * Allocates a new MessageBuffer backed by a byte array.
+     *
+     * @throws IllegalArgumentException If the capacity is a negative integer
+     *
+     */
+    public static MessageBuffer allocate(int size)
     {
-        return wrap(new byte[length]);
+        if (size < 0) {
+            throw new IllegalArgumentException("size must not be negative");
+        }
+        return wrap(new byte[size]);
     }
 
+    /**
+     * Wraps a byte array into a MessageBuffer.
+     *
+     * The new MessageBuffer will be backed by the given byte array. Modifications to the new MessageBuffer will cause the byte array to be modified and vice versa.
+     *
+     * The new buffer's size will be array.length. hasArray() will return true.
+     *
+     * @param array the byte array that will gack this MessageBuffer
+     * @return
+     *
+     */
     public static MessageBuffer wrap(byte[] array)
     {
         return newMessageBuffer(array, 0, array.length);
     }
 
+    /**
+     * Wraps a byte array into a MessageBuffer.
+     *
+     * The new MessageBuffer will be backed by the given byte array. Modifications to the new MessageBuffer will cause the byte array to be modified and vice versa.
+     *
+     * The new buffer's size will be length. hasArray() will return true.
+     *
+     * @param array the byte array that will gack this MessageBuffer
+     * @param offset The offset of the subarray to be used; must be non-negative and no larger than array.length
+     * @param length The length of the subarray to be used; must be non-negative and no larger than array.length - offset
+     * @return
+     *
+     */
     public static MessageBuffer wrap(byte[] array, int offset, int length)
     {
         return newMessageBuffer(array, offset, length);
+    }
+
+    /**
+     * Wraps a ByteBuffer into a MessageBuffer.
+     *
+     * The new MessageBuffer will be backed by the given byte buffer. Modifications to the new MessageBuffer will cause the byte buffer to be modified and vice versa. However, change of position, limit, or mark of given byte buffer doesn't affect MessageBuffer.
+     *
+     * The new buffer's size will be bb.remaining(). hasArray() will return the same result with bb.hasArray().
+     *
+     * @param bb the byte buffer that will gack this MessageBuffer
+     * @throws IllegalArgumentException given byte buffer returns false both from hasArray() and isDirect()
+     * @throws UnsupportedOperationException given byte buffer is a direct buffer and this platform doesn't support Unsafe API
+     * @return
+     *
+     */
+    public static MessageBuffer wrap(ByteBuffer bb)
+    {
+        return newMessageBuffer(bb);
     }
 
     /**
@@ -194,18 +258,62 @@ public class MessageBuffer
     private static MessageBuffer newMessageBuffer(byte[] arr, int off, int len)
     {
         checkNotNull(arr);
+        return newInstance(mbArrConstructor, arr, off, len);
+    }
+
+    /**
+     * Creates a new MessageBuffer instance backed by ByteBuffer
+     *
+     * @param bb
+     * @return
+     */
+    private static MessageBuffer newMessageBuffer(ByteBuffer bb)
+    {
+        checkNotNull(bb);
+        return newInstance(mbBBConstructor, bb);
+    }
+
+    /**
+     * Creates a new MessageBuffer instance
+     *
+     * @param constructor A MessageBuffer constructor
+     * @return new MessageBuffer instance
+     */
+    private static MessageBuffer newInstance(Constructor<?> constructor, Object... args)
+    {
         try {
-            return (MessageBuffer) mbArrConstructor.newInstance(arr, off, len);
+            // We need to use reflection to create MessageBuffer instances in order to prevent TypeProfile generation for getInt method. TypeProfile will be
+            // generated to resolve one of the method references when two or more classes overrides the method.
+            return (MessageBuffer) constructor.newInstance(args);
         }
-        catch (Throwable e) {
-            throw new RuntimeException(e);
+        catch (InstantiationException e) {
+            // should never happen
+            throw new IllegalStateException(e);
+        }
+        catch (IllegalAccessException e) {
+            // should never happen unless security manager restricts this reflection
+            throw new IllegalStateException(e);
+        }
+        catch (InvocationTargetException e) {
+            if (e.getCause() instanceof RuntimeException) {
+                // underlaying constructor may throw RuntimeException
+                throw (RuntimeException) e.getCause();
+            }
+            else if (e.getCause() instanceof Error) {
+                throw (Error) e.getCause();
+            }
+            // should never happen
+            throw new IllegalStateException(e.getCause());
         }
     }
 
     public static void releaseBuffer(MessageBuffer buffer)
     {
-        if (isUniversalBuffer || buffer.base instanceof byte[]) {
+        if (isUniversalBuffer || buffer.hasArray()) {
             // We have nothing to do. Wait until the garbage-collector collects this array object
+        }
+        else if (DirectBufferAccess.isDirectByteBufferInstance(buffer.reference)) {
+            DirectBufferAccess.clean(buffer.reference);
         }
         else {
             // Maybe cannot reach here
@@ -222,9 +330,38 @@ public class MessageBuffer
      */
     MessageBuffer(byte[] arr, int offset, int length)
     {
-        this.base = arr;
+        this.base = arr;  // non-null is already checked at newMessageBuffer
         this.address = ARRAY_BYTE_BASE_OFFSET + offset;
         this.size = length;
+        this.reference = null;
+    }
+
+    /**
+     * Create a MessageBuffer instance from a given ByteBuffer instance
+     *
+     * @param bb
+     */
+    MessageBuffer(ByteBuffer bb)
+    {
+        if (bb.isDirect()) {
+            if (isUniversalBuffer) {
+                throw new UnsupportedOperationException("Cannot create MessageBuffer from a DirectBuffer on this platform");
+            }
+            // Direct buffer or off-heap memory
+            this.base = null;
+            this.address = DirectBufferAccess.getAddress(bb) + bb.position();
+            this.size = bb.remaining();
+            this.reference = bb;
+        }
+        else if (bb.hasArray()) {
+            this.base = bb.array();
+            this.address = ARRAY_BYTE_BASE_OFFSET + bb.arrayOffset() + bb.position();
+            this.size = bb.remaining();
+            this.reference = null;
+        }
+        else {
+            throw new IllegalArgumentException("Only the array-backed ByteBuffer or DirectBuffer is supported");
+        }
     }
 
     protected MessageBuffer(Object base, long address, int length)
@@ -232,6 +369,7 @@ public class MessageBuffer
         this.base = base;
         this.address = address;
         this.size = length;
+        this.reference = null;
     }
 
     /**
@@ -382,7 +520,7 @@ public class MessageBuffer
             src.position(src.position() + len);
         }
         else {
-            if (base != null) {
+            if (hasArray()) {
                 src.get((byte[]) base, index, len);
             }
             else {
@@ -391,6 +529,11 @@ public class MessageBuffer
                 }
             }
         }
+    }
+
+    public void putMessageBuffer(int index, MessageBuffer src, int srcOffset, int len)
+    {
+        unsafe.copyMemory(src.base, src.address + srcOffset, base, address + index, len);
     }
 
     /**
@@ -402,7 +545,13 @@ public class MessageBuffer
      */
     public ByteBuffer sliceAsByteBuffer(int index, int length)
     {
-        return ByteBuffer.wrap((byte[]) base, (int) ((address - ARRAY_BYTE_BASE_OFFSET) + index), length);
+        if (hasArray()) {
+            return ByteBuffer.wrap((byte[]) base, (int) ((address - ARRAY_BYTE_BASE_OFFSET) + index), length);
+        }
+        else {
+            assert (!isUniversalBuffer);
+            return DirectBufferAccess.newByteBuffer(address, index, length, reference);
+        }
     }
 
     /**
@@ -413,6 +562,11 @@ public class MessageBuffer
     public ByteBuffer sliceAsByteBuffer()
     {
         return sliceAsByteBuffer(0, size());
+    }
+
+    public boolean hasArray()
+    {
+        return base != null;
     }
 
     /**
