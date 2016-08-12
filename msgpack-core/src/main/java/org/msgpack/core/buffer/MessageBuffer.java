@@ -246,13 +246,7 @@ public class MessageBuffer
      */
     public static MessageBuffer wrap(ByteBuffer bb)
     {
-        MessageBuffer b = newMessageBuffer(bb);
-        if (bb.position() > 0 || bb.limit() != bb.capacity()) {
-            return b.slice(bb.position(), bb.remaining());
-        }
-        else {
-            return b;
-        }
+        return newMessageBuffer(bb);
     }
 
     /**
@@ -355,14 +349,14 @@ public class MessageBuffer
             }
             // Direct buffer or off-heap memory
             this.base = null;
-            this.address = DirectBufferAccess.getAddress(bb);
-            this.size = bb.capacity();
+            this.address = DirectBufferAccess.getAddress(bb) + bb.position();
+            this.size = bb.remaining();
             this.reference = bb;
         }
         else if (bb.hasArray()) {
             this.base = bb.array();
-            this.address = ARRAY_BYTE_BASE_OFFSET;
-            this.size = bb.array().length;
+            this.address = ARRAY_BYTE_BASE_OFFSET + bb.arrayOffset() + bb.position();
+            this.size = bb.remaining();
             this.reference = null;
         }
         else {
