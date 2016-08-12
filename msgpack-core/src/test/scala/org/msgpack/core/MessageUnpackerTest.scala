@@ -367,6 +367,10 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       val data = testData3(10000)
       val N = 100
+      val bb = ByteBuffer.allocate(data.length)
+      bb.put(data).flip()
+      val db = ByteBuffer.allocateDirect(data.length)
+      db.put(data).flip()
 
       val t = time("skip performance", repeat = N) {
         block("v6") {
@@ -393,15 +397,11 @@ class MessageUnpackerTest extends MessagePackSpec {
 
         block("v7-array-buffer") {
           new Fixture {
-            val bb = ByteBuffer.allocate(data.length)
-            bb.put(data).flip()
             override val unpacker = MessagePack.newDefaultUnpacker(bb)
           }.run
         }
         if (!universal) block("v7-direct-buffer") {
           new Fixture {
-            val db = ByteBuffer.allocateDirect(data.length)
-            db.put(data).flip()
             override val unpacker = MessagePack.newDefaultUnpacker(db)
           }.run
         }
@@ -493,6 +493,11 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       val data = testData3(10000)
       val N = 100
+      val bb = ByteBuffer.allocate(data.length)
+      bb.put(data).flip()
+      val db = ByteBuffer.allocateDirect(data.length)
+      db.put(data).flip()
+
       val t = time("unpack performance", repeat = N) {
         block("v6") {
           val v6 = new org.msgpack.MessagePack()
@@ -517,16 +522,12 @@ class MessageUnpackerTest extends MessagePackSpec {
 
         block("v7-array-buffer") {
           new Fixture {
-            val bb = ByteBuffer.allocate(data.length)
-            bb.put(data).flip()
             override val unpacker = MessagePack.newDefaultUnpacker(bb)
           }.run
         }
 
         if (!universal) block("v7-direct-buffer") {
           new Fixture {
-            val db = ByteBuffer.allocateDirect(data.length)
-            db.put(data).flip()
             override val unpacker = MessagePack.newDefaultUnpacker(db)
           }.run
         }
@@ -580,6 +581,11 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
       }
       val b = bos.toByteArray
+      val bb = ByteBuffer.allocate(b.length)
+      bb.put(b).flip()
+      val db = ByteBuffer.allocateDirect(b.length)
+      db.put(b).flip()
+
       time("unpackBinary", repeat = 100) {
         block("v6") {
           val v6 = new org.msgpack.MessagePack()
@@ -601,8 +607,6 @@ class MessageUnpackerTest extends MessagePackSpec {
 
         block("v7-array-buffer") {
           new Fixture {
-            val bb = ByteBuffer.allocate(b.length)
-            bb.put(b).flip()
             override val unpacker = MessagePack.newDefaultUnpacker(bb)
             override val loop = R
           }.run
@@ -610,8 +614,6 @@ class MessageUnpackerTest extends MessagePackSpec {
 
         if (!universal) block("v7-direct-buffer") {
           new Fixture {
-            val db = ByteBuffer.allocateDirect(b.length)
-            db.put(b).flip()
             override val unpacker = MessagePack.newDefaultUnpacker(db)
             override val loop = R
           }.run
@@ -621,25 +623,21 @@ class MessageUnpackerTest extends MessagePackSpec {
           new Fixture {
             override val unpacker = MessagePack.newDefaultUnpacker(b)
             override val loop = R
-          }.run
+          }.runRef
         }
 
         block("v7-ref-array-buffer") {
           new Fixture {
-            val bb = ByteBuffer.allocate(b.length)
-            bb.put(b).flip()
             override val unpacker = MessagePack.newDefaultUnpacker(bb)
             override val loop = R
-          }.run
+          }.runRef
         }
 
         if (!universal) block("v7-ref-direct-buffer") {
           new Fixture {
-            val db = ByteBuffer.allocateDirect(b.length)
-            db.put(b).flip()
             override val unpacker = MessagePack.newDefaultUnpacker(db)
             override val loop = R
-          }.run
+          }.runRef
         }
       }
     }
