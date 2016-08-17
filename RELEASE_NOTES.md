@@ -1,5 +1,9 @@
 # Release Notes
 
+## 0.8.9
+ * Add DirectByteBuffer support
+ * Add Flushable interface to MessagePacker
+
 ## 0.8.8
  * [Fix Unexpected UTF-8 encoder state](https://github.com/msgpack/msgpack-java/issues/371)
  * Make MessageUnpacker.hasNext extensible
