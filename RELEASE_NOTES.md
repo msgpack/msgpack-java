@@ -1,5 +1,8 @@
 # Release Notes
 
+## 0.8.10
+ * Fixed a bug of unpackString [#387](https://github.com/msgpack/msgpack-java/pull/387) at the buffer boundary
+
 ## 0.8.9
  * Add DirectByteBuffer support
  * Add Flushable interface to MessagePacker
