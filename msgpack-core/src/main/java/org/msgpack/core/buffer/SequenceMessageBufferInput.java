@@ -16,6 +16,8 @@
 package org.msgpack.core.buffer;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 
 import static org.msgpack.core.Preconditions.checkNotNull;
@@ -36,7 +38,15 @@ public class SequenceMessageBufferInput
             nextInput();
         }
         catch (IOException ignore) {
+            // never happens
         }
+    }
+
+    public SequenceMessageBufferInput(MessageBufferInput input1, MessageBufferInput input2)
+    {
+        this(Collections.enumeration(Arrays.asList(
+                checkNotNull(input1, "input1 is null"),
+                checkNotNull(input2, "input2 is null"))));
     }
 
     @Override
