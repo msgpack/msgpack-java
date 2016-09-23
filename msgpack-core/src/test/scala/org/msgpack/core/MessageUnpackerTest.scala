@@ -17,11 +17,13 @@ package org.msgpack.core
 
 import java.io._
 import java.nio.ByteBuffer
+import java.util.Collections
 
 import org.msgpack.core.buffer._
 import org.msgpack.value.ValueType
 import xerial.core.io.IOUtil._
 
+import scala.collection.JavaConversions._
 import scala.util.Random
 
 object MessageUnpackerTest {
@@ -205,6 +207,34 @@ class MessageUnpackerTest extends MessagePackSpec {
     builder.result()
   }
 
+  def sequenceUnpackers(data: Array[Byte], size: Int) : Seq[MessageUnpacker] = {
+    val seqBytes = Seq.newBuilder[MessageBufferInput]
+    val seqByteBuffers = Seq.newBuilder[MessageBufferInput]
+    val seqDirectBuffers = Seq.newBuilder[MessageBufferInput]
+    var left = data.length
+    var position = 0
+    while (left > 0) {
+      val length = Math.min(size, left)
+      seqBytes += new ArrayBufferInput(data, position, length);
+      val bb = ByteBuffer.allocate(length)
+      val db = ByteBuffer.allocateDirect(length)
+      bb.put(data, position, length).flip()
+      db.put(data, position, length).flip()
+      seqByteBuffers += new ByteBufferInput(bb);
+      seqDirectBuffers += new ByteBufferInput(db);
+      left -= length
+      position += length
+    }
+    val builder = Seq.newBuilder[MessageUnpacker]
+    builder += MessagePack.newDefaultUnpacker(new SequenceMessageBufferInput(Collections.enumeration(seqBytes.result())))
+    builder += MessagePack.newDefaultUnpacker(new SequenceMessageBufferInput(Collections.enumeration(seqByteBuffers.result())))
+    if (!universal) {
+      builder += MessagePack.newDefaultUnpacker(new SequenceMessageBufferInput(Collections.enumeration(seqDirectBuffers.result())))
+    }
+
+    builder.result()
+  }
+
   "MessageUnpacker" should {
 
     "parse message packed data" taggedAs ("unpack") in {
@@ -330,21 +360,28 @@ class MessageUnpackerTest extends MessagePackSpec {
       new SplitTest {val data = testData3(30)}.run
     }
 
-    "read numeric data at buffer boundary" taggedAs("boundary2") in {
+    "read data at buffer boundary" taggedAs("boundary2") in {
       val packer = MessagePack.newDefaultBufferPacker()
       (0 until 1170).foreach{i =>
         packer.packLong(0x0011223344556677L)
-        packer.packString("hello")
+        packer.packString("hello world")
       }
       packer.close
       val data = packer.toByteArray
 
-      val unpacker =  MessagePack.newDefaultUnpacker(new InputStreamBufferInput(new ByteArrayInputStream(data), 8192))
+      var unpacker =  MessagePack.newDefaultUnpacker(new InputStreamBufferInput(new ByteArrayInputStream(data), 8192))
       (0 until 1170).foreach { i =>
         unpacker.unpackLong() shouldBe 0x0011223344556677L
-        unpacker.unpackString() shouldBe "hello"
+        unpacker.unpackString() shouldBe "hello world"
       }
       unpacker.close()
+
+      for (unpacker <- sequenceUnpackers(data, 32)) {
+        (0 until 1170).foreach { i =>
+          unpacker.unpackLong() shouldBe 0x0011223344556677L
+          unpacker.unpackString() shouldBe "hello world"
+        }
+      }
     }
 
     "be faster then msgpack-v6 skip" taggedAs ("cmp-skip") in {

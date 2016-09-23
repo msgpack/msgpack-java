@@ -940,11 +940,12 @@ public class MessageUnpacker
         if (len > stringSizeLimit) {
             throw new MessageSizeException(String.format("cannot unpack a String of size larger than %,d: %,d", stringSizeLimit, len), len);
         }
+
+        resetDecoder(); // should be invoked only once per value
+
         if (buffer.size() - position >= len) {
             return decodeStringFastPath(len);
         }
-
-        resetDecoder();
 
         try {
             int rawRemaining = len;
@@ -1039,10 +1040,7 @@ public class MessageUnpacker
             return s;
         }
         else {
-            resetDecoder();
-            ByteBuffer bb = buffer.sliceAsByteBuffer();
-            bb.limit(position + length);
-            bb.position(position);
+            ByteBuffer bb = buffer.sliceAsByteBuffer(position, length);
             CharBuffer cb;
             try {
                 cb = decoder.decode(bb);
