@@ -63,7 +63,7 @@ public class SequenceMessageBufferInput
         if (sequence.hasMoreElements()) {
             input = sequence.nextElement();
             if (input == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("An element in the MessageBufferInput sequence is null");
             }
         }
         else {

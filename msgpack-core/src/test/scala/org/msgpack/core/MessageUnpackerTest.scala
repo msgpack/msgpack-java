@@ -207,21 +207,21 @@ class MessageUnpackerTest extends MessagePackSpec {
     builder.result()
   }
 
-  def sequenceUnpackers(data: Array[Byte], size: Int) : Seq[MessageUnpacker] = {
+  def unpackerCollectionWithVariousBuffers(data: Array[Byte], chunkSize: Int) : Seq[MessageUnpacker] = {
     val seqBytes = Seq.newBuilder[MessageBufferInput]
     val seqByteBuffers = Seq.newBuilder[MessageBufferInput]
     val seqDirectBuffers = Seq.newBuilder[MessageBufferInput]
     var left = data.length
     var position = 0
     while (left > 0) {
-      val length = Math.min(size, left)
-      seqBytes += new ArrayBufferInput(data, position, length);
+      val length = Math.min(chunkSize, left)
+      seqBytes += new ArrayBufferInput(data, position, length)
       val bb = ByteBuffer.allocate(length)
       val db = ByteBuffer.allocateDirect(length)
       bb.put(data, position, length).flip()
       db.put(data, position, length).flip()
-      seqByteBuffers += new ByteBufferInput(bb);
-      seqDirectBuffers += new ByteBufferInput(db);
+      seqByteBuffers += new ByteBufferInput(bb)
+      seqDirectBuffers += new ByteBufferInput(db)
       left -= length
       position += length
     }
@@ -360,25 +360,47 @@ class MessageUnpackerTest extends MessagePackSpec {
       new SplitTest {val data = testData3(30)}.run
     }
 
-    "read data at buffer boundary" taggedAs("boundary2") in {
+    "read integer at MessageBuffer boundaries" taggedAs("integer-buffer-boundary") in {
       val packer = MessagePack.newDefaultBufferPacker()
       (0 until 1170).foreach{i =>
         packer.packLong(0x0011223344556677L)
+      }
+      packer.close
+      val data = packer.toByteArray
+
+      // Boundary test
+      withResource(MessagePack.newDefaultUnpacker(new InputStreamBufferInput(new ByteArrayInputStream(data), 8192))) { unpacker =>
+        (0 until 1170).foreach { i =>
+          unpacker.unpackLong() shouldBe 0x0011223344556677L
+        }
+      }
+
+      // Boundary test for sequences of ByteBuffer, DirectByteBuffer backed MessageInput.
+      for (unpacker <- unpackerCollectionWithVariousBuffers(data, 32)) {
+        (0 until 1170).foreach { i =>
+          unpacker.unpackLong() shouldBe 0x0011223344556677L
+        }
+      }
+    }
+
+    "read string at MessageBuffer boundaries" taggedAs("string-buffer-boundary") in {
+      val packer = MessagePack.newDefaultBufferPacker()
+      (0 until 1170).foreach{i =>
         packer.packString("hello world")
       }
       packer.close
       val data = packer.toByteArray
 
-      var unpacker =  MessagePack.newDefaultUnpacker(new InputStreamBufferInput(new ByteArrayInputStream(data), 8192))
-      (0 until 1170).foreach { i =>
-        unpacker.unpackLong() shouldBe 0x0011223344556677L
-        unpacker.unpackString() shouldBe "hello world"
-      }
-      unpacker.close()
-
-      for (unpacker <- sequenceUnpackers(data, 32)) {
+      // Boundary test
+      withResource(MessagePack.newDefaultUnpacker(new InputStreamBufferInput(new ByteArrayInputStream(data), 8192))) { unpacker =>
         (0 until 1170).foreach { i =>
-          unpacker.unpackLong() shouldBe 0x0011223344556677L
+          unpacker.unpackString() shouldBe "hello world"
+        }
+      }
+
+      // Boundary test for sequences of ByteBuffer, DirectByteBuffer backed MessageInput.
+      for (unpacker <- unpackerCollectionWithVariousBuffers(data, 32)) {
+        (0 until 1170).foreach { i =>
           unpacker.unpackString() shouldBe "hello world"
         }
       }
