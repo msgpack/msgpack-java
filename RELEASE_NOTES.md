@@ -1,5 +1,8 @@
 # Release Notes
 
+## 0.8.11
+ * Fixed NPE when write(add)Payload are used at the beginning [#392](https://github.com/msgpack/msgpack-java/pull/392)
+
 ## 0.8.10
  * Fixed a bug of unpackString [#387](https://github.com/msgpack/msgpack-java/pull/387) at the buffer boundary
 
