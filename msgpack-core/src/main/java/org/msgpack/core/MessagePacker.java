@@ -729,8 +729,9 @@ public class MessagePacker
     public MessagePacker writePayload(byte[] src, int off, int len)
             throws IOException
     {
-        if (buffer.size() - position < len || len > bufferFlushThreshold) {
+        if (buffer == null || buffer.size() - position < len || len > bufferFlushThreshold) {
             flush();  // call flush before write
+            // Directly write payload to the output without using the buffer
             out.write(src, off, len);
             totalFlushBytes += len;
         }
@@ -770,8 +771,9 @@ public class MessagePacker
     public MessagePacker addPayload(byte[] src, int off, int len)
             throws IOException
     {
-        if (buffer.size() - position < len || len > bufferFlushThreshold) {
+        if (buffer == null || buffer.size() - position < len || len > bufferFlushThreshold) {
             flush();  // call flush before add
+            // Directly add the payload without using the buffer
             out.add(src, off, len);
             totalFlushBytes += len;
         }

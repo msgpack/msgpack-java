@@ -317,4 +317,17 @@ class MessagePackerTest extends MessagePackSpec {
     val s = unpacker.unpackString()
     s shouldBe "small string"
   }
+
+  "write raw binary" taggedAs("raw-binary") in {
+    val packer = new MessagePack.PackerConfig().newBufferPacker()
+    val msg = Array[Byte](-127, -92, 116, 121, 112, 101, -92, 112, 105, 110, 103)
+    packer.writePayload(msg)
+  }
+
+  "append raw binary" taggedAs("append-raw-binary") in {
+    val packer = new MessagePack.PackerConfig().newBufferPacker()
+    val msg = Array[Byte](-127, -92, 116, 121, 112, 101, -92, 112, 105, 110, 103)
+    packer.addPayload(msg)
+  }
+
 }
