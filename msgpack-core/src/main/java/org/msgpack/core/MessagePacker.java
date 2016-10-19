@@ -67,21 +67,65 @@ import static org.msgpack.core.MessagePack.Code.UINT8;
 import static org.msgpack.core.Preconditions.checkNotNull;
 
 /**
- * Writer of message packed data.
- * <p/>
+ * MessagePack serializer that converts objects into binary.
+ * You can use factory methods of {@link MessagePack} class or {@link MessagePack.PackerConfig} class to create
+ * an instance.
  * <p>
- * MessagePacker provides packXXX methods for writing values in the message pack format.
- * To write raw string or binary data, first use packRawStringHeader or packBinaryHeader to specify the data length,
- * then call writePayload(...) method.
- * </p>
- * <p/>
+ * This class provides following primitive methods to write MessagePack values. These primitive methods write
+ * short bytes (1 to 7 bytes) to the internal buffer at once. There also some complex methods for convenience.
  * <p>
- * MessagePacker class has no guarantee to produce the correct message-pack format data if it is not used correctly:
- * packXXX methods of primitive values always produce the correct format, but
- * packXXXHeader (e.g. array, map, ext) must be followed by correct number of array/map/ext type values.
- * packRawStringHeader(length) and packBinaryHeader(length) must be followed by writePayload( ... length) to supply
- * the binary data of the specified length in the header.
- * </p>
+ * Primitive methods:
+ *
+ * <table>
+ *   <tr><th>Java type</th><th>Packer method</th><th>MessagePack type</th></tr>
+ *   <tr><td>null</td><td>{@link #packNil()}</td><td>Nil</td></tr>
+ *   <tr><td>boolean</td><td>{@link #packBoolean(boolean)}</td><td>Boolean</td></tr>
+ *   <tr><td>byte</td><td>{@link #packByte(byte)}</td><td>Integer</td></tr>
+ *   <tr><td>short</td><td>{@link #packShort(short)}</td><td>Integer</td></tr>
+ *   <tr><td>int</td><td>{@link #packInt(int)}</td><td>Integer</td></tr>
+ *   <tr><td>long</td><td>{@link #packLong(long)}</td><td>Integer</td></tr>
+ *   <tr><td>BigInteger</td><td>{@link #packBigInteger(BigInteger)}</td><td>Integer</td></tr>
+ *   <tr><td>float</td><td>{@link #packFloat(float)}</td><td>Float</td></tr>
+ *   <tr><td>double</td><td>{@link #packDouble(double)}</td><td>Float</td></tr>
+ *   <tr><td>byte[]</td><td>{@link #packBinaryHeader(int)}</td><td>Binary</td></tr>
+ *   <tr><td>String</td><td>{@link #packRawStringHeader(int)}</td><td>String</td></tr>
+ *   <tr><td>List</td><td>{@link #packArrayHeader(int)}</td><td>Array</td></tr>
+ *   <tr><td>Map</td><td>{@link #packMapHeader(int)}</td><td>Map</td></tr>
+ *   <tr><td>custom user type</td><td>{@link #packExtensionTypeHeader(byte, int)}</td><td>Extension</td></tr>
+ * </table>
+ *
+ * <p>
+ * Complex methods:
+ *
+ * <table>
+ *   <tr><th>Java type</th><th>Packer method</th><th>MessagePack type</th></tr>
+ *   <tr><td>String</td><td>{@link #packString(String)}</td><td>String</td></tr>
+ *   <tr><td>{@link Value}</td><td>{@link #packValue(Value)}</td><td></td></tr>
+ * </table>
+ *
+ * <p>
+ * To write a byte array, first you call {@link #packBinaryHeader} method with length of the byte array. Then,
+ * you call {@link #writePayload(byte[], int, int)} or {@link #addPayload(byte[], int, int)} method to write the
+ * contents.
+ *
+ * <p>
+ * To write a List, Collection or array, first you call {@link #packArrayHeader(int)} method with the number of
+ * elements. Then, you call packer methods for each element. You don't have to call anything at the end of
+ * iteration.
+ *
+ * <p>
+ * To write a Map, first you call {@link #packMapHeader(int)} method with size of the map. Then, for each pair,
+ * you call packer methods for key first, and then value. You will call packer methods twice as many time as the
+ * size of the map. You don't have to call anything at the end of iteration.
+ *
+ * <p>
+ * Note that packXxxHeader methods don't validate number of elements. You must call packer methods for correct
+ * number of times to produce valid MessagePack data.
+ *
+ * <p>
+ * When IOException is thrown, primitive methods guarantee that all data is written to the internal buffer or no data
+ * is written. This is convenient behavior when you use a non-blocking output channel that may not be writable
+ * immediately.
  */
 public class MessagePacker
         implements Closeable, Flushable
@@ -92,6 +136,9 @@ public class MessagePacker
 
     private final boolean str8FormatSupport;
 
+    /**
+     * Current internal buffer.
+     */
     protected MessageBufferOutput out;
 
     private MessageBuffer buffer;
@@ -126,10 +173,18 @@ public class MessagePacker
     }
 
     /**
-     * Reset output. This method doesn't close the old resource.
+     * Replaces underlaying output.
+     * <p>
+     * This method flushes current internal buffer to the output, swaps it with the new given output, then returns
+     * the old output.
+     *
+     * <p>
+     * This method doesn't close the old output.
      *
      * @param out new output
-     * @return the old resource
+     * @return the old output
+     * @throws IOException when underlaying output throws IOException
+     * @throws NullPointerException the given output is null
      */
     public MessageBufferOutput reset(MessageBufferOutput out)
             throws IOException
@@ -148,11 +203,26 @@ public class MessagePacker
         return old;
     }
 
+    /**
+     * Returns total number of written bytes.
+     * <p>
+     * This method returns total of amount of data flushed to the underlaying output plus size of current
+     * internal buffer.
+     *
+     * <p>
+     * Calling {@link #reset(MessageBufferOutput)} resets this number to 0.
+     */
     public long getTotalWrittenBytes()
     {
         return totalFlushBytes + position;
     }
 
+    /**
+     * Flushes internal buffer to the underlaying output.
+     * <p>
+     * This method also calls flush method of the underlaying output after writing internal buffer.
+     */
+    @Override
     public void flush()
             throws IOException
     {
@@ -162,6 +232,12 @@ public class MessagePacker
         out.flush();
     }
 
+    /**
+     * Closes underlaying output.
+     * <p>
+     * This method flushes internal buffer before closing.
+     */
+    @Override
     public void close()
             throws IOException
     {
@@ -278,6 +354,14 @@ public class MessagePacker
         position += 8;
     }
 
+    /**
+     * Writes a Nil value.
+     *
+     * This method writes a nil byte.
+     *
+     * @return this
+     * @throws IOException when underlaying output throws IOException
+     */
     public MessagePacker packNil()
             throws IOException
     {
@@ -285,6 +369,14 @@ public class MessagePacker
         return this;
     }
 
+    /**
+     * Writes a Boolean value.
+     *
+     * This method writes a true byte or a false byte.
+     *
+     * @return this
+     * @throws IOException when underlaying output throws IOException
+     */
     public MessagePacker packBoolean(boolean b)
             throws IOException
     {
@@ -292,6 +384,16 @@ public class MessagePacker
         return this;
     }
 
+    /**
+     * Writes an Integer value.
+     *
+     * <p>
+     * This method writes an integer using the smallest format from the int format family.
+     *
+     * @param b the integer to be written
+     * @return this
+     * @throws IOException when underlaying output throws IOException
+     */
     public MessagePacker packByte(byte b)
             throws IOException
     {
@@ -304,6 +406,16 @@ public class MessagePacker
         return this;
     }
 
+    /**
+     * Writes an Integer value.
+     *
+     * <p>
+     * This method writes an integer using the smallest format from the int format family.
+     *
+     * @param v the integer to be written
+     * @return this
+     * @throws IOException when underlaying output throws IOException
+     */
     public MessagePacker packShort(short v)
             throws IOException
     {
@@ -329,6 +441,16 @@ public class MessagePacker
         return this;
     }
 
+    /**
+     * Writes an Integer value.
+     *
+     * <p>
+     * This method writes an integer using the smallest format from the int format family.
+     *
+     * @param v the integer to be written
+     * @return this
+     * @throws IOException when underlaying output throws IOException
+     */
     public MessagePacker packInt(int r)
             throws IOException
     {
@@ -361,6 +483,16 @@ public class MessagePacker
         return this;
     }
 
+    /**
+     * Writes an Integer value.
+     *
+     * <p>
+     * This method writes an integer using the smallest format from the int format family.
+     *
+     * @param v the integer to be written
+     * @return this
+     * @throws IOException when underlaying output throws IOException
+     */
     public MessagePacker packLong(long v)
             throws IOException
     {
@@ -407,6 +539,16 @@ public class MessagePacker
         return this;
     }
 
+    /**
+     * Writes an Integer value.
+     *
+     * <p>
+     * This method writes an integer using the smallest format from the int format family.
+     *
+     * @param bi the integer to be written
+     * @return this
+     * @throws IOException when underlaying output throws IOException
+     */
     public MessagePacker packBigInteger(BigInteger bi)
             throws IOException
     {
@@ -422,6 +564,16 @@ public class MessagePacker
         return this;
     }
 
+    /**
+     * Writes a Float value.
+     *
+     * <p>
+     * This method writes a float value using float format family.
+     *
+     * @param bi the integer to be written
+     * @return this
+     * @throws IOException when underlaying output throws IOException
+     */
     public MessagePacker packFloat(float v)
             throws IOException
     {
@@ -429,6 +581,16 @@ public class MessagePacker
         return this;
     }
 
+    /**
+     * Writes a Float value.
+     *
+     * <p>
+     * This method writes a float value using float format family.
+     *
+     * @param bi the integer to be written
+     * @return this
+     * @throws IOException when underlaying output throws IOException
+     */
     public MessagePacker packDouble(double v)
             throws IOException
     {
@@ -497,11 +659,14 @@ public class MessagePacker
     private static final int UTF_8_MAX_CHAR_SIZE = 6;
 
     /**
-     * Pack the input String in UTF-8 encoding
+     * Writes a String vlaue in UTF-8 encoding.
      *
-     * @param s
-     * @return
-     * @throws IOException
+     * <p>
+     * This method writes a UTF-8 string using the smallest format from the str format family by default. If {@link MessagePack.PackerConfig#withStr8FormatSupport(boolean)} is set to false, smallest format from the str format family excepting str8 format.
+     *
+     * @param s the string to be written
+     * @return this
+     * @throws IOException when underlaying output throws IOException
      */
     public MessagePacker packString(String s)
             throws IOException
@@ -581,6 +746,17 @@ public class MessagePacker
         return this;
     }
 
+    /**
+     * Writes header of an Array value.
+     * <p>
+     * You will call other packer methods for each element after this method call.
+     * <p>
+     * You don't have to call anything at the end of iteration.
+     *
+     * @param arraySize number of elements to be written
+     * @return this
+     * @throws IOException when underlaying output throws IOException
+     */
     public MessagePacker packArrayHeader(int arraySize)
             throws IOException
     {
@@ -600,6 +776,18 @@ public class MessagePacker
         return this;
     }
 
+    /**
+     * Writes header of a Map value.
+     * <p>
+     * After this method call, for each key-value pair, you will call packer methods for key first, and then value.
+     * You will call packer methods twice as many time as the size of the map.
+     * <p>
+     * You don't have to call anything at the end of iteration.
+     *
+     * @param mapSize number of pairs to be written
+     * @return this
+     * @throws IOException when underlaying output throws IOException
+     */
     public MessagePacker packMapHeader(int mapSize)
             throws IOException
     {
@@ -619,6 +807,13 @@ public class MessagePacker
         return this;
     }
 
+    /**
+     * Writes a dynamically typed value.
+     *
+     * @param v the value to be written
+     * @return this
+     * @throws IOException when underlaying output throws IOException
+     */
     public MessagePacker packValue(Value v)
             throws IOException
     {
@@ -626,6 +821,15 @@ public class MessagePacker
         return this;
     }
 
+    /**
+     * Writes header of an Extension value.
+     * <p>
+     * You will call {@link #writePayload(byte[])} or {@link #addPayload(byte[])} method to write body binary.
+     *
+     * @param len number of bytes of a payload binary to be written
+     * @return this
+     * @throws IOException when underlaying output throws IOException
+     */
     public MessagePacker packExtensionTypeHeader(byte extType, int payloadLen)
             throws IOException
     {
@@ -669,6 +873,15 @@ public class MessagePacker
         return this;
     }
 
+    /**
+     * Writes header of a Binary value.
+     * <p>
+     * You will call {@link #writePayload(byte[])} or {@link #addPayload(byte[])} method to write body binary.
+     *
+     * @param len number of bytes of a binary to be written
+     * @return this
+     * @throws IOException when underlaying output throws IOException
+     */
     public MessagePacker packBinaryHeader(int len)
             throws IOException
     {
@@ -684,6 +897,18 @@ public class MessagePacker
         return this;
     }
 
+    /**
+     * Writes header of a String value.
+     * <p>
+     * Length must be number of bytes of a string in UTF-8 encoding.
+     * <p>
+     * You will call {@link #writePayload(byte[])} or {@link #addPayload(byte[])} method to write body of the
+     * UTF-8 encoded string.
+     *
+     * @param len number of bytes of a UTF-8 string to be written
+     * @return this
+     * @throws IOException when underlaying output throws IOException
+     */
     public MessagePacker packRawStringHeader(int len)
             throws IOException
     {
@@ -703,12 +928,13 @@ public class MessagePacker
     }
 
     /**
-     * Writes buffer to the output.
-     * This method is used with packRawStringHeader or packBinaryHeader.
+     * Writes a byte array to the output.
+     * <p>
+     * This method is used with {@link #packRawStringHeader(int)} or {@link #packBinaryHeader(int)} methods.
      *
      * @param src the data to add
      * @return this
-     * @throws IOException
+     * @throws IOException when underlaying output throws IOException
      */
     public MessagePacker writePayload(byte[] src)
             throws IOException
@@ -717,14 +943,15 @@ public class MessagePacker
     }
 
     /**
-     * Writes buffer to the output.
-     * This method is used with packRawStringHeader or packBinaryHeader.
+     * Writes a byte array to the output.
+     * <p>
+     * This method is used with {@link #packRawStringHeader(int)} or {@link #packBinaryHeader(int)} methods.
      *
      * @param src the data to add
      * @param off the start offset in the data
      * @param len the number of bytes to add
      * @return this
-     * @throws IOException
+     * @throws IOException when underlaying output throws IOException
      */
     public MessagePacker writePayload(byte[] src, int off, int len)
             throws IOException
@@ -743,13 +970,15 @@ public class MessagePacker
     }
 
     /**
-     * Writes buffer to the output.
-     * Unlike writePayload method, addPayload method doesn't copy the source data. It means that the caller
-     * must not modify the data after calling this method.
+     * Writes a byte array to the output.
+     * <p>
+     * Unlike {@link #writePayload} method, this method doesn't copy the byte array even when given byte array
+     * is shorter than {@link MessagePack.PackerConfig#withBufferFlushThreshold(int)}. This is faster than
+     * {@link writePayload} method but caller must not modify the byte array after calling this method.
      *
      * @param src the data to add
      * @return this
-     * @throws IOException
+     * @throws IOException when underlaying output throws IOException
      */
     public MessagePacker addPayload(byte[] src)
             throws IOException
@@ -758,15 +987,17 @@ public class MessagePacker
     }
 
     /**
-     * Writes buffer to the output.
-     * Unlike writePayload method, addPayload method doesn't copy the source data. It means that the caller
-     * must not modify the data after calling this method.
+     * Writes a byte array to the output.
+     * <p>
+     * Unlike {@link #writePayload} method, this method doesn't copy the byte array even when given byte array
+     * is shorter than {@link MessagePack.PackerConfig#withBufferFlushThreshold(int)}. This is faster than
+     * {@link writePayload} method but caller must not modify the byte array after calling this method.
      *
      * @param src the data to add
      * @param off the start offset in the data
      * @param len the number of bytes to add
      * @return this
-     * @throws IOException
+     * @throws IOException when underlaying output throws IOException
      */
     public MessagePacker addPayload(byte[] src, int off, int len)
             throws IOException

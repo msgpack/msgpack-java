@@ -15,6 +15,9 @@
 //
 package org.msgpack.core;
 
+/**
+ * Exception that indicates end of input.
+ */
 public class MessageInsufficientBufferException
         extends MessagePackException
 {

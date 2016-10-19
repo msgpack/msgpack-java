@@ -33,20 +33,54 @@ import java.nio.charset.Charset;
 import java.nio.charset.CodingErrorAction;
 
 /**
- * This class has MessagePack prefix code definitions and packer/unpacker factory methods.
+ * Convenience class to build packer and unpacker classes.
+ *
+ * You may choose factory method as following
+ *
+ * <p>
+ * Deserializing objects from binary:
+ *
+ * <table>
+ *   <tr><th>Input type</th><th>Factory method</th><th>Return type</th></tr>
+ *   <tr><td>byte[]</td><td>{@link #newDefaultUnpacker(byte[], int, int)}</td><td>{@link MessageUnpacker}</td></tr>
+ *   <tr><td>ByteBuffer</td><td>{@link #newDefaultUnpacker(ByteBuffer)}</td><td>{@link MessageUnpacker}</td></tr>
+ *   <tr><td>InputStream</td><td>{@link #newDefaultUnpacker(InputStream)}</td><td>{@link MessageUnpacker}</td></tr>
+ *   <tr><td>ReadableByteChannel</td><td>{@link #newDefaultUnpacker(ReadableByteChannel)}</td><td>{@link MessageUnpacker}</td></tr>
+ *   <tr><td>{@link org.msgpack.core.buffer.MessageBufferInput}</td><td>{@link #newDefaultUnpacker(MessageBufferInput)}</td><td>{@link MessageUnpacker}</td></tr>
+ * </table>
+ *
+ * <p>
+ * Serializing objects into binary:
+ *
+ * <table>
+ *   <tr><th>Output type</th><th>Factory method</th><th>Return type</th></tr>
+ *   <tr><td>byte[]</td><td>{@link #newDefaultBufferPacker()}</td><td>{@link MessageBufferPacker}</td><tr>
+ *   <tr><td>OutputStream</td><td>{@link #newDefaultPacker(OutputStream)}</td><td>{@link MessagePacker}</td></tr>
+ *   <tr><td>WritableByteChannel</td><td>{@link #newDefaultPacker(WritableByteChannel)}</td><td>{@link MessagePacker}</td></tr>
+ *   <tr><td>{@link org.msgpack.core.buffer.MessageBufferOutput}</td><td>{@link #newDefaultPacker(MessageBufferOutput)}</td><td>{@link MessagePacker}</td></tr>
+ * </table>
+ *
  */
 public class MessagePack
 {
+    /**
+     * @exclude
+     * Applications should use java.nio.charset.StandardCharsets.UTF_8 instead since Java 7.
+     */
     public static final Charset UTF8 = Charset.forName("UTF-8");
 
     /**
-     * Default packer/unpacker configurations
+     * Configuration of a {@link MessagePacker} created by {@link #newDefaultPacker(MessageBufferOutput)} and {@link #newDefaultBufferPacker()} methods.
      */
     public static final PackerConfig DEFAULT_PACKER_CONFIG = new PackerConfig();
+
+    /**
+     * Configuration of a {@link MessageUnpacker} created by {@link #newDefaultUnpacker(MessageBufferInput)} methods.
+     */
     public static final UnpackerConfig DEFAULT_UNPACKER_CONFIG = new UnpackerConfig();
 
     /**
-     * The prefix code set of MessagePack. See also https://github.com/msgpack/msgpack/blob/master/spec.md for details.
+     * The prefix code set of MessagePack format. See also https://github.com/msgpack/msgpack/blob/master/spec.md for details.
      */
     public static final class Code
     {
@@ -139,10 +173,16 @@ public class MessagePack
     }
 
     /**
-     * Create a packer that outputs the packed data to the specified output
+     * Creates a packer that serializes objects into the specified output.
+     * <p>
+     * {@link org.msgpack.core.buffer.MessageBufferOutput} is an interface that lets applications customize memory
+     * allocation of internal buffer of {@link MessagePacker}. You may prefer {@link #newDefaultBufferPacker()},
+     * {@link #newDefaultPacker(OutputStream)}, or {@link #newDefaultPacker(WritableByteChannel)} methods instead.
+     * <p>
+     * This method is equivalent to <code>DEFAULT_PACKER_CONFIG.newPacker(out)</code>.
      *
-     * @param out
-     * @return
+     * @param out A MessageBufferOutput that allocates buffer chunks and receives the buffer chunks with packed data filled in them
+     * @return A new MessagePacker instance
      */
     public static MessagePacker newDefaultPacker(MessageBufferOutput out)
     {
@@ -150,10 +190,15 @@ public class MessagePack
     }
 
     /**
-     * Create a packer that outputs the packed data to a target output stream
+     * Creates a packer that serializes objects into the specified output stream.
+     * <p>
+     * Note that you don't have to wrap OutputStream in BufferedOutputStream because MessagePacker has buffering
+     * internally.
+     * <p>
+     * This method is equivalent to <code>DEFAULT_PACKER_CONFIG.newPacker(out)</code>.
      *
-     * @param out
-     * @return
+     * @param out The output stream that receives sequence of bytes
+     * @return A new MessagePacker instance
      */
     public static MessagePacker newDefaultPacker(OutputStream out)
     {
@@ -161,10 +206,12 @@ public class MessagePack
     }
 
     /**
-     * Create a packer that outputs the packed data to a channel
+     * Creates a packer that serializes objects into the specified writable channel.
+     * <p>
+     * This method is equivalent to <code>DEFAULT_PACKER_CONFIG.newPacker(channel)</code>.
      *
-     * @param channel
-     * @return
+     * @param channel The output channel that receives sequence of bytes
+     * @return A new MessagePacker instance
      */
     public static MessagePacker newDefaultPacker(WritableByteChannel channel)
     {
@@ -172,9 +219,13 @@ public class MessagePack
     }
 
     /**
-     * Create a packer for storing packed data into a byte array
+     * Creates a packer that serializes objects into byte arrays.
+     * <p>
+     * This method provides an optimized implementation of <code>newDefaultBufferPacker(new ByteArrayOutputStream())</code>.
      *
-     * @return
+     * This method is equivalent to <code>DEFAULT_PACKER_CONFIG.newBufferPacker()</code>.
+     *
+     * @return A new MessageBufferPacker instance
      */
     public static MessageBufferPacker newDefaultBufferPacker()
     {
@@ -182,10 +233,17 @@ public class MessagePack
     }
 
     /**
-     * Create an unpacker that reads the data from a given input
+     * Creates an unpacker that deserializes objects from a specified input.
+     * <p>
+     * {@link org.msgpack.core.buffer.MessageBufferInput} is an interface that lets applications customize memory
+     * allocation of internal buffer of {@link MessageUnpacker}. You may prefer
+     * {@link #newDefaultUnpacker(InputStream)}, {@link #newDefaultUnpacker(ReadableByteChannel)},
+     * {@link #newDefaultUnpacker(byte[], int, int)}, or {@link #newDefaultUnpacker(ByteBuffer)} methods instead.
+     * <p>
+     * This method is equivalent to <code>DEFAULT_UNPACKER_CONFIG.newDefaultUnpacker(in)</code>.
      *
-     * @param in
-     * @return
+     * @param in The input stream that provides sequence of buffer chunks and optionally reuses them when MessageUnpacker consumed one completely
+     * @return A new MessageUnpacker instance
      */
     public static MessageUnpacker newDefaultUnpacker(MessageBufferInput in)
     {
@@ -193,10 +251,15 @@ public class MessagePack
     }
 
     /**
-     * Create an unpacker that reads the data from a given input stream
+     * Creates an unpacker that deserializes objects from a specified input stream.
+     * <p>
+     * Note that you don't have to wrap InputStream in BufferedInputStream because MessageUnpacker has buffering
+     * internally.
+     * <p>
+     * This method is equivalent to <code>DEFAULT_UNPACKER_CONFIG.newDefaultUnpacker(in)</code>.
      *
-     * @param in
-     * @return
+     * @param in The input stream that provides sequence of bytes
+     * @return A new MessageUnpacker instance
      */
     public static MessageUnpacker newDefaultUnpacker(InputStream in)
     {
@@ -204,10 +267,12 @@ public class MessagePack
     }
 
     /**
-     * Create an unpacker that reads the data from a given channel
+     * Creates an unpacker that deserializes objects from a specified readable channel.
+     * <p>
+     * This method is equivalent to <code>DEFAULT_UNPACKER_CONFIG.newDefaultUnpacker(in)</code>.
      *
-     * @param channel
-     * @return
+     * @param channel The input channel that provides sequence of bytes
+     * @return A new MessageUnpacker instance
      */
     public static MessageUnpacker newDefaultUnpacker(ReadableByteChannel channel)
     {
@@ -215,10 +280,14 @@ public class MessagePack
     }
 
     /**
-     * Create an unpacker that reads the data from a given byte array
+     * Creates an unpacker that deserializes objects from a specified byte array.
+     * <p>
+     * This method provides an optimized implementation of <code>newDefaultUnpacker(new ByteArrayInputStream(contents))</code>.
+     * <p>
+     * This method is equivalent to <code>DEFAULT_UNPACKER_CONFIG.newDefaultUnpacker(contents)</code>.
      *
-     * @param contents
-     * @return
+     * @param contents The byte array that contains packed objects in MessagePack format
+     * @return A new MessageUnpacker instance that will never throw IOException
      */
     public static MessageUnpacker newDefaultUnpacker(byte[] contents)
     {
@@ -226,12 +295,16 @@ public class MessagePack
     }
 
     /**
-     * Create an unpacker that reads the data from a given byte array [offset, offset+length)
+     * Creates an unpacker that deserializes objects from subarray of a specified byte array.
+     * <p>
+     * This method provides an optimized implementation of <code>newDefaultUnpacker(new ByteArrayInputStream(contents, offset, length))</code>.
+     * <p>
+     * This method is equivalent to <code>DEFAULT_UNPACKER_CONFIG.newDefaultUnpacker(contents)</code>.
      *
-     * @param contents
-     * @param offset
-     * @param length
-     * @return
+     * @param contents The byte array that contains packed objects
+     * @param offset The index of the first byte
+     * @param length The number of bytes
+     * @return A new MessageUnpacker instance that will never throw IOException
      */
     public static MessageUnpacker newDefaultUnpacker(byte[] contents, int offset, int length)
     {
@@ -239,10 +312,16 @@ public class MessagePack
     }
 
     /**
-     * Create an unpacker that reads the data from a given ByteBuffer
+     * Creates an unpacker that deserializes objects from a specified ByteBuffer.
+     * <p>
+     * Note that the returned unpacker reads data from the current position of the ByteBuffer until its limit.
+     * However, its position does not change when unpacker reads data. You may use
+     * {@link MessageUnpacker#getTotalReadBytes()} to get actual amount of bytes used in ByteBuffer.
+     * <p>
+     * This method supports both non-direct buffer and direct buffer.
      *
-     * @param contents
-     * @return
+     * @param contents The byte buffer that contains packed objects
+     * @return A new MessageUnpacker instance that will never throw IOException
      */
     public static MessageUnpacker newDefaultUnpacker(ByteBuffer contents)
     {
@@ -305,10 +384,13 @@ public class MessagePack
         }
 
         /**
-         * Create a packer that outputs the packed data to a given output
+         * Creates a packer that serializes objects into the specified output.
+         * <p>
+         * {@link org.msgpack.core.buffer.MessageBufferOutput} is an interface that lets applications customize memory
+         * allocation of internal buffer of {@link MessagePacker}.
          *
-         * @param out
-         * @return
+         * @param out A MessageBufferOutput that allocates buffer chunks and receives the buffer chunks with packed data filled in them
+         * @return A new MessagePacker instance
          */
         public MessagePacker newPacker(MessageBufferOutput out)
         {
@@ -316,10 +398,13 @@ public class MessagePack
         }
 
         /**
-         * Create a packer that outputs the packed data to a given output stream
+         * Creates a packer that serializes objects into the specified output stream.
+         * <p>
+         * Note that you don't have to wrap OutputStream in BufferedOutputStream because MessagePacker has buffering
+         * internally.
          *
-         * @param out
-         * @return
+         * @param out The output stream that receives sequence of bytes
+         * @return A new MessagePacker instance
          */
         public MessagePacker newPacker(OutputStream out)
         {
@@ -327,10 +412,10 @@ public class MessagePack
         }
 
         /**
-         * Create a packer that outputs the packed data to a given output channel
+         * Creates a packer that serializes objects into the specified writable channel.
          *
-         * @param channel
-         * @return
+         * @param channel The output channel that receives sequence of bytes
+         * @return A new MessagePacker instance
          */
         public MessagePacker newPacker(WritableByteChannel channel)
         {
@@ -338,9 +423,11 @@ public class MessagePack
         }
 
         /**
-         * Create a packer for storing packed data into a byte array
+         * Creates a packer that serializes objects into byte arrays.
+         * <p>
+         * This method provides an optimized implementation of <code>newDefaultBufferPacker(new ByteArrayOutputStream())</code>.
          *
-         * @return
+         * @return A new MessageBufferPacker instance
          */
         public MessageBufferPacker newBufferPacker()
         {
@@ -348,13 +435,13 @@ public class MessagePack
         }
 
         /**
-         * Use String.getBytes() for converting Java Strings that are smaller than this threshold into UTF8.
+         * Use String.getBytes() for converting Java Strings that are shorter than this threshold.
          * Note that this parameter is subject to change.
          */
-        public PackerConfig withSmallStringOptimizationThreshold(int bytes)
+        public PackerConfig withSmallStringOptimizationThreshold(int length)
         {
             PackerConfig copy = clone();
-            copy.smallStringOptimizationThreshold = bytes;
+            copy.smallStringOptimizationThreshold = length;
             return copy;
         }
 
@@ -364,8 +451,8 @@ public class MessagePack
         }
 
         /**
-         * When the next payload size exceeds this threshold, MessagePacker will call MessageBufferOutput.flush() before
-         * packing the data (default: 8192).
+         * When the next payload size exceeds this threshold, MessagePacker will call
+         * {@link org.msgpack.core.buffer.MessageBufferOutput#flush()} before writing more data (default: 8192).
          */
         public PackerConfig withBufferFlushThreshold(int bytes)
         {
@@ -380,7 +467,7 @@ public class MessagePack
         }
 
         /**
-         * When a packer is created with newPacker(OutputStream) or newPacker(WritableByteChannel), the stream will be
+         * When a packer is created with {@link #newPacker(OutputStream)} or {@link #newPacker(WritableByteChannel)}, the stream will be
          * buffered with this size of buffer (default: 8192).
          */
         public PackerConfig withBufferSize(int bytes)
@@ -483,10 +570,13 @@ public class MessagePack
         }
 
         /**
-         * Create an unpacker that reads the data from a given input
+         * Creates an unpacker that deserializes objects from a specified input.
+         * <p>
+         * {@link org.msgpack.core.buffer.MessageBufferInput} is an interface that lets applications customize memory
+         * allocation of internal buffer of {@link MessageUnpacker}.
          *
-         * @param in
-         * @return
+         * @param in The input stream that provides sequence of buffer chunks and optionally reuses them when MessageUnpacker consumed one completely
+         * @return A new MessageUnpacker instance
          */
         public MessageUnpacker newUnpacker(MessageBufferInput in)
         {
@@ -494,10 +584,13 @@ public class MessagePack
         }
 
         /**
-         * Create an unpacker that reads the data from a given input stream
+         * Creates an unpacker that deserializes objects from a specified input stream.
+         * <p>
+         * Note that you don't have to wrap InputStream in BufferedInputStream because MessageUnpacker has buffering
+         * internally.
          *
-         * @param in
-         * @return
+         * @param in The input stream that provides sequence of bytes
+         * @return A new MessageUnpacker instance
          */
         public MessageUnpacker newUnpacker(InputStream in)
         {
@@ -505,10 +598,10 @@ public class MessagePack
         }
 
         /**
-         * Create an unpacker that reads the data from a given channel
+         * Creates an unpacker that deserializes objects from a specified readable channel.
          *
-         * @param channel
-         * @return
+         * @param channel The input channel that provides sequence of bytes
+         * @return A new MessageUnpacker instance
          */
         public MessageUnpacker newUnpacker(ReadableByteChannel channel)
         {
@@ -516,10 +609,12 @@ public class MessagePack
         }
 
         /**
-         * Create an unpacker that reads the data from a given byte array
+         * Creates an unpacker that deserializes objects from a specified byte array.
+         * <p>
+         * This method provides an optimized implementation of <code>newDefaultUnpacker(new ByteArrayInputStream(contents))</code>.
          *
-         * @param contents
-         * @return
+         * @param contents The byte array that contains packed objects in MessagePack format
+         * @return A new MessageUnpacker instance that will never throw IOException
          */
         public MessageUnpacker newUnpacker(byte[] contents)
         {
@@ -527,10 +622,14 @@ public class MessagePack
         }
 
         /**
-         * Create an unpacker that reads the data from a given byte array [offset, offset+size)
+         * Creates an unpacker that deserializes objects from subarray of a specified byte array.
+         * <p>
+         * This method provides an optimized implementation of <code>newDefaultUnpacker(new ByteArrayInputStream(contents, offset, length))</code>.
          *
-         * @param contents
-         * @return
+         * @param contents The byte array that contains packed objects
+         * @param offset The index of the first byte
+         * @param length The number of bytes
+         * @return A new MessageUnpacker instance that will never throw IOException
          */
         public MessageUnpacker newUnpacker(byte[] contents, int offset, int length)
         {
@@ -538,10 +637,14 @@ public class MessagePack
         }
 
         /**
-         * Create an unpacker that reads the data from a given ByteBuffer
+         * Creates an unpacker that deserializes objects from a specified ByteBuffer.
+         * <p>
+         * Note that the returned unpacker reads data from the current position of the ByteBuffer until its limit.
+         * However, its position does not change when unpacker reads data. You may use
+         * {@link MessageUnpacker#getTotalReadBytes()} to get actual amount of bytes used in ByteBuffer.
          *
-         * @param contents
-         * @return
+         * @param contents The byte buffer that contains packed objects
+         * @return A new MessageUnpacker instance that will never throw IOException
          */
         public MessageUnpacker newUnpacker(ByteBuffer contents)
         {
@@ -549,7 +652,7 @@ public class MessagePack
         }
 
         /**
-         * Allow unpackBinaryHeader to read str format family  (default: true)
+         * Allows unpackBinaryHeader to read str format family  (default: true)
          */
         public UnpackerConfig withAllowReadingStringAsBinary(boolean enable)
         {
@@ -564,7 +667,7 @@ public class MessagePack
         }
 
         /**
-         * Allow unpackString and unpackRawStringHeader and unpackString to read bin format family (default: true)
+         * Allows unpackString and unpackRawStringHeader and unpackString to read bin format family (default: true)
          */
         public UnpackerConfig withAllowReadingBinaryAsString(boolean enable)
         {
@@ -579,7 +682,7 @@ public class MessagePack
         }
 
         /**
-         * Action when encountered a malformed input (default: REPLACE)
+         * Sets action when encountered a malformed input (default: REPLACE)
          */
         public UnpackerConfig withActionOnMalformedString(CodingErrorAction action)
         {
@@ -594,7 +697,7 @@ public class MessagePack
         }
 
         /**
-         * Action when an unmappable character is found (default: REPLACE)
+         * Sets action when an unmappable character is found (default: REPLACE)
          */
         public UnpackerConfig withActionOnUnmappableString(CodingErrorAction action)
         {
