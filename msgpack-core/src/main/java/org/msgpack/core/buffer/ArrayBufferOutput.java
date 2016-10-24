@@ -19,7 +19,11 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * MessageBufferOutput adapter that packs data into list of byte arrays.
+ * MessageBufferOutput adapter that writes data into a list of byte arrays.
+ * <p>
+ * This class allocates a new buffer instead of resizing the buffer when data doesn't fit in the initial capacity.
+ * This is faster than ByteArrayOutputStream especially when size of written bytes is large because resizing a buffer
+ * usually needs to copy contents of the buffer.
  */
 public class ArrayBufferOutput
         implements MessageBufferOutput
@@ -39,6 +43,11 @@ public class ArrayBufferOutput
         this.list = new ArrayList<MessageBuffer>();
     }
 
+    /**
+     * Gets size of the written data.
+     *
+     * @return number of bytes
+     */
     public int getSize()
     {
         int size = 0;
@@ -48,6 +57,14 @@ public class ArrayBufferOutput
         return size;
     }
 
+    /**
+     * Gets copy of the written data as a byte array.
+     * <p>
+     * If your application needs better performance and smaller memory consumption, you may prefer
+     * {@link #toMessageBuffer()} or {@link #toBufferList()} to avoid copying.
+     *
+     * @return the byte array
+     */
     public byte[] toByteArray()
     {
         byte[] data = new byte[getSize()];
@@ -59,6 +76,14 @@ public class ArrayBufferOutput
         return data;
     }
 
+    /**
+     * Gets the written data as a MessageBuffer.
+     * <p>
+     * Unlike {@link #toByteArray()}, this method omits copy of the contents if size of the written data is smaller
+     * than a single buffer capacity.
+     *
+     * @return the MessageBuffer instance
+     */
     public MessageBuffer toMessageBuffer()
     {
         if (list.size() == 1) {
@@ -72,13 +97,21 @@ public class ArrayBufferOutput
         }
     }
 
+    /**
+     * Returns the written data as a list of MessageBuffer.
+     * <p>
+     * Unlike {@link #toByteArray()} or {@link #toMessageBuffer()}, this is the fastest method that doesn't
+     * copy contents in any cases.
+     *
+     * @return the list of MessageBuffer instances
+     */
     public List<MessageBuffer> toBufferList()
     {
         return new ArrayList<MessageBuffer>(list);
     }
 
     /**
-     * Clears the internal buffers
+     * Clears the written data.
      */
     public void clear()
     {

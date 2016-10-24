@@ -72,7 +72,7 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  * an instance.
  * <p>
  * This class provides following primitive methods to write MessagePack values. These primitive methods write
- * short bytes (1 to 7 bytes) to the internal buffer at once. There also some complex methods for convenience.
+ * short bytes (1 to 7 bytes) to the internal buffer at once. There are also some complex methods for convenience.
  * <p>
  * Primitive methods:
  *
@@ -110,13 +110,13 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  *
  * <p>
  * To write a List, Collection or array, first you call {@link #packArrayHeader(int)} method with the number of
- * elements. Then, you call packer methods for each element. You don't have to call anything at the end of
+ * elements. Then, you call packer methods for each element.
  * iteration.
  *
  * <p>
  * To write a Map, first you call {@link #packMapHeader(int)} method with size of the map. Then, for each pair,
  * you call packer methods for key first, and then value. You will call packer methods twice as many time as the
- * size of the map. You don't have to call anything at the end of iteration.
+ * size of the map.
  *
  * <p>
  * Note that packXxxHeader methods don't validate number of elements. You must call packer methods for correct

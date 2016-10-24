@@ -16,7 +16,7 @@
 package org.msgpack.value;
 
 /**
- * The interface {@code BooleanValue} represents MessagePack's Boolean type.
+ * Representation MessagePack's Boolean type.
  *
  * MessagePack's Boolean type can represent {@code true} or {@code false}.
  */

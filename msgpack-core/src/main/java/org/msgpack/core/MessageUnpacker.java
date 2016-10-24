@@ -139,12 +139,12 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  *
  * <p>
  * To read an Array type, first you call {@link #unpackArrayHeader()} method to get number of elements. Then,
- * you call unpacker methods for each element. You don't have to call anything at the end of iteration.
+ * you call unpacker methods for each element.
  *
  * <p>
  * To read a Map, first you call {@link #unpackMapHeader(int)} method to get number of pairs of the map. Then,
  * for each pair, you call unpacker methods for key first, and then value. You will call unpacker methods twice
- * as many time as the returned count. You don't have to call anything at the end of iteration.
+ * as many time as the returned count.
  *
  */
 public class MessageUnpacker

@@ -28,12 +28,20 @@ import static org.msgpack.core.Preconditions.checkArgument;
 import static org.msgpack.core.Preconditions.checkNotNull;
 
 /**
- * MessageBuffer class is an abstraction of memory for reading/writing message packed data.
- * This MessageBuffers ensures short/int/float/long/double values are written in the big-endian order.
- * <p/>
- * This class is optimized for fast memory access, so many methods are
- * implemented without using any interface method that produces invokeinterface call in JVM.
- * Compared to invokevirtual, invokeinterface is 30% slower in general because it needs to find a target function from the table.
+ * MessageBuffer class is an abstraction of memory with fast methods to serialize and deserialize primitive values
+ * to/from the memory. All MessageBuffer implementations ensure short/int/float/long/double values are written in
+ * big-endian order.
+ * <p>
+ * Applications can allocate a new buffer using {@link #allocate(int)} method, or wrap an byte array or ByteBuffer
+ * using {@link wrap(byte[], int, int)} methods. {@link wrap(ByteBuffer)} method supports both direct buffers and
+ * array-backed buffers.
+ * <p>
+ * MessageBuffer class itself is optimized for little-endian CPU archtectures so that JVM (HotSpot) can take advantage
+ * of the fastest JIT format which skips TypeProfile checking. To ensure this performance, applications must not load
+ * unnecessary classes such as MessagePackBE. On big-endian CPU archtectures, implementation uses subclass that
+ * includes TypeProfile overhead but still faster than ByteBuffer. On JVMs older than Java 7 and JVMs without Unsafe
+ * API (such as Android), implementation falls back to a universal implementation that uses standard ByteBuffer class
+ * internally.
  */
 public class MessageBuffer
 {
@@ -69,8 +77,7 @@ public class MessageBuffer
                 try {
                     int major = Integer.parseInt(javaVersion.substring(0, dotPos));
                     int minor = Integer.parseInt(javaVersion.substring(dotPos + 1));
-                    isJavaAtLeast7 = major > 1 || (major == 1 && minor >= 7);
-                }
+                    isJavaAtLeast7 = major > 1 || (major == 1 && minor >= 7); }
                 catch (NumberFormatException e) {
                     e.printStackTrace(System.err);
                 }

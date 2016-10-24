@@ -35,7 +35,7 @@ import java.nio.charset.CodingErrorAction;
 /**
  * Convenience class to build packer and unpacker classes.
  *
- * You may choose factory method as following
+ * You can select an appropriate factory method as following.
  *
  * <p>
  * Deserializing objects from binary:
@@ -70,12 +70,12 @@ public class MessagePack
     public static final Charset UTF8 = Charset.forName("UTF-8");
 
     /**
-     * Configuration of a {@link MessagePacker} created by {@link #newDefaultPacker(MessageBufferOutput)} and {@link #newDefaultBufferPacker()} methods.
+     * Configuration of a {@link MessagePacker} used by {@link #newDefaultPacker(MessageBufferOutput)} and {@link #newDefaultBufferPacker()} methods.
      */
     public static final PackerConfig DEFAULT_PACKER_CONFIG = new PackerConfig();
 
     /**
-     * Configuration of a {@link MessageUnpacker} created by {@link #newDefaultUnpacker(MessageBufferInput)} methods.
+     * Configuration of a {@link MessageUnpacker} used by {@link #newDefaultUnpacker(MessageBufferInput)} methods.
      */
     public static final UnpackerConfig DEFAULT_UNPACKER_CONFIG = new UnpackerConfig();
 

@@ -20,11 +20,60 @@ import org.msgpack.core.MessagePacker;
 import java.io.IOException;
 
 /**
- * Value is an implementation of MessagePack type system. To retrieve values from a Value object,
- * You need to check its {@link ValueType} then call an appropriate asXXXValue method.
+ * Value stores a value and its type in MessagePack type system.
  *
+ * <h2>Type conversion</h2>
+ * <p>
+ * You can check type first using <b>isXxx()</b> methods or {@link #getValueType()} method, then convert the value to a
+ * subtype using <b>asXxx()</b> methods. You can also call asXxx() methods directly and catch
+ * {@link org.msgpack.core.MessageTypeCastException}.
  *
+ * <table>
+ *   <tr><th>MessagePack type</th><th>Check method</th><th>Convert method</th><th>Value type</th></tr>
+ *   <tr><td>Nil</td><td>{@link #isNilValue()}</td><td>{@link #asNumberValue()}</td><td>{@link NilValue}</td></tr>
+ *   <tr><td>Boolean</td><td>{@link #isBooleanValue()}</td><td>{@link #asBooleanValue()}</td><td>{@link BooleanValue}</td></tr>
+ *   <tr><td>Integer or Float</td><td>{@link #isNumberValue()}</td><td>{@link #asNumberValue()}</td><td>{@link NumberValue}</td></tr>
+ *   <tr><td>Integer</td><td>{@link #isIntegerValue()}</td><td>{@link #asIntegerValue()}</td><td>{@link IntegerValue}</td></tr>
+ *   <tr><td>Float</td><td>{@link #isFloatValue()}</td><td>{@link #asFloatValue()}</td><td>{@link FloatValue}</td></tr>
+ *   <tr><td>String or Binary</td><td>{@link #isRawValue()}</td><td>{@link #asRawValue()}</td><td>{@link RawValue}</td></tr>
+ *   <tr><td>String</td><td>{@link #isStringValue()}</td><td>{@link #asStringValue()}</td><td>{@link StringValue}</td></tr>
+ *   <tr><td>Binary</td><td>{@link #isBinaryValue()}</td><td>{@link #asBinaryValue()}</td><td>{@link BinaryValue}</td></tr>
+ *   <tr><td>Array</td><td>{@link #isArrayValue()}</td><td>{@link #asArrayValue()}</td><td>{@link ArrayValue}</td></tr>
+ *   <tr><td>Map</td><td>{@link #isMapValue()}</td><td>{@link #asMapValue()}</td><td>{@link MapValue}</td></tr>
+ *   <tr><td>Extension</td><td>{@link #isExtensionValue()}</td><td>{@link #asExtensionValue()}</td><td>{@link ExtensionValue}</td></tr>
+ * </table>
  *
+ * <h2>Immutable interface</h2>
+ * <p>
+ * Value interface is the base interface of all Value interfaces. Immutable subtypes are useful so that you can
+ * declare that a (final) field or elements of a container object are immutable. Method arguments should be a
+ * regular Value interface generally.
+ * <p>
+ * You can use {@link #immutableValue()} method to get immutable subtypes.
+ *
+ * <table>
+ *   <tr><th>MessagePack type</th><th>Subtype method</th><th>Immutable value type</th></tr>
+ *   <tr><td>any types</td><td>{@link Value}.{@link Value#immutableValue()}</td><td>{@link ImmutableValue}</td></tr>
+ *   <tr><td>Nil</td><td>{@link NilValue}.{@link NilValue#immutableValue()}</td><td>{@link ImmutableNilValue}</td></tr>
+ *   <tr><td>Boolean</td><td>{@link BooleanValue}.{@link BooleanValue#immutableValue()}</td><td>{@link ImmutableBooleanValue}</td></tr>
+ *   <tr><td>Integer</td><td>{@link IntegerValue}.{@link IntegerValue#immutableValue()}</td><td>{@link ImmutableIntegerValue}</td></tr>
+ *   <tr><td>Float</td><td>{@link FloatValue}.{@link FloatValue#immutableValue()}</td><td>{@link ImmutableFloatValue}</td></tr>
+ *   <tr><td>Integer or Float</td><td>{@link NumberValue}.{@link NumberValue#immutableValue()}</td><td>{@link ImmutableNumberValue}</td></tr>
+ *   <tr><td>String or Binary</td><td>{@link RawValue}.{@link RawValue#immutableValue()}</td><td>{@link ImmutableRawValue}</td></tr>
+ *   <tr><td>String</td><td>{@link StringValue}.{@link StringValue#immutableValue()}</td><td>{@link ImmutableStringValue}</td></tr>
+ *   <tr><td>Binary</td><td>{@link BinaryValue}.{@link BinaryValue#immutableValue()}</td><td>{@link ImmutableBinaryValue}</td></tr>
+ *   <tr><td>Array</td><td>{@link ArrayValue}.{@link ArrayValue#immutableValue()}</td><td>{@link ImmutableArrayValue}</td></tr>
+ *   <tr><td>Map</td><td>{@link MapValue}.{@link MapValue#immutableValue()}</td><td>{@link ImmutableMapValue}</td></tr>
+ *   <tr><td>Extension</td><td>{@link ExtensionValue}.{@link ExtensionValue#immutableValue()}</td><td>{@link ImmutableExtensionValue}</td></tr>
+ * </table>
+ *
+ * <h2>Converting to JSON</h2>
+ * <p>
+ * {@link #toJson()} method returns JSON representation of a Value. See its documents for details.
+ * <p>
+ * toString() also returns a string representation of a Value that is similar to JSON. However, unlike toJson() method,
+ * toString() may return a special format that is not be compatible with JSON when JSON doesn't support the type such
+ * as ExtensionValue.
  */
 public interface Value
 {
@@ -249,14 +298,16 @@ public interface Value
 
     /**
      * Returns json representation of this Value.
-     *
+     * <p>
      * Following behavior is not configurable at this release and they might be changed at future releases:
      *
-     * * if a key of MapValue is not string, the key is converted to a string using toString method.
-     * * NaN and Infinity of DoubleValue are converted to null.
-     * * ExtensionValue is converted to a 2-element array where first element is a number and second element is the data encoded in hex.
-     * * BinaryValue is converted to a string using UTF-8 encoding. Invalid byte sequence is replaced with <code>U+FFFD replacement character</code>.
-     * * Invalid UTF-8 byte sequences in StringValue is replaced with <code>U+FFFD replacement character</code>
+     * <ul>
+     * <li>if a key of MapValue is not string, the key is converted to a string using toString method.</li>
+     * <li>NaN and Infinity of DoubleValue are converted to null.</li>
+     * <li>ExtensionValue is converted to a 2-element array where first element is a number and second element is the data encoded in hex.</li>
+     * <li>BinaryValue is converted to a string using UTF-8 encoding. Invalid byte sequence is replaced with <code>U+FFFD replacement character</code>.</li>
+     * <li>Invalid UTF-8 byte sequences in StringValue is replaced with <code>U+FFFD replacement character</code></li>
+     * <ul>
      */
     String toJson();
 }

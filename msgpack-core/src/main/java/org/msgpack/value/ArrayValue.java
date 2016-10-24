@@ -19,7 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * The interface {@code ArrayValue} represents MessagePack's Array type.
+ * Representation of MessagePack's Array type.
  *
  * MessagePack's Array type can represent sequence of values.
  */

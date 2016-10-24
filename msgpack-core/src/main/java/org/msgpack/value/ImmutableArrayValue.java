@@ -18,6 +18,11 @@ package org.msgpack.value;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Immutable representation of MessagePack's Array type.
+ *
+ * MessagePack's Array type can represent sequence of values.
+ */
 public interface ImmutableArrayValue
         extends ArrayValue, ImmutableValue
 {

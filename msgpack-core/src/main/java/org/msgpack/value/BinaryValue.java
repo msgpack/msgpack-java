@@ -16,7 +16,7 @@
 package org.msgpack.value;
 
 /**
- * The interface {@code BinaryValue} represents MessagePack's Binary type.
+ * Representation of MessagePack's Binary type.
  *
  * MessagePack's Binary type can represent a byte array at most 2<sup>64</sup>-1 bytes.
  *

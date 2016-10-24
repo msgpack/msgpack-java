@@ -15,6 +15,12 @@
 //
 package org.msgpack.value;
 
+/**
+ * Immutable base interface of {@link ImmutableIntegerValue} and {@link ImmutableFloatValue} interfaces. To extract primitive type values, call toXXX methods, which may lose some information by rounding or truncation.
+ *
+ * @see org.msgpack.value.immutableIntegerValue
+ * @see org.msgpack.value.immutableFloatValue
+ */
 public interface ImmutableNumberValue
         extends NumberValue, ImmutableValue
 {

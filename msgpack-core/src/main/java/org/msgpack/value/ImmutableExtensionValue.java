@@ -15,6 +15,11 @@
 //
 package org.msgpack.value;
 
+/**
+ * Immutable representation of MessagePack's Extension type.
+ *
+ * @see org.msgpack.value.ExtensionValue
+ */
 public interface ImmutableExtensionValue
         extends ExtensionValue, ImmutableValue
 {

@@ -18,7 +18,7 @@ package org.msgpack.value;
 import java.math.BigInteger;
 
 /**
- * The base interface {@code NumberValue} of {@code IntegerValue} and {@code FloatValue}. To extract primitive type values, call toXXX methods, which may lose some information by rounding or truncation.
+ * Base interface of {@link IntegerValue} and {@link FloatValue} interfaces. To extract primitive type values, call toXXX methods, which may lose some information by rounding or truncation.
  *
  * @see org.msgpack.value.IntegerValue
  * @see org.msgpack.value.FloatValue

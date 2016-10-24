@@ -16,7 +16,7 @@
 package org.msgpack.value;
 
 /**
- * The interface {@code FloatValue} represents MessagePack's Float type.
+ * Representation of MessagePack's Float type.
  *
  * MessagePack's Float type can represent IEEE 754 double precision floating point numbers including NaN and infinity. This is same with Java's {@code double} type.
  *

@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * The interface {@code ArrayValue} represents MessagePack's Map type.
+ * Representation of MessagePack's Map type.
  *
  * MessagePack's Map type can represent sequence of key-value pairs.
  */
