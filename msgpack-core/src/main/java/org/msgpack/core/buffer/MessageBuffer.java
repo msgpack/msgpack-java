@@ -38,9 +38,9 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  * <p>
  * MessageBuffer class itself is optimized for little-endian CPU archtectures so that JVM (HotSpot) can take advantage
  * of the fastest JIT format which skips TypeProfile checking. To ensure this performance, applications must not load
- * unnecessary classes such as MessagePackBE. On big-endian CPU archtectures, implementation uses subclass that
- * includes TypeProfile overhead but still faster than ByteBuffer. On JVMs older than Java 7 and JVMs without Unsafe
- * API (such as Android), implementation falls back to a universal implementation that uses standard ByteBuffer class
+ * unnecessary classes such as MessagePackBE. On big-endian CPU archtectures, it automatically uses a subclass that
+ * includes TypeProfile overhead but still faster than stndard ByteBuffer class. On JVMs older than Java 7 and JVMs
+ * without Unsafe API (such as Android), implementation falls back to an universal implementation that uses ByteBuffer
  * internally.
  */
 public class MessageBuffer
@@ -77,7 +77,8 @@ public class MessageBuffer
                 try {
                     int major = Integer.parseInt(javaVersion.substring(0, dotPos));
                     int minor = Integer.parseInt(javaVersion.substring(dotPos + 1));
-                    isJavaAtLeast7 = major > 1 || (major == 1 && minor >= 7); }
+                    isJavaAtLeast7 = major > 1 || (major == 1 && minor >= 7);
+                }
                 catch (NumberFormatException e) {
                     e.printStackTrace(System.err);
                 }

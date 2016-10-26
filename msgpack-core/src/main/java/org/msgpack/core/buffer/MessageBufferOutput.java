@@ -31,7 +31,7 @@ public interface MessageBufferOutput
     /**
      * Allocates the next buffer to write.
      * <p>
-     * This method should return a MessageBuffer instance that has at least specified size of capacity.
+     * This method should return a MessageBuffer instance that has specified size of capacity at least.
      * <p>
      * When this method is called twice, the previously returned buffer is no longer used. This method may be called
      * twice without call of {@link writeBuffer(MessageBuffer)} in between. In this case, the buffer should be
@@ -51,7 +51,7 @@ public interface MessageBufferOutput
      * bytes. Once the buffer is written, the buffer is no longer used.
      * <p>
      * This method is not always called for each {@link next(int)} call. In this case, the buffer should be discarded
-     * without flushing it to the output.
+     * without flushing it to the output when the next {@link next(int)} is called.
      *
      * @param length the number of bytes to write
      * @throws IOException
