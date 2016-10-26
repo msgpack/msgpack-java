@@ -47,7 +47,7 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  * <p>
  * One use case is to read objects as {@link Value} using {@link #unpackValue} method. A {@link Value} object
  * contains type of the deserialized value as well as the value itself so that you can inspect type of the
- * deserialized values later. You can repeat {@link #unpackValue} until {@link hasNext()} method returns false so
+ * deserialized values later. You can repeat {@link #unpackValue} until {@link #hasNext()} method returns false so
  * that you can deserialize sequence of MessagePack values.
  * <p>
  * The other use case is to use {@link #getNextFormat()} and {@link MessageFormat#getValueType()} methods followed
@@ -142,7 +142,7 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  * you call unpacker methods for each element.
  *
  * <p>
- * To read a Map, first you call {@link #unpackMapHeader(int)} method to get number of pairs of the map. Then,
+ * To read a Map, first you call {@link #unpackMapHeader()} method to get number of pairs of the map. Then,
  * for each pair, you call unpacker methods for key first, and then value. You will call unpacker methods twice
  * as many time as the returned count.
  *
@@ -228,7 +228,7 @@ public class MessageUnpacker
      * <p>
      * This method doesn't close the old input.
      *
-     * @param out new input
+     * @param in new input
      * @return the old input
      * @throws IOException never happens unless a subclass overrides this method
      * @throws NullPointerException the given input is null
@@ -718,7 +718,6 @@ public class MessageUnpacker
     /**
      * Reads a Nil byte.
      *
-     * @return the read value
      * @throws MessageTypeException when value is not MessagePack Nil type
      * @throws IOException when underlaying input throws IOException
      */

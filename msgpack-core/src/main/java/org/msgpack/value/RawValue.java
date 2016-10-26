@@ -38,7 +38,7 @@ public interface RawValue
     /**
      * Returns the value as {@code ByteBuffer}.
      *
-     * Returned ByteBuffer is read-only. See {@code#asReadOnlyBuffer()}.
+     * Returned ByteBuffer is read-only. See also {@link java.nio.ByteBuffer#asReadOnlyBuffer()}.
      * This method doesn't copy the byte array as much as possible.
      */
     ByteBuffer asByteBuffer();

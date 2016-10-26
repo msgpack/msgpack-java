@@ -33,7 +33,7 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  * big-endian order.
  * <p>
  * Applications can allocate a new buffer using {@link #allocate(int)} method, or wrap an byte array or ByteBuffer
- * using {@link wrap(byte[], int, int)} methods. {@link wrap(ByteBuffer)} method supports both direct buffers and
+ * using {@link #wrap(byte[], int, int)} methods. {@link #wrap(ByteBuffer)} method supports both direct buffers and
  * array-backed buffers.
  * <p>
  * MessageBuffer class itself is optimized for little-endian CPU archtectures so that JVM (HotSpot) can take advantage
@@ -213,7 +213,7 @@ public class MessageBuffer
      * The new buffer's size will be array.length. hasArray() will return true.
      *
      * @param array the byte array that will gack this MessageBuffer
-     * @return
+     * @return the new MessageBuffer
      *
      */
     public static MessageBuffer wrap(byte[] array)
@@ -231,7 +231,7 @@ public class MessageBuffer
      * @param array the byte array that will gack this MessageBuffer
      * @param offset The offset of the subarray to be used; must be non-negative and no larger than array.length
      * @param length The length of the subarray to be used; must be non-negative and no larger than array.length - offset
-     * @return
+     * @return the new MessageBuffer
      *
      */
     public static MessageBuffer wrap(byte[] array, int offset, int length)
@@ -249,7 +249,7 @@ public class MessageBuffer
      * @param bb the byte buffer that will gack this MessageBuffer
      * @throws IllegalArgumentException given byte buffer returns false both from hasArray() and isDirect()
      * @throws UnsupportedOperationException given byte buffer is a direct buffer and this platform doesn't support Unsafe API
-     * @return
+     * @return the new MessageBuffer
      *
      */
     public static MessageBuffer wrap(ByteBuffer bb)
@@ -381,9 +381,12 @@ public class MessageBuffer
     }
 
     /**
-     * byte size of the buffer
+     * Gets size of the buffer.
      *
-     * @return
+     * MessageBuffer doesn't have limit unlike ByteBuffer. Instead, you can use {@link #slice(int, int)} to get a
+     * part of the buffer.
+     *
+     * @return number of bytes
      */
     public int size()
     {

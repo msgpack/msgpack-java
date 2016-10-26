@@ -447,7 +447,7 @@ public class MessagePacker
      * <p>
      * This method writes an integer using the smallest format from the int format family.
      *
-     * @param v the integer to be written
+     * @param r the integer to be written
      * @return this
      * @throws IOException when underlaying output throws IOException
      */
@@ -570,7 +570,7 @@ public class MessagePacker
      * <p>
      * This method writes a float value using float format family.
      *
-     * @param bi the integer to be written
+     * @param v the value to be written
      * @return this
      * @throws IOException when underlaying output throws IOException
      */
@@ -587,7 +587,7 @@ public class MessagePacker
      * <p>
      * This method writes a float value using float format family.
      *
-     * @param bi the integer to be written
+     * @param v the value to be written
      * @return this
      * @throws IOException when underlaying output throws IOException
      */
@@ -826,7 +826,8 @@ public class MessagePacker
      * <p>
      * You will call {@link #writePayload(byte[])} or {@link #addPayload(byte[])} method to write body binary.
      *
-     * @param len number of bytes of a payload binary to be written
+     * @param extType the extension type tag to be written
+     * @param payloadLen number of bytes of a payload binary to be written
      * @return this
      * @throws IOException when underlaying output throws IOException
      */
@@ -972,9 +973,9 @@ public class MessagePacker
     /**
      * Writes a byte array to the output.
      * <p>
-     * Unlike {@link #writePayload} method, this method doesn't copy the byte array even when given byte array
-     * is shorter than {@link MessagePack.PackerConfig#withBufferFlushThreshold(int)}. This is faster than
-     * {@link writePayload} method but caller must not modify the byte array after calling this method.
+     * Unlike {@link #writePayload(byte[])} method, this method doesn't copy the byte array even when given byte
+     * array is shorter than {@link MessagePack.PackerConfig#withBufferFlushThreshold(int)}. This is faster than
+     * {@link #writePayload(byte[])} method but caller must not modify the byte array after calling this method.
      *
      * @param src the data to add
      * @return this
@@ -989,9 +990,10 @@ public class MessagePacker
     /**
      * Writes a byte array to the output.
      * <p>
-     * Unlike {@link #writePayload} method, this method doesn't copy the byte array even when given byte array
-     * is shorter than {@link MessagePack.PackerConfig#withBufferFlushThreshold(int)}. This is faster than
-     * {@link writePayload} method but caller must not modify the byte array after calling this method.
+     * Unlike {@link #writePayload(byte[], int, int)} method, this method doesn't copy the byte array even when
+     * given byte array is shorter than {@link MessagePack.PackerConfig#withBufferFlushThreshold(int)}.
+     * This is faster than {@link #writePayload(byte[], int, int)} method but caller must not modify the byte array
+     * after calling this method.
      *
      * @param src the data to add
      * @param off the start offset in the data

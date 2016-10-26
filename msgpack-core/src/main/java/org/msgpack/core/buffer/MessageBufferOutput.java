@@ -34,7 +34,7 @@ public interface MessageBufferOutput
      * This method should return a MessageBuffer instance that has specified size of capacity at least.
      * <p>
      * When this method is called twice, the previously returned buffer is no longer used. This method may be called
-     * twice without call of {@link writeBuffer(MessageBuffer)} in between. In this case, the buffer should be
+     * twice without call of {@link #writeBuffer(int)} in between. In this case, the buffer should be
      * discarded without flushing it to the output.
      *
      * @param minimumSize the mimium required buffer size to allocate
@@ -47,11 +47,11 @@ public interface MessageBufferOutput
     /**
      * Writes the previously allocated buffer.
      * <p>
-     * This method should write the buffer previously returned from {@link next(int)} method until specified number of
+     * This method should write the buffer previously returned from {@link #next(int)} method until specified number of
      * bytes. Once the buffer is written, the buffer is no longer used.
      * <p>
-     * This method is not always called for each {@link next(int)} call. In this case, the buffer should be discarded
-     * without flushing it to the output when the next {@link next(int)} is called.
+     * This method is not always called for each {@link #next(int)} call. In this case, the buffer should be discarded
+     * without flushing it to the output when the next {@link #next(int)} is called.
      *
      * @param length the number of bytes to write
      * @throws IOException
@@ -66,7 +66,6 @@ public interface MessageBufferOutput
      * @param buffer the data to write
      * @param offset the start offset in the data
      * @param length the number of bytes to write
-     * @return
      * @throws IOException
      */
     void write(byte[] buffer, int offset, int length)
@@ -82,7 +81,6 @@ public interface MessageBufferOutput
      * @param buffer the data to add
      * @param offset the start offset in the data
      * @param length the number of bytes to add
-     * @return
      * @throws IOException
      */
     void add(byte[] buffer, int offset, int length)

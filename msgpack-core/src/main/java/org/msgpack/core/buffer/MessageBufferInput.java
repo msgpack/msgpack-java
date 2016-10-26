@@ -43,7 +43,7 @@ public interface MessageBufferInput
     /**
      * Closes the input.
      * <p>
-     * When this method is called, the buffer previously returned from {@link next()} method is no longer used.
+     * When this method is called, the buffer previously returned from {@link #next()} method is no longer used.
      * Thus implementation of this method can safely discard it.
      * <p>
      * If the input is already closed then invoking this method has no effect.

@@ -49,7 +49,8 @@ public interface IntegerValue
 
     /**
      * Returns the most succinct MessageFormat type to represent this integer value.
-     * @return
+     *
+     * @return the smallest integer type of MessageFormat that is big enough to store the value.
      */
     MessageFormat mostSuccinctMessageFormat();
 
