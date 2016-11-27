@@ -37,7 +37,7 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  * array-backed buffers.
  * <p>
  * MessageBuffer class itself is optimized for little-endian CPU archtectures so that JVM (HotSpot) can take advantage
- * of the fastest JIT format which skips TypeProfile checking. To ensure this performance, applications must not load
+ * of the fastest JIT format which skips TypeProfile checking. To ensure this performance, applications must not import
  * unnecessary classes such as MessagePackBE. On big-endian CPU archtectures, it automatically uses a subclass that
  * includes TypeProfile overhead but still faster than stndard ByteBuffer class. On JVMs older than Java 7 and JVMs
  * without Unsafe API (such as Android), implementation falls back to an universal implementation that uses ByteBuffer
@@ -213,7 +213,7 @@ public class MessageBuffer
      * The new buffer's size will be array.length. hasArray() will return true.
      *
      * @param array the byte array that will gack this MessageBuffer
-     * @return the new MessageBuffer
+     * @return a new MessageBuffer that wraps the given byte array
      *
      */
     public static MessageBuffer wrap(byte[] array)
@@ -231,7 +231,7 @@ public class MessageBuffer
      * @param array the byte array that will gack this MessageBuffer
      * @param offset The offset of the subarray to be used; must be non-negative and no larger than array.length
      * @param length The length of the subarray to be used; must be non-negative and no larger than array.length - offset
-     * @return the new MessageBuffer
+     * @return a new MessageBuffer that wraps the given byte array
      *
      */
     public static MessageBuffer wrap(byte[] array, int offset, int length)
@@ -249,7 +249,7 @@ public class MessageBuffer
      * @param bb the byte buffer that will gack this MessageBuffer
      * @throws IllegalArgumentException given byte buffer returns false both from hasArray() and isDirect()
      * @throws UnsupportedOperationException given byte buffer is a direct buffer and this platform doesn't support Unsafe API
-     * @return the new MessageBuffer
+     * @return a new MessageBuffer that wraps the given byte array
      *
      */
     public static MessageBuffer wrap(ByteBuffer bb)
@@ -304,7 +304,7 @@ public class MessageBuffer
         }
         catch (InvocationTargetException e) {
             if (e.getCause() instanceof RuntimeException) {
-                // underlaying constructor may throw RuntimeException
+                // underlying constructor may throw RuntimeException
                 throw (RuntimeException) e.getCause();
             }
             else if (e.getCause() instanceof Error) {
@@ -381,7 +381,7 @@ public class MessageBuffer
     }
 
     /**
-     * Gets size of the buffer.
+     * Gets the size of the buffer.
      *
      * MessageBuffer doesn't have limit unlike ByteBuffer. Instead, you can use {@link #slice(int, int)} to get a
      * part of the buffer.

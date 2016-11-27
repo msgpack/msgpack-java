@@ -78,7 +78,7 @@ public class MessageBufferPacker
             flush();
         }
         catch (IOException ex) {
-            // IOException must not happen because underlaying ArrayBufferOutput never throws IOException
+            // IOException must not happen because underlying ArrayBufferOutput never throws IOException
             throw new RuntimeException(ex);
         }
         return getArrayBufferOut().toByteArray();
@@ -98,7 +98,7 @@ public class MessageBufferPacker
             flush();
         }
         catch (IOException ex) {
-            // IOException must not happen because underlaying ArrayBufferOutput never throws IOException
+            // IOException must not happen because underlying ArrayBufferOutput never throws IOException
             throw new RuntimeException(ex);
         }
         return getArrayBufferOut().toMessageBuffer();
@@ -118,7 +118,7 @@ public class MessageBufferPacker
             flush();
         }
         catch (IOException ex) {
-            // IOException must not happen because underlaying ArrayBufferOutput never throws IOException
+            // IOException must not happen because underlying ArrayBufferOutput never throws IOException
             throw new RuntimeException(ex);
         }
         return getArrayBufferOut().toBufferList();

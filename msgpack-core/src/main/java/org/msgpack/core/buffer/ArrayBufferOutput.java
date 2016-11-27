@@ -44,7 +44,7 @@ public class ArrayBufferOutput
     }
 
     /**
-     * Gets size of the written data.
+     * Gets the size of the written data.
      *
      * @return number of bytes
      */
@@ -58,7 +58,7 @@ public class ArrayBufferOutput
     }
 
     /**
-     * Gets copy of the written data as a byte array.
+     * Gets a copy of the written data as a byte array.
      * <p>
      * If your application needs better performance and smaller memory consumption, you may prefer
      * {@link #toMessageBuffer()} or {@link #toBufferList()} to avoid copying.
