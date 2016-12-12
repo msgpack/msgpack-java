@@ -56,8 +56,8 @@ val buildSettings = findbugsSettings ++ jacoco.settings ++ osgiSettings ++ Seq[S
   jcheckStyleConfig := "facebook",
   
   // Run jcheckstyle both for main and test codes
-  compile <<= (compile in Compile) dependsOn (jcheckStyle in Compile),
-  compile <<= (compile in Test) dependsOn (jcheckStyle in Test)
+  (compile in Compile) := ((compile in Compile) dependsOn (jcheckStyle in Compile)).value,
+  (compile in Test) := ((compile in Test) dependsOn (jcheckStyle in Test)).value
 )
 
 val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
