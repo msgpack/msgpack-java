@@ -28,12 +28,20 @@ import static org.msgpack.core.Preconditions.checkArgument;
 import static org.msgpack.core.Preconditions.checkNotNull;
 
 /**
- * MessageBuffer class is an abstraction of memory for reading/writing message packed data.
- * This MessageBuffers ensures short/int/float/long/double values are written in the big-endian order.
- * <p/>
- * This class is optimized for fast memory access, so many methods are
- * implemented without using any interface method that produces invokeinterface call in JVM.
- * Compared to invokevirtual, invokeinterface is 30% slower in general because it needs to find a target function from the table.
+ * MessageBuffer class is an abstraction of memory with fast methods to serialize and deserialize primitive values
+ * to/from the memory. All MessageBuffer implementations ensure short/int/float/long/double values are written in
+ * big-endian order.
+ * <p>
+ * Applications can allocate a new buffer using {@link #allocate(int)} method, or wrap an byte array or ByteBuffer
+ * using {@link #wrap(byte[], int, int)} methods. {@link #wrap(ByteBuffer)} method supports both direct buffers and
+ * array-backed buffers.
+ * <p>
+ * MessageBuffer class itself is optimized for little-endian CPU archtectures so that JVM (HotSpot) can take advantage
+ * of the fastest JIT format which skips TypeProfile checking. To ensure this performance, applications must not import
+ * unnecessary classes such as MessagePackBE. On big-endian CPU archtectures, it automatically uses a subclass that
+ * includes TypeProfile overhead but still faster than stndard ByteBuffer class. On JVMs older than Java 7 and JVMs
+ * without Unsafe API (such as Android), implementation falls back to an universal implementation that uses ByteBuffer
+ * internally.
  */
 public class MessageBuffer
 {
@@ -205,7 +213,7 @@ public class MessageBuffer
      * The new buffer's size will be array.length. hasArray() will return true.
      *
      * @param array the byte array that will gack this MessageBuffer
-     * @return
+     * @return a new MessageBuffer that wraps the given byte array
      *
      */
     public static MessageBuffer wrap(byte[] array)
@@ -223,7 +231,7 @@ public class MessageBuffer
      * @param array the byte array that will gack this MessageBuffer
      * @param offset The offset of the subarray to be used; must be non-negative and no larger than array.length
      * @param length The length of the subarray to be used; must be non-negative and no larger than array.length - offset
-     * @return
+     * @return a new MessageBuffer that wraps the given byte array
      *
      */
     public static MessageBuffer wrap(byte[] array, int offset, int length)
@@ -241,7 +249,7 @@ public class MessageBuffer
      * @param bb the byte buffer that will gack this MessageBuffer
      * @throws IllegalArgumentException given byte buffer returns false both from hasArray() and isDirect()
      * @throws UnsupportedOperationException given byte buffer is a direct buffer and this platform doesn't support Unsafe API
-     * @return
+     * @return a new MessageBuffer that wraps the given byte array
      *
      */
     public static MessageBuffer wrap(ByteBuffer bb)
@@ -296,7 +304,7 @@ public class MessageBuffer
         }
         catch (InvocationTargetException e) {
             if (e.getCause() instanceof RuntimeException) {
-                // underlaying constructor may throw RuntimeException
+                // underlying constructor may throw RuntimeException
                 throw (RuntimeException) e.getCause();
             }
             else if (e.getCause() instanceof Error) {
@@ -373,9 +381,12 @@ public class MessageBuffer
     }
 
     /**
-     * byte size of the buffer
+     * Gets the size of the buffer.
      *
-     * @return
+     * MessageBuffer doesn't have limit unlike ByteBuffer. Instead, you can use {@link #slice(int, int)} to get a
+     * part of the buffer.
+     *
+     * @return number of bytes
      */
     public int size()
     {

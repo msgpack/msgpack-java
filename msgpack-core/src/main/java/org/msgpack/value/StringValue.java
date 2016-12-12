@@ -16,7 +16,7 @@
 package org.msgpack.value;
 
 /**
- * The interface {@code StringValue} represents MessagePack's String type.
+ * Representation of MessagePack's String type.
  *
  * MessagePack's String type can represent a UTF-8 string at most 2<sup>64</sup>-1 bytes.
  *

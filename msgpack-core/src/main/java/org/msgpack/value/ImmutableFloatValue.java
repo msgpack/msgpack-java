@@ -15,6 +15,13 @@
 //
 package org.msgpack.value;
 
+/**
+ * Immutable representation of MessagePack's Float type.
+ *
+ * MessagePack's Float type can represent IEEE 754 double precision floating point numbers including NaN and infinity. This is same with Java's {@code double} type.
+ *
+ * @see org.msgpack.value.ImmutableNumberValue
+ */
 public interface ImmutableFloatValue
         extends FloatValue, ImmutableNumberValue
 {

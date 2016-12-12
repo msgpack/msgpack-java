@@ -40,31 +40,112 @@ import java.util.Map;
 import static org.msgpack.core.Preconditions.checkNotNull;
 
 /**
- * MessageUnpacker lets an application read message-packed values from a data stream.
- * The application needs to call {@link #getNextFormat()} followed by an appropriate unpackXXX method according to the the returned format type.
- * <p/>
- * <pre>
- * <code>
+ * MessagePack deserializer that converts binary into objects.
+ * You can use factory methods of {@link MessagePack} class or {@link MessagePack.UnpackerConfig} class to create
+ * an instance.
+ * To read values as statically-typed Java objects, there are two typical use cases.
+ * <p>
+ * One use case is to read objects as {@link Value} using {@link #unpackValue} method. A {@link Value} object
+ * contains type of the deserialized value as well as the value itself so that you can inspect type of the
+ * deserialized values later. You can repeat {@link #unpackValue} until {@link #hasNext()} method returns false so
+ * that you can deserialize sequence of MessagePack values.
+ * <p>
+ * The other use case is to use {@link #getNextFormat()} and {@link MessageFormat#getValueType()} methods followed
+ * by unpackXxx methods corresponding to returned type. Following code snipet is a typical application code:
+ * <pre><code>
  *     MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(...);
  *     while(unpacker.hasNext()) {
- *         MessageFormat f = unpacker.getNextFormat();
- *         switch(f) {
- *             case MessageFormat.POSFIXINT:
- *             case MessageFormat.INT8:
- *             case MessageFormat.UINT8: {
- *                int v = unpacker.unpackInt();
- *                break;
+ *         MessageFormat format = unpacker.getNextFormat();
+ *         ValueType type = format.getValueType();
+ *         int length;
+ *         ExtensionTypeHeader extension;
+ *         switch(type) {
+ *             case NIL:
+ *                 unpacker.unpackNil();
+ *                 break;
+ *             case BOOLEAN:
+ *                 unpacker.unpackBoolean();
+ *                 break;
+ *             case INTEGER:
+ *                 switch (format) {
+ *                 case UINT64:
+ *                     unpacker.unpackBigInteger();
+ *                     break;
+ *                 case INT64:
+ *                 case UINT32:
+ *                     unpacker.unpackLong();
+ *                     break;
+ *                 default:
+ *                     unpacker.unpackInt();
+ *                     break;
+ *                 }
+ *                 break;
+ *             case FLOAT:
+ *                 unpacker.unpackDouble();
+ *                 break;
+ *             case STRING:
+ *                 unpacker.unpackString();
+ *                 break;
+ *             case BINARY:
+ *                 length = unpacker.unpackBinaryHeader();
+ *                 unpacker.readPayload(new byte[length]);
+ *                 break;
+ *             case ARRAY:
+ *                 length = unpacker.unpackArrayHeader();
+ *                 for (int i = 0; i &lt; length; i++) {
+ *                     readRecursively(unpacker);
+ *                 }
+ *                 break;
+ *             case MAP:
+ *                 length = unpacker.unpackMapHeader();
+ *                 for (int i = 0; i &lt; length; i++) {
+ *                     readRecursively(unpacker);  // key
+ *                     readRecursively(unpacker);  // value
+ *                 }
+ *                 break;
+ *             case EXTENSION:
+ *                 extension = unpacker.unpackExtensionTypeHeader();
+ *                 unpacker.readPayload(new byte[extension.getLength()]);
+ *                 break;
  *             }
- *             case MessageFormat.STRING: {
- *                String v = unpacker.unpackString();
- *                break;
- *             }
- *             // ...
- *       }
+ *         }
  *     }
  *
- * </code>
- * </pre>
+ * <p>
+ * Following methods correspond to the MessagePack types:
+ *
+ * <table>
+ *   <tr><th>MessagePack type</th><th>Unpacker method</th><th>Java type</th></tr>
+ *   <tr><td>Nil</td><td>{@link #unpackNil()}</td><td>null</td></tr>
+ *   <tr><td>Boolean</td><td>{@link #unpackBoolean()}</td><td>boolean</td></tr>
+ *   <tr><td>Integer</td><td>{@link #unpackByte()}</td><td>byte</td></tr>
+ *   <tr><td>Integer</td><td>{@link #unpackShort()}</td><td>short</td></tr>
+ *   <tr><td>Integer</td><td>{@link #unpackInt()}</td><td>int</td></tr>
+ *   <tr><td>Integer</td><td>{@link #unpackLong()}</td><td>long</td></tr>
+ *   <tr><td>Integer</td><td>{@link #unpackBigInteger()}</td><td>BigInteger</td></tr>
+ *   <tr><td>Float</td><td>{@link #unpackFloat()}</td><td>float</td></tr>
+ *   <tr><td>Float</td><td>{@link #unpackDouble()}</td><td>double</td></tr>
+ *   <tr><td>Binary</td><td>{@link #unpackBinaryHeader()}</td><td>byte array</td></tr>
+ *   <tr><td>String</td><td>{@link #unpackRawStringHeader()}</td><td>String</td></tr>
+ *   <tr><td>String</td><td>{@link #unpackString()}</td><td>String</td></tr>
+ *   <tr><td>Array</td><td>{@link #unpackArrayHeader()}</td><td>Array</td></tr>
+ *   <tr><td>Map</td><td>{@link #unpackMapHeader()}</td><td>Map</td></tr>
+ *   <tr><td>Extension</td><td>{@link #unpackExtensionTypeHeader()}</td><td>{@link ExtensionTypeHeader}</td></tr>
+ * </table>
+ *
+ * <p>
+ * To read a byte array, first call {@link #unpackBinaryHeader} method to get length of the byte array. Then,
+ * call {@link #readPayload(int)} or {@link #readPayloadAsReference(int)} method to read the the contents.
+ *
+ * <p>
+ * To read an Array type, first call {@link #unpackArrayHeader()} method to get number of elements. Then,
+ * call unpacker methods for each element.
+ *
+ * <p>
+ * To read a Map, first call {@link #unpackMapHeader()} method to get number of pairs of the map. Then,
+ * for each pair, call unpacker methods for key first, and then value. will call unpacker methods twice
+ * as many time as the returned count.
+ *
  */
 public class MessageUnpacker
         implements Closeable
@@ -139,10 +220,18 @@ public class MessageUnpacker
     }
 
     /**
-     * Reset input. This method doesn't close the old resource.
+     * Replaces underlying input.
+     * <p>
+     * This method clears internal buffer, swaps the underlying input with the new given input, then returns
+     * the old input.
+     *
+     * <p>
+     * This method doesn't close the old input.
      *
      * @param in new input
-     * @return the old resource
+     * @return the old input
+     * @throws IOException never happens unless a subclass overrides this method
+     * @throws NullPointerException the given input is null
      */
     public MessageBufferInput reset(MessageBufferInput in)
             throws IOException
@@ -160,6 +249,15 @@ public class MessageUnpacker
         return old;
     }
 
+    /**
+     * Returns total number of read bytes.
+     * <p>
+     * This method returns total of amount of data consumed from the underlying input minus size of data
+     * remained still unused in the current internal buffer.
+     *
+     * <p>
+     * Calling {@link #reset(MessageBufferInput)} resets this number to 0.
+     */
     public long getTotalReadBytes()
     {
         return totalReadBytes + position;
@@ -274,13 +372,18 @@ public class MessageUnpacker
     }
 
     /**
-     * Returns the next MessageFormat type. This method should be called after {@link #hasNext()} returns true.
-     * If {@link #hasNext()} returns false, calling this method throws {@link MessageInsufficientBufferException}.
-     * <p/>
-     * This method does not proceed the internal cursor.
+     * Returns format of the next value.
+     *
+     * <p>
+     * Note that this method doesn't consume data from the internal buffer unlike the other unpack methods.
+     * Calling this method twice will return the same value.
+     *
+     * <p>
+     * To not throw {@link MessageInsufficientBufferException}, this method should be called only when
+     * {@link #hasNext()} returns true.
      *
      * @return the next MessageFormat
-     * @throws IOException when failed to read the input data.
+     * @throws IOException when underlying input throws IOException
      * @throws MessageInsufficientBufferException when the end of file reached, i.e. {@link #hasNext()} == false.
      */
     public MessageFormat getNextFormat()
@@ -612,6 +715,12 @@ public class MessageUnpacker
         }
     }
 
+    /**
+     * Reads a Nil byte.
+     *
+     * @throws MessageTypeException when value is not MessagePack Nil type
+     * @throws IOException when underlying input throws IOException
+     */
     public void unpackNil()
             throws IOException
     {
@@ -622,6 +731,13 @@ public class MessageUnpacker
         throw unexpected("Nil", b);
     }
 
+    /**
+     * Reads true or false.
+     *
+     * @return the read value
+     * @throws MessageTypeException when value is not MessagePack Boolean type
+     * @throws IOException when underlying input throws IOException
+     */
     public boolean unpackBoolean()
             throws IOException
     {
@@ -635,6 +751,16 @@ public class MessageUnpacker
         throw unexpected("boolean", b);
     }
 
+    /**
+     * Reads a byte.
+     *
+     * This method throws {@link MessageIntegerOverflowException} if the value doesn't fit in the range of byte. This may happen when {@link #getNextFormat()} returns UINT8, INT16, or larger integer formats.
+     *
+     * @return the read value
+     * @throws MessageIntegerOverflowException when value doesn't fit in the range of byte
+     * @throws MessageTypeException when value is not MessagePack Integer type
+     * @throws IOException when underlying input throws IOException
+     */
     public byte unpackByte()
             throws IOException
     {
@@ -692,6 +818,16 @@ public class MessageUnpacker
         throw unexpected("Integer", b);
     }
 
+    /**
+     * Reads a short.
+     *
+     * This method throws {@link MessageIntegerOverflowException} if the value doesn't fit in the range of short. This may happen when {@link #getNextFormat()} returns UINT16, INT32, or larger integer formats.
+     *
+     * @return the read value
+     * @throws MessageIntegerOverflowException when value doesn't fit in the range of short
+     * @throws MessageTypeException when value is not MessagePack Integer type
+     * @throws IOException when underlying input throws IOException
+     */
     public short unpackShort()
             throws IOException
     {
@@ -743,6 +879,16 @@ public class MessageUnpacker
         throw unexpected("Integer", b);
     }
 
+    /**
+     * Reads a int.
+     *
+     * This method throws {@link MessageIntegerOverflowException} if the value doesn't fit in the range of int. This may happen when {@link #getNextFormat()} returns UINT32, INT64, or larger integer formats.
+     *
+     * @return the read value
+     * @throws MessageIntegerOverflowException when value doesn't fit in the range of int
+     * @throws MessageTypeException when value is not MessagePack Integer type
+     * @throws IOException when underlying input throws IOException
+     */
     public int unpackInt()
             throws IOException
     {
@@ -788,6 +934,16 @@ public class MessageUnpacker
         throw unexpected("Integer", b);
     }
 
+    /**
+     * Reads a long.
+     *
+     * This method throws {@link MessageIntegerOverflowException} if the value doesn't fit in the range of long. This may happen when {@link #getNextFormat()} returns UINT64.
+     *
+     * @return the read value
+     * @throws MessageIntegerOverflowException when value doesn't fit in the range of long
+     * @throws MessageTypeException when value is not MessagePack Integer type
+     * @throws IOException when underlying input throws IOException
+     */
     public long unpackLong()
             throws IOException
     {
@@ -832,6 +988,13 @@ public class MessageUnpacker
         throw unexpected("Integer", b);
     }
 
+    /**
+     * Reads a BigInteger.
+     *
+     * @return the read value
+     * @throws MessageTypeException when value is not MessagePack Integer type
+     * @throws IOException when underlying input throws IOException
+     */
     public BigInteger unpackBigInteger()
             throws IOException
     {
@@ -879,6 +1042,15 @@ public class MessageUnpacker
         throw unexpected("Integer", b);
     }
 
+    /**
+     * Reads a float.
+     *
+     * This method rounds value to the range of float when precision of the read value is larger than the range of float. This may happen when {@link #getNextFormat()} returns FLOAT64.
+     *
+     * @return the read value
+     * @throws MessageTypeException when value is not MessagePack Float type
+     * @throws IOException when underlying input throws IOException
+     */
     public float unpackFloat()
             throws IOException
     {
@@ -894,6 +1066,13 @@ public class MessageUnpacker
         throw unexpected("Float", b);
     }
 
+    /**
+     * Reads a double.
+     *
+     * @return the read value
+     * @throws MessageTypeException when value is not MessagePack Float type
+     * @throws IOException when underlying input throws IOException
+     */
     public double unpackDouble()
             throws IOException
     {
@@ -1053,6 +1232,18 @@ public class MessageUnpacker
         }
     }
 
+    /**
+     * Reads header of an array.
+     *
+     * <p>
+     * This method returns number of elements to be read. After this method call, you call unpacker methods for
+     * each element. You don't have to call anything at the end of iteration.
+     *
+     * @return the size of the array to be read
+     * @throws MessageTypeException when value is not MessagePack Array type
+     * @throws MessageSizeException when size of the array is larger than 2^31 - 1
+     * @throws IOException when underlying input throws IOException
+     */
     public int unpackArrayHeader()
             throws IOException
     {
@@ -1073,6 +1264,19 @@ public class MessageUnpacker
         throw unexpected("Array", b);
     }
 
+    /**
+     * Reads header of a map.
+     *
+     * <p>
+     * This method returns number of pairs to be read. After this method call, for each pair, you call unpacker
+     * methods for key first, and then value. You will call unpacker methods twice as many time as the returned
+     * count. You don't have to call anything at the end of iteration.
+     *
+     * @return the size of the map to be read
+     * @throws MessageTypeException when value is not MessagePack Map type
+     * @throws MessageSizeException when size of the map is larger than 2^31 - 1
+     * @throws IOException when underlying input throws IOException
+     */
     public int unpackMapHeader()
             throws IOException
     {
@@ -1198,6 +1402,22 @@ public class MessageUnpacker
         throw unexpected("String", b);
     }
 
+    /**
+     * Reads header of a binary.
+     *
+     * <p>
+     * This method returns number of bytes to be read. After this method call, you call a readPayload method such as
+     * {@link #readPayload(int)} with the returned count.
+     *
+     * <p>
+     * You can divide readPayload method into multiple calls. In this case, you must repeat readPayload methods
+     * until total amount of bytes becomes equal to the returned count.
+     *
+     * @return the size of the map to be read
+     * @throws MessageTypeException when value is not MessagePack Map type
+     * @throws MessageSizeException when size of the map is larger than 2^31 - 1
+     * @throws IOException when underlying input throws IOException
+     */
     public int unpackBinaryHeader()
             throws IOException
     {
@@ -1243,6 +1463,16 @@ public class MessageUnpacker
         }
     }
 
+    /**
+     * Reads payload bytes of binary, extension, or raw string types.
+     *
+     * <p>
+     * This consumes bytes, copies them to the specified buffer, and moves forward position of the byte buffer
+     * until ByteBuffer.remaining() returns 0.
+     *
+     * @param dst the byte buffer into which the data is read
+     * @throws IOException when underlying input throws IOException
+     */
     public void readPayload(ByteBuffer dst)
             throws IOException
     {
@@ -1261,12 +1491,35 @@ public class MessageUnpacker
         }
     }
 
+    /**
+     * Reads payload bytes of binary, extension, or raw string types.
+     *
+     * This consumes specified amount of bytes into the specified byte array.
+     *
+     * <p>
+     * This method is equivalent to <code>readPayload(dst, 0, dst.length)</code>.
+     *
+     * @param dst the byte array into which the data is read
+     * @throws IOException when underlying input throws IOException
+     */
     public void readPayload(byte[] dst)
             throws IOException
     {
         readPayload(dst, 0, dst.length);
     }
 
+    /**
+     * Reads payload bytes of binary, extension, or raw string types.
+     *
+     * This method allocates a new byte array and consumes specified amount of bytes into the byte array.
+     *
+     * <p>
+     * This method is equivalent to <code>readPayload(new byte[length])</code>.
+     *
+     * @param length number of bytes to be read
+     * @return the new byte array
+     * @throws IOException when underlying input throws IOException
+     */
     public byte[] readPayload(int length)
             throws IOException
     {
@@ -1276,12 +1529,14 @@ public class MessageUnpacker
     }
 
     /**
-     * Read up to len bytes of data into the destination array
+     * Reads payload bytes of binary, extension, or raw string types.
      *
-     * @param dst the buffer into which the data is read
+     * This consumes specified amount of bytes into the specified byte array.
+     *
+     * @param dst the byte array into which the data is read
      * @param off the offset in the dst array
      * @param len the number of bytes to read
-     * @throws IOException
+     * @throws IOException when underlying input throws IOException
      */
     public void readPayload(byte[] dst, int off, int len)
             throws IOException
@@ -1290,6 +1545,17 @@ public class MessageUnpacker
         readPayload(ByteBuffer.wrap(dst, off, len));
     }
 
+    /**
+     * Reads payload bytes of binary, extension, or raw string types as a reference to internal buffer.
+     *
+     * <p>
+     * This consumes specified amount of bytes and returns its reference or copy. This method tries to
+     * return reference as much as possible because it is faster. However, it may copy data to a newly
+     * allocated buffer if reference is not applicable.
+     *
+     * @param length number of bytes to be read
+     * @throws IOException when underlying input throws IOException
+     */
     public MessageBuffer readPayloadAsReference(int length)
             throws IOException
     {
@@ -1328,6 +1594,11 @@ public class MessageUnpacker
         return u32;
     }
 
+    /**
+     * Closes underlying input.
+     *
+     * @throws IOException
+     */
     @Override
     public void close()
             throws IOException

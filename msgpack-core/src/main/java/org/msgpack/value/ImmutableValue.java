@@ -15,6 +15,9 @@
 //
 package org.msgpack.value;
 
+/**
+ * Immutable declaration of {@link Value} interface.
+ */
 public interface ImmutableValue
         extends Value
 {

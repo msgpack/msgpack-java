@@ -16,7 +16,7 @@
 package org.msgpack.value;
 
 /**
- * The interface {@code ExtensionValue} represents MessagePack's Extension type.
+ * Representation of MessagePack's Extension type.
  *
  * MessagePack's Extension type can represent represents a tuple of type information and a byte array where type information is an
  * integer whose meaning is defined by applications.

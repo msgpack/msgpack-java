@@ -20,7 +20,7 @@ import org.msgpack.core.MessageFormat;
 import java.math.BigInteger;
 
 /**
- * The interface {@code IntegerValue} represents MessagePack's Integer type.
+ * Representation of MessagePack's Integer type.
  *
  * MessagePack's Integer type can represent from -2<sup>63</sup> to 2<sup>64</sup>-1.
  */
@@ -49,7 +49,8 @@ public interface IntegerValue
 
     /**
      * Returns the most succinct MessageFormat type to represent this integer value.
-     * @return
+     *
+     * @return the smallest integer type of MessageFormat that is big enough to store the value.
      */
     MessageFormat mostSuccinctMessageFormat();
 

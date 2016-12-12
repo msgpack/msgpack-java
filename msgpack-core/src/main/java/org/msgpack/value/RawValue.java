@@ -18,7 +18,7 @@ package org.msgpack.value;
 import java.nio.ByteBuffer;
 
 /**
- * The interface {@code RawValue} represents MessagePack's Raw type, which means Binary or String type.
+ * Base interface of {@link StringValue} and {@link BinaryValue} interfaces.
  * <p/>
  * MessagePack's Raw type can represent a byte array at most 2<sup>64</sup>-1 bytes.
  *
@@ -38,7 +38,7 @@ public interface RawValue
     /**
      * Returns the value as {@code ByteBuffer}.
      *
-     * Returned ByteBuffer is read-only. See {@code#asReadOnlyBuffer()}.
+     * Returned ByteBuffer is read-only. See also {@link java.nio.ByteBuffer#asReadOnlyBuffer()}.
      * This method doesn't copy the byte array as much as possible.
      */
     ByteBuffer asByteBuffer();
