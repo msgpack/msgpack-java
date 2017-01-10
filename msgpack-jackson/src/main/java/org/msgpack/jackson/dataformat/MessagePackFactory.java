@@ -30,6 +30,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MessagePackFactory
         extends JsonFactory
@@ -38,6 +40,8 @@ public class MessagePackFactory
 
     private final MessagePack.PackerConfig packerConfig;
     private boolean reuseResourceInGenerator = true;
+    private Map<Byte, MessagePackExtensionType.TypeBasedDeserializer> extensionTypeDeserializers =
+            new ConcurrentHashMap<Byte, MessagePackExtensionType.TypeBasedDeserializer>();
 
     public MessagePackFactory()
     {
@@ -52,6 +56,11 @@ public class MessagePackFactory
     public void setReuseResourceInGenerator(boolean reuseResourceInGenerator)
     {
         this.reuseResourceInGenerator = reuseResourceInGenerator;
+    }
+
+    public void registerExtensionTypeDeserializer(byte type, MessagePackExtensionType.TypeBasedDeserializer deserializer)
+    {
+        extensionTypeDeserializers.put(type, deserializer);
     }
 
     @Override
@@ -96,6 +105,7 @@ public class MessagePackFactory
             throws IOException
     {
         MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, _objectCodec, in);
+        parser.setExtensionTypeDeserializers(extensionTypeDeserializers);
         return parser;
     }
 

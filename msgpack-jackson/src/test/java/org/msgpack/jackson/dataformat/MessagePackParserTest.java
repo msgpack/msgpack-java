@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,6 +42,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -670,5 +673,37 @@ public class MessagePackParserTest
         assertEquals(2, map.size());
         assertEquals((Integer) 2, map.get(true));
         assertEquals((Integer) 3, map.get(false));
+    }
+
+    @Test
+    public void registerExtensionTypeDeserializer()
+            throws IOException
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
+        packer.packArrayHeader(2);
+        packer.packExtensionTypeHeader((byte) 31, 4);
+        packer.addPayload(new byte[] {(byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE});
+        packer.packExtensionTypeHeader((byte) 37, 4);
+        packer.addPayload(new byte[] {(byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF});
+        packer.close();
+
+        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        messagePackFactory.registerExtensionTypeDeserializer((byte) 31, new MessagePackExtensionType.TypeBasedDeserializer() {
+            @Override
+            public Object deserialize(byte[] data)
+            {
+                if (Arrays.equals(data, new byte[] {(byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE})) {
+                    return "Java";
+                }
+                return "Not Java";
+            }
+        });
+        ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
+
+        List<Object> values = objectMapper.readValue(new ByteArrayInputStream(out.toByteArray()), new TypeReference<List<Object>>() {});
+        assertThat(values.size(), is(2));
+        assertThat((String) values.get(0), is("Java"));
+        assertThat((MessagePackExtensionType) values.get(1), is(new MessagePackExtensionType((byte) 37, new byte[] {(byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF})));
     }
 }

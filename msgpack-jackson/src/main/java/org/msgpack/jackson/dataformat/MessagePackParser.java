@@ -43,6 +43,8 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MessagePackParser
         extends ParserMinimalBase
@@ -61,6 +63,9 @@ public class MessagePackParser
     private long tokenPosition;
     private long currentPosition;
     private final IOContext ioContext;
+
+    private AtomicReference<Map<Byte, MessagePackExtensionType.TypeBasedDeserializer>> extensionTypeDeserializers =
+            new AtomicReference<Map<Byte, MessagePackExtensionType.TypeBasedDeserializer>>();
 
     private enum Type
     {
@@ -170,6 +175,12 @@ public class MessagePackParser
     public Version version()
     {
         return null;
+    }
+
+    public void setExtensionTypeDeserializers(
+            Map<Byte, MessagePackExtensionType.TypeBasedDeserializer> extensionTypeDeserializers)
+    {
+        this.extensionTypeDeserializers.set(extensionTypeDeserializers);
     }
 
     @Override
@@ -514,6 +525,14 @@ public class MessagePackParser
             case BYTES:
                 return bytesValue;
             case EXT:
+                Map<Byte, MessagePackExtensionType.TypeBasedDeserializer> extTypeSerrializers = extensionTypeDeserializers.get();
+                if (extTypeSerrializers == null) {
+                    return extensionTypeValue;
+                }
+                MessagePackExtensionType.TypeBasedDeserializer deserializer = extTypeSerrializers.get(extensionTypeValue.getType());
+                if (deserializer != null) {
+                    return deserializer.deserialize(extensionTypeValue.getData());
+                }
                 return extensionTypeValue;
             default:
                 throw new IllegalStateException("Invalid type=" + type);
