@@ -40,8 +40,8 @@ public class MessagePackFactory
 
     private final MessagePack.PackerConfig packerConfig;
     private boolean reuseResourceInGenerator = true;
-    private Map<Byte, MessagePackExtensionTypeDeserializer> extensionTypeSerializers =
-            new ConcurrentHashMap<Byte, MessagePackExtensionTypeDeserializer>();
+    private Map<Byte, MessagePackExtensionType.TypeBasedDeserializer> extensionTypeDeserializers =
+            new ConcurrentHashMap<Byte, MessagePackExtensionType.TypeBasedDeserializer>();
 
     public MessagePackFactory()
     {
@@ -58,9 +58,9 @@ public class MessagePackFactory
         this.reuseResourceInGenerator = reuseResourceInGenerator;
     }
 
-    public void registerExtensionTypeDeserializer(byte type, MessagePackExtensionTypeDeserializer ser)
+    public void registerExtensionTypeDeserializer(byte type, MessagePackExtensionType.TypeBasedDeserializer deserializer)
     {
-        extensionTypeSerializers.put(type, ser);
+        extensionTypeDeserializers.put(type, deserializer);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class MessagePackFactory
             throws IOException
     {
         MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, _objectCodec, in);
-        parser.setExtensionTypeDeserializer(extensionTypeSerializers);
+        parser.setExtensionTypeDeserializers(extensionTypeDeserializers);
         return parser;
     }
 

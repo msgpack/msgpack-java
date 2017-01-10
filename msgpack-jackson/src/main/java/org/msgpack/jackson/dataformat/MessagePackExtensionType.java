@@ -75,4 +75,9 @@ public class MessagePackExtensionType
             }
         }
     }
+
+    public interface TypeBasedDeserializer<T>
+    {
+        T deserialize(byte[] data);
+    }
 }

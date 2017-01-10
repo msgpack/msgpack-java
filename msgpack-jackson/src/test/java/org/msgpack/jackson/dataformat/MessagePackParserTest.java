@@ -676,7 +676,7 @@ public class MessagePackParserTest
     }
 
     @Test
-    public void registerExtensionTypeSerializer()
+    public void registerExtensionTypeDeserializer()
             throws IOException
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -689,7 +689,7 @@ public class MessagePackParserTest
         packer.close();
 
         MessagePackFactory messagePackFactory = new MessagePackFactory();
-        messagePackFactory.registerExtensionTypeDeserializer((byte) 31, new MessagePackExtensionTypeDeserializer() {
+        messagePackFactory.registerExtensionTypeDeserializer((byte) 31, new MessagePackExtensionType.TypeBasedDeserializer() {
             @Override
             public Object deserialize(byte[] data)
             {

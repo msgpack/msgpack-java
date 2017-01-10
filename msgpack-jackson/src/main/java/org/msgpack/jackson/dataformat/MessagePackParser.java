@@ -64,8 +64,8 @@ public class MessagePackParser
     private long currentPosition;
     private final IOContext ioContext;
 
-    private AtomicReference<Map<Byte, MessagePackExtensionTypeDeserializer>> extensionTypeSerializers =
-            new AtomicReference<Map<Byte, MessagePackExtensionTypeDeserializer>>();
+    private AtomicReference<Map<Byte, MessagePackExtensionType.TypeBasedDeserializer>> extensionTypeDeserializers =
+            new AtomicReference<Map<Byte, MessagePackExtensionType.TypeBasedDeserializer>>();
 
     private enum Type
     {
@@ -177,10 +177,10 @@ public class MessagePackParser
         return null;
     }
 
-    public void setExtensionTypeDeserializer(
-            Map<Byte, MessagePackExtensionTypeDeserializer> extensionTypeSerializers)
+    public void setExtensionTypeDeserializers(
+            Map<Byte, MessagePackExtensionType.TypeBasedDeserializer> extensionTypeDeserializers)
     {
-        this.extensionTypeSerializers.set(extensionTypeSerializers);
+        this.extensionTypeDeserializers.set(extensionTypeDeserializers);
     }
 
     @Override
@@ -525,11 +525,11 @@ public class MessagePackParser
             case BYTES:
                 return bytesValue;
             case EXT:
-                Map<Byte, MessagePackExtensionTypeDeserializer> extTypeSerrializers = extensionTypeSerializers.get();
+                Map<Byte, MessagePackExtensionType.TypeBasedDeserializer> extTypeSerrializers = extensionTypeDeserializers.get();
                 if (extTypeSerrializers == null) {
                     return extensionTypeValue;
                 }
-                MessagePackExtensionTypeDeserializer deserializer = extTypeSerrializers.get(extensionTypeValue.getType());
+                MessagePackExtensionType.TypeBasedDeserializer deserializer = extTypeSerrializers.get(extensionTypeValue.getType());
                 if (deserializer != null) {
                     return deserializer.deserialize(extensionTypeValue.getData());
                 }
