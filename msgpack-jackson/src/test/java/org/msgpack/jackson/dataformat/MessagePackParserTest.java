@@ -703,7 +703,7 @@ public class MessagePackParserTest
 
         List<Object> values = objectMapper.readValue(new ByteArrayInputStream(out.toByteArray()), new TypeReference<List<Object>>() {});
         assertThat(values.size(), is(2));
-        assertThat(values.get(0), is("Java"));
-        assertThat(values.get(1), is(new MessagePackExtensionType((byte) 37, new byte[] {(byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF})));
+        assertThat((String) values.get(0), is("Java"));
+        assertThat((MessagePackExtensionType) values.get(1), is(new MessagePackExtensionType((byte) 37, new byte[] {(byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF})));
     }
 }
