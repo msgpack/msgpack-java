@@ -23,11 +23,13 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.std.UntypedObjectDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.junit.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,6 +43,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -670,5 +675,56 @@ public class MessagePackParserTest
         assertEquals(2, map.size());
         assertEquals((Integer) 2, map.get(true));
         assertEquals((Integer) 3, map.get(false));
+    }
+
+    public static class MyExtTypeDeserializer extends UntypedObjectDeserializer.Vanilla
+    {
+        @Override
+        public Object deserialize(JsonParser p, DeserializationContext ctxt)
+                throws IOException
+        {
+            Object obj = super.deserialize(p, ctxt);
+            if (obj instanceof MessagePackExtensionType) {
+                MessagePackExtensionType ext = (MessagePackExtensionType) obj;
+                if (ext.getType() == 31) {
+                    if (Arrays.equals(ext.getData(), new byte[] {(byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE})) {
+                        return "Java";
+                    }
+                    return "Not Java";
+                }
+            }
+            return obj;
+        }
+    }
+
+    @Test
+    public void customDeserializationForExtType()
+            throws IOException
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
+        packer.packArrayHeader(4);
+        packer.packString("foo bar");
+        packer.packExtensionTypeHeader((byte) 31, 4);
+        packer.addPayload(new byte[] {(byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE});
+        packer.packArrayHeader(1);
+        packer.packInt(42);
+        packer.packExtensionTypeHeader((byte) 32, 2);
+        packer.addPayload(new byte[] {(byte) 0xAB, (byte) 0xCD});
+        packer.close();
+
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        SimpleModule module = new SimpleModule("MyModule").addDeserializer(Object.class, new MyExtTypeDeserializer());
+        objectMapper.registerModule(module);
+
+        List<Object> values = objectMapper.readValue(new ByteArrayInputStream(out.toByteArray()), new TypeReference<List<Object>>() {});
+        assertThat(values.size(), is(4));
+        assertThat((String) values.get(0), is("foo bar"));
+        assertThat((String) values.get(1), is("Java"));
+        assertThat(values.get(2), is(instanceOf(List.class)));
+        List<Object> nested = (List<Object>) values.get(2);
+        assertThat(nested.size(), is(1));
+        assertThat((Integer) nested.get(0), is(42));
+        assertThat((MessagePackExtensionType) values.get(3), is(new MessagePackExtensionType((byte) 32, new byte[] {(byte) 0xAB, (byte) 0xCD})));
     }
 }
