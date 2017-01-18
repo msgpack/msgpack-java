@@ -38,6 +38,7 @@ public class MessagePackFactory
 
     private final MessagePack.PackerConfig packerConfig;
     private boolean reuseResourceInGenerator = true;
+    private boolean reuseResourceInParser = true;
 
     public MessagePackFactory()
     {
@@ -52,6 +53,11 @@ public class MessagePackFactory
     public void setReuseResourceInGenerator(boolean reuseResourceInGenerator)
     {
         this.reuseResourceInGenerator = reuseResourceInGenerator;
+    }
+
+    public void setReuseResourceInParser(boolean reuseResourceInParser)
+    {
+        this.reuseResourceInParser = reuseResourceInParser;
     }
 
     @Override
@@ -95,7 +101,7 @@ public class MessagePackFactory
     protected MessagePackParser _createParser(InputStream in, IOContext ctxt)
             throws IOException
     {
-        MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, _objectCodec, in);
+        MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, _objectCodec, in, reuseResourceInParser);
         return parser;
     }
 
@@ -106,7 +112,7 @@ public class MessagePackFactory
         if (offset != 0 || len != data.length) {
             data = Arrays.copyOfRange(data, offset, offset + len);
         }
-        MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, _objectCodec, data);
+        MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, _objectCodec, data, reuseResourceInParser);
         return parser;
     }
 }
