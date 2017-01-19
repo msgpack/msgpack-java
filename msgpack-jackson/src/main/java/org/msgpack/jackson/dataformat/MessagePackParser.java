@@ -62,6 +62,7 @@ public class MessagePackParser
     private long tokenPosition;
     private long currentPosition;
     private final IOContext ioContext;
+    private ExtensionTypeCustomDeserializers extTypeCustomDesers;
 
     private enum Type
     {
@@ -189,6 +190,11 @@ public class MessagePackParser
             messageUnpacker = messageUnpackerTuple.second();
         }
         messageUnpackerHolder.set(new Tuple<Object, MessageUnpacker>(src, messageUnpacker));
+    }
+
+    public void setExtensionTypeCustomDeserializers(ExtensionTypeCustomDeserializers extTypeCustomDesers)
+    {
+        this.extTypeCustomDesers = extTypeCustomDesers;
     }
 
     @Override
@@ -551,6 +557,12 @@ public class MessagePackParser
             case BYTES:
                 return bytesValue;
             case EXT:
+                if (extTypeCustomDesers != null) {
+                    ExtensionTypeCustomDeserializers.Deser deser = extTypeCustomDesers.getDeser(extensionTypeValue.getType());
+                    if (deser != null) {
+                        return deser.deserialize(extensionTypeValue.getData());
+                    }
+                }
                 return extensionTypeValue;
             default:
                 throw new IllegalStateException("Invalid type=" + type);

@@ -39,6 +39,7 @@ public class MessagePackFactory
     private final MessagePack.PackerConfig packerConfig;
     private boolean reuseResourceInGenerator = true;
     private boolean reuseResourceInParser = true;
+    private ExtensionTypeCustomDeserializers extTypeCustomDesers;
 
     public MessagePackFactory()
     {
@@ -50,14 +51,22 @@ public class MessagePackFactory
         this.packerConfig = packerConfig;
     }
 
-    public void setReuseResourceInGenerator(boolean reuseResourceInGenerator)
+    public MessagePackFactory setReuseResourceInGenerator(boolean reuseResourceInGenerator)
     {
         this.reuseResourceInGenerator = reuseResourceInGenerator;
+        return this;
     }
 
-    public void setReuseResourceInParser(boolean reuseResourceInParser)
+    public MessagePackFactory setReuseResourceInParser(boolean reuseResourceInParser)
     {
         this.reuseResourceInParser = reuseResourceInParser;
+        return this;
+    }
+
+    public MessagePackFactory setExtTypeCustomDesers(ExtensionTypeCustomDeserializers extTypeCustomDesers)
+    {
+        this.extTypeCustomDesers = extTypeCustomDesers;
+        return this;
     }
 
     @Override
@@ -102,6 +111,9 @@ public class MessagePackFactory
             throws IOException
     {
         MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, _objectCodec, in, reuseResourceInParser);
+        if (extTypeCustomDesers != null) {
+            parser.setExtensionTypeCustomDeserializers(extTypeCustomDesers);
+        }
         return parser;
     }
 
@@ -113,6 +125,9 @@ public class MessagePackFactory
             data = Arrays.copyOfRange(data, offset, offset + len);
         }
         MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, _objectCodec, data, reuseResourceInParser);
+        if (extTypeCustomDesers != null) {
+            parser.setExtensionTypeCustomDeserializers(extTypeCustomDesers);
+        }
         return parser;
     }
 }

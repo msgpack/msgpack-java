@@ -678,7 +678,7 @@ public class MessagePackParserTest
     }
 
     @Test
-    public void typeBasedDeserialize()
+    public void extensionTypeCustomDeserializers()
             throws IOException
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -717,12 +717,10 @@ public class MessagePackParserTest
         }
         packer.close();
 
-        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
-        MessagePackExtensionType.TypeBasedDeserializer typeBasedDeserializer
-                = new MessagePackExtensionType.TypeBasedDeserializer();
-        typeBasedDeserializer.addTargetClass((byte) 17, NestedListComplexPojo.class);
-        typeBasedDeserializer.addTargetTypeReference((byte) 99, new TypeReference<Map<String, Integer>>() {});
-        typeBasedDeserializer.addCustomDeser((byte) 31, new MessagePackExtensionType.Deser() {
+        ExtensionTypeCustomDeserializers extTypeCustomDesers = new ExtensionTypeCustomDeserializers();
+        extTypeCustomDesers.addTargetClass((byte) 17, NestedListComplexPojo.class);
+        extTypeCustomDesers.addTargetTypeReference((byte) 99, new TypeReference<Map<String, Integer>>() {});
+        extTypeCustomDesers.addCustomDeser((byte) 31, new ExtensionTypeCustomDeserializers.Deser() {
                     @Override
                     public Object deserialize(byte[] data)
                             throws IOException
@@ -734,8 +732,8 @@ public class MessagePackParserTest
                     }
                 }
         );
-        SimpleModule module = new SimpleModule("MyModule").addDeserializer(Object.class, typeBasedDeserializer);
-        objectMapper.registerModule(module);
+        ObjectMapper objectMapper =
+                new ObjectMapper(new MessagePackFactory().setExtTypeCustomDesers(extTypeCustomDesers));
 
         List<Object> values = objectMapper.readValue(new ByteArrayInputStream(out.toByteArray()), new TypeReference<List<Object>>() {});
         assertThat(values.size(), is(5));
