@@ -22,6 +22,9 @@ import org.msgpack.value.Value;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -130,6 +133,46 @@ import static org.msgpack.core.Preconditions.checkNotNull;
 public class MessagePacker
         implements Closeable, Flushable
 {
+    private static final boolean CORRUPTED_CHARSET_ENCODER;
+
+    static {
+        boolean corruptedCharsetEncoder = false;
+        try {
+            Class<?> klass = Class.forName("android.os.Build$VERSION");
+            Constructor<?> constructor = klass.getConstructor();
+            Object version = constructor.newInstance();
+            Field sdkIntField = klass.getField("SDK_INT");
+            int sdkInt = sdkIntField.getInt(version);
+            // Android 4.x has a bug in CharsetEncoder where offset calculation is wrong.
+            // See
+            //   - https://github.com/msgpack/msgpack-java/issues/405
+            //   - https://github.com/msgpack/msgpack-java/issues/406
+            // Android 5 and later and 3.x don't have this bug.
+            if (sdkInt >= 14 && sdkInt < 21) {
+                corruptedCharsetEncoder = true;
+            }
+        }
+        catch (ClassNotFoundException e) {
+            // This platform isn't Android
+        }
+        catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        catch (InstantiationException e) {
+            e.printStackTrace();
+        }
+        catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+        CORRUPTED_CHARSET_ENCODER = corruptedCharsetEncoder;
+    }
+
     private final int smallStringOptimizationThreshold;
 
     private final int bufferFlushThreshold;
@@ -675,8 +718,9 @@ public class MessagePacker
             packRawStringHeader(0);
             return this;
         }
-        else if (s.length() < smallStringOptimizationThreshold) {
-            // Using String.getBytes is generally faster for small strings
+        else if (CORRUPTED_CHARSET_ENCODER || s.length() < smallStringOptimizationThreshold) {
+            // Using String.getBytes is generally faster for small strings.
+            // Also, when running on a platform that has a corrupted CharsetEncoder (i.e. Android 4.x), avoid using it.
             packStringWithGetBytes(s);
             return this;
         }
