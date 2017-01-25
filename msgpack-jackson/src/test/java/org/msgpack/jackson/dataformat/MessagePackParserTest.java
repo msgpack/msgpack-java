@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,9 +39,13 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -670,5 +675,87 @@ public class MessagePackParserTest
         assertEquals(2, map.size());
         assertEquals((Integer) 2, map.get(true));
         assertEquals((Integer) 3, map.get(false));
+    }
+
+    @Test
+    public void extensionTypeCustomDeserializers()
+            throws IOException
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
+        packer.packArrayHeader(5);
+        // 0: Integer
+        packer.packInt(42);
+        // 1: String
+        packer.packString("foo bar");
+        // 2: ExtensionType(class desr)
+        {
+            TinyPojo t0 = new TinyPojo();
+            t0.t = "t0";
+            TinyPojo t1 = new TinyPojo();
+            t1.t = "t1";
+            NestedListComplexPojo parent = new NestedListComplexPojo();
+            parent.s = "parent";
+            parent.foos = Arrays.asList(t0, t1);
+            byte[] bytes = objectMapper.writeValueAsBytes(parent);
+            packer.packExtensionTypeHeader((byte) 17, bytes.length);
+            packer.addPayload(bytes);
+        }
+        // 3: ExtensionType(type reference deser)
+        {
+            Map<String, Integer> map = new HashMap<String, Integer>();
+            map.put("one", 1);
+            map.put("two", 2);
+            byte[] bytes = objectMapper.writeValueAsBytes(map);
+            packer.packExtensionTypeHeader((byte) 99, bytes.length);
+            packer.addPayload(bytes);
+        }
+        // 4: ExtensionType(custom deser)
+        {
+            packer.packExtensionTypeHeader((byte) 31, 4);
+            packer.addPayload(new byte[] {(byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE});
+        }
+        packer.close();
+
+        ExtensionTypeCustomDeserializers extTypeCustomDesers = new ExtensionTypeCustomDeserializers();
+        extTypeCustomDesers.addTargetClass((byte) 17, NestedListComplexPojo.class);
+        extTypeCustomDesers.addTargetTypeReference((byte) 99, new TypeReference<Map<String, Integer>>() {});
+        extTypeCustomDesers.addCustomDeser((byte) 31, new ExtensionTypeCustomDeserializers.Deser() {
+                    @Override
+                    public Object deserialize(byte[] data)
+                            throws IOException
+                    {
+                        if (Arrays.equals(data, new byte[] {(byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE})) {
+                            return "Java";
+                        }
+                        return "Not Java";
+                    }
+                }
+        );
+        ObjectMapper objectMapper =
+                new ObjectMapper(new MessagePackFactory().setExtTypeCustomDesers(extTypeCustomDesers));
+
+        List<Object> values = objectMapper.readValue(new ByteArrayInputStream(out.toByteArray()), new TypeReference<List<Object>>() {});
+        assertThat(values.size(), is(5));
+        assertThat((Integer) values.get(0), is(42));
+        assertThat((String) values.get(1), is("foo bar"));
+        {
+            Object v = values.get(2);
+            assertThat(v, is(instanceOf(NestedListComplexPojo.class)));
+            NestedListComplexPojo pojo = (NestedListComplexPojo) v;
+            assertThat(pojo.s, is("parent"));
+            assertThat(pojo.foos.size(), is(2));
+            assertThat(pojo.foos.get(0).t, is("t0"));
+            assertThat(pojo.foos.get(1).t, is("t1"));
+        }
+        {
+            Object v = values.get(3);
+            assertThat(v, is(instanceOf(Map.class)));
+            Map<String, Integer> map = (Map<String, Integer>) v;
+            assertThat(map.size(), is(2));
+            assertThat(map.get("one"), is(1));
+            assertThat(map.get("two"), is(2));
+        }
+        assertThat((String) values.get(4), is("Java"));
     }
 }

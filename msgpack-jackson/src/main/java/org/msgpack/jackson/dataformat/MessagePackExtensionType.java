@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @JsonSerialize(using = MessagePackExtensionType.Serializer.class)
 public class MessagePackExtensionType
@@ -28,6 +29,32 @@ public class MessagePackExtensionType
     public byte[] getData()
     {
         return data;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof MessagePackExtensionType)) {
+            return false;
+        }
+
+        MessagePackExtensionType that = (MessagePackExtensionType) o;
+
+        if (type != that.type) {
+            return false;
+        }
+        return Arrays.equals(data, that.data);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = (int) type;
+        result = 31 * result + Arrays.hashCode(data);
+        return result;
     }
 
     public static class Serializer extends JsonSerializer<MessagePackExtensionType>

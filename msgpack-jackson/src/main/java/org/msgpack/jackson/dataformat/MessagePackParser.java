@@ -49,6 +49,7 @@ public class MessagePackParser
 {
     private static final ThreadLocal<Tuple<Object, MessageUnpacker>> messageUnpackerHolder =
             new ThreadLocal<Tuple<Object, MessageUnpacker>>();
+    private final MessageUnpacker messageUnpacker;
 
     private static final BigInteger LONG_MIN = BigInteger.valueOf((long) Long.MIN_VALUE);
     private static final BigInteger LONG_MAX = BigInteger.valueOf((long) Long.MAX_VALUE);
@@ -61,6 +62,7 @@ public class MessagePackParser
     private long tokenPosition;
     private long currentPosition;
     private final IOContext ioContext;
+    private ExtensionTypeCustomDeserializers extTypeCustomDesers;
 
     private enum Type
     {
@@ -74,6 +76,7 @@ public class MessagePackParser
     private String stringValue;
     private BigInteger biValue;
     private MessagePackExtensionType extensionTypeValue;
+    private boolean reuseResourceInParser;
 
     private abstract static class StackItem
     {
@@ -116,16 +119,43 @@ public class MessagePackParser
     public MessagePackParser(IOContext ctxt, int features, ObjectCodec objectCodec, InputStream in)
             throws IOException
     {
-        this(ctxt, features, new InputStreamBufferInput(in), objectCodec, in);
+        this(ctxt, features, objectCodec, in, true);
+    }
+
+    public MessagePackParser(
+            IOContext ctxt,
+            int features,
+            ObjectCodec objectCodec,
+            InputStream in,
+            boolean reuseResourceInParser)
+            throws IOException
+    {
+        this(ctxt, features, new InputStreamBufferInput(in), objectCodec, in, reuseResourceInParser);
     }
 
     public MessagePackParser(IOContext ctxt, int features, ObjectCodec objectCodec, byte[] bytes)
             throws IOException
     {
-        this(ctxt, features, new ArrayBufferInput(bytes), objectCodec, bytes);
+        this(ctxt, features, objectCodec, bytes, true);
     }
 
-    private MessagePackParser(IOContext ctxt, int features, MessageBufferInput input, ObjectCodec objectCodec, Object src)
+    public MessagePackParser(
+            IOContext ctxt,
+            int features,
+            ObjectCodec objectCodec,
+            byte[] bytes,
+            boolean reuseResourceInParser)
+            throws IOException
+    {
+        this(ctxt, features, new ArrayBufferInput(bytes), objectCodec, bytes, reuseResourceInParser);
+    }
+
+    private MessagePackParser(IOContext ctxt,
+            int features,
+            MessageBufferInput input,
+            ObjectCodec objectCodec,
+            Object src,
+            boolean reuseResourceInParser)
             throws IOException
     {
         super(features);
@@ -135,6 +165,14 @@ public class MessagePackParser
         DupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)
                 ? DupDetector.rootDetector(this) : null;
         parsingContext = JsonReadContext.createRootContext(dups);
+        this.reuseResourceInParser = reuseResourceInParser;
+        if (!reuseResourceInParser) {
+            this.messageUnpacker = MessagePack.newDefaultUnpacker(input);
+            return;
+        }
+        else {
+            this.messageUnpacker = null;
+        }
 
         MessageUnpacker messageUnpacker;
         Tuple<Object, MessageUnpacker> messageUnpackerTuple = messageUnpackerHolder.get();
@@ -152,6 +190,11 @@ public class MessagePackParser
             messageUnpacker = messageUnpackerTuple.second();
         }
         messageUnpackerHolder.set(new Tuple<Object, MessageUnpacker>(src, messageUnpacker));
+    }
+
+    public void setExtensionTypeCustomDeserializers(ExtensionTypeCustomDeserializers extTypeCustomDesers)
+    {
+        this.extTypeCustomDesers = extTypeCustomDesers;
     }
 
     @Override
@@ -514,6 +557,12 @@ public class MessagePackParser
             case BYTES:
                 return bytesValue;
             case EXT:
+                if (extTypeCustomDesers != null) {
+                    ExtensionTypeCustomDeserializers.Deser deser = extTypeCustomDesers.getDeser(extensionTypeValue.getType());
+                    if (deser != null) {
+                        return deser.deserialize(extensionTypeValue.getData());
+                    }
+                }
                 return extensionTypeValue;
             default:
                 throw new IllegalStateException("Invalid type=" + type);
@@ -607,6 +656,10 @@ public class MessagePackParser
 
     private MessageUnpacker getMessageUnpacker()
     {
+        if (!reuseResourceInParser) {
+            return this.messageUnpacker;
+        }
+
         Tuple<Object, MessageUnpacker> messageUnpackerTuple = messageUnpackerHolder.get();
         if (messageUnpackerTuple == null) {
             throw new IllegalStateException("messageUnpacker is null");
