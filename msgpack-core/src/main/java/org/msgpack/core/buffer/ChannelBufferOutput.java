@@ -56,11 +56,11 @@ public class ChannelBufferOutput
     }
 
     @Override
-    public MessageBuffer next(int mimimumSize)
+    public MessageBuffer next(int minimumSize)
             throws IOException
     {
-        if (buffer.size() < mimimumSize) {
-            buffer = MessageBuffer.allocate(mimimumSize);
+        if (buffer.size() < minimumSize) {
+            buffer = MessageBuffer.allocate(minimumSize);
         }
         return buffer;
     }
