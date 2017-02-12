@@ -119,13 +119,13 @@ public class ArrayBufferOutput
     }
 
     @Override
-    public MessageBuffer next(int mimimumSize)
+    public MessageBuffer next(int minimumSize)
     {
-        if (lastBuffer != null && lastBuffer.size() > mimimumSize) {
+        if (lastBuffer != null && lastBuffer.size() > minimumSize) {
             return lastBuffer;
         }
         else {
-            int size = Math.max(bufferSize, mimimumSize);
+            int size = Math.max(bufferSize, minimumSize);
             MessageBuffer buffer = MessageBuffer.allocate(size);
             lastBuffer = buffer;
             return buffer;
