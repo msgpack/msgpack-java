@@ -1,6 +1,6 @@
 # MessagePack for Java
 
-QuickStart for msgpack-java is available [here](https://github.com/msgpack/msgpack-java/wiki/QuickStart).
+[JavaDoc is available at javadoc.io](https://www.javadoc.io/doc/org.msgpack/msgpack-core).
 
 ## How to install
 
