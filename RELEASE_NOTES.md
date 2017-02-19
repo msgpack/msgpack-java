@@ -1,5 +1,10 @@
 # Release Notes
 
+## 0.8.12
+ * Fix warnings in build.sbt[#402](https://github.com/msgpack/msgpack-java/pull/402)
+ * Add ExtensionTypeCustomDeserializers and MessagePackFactory#setExtTypeCustomDesers[#408](https://github.com/msgpack/msgpack-java/pull/408)
+ * Avoid a CharsetEncoder bug of Android 4.x at MessagePacker#packString[#409](https://github.com/msgpack/msgpack-java/pull/409)
+
 ## 0.8.11
  * Fixed NPE when write(add)Payload are used at the beginning [#392](https://github.com/msgpack/msgpack-java/pull/392)
 
