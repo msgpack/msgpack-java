@@ -160,8 +160,8 @@ class MessageBufferTest
     "convert to ByteBuffer" in {
       for (t <- buffers) {
         val bb = t.sliceAsByteBuffer
-        bb.position shouldBe 0
-        bb.limit shouldBe 10
+        bb.position() shouldBe 0
+        bb.limit() shouldBe 10
         bb.capacity shouldBe 10
       }
     }
