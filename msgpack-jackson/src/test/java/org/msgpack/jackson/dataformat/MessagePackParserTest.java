@@ -758,4 +758,26 @@ public class MessagePackParserTest
         }
         assertThat((String) values.get(4), is("Java"));
     }
+
+    @Test
+    public void parserShouldReadStrAsBin()
+            throws IOException
+    {
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
+        packer.packMapHeader(2);
+        // #1
+        packer.packString("s");
+        packer.packString("foo");
+        // #2
+        packer.packString("b");
+        packer.packString("bar");
+
+        packer.flush();
+
+        byte[] bytes = out.toByteArray();
+
+        BinKeyPojo binKeyPojo = objectMapper.readValue(bytes, BinKeyPojo.class);
+        assertEquals("foo", binKeyPojo.s);
+        assertArrayEquals("bar".getBytes(), binKeyPojo.b);
+    }
 }
