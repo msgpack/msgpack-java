@@ -160,6 +160,12 @@ public class MessagePackDataformatTestBase
         }
     }
 
+    public static class BinKeyPojo
+    {
+        public byte[] b;
+        public String s;
+    }
+
     public static class UsingCustomConstructorPojo
     {
         final String name;

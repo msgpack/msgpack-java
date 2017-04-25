@@ -32,7 +32,6 @@ import org.msgpack.core.ExtensionTypeHeader;
 import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
-import org.msgpack.core.Preconditions;
 import org.msgpack.core.buffer.ArrayBufferInput;
 import org.msgpack.core.buffer.InputStreamBufferInput;
 import org.msgpack.core.buffer.MessageBufferInput;
@@ -419,8 +418,14 @@ public class MessagePackParser
     public byte[] getBinaryValue(Base64Variant b64variant)
             throws IOException, JsonParseException
     {
-        Preconditions.checkArgument(type == Type.BYTES);
-        return bytesValue;
+        switch (type) {
+            case BYTES:
+                return bytesValue;
+            case STRING:
+                return stringValue.getBytes(MessagePack.UTF8);
+            default:
+                throw new IllegalStateException("Invalid type=" + type);
+        }
     }
 
     @Override
