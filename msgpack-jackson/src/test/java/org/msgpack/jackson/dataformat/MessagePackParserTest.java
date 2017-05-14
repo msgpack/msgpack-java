@@ -780,4 +780,75 @@ public class MessagePackParserTest
         assertEquals("foo", binKeyPojo.s);
         assertArrayEquals("bar".getBytes(), binKeyPojo.b);
     }
+
+    // Test deserializers that parse a string as a number.
+    // Actually, com.fasterxml.jackson.databind.deser.std.StdDeserializer._parseInteger() takes care of it.
+
+    @Test
+    public void deserializeStringAsInteger()
+            throws IOException
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        MessagePack.newDefaultPacker(out).packString(String.valueOf(Integer.MAX_VALUE)).close();
+
+        Integer v = objectMapper.readValue(out.toByteArray(), Integer.class);
+        assertThat(v, is(Integer.MAX_VALUE));
+    }
+
+    @Test
+    public void deserializeStringAsLong()
+            throws IOException
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        MessagePack.newDefaultPacker(out).packString(String.valueOf(Long.MIN_VALUE)).close();
+
+        Long v = objectMapper.readValue(out.toByteArray(), Long.class);
+        assertThat(v, is(Long.MIN_VALUE));
+    }
+
+    @Test
+    public void deserializeStringAsFloat()
+            throws IOException
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        MessagePack.newDefaultPacker(out).packString(String.valueOf(Float.MAX_VALUE)).close();
+
+        Float v = objectMapper.readValue(out.toByteArray(), Float.class);
+        assertThat(v, is(Float.MAX_VALUE));
+    }
+
+    @Test
+    public void deserializeStringAsDouble()
+            throws IOException
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        MessagePack.newDefaultPacker(out).packString(String.valueOf(Double.MIN_VALUE)).close();
+
+        Double v = objectMapper.readValue(out.toByteArray(), Double.class);
+        assertThat(v, is(Double.MIN_VALUE));
+    }
+
+    @Test
+    public void deserializeStringAsBigInteger()
+            throws IOException
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        BigInteger bi = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
+        MessagePack.newDefaultPacker(out).packString(bi.toString()).close();
+
+        BigInteger v = objectMapper.readValue(out.toByteArray(), BigInteger.class);
+        assertThat(v, is(bi));
+    }
+
+    @Test
+    public void deserializeStringAsBigDecimal()
+            throws IOException
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        BigDecimal bd = BigDecimal.valueOf(Double.MAX_VALUE);
+        MessagePack.newDefaultPacker(out).packString(bd.toString()).close();
+
+        BigDecimal v = objectMapper.readValue(out.toByteArray(), BigDecimal.class);
+        assertThat(v, is(bd));
+    }
 }
