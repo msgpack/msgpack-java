@@ -25,7 +25,6 @@ import com.fasterxml.jackson.core.json.JsonWriteContext;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
-import org.msgpack.value.FloatValue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
