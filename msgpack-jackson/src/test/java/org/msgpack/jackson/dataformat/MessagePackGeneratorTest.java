@@ -17,8 +17,12 @@ package org.msgpack.jackson.dataformat;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.junit.Test;
 import org.msgpack.core.ExtensionTypeHeader;
 import org.msgpack.core.MessagePack;
@@ -731,5 +735,153 @@ public class MessagePackGeneratorTest
         assertThat(unpacker.unpackArrayHeader(), is(1));
         assertThat(unpacker.unpackString(), is("foo"));
         assertThat(unpacker.unpackInt(), is(42));
+    }
+
+    // Test serializers that store a string as a number
+
+    public static class IntegerSerializerStoringAsString
+            extends JsonSerializer<Integer>
+    {
+        @Override
+        public void serialize(Integer value, JsonGenerator gen, SerializerProvider serializers)
+                throws IOException, JsonProcessingException
+        {
+            gen.writeNumber(String.valueOf(value));
+        }
+    }
+
+    @Test
+    public void serializeStringAsInteger()
+            throws IOException
+    {
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.registerModule(
+                new SimpleModule().addSerializer(Integer.class, new IntegerSerializerStoringAsString()));
+
+        assertThat(
+            MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(Integer.MAX_VALUE)).unpackInt(),
+                is(Integer.MAX_VALUE));
+    }
+
+    public static class LongSerializerStoringAsString
+            extends JsonSerializer<Long>
+    {
+        @Override
+        public void serialize(Long value, JsonGenerator gen, SerializerProvider serializers)
+                throws IOException, JsonProcessingException
+        {
+            gen.writeNumber(String.valueOf(value));
+        }
+    }
+
+    @Test
+    public void serializeStringAsLong()
+            throws IOException
+    {
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.registerModule(
+                new SimpleModule().addSerializer(Long.class, new LongSerializerStoringAsString()));
+
+        assertThat(
+            MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(Long.MIN_VALUE)).unpackLong(),
+                is(Long.MIN_VALUE));
+    }
+
+    public static class FloatSerializerStoringAsString
+            extends JsonSerializer<Float>
+    {
+        @Override
+        public void serialize(Float value, JsonGenerator gen, SerializerProvider serializers)
+                throws IOException, JsonProcessingException
+        {
+            gen.writeNumber(String.valueOf(value));
+        }
+    }
+
+    @Test
+    public void serializeStringAsFloat()
+            throws IOException
+    {
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.registerModule(
+                new SimpleModule().addSerializer(Float.class, new FloatSerializerStoringAsString()));
+
+        assertThat(
+            MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(Float.MAX_VALUE)).unpackFloat(),
+                is(Float.MAX_VALUE));
+    }
+
+    public static class DoubleSerializerStoringAsString
+            extends JsonSerializer<Double>
+    {
+        @Override
+        public void serialize(Double value, JsonGenerator gen, SerializerProvider serializers)
+                throws IOException, JsonProcessingException
+        {
+            gen.writeNumber(String.valueOf(value));
+        }
+    }
+
+    @Test
+    public void serializeStringAsDouble()
+            throws IOException
+    {
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.registerModule(
+                new SimpleModule().addSerializer(Double.class, new DoubleSerializerStoringAsString()));
+
+        assertThat(
+            MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(Double.MIN_VALUE)).unpackDouble(),
+                is(Double.MIN_VALUE));
+    }
+
+   public static class BigDecimalSerializerStoringAsString
+            extends JsonSerializer<BigDecimal>
+    {
+        @Override
+        public void serialize(BigDecimal value, JsonGenerator gen, SerializerProvider serializers)
+                throws IOException, JsonProcessingException
+        {
+            gen.writeNumber(String.valueOf(value));
+        }
+    }
+
+    @Test
+    public void serializeStringAsBigDecimal()
+            throws IOException
+    {
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.registerModule(
+                new SimpleModule().addSerializer(BigDecimal.class, new BigDecimalSerializerStoringAsString()));
+
+        BigDecimal bd = BigDecimal.valueOf(Long.MAX_VALUE).add(BigDecimal.ONE);
+        assertThat(
+            MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(bd)).unpackDouble(),
+                is(bd.doubleValue()));
+    }
+
+    public static class BigIntegerSerializerStoringAsString
+            extends JsonSerializer<BigInteger>
+    {
+        @Override
+        public void serialize(BigInteger value, JsonGenerator gen, SerializerProvider serializers)
+                throws IOException, JsonProcessingException
+        {
+            gen.writeNumber(String.valueOf(value));
+        }
+    }
+
+    @Test
+    public void serializeStringAsBigInteger()
+            throws IOException
+    {
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.registerModule(
+                new SimpleModule().addSerializer(BigInteger.class, new BigIntegerSerializerStoringAsString()));
+
+        BigInteger bi = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
+        assertThat(
+            MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(bi)).unpackDouble(),
+                is(bi.doubleValue()));
     }
 }

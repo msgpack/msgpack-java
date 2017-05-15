@@ -438,7 +438,42 @@ public class MessagePackGenerator
     public void writeNumber(String encodedValue)
             throws IOException, JsonGenerationException, UnsupportedOperationException
     {
-        throw new UnsupportedOperationException("writeNumber(String encodedValue) isn't supported yet");
+        // There is a room to improve this API's performance while the implementation is robust.
+        // If users can use other MessagePackGenerator#writeNumber APIs that accept
+        // proper numeric types not String, it's better to use the other APIs instead.
+        try {
+            long l = Long.parseLong(encodedValue);
+            addValueToStackTop(l);
+            return;
+        }
+        catch (NumberFormatException e) {
+        }
+
+        try {
+            double d = Double.parseDouble(encodedValue);
+            addValueToStackTop(d);
+            return;
+        }
+        catch (NumberFormatException e) {
+        }
+
+        try {
+            BigInteger bi = new BigInteger(encodedValue);
+            addValueToStackTop(bi);
+            return;
+        }
+        catch (NumberFormatException e) {
+        }
+
+        try {
+            BigDecimal bc = new BigDecimal(encodedValue);
+            addValueToStackTop(bc);
+            return;
+        }
+        catch (NumberFormatException e) {
+        }
+
+        throw new NumberFormatException(encodedValue);
     }
 
     @Override
