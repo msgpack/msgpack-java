@@ -9,7 +9,7 @@ addSbtPlugin("de.johoop" % "findbugs4sbt" % "1.3.0")
 
 addSbtPlugin("de.johoop" % "jacoco4sbt" % "2.1.6")
 
-addSbtPlugin("org.xerial.sbt" % "sbt-jcheckstyle" % "0.1.2")
+addSbtPlugin("org.xerial.sbt" % "sbt-jcheckstyle" % "0.1.4")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-osgi" % "0.7.0")
 
