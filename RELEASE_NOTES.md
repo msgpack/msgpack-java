@@ -1,5 +1,10 @@
 # Release Notes
 
+## 0.8.13
+ * Fix ambiguous overload in Java 9[#415](https://github.com/msgpack/msgpack-java/pull/415)
+ * Make MessagePackParser accept a string as a byte array field[#420](https://github.com/msgpack/msgpack-java/pull/420)
+ * Support MessagePackGenerator#writeNumber(String)[#422](https://github.com/msgpack/msgpack-java/pull/422)
+
 ## 0.8.12
  * Fix warnings in build.sbt[#402](https://github.com/msgpack/msgpack-java/pull/402)
  * Add ExtensionTypeCustomDeserializers and MessagePackFactory#setExtTypeCustomDesers[#408](https://github.com/msgpack/msgpack-java/pull/408)
