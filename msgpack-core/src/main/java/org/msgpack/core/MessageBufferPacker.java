@@ -123,4 +123,12 @@ public class MessageBufferPacker
         }
         return getArrayBufferOut().toBufferList();
     }
+
+    /**
+     * @return size of written data
+     */
+    public int getSize()
+    {
+        return getArrayBufferOut().getSize();
+    }
 }
