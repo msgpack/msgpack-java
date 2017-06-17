@@ -123,4 +123,12 @@ public class MessageBufferPacker
         }
         return getArrayBufferOut().toBufferList();
     }
+
+    /**
+     * @return the size of the buffer in use
+     */
+    public int getBufferSize()
+    {
+        return getArrayBufferOut().getSize();
+    }
 }
