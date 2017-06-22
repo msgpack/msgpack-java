@@ -62,11 +62,9 @@ public class ChannelBufferInput
             throws IOException
     {
         ByteBuffer b = buffer.sliceAsByteBuffer();
-        while (b.remaining() > 0) {
-            int ret = channel.read(b);
-            if (ret == -1) {
-                break;
-            }
+        int ret = channel.read(b);
+        if (ret == -1) {
+            return null;
         }
         b.flip();
         return b.remaining() == 0 ? null : buffer.slice(0, b.limit());
