@@ -16,17 +16,15 @@
 package org.msgpack.core.buffer
 
 import java.io._
-import java.net.{InetSocketAddress, ServerSocket, Socket}
+import java.net.{InetSocketAddress}
 import java.nio.ByteBuffer
 import java.nio.channels.{ServerSocketChannel, SocketChannel}
-import java.util.concurrent
 import java.util.concurrent.{Callable, Executors, TimeUnit}
 import java.util.zip.{GZIPInputStream, GZIPOutputStream}
 
-import org.msgpack.core.{MessagePack, MessagePackSpec, MessageUnpacker}
+import org.msgpack.core.{MessagePack, MessagePackSpec}
 import xerial.core.io.IOUtil._
 
-import scala.concurrent.Future
 import scala.util.Random
 
 class MessageBufferInputTest
