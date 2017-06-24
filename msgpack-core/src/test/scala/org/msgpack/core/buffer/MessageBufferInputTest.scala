@@ -16,12 +16,17 @@
 package org.msgpack.core.buffer
 
 import java.io._
+import java.net.{InetSocketAddress, ServerSocket, Socket}
 import java.nio.ByteBuffer
+import java.nio.channels.{ServerSocketChannel, SocketChannel}
+import java.util.concurrent
+import java.util.concurrent.{Callable, Executors, TimeUnit}
 import java.util.zip.{GZIPInputStream, GZIPOutputStream}
 
 import org.msgpack.core.{MessagePack, MessagePackSpec, MessageUnpacker}
 import xerial.core.io.IOUtil._
 
+import scala.concurrent.Future
 import scala.util.Random
 
 class MessageBufferInputTest
@@ -200,6 +205,45 @@ class MessageBufferInputTest
       val (f1, in1) = createTempFileWithChannel
       buf.reset(in1)
       readInt(buf) shouldBe 42
+    }
+
+    "unpack without blocking" in {
+      val server = ServerSocketChannel.open.bind(new InetSocketAddress("localhost", 0))
+      val executorService = Executors.newCachedThreadPool
+
+      try {
+        executorService.execute(new Runnable {
+          override def run {
+            val server_ch = server.accept
+            val packer = MessagePack.newDefaultPacker(server_ch)
+            packer.packString("0123456789")
+            packer.flush
+            // Keep the connection open
+            while (!executorService.isShutdown) {
+              TimeUnit.SECONDS.sleep(1)
+            }
+            packer.close
+          }
+        })
+
+        val future = executorService.submit(new Callable[String] {
+          override def call: String = {
+            val conn_ch = SocketChannel.open(new InetSocketAddress("localhost", server.socket.getLocalPort))
+            val unpacker = MessagePack.newDefaultUnpacker(conn_ch)
+            val s = unpacker.unpackString
+            unpacker.close
+            s
+          }
+        })
+
+        future.get(5, TimeUnit.SECONDS) shouldBe "0123456789"
+      }
+      finally {
+        executorService.shutdown
+        if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
+          executorService.shutdownNow
+        }
+      }
     }
   }
 }
