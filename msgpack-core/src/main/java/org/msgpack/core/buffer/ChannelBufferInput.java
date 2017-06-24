@@ -67,7 +67,7 @@ public class ChannelBufferInput
             return null;
         }
         b.flip();
-        return b.remaining() == 0 ? null : buffer.slice(0, b.limit());
+        return buffer.slice(0, b.limit());
     }
 
     @Override
