@@ -28,6 +28,10 @@ matrix:
     group: edge
     sudo: required
     jdk: oraclejdk9
+    addons:
+      apt:
+        packages:
+        - oracle-java9-installer
     script:
     # https://github.com/sbt/sbt/pull/2951
     - git clone https://github.com/retronym/java9-rt-export
