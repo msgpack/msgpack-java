@@ -6,7 +6,7 @@ val buildSettings = findbugsSettings ++ jacoco.settings ++ osgiSettings ++ Seq[S
   organizationName := "MessagePack",
   organizationHomepage := Some(new URL("http://msgpack.org/")),
   description := "MessagePack for Java",
-  scalaVersion := "2.11.7",
+  scalaVersion := "2.11.11",
   logBuffered in Test := false,
   autoScalaLibrary := false,
   crossPaths := false,
@@ -91,12 +91,12 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
           libraryDependencies ++= Seq(
             // msgpack-core should have no external dependencies
             junitInterface,
-            "org.scalatest" %% "scalatest" % "2.2.4" % "test",
-            "org.scalacheck" %% "scalacheck" % "1.12.2" % "test",
-            "org.xerial" % "xerial-core" % "3.3.6" % "test",
-            "org.msgpack" % "msgpack" % "0.6.11" % "test",
+            "org.scalatest" %% "scalatest" % "3.0.3" % "test",
+            "org.scalacheck" %% "scalacheck" % "1.13.5" % "test",
+            "org.xerial" %% "xerial-core" % "3.6.0" % "test",
+            "org.msgpack" % "msgpack" % "0.6.12" % "test",
             "commons-codec" % "commons-codec" % "1.10" % "test",
-            "com.typesafe.akka" %% "akka-actor" % "2.3.9" % "test"
+            "com.typesafe.akka" %% "akka-actor" % "2.3.16" % "test"
           )
         )
 
@@ -113,7 +113,7 @@ lazy val msgpackJackson = Project(id = "msgpack-jackson", base = file("msgpack-j
           libraryDependencies ++= Seq(
             "com.fasterxml.jackson.core" % "jackson-databind" % "2.7.1",
             junitInterface,
-            "org.apache.commons" % "commons-math3" % "3.4.1" % "test"
+            "org.apache.commons" % "commons-math3" % "3.6.1" % "test"
           ),
           testOptions += Tests.Argument(TestFrameworks.JUnit, "-v")
         ).dependsOn(msgpackCore)
