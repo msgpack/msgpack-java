@@ -16,6 +16,7 @@
 package org.msgpack.value;
 
 import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageTypeCastException;
 
 import java.io.IOException;
 

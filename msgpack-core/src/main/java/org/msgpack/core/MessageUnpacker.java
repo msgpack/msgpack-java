@@ -32,7 +32,14 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import static org.msgpack.core.MessagePack.Code.EXT_TIMESTAMP;
 import static org.msgpack.core.Preconditions.checkNotNull;
 
 /**
@@ -595,6 +602,12 @@ public class MessageUnpacker
         }
     }
 
+    private static MessagePackException unexpectedExtension(String expected, int expectedType, int actualType)
+    {
+        return new MessageTypeException(String.format("Expected extension type %s (%d), but got extension type %d",
+                    expected, expectedType, actualType));
+    }
+
     public ImmutableValue unpackValue()
             throws IOException
     {
@@ -643,7 +656,12 @@ public class MessageUnpacker
             }
             case EXTENSION: {
                 ExtensionTypeHeader extHeader = unpackExtensionTypeHeader();
-                return ValueFactory.newExtension(extHeader.getType(), readPayload(extHeader.getLength()));
+                switch (extHeader.getType()) {
+                case EXT_TIMESTAMP:
+                    return ValueFactory.newTimestamp(readPayload(extHeader.getLength()));
+                default:
+                    return ValueFactory.newExtension(extHeader.getType(), readPayload(extHeader.getLength()));
+                }
             }
             default:
                 throw new MessageNeverUsedFormatException("Unknown value type");
@@ -1254,6 +1272,70 @@ public class MessageUnpacker
             }
             position += length;
             return cb.toString();
+        }
+    }
+
+    public Instant unpackInstant()
+            throws IOException
+    {
+        ExtensionTypeHeader ext = unpackExtensionTypeHeader();
+        if (ext.getType() != EXT_TIMESTAMP) {
+            throw unexpectedExtension("Timestamp", EXT_TIMESTAMP, ext.getType());
+        }
+        switch (ext.getLength()) {
+            case 4: {
+                int u32 = readInt();
+                return Instant.ofEpochSecond(u32);
+            }
+            case 8: {
+                long data64 = readLong();
+                int nsec = (int) (data64 >>> 34);
+                long sec = data64 & 0x00000003ffffffffL;
+                return Instant.ofEpochSecond(sec, nsec);
+            }
+            case 12: {
+                int nsec = readInt();
+                long sec = readLong();
+                return Instant.ofEpochSecond(sec, nsec);
+            }
+            default:
+                throw new MessageExtensionFormatException(String.format("Timestamp extension type (%d) expects 4, 8, or 12 bytes of payload but got %d bytes",
+                            EXT_TIMESTAMP, ext.getLength()));
+        }
+    }
+
+    public Date unpackDate()
+            throws IOException
+    {
+        return new Date(unpackTimestampMillis());
+    }
+
+    public long unpackTimestampMillis()
+            throws IOException
+    {
+        ExtensionTypeHeader ext = unpackExtensionTypeHeader();
+        if (ext.getType() != EXT_TIMESTAMP) {
+            throw unexpectedExtension("Timestamp", EXT_TIMESTAMP, ext.getType());
+        }
+        switch (ext.getLength()) {
+            case 4: {
+                int u32 = readInt();
+                return (u32 & 0xffffffffL) * 1000L;
+            }
+            case 8: {
+                long data64 = readLong();
+                int nsec = (int) (data64 >>> 34);
+                long sec = data64 & 0x00000003ffffffffL;
+                return sec * 1000L + nsec / 1000L;
+            }
+            case 12: {
+                int nsec = readInt();
+                long sec = readLong();
+                return sec * 1000L + nsec / 1000L;
+            }
+            default:
+                throw new MessageExtensionFormatException(String.format("Timestamp extension type (%d) expects 4, 8, or 12 bytes of payload but got %d bytes",
+                            EXT_TIMESTAMP, ext.getLength()));
         }
     }
 
