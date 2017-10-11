@@ -1494,6 +1494,37 @@ public class MessageUnpacker
     /**
      * Reads payload bytes of binary, extension, or raw string types.
      *
+     * <p>
+     * This consumes bytes, copies them to the specified buffer
+     * This is usually faster than readPayload(ByteBuffer) by using unsafe.copyMemory
+     *
+     * @param dst the Message buffer into which the data is read
+     * @param off the offset in the Message buffer
+     * @param len the number of bytes to read
+     * @throws IOException when underlying input throws IOException
+     */
+    public void readPayload(MessageBuffer dst, int off, int len)
+            throws IOException
+    {
+        while (true) {
+            int bufferRemaining = buffer.size() - position;
+            if (bufferRemaining >= len) {
+                dst.putMessageBuffer(off, buffer, position, len);
+                position += len;
+                return;
+            }
+            dst.putMessageBuffer(off, buffer, position, bufferRemaining);
+            off += bufferRemaining;
+            len -= bufferRemaining;
+            position += bufferRemaining;
+
+            nextBuffer();
+        }
+    }
+
+    /**
+     * Reads payload bytes of binary, extension, or raw string types.
+     *
      * This consumes specified amount of bytes into the specified byte array.
      *
      * <p>
@@ -1541,8 +1572,7 @@ public class MessageUnpacker
     public void readPayload(byte[] dst, int off, int len)
             throws IOException
     {
-        // TODO optimize
-        readPayload(ByteBuffer.wrap(dst, off, len));
+        readPayload(MessageBuffer.wrap(dst), off, len);
     }
 
     /**
@@ -1566,7 +1596,7 @@ public class MessageUnpacker
             return slice;
         }
         MessageBuffer dst = MessageBuffer.allocate(length);
-        readPayload(dst.sliceAsByteBuffer());
+        readPayload(dst, 0, length);
         return dst;
     }
 

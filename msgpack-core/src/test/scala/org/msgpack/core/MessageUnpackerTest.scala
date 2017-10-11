@@ -406,7 +406,7 @@ class MessageUnpackerTest extends MessagePackSpec {
       }
     }
 
-    "be faster then msgpack-v6 skip" taggedAs ("cmp-skip") in {
+    "be faster than msgpack-v6 skip" taggedAs ("cmp-skip") in {
 
       trait Fixture {
         val unpacker: MessageUnpacker

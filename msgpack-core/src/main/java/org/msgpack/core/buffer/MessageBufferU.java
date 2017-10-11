@@ -248,7 +248,7 @@ public class MessageBufferU
     @Override
     public void putMessageBuffer(int index, MessageBuffer src, int srcOffset, int len)
     {
-        putBytes(index, src.toByteArray(), srcOffset, len);
+        putByteBuffer(index, src.sliceAsByteBuffer(srcOffset, len), len);
     }
 
     @Override
