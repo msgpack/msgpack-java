@@ -240,6 +240,19 @@ class MessagePackTest extends MessagePackSpec {
       check(null, _.packNil, { unpacker => unpacker.unpackNil(); null })
     }
 
+    "skipping a nil value" taggedAs ("try") in {
+      check(true, _.packNil, _.tryUnpackNil)
+      check(false, { packer => packer.packString("val") }, { unpacker => unpacker.tryUnpackNil() })
+      check("val", { packer => packer.packString("val") }, { unpacker => unpacker.tryUnpackNil(); unpacker.unpackString() })
+      check("val", { packer => packer.packNil(); packer.packString("val") }, { unpacker => unpacker.tryUnpackNil(); unpacker.unpackString() })
+      try {
+        checkException(null, { _ => }, _.tryUnpackNil)
+      }
+      catch {
+        case e: MessageInsufficientBufferException => // OK
+      }
+    }
+
     "pack/unpack integer values" taggedAs ("int") in {
       val sampleData = Seq[Long](Int.MinValue.toLong -
         10, -65535, -8191, -1024, -255, -127, -63, -31, -15, -7, -3, -1, 0, 2, 4, 8, 16, 32, 64, 128, 256, 1024, 8192, 65536,
