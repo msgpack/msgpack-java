@@ -389,7 +389,7 @@ public class MessageUnpacker
     public MessageFormat getNextFormat()
             throws IOException
     {
-        // makes sure that buffer has at leat 1 byte
+        // makes sure that buffer has at least 1 byte
         if (!ensureBuffer()) {
             throw new MessageInsufficientBufferException();
         }
@@ -729,6 +729,31 @@ public class MessageUnpacker
             return;
         }
         throw unexpected("Nil", b);
+    }
+
+    /**
+     * Peeks a Nil byte and reads it if next byte is a nil value.
+     *
+     * The difference from {@link unpackNil} is that unpackNil throws an exception if the next byte is not nil value
+     * while this tryUnpackNil method returns false without changing position.
+     *
+     * @return true if a nil value is read
+     * @throws MessageInsufficientBufferException when the end of file reached
+     * @throws IOException when underlying input throws IOException
+     */
+    public boolean tryUnpackNil()
+            throws IOException
+    {
+        // makes sure that buffer has at least 1 byte
+        if (!ensureBuffer()) {
+            throw new MessageInsufficientBufferException();
+        }
+        byte b = buffer.getByte(position);
+        if (b == Code.NIL) {
+            readByte();
+            return true;
+        }
+        return false;
     }
 
     /**
