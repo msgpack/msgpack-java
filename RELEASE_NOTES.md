@@ -1,5 +1,13 @@
 # Release Notes
 
+## 0.8.14
+ * Add MessageUnpacker.tryUnpackNil() for peeking whether the next value is nil or not.
+ * Add MessageBufferPacker.getBufferSize().
+ * Improved MessageUnpacker.readPayload performance [#436](https://github.com/msgpack/msgpack-java/pull/436)
+ * Fixed a bug that ChannelBufferInput#next blocks until the buffer is filled. [#428](https://github.com/msgpack/msgpack-java/pull/428)
+ * (internal) Upgraded to sbt-1.0.4 for better Java9 support
+ * (internal) Dropped Java7 tests on TravisCI, but msgpack-java is still built for Java7 (1.7) target 
+
 ## 0.8.13
  * Fix ambiguous overload in Java 9 [#415](https://github.com/msgpack/msgpack-java/pull/415)
  * Make MessagePackParser accept a string as a byte array field [#420](https://github.com/msgpack/msgpack-java/pull/420)
