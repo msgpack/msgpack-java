@@ -1,13 +1,13 @@
-import de.johoop.findbugs4sbt.ReportType
 import ReleaseTransformations._
 
-val buildSettings = findbugsSettings ++ jacoco.settings ++ osgiSettings ++ Seq[Setting[_]](
+val buildSettings = Seq[Setting[_]](
   organization := "org.msgpack",
   organizationName := "MessagePack",
   organizationHomepage := Some(new URL("http://msgpack.org/")),
   description := "MessagePack for Java",
-  scalaVersion := "2.11.11",
+  scalaVersion := "2.12.4",
   logBuffered in Test := false,
+  // msgpack-java should be a pure-java library, so remove Scala specific configurations
   autoScalaLibrary := false,
   crossPaths := false,
   // For performance testing, ensure each test run one-by-one
@@ -15,12 +15,12 @@ val buildSettings = findbugsSettings ++ jacoco.settings ++ osgiSettings ++ Seq[S
     Tags.limit(Tags.Test, 1)
   ),
   // JVM options for building
-  scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-target:jvm-1.6", "-feature"),
+  scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-target:jvm-1.7", "-feature"),
   javaOptions in Test ++= Seq("-ea"),
-  javacOptions in (Compile, compile) ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.6", "-target", "1.6"),
+  javacOptions in (Compile, compile) ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.7", "-target", "1.7"),
   // Use lenient validation mode when generating Javadoc (for Java8)
   javacOptions in doc := {
-    val opts = Seq("-source", "1.6")
+    val opts = Seq("-source", "1.7")
     if (scala.util.Properties.isJavaAtLeast("1.8")) {
       opts ++ Seq("-Xdoclint:none")
     }
@@ -38,18 +38,15 @@ val buildSettings = findbugsSettings ++ jacoco.settings ++ osgiSettings ++ Seq[S
           setReleaseVersion,
           commitReleaseVersion,
           tagRelease,
-          ReleaseStep(action = Command.process("publishSigned", _)),
+          releaseStepCommand("publishSigned"),
           setNextVersion,
           commitNextVersion,
-          ReleaseStep(action = Command.process("sonatypeReleaseAll", _)),
+          releaseStepCommand("sonatypeReleaseAll"),
           pushChanges
         ),
   
-  // Jacoco code coverage report
-  parallelExecution in jacoco.Config := false,
-  
   // Find bugs
-  findbugsReportType := Some(ReportType.FancyHtml),
+  findbugsReportType := Some(FindbugsReport.FancyHtml),
   findbugsReportPath := Some(crossTarget.value / "findbugs" / "report.html"),
   
   // Style check config: (sbt-jchekcstyle)
@@ -76,6 +73,7 @@ lazy val root = Project(id = "msgpack-java", base = file("."))
         ).aggregate(msgpackCore, msgpackJackson)
 
 lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
+     .enablePlugins(SbtOsgi)
         .settings(
           buildSettings,
           description := "Core library of the MessagePack for Java",
@@ -96,11 +94,12 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
             "org.xerial" %% "xerial-core" % "3.6.0" % "test",
             "org.msgpack" % "msgpack" % "0.6.12" % "test",
             "commons-codec" % "commons-codec" % "1.10" % "test",
-            "com.typesafe.akka" %% "akka-actor" % "2.3.16" % "test"
+            "com.typesafe.akka" %% "akka-actor" % "2.5.7" % "test"
           )
         )
 
 lazy val msgpackJackson = Project(id = "msgpack-jackson", base = file("msgpack-jackson"))
+     .enablePlugins(SbtOsgi)
         .settings(
           buildSettings,
           name := "jackson-dataformat-msgpack",
