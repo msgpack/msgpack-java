@@ -9,21 +9,23 @@ cache:
 
 sudo: false
 
-jdk:
-  - oraclejdk8
-
 branches:
   only:
     - develop
 
-script:
-  - ./sbt jcheckStyle
-  - ./sbt test
-  - ./sbt test -J-Dmsgpack.universal-buffer=true
-
 matrix:
   include:
-  - dist: trusty
+  - env: PROJECT=checkstyle
+    jdk: oraclejdk8
+    script:
+    - ./sbt jcheckStyle
+  - env: PROJECT=java8
+    jdk: oraclejdk8
+    script:
+    - ./sbt test
+    - ./sbt test -J-Dmsgpack.universal-buffer=true
+  - env: PROJECT=java9
+    dist: trusty
     group: edge
     sudo: required
     jdk: oraclejdk9
@@ -33,4 +35,4 @@ matrix:
         - oracle-java9-installer
     script:
     - ./sbt test
-    - ./sbt -Dmsgpack.universal-buffer=true test
+    - ./sbt test -J-Dmsgpack.universal-buffer=true
