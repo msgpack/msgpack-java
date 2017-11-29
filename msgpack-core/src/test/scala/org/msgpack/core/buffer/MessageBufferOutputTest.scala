@@ -19,8 +19,7 @@ import java.io._
 
 import org.msgpack.core.MessagePackSpec
 
-class MessageBufferOutputTest
-  extends MessagePackSpec {
+class MessageBufferOutputTest extends MessagePackSpec {
 
   def createTempFile = {
     val f = File.createTempFile("msgpackTest", "msgpack")
@@ -29,15 +28,14 @@ class MessageBufferOutputTest
   }
 
   def createTempFileWithOutputStream = {
-    val f = createTempFile
-    val out = new
-        FileOutputStream(f)
+    val f   = createTempFile
+    val out = new FileOutputStream(f)
     (f, out)
   }
 
   def createTempFileWithChannel = {
     val (f, out) = createTempFileWithOutputStream
-    val ch = out.getChannel
+    val ch       = out.getChannel
     (f, ch)
   }
 
@@ -51,8 +49,7 @@ class MessageBufferOutputTest
   "OutputStreamBufferOutput" should {
     "reset buffer" in {
       val (f0, out0) = createTempFileWithOutputStream
-      val buf = new
-          OutputStreamBufferOutput(out0)
+      val buf        = new OutputStreamBufferOutput(out0)
       writeIntToBuf(buf)
       f0.length.toInt should be > 0
 
@@ -66,8 +63,7 @@ class MessageBufferOutputTest
   "ChannelBufferOutput" should {
     "reset buffer" in {
       val (f0, ch0) = createTempFileWithChannel
-      val buf = new
-          ChannelBufferOutput(ch0)
+      val buf       = new ChannelBufferOutput(ch0)
       writeIntToBuf(buf)
       f0.length.toInt should be > 0
 

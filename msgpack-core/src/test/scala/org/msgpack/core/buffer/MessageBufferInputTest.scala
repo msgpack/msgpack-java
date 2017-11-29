@@ -27,15 +27,14 @@ import xerial.core.io.IOUtil._
 
 import scala.util.Random
 
-class MessageBufferInputTest
-  extends MessagePackSpec {
+class MessageBufferInputTest extends MessagePackSpec {
 
-  val targetInputSize = Seq(0, 10, 500, 1000, 2000, 4000, 8000, 10000, 30000, 50000, 100000)
+  val targetInputSize =
+    Seq(0, 10, 500, 1000, 2000, 4000, 8000, 10000, 30000, 50000, 100000)
 
   def testData(size: Int) = {
     //debug(s"test data size: ${size}")
-    val b = new
-        Array[Byte](size)
+    val b = new Array[Byte](size)
     Random.nextBytes(b)
     b
   }
@@ -52,10 +51,8 @@ class MessageBufferInputTest
 
   implicit class InputData(b: Array[Byte]) {
     def compress = {
-      val compressed = new
-          ByteArrayOutputStream()
-      val out = new
-          GZIPOutputStream(compressed)
+      val compressed = new ByteArrayOutputStream()
+      val out        = new GZIPOutputStream(compressed)
       out.write(b)
       out.close()
       compressed.toByteArray
@@ -67,14 +64,10 @@ class MessageBufferInputTest
 
     def saveToTmpFile: File = {
       val tmp = File
-        .createTempFile("testbuf",
-          ".dat",
-          new
-              File("target"))
+        .createTempFile("testbuf", ".dat", new File("target"))
       tmp.getParentFile.mkdirs()
       tmp.deleteOnExit()
-      withResource(new
-          FileOutputStream(tmp)) { out =>
+      withResource(new FileOutputStream(tmp)) { out =>
         out.write(b)
       }
       tmp
@@ -93,23 +86,15 @@ class MessageBufferInputTest
 
   "MessageBufferInput" should {
     "support byte arrays" in {
-      runTest(new
-          ArrayBufferInput(_))
+      runTest(new ArrayBufferInput(_))
     }
 
     "support ByteBuffers" in {
-      runTest(b => new
-          ByteBufferInput(b.toByteBuffer))
+      runTest(b => new ByteBufferInput(b.toByteBuffer))
     }
 
     "support InputStreams" taggedAs ("is") in {
-      runTest(b =>
-        new
-            InputStreamBufferInput(
-              new
-                  GZIPInputStream(new
-                      ByteArrayInputStream(b.compress)))
-      )
+      runTest(b => new InputStreamBufferInput(new GZIPInputStream(new ByteArrayInputStream(b.compress))))
     }
 
     "support file input channel" taggedAs ("fc") in {
@@ -117,10 +102,8 @@ class MessageBufferInputTest
         val tmp = b.saveToTmpFile
         try {
           InputStreamBufferInput
-            .newBufferInput(new
-              FileInputStream(tmp))
-        }
-        finally {
+            .newBufferInput(new FileInputStream(tmp))
+        } finally {
           tmp.delete()
         }
       }
@@ -134,17 +117,16 @@ class MessageBufferInputTest
   }
 
   def createTempFileWithInputStream = {
-    val f = createTempFile
+    val f   = createTempFile
     val out = new FileOutputStream(f)
     MessagePack.newDefaultPacker(out).packInt(42).close
-    val in = new
-        FileInputStream(f)
+    val in = new FileInputStream(f)
     (f, in)
   }
 
   def createTempFileWithChannel = {
     val (f, in) = createTempFileWithInputStream
-    val ch = in.getChannel
+    val ch      = in.getChannel
     (f, ch)
   }
 
@@ -156,8 +138,7 @@ class MessageBufferInputTest
   "InputStreamBufferInput" should {
     "reset buffer" in {
       val (f0, in0) = createTempFileWithInputStream
-      val buf = new
-          InputStreamBufferInput(in0)
+      val buf       = new InputStreamBufferInput(in0)
       readInt(buf) shouldBe 42
 
       val (f1, in1) = createTempFileWithInputStream
@@ -167,13 +148,12 @@ class MessageBufferInputTest
 
     "be non-blocking" taggedAs ("non-blocking") in {
 
-      withResource(new
-          PipedOutputStream()) { pipedOutputStream =>
-        withResource(new
-            PipedInputStream()) { pipedInputStream =>
+      withResource(new PipedOutputStream()) { pipedOutputStream =>
+        withResource(new PipedInputStream()) { pipedInputStream =>
           pipedInputStream.connect(pipedOutputStream)
 
-          val packer = MessagePack.newDefaultPacker(pipedOutputStream)
+          val packer = MessagePack
+            .newDefaultPacker(pipedOutputStream)
             .packArrayHeader(2)
             .packLong(42)
             .packString("hello world")
@@ -196,8 +176,7 @@ class MessageBufferInputTest
   "ChannelBufferInput" should {
     "reset buffer" in {
       val (f0, in0) = createTempFileWithChannel
-      val buf = new
-          ChannelBufferInput(in0)
+      val buf       = new ChannelBufferInput(in0)
       readInt(buf) shouldBe 42
 
       val (f1, in1) = createTempFileWithChannel
@@ -206,14 +185,15 @@ class MessageBufferInputTest
     }
 
     "unpack without blocking" in {
-      val server = ServerSocketChannel.open.bind(new InetSocketAddress("localhost", 0))
+      val server =
+        ServerSocketChannel.open.bind(new InetSocketAddress("localhost", 0))
       val executorService = Executors.newCachedThreadPool
 
       try {
         executorService.execute(new Runnable {
           override def run {
             val server_ch = server.accept
-            val packer = MessagePack.newDefaultPacker(server_ch)
+            val packer    = MessagePack.newDefaultPacker(server_ch)
             packer.packString("0123456789")
             packer.flush
             // Keep the connection open
@@ -226,17 +206,16 @@ class MessageBufferInputTest
 
         val future = executorService.submit(new Callable[String] {
           override def call: String = {
-            val conn_ch = SocketChannel.open(new InetSocketAddress("localhost", server.socket.getLocalPort))
+            val conn_ch  = SocketChannel.open(new InetSocketAddress("localhost", server.socket.getLocalPort))
             val unpacker = MessagePack.newDefaultUnpacker(conn_ch)
-            val s = unpacker.unpackString
+            val s        = unpacker.unpackString
             unpacker.close
             s
           }
         })
 
         future.get(5, TimeUnit.SECONDS) shouldBe "0123456789"
-      }
-      finally {
+      } finally {
         executorService.shutdown
         if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
           executorService.shutdownNow

@@ -18,10 +18,9 @@ package org.msgpack.core.example
 import org.msgpack.core.MessagePackSpec
 
 /**
- *
- */
-class MessagePackExampleTest
-  extends MessagePackSpec {
+  *
+  */
+class MessagePackExampleTest extends MessagePackSpec {
 
   "example" should {
 

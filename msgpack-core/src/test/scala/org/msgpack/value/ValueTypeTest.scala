@@ -21,16 +21,13 @@ import org.msgpack.core.{MessageFormat, MessageFormatException, MessagePackSpec}
 /**
   * Created on 2014/05/06.
   */
-class ValueTypeTest
-        extends MessagePackSpec
-{
+class ValueTypeTest extends MessagePackSpec {
 
   "ValueType" should {
 
     "lookup ValueType from a byte value" taggedAs ("code") in {
 
-      def check(b: Byte, tpe: ValueType)
-      {
+      def check(b: Byte, tpe: ValueType) {
         MessageFormat.valueOf(b).getValueType shouldBe tpe
       }
 
@@ -51,8 +48,7 @@ class ValueTypeTest
       try {
         MessageFormat.valueOf(NEVER_USED).getValueType
         fail("NEVER_USED type should not have ValueType")
-      }
-      catch {
+      } catch {
         case e: MessageFormatException =>
         // OK
       }

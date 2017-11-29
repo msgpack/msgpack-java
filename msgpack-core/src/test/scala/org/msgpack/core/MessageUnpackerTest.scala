@@ -34,8 +34,7 @@ object MessageUnpackerTest {
         val a = array(cursor)
         cursor += 1
         MessageBuffer.wrap(a)
-      }
-      else {
+      } else {
         null
       }
     }
@@ -50,7 +49,7 @@ class MessageUnpackerTest extends MessagePackSpec {
 
   val universal = MessageBuffer.allocate(0).isInstanceOf[MessageBufferU]
   def testData: Array[Byte] = {
-    val out = new ByteArrayOutputStream()
+    val out    = new ByteArrayOutputStream()
     val packer = MessagePack.newDefaultPacker(out)
 
     packer
@@ -72,7 +71,7 @@ class MessageUnpackerTest extends MessagePackSpec {
   val intSeq = (for (i <- 0 until 100) yield Random.nextInt()).toArray[Int]
 
   def testData2: Array[Byte] = {
-    val out = new ByteArrayOutputStream()
+    val out    = new ByteArrayOutputStream()
     val packer = MessagePack.newDefaultPacker(out);
 
     packer
@@ -88,7 +87,10 @@ class MessageUnpackerTest extends MessagePackSpec {
   }
 
   def write(packer: MessagePacker, r: Random) {
-    val tpeIndex = Iterator.continually(r.nextInt(MessageFormat.values().length)).find(_ != MessageFormat.NEVER_USED.ordinal()).get
+    val tpeIndex = Iterator
+      .continually(r.nextInt(MessageFormat.values().length))
+      .find(_ != MessageFormat.NEVER_USED.ordinal())
+      .get
     val tpe = MessageFormat.values()(tpeIndex)
     tpe.getValueType match {
 
@@ -110,7 +112,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         packer.packString(v)
       case ValueType.BINARY =>
         val len = r.nextInt(100)
-        val b = new Array[Byte](len)
+        val b   = new Array[Byte](len)
         r.nextBytes(b)
         trace(s"binary: ${toHex(b)}")
         packer.packBinaryHeader(b.length)
@@ -142,12 +144,14 @@ class MessageUnpackerTest extends MessagePackSpec {
 
   def testData3(N: Int): Array[Byte] = {
 
-    val out = new ByteArrayOutputStream()
+    val out    = new ByteArrayOutputStream()
     val packer = MessagePack.newDefaultPacker(out)
 
     val r = new Random(0)
 
-    (0 until N).foreach { i => write(packer, r) }
+    (0 until N).foreach { i =>
+      write(packer, r)
+    }
 
     packer.close()
     val arr = out.toByteArray
@@ -155,7 +159,6 @@ class MessageUnpackerTest extends MessagePackSpec {
     debug(s"size:${arr.length}")
     arr
   }
-
 
   def readValue(unpacker: MessageUnpacker) {
     val f = unpacker.getNextFormat()
@@ -192,14 +195,14 @@ class MessageUnpackerTest extends MessagePackSpec {
     u.hasNext shouldBe false
   }
 
-  def unpackers(data: Array[Byte]) : Seq[MessageUnpacker] = {
+  def unpackers(data: Array[Byte]): Seq[MessageUnpacker] = {
     val bb = ByteBuffer.allocate(data.length)
     val db = ByteBuffer.allocateDirect(data.length)
     bb.put(data).flip()
     db.put(data).flip()
     val builder = Seq.newBuilder[MessageUnpacker]
     builder += MessagePack.newDefaultUnpacker(data)
-    builder +=  MessagePack.newDefaultUnpacker(bb)
+    builder += MessagePack.newDefaultUnpacker(bb)
     if (!universal) {
       builder += MessagePack.newDefaultUnpacker(db)
     }
@@ -207,12 +210,12 @@ class MessageUnpackerTest extends MessagePackSpec {
     builder.result()
   }
 
-  def unpackerCollectionWithVariousBuffers(data: Array[Byte], chunkSize: Int) : Seq[MessageUnpacker] = {
-    val seqBytes = Seq.newBuilder[MessageBufferInput]
-    val seqByteBuffers = Seq.newBuilder[MessageBufferInput]
+  def unpackerCollectionWithVariousBuffers(data: Array[Byte], chunkSize: Int): Seq[MessageUnpacker] = {
+    val seqBytes         = Seq.newBuilder[MessageBufferInput]
+    val seqByteBuffers   = Seq.newBuilder[MessageBufferInput]
     val seqDirectBuffers = Seq.newBuilder[MessageBufferInput]
-    var left = data.length
-    var position = 0
+    var left             = data.length
+    var position         = 0
     while (left > 0) {
       val length = Math.min(chunkSize, left)
       seqBytes += new ArrayBufferInput(data, position, length)
@@ -267,7 +270,7 @@ class MessageUnpackerTest extends MessagePackSpec {
     }
 
     "compare skip performance" taggedAs ("skip") in {
-      val N = 10000
+      val N    = 10000
       val data = testData3(N)
 
       time("skip performance", repeat = 100) {
@@ -322,7 +325,6 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     }
 
-
     "read data at the buffer boundary" taggedAs ("boundary") in {
 
       trait SplitTest {
@@ -340,10 +342,10 @@ class MessageUnpackerTest extends MessagePackSpec {
 
             for (splitPoint <- 1 until data.length - 1) {
               debug(s"split at $splitPoint")
-              val (h, t) = data.splitAt(splitPoint)
-              val bin = new SplitMessageBufferInput(Array(h, t))
+              val (h, t)   = data.splitAt(splitPoint)
+              val bin      = new SplitMessageBufferInput(Array(h, t))
               val unpacker = MessagePack.newDefaultUnpacker(bin)
-              var count = 0
+              var count    = 0
               while (unpacker.hasNext) {
                 count += 1
                 val f = unpacker.getNextFormat
@@ -356,13 +358,13 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
       }
 
-      new SplitTest {val data = testData}.run
-      new SplitTest {val data = testData3(30)}.run
+      new SplitTest { val data = testData      }.run
+      new SplitTest { val data = testData3(30) }.run
     }
 
-    "read integer at MessageBuffer boundaries" taggedAs("integer-buffer-boundary") in {
+    "read integer at MessageBuffer boundaries" taggedAs ("integer-buffer-boundary") in {
       val packer = MessagePack.newDefaultBufferPacker()
-      (0 until 1170).foreach{i =>
+      (0 until 1170).foreach { i =>
         packer.packLong(0x0011223344556677L)
       }
       packer.close
@@ -383,9 +385,9 @@ class MessageUnpackerTest extends MessagePackSpec {
       }
     }
 
-    "read string at MessageBuffer boundaries" taggedAs("string-buffer-boundary") in {
+    "read string at MessageBuffer boundaries" taggedAs ("string-buffer-boundary") in {
       val packer = MessagePack.newDefaultBufferPacker()
-      (0 until 1170).foreach{i =>
+      (0 until 1170).foreach { i =>
         packer.packString("hello world")
       }
       packer.close
@@ -417,16 +419,15 @@ class MessageUnpackerTest extends MessagePackSpec {
               unpacker.skipValue()
               count += 1
             }
-          }
-          finally {
+          } finally {
             unpacker.close()
           }
         }
       }
 
       val data = testData3(10000)
-      val N = 100
-      val bb = ByteBuffer.allocate(data.length)
+      val N    = 100
+      val bb   = ByteBuffer.allocate(data.length)
       bb.put(data).flip()
       val db = ByteBuffer.allocateDirect(data.length)
       db.put(data).flip()
@@ -434,24 +435,23 @@ class MessageUnpackerTest extends MessagePackSpec {
       val t = time("skip performance", repeat = N) {
         block("v6") {
           import org.msgpack.`type`.{ValueType => ValueTypeV6}
-          val v6 = new org.msgpack.MessagePack()
+          val v6       = new org.msgpack.MessagePack()
           val unpacker = new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(data))
-          var count = 0
+          var count    = 0
           try {
             while (true) {
               unpacker.skip()
               count += 1
             }
-          }
-          catch {
+          } catch {
             case e: EOFException =>
-          }
-          finally
-            unpacker.close()
+          } finally unpacker.close()
         }
 
         block("v7-array") {
-          new Fixture { override val unpacker = MessagePack.newDefaultUnpacker(data) }.run
+          new Fixture {
+            override val unpacker = MessagePack.newDefaultUnpacker(data)
+          }.run
         }
 
         block("v7-array-buffer") {
@@ -468,7 +468,8 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       t("v7-array").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
       t("v7-array-buffer").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
-      if (!universal) t("v7-direct-buffer").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
+      if (!universal)
+        t("v7-direct-buffer").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
     }
 
     import org.msgpack.`type`.{ValueType => ValueTypeV6}
@@ -480,13 +481,15 @@ class MessageUnpackerTest extends MessagePackSpec {
         vt match {
           case ValueTypeV6.ARRAY =>
             val len = unpacker.readArrayBegin()
-            var i = 0
-            while (i < len) {readValueV6(unpacker); i += 1}
+            var i   = 0
+            while (i < len) { readValueV6(unpacker); i += 1 }
             unpacker.readArrayEnd()
           case ValueTypeV6.MAP =>
             val len = unpacker.readMapBegin()
-            var i = 0
-            while (i < len) {readValueV6(unpacker); readValueV6(unpacker); i += 1}
+            var i   = 0
+            while (i < len) {
+              readValueV6(unpacker); readValueV6(unpacker); i += 1
+            }
             unpacker.readMapEnd()
           case ValueTypeV6.NIL =>
             unpacker.readNil()
@@ -506,17 +509,17 @@ class MessageUnpackerTest extends MessagePackSpec {
       val buf = new Array[Byte](8192)
 
       def readValue(unpacker: MessageUnpacker) {
-        val f = unpacker.getNextFormat
+        val f  = unpacker.getNextFormat
         val vt = f.getValueType
         vt match {
           case ValueType.ARRAY =>
             val len = unpacker.unpackArrayHeader()
-            var i = 0
-            while (i < len) {readValue(unpacker); i += 1}
+            var i   = 0
+            while (i < len) { readValue(unpacker); i += 1 }
           case ValueType.MAP =>
             val len = unpacker.unpackMapHeader()
-            var i = 0
-            while (i < len) {readValue(unpacker); readValue(unpacker); i += 1}
+            var i   = 0
+            while (i < len) { readValue(unpacker); readValue(unpacker); i += 1 }
           case ValueType.NIL =>
             unpacker.unpackNil()
           case ValueType.INTEGER =>
@@ -536,7 +539,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
       }
       trait Fixture {
-        val unpacker : MessageUnpacker
+        val unpacker: MessageUnpacker
         def run {
           var count = 0
           try {
@@ -544,39 +547,36 @@ class MessageUnpackerTest extends MessagePackSpec {
               readValue(unpacker)
               count += 1
             }
-          }
-          finally
-            unpacker.close()
+          } finally unpacker.close()
         }
       }
 
       val data = testData3(10000)
-      val N = 100
-      val bb = ByteBuffer.allocate(data.length)
+      val N    = 100
+      val bb   = ByteBuffer.allocate(data.length)
       bb.put(data).flip()
       val db = ByteBuffer.allocateDirect(data.length)
       db.put(data).flip()
 
       val t = time("unpack performance", repeat = N) {
         block("v6") {
-          val v6 = new org.msgpack.MessagePack()
+          val v6       = new org.msgpack.MessagePack()
           val unpacker = new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(data))
-          var count = 0
+          var count    = 0
           try {
             while (true) {
               readValueV6(unpacker)
               count += 1
             }
-          }
-          catch {
+          } catch {
             case e: EOFException =>
-          }
-          finally
-            unpacker.close()
+          } finally unpacker.close()
         }
 
         block("v7-array") {
-          new Fixture { override val unpacker = MessagePack.newDefaultUnpacker(data) }.run
+          new Fixture {
+            override val unpacker = MessagePack.newDefaultUnpacker(data)
+          }.run
         }
 
         block("v7-array-buffer") {
@@ -594,16 +594,17 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       t("v7-array").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
       t("v7-array-buffer").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
-      if (!universal) t("v7-direct-buffer").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
+      if (!universal)
+        t("v7-direct-buffer").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
 
     }
 
     "be faster for reading binary than v6" taggedAs ("cmp-binary") in {
 
-      val bos = new ByteArrayOutputStream()
+      val bos    = new ByteArrayOutputStream()
       val packer = MessagePack.newDefaultPacker(bos)
-      val L = 10000
-      val R = 100
+      val L      = 10000
+      val R      = 100
       (0 until R).foreach { i =>
         packer.packBinaryHeader(L)
         packer.writePayload(new Array[Byte](L))
@@ -611,8 +612,8 @@ class MessageUnpackerTest extends MessagePackSpec {
       packer.close()
 
       trait Fixture {
-        val unpacker : MessageUnpacker
-        val loop : Int
+        val unpacker: MessageUnpacker
+        val loop: Int
         def run {
           var i = 0
           try {
@@ -622,9 +623,7 @@ class MessageUnpackerTest extends MessagePackSpec {
               unpacker.readPayload(out, 0, len)
               i += 1
             }
-          }
-          finally
-            unpacker.close()
+          } finally unpacker.close()
         }
         def runRef {
           var i = 0
@@ -634,12 +633,10 @@ class MessageUnpackerTest extends MessagePackSpec {
               val out = unpacker.readPayloadAsReference(len)
               i += 1
             }
-          }
-          finally
-            unpacker.close()
+          } finally unpacker.close()
         }
       }
-      val b = bos.toByteArray
+      val b  = bos.toByteArray
       val bb = ByteBuffer.allocate(b.length)
       bb.put(b).flip()
       val db = ByteBuffer.allocateDirect(b.length)
@@ -647,9 +644,9 @@ class MessageUnpackerTest extends MessagePackSpec {
 
       time("unpackBinary", repeat = 100) {
         block("v6") {
-          val v6 = new org.msgpack.MessagePack()
+          val v6       = new org.msgpack.MessagePack()
           val unpacker = new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(b))
-          var i = 0
+          var i        = 0
           while (i < R) {
             val out = unpacker.readByteArray()
             i += 1
@@ -660,42 +657,42 @@ class MessageUnpackerTest extends MessagePackSpec {
         block("v7-array") {
           new Fixture {
             override val unpacker = MessagePack.newDefaultUnpacker(b)
-            override val loop = R
+            override val loop     = R
           }.run
         }
 
         block("v7-array-buffer") {
           new Fixture {
             override val unpacker = MessagePack.newDefaultUnpacker(bb)
-            override val loop = R
+            override val loop     = R
           }.run
         }
 
         if (!universal) block("v7-direct-buffer") {
           new Fixture {
             override val unpacker = MessagePack.newDefaultUnpacker(db)
-            override val loop = R
+            override val loop     = R
           }.run
         }
 
         block("v7-ref-array") {
           new Fixture {
             override val unpacker = MessagePack.newDefaultUnpacker(b)
-            override val loop = R
+            override val loop     = R
           }.runRef
         }
 
         block("v7-ref-array-buffer") {
           new Fixture {
             override val unpacker = MessagePack.newDefaultUnpacker(bb)
-            override val loop = R
+            override val loop     = R
           }.runRef
         }
 
         if (!universal) block("v7-ref-direct-buffer") {
           new Fixture {
             override val unpacker = MessagePack.newDefaultUnpacker(db)
-            override val loop = R
+            override val loop     = R
           }.runRef
         }
       }
@@ -703,13 +700,14 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     "read payload as a reference" taggedAs ("ref") in {
 
-      val dataSizes = Seq(0, 1, 5, 8, 16, 32, 128, 256, 1024, 2000, 10000, 100000)
+      val dataSizes =
+        Seq(0, 1, 5, 8, 16, 32, 128, 256, 1024, 2000, 10000, 100000)
 
       for (s <- dataSizes) {
         When(f"data size is $s%,d")
         val data = new Array[Byte](s)
         Random.nextBytes(data)
-        val b = new ByteArrayOutputStream()
+        val b      = new ByteArrayOutputStream()
         val packer = MessagePack.newDefaultPacker(b)
         packer.packBinaryHeader(s)
         packer.writePayload(data)
@@ -730,11 +728,10 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     }
 
-
     "reset the internal states" taggedAs ("reset") in {
 
       val data = intSeq
-      val b = createMessagePackData(packer => data foreach packer.packInt)
+      val b    = createMessagePackData(packer => data foreach packer.packInt)
       for (unpacker <- unpackers(b)) {
 
         val unpacked = Array.newBuilder[Int]
@@ -745,8 +742,8 @@ class MessageUnpackerTest extends MessagePackSpec {
         unpacked.result shouldBe data
 
         val data2 = intSeq
-        val b2 = createMessagePackData(packer => data2 foreach packer.packInt)
-        val bi = new ArrayBufferInput(b2)
+        val b2    = createMessagePackData(packer => data2 foreach packer.packInt)
+        val bi    = new ArrayBufferInput(b2)
         unpacker.reset(bi)
         val unpacked2 = Array.newBuilder[Int]
         while (unpacker.hasNext) {
@@ -770,12 +767,12 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     "improve the performance via reset method" taggedAs ("reset-arr") in {
 
-      val out = new ByteArrayOutputStream
+      val out    = new ByteArrayOutputStream
       val packer = MessagePack.newDefaultPacker(out)
       packer.packInt(0)
       packer.flush
       val arr = out.toByteArray
-      val mb = MessageBuffer.wrap(arr)
+      val mb  = MessageBuffer.wrap(arr)
 
       val N = 1000
       val t = time("unpacker", repeat = 10) {
@@ -822,7 +819,7 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     "reset ChannelBufferInput" in {
       val f0 = createTempFile
-      val u = MessagePack.newDefaultUnpacker(new FileInputStream(f0).getChannel)
+      val u  = MessagePack.newDefaultUnpacker(new FileInputStream(f0).getChannel)
       checkFile(u)
 
       val f1 = createTempFile
@@ -834,7 +831,7 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     "reset InputStreamBufferInput" in {
       val f0 = createTempFile
-      val u = MessagePack.newDefaultUnpacker(new FileInputStream(f0))
+      val u  = MessagePack.newDefaultUnpacker(new FileInputStream(f0))
       checkFile(u)
 
       val f1 = createTempFile
@@ -846,7 +843,7 @@ class MessageUnpackerTest extends MessagePackSpec {
 
     "unpack large string data" taggedAs ("large-string") in {
       def createLargeData(stringLength: Int): Array[Byte] = {
-        val out = new ByteArrayOutputStream()
+        val out    = new ByteArrayOutputStream()
         val packer = MessagePack.newDefaultPacker(out)
 
         packer
@@ -876,7 +873,7 @@ class MessageUnpackerTest extends MessagePackSpec {
     "unpack string crossing end of buffer" in {
       def check(expected: String, strLen: Int) = {
         val bytes = new Array[Byte](strLen)
-        val out = new ByteArrayOutputStream
+        val out   = new ByteArrayOutputStream
 
         val packer = MessagePack.newDefaultPacker(out)
         packer.packBinaryHeader(bytes.length)
@@ -885,7 +882,7 @@ class MessageUnpackerTest extends MessagePackSpec {
         packer.close
 
         val unpacker = MessagePack.newDefaultUnpacker(new InputStreamBufferInput(new ByteArrayInputStream(out.toByteArray)))
-        val len = unpacker.unpackBinaryHeader
+        val len      = unpacker.unpackBinaryHeader
         unpacker.readPayload(len)
         val got = unpacker.unpackString
         unpacker.close
@@ -893,12 +890,15 @@ class MessageUnpackerTest extends MessagePackSpec {
         got shouldBe expected
       }
 
-      Seq("\u3042", "a\u3042", "\u3042a", "\u3042\u3044\u3046\u3048\u304A\u304B\u304D\u304F\u3051\u3053\u3055\u3057\u3059\u305B\u305D").foreach { s =>
-        Seq(8185, 8186, 8187, 8188, 16377, 16378, 16379, 16380).foreach { n => check(s, n)}
-      }
+      Seq("\u3042", "a\u3042", "\u3042a", "\u3042\u3044\u3046\u3048\u304A\u304B\u304D\u304F\u3051\u3053\u3055\u3057\u3059\u305B\u305D")
+        .foreach { s =>
+          Seq(8185, 8186, 8187, 8188, 16377, 16378, 16379, 16380).foreach { n =>
+            check(s, n)
+          }
+        }
     }
 
-    def readTest(input:MessageBufferInput): Unit = {
+    def readTest(input: MessageBufferInput): Unit = {
       withResource(MessagePack.newDefaultUnpacker(input)) { unpacker =>
         while (unpacker.hasNext) {
           unpacker.unpackValue()
@@ -906,22 +906,22 @@ class MessageUnpackerTest extends MessagePackSpec {
       }
     }
 
-    "read value length at buffer boundary" taggedAs("number-boundary") in {
-      val input = new SplitMessageBufferInput(Array(
-        Array[Byte](MessagePack.Code.STR16),
-        Array[Byte](0x00),
-        Array[Byte](0x05), // STR16 length at the boundary
-        "hello".getBytes(MessagePack.UTF8))
-      )
+    "read value length at buffer boundary" taggedAs ("number-boundary") in {
+      val input = new SplitMessageBufferInput(
+        Array(Array[Byte](MessagePack.Code.STR16),
+              Array[Byte](0x00),
+              Array[Byte](0x05), // STR16 length at the boundary
+              "hello".getBytes(MessagePack.UTF8)))
       readTest(input)
 
-      val input2 = new SplitMessageBufferInput(Array(
-        Array[Byte](MessagePack.Code.STR32),
-        Array[Byte](0x00),
-        Array[Byte](0x00, 0x00),
-        Array[Byte](0x05), // STR32 length at the boundary
-        "hello".getBytes(MessagePack.UTF8))
-      )
+      val input2 = new SplitMessageBufferInput(
+        Array(
+          Array[Byte](MessagePack.Code.STR32),
+          Array[Byte](0x00),
+          Array[Byte](0x00, 0x00),
+          Array[Byte](0x05), // STR32 length at the boundary
+          "hello".getBytes(MessagePack.UTF8)
+        ))
       readTest(input2)
     }
   }

@@ -25,13 +25,13 @@ import xerial.core.io.IOUtil
 import scala.util.Random
 
 /**
- *
- */
+  *
+  */
 class MessagePackerTest extends MessagePackSpec {
 
   def verifyIntSeq(answer: Array[Int], packed: Array[Byte]) {
     val unpacker = MessagePack.newDefaultUnpacker(packed)
-    val b = Array.newBuilder[Int]
+    val b        = Array.newBuilder[Int]
     while (unpacker.hasNext) {
       b += unpacker.unpackInt()
     }
@@ -47,15 +47,14 @@ class MessagePackerTest extends MessagePackSpec {
   }
 
   def createTempFileWithOutputStream = {
-    val f = createTempFile
-    val out = new
-        FileOutputStream(f)
+    val f   = createTempFile
+    val out = new FileOutputStream(f)
     (f, out)
   }
 
   def createTempFileWithChannel = {
     val (f, out) = createTempFileWithOutputStream
-    val ch = out.getChannel
+    val ch       = out.getChannel
     (f, ch)
   }
 
@@ -64,29 +63,24 @@ class MessagePackerTest extends MessagePackSpec {
     "reset the internal states" in {
       val intSeq = (0 until 100).map(i => Random.nextInt).toArray
 
-      val b = new
-          ByteArrayOutputStream
+      val b      = new ByteArrayOutputStream
       val packer = MessagePack.newDefaultPacker(b)
       intSeq foreach packer.packInt
       packer.close
       verifyIntSeq(intSeq, b.toByteArray)
 
       val intSeq2 = intSeq.reverse
-      val b2 = new
-          ByteArrayOutputStream
+      val b2      = new ByteArrayOutputStream
       packer
-        .reset(new
-          OutputStreamBufferOutput(b2))
+        .reset(new OutputStreamBufferOutput(b2))
       intSeq2 foreach packer.packInt
       packer.close
       verifyIntSeq(intSeq2, b2.toByteArray)
 
       val intSeq3 = intSeq2.sorted
-      val b3 = new
-          ByteArrayOutputStream
+      val b3      = new ByteArrayOutputStream
       packer
-        .reset(new
-          OutputStreamBufferOutput(b3))
+        .reset(new OutputStreamBufferOutput(b3))
       intSeq3 foreach packer.packInt
       packer.close
       verifyIntSeq(intSeq3, b3.toByteArray)
@@ -97,15 +91,12 @@ class MessagePackerTest extends MessagePackSpec {
       val N = 1000
       val t = time("packer", repeat = 10) {
         block("no-buffer-reset") {
-          val out = new
-              ByteArrayOutputStream
+          val out = new ByteArrayOutputStream
           IOUtil.withResource(MessagePack.newDefaultPacker(out)) { packer =>
             for (i <- 0 until N) {
-              val outputStream = new
-                  ByteArrayOutputStream()
+              val outputStream = new ByteArrayOutputStream()
               packer
-                .reset(new
-                  OutputStreamBufferOutput(outputStream))
+                .reset(new OutputStreamBufferOutput(outputStream))
               packer.packInt(0)
               packer.flush()
             }
@@ -113,15 +104,12 @@ class MessagePackerTest extends MessagePackSpec {
         }
 
         block("buffer-reset") {
-          val out = new
-              ByteArrayOutputStream
+          val out = new ByteArrayOutputStream
           IOUtil.withResource(MessagePack.newDefaultPacker(out)) { packer =>
-            val bufferOut = new
-                OutputStreamBufferOutput(new
-                    ByteArrayOutputStream())
+            val bufferOut =
+              new OutputStreamBufferOutput(new ByteArrayOutputStream())
             for (i <- 0 until N) {
-              val outputStream = new
-                  ByteArrayOutputStream()
+              val outputStream = new ByteArrayOutputStream()
               bufferOut.reset(outputStream)
               packer.reset(bufferOut)
               packer.packInt(0)
@@ -138,11 +126,11 @@ class MessagePackerTest extends MessagePackSpec {
       // Based on https://github.com/msgpack/msgpack-java/issues/154
 
       def test(bufferSize: Int, stringSize: Int): Boolean = {
-        val str = "a" * stringSize
+        val str       = "a" * stringSize
         val rawString = ValueFactory.newString(str.getBytes("UTF-8"))
-        val array = ValueFactory.newArray(rawString)
-        val out = new ByteArrayOutputStream(bufferSize)
-        val packer = MessagePack.newDefaultPacker(out)
+        val array     = ValueFactory.newArray(rawString)
+        val out       = new ByteArrayOutputStream(bufferSize)
+        val packer    = MessagePack.newDefaultPacker(out)
         packer.packValue(array)
         packer.close()
         out.toByteArray
@@ -162,32 +150,28 @@ class MessagePackerTest extends MessagePackSpec {
 
     "reset OutputStreamBufferOutput" in {
       val (f0, out0) = createTempFileWithOutputStream
-      val packer = MessagePack.newDefaultPacker(out0)
+      val packer     = MessagePack.newDefaultPacker(out0)
       packer.packInt(99)
       packer.close
 
       val up0 = MessagePack
-        .newDefaultUnpacker(new
-          FileInputStream(f0))
+        .newDefaultUnpacker(new FileInputStream(f0))
       up0.unpackInt shouldBe 99
       up0.hasNext shouldBe false
       up0.close
 
       val (f1, out1) = createTempFileWithOutputStream
       packer
-        .reset(new
-          OutputStreamBufferOutput(out1))
+        .reset(new OutputStreamBufferOutput(out1))
       packer.packInt(99)
       packer.flush
       packer
-        .reset(new
-          OutputStreamBufferOutput(out1))
+        .reset(new OutputStreamBufferOutput(out1))
       packer.packString("hello")
       packer.close
 
       val up1 = MessagePack
-        .newDefaultUnpacker(new
-          FileInputStream(f1))
+        .newDefaultUnpacker(new FileInputStream(f1))
       up1.unpackInt shouldBe 99
       up1.unpackString shouldBe "hello"
       up1.hasNext shouldBe false
@@ -196,32 +180,28 @@ class MessagePackerTest extends MessagePackSpec {
 
     "reset ChannelBufferOutput" in {
       val (f0, out0) = createTempFileWithChannel
-      val packer = MessagePack.newDefaultPacker(out0)
+      val packer     = MessagePack.newDefaultPacker(out0)
       packer.packInt(99)
       packer.close
 
       val up0 = MessagePack
-        .newDefaultUnpacker(new
-          FileInputStream(f0))
+        .newDefaultUnpacker(new FileInputStream(f0))
       up0.unpackInt shouldBe 99
       up0.hasNext shouldBe false
       up0.close
 
       val (f1, out1) = createTempFileWithChannel
       packer
-        .reset(new
-          ChannelBufferOutput(out1))
+        .reset(new ChannelBufferOutput(out1))
       packer.packInt(99)
       packer.flush
       packer
-        .reset(new
-          ChannelBufferOutput(out1))
+        .reset(new ChannelBufferOutput(out1))
       packer.packString("hello")
       packer.close
 
       val up1 = MessagePack
-        .newDefaultUnpacker(new
-          FileInputStream(f1))
+        .newDefaultUnpacker(new FileInputStream(f1))
       up1.unpackInt shouldBe 99
       up1.unpackString shouldBe "hello"
       up1.hasNext shouldBe false
@@ -233,10 +213,10 @@ class MessagePackerTest extends MessagePackSpec {
 
       def measureDuration(outputStream: java.io.OutputStream) = {
         val packer = MessagePack.newDefaultPacker(outputStream)
-        var i = 0
+        var i      = 0
         while (i < count) {
           packer.packString("0123456789ABCDEF")
-          i +=  1
+          i += 1
         }
         packer.close
       }
@@ -251,33 +231,34 @@ class MessagePackerTest extends MessagePackSpec {
           measureDuration(fileOutput)
         }
       }
-      t("file-output-stream").averageWithoutMinMax shouldBe < (t("byte-array-output-stream").averageWithoutMinMax * 5)
+      t("file-output-stream").averageWithoutMinMax shouldBe <(t("byte-array-output-stream").averageWithoutMinMax * 5)
     }
   }
 
   "compute totalWrittenBytes" in {
-    val out = new
-        ByteArrayOutputStream
-    val packerTotalWrittenBytes = IOUtil.withResource(MessagePack.newDefaultPacker(out)) { packer =>
-      packer.packByte(0) // 1
-        .packBoolean(true) // 1
-        .packShort(12) // 1
-        .packInt(1024) // 3
-        .packLong(Long.MaxValue) // 5
-        .packString("foobar") // 7
-        .flush()
+    val out = new ByteArrayOutputStream
+    val packerTotalWrittenBytes =
+      IOUtil.withResource(MessagePack.newDefaultPacker(out)) { packer =>
+        packer
+          .packByte(0) // 1
+          .packBoolean(true) // 1
+          .packShort(12) // 1
+          .packInt(1024) // 3
+          .packLong(Long.MaxValue) // 5
+          .packString("foobar") // 7
+          .flush()
 
-      packer.getTotalWrittenBytes
-    }
+        packer.getTotalWrittenBytes
+      }
 
     out.toByteArray.length shouldBe packerTotalWrittenBytes
   }
 
   "support read-only buffer" taggedAs ("read-only") in {
     val payload = Array[Byte](1)
-    val out = new
-        ByteArrayOutputStream()
-    val packer = MessagePack.newDefaultPacker(out)
+    val out     = new ByteArrayOutputStream()
+    val packer = MessagePack
+      .newDefaultPacker(out)
       .packBinaryHeader(1)
       .writePayload(payload)
       .close()
@@ -289,44 +270,46 @@ class MessagePackerTest extends MessagePackSpec {
     val b = packer.toByteArray
 
     val unpacker = MessagePack.newDefaultUnpacker(b)
-    val f = unpacker.getNextFormat
+    val f        = unpacker.getNextFormat
     f shouldBe MessageFormat.STR8
   }
 
   "be able to disable STR8 for backward compatibility" in {
     val config = new PackerConfig()
-            .withStr8FormatSupport(false)
+      .withStr8FormatSupport(false)
 
     val packer = config.newBufferPacker()
     packer.packString("Hello. This is a string longer than 32 characters!")
     val unpacker = MessagePack.newDefaultUnpacker(packer.toByteArray)
-    val f = unpacker.getNextFormat
+    val f        = unpacker.getNextFormat
     f shouldBe MessageFormat.STR16
   }
 
   "be able to disable STR8 when using CharsetEncoder" in {
     val config = new PackerConfig()
-            .withStr8FormatSupport(false)
-            .withSmallStringOptimizationThreshold(0) // Disable small string optimization
+      .withStr8FormatSupport(false)
+      .withSmallStringOptimizationThreshold(0) // Disable small string optimization
 
     val packer = config.newBufferPacker()
     packer.packString("small string")
     val unpacker = MessagePack.newDefaultUnpacker(packer.toByteArray)
-    val f = unpacker.getNextFormat
-    f shouldNot be (MessageFormat.STR8)
+    val f        = unpacker.getNextFormat
+    f shouldNot be(MessageFormat.STR8)
     val s = unpacker.unpackString()
     s shouldBe "small string"
   }
 
-  "write raw binary" taggedAs("raw-binary") in {
+  "write raw binary" taggedAs ("raw-binary") in {
     val packer = new MessagePack.PackerConfig().newBufferPacker()
-    val msg = Array[Byte](-127, -92, 116, 121, 112, 101, -92, 112, 105, 110, 103)
+    val msg =
+      Array[Byte](-127, -92, 116, 121, 112, 101, -92, 112, 105, 110, 103)
     packer.writePayload(msg)
   }
 
-  "append raw binary" taggedAs("append-raw-binary") in {
+  "append raw binary" taggedAs ("append-raw-binary") in {
     val packer = new MessagePack.PackerConfig().newBufferPacker()
-    val msg = Array[Byte](-127, -92, 116, 121, 112, 101, -92, 112, 105, 110, 103)
+    val msg =
+      Array[Byte](-127, -92, 116, 121, 112, 101, -92, 112, 105, 110, 103)
     packer.addPayload(msg)
   }
 
