@@ -10,7 +10,6 @@ cache:
 sudo: false
 
 jdk:
-  - openjdk7
   - oraclejdk8
 
 branches:
