@@ -24,23 +24,14 @@ import xerial.core.util.{TimeReport, Timer}
 
 import scala.language.implicitConversions
 
-trait MessagePackSpec
-  extends WordSpec
-  with Matchers
-  with GivenWhenThen
-  with OptionValues
-  with BeforeAndAfter
-  with PropertyChecks
-  with Benchmark
-  with Logger {
+trait MessagePackSpec extends WordSpec with Matchers with GivenWhenThen with OptionValues with BeforeAndAfter with PropertyChecks with Benchmark with Logger {
 
   implicit def toTag(s: String): Tag = Tag(s)
 
   def toHex(arr: Array[Byte]) = arr.map(x => f"$x%02x").mkString(" ")
 
   def createMessagePackData(f: MessagePacker => Unit): Array[Byte] = {
-    val b = new
-        ByteArrayOutputStream()
+    val b      = new ByteArrayOutputStream()
     val packer = MessagePack.newDefaultPacker(b)
     f(packer)
     packer.close()
@@ -48,8 +39,7 @@ trait MessagePackSpec
   }
 }
 
-trait Benchmark
-  extends Timer {
+trait Benchmark extends Timer {
 
   val numWarmUpRuns = 10
 

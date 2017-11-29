@@ -20,29 +20,38 @@ import org.msgpack.core._
 
 import scala.util.parsing.json.JSON
 
-class ValueTest extends MessagePackSpec
-{
-  def checkSuccinctType(pack:MessagePacker => Unit, expectedAtMost:MessageFormat) {
-    val b = createMessagePackData(pack)
+class ValueTest extends MessagePackSpec {
+  def checkSuccinctType(pack: MessagePacker => Unit, expectedAtMost: MessageFormat) {
+    val b  = createMessagePackData(pack)
     val v1 = MessagePack.newDefaultUnpacker(b).unpackValue()
     val mf = v1.asIntegerValue().mostSuccinctMessageFormat()
     mf.getValueType shouldBe ValueType.INTEGER
-    mf.ordinal() shouldBe <= (expectedAtMost.ordinal())
+    mf.ordinal() shouldBe <=(expectedAtMost.ordinal())
 
     val v2 = new Variable
     MessagePack.newDefaultUnpacker(b).unpackValue(v2)
     val mf2 = v2.asIntegerValue().mostSuccinctMessageFormat()
     mf2.getValueType shouldBe ValueType.INTEGER
-    mf2.ordinal() shouldBe <= (expectedAtMost.ordinal())
+    mf2.ordinal() shouldBe <=(expectedAtMost.ordinal())
   }
 
   "Value" should {
     "tell most succinct integer type" in {
-      forAll { (v: Byte) => checkSuccinctType(_.packByte(v), MessageFormat.INT8) }
-      forAll { (v: Short) => checkSuccinctType(_.packShort(v), MessageFormat.INT16) }
-      forAll { (v: Int) => checkSuccinctType(_.packInt(v), MessageFormat.INT32) }
-      forAll { (v: Long) => checkSuccinctType(_.packLong(v), MessageFormat.INT64) }
-      forAll { (v: Long) => checkSuccinctType(_.packBigInteger(BigInteger.valueOf(v)), MessageFormat.INT64) }
+      forAll { (v: Byte) =>
+        checkSuccinctType(_.packByte(v), MessageFormat.INT8)
+      }
+      forAll { (v: Short) =>
+        checkSuccinctType(_.packShort(v), MessageFormat.INT16)
+      }
+      forAll { (v: Int) =>
+        checkSuccinctType(_.packInt(v), MessageFormat.INT32)
+      }
+      forAll { (v: Long) =>
+        checkSuccinctType(_.packLong(v), MessageFormat.INT64)
+      }
+      forAll { (v: Long) =>
+        checkSuccinctType(_.packBigInteger(BigInteger.valueOf(v)), MessageFormat.INT64)
+      }
       forAll { (v: Long) =>
         whenever(v > 0) {
           // Create value between 2^63-1 < v <= 2^64-1
@@ -77,11 +86,11 @@ class ValueTest extends MessagePackSpec
 
       // Map value
       val m = newMapBuilder()
-              .put(newString("id"), newInteger(1001))
-              .put(newString("name"), newString("leo"))
-              .put(newString("address"), newArray(newString("xxx-xxxx"), newString("yyy-yyyy")))
-              .put(newString("name"), newString("mitsu"))
-              .build()
+        .put(newString("id"), newInteger(1001))
+        .put(newString("name"), newString("leo"))
+        .put(newString("address"), newArray(newString("xxx-xxxx"), newString("yyy-yyyy")))
+        .put(newString("name"), newString("mitsu"))
+        .build()
       val i1 = JSON.parseFull(m.toJson)
       val i2 = JSON.parseFull(m.toString) // expect json value
       val a1 = JSON.parseFull("""{"id":1001,"name":"mitsu","address":["xxx-xxxx","yyy-yyyy"]}""")
@@ -108,22 +117,22 @@ class ValueTest extends MessagePackSpec
       newInteger(Integer.MAX_VALUE).asInt() shouldBe Integer.MAX_VALUE
       newInteger(Integer.MIN_VALUE).asInt() shouldBe Integer.MIN_VALUE
       intercept[MessageIntegerOverflowException] {
-        newInteger(Byte.MAX_VALUE+1).asByte()
+        newInteger(Byte.MAX_VALUE + 1).asByte()
       }
       intercept[MessageIntegerOverflowException] {
-        newInteger(Byte.MIN_VALUE-1).asByte()
+        newInteger(Byte.MIN_VALUE - 1).asByte()
       }
       intercept[MessageIntegerOverflowException] {
-        newInteger(Short.MAX_VALUE+1).asShort()
+        newInteger(Short.MAX_VALUE + 1).asShort()
       }
       intercept[MessageIntegerOverflowException] {
-        newInteger(Short.MIN_VALUE-1).asShort()
+        newInteger(Short.MIN_VALUE - 1).asShort()
       }
       intercept[MessageIntegerOverflowException] {
-        newInteger(Integer.MAX_VALUE+1.toLong).asInt()
+        newInteger(Integer.MAX_VALUE + 1.toLong).asInt()
       }
       intercept[MessageIntegerOverflowException] {
-        newInteger(Integer.MIN_VALUE-1.toLong).asInt()
+        newInteger(Integer.MIN_VALUE - 1.toLong).asInt()
       }
     }
   }

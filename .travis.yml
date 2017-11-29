@@ -5,25 +5,27 @@ cache:
     - $HOME/.m2/repository/
     - $HOME/.ivy2/cache/
     - $HOME/.sbt/boot/
+    - $HOME/.coursier
 
 sudo: false
-
-jdk:
-  - openjdk7
-  - oraclejdk8
 
 branches:
   only:
     - develop
 
-script:
-  - ./sbt jcheckStyle
-  - ./sbt test
-  - ./sbt test -J-Dmsgpack.universal-buffer=true
-
 matrix:
   include:
-  - dist: trusty
+  - env: PROJECT=checkstyle
+    jdk: oraclejdk8
+    script:
+    - ./sbt jcheckStyle
+  - env: PROJECT=java8
+    jdk: oraclejdk8
+    script:
+    - ./sbt test
+    - ./sbt test -J-Dmsgpack.universal-buffer=true
+  - env: PROJECT=java9
+    dist: trusty
     group: edge
     sudo: required
     jdk: oraclejdk9
@@ -32,16 +34,5 @@ matrix:
         packages:
         - oracle-java9-installer
     script:
-    # https://github.com/sbt/sbt/pull/2951
-    - git clone https://github.com/retronym/java9-rt-export
-    - cd java9-rt-export/
-    - git checkout 1019a2873d057dd7214f4135e84283695728395d
-    - echo "sbt.version=1.0.2" > project/build.properties
-    - sbt package
-    - mkdir -p $HOME/.sbt/0.13/java9-rt-ext; java -jar target/java9-rt-export-*.jar $HOME/.sbt/0.13/java9-rt-ext/rt.jar
-    - jar tf $HOME/.sbt/0.13/java9-rt-ext/rt.jar | grep java/lang/Object
-    - cd ..
-    - rm sbt
-    - wget https://raw.githubusercontent.com/paulp/sbt-extras/3ba0e52f32d32c0454ec3a926caae2db0caaca12/sbt && chmod +x ./sbt
-    - ./sbt -Dscala.ext.dirs=$HOME/.sbt/0.13/java9-rt-ext test
-    - ./sbt -Dscala.ext.dirs=$HOME/.sbt/0.13/java9-rt-ext -Dmsgpack.universal-buffer=true test
+    - ./sbt test
+    - ./sbt test -J-Dmsgpack.universal-buffer=true

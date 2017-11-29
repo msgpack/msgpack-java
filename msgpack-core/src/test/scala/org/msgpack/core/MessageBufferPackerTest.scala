@@ -23,15 +23,11 @@ class MessageBufferPackerTest extends MessagePackSpec {
   "MessageBufferPacker" should {
     "be equivalent to ByteArrayOutputStream" in {
       val packer1 = MessagePack.newDefaultBufferPacker
-      packer1.packValue(newMap(
-        newString("a"), newInteger(1),
-        newString("b"), newString("s")))
+      packer1.packValue(newMap(newString("a"), newInteger(1), newString("b"), newString("s")))
 
-      val stream = new ByteArrayOutputStream
+      val stream  = new ByteArrayOutputStream
       val packer2 = MessagePack.newDefaultPacker(stream)
-      packer2.packValue(newMap(
-        newString("a"), newInteger(1),
-        newString("b"), newString("s")))
+      packer2.packValue(newMap(newString("a"), newInteger(1), newString("b"), newString("s")))
       packer2.flush
 
       packer1.toByteArray shouldBe stream.toByteArray

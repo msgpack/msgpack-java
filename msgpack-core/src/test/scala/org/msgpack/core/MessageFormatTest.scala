@@ -22,15 +22,13 @@ import org.scalatest.exceptions.TestFailedException
 import scala.util.Random
 
 /**
- * Created on 2014/05/07.
- */
-class MessageFormatTest
-  extends MessagePackSpec {
+  * Created on 2014/05/07.
+  */
+class MessageFormatTest extends MessagePackSpec {
   "MessageFormat" should {
     "cover all byte codes" in {
       def checkV(b: Byte, tpe: ValueType) {
-        try
-          MessageFormat.valueOf(b).getValueType shouldBe tpe
+        try MessageFormat.valueOf(b).getValueType shouldBe tpe
         catch {
           case e: TestFailedException =>
             error(f"Failure when looking at byte ${b}%02x")
@@ -80,7 +78,6 @@ class MessageFormatTest
       check(Code.EXT16, ValueType.EXTENSION, MessageFormat.EXT16)
       check(Code.EXT32, ValueType.EXTENSION, MessageFormat.EXT32)
 
-
       check(Code.INT8, ValueType.INTEGER, MessageFormat.INT8)
       check(Code.INT16, ValueType.INTEGER, MessageFormat.INT16)
       check(Code.INT32, ValueType.INTEGER, MessageFormat.INT32)
@@ -94,7 +91,6 @@ class MessageFormatTest
       check(Code.STR16, ValueType.STRING, MessageFormat.STR16)
       check(Code.STR32, ValueType.STRING, MessageFormat.STR32)
 
-
       check(Code.FLOAT32, ValueType.FLOAT, MessageFormat.FLOAT32)
       check(Code.FLOAT64, ValueType.FLOAT, MessageFormat.FLOAT64)
 
@@ -107,7 +103,7 @@ class MessageFormatTest
     }
 
     "improve the valueOf performance" in {
-      val N = 1000000
+      val N   = 1000000
       val idx = (0 until N).map(x => Random.nextInt(256).toByte).toArray[Byte]
 
       // Initialize
