@@ -5,6 +5,7 @@ cache:
     - $HOME/.m2/repository/
     - $HOME/.ivy2/cache/
     - $HOME/.sbt/boot/
+    - $HOME/.coursier
 
 sudo: false
 
@@ -32,16 +33,5 @@ matrix:
         packages:
         - oracle-java9-installer
     script:
-    # https://github.com/sbt/sbt/pull/2951
-    - git clone https://github.com/retronym/java9-rt-export
-    - cd java9-rt-export/
-    - git checkout 1019a2873d057dd7214f4135e84283695728395d
-    - echo "sbt.version=1.0.2" > project/build.properties
-    - sbt package
-    - mkdir -p $HOME/.sbt/0.13/java9-rt-ext; java -jar target/java9-rt-export-*.jar $HOME/.sbt/0.13/java9-rt-ext/rt.jar
-    - jar tf $HOME/.sbt/0.13/java9-rt-ext/rt.jar | grep java/lang/Object
-    - cd ..
-    - rm sbt
-    - wget https://raw.githubusercontent.com/paulp/sbt-extras/3ba0e52f32d32c0454ec3a926caae2db0caaca12/sbt && chmod +x ./sbt
-    - ./sbt -Dscala.ext.dirs=$HOME/.sbt/0.13/java9-rt-ext test
-    - ./sbt -Dscala.ext.dirs=$HOME/.sbt/0.13/java9-rt-ext -Dmsgpack.universal-buffer=true test
+    - ./sbt test
+    - ./sbt -Dmsgpack.universal-buffer=true test
