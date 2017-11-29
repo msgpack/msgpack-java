@@ -592,8 +592,12 @@ class MessageUnpackerTest extends MessagePackSpec {
         }
       }
 
-      t("v7-array").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
-      t("v7-array-buffer").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
+      if (t("v7-array").averageWithoutMinMax > t("v6").averageWithoutMinMax) {
+        warn(s"v7-array ${t("v7-array").averageWithoutMinMax} is slower than v6 ${t("v6").averageWithoutMinMax}")
+      }
+      if (t("v7-array-buffer").averageWithoutMinMax > t("v6").averageWithoutMinMax) {
+        warn(s"v7-array-buffer ${t("v7-array-buffer").averageWithoutMinMax} is slower than v6 ${t("v6").averageWithoutMinMax}")
+      }
       if (!universal)
         t("v7-direct-buffer").averageWithoutMinMax should be <= t("v6").averageWithoutMinMax
 
