@@ -5,7 +5,7 @@ addSbtPlugin("com.github.sbt"    % "sbt-findbugs"    % "2.0.0")
 addSbtPlugin("com.github.sbt"    % "sbt-jacoco"      % "3.0.3")
 addSbtPlugin("org.xerial.sbt"    % "sbt-jcheckstyle" % "0.2.0")
 addSbtPlugin("com.typesafe.sbt"  % "sbt-osgi"        % "0.9.2")
-addSbtPlugin("io.get-coursier"   % "sbt-coursier"    % "1.0.0-RC12")
+addSbtPlugin("io.get-coursier"   % "sbt-coursier"    % "1.0.0-RC13")
 addSbtPlugin("com.geirsson"      % "sbt-scalafmt"    % "1.3.0")
 
 scalacOptions ++= Seq("-deprecation", "-feature")
