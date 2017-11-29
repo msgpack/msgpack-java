@@ -43,6 +43,13 @@ val buildSettings = Seq[Setting[_]](
     releaseStepCommand("sonatypeReleaseAll"),
     pushChanges
   ),
+  // Add sonatype repository settings
+  publishTo := Some(
+    if (isSnapshot.value)
+      Opts.resolver.sonatypeSnapshots
+    else
+      Opts.resolver.sonatypeStaging
+  ),
   // Find bugs
   findbugsReportType := Some(FindbugsReport.FancyHtml),
   findbugsReportPath := Some(crossTarget.value / "findbugs" / "report.html"),
