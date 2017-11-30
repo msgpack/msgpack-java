@@ -23,7 +23,7 @@ import org.msgpack.core.buffer._
 import org.msgpack.value.ValueType
 import xerial.core.io.IOUtil._
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.util.Random
 
 object MessageUnpackerTest {
@@ -229,10 +229,10 @@ class MessageUnpackerTest extends MessagePackSpec {
       position += length
     }
     val builder = Seq.newBuilder[MessageUnpacker]
-    builder += MessagePack.newDefaultUnpacker(new SequenceMessageBufferInput(Collections.enumeration(seqBytes.result())))
-    builder += MessagePack.newDefaultUnpacker(new SequenceMessageBufferInput(Collections.enumeration(seqByteBuffers.result())))
+    builder += MessagePack.newDefaultUnpacker(new SequenceMessageBufferInput(Collections.enumeration(seqBytes.result().asJava)))
+    builder += MessagePack.newDefaultUnpacker(new SequenceMessageBufferInput(Collections.enumeration(seqByteBuffers.result().asJava)))
     if (!universal) {
-      builder += MessagePack.newDefaultUnpacker(new SequenceMessageBufferInput(Collections.enumeration(seqDirectBuffers.result())))
+      builder += MessagePack.newDefaultUnpacker(new SequenceMessageBufferInput(Collections.enumeration(seqDirectBuffers.result().asJava)))
     }
 
     builder.result()

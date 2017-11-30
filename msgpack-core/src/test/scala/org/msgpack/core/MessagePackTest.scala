@@ -562,8 +562,8 @@ class MessagePackTest extends MessagePackSpec {
         }, { unpacker =>
           val v = new Variable()
           unpacker.unpackValue(v)
-          import scala.collection.JavaConversions._
-          v.asArrayValue()
+          import scala.collection.JavaConverters._
+          v.asArrayValue().asScala
             .map { m =>
               val mv  = m.asMapValue()
               val kvs = mv.getKeyValueArray
