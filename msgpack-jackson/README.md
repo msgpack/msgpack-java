@@ -7,7 +7,7 @@ This Jackson extension library is a component to easily read and write [MessageP
 
 It extends standard Jackson streaming API (`JsonFactory`, `JsonParser`, `JsonGenerator`), and as such works seamlessly with all the higher level data abstractions (data binding, tree model, and pluggable extensions). For the details of Jackson-annotations, please see https://github.com/FasterXML/jackson-annotations.
 
-This library, strictly speaking jackson-databind, isn't compatibile with msgpack-java v0.6 or earlier in serialization/deserialization of POJO.
+This library, strictly speaking jackson-databind, isn't compatibile with msgpack-java v0.6 or earlier in serialization/deserialization of POJO. See **Advanced usage** below for details.
 
 ## Install
 
