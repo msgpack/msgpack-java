@@ -139,7 +139,7 @@ Java
 
 ### Serialize/Deserialize POJO as MessagePack array type to keep compatibility with msgpack-java:0.6
 
-In msgpack-java:0.6 or earlier, a POJO was serliazed and deserialized as an array of values in MessagePack format. The order of values depended on an internal order of a Java class's variables and it was a naive way and caused some issues since Java class's variables order isn't guaranteed over Java implementations.
+In msgpack-java:0.6 or earlier, a POJO was serliazed and deserialized as an array of values in MessagePack format. The order of values depended on an internal order of Java class's variables and it was a naive way and caused some issues since Java class's variables order isn't guaranteed over Java implementations.
 
 On the other hand, jackson-databind serializes and deserializes a POJO as a key-value object. So this `jackson-dataformat-msgpack` also handles POJOs in the same way. As a result, it isn't compatible with msgpack-java:0.6 or earlier in serialization and deserialization of POJOs.
 
@@ -172,7 +172,7 @@ But if you want to make this library handle POJOs in the same way as msgpack-jav
 
 ### Deserialize multiple values without closing an input stream
 
-`com.fasterxml.jackson.databind.ObjectMapper` closes an input stream by default after it reads a value. If you want to deserialize multiple values in a row witout closing an output stream, set `JsonParser.Feature.AUTO_CLOSE_SOURCE` to false.
+`com.fasterxml.jackson.databind.ObjectMapper` closes an input stream by default after it reads a value. If you want to deserialize multiple values in a row without closing an output stream, set `JsonParser.Feature.AUTO_CLOSE_SOURCE` to false.
 
 ```java
   MessagePacker packer = MessagePack.newDefaultPacker(new FileOutputStream(tempFile));
@@ -221,7 +221,7 @@ When you want to use non-String value as a key of Map, use `MessagePackKeySerial
 
 ### Deserialize extension types with ExtensionTypeCustomDeserializers
 
-`ExtensionTypeCustomDeserializers` helps you to deserialize extension types.
+`ExtensionTypeCustomDeserializers` helps you to deserialize extension types easily.
 
 #### With target Java class
 
