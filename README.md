@@ -74,7 +74,7 @@ Here is a list of sbt commands for daily development:
 > findbugs                                 # Produce findbugs report in target/findbugs
 > jacoco:cover                             # Report the code coverage of tests to target/jacoco folder
 > jcheckStyle                              # Run check style
-> scalafmt                                 # Reformat Scala codes
+> ;scalafmt;test:scalafmt;scalafmtSbt      # Reformat Scala codes
 ```
 
 ### Publishing
