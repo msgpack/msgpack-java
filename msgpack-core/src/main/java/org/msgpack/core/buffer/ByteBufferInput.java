@@ -64,4 +64,16 @@ public class ByteBufferInput
     {
         // Nothing to do
     }
+
+    /**
+     * Create a ByteBufferInput on off heap memory
+     * @param address the address
+     * @param offset the offset
+     * @param length the length
+     * @return a new ByteBufferInput on the specified address
+     */
+    public static ByteBuffer directBuffer(long address, int offset, int length)
+    {
+        return DirectBufferAccess.newByteBuffer(address, offset, length, null);
+    }
 }

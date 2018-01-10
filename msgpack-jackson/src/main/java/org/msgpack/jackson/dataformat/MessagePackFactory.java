@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.io.IOContext;
 import org.msgpack.core.MessagePack;
+import org.msgpack.core.buffer.ByteBufferInput;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class MessagePackFactory
@@ -99,6 +101,22 @@ public class MessagePackFactory
     }
 
     @Override
+    public JsonParser createParser(byte[] data, int offset, int length)
+            throws IOException, JsonParseException
+    {
+        IOContext ioContext = _createContext(data, false);
+        return _createParser(data, offset, length, ioContext);
+    }
+
+    public JsonParser createParser(long memoryAddress, int offset, int length)
+            throws IOException, JsonParseException
+    {
+        ByteBuffer byteBuffer = ByteBufferInput.directBuffer(memoryAddress, offset, length);
+        IOContext ioContext = _createContext(byteBuffer, false);
+        return _createParser(byteBuffer, ioContext);
+    }
+
+    @Override
     public JsonParser createParser(InputStream in)
             throws IOException, JsonParseException
     {
@@ -108,6 +126,16 @@ public class MessagePackFactory
 
     @Override
     protected MessagePackParser _createParser(InputStream in, IOContext ctxt)
+            throws IOException
+    {
+        MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, _objectCodec, in, reuseResourceInParser);
+        if (extTypeCustomDesers != null) {
+            parser.setExtensionTypeCustomDeserializers(extTypeCustomDesers);
+        }
+        return parser;
+    }
+
+    protected MessagePackParser _createParser(ByteBuffer in, IOContext ctxt)
             throws IOException
     {
         MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, _objectCodec, in, reuseResourceInParser);

@@ -33,6 +33,7 @@ import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.core.buffer.ArrayBufferInput;
+import org.msgpack.core.buffer.ByteBufferInput;
 import org.msgpack.core.buffer.InputStreamBufferInput;
 import org.msgpack.core.buffer.MessageBufferInput;
 import org.msgpack.value.ValueType;
@@ -41,6 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
 public class MessagePackParser
@@ -147,6 +149,17 @@ public class MessagePackParser
             throws IOException
     {
         this(ctxt, features, new ArrayBufferInput(bytes), objectCodec, bytes, reuseResourceInParser);
+    }
+
+    public MessagePackParser(
+            IOContext ctxt,
+            int features,
+            ObjectCodec objectCodec,
+            ByteBuffer byteBuffer,
+            boolean reuseResourceInParser)
+            throws IOException
+    {
+        this(ctxt, features, new ByteBufferInput(byteBuffer), objectCodec, byteBuffer, reuseResourceInParser);
     }
 
     private MessagePackParser(IOContext ctxt,
