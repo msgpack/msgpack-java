@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.io.IOContext;
 import org.msgpack.core.MessagePack;
+import org.msgpack.core.annotations.VisibleForTesting;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -49,6 +50,15 @@ public class MessagePackFactory
     public MessagePackFactory(MessagePack.PackerConfig packerConfig)
     {
         this.packerConfig = packerConfig;
+    }
+
+    public MessagePackFactory(MessagePackFactory src)
+    {
+        super(src, null);
+        this.packerConfig = src.packerConfig.clone();
+        this.reuseResourceInGenerator = src.reuseResourceInGenerator;
+        this.reuseResourceInParser = src.reuseResourceInParser;
+        this.extTypeCustomDesers = new ExtensionTypeCustomDeserializers(src.extTypeCustomDesers);
     }
 
     public MessagePackFactory setReuseResourceInGenerator(boolean reuseResourceInGenerator)
@@ -129,5 +139,35 @@ public class MessagePackFactory
             parser.setExtensionTypeCustomDeserializers(extTypeCustomDesers);
         }
         return parser;
+    }
+
+    @Override
+    public JsonFactory copy()
+    {
+        return new MessagePackFactory(this);
+    }
+
+    @VisibleForTesting
+    MessagePack.PackerConfig getPackerConfig()
+    {
+        return packerConfig;
+    }
+
+    @VisibleForTesting
+    boolean isReuseResourceInGenerator()
+    {
+        return reuseResourceInGenerator;
+    }
+
+    @VisibleForTesting
+    boolean isReuseResourceInParser()
+    {
+        return reuseResourceInParser;
+    }
+
+    @VisibleForTesting
+    ExtensionTypeCustomDeserializers getExtTypeCustomDesers()
+    {
+        return extTypeCustomDesers;
     }
 }
