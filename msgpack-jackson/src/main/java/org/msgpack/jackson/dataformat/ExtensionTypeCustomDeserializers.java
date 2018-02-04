@@ -32,6 +32,12 @@ public class ExtensionTypeCustomDeserializers
         objectMapper = new ObjectMapper(new MessagePackFactory().setReuseResourceInParser(false));
     }
 
+    public ExtensionTypeCustomDeserializers(ExtensionTypeCustomDeserializers src)
+    {
+        this();
+        this.deserTable.putAll(src.deserTable);
+    }
+
     public <T> void addTargetClass(byte type, final Class<T> klass)
     {
         deserTable.put(type, new Deser()
