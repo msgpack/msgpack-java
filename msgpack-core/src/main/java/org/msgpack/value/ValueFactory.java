@@ -228,6 +228,7 @@ public final class ValueFactory
         return ImmutableMapValueImpl.empty();
     }
 
+    @SafeVarargs
     public static MapValue newMap(Map.Entry<? extends Value, ? extends Value>... pairs)
     {
         Value[] kvs = new Value[pairs.length * 2];
