@@ -25,9 +25,6 @@ matrix:
     - ./sbt test
     - ./sbt test -J-Dmsgpack.universal-buffer=true
   - env: PROJECT=java9
-    dist: trusty
-    group: edge
-    sudo: required
     jdk: oraclejdk9
     addons:
       apt:
