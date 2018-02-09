@@ -15,7 +15,7 @@ val buildSettings = Seq[Setting[_]](
     Tags.limit(Tags.Test, 1)
   ),
   // JVM options for building
-  scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-target:jvm-1.7", "-feature"),
+  scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-feature"),
   javaOptions in Test ++= Seq("-ea"),
   javacOptions in (Compile, compile) ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation", "-source", "1.7", "-target", "1.7"),
   // Use lenient validation mode when generating Javadoc (for Java8)
