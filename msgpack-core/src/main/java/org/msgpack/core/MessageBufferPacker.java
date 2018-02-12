@@ -56,11 +56,10 @@ public class MessageBufferPacker
         return (ArrayBufferOutput) out;
     }
 
-    /**
-     * Clears the written data.
-     */
+    @Override
     public void clear()
     {
+        super.clear();
         getArrayBufferOut().clear();
     }
 

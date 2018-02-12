@@ -16,6 +16,7 @@
 package org.msgpack.core
 
 import java.io.ByteArrayOutputStream
+import java.util.Arrays
 
 import org.msgpack.value.ValueFactory._
 
@@ -32,5 +33,19 @@ class MessageBufferPackerTest extends MessagePackSpec {
 
       packer1.toByteArray shouldBe stream.toByteArray
     }
+
+    "clear unflushed" in {
+      val packer = MessagePack.newDefaultBufferPacker
+      packer.packInt(1);
+      packer.clear();
+      packer.packInt(2);
+
+      packer.toByteArray shouldBe Array(2)
+      val buffer = packer.toBufferList().get(0)
+      buffer.toByteArray() shouldBe Array(2)
+      val array = Arrays.copyOf(buffer.sliceAsByteBuffer().array(), buffer.size())
+      array shouldBe Array(2)
+    }
+
   }
 }

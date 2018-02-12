@@ -261,6 +261,14 @@ public class MessagePacker
     }
 
     /**
+     * Clears the written data.
+     */
+    public void clear()
+    {
+        position = 0;
+    }
+
+    /**
      * Flushes internal buffer to the underlying output.
      * <p>
      * This method also calls flush method of the underlying output after writing internal buffer.

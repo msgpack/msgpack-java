@@ -28,9 +28,9 @@ import java.util.ArrayList;
 public class ArrayBufferOutput
         implements MessageBufferOutput
 {
-    private List<MessageBuffer> list;
+    private final List<MessageBuffer> list;
+    private final int bufferSize;
     private MessageBuffer lastBuffer;
-    private int bufferSize;
 
     public ArrayBufferOutput()
     {
