@@ -17,6 +17,7 @@ package org.msgpack.core.buffer;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * MessageBufferOutput adapter that writes data into a list of byte arrays.
@@ -29,6 +30,7 @@ public class ArrayBufferOutput
         implements MessageBufferOutput
 {
     private final List<MessageBuffer> list;
+    private final List<MessageBuffer> listView;
     private final int bufferSize;
     private MessageBuffer lastBuffer;
 
@@ -41,6 +43,7 @@ public class ArrayBufferOutput
     {
         this.bufferSize = bufferSize;
         this.list = new ArrayList<MessageBuffer>();
+        this.listView = Collections.unmodifiableList(list);
     }
 
     /**
@@ -107,7 +110,7 @@ public class ArrayBufferOutput
      */
     public List<MessageBuffer> toBufferList()
     {
-        return new ArrayList<MessageBuffer>(list);
+        return listView;
     }
 
     /**
