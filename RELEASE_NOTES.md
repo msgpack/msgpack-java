@@ -1,5 +1,14 @@
 # Release Notes
 
+## 0.8.15
+ * Suppress a warning in ValueFactory [#457](https://github.com/msgpack/msgpack-java/pull/457)
+ * Add MessagePacker#clear() method to clear position [#459](https://github.com/msgpack/msgpack-java/pull/459)
+ * Support ObjectMapper#copy with MessagePackFactory [#454](https://github.com/msgpack/msgpack-java/pull/454)
+ * Use jackson-databind 2.8.11.1 for security vulnerability [#467](https://github.com/msgpack/msgpack-java/pull/467)
+ * (internal) Remove "-target:jvm-1.7" from scalacOptions [#456](https://github.com/msgpack/msgpack-java/pull/456)
+ * (internal) Replace sbt `test-only` command with `testOnly` [#445](https://github.com/msgpack/msgpack-java/pull/445)
+ * (internal) Use JavaConverters instead of JavaConversions in unit tests [#446](https://github.com/msgpack/msgpack-java/pull/446)
+
 ## 0.8.14
  * Add MessageUnpacker.tryUnpackNil() for peeking whether the next value is nil or not.
  * Add MessageBufferPacker.getBufferSize().
