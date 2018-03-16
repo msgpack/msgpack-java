@@ -1,5 +1,15 @@
 # Release Notes
 
+## 0.8.15
+ * Suppress a warning in ValueFactory
+ * Add MessagePacker.clear() method to clear position
+ * Support ObjectMapper#copy with MessagePackFactory
+ * Use jackson-databind 2.8.11.1 for security vulnerability
+ * (internal) Remove "-target:jvm-1.7" from scalacOptions
+ * (internal) Replace sbt `test-only` command with `testOnly`
+ * (internal) Use JavaConverters instead of JavaConversions in unit tests
+ * (internal) Remove unnecessary settings for Java 9 test in .travis.yml
+
 ## 0.8.14
  * Add MessageUnpacker.tryUnpackNil() for peeking whether the next value is nil or not.
  * Add MessageBufferPacker.getBufferSize().
