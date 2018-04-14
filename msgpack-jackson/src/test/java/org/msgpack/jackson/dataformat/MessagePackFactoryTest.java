@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import org.junit.Test;
 import org.msgpack.core.MessagePack;
 
@@ -57,47 +58,93 @@ public class MessagePackFactoryTest
         assertEquals(MessagePackParser.class, parser.getClass());
     }
 
-    @Test
-    public void copy()
+    private void assertCopy(boolean advancedConfig)
             throws IOException
     {
-        ExtensionTypeCustomDeserializers extTypeCustomDesers = new ExtensionTypeCustomDeserializers();
-        extTypeCustomDesers.addTargetClass((byte) 42, TinyPojo.class);
+        // Build base ObjectMapper
+        ObjectMapper objectMapper;
+        if (advancedConfig) {
+            ExtensionTypeCustomDeserializers extTypeCustomDesers = new ExtensionTypeCustomDeserializers();
+            extTypeCustomDesers.addTargetClass((byte) 42, TinyPojo.class);
 
-        MessagePack.PackerConfig msgpackPackerConfig = new MessagePack.PackerConfig().withStr8FormatSupport(false);
+            MessagePack.PackerConfig msgpackPackerConfig = new MessagePack.PackerConfig().withStr8FormatSupport(false);
 
-        MessagePackFactory messagePackFactory = new MessagePackFactory(msgpackPackerConfig);
-        messagePackFactory.setExtTypeCustomDesers(extTypeCustomDesers);
+            MessagePackFactory messagePackFactory = new MessagePackFactory(msgpackPackerConfig);
+            messagePackFactory.setExtTypeCustomDesers(extTypeCustomDesers);
 
-        ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
+            objectMapper = new ObjectMapper(messagePackFactory);
 
-        objectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
-        objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
+            objectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
+            objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
 
-        objectMapper.setAnnotationIntrospector(new JsonArrayFormat());
+            objectMapper.setAnnotationIntrospector(new JsonArrayFormat());
+        }
+        else {
+            MessagePackFactory messagePackFactory = new MessagePackFactory();
+            objectMapper = new ObjectMapper(messagePackFactory);
+        }
 
+        // Use the original ObjectMapper in advance
+        {
+            byte[] bytes = objectMapper.writeValueAsBytes(1234);
+            assertThat(objectMapper.readValue(bytes, Integer.class), is(1234));
+        }
+
+        // Copy the ObjectMapper
         ObjectMapper copiedObjectMapper = objectMapper.copy();
+
+        // Assert the copied ObjectMapper
         JsonFactory copiedFactory = copiedObjectMapper.getFactory();
         assertThat(copiedFactory, is(instanceOf(MessagePackFactory.class)));
         MessagePackFactory copiedMessagePackFactory = (MessagePackFactory) copiedFactory;
 
-        assertThat(copiedMessagePackFactory.getPackerConfig().isStr8FormatSupport(), is(false));
-
-        assertThat(copiedMessagePackFactory.getExtTypeCustomDesers().getDeser((byte) 42), is(notNullValue()));
-        assertThat(copiedMessagePackFactory.getExtTypeCustomDesers().getDeser((byte) 43), is(nullValue()));
-
-        assertThat(copiedMessagePackFactory.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET), is(false));
-        assertThat(copiedMessagePackFactory.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE), is(false));
-
-        Collection<AnnotationIntrospector> annotationIntrospectors = copiedObjectMapper.getSerializationConfig().getAnnotationIntrospector().allIntrospectors();
+        Collection<AnnotationIntrospector> annotationIntrospectors =
+                copiedObjectMapper.getSerializationConfig().getAnnotationIntrospector().allIntrospectors();
         assertThat(annotationIntrospectors.size(), is(1));
-        assertThat(annotationIntrospectors.stream().findFirst().get(), is(instanceOf(JsonArrayFormat.class)));
 
-        HashMap<String, Integer> map = new HashMap<>();
+        if (advancedConfig) {
+            assertThat(copiedMessagePackFactory.getPackerConfig().isStr8FormatSupport(), is(false));
+
+            assertThat(copiedMessagePackFactory.getExtTypeCustomDesers().getDeser((byte) 42), is(notNullValue()));
+            assertThat(copiedMessagePackFactory.getExtTypeCustomDesers().getDeser((byte) 43), is(nullValue()));
+
+            assertThat(copiedMessagePackFactory.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET), is(false));
+            assertThat(copiedMessagePackFactory.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE), is(false));
+
+            assertThat(annotationIntrospectors.stream().findFirst().get(), is(instanceOf(JsonArrayFormat.class)));
+        }
+        else {
+            assertThat(copiedMessagePackFactory.getPackerConfig().isStr8FormatSupport(), is(true));
+
+            assertThat(copiedMessagePackFactory.getExtTypeCustomDesers(), is(nullValue()));
+
+            assertThat(copiedMessagePackFactory.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET), is(true));
+            assertThat(copiedMessagePackFactory.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE), is(true));
+
+            assertThat(annotationIntrospectors.stream().findFirst().get(),
+                    is(instanceOf(JacksonAnnotationIntrospector.class)));
+        }
+
+        // Check the copied ObjectMapper works fine
+        Map<String, Integer> map = new HashMap<>();
         map.put("one", 1);
         Map<String, Integer> deserialized = copiedObjectMapper
             .readValue(objectMapper.writeValueAsBytes(map), new TypeReference<Map<String, Integer>>() {});
         assertThat(deserialized.size(), is(1));
         assertThat(deserialized.get("one"), is(1));
+    }
+
+    @Test
+    public void copyWithDefaultConfig()
+            throws IOException
+    {
+        assertCopy(false);
+    }
+
+    @Test
+    public void copyWithAdvancedConfig()
+            throws IOException
+    {
+        assertCopy(true);
     }
 }
