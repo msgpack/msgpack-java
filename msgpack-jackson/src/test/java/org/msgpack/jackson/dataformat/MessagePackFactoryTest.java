@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import org.junit.Test;
 import org.msgpack.core.MessagePack;
 
@@ -58,7 +59,36 @@ public class MessagePackFactoryTest
     }
 
     @Test
-    public void copy()
+    public void copyWithDefaultConfig()
+            throws IOException
+    {
+        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        ObjectMapper copiedObjectMapper = new ObjectMapper(messagePackFactory).copy();
+        JsonFactory copiedFactory = copiedObjectMapper.getFactory();
+        assertThat(copiedFactory, is(instanceOf(MessagePackFactory.class)));
+        MessagePackFactory copiedMessagePackFactory = (MessagePackFactory) copiedFactory;
+
+        assertThat(copiedMessagePackFactory.getPackerConfig().isStr8FormatSupport(), is(true));
+
+        assertThat(copiedMessagePackFactory.getExtTypeCustomDesers(), is(nullValue()));
+
+        assertThat(copiedMessagePackFactory.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET), is(true));
+        assertThat(copiedMessagePackFactory.isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE), is(true));
+
+        Collection<AnnotationIntrospector> annotationIntrospectors = copiedObjectMapper.getSerializationConfig().getAnnotationIntrospector().allIntrospectors();
+        assertThat(annotationIntrospectors.size(), is(1));
+        assertThat(annotationIntrospectors.stream().findFirst().get(), is(instanceOf(JacksonAnnotationIntrospector.class)));
+
+        HashMap<String, Integer> map = new HashMap<>();
+        map.put("one", 1);
+        Map<String, Integer> deserialized = copiedObjectMapper
+            .readValue(objectMapper.writeValueAsBytes(map), new TypeReference<Map<String, Integer>>() {});
+        assertThat(deserialized.size(), is(1));
+        assertThat(deserialized.get("one"), is(1));
+    }
+
+    @Test
+    public void copyWithAdvancedConfig()
             throws IOException
     {
         ExtensionTypeCustomDeserializers extTypeCustomDesers = new ExtensionTypeCustomDeserializers();

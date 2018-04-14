@@ -58,7 +58,9 @@ public class MessagePackFactory
         this.packerConfig = src.packerConfig.clone();
         this.reuseResourceInGenerator = src.reuseResourceInGenerator;
         this.reuseResourceInParser = src.reuseResourceInParser;
-        this.extTypeCustomDesers = new ExtensionTypeCustomDeserializers(src.extTypeCustomDesers);
+        if (src.extTypeCustomDesers != null) {
+            this.extTypeCustomDesers = new ExtensionTypeCustomDeserializers(src.extTypeCustomDesers);
+        }
     }
 
     public MessagePackFactory setReuseResourceInGenerator(boolean reuseResourceInGenerator)
