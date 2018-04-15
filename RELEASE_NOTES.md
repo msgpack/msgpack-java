@@ -1,5 +1,8 @@
 # Release Notes
 
+## 0.8.16
+ * Fix NPE at ObjectMapper#copy with MessagePackFactory when ExtensionTypeCustomDeserializers isn't set [#471](https://github.com/msgpack/msgpack-java/pull/471)
+
 ## 0.8.15
  * Suppress a warning in ValueFactory [#457](https://github.com/msgpack/msgpack-java/pull/457)
  * Add MessagePacker#clear() method to clear position [#459](https://github.com/msgpack/msgpack-java/pull/459)
