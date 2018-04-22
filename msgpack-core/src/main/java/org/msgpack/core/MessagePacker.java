@@ -1025,13 +1025,17 @@ public class MessagePacker
     /**
      * Writes a byte array to the output.
      * <p>
-     * Unlike {@link #writePayload(byte[])} method, this method doesn't copy the byte array even when given byte
-     * array is shorter than {@link MessagePack.PackerConfig#withBufferFlushThreshold(int)}. This is faster than
-     * {@link #writePayload(byte[])} method but caller must not modify the byte array after calling this method.
+     * This method is used with {@link #packRawStringHeader(int)} or {@link #packBinaryHeader(int)} methods.
+     * <p>
+     * Unlike {@link #writePayload(byte[])} method, this method does not make a defensive copy of the given byte
+     * array, even if it is shorter than {@link MessagePack.PackerConfig#withBufferFlushThreshold(int)}. This is
+     * faster than {@link #writePayload(byte[])} method but caller must not modify the byte array after calling
+     * this method.
      *
      * @param src the data to add
      * @return this
      * @throws IOException when underlying output throws IOException
+     * @see #writePayload(byte[])
      */
     public MessagePacker addPayload(byte[] src)
             throws IOException
@@ -1042,16 +1046,19 @@ public class MessagePacker
     /**
      * Writes a byte array to the output.
      * <p>
-     * Unlike {@link #writePayload(byte[], int, int)} method, this method doesn't copy the byte array even when
-     * given byte array is shorter than {@link MessagePack.PackerConfig#withBufferFlushThreshold(int)}.
-     * This is faster than {@link #writePayload(byte[], int, int)} method but caller must not modify the byte array
-     * after calling this method.
+     * This method is used with {@link #packRawStringHeader(int)} or {@link #packBinaryHeader(int)} methods.
+     * <p>
+     * Unlike {@link #writePayload(byte[], int, int)} method, this method does not make a defensive copy of the
+     * given byte array, even if it is shorter than {@link MessagePack.PackerConfig#withBufferFlushThreshold(int)}.
+     * This is faster than {@link #writePayload(byte[])} method but caller must not modify the byte array after
+     * calling this method.
      *
      * @param src the data to add
      * @param off the start offset in the data
      * @param len the number of bytes to add
      * @return this
      * @throws IOException when underlying output throws IOException
+     * @see #writePayload(byte[], int, int)
      */
     public MessagePacker addPayload(byte[] src, int off, int len)
             throws IOException
