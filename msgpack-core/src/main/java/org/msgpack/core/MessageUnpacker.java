@@ -1597,7 +1597,20 @@ public class MessageUnpacker
     public void readPayload(byte[] dst, int off, int len)
             throws IOException
     {
-        readPayload(MessageBuffer.wrap(dst), off, len);
+        while (true) {
+            int bufferRemaining = buffer.size() - position;
+            if (bufferRemaining >= len) {
+                buffer.getBytes(position, dst, off, len);
+                position += len;
+                return;
+            }
+            buffer.getBytes(position, dst, off, bufferRemaining);
+            off += bufferRemaining;
+            len -= bufferRemaining;
+            position += bufferRemaining;
+
+            nextBuffer();
+        }
     }
 
     /**
