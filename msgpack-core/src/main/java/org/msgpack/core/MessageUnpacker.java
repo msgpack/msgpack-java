@@ -607,11 +607,11 @@ public class MessageUnpacker
             case BOOLEAN:
                 return ValueFactory.newBoolean(unpackBoolean());
             case INTEGER:
-                switch (mf) {
-                    case UINT64:
-                        return ValueFactory.newInteger(unpackBigInteger());
-                    default:
-                        return ValueFactory.newInteger(unpackLong());
+                if (mf == MessageFormat.UINT64) {
+                    return ValueFactory.newInteger(unpackBigInteger());
+                }
+                else {
+                    return ValueFactory.newInteger(unpackLong());
                 }
             case FLOAT:
                 return ValueFactory.newFloat(unpackDouble());
