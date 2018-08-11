@@ -204,7 +204,7 @@ public class MessageUnpacker
 
     /**
      * Create an MessageUnpacker that reads data from the given MessageBufferInput.
-     * This method is available for subclasses to override. Use MessagePack.UnpackerConfig.newUnpacker method to instanciate this implementation.
+     * This method is available for subclasses to override. Use MessagePack.UnpackerConfig.newUnpacker method to instantiate this implementation.
      *
      * @param in
      */
