@@ -59,7 +59,7 @@
  * Small performance optimization of packString when the String size is larger than 512 bytes.
 
 ## 0.8.4
- * Embed bundle paramters for OSGi
+ * Embed bundle parameters for OSGi
 
 ## 0.8.3 
  * Fix a bug (#348), which wrongly overwrites the buffer before reading numeric data at the buffer boundary

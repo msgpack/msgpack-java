@@ -200,7 +200,7 @@ public class MessagePacker
 
     /**
      * Create an MessagePacker that outputs the packed data to the given {@link org.msgpack.core.buffer.MessageBufferOutput}.
-     * This method is available for subclasses to override. Use MessagePack.PackerConfig.newPacker method to instanciate this implementation.
+     * This method is available for subclasses to override. Use MessagePack.PackerConfig.newPacker method to instantiate this implementation.
      *
      * @param out MessageBufferOutput. Use {@link org.msgpack.core.buffer.OutputStreamBufferOutput}, {@link org.msgpack.core.buffer.ChannelBufferOutput} or
      * your own implementation of {@link org.msgpack.core.buffer.MessageBufferOutput} interface.
