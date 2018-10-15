@@ -442,22 +442,6 @@ public class MessagePackGenerator
         // If users can use other MessagePackGenerator#writeNumber APIs that accept
         // proper numeric types not String, it's better to use the other APIs instead.
         try {
-            long l = Long.parseLong(encodedValue);
-            addValueToStackTop(l);
-            return;
-        }
-        catch (NumberFormatException e) {
-        }
-
-        try {
-            double d = Double.parseDouble(encodedValue);
-            addValueToStackTop(d);
-            return;
-        }
-        catch (NumberFormatException e) {
-        }
-
-        try {
             BigInteger bi = new BigInteger(encodedValue);
             addValueToStackTop(bi);
             return;
