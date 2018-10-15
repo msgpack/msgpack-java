@@ -881,7 +881,7 @@ public class MessagePackGeneratorTest
 
         BigInteger bi = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
         assertThat(
-            MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(bi)).unpackDouble(),
-                is(bi.doubleValue()));
+            MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(bi)).unpackBigInteger(),
+                is(bi));
     }
 }
