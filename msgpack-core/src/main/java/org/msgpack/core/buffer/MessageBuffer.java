@@ -144,26 +144,33 @@ public class MessageBuffer
                 bufferClsName = isLittleEndian ? DEFAULT_MESSAGE_BUFFER : BIGENDIAN_MESSAGE_BUFFER;
             }
 
-            try {
-                // We need to use reflection here to find MessageBuffer implementation classes because
-                // importing these classes creates TypeProfile and adds some overhead to method calls.
-
-                // MessageBufferX (default, BE or U) class
-                Class<?> bufferCls = Class.forName(bufferClsName);
-
-                // MessageBufferX(byte[]) constructor
-                Constructor<?> mbArrCstr = bufferCls.getDeclaredConstructor(byte[].class, int.class, int.class);
-                mbArrCstr.setAccessible(true);
-                mbArrConstructor = mbArrCstr;
-
-                // MessageBufferX(ByteBuffer) constructor
-                Constructor<?> mbBBCstr = bufferCls.getDeclaredConstructor(ByteBuffer.class);
-                mbBBCstr.setAccessible(true);
-                mbBBConstructor = mbBBCstr;
+            if (DEFAULT_MESSAGE_BUFFER.equals(bufferClsName)) {
+                // No need to use reflection here, we're not using a MessageBuffer subclass.
+                mbArrConstructor = null;
+                mbBBConstructor = null;
             }
-            catch (Exception e) {
-                e.printStackTrace(System.err);
-                throw new RuntimeException(e); // No more fallback exists if MessageBuffer constructors are inaccessible
+            else {
+                try {
+                    // We need to use reflection here to find MessageBuffer implementation classes because
+                    // importing these classes creates TypeProfile and adds some overhead to method calls.
+
+                    // MessageBufferX (default, BE or U) class
+                    Class<?> bufferCls = Class.forName(bufferClsName);
+
+                    // MessageBufferX(byte[]) constructor
+                    Constructor<?> mbArrCstr = bufferCls.getDeclaredConstructor(byte[].class, int.class, int.class);
+                    mbArrCstr.setAccessible(true);
+                    mbArrConstructor = mbArrCstr;
+
+                    // MessageBufferX(ByteBuffer) constructor
+                    Constructor<?> mbBBCstr = bufferCls.getDeclaredConstructor(ByteBuffer.class);
+                    mbBBCstr.setAccessible(true);
+                    mbBBConstructor = mbBBCstr;
+                }
+                catch (Exception e) {
+                    e.printStackTrace(System.err);
+                    throw new RuntimeException(e); // No more fallback exists if MessageBuffer constructors are inaccessible
+                }
             }
         }
     }
@@ -266,7 +273,10 @@ public class MessageBuffer
     private static MessageBuffer newMessageBuffer(byte[] arr, int off, int len)
     {
         checkNotNull(arr);
-        return newInstance(mbArrConstructor, arr, off, len);
+        if (mbArrConstructor != null) {
+            return newInstance(mbArrConstructor, arr, off, len);
+        }
+        return new MessageBuffer(arr, off, len);
     }
 
     /**
@@ -278,7 +288,10 @@ public class MessageBuffer
     private static MessageBuffer newMessageBuffer(ByteBuffer bb)
     {
         checkNotNull(bb);
-        return newInstance(mbBBConstructor, bb);
+        if (mbBBConstructor != null) {
+            return newInstance(mbBBConstructor, bb);
+        }
+        return new MessageBuffer(bb);
     }
 
     /**
