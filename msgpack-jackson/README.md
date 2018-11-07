@@ -1,7 +1,7 @@
 # jackson-dataformat-msgpack
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.msgpack/jackson-dataformat-msgpack/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.msgpack/jackson-dataformat-msgpack/)
-[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/org.msgpack/jackson-dataformat-msgpack/badge.svg)](http://www.javadoc.io/doc/org.msgpack/jackson-dataformat-msgpack)
+[![Javadoc](https://www.javadoc.io/badge/org.msgpack/jackson-dataformat-msgpack.svg)](https://www.javadoc.io/doc/org.msgpack/jackson-dataformat-msgpack)
 
 This Jackson extension library is a component to easily read and write [MessagePack](http://msgpack.org/) encoded data through jackson-databind API.
 

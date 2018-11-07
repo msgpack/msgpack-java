@@ -13,7 +13,7 @@ supports all of the message pack types, including [extension format](https://git
 ## Quick Start
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.msgpack/msgpack-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.msgpack/msgpack-core/)
-[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/org.msgpack/msgpack-core/badge.svg)](http://www.javadoc.io/doc/org.msgpack/msgpack-core)
+[![Javadoc](https://javadoc.io/badge/org.msgpack/msgpack-core.svg)](https://www.javadoc.io/doc/org.msgpack/msgpack-core)
 
 For Maven users:
 ```
