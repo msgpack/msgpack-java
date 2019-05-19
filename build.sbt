@@ -1,11 +1,17 @@
-import ReleaseTransformations._
+val SCALA_VERSION = "2.12.8"
+scalaVersion in ThisBuild := SCALA_VERSION
+
+// In release process, this environment variable should be set
+val isRelease: Boolean = sys.env.isDefinedAt("RELEASE")
+// Append -SNAPSHOT version strings for non tagged versions
+dynverSonatypeSnapshots in ThisBuild := !isRelease
 
 val buildSettings = Seq[Setting[_]](
   organization := "org.msgpack",
   organizationName := "MessagePack",
   organizationHomepage := Some(new URL("http://msgpack.org/")),
   description := "MessagePack for Java",
-  scalaVersion := "2.12.4",
+  scalaVersion := SCALA_VERSION,
   logBuffered in Test := false,
   // msgpack-java should be a pure-java library, so remove Scala specific configurations
   autoScalaLibrary := false,
@@ -27,29 +33,8 @@ val buildSettings = Seq[Setting[_]](
       opts
     }
   },
-  // Release settings
-  releaseTagName := { (version in ThisBuild).value },
-  releaseProcess := Seq[ReleaseStep](
-    checkSnapshotDependencies,
-    inquireVersions,
-    runClean,
-    runTest,
-    setReleaseVersion,
-    commitReleaseVersion,
-    tagRelease,
-    releaseStepCommand("publishSigned"),
-    setNextVersion,
-    commitNextVersion,
-    releaseStepCommand("sonatypeReleaseAll"),
-    pushChanges
-  ),
   // Add sonatype repository settings
-  publishTo := Some(
-    if (isSnapshot.value)
-      Opts.resolver.sonatypeSnapshots
-    else
-      Opts.resolver.sonatypeStaging
-  ),
+  publishTo := sonatypePublishTo.value,
   // Find bugs
   findbugsReportType := Some(FindbugsReport.FancyHtml),
   findbugsReportPath := Some(crossTarget.value / "findbugs" / "report.html"),
