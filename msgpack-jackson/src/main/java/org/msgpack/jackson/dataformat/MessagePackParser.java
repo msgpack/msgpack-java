@@ -26,6 +26,7 @@ import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import com.fasterxml.jackson.core.io.IOContext;
+import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.json.DupDetector;
 import com.fasterxml.jackson.core.json.JsonReadContext;
 import org.msgpack.core.ExtensionTypeHeader;
@@ -233,7 +234,7 @@ public class MessagePackParser
         }
 
         if (!messageUnpacker.hasNext()) {
-            return null;
+            throw new JsonEOFException(this, null, "Unexpected EOF");
         }
 
         MessageFormat format = messageUnpacker.getNextFormat();

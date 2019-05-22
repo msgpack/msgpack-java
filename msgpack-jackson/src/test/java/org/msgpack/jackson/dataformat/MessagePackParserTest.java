@@ -18,9 +18,11 @@ package org.msgpack.jackson.dataformat;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -48,8 +50,8 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class MessagePackParserTest
         extends MessagePackDataformatTestBase
@@ -348,8 +350,6 @@ public class MessagePackParserTest
         assertEquals(-1, parser.getCurrentLocation().getLineNr());
         assertEquals(16, parser.getCurrentLocation().getColumnNr());
 
-        assertNull(parser.nextToken());
-
         parser.close();
         parser.close(); // Intentional
     }
@@ -555,8 +555,8 @@ public class MessagePackParserTest
         MessagePacker messagePacker = MessagePack.newDefaultPacker(out).packMapHeader(2);
         byte[] k0 = new byte[] {0};
         byte[] k1 = new byte[] {1};
-        messagePacker.packBinaryHeader(1).writePayload(k0).packInt(2);
-        messagePacker.packBinaryHeader(1).writePayload(k1).packInt(3);
+        messagePacker.packBinaryHeader(1).writePayload(k0).packInt(10);
+        messagePacker.packBinaryHeader(1).writePayload(k1).packInt(11);
         messagePacker.close();
 
         ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
@@ -577,10 +577,10 @@ public class MessagePackParserTest
         assertEquals(2, map.size());
         for (Map.Entry<byte[], Integer> entry : map.entrySet()) {
             if (Arrays.equals(entry.getKey(), k0)) {
-                assertEquals((Integer) 2, entry.getValue());
+                assertEquals((Integer) 10, entry.getValue());
             }
             else if (Arrays.equals(entry.getKey(), k1)) {
-                assertEquals((Integer) 3, entry.getValue());
+                assertEquals((Integer) 11, entry.getValue());
             }
         }
     }
@@ -590,9 +590,9 @@ public class MessagePackParserTest
             throws IOException
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        MessagePacker messagePacker = MessagePack.newDefaultPacker(out).packMapHeader(3);
+        MessagePacker messagePacker = MessagePack.newDefaultPacker(out).packMapHeader(2);
         for (int i = 0; i < 2; i++) {
-            messagePacker.packInt(i).packInt(i + 2);
+            messagePacker.packInt(i).packInt(i + 10);
         }
         messagePacker.close();
 
@@ -612,8 +612,8 @@ public class MessagePackParserTest
         Map<Integer, Integer> map = objectMapper.readValue(
                 out.toByteArray(), new TypeReference<Map<Integer, Integer>>() {});
         assertEquals(2, map.size());
-        assertEquals((Integer) 2, map.get(0));
-        assertEquals((Integer) 3, map.get(1));
+        assertEquals((Integer) 10, map.get(0));
+        assertEquals((Integer) 11, map.get(1));
     }
 
     @Test
@@ -621,9 +621,9 @@ public class MessagePackParserTest
             throws IOException
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        MessagePacker messagePacker = MessagePack.newDefaultPacker(out).packMapHeader(3);
+        MessagePacker messagePacker = MessagePack.newDefaultPacker(out).packMapHeader(2);
         for (int i = 0; i < 2; i++) {
-            messagePacker.packFloat(i).packInt(i + 2);
+            messagePacker.packFloat(i).packInt(i + 10);
         }
         messagePacker.close();
 
@@ -643,8 +643,8 @@ public class MessagePackParserTest
         Map<Float, Integer> map = objectMapper.readValue(
                 out.toByteArray(), new TypeReference<Map<Float, Integer>>() {});
         assertEquals(2, map.size());
-        assertEquals((Integer) 2, map.get(0f));
-        assertEquals((Integer) 3, map.get(1f));
+        assertEquals((Integer) 10, map.get(0f));
+        assertEquals((Integer) 11, map.get(1f));
     }
 
     @Test
@@ -652,9 +652,9 @@ public class MessagePackParserTest
             throws IOException
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        MessagePacker messagePacker = MessagePack.newDefaultPacker(out).packMapHeader(3);
-        messagePacker.packBoolean(true).packInt(2);
-        messagePacker.packBoolean(false).packInt(3);
+        MessagePacker messagePacker = MessagePack.newDefaultPacker(out).packMapHeader(2);
+        messagePacker.packBoolean(true).packInt(10);
+        messagePacker.packBoolean(false).packInt(11);
         messagePacker.close();
 
         ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
@@ -673,8 +673,8 @@ public class MessagePackParserTest
         Map<Boolean, Integer> map = objectMapper.readValue(
                 out.toByteArray(), new TypeReference<Map<Boolean, Integer>>() {});
         assertEquals(2, map.size());
-        assertEquals((Integer) 2, map.get(true));
-        assertEquals((Integer) 3, map.get(false));
+        assertEquals((Integer) 10, map.get(true));
+        assertEquals((Integer) 11, map.get(false));
     }
 
     @Test
@@ -850,5 +850,67 @@ public class MessagePackParserTest
 
         BigDecimal v = objectMapper.readValue(out.toByteArray(), BigDecimal.class);
         assertThat(v, is(bd));
+    }
+
+    @Test
+    public void handleMissingItemInArray()
+            throws IOException
+    {
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
+        packer.packArrayHeader(3);
+        packer.packString("one");
+        packer.packString("two");
+        packer.close();
+
+        try {
+            objectMapper.readValue(out.toByteArray(), new TypeReference<List<String>>() {});
+            fail();
+        }
+        catch (JsonMappingException e) {
+            assertTrue(e.getCause() instanceof JsonEOFException);
+        }
+    }
+
+    @Test
+    public void handleMissingKeyValueInMap()
+            throws IOException
+    {
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
+        packer.packMapHeader(3);
+        packer.packString("one");
+        packer.packInt(1);
+        packer.packString("two");
+        packer.packInt(2);
+        packer.close();
+
+        try {
+            objectMapper.readValue(out.toByteArray(), new TypeReference<Map<String, Integer>>() {});
+            fail();
+        }
+        catch (JsonEOFException e) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    public void handleMissingValueInMap()
+            throws IOException
+    {
+        MessagePacker packer = MessagePack.newDefaultPacker(out);
+        packer.packMapHeader(3);
+        packer.packString("one");
+        packer.packInt(1);
+        packer.packString("two");
+        packer.packInt(2);
+        packer.packString("three");
+        packer.close();
+
+        try {
+            objectMapper.readValue(out.toByteArray(), new TypeReference<Map<String, Integer>>() {});
+            fail();
+        }
+        catch (JsonEOFException e) {
+            assertTrue(true);
+        }
     }
 }
