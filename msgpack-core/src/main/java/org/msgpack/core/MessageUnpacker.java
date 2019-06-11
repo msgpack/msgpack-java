@@ -617,7 +617,8 @@ public class MessageUnpacker
                 return ValueFactory.newFloat(unpackDouble());
             case STRING: {
                 int length = unpackRawStringHeader();
-                return ValueFactory.newString(readPayload(length), true);
+				// EEN change: Strings should end with a null character.
+				return ValueFactory.newString(fixEenString(readPayload(length)), true);
             }
             case BINARY: {
                 int length = unpackBinaryHeader();
@@ -677,7 +678,8 @@ public class MessageUnpacker
                 return var;
             case STRING: {
                 int length = unpackRawStringHeader();
-                var.setStringValue(readPayload(length));
+				// EEN change: Strings should end with a null character.
+				var.setStringValue(fixEenString(readPayload(length)));
                 return var;
             }
             case BINARY: {
@@ -734,7 +736,7 @@ public class MessageUnpacker
     /**
      * Peeks a Nil byte and reads it if next byte is a nil value.
      *
-     * The difference from {@link unpackNil} is that unpackNil throws an exception if the next byte is not nil value
+     * The difference from {@link #unpackNil} is that unpackNil throws an exception if the next byte is not nil value
      * while this tryUnpackNil method returns false without changing position.
      *
      * @return true if a nil value is read
@@ -1133,10 +1135,41 @@ public class MessageUnpacker
             decodeStringBuffer.setLength(0);
         }
     }
+	
+	private byte[] fixEenString( byte[] bytes )
+	{
+		// EEN change: Strings should end with a null character.
+		if( bytes.length > 0 && bytes[bytes.length-1] == 0)
+		{
+			int newLength = bytes.length - 1;
+			byte[] temp = new byte[newLength];
+			System.arraycopy( bytes, 0, temp, 0, newLength );
+			bytes = temp;
+		}
+		
+		return bytes;
+	}
+	
+	private static String fixEenString( String rawString )
+	{
+		// EEN change: Strings should end with a null character.
+		String output = rawString;
+		if( output.endsWith( "\0" ) )
+		{
+			output = output.substring( 0, output.length() -1 );
+		}
+		
+		return output;
+	}
 
-    public String unpackString()
-            throws IOException
-    {
+    public String unpackString() throws IOException
+	{
+		// EEN change: Strings should end with a null character.
+		return fixEenString( unpackStringInternal() );
+	}
+	
+	private String unpackStringInternal() throws IOException
+	{
         int len = unpackRawStringHeader();
         if (len == 0) {
             return EMPTY_STRING;

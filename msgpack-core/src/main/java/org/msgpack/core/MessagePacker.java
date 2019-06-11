@@ -721,7 +721,17 @@ public class MessagePacker
      */
     public MessagePacker packString(String s)
             throws IOException
-    {
+	{
+		// EEN change: Strings should end with a null character.
+		if( s.length() > 0 )
+		{
+			s = s + "\0";
+		}
+		return packStringInternal( s );
+	}
+	
+	public MessagePacker packStringInternal( String s ) throws IOException
+	{
         if (s.length() <= 0) {
             packRawStringHeader(0);
             return this;

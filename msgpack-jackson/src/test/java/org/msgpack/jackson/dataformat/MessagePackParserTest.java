@@ -309,6 +309,9 @@ public class MessagePackParserTest
 
         JsonParser parser = factory.createParser(tempFile);
         assertTrue(parser instanceof MessagePackParser);
+        
+        // EEN Change: Strings take 1 character more than the original tests expected, so for the FIELD_NAME tokens
+		// we have increated the current location with 1 and followed that through for each location step.
 
         JsonToken jsonToken = parser.nextToken();
         assertEquals(JsonToken.START_OBJECT, jsonToken);
@@ -321,34 +324,34 @@ public class MessagePackParserTest
         assertEquals(JsonToken.FIELD_NAME, jsonToken);
         assertEquals("zero", parser.getCurrentName());
         assertEquals(1, parser.getTokenLocation().getColumnNr());
-        assertEquals(6, parser.getCurrentLocation().getColumnNr());
+        assertEquals(7, parser.getCurrentLocation().getColumnNr());
 
         jsonToken = parser.nextToken();
         assertEquals(JsonToken.VALUE_NUMBER_INT, jsonToken);
         assertEquals(0, parser.getIntValue());
-        assertEquals(6, parser.getTokenLocation().getColumnNr());
-        assertEquals(7, parser.getCurrentLocation().getColumnNr());
+        assertEquals(7, parser.getTokenLocation().getColumnNr());
+        assertEquals(8, parser.getCurrentLocation().getColumnNr());
 
         jsonToken = parser.nextToken();
         assertEquals(JsonToken.FIELD_NAME, jsonToken);
         assertEquals("one", parser.getCurrentName());
-        assertEquals(7, parser.getTokenLocation().getColumnNr());
-        assertEquals(11, parser.getCurrentLocation().getColumnNr());
+        assertEquals(8, parser.getTokenLocation().getColumnNr());
+        assertEquals(13, parser.getCurrentLocation().getColumnNr());
         parser.overrideCurrentName("two");
         assertEquals("two", parser.getCurrentName());
 
         jsonToken = parser.nextToken();
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, jsonToken);
         assertEquals(1.0f, parser.getIntValue(), 0.001f);
-        assertEquals(11, parser.getTokenLocation().getColumnNr());
-        assertEquals(16, parser.getCurrentLocation().getColumnNr());
+        assertEquals(13, parser.getTokenLocation().getColumnNr());
+        assertEquals(18, parser.getCurrentLocation().getColumnNr());
 
         jsonToken = parser.nextToken();
         assertEquals(JsonToken.END_OBJECT, jsonToken);
         assertEquals(-1, parser.getTokenLocation().getLineNr());
-        assertEquals(16, parser.getTokenLocation().getColumnNr());
+        assertEquals(18, parser.getTokenLocation().getColumnNr());
         assertEquals(-1, parser.getCurrentLocation().getLineNr());
-        assertEquals(16, parser.getCurrentLocation().getColumnNr());
+        assertEquals(18, parser.getCurrentLocation().getColumnNr());
 
         parser.close();
         parser.close(); // Intentional

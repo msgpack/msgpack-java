@@ -22,7 +22,7 @@ import static org.msgpack.core.Preconditions.checkArgument;
 /**
  * MessageBufferBE is a {@link MessageBuffer} implementation tailored to big-endian machines.
  * The specification of Message Pack demands writing short/int/float/long/double values in the big-endian format.
- * In the big-endian machine, we do not need to swap the byte order.
+ * In the big-endian machine, we need to swap the byte order.
  */
 public class MessageBufferBE
         extends MessageBuffer
@@ -57,19 +57,25 @@ public class MessageBufferBE
     @Override
     public short getShort(int index)
     {
-        return unsafe.getShort(base, address + index);
+    	// EEN change: Numbers should be read in little endian style, so reversing endianness.
+		short v = unsafe.getShort(base, address + index);
+		return Short.reverseBytes(v);
     }
 
     @Override
     public int getInt(int index)
     {
-        // We can simply return the integer value as big-endian value
-        return unsafe.getInt(base, address + index);
+		// EEN change: Numbers should be read in little endian style, so reversing endianness.
+		int i = unsafe.getInt(base, address + index);
+		// Reversing the endian
+		return Integer.reverseBytes(i);
     }
 
     public long getLong(int index)
     {
-        return unsafe.getLong(base, address + index);
+		// EEN change: Numbers should be read in little endian style, so reversing endianness.
+		long l = unsafe.getLong(base, address + index);
+		return Long.reverseBytes(l);
     }
 
     @Override
@@ -87,19 +93,25 @@ public class MessageBufferBE
     @Override
     public void putShort(int index, short v)
     {
-        unsafe.putShort(base, address + index, v);
+		// EEN change: Numbers should be written in little endian style, so reversing endianness.
+		v = Short.reverseBytes(v);
+		unsafe.putShort(base, address + index, v);
     }
 
     @Override
     public void putInt(int index, int v)
     {
-        unsafe.putInt(base, address + index, v);
+		// EEN change: Numbers should be written in little endian style, so reversing endianness.
+		v = Integer.reverseBytes(v);
+		unsafe.putInt(base, address + index, v);
     }
 
     @Override
-    public void putLong(int index, long v)
+    public void putLong(int index, long l)
     {
-        unsafe.putLong(base, address + index, v);
+		// EEN change: Numbers should be written in little endian style, so reversing endianness.
+		l = Long.reverseBytes(l);
+		unsafe.putLong(base, address + index, l);
     }
 
     @Override

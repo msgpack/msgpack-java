@@ -430,8 +430,8 @@ public class MessageBuffer
 
     public short getShort(int index)
     {
-        short v = unsafe.getShort(base, address + index);
-        return Short.reverseBytes(v);
+		// EEN change: Not reversing the endianness as EEN messagepack doesn't do that.
+        return unsafe.getShort(base, address + index);
     }
 
     /**
@@ -443,9 +443,8 @@ public class MessageBuffer
     public int getInt(int index)
     {
         // Reading little-endian value
-        int i = unsafe.getInt(base, address + index);
-        // Reversing the endian
-        return Integer.reverseBytes(i);
+		// EEN change: Not reversing the endianness as EEN messagepack doesn't do that.
+        return unsafe.getInt(base, address + index);
     }
 
     public float getFloat(int index)
@@ -455,8 +454,8 @@ public class MessageBuffer
 
     public long getLong(int index)
     {
-        long l = unsafe.getLong(base, address + index);
-        return Long.reverseBytes(l);
+		// EEN change: Not reversing the endianness as EEN messagepack doesn't do that.
+        return unsafe.getLong(base, address + index);
     }
 
     public double getDouble(int index)
@@ -490,7 +489,7 @@ public class MessageBuffer
 
     public void putShort(int index, short v)
     {
-        v = Short.reverseBytes(v);
+		// EEN change: Not reversing the endianness as EEN messagepack doesn't do that.
         unsafe.putShort(base, address + index, v);
     }
 
@@ -502,8 +501,7 @@ public class MessageBuffer
      */
     public void putInt(int index, int v)
     {
-        // Reversing the endian
-        v = Integer.reverseBytes(v);
+		// EEN change: Not reversing the endianness as EEN messagepack doesn't do that.
         unsafe.putInt(base, address + index, v);
     }
 
@@ -514,8 +512,7 @@ public class MessageBuffer
 
     public void putLong(int index, long l)
     {
-        // Reversing the endian
-        l = Long.reverseBytes(l);
+		// EEN change: Not reversing the endianness as EEN messagepack doesn't do that.
         unsafe.putLong(base, address + index, l);
     }
 

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="%highlight{%d [%t] %-5p %c - %m%n}" />
+        </Console>
+
+    </Appenders>
+
+    <Loggers>
+
+        <Root level="debug">
+            <AppenderRef ref="STDOUT" />
+        </Root>
+
+        <Logger name="org.apache" level="info"/>
+        <Logger name="org.springframework" level="info"/>
+        <Logger name="org.eclipse" level="info"/>
+        <Logger name="com.pcmseu.cm.service.imageStore" level="trace"/>
+        <Logger name="com.pcmseu.cm.service.common.rest.client" level="trace"/>
+
+    </Loggers>
+</Configuration>
