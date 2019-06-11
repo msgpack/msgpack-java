@@ -1,0 +1,97 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        maven {
+            url artifactory_context_url + 'plugins-release'
+            credentials {
+                username = artifactory_user
+                password = artifactory_password
+            }
+        }
+    }
+
+    dependencies {
+        //Check for the latest version here: http://plugins.gradle.org/plugin/com.jfrog.artifactory
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
+    }
+}
+
+repositories {
+    mavenLocal()	// On this PC.
+    maven {
+        url artifactory_context_url + 'libs-release'
+        credentials {
+            username = artifactory_user
+            password = artifactory_password
+        }
+    }
+    mavenCentral()
+}
+
+// It's a java library
+apply plugin: 'java'
+
+// Used to upload the artifacts
+apply plugin: 'maven-publish'
+
+// Used to publish artifacts to Artifactory.
+apply plugin: "com.jfrog.artifactory"
+
+task sourceJar(type: Jar, dependsOn: classes) {
+    from sourceSets.main.allJava
+    classifier "sources"
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+
+            // The compiled classes.
+            from project.components.java
+
+            // The sources.
+            artifact(sourceJar)
+
+            groupId 'com.een.msgpack'
+            artifactId 'jackson-dataformat-msgpack'
+        }
+    }
+}
+
+artifactory {
+    contextUrl = artifactory_context_url
+    publish {
+        repository {
+            repoKey = 'libs-release-local'
+            username = artifactory_user
+            password = artifactory_password
+        }
+
+        defaults {
+            publications ('mavenJava')
+        }
+    }
+}
+
+dependencies {
+    compile project( ":msgpack-core")
+
+    // All taken from build.sbt msgpackJackson.libraryDependencies section
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.11.1'
+
+    testCompile group: 'com.novocode', name: 'junit-interface', version: '0.11'
+    testCompile group: 'org.scalatest', name: 'scalatest_2.12', version: '3.0.3'
+    testCompile group: 'org.scalacheck', name: 'scalacheck_2.12', version: '1.13.5'
+    testCompile group: 'org.xerial', name: 'xerial-core_2.12', version: '3.6.0'
+    testCompile group: 'org.msgpack', name: 'msgpack', version: '0.6.12'
+    testCompile group: 'commons-codec', name: 'commons-codec', version: '1.10'
+    testCompile group: 'com.typesafe.akka', name: 'akka-actor_2.12', version: '2.5.7'
+    testCompile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+
+    // Our own tests want a few more utils
+    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
+    testCompile group: 'commons-io', name: 'commons-io', version: '2.5'
+}
