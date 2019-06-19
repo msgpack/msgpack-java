@@ -1,5 +1,9 @@
 # Release Notes
 
+## 0.8.17
+ * Fix OOM exception for invalid msgpack messages [#500](https://github.com/msgpack/msgpack-java/pull/500)
+ * Use jackson-databind 2.9.9 for security vulnerability [#505](https://github.com/msgpack/msgpack-java/pull/505)
+
 ## 0.8.16
  * Fix NPE at ObjectMapper#copy with MessagePackFactory when ExtensionTypeCustomDeserializers isn't set [#471](https://github.com/msgpack/msgpack-java/pull/471)
 
