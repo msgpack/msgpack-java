@@ -42,6 +42,8 @@ dependencies {
 
 - [Usage examples](msgpack-core/src/test/java/org/msgpack/core/example/MessagePackExample.java)
 
+### Integration with Jackson ObjectMapper (jackson-databind)
+
 msgpack-java supports serialization and deserialization of Java objects through [jackson-databind](https://github.com/FasterXML/jackson-databind).
 For details, see [msgpack-jackson/README.md](msgpack-jackson/README.md). The template-based serialization mechanism used in v06 is deprecated.
 
