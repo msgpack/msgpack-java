@@ -5,7 +5,7 @@ val buildSettings = Seq[Setting[_]](
   organizationName := "MessagePack",
   organizationHomepage := Some(new URL("http://msgpack.org/")),
   description := "MessagePack for Java",
-  scalaVersion := "2.12.4",
+  scalaVersion := "2.12.8",
   logBuffered in Test := false,
   // msgpack-java should be a pure-java library, so remove Scala specific configurations
   autoScalaLibrary := false,
@@ -93,12 +93,12 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
     libraryDependencies ++= Seq(
       // msgpack-core should have no external dependencies
       junitInterface,
-      "org.scalatest"     %% "scalatest"    % "3.0.3"  % "test",
-      "org.scalacheck"    %% "scalacheck"   % "1.13.5" % "test",
+      "org.scalatest"     %% "scalatest"    % "3.0.8"  % "test",
+      "org.scalacheck"    %% "scalacheck"   % "1.14.0" % "test",
       "org.xerial"        %% "xerial-core"  % "3.6.0"  % "test",
       "org.msgpack"       % "msgpack"       % "0.6.12" % "test",
-      "commons-codec"     % "commons-codec" % "1.10"   % "test",
-      "com.typesafe.akka" %% "akka-actor"   % "2.5.7"  % "test"
+      "commons-codec"     % "commons-codec" % "1.12"   % "test",
+      "com.typesafe.akka" %% "akka-actor"   % "2.5.23" % "test"
     )
   )
 
@@ -115,7 +115,7 @@ lazy val msgpackJackson =
         "org.msgpack.jackson.dataformat"
       ),
       libraryDependencies ++= Seq(
-        "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.9",
+        "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.9.1",
         junitInterface,
         "org.apache.commons" % "commons-math3" % "3.6.1" % "test"
       ),
