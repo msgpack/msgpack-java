@@ -42,11 +42,23 @@ public class MessagePackGenerator
 {
     private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
     private final MessagePacker messagePacker;
-    private static ThreadLocal<OutputStreamBufferOutput> messageBufferOutputHolder = new ThreadLocal<OutputStreamBufferOutput>();
+    private static ThreadLocal<BufferOutputHolder> messageBufferOutputHolder = new ThreadLocal<BufferOutputHolder>();
     private final OutputStream output;
+    private final BufferOutputHolder bufferOutputHolder;
     private final MessagePack.PackerConfig packerConfig;
     private LinkedList<StackItem> stack;
     private StackItem rootStackItem;
+
+    private static class BufferOutputHolder {
+        private final OutputStreamBufferOutput bufferOutput;
+        private boolean inUse;
+
+        public BufferOutputHolder(OutputStreamBufferOutput bufferOutput)
+        {
+            this.bufferOutput = bufferOutput;
+            inUse = true;
+        }
+    }
 
     private abstract static class StackItem
     {
@@ -100,6 +112,40 @@ public class MessagePackGenerator
         }
     }
 
+    private BufferOutputHolder prepareBufferOutputHolder(OutputStream out, boolean reuseResourceInGenerator)
+            throws IOException
+    {
+        if (reuseResourceInGenerator) {
+            BufferOutputHolder bufferOutputHolder = messageBufferOutputHolder.get();
+            if (bufferOutputHolder == null) {
+                BufferOutputHolder newBufferOutputHolder = new BufferOutputHolder(new OutputStreamBufferOutput(out));
+                messageBufferOutputHolder.set(newBufferOutputHolder);
+                return newBufferOutputHolder;
+            }
+            else {
+                if (bufferOutputHolder.inUse) {
+                    // If MessagepackGenerator serializes an object whose class contains a nested class that uses another MessagepackGenerator,
+                    // the second MessagepackGenerator for the nested class must not use an OutputStreamBufferOutput prepared for
+                    // the first MessagepackGenerator in ThreadLocal in order to prevent the OutputStreamBufferOutput in ThreadLocal
+                    // from being accessed by multiple MessagepackGenerator(s).
+                    //
+                    // The second MessagepackGenerator doesn't use a cached OutputStreamBufferOutput here, so there might be room to optimize.
+                    // But the case nested class uses another MessagepackGenerator doesn't seem common and we go with the simple way for now.
+                    return new BufferOutputHolder(new OutputStreamBufferOutput(out));
+                }
+                else {
+                    // The BufferOutput isn't used, so it can be used.
+                    bufferOutputHolder.inUse = true;
+                    bufferOutputHolder.bufferOutput.reset(out);
+                    return bufferOutputHolder;
+                }
+            }
+        }
+        else {
+            return new BufferOutputHolder(new OutputStreamBufferOutput(out));
+        }
+    }
+
     public MessagePackGenerator(
             int features,
             ObjectCodec codec,
@@ -110,25 +156,9 @@ public class MessagePackGenerator
     {
         super(features, codec);
         this.output = out;
-
-        OutputStreamBufferOutput messageBufferOutput;
-        if (reuseResourceInGenerator) {
-            messageBufferOutput = messageBufferOutputHolder.get();
-            if (messageBufferOutput == null) {
-                messageBufferOutput = new OutputStreamBufferOutput(out);
-                messageBufferOutputHolder.set(messageBufferOutput);
-            }
-            else {
-                messageBufferOutput.reset(out);
-            }
-        }
-        else {
-            messageBufferOutput = new OutputStreamBufferOutput(out);
-        }
-        this.messagePacker = packerConfig.newPacker(messageBufferOutput);
-
+        this.bufferOutputHolder = prepareBufferOutputHolder(out, reuseResourceInGenerator);
+        this.messagePacker = packerConfig.newPacker(bufferOutputHolder.bufferOutput);
         this.packerConfig = packerConfig;
-
         this.stack = new LinkedList<StackItem>();
     }
 
@@ -504,6 +534,8 @@ public class MessagePackGenerator
             flush();
         }
         finally {
+            bufferOutputHolder.inUse = false;
+
             if (isEnabled(Feature.AUTO_CLOSE_TARGET)) {
                 MessagePacker messagePacker = getMessagePacker();
                 messagePacker.close();

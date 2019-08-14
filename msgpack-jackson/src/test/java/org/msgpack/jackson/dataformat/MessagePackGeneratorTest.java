@@ -884,4 +884,29 @@ public class MessagePackGeneratorTest
             MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(bi)).unpackDouble(),
                 is(bi.doubleValue()));
     }
+
+    @Test
+    public void testNestedSerialization() throws Exception
+    {
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.writeValueAsBytes(new OuterClass());
+    }
+
+    public class OuterClass
+    {
+        public String getInner() throws JsonProcessingException
+        {
+            ObjectMapper m = new ObjectMapper(new MessagePackFactory());
+            m.writeValueAsBytes(new InnerClass());
+            return "EFG";
+        }
+    }
+
+    public class InnerClass
+    {
+        public String getName()
+        {
+            return "ABC";
+        }
+    }
 }
