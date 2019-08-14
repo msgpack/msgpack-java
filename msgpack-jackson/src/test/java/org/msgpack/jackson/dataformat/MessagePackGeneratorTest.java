@@ -15,6 +15,7 @@
 //
 package org.msgpack.jackson.dataformat;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -889,24 +890,48 @@ public class MessagePackGeneratorTest
     public void testNestedSerialization() throws Exception
     {
         ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
-        objectMapper.writeValueAsBytes(new OuterClass());
+        OuterClass outerClass = objectMapper.readValue(
+                objectMapper.writeValueAsBytes(new OuterClass("Foo")),
+                OuterClass.class);
+        assertEquals("Foo", outerClass.getName());
     }
 
-    public class OuterClass
+    static class OuterClass
     {
-        public String getInner() throws JsonProcessingException
+        private final String name;
+
+        public OuterClass(@JsonProperty("name") String name)
         {
-            ObjectMapper m = new ObjectMapper(new MessagePackFactory());
-            m.writeValueAsBytes(new InnerClass());
-            return "EFG";
+            this.name = name;
+        }
+
+        public String getName()
+                throws IOException
+        {
+            // Serialize nested class object
+            // See https://github.com/msgpack/msgpack-java/issues/508
+            ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+            InnerClass innerClass = objectMapper.readValue(
+                    objectMapper.writeValueAsBytes(new InnerClass("Bar")),
+                    InnerClass.class);
+            assertEquals("Bar", innerClass.getName());
+
+            return name;
         }
     }
 
-    public class InnerClass
+    static class InnerClass
     {
+        private final String name;
+
+        public InnerClass(@JsonProperty("name") String name)
+        {
+            this.name = name;
+        }
+
         public String getName()
         {
-            return "ABC";
+            return name;
         }
     }
 }
