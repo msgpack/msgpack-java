@@ -43,7 +43,7 @@ public class MessagePackGenerator
 {
     private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
     private static final ThreadLocal<BufferOutputHolder> messageBufferOutputHolder = new ThreadLocal<BufferOutputHolder>();
-    private static final CloserService CLOSER_SERVICE = new CloserService().start();
+    private static final CloserService closerService = new CloserService().start();
     private final MessagePacker messagePacker;
     private final OutputStream output;
     private final BufferOutputHolder bufferOutputHolder;
@@ -126,7 +126,7 @@ public class MessagePackGenerator
     private BufferOutputHolder newBufferOutputHolder(OutputStreamBufferOutput output)
     {
         BufferOutputHolder newBufferOutputHolder = new BufferOutputHolder(output);
-        CLOSER_SERVICE.addFinalizer(this, newBufferOutputHolder);
+        closerService.addFinalizer(this, newBufferOutputHolder);
         return newBufferOutputHolder;
     }
 
@@ -155,12 +155,14 @@ public class MessagePackGenerator
                     // The BufferOutput isn't used, so it can be used.
                     bufferOutputHolder.inUse = true;
                     bufferOutputHolder.bufferOutput.reset(out);
+                    // TODO: Put these codes into a nice method
+                    closerService.addFinalizer(this, bufferOutputHolder);
                     return bufferOutputHolder;
                 }
             }
         }
         else {
-            return new BufferOutputHolder(new OutputStreamBufferOutput(out));
+            return newBufferOutputHolder(new OutputStreamBufferOutput(out));
         }
     }
 
