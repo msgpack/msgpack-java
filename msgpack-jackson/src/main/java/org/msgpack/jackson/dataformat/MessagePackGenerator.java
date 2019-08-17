@@ -27,6 +27,7 @@ import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -41,22 +42,32 @@ public class MessagePackGenerator
         extends GeneratorBase
 {
     private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+    private static final ThreadLocal<BufferOutputHolder> messageBufferOutputHolder = new ThreadLocal<BufferOutputHolder>();
+    private static final CloserService CLOSER_SERVICE = new CloserService().start();
     private final MessagePacker messagePacker;
-    private static ThreadLocal<BufferOutputHolder> messageBufferOutputHolder = new ThreadLocal<BufferOutputHolder>();
     private final OutputStream output;
     private final BufferOutputHolder bufferOutputHolder;
     private final MessagePack.PackerConfig packerConfig;
     private LinkedList<StackItem> stack;
     private StackItem rootStackItem;
 
-    private static class BufferOutputHolder {
+    private static class BufferOutputHolder
+            implements Closeable
+    {
         private final OutputStreamBufferOutput bufferOutput;
         private boolean inUse;
 
-        public BufferOutputHolder(OutputStreamBufferOutput bufferOutput)
+        BufferOutputHolder(OutputStreamBufferOutput bufferOutput)
         {
             this.bufferOutput = bufferOutput;
             inUse = true;
+        }
+
+        @Override
+        public void close()
+                throws IOException
+        {
+            inUse = false;
         }
     }
 
@@ -112,13 +123,20 @@ public class MessagePackGenerator
         }
     }
 
+    private BufferOutputHolder newBufferOutputHolder(OutputStreamBufferOutput output)
+    {
+        BufferOutputHolder newBufferOutputHolder = new BufferOutputHolder(output);
+        CLOSER_SERVICE.addFinalizer(this, newBufferOutputHolder);
+        return newBufferOutputHolder;
+    }
+
     private BufferOutputHolder prepareBufferOutputHolder(OutputStream out, boolean reuseResourceInGenerator)
             throws IOException
     {
         if (reuseResourceInGenerator) {
             BufferOutputHolder bufferOutputHolder = messageBufferOutputHolder.get();
             if (bufferOutputHolder == null) {
-                BufferOutputHolder newBufferOutputHolder = new BufferOutputHolder(new OutputStreamBufferOutput(out));
+                BufferOutputHolder newBufferOutputHolder = newBufferOutputHolder(new OutputStreamBufferOutput(out));
                 messageBufferOutputHolder.set(newBufferOutputHolder);
                 return newBufferOutputHolder;
             }
@@ -131,7 +149,7 @@ public class MessagePackGenerator
                     //
                     // The second MessagepackGenerator doesn't use a cached OutputStreamBufferOutput here, so there might be room to optimize.
                     // But the case nested class uses another MessagepackGenerator doesn't seem common and we go with the simple way for now.
-                    return new BufferOutputHolder(new OutputStreamBufferOutput(out));
+                    return newBufferOutputHolder(new OutputStreamBufferOutput(out));
                 }
                 else {
                     // The BufferOutput isn't used, so it can be used.
@@ -534,7 +552,7 @@ public class MessagePackGenerator
             flush();
         }
         finally {
-            bufferOutputHolder.inUse = false;
+            bufferOutputHolder.close();
 
             if (isEnabled(Feature.AUTO_CLOSE_TARGET)) {
                 MessagePacker messagePacker = getMessagePacker();
