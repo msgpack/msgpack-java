@@ -934,4 +934,42 @@ public class MessagePackGeneratorTest
             return name;
         }
     }
+
+    @Test
+    public void testReuseBuffer()
+            throws IOException, InterruptedException
+    {
+        JsonEncoding enc = JsonEncoding.UTF8;
+        MessagePackGenerator.BufferOutputHolder origBufferOutputHolder;
+        {
+            MessagePackGenerator generator = (MessagePackGenerator) factory.createGenerator(out, enc);
+            MessagePackGenerator.BufferOutputHolder bufferOutputHolder = generator.getBufferOutputHolder();
+            assertTrue(bufferOutputHolder.isInUse());
+            origBufferOutputHolder = bufferOutputHolder;
+            // This redundant explicit null set is required to make the object is GCed. Scoping out isn't enough...
+            generator = null;
+        }
+
+        System.gc();
+        TimeUnit.MICROSECONDS.sleep(500);
+
+        {
+            MessagePackGenerator generator = (MessagePackGenerator) factory.createGenerator(out, enc);
+            MessagePackGenerator.BufferOutputHolder bufferOutputHolder = generator.getBufferOutputHolder();
+            assertEquals(origBufferOutputHolder, bufferOutputHolder);
+            // This redundant explicit null set is required to make the object is GCed. Scoping out isn't enough...
+            generator = null;
+        }
+
+        System.gc();
+        TimeUnit.MICROSECONDS.sleep(500);
+
+        {
+            MessagePackGenerator generator = (MessagePackGenerator) factory.createGenerator(out, enc);
+            MessagePackGenerator.BufferOutputHolder bufferOutputHolder = generator.getBufferOutputHolder();
+            assertEquals(origBufferOutputHolder, bufferOutputHolder);
+            // This redundant explicit null set is required to make the object is GCed. Scoping out isn't enough...
+            generator = null;
+        }
+    }
 }

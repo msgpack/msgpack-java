@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.core.annotations.VisibleForTesting;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
 import java.io.ByteArrayOutputStream;
@@ -51,7 +52,8 @@ public class MessagePackGenerator
     private LinkedList<StackItem> stack;
     private StackItem rootStackItem;
 
-    private static class BufferOutputHolder
+    @VisibleForTesting
+    static class BufferOutputHolder
             implements Closeable
     {
         private final OutputStreamBufferOutput bufferOutput;
@@ -68,6 +70,12 @@ public class MessagePackGenerator
                 throws IOException
         {
             inUse = false;
+        }
+
+        @VisibleForTesting
+        boolean isInUse()
+        {
+            return inUse;
         }
     }
 
@@ -674,5 +682,11 @@ public class MessagePackGenerator
     private MessagePacker getMessagePacker()
     {
         return messagePacker;
+    }
+
+    @VisibleForTesting
+    BufferOutputHolder getBufferOutputHolder()
+    {
+        return bufferOutputHolder;
     }
 }
