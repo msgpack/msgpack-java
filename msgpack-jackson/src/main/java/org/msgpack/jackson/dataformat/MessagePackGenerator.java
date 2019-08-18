@@ -123,11 +123,22 @@ public class MessagePackGenerator
         }
     }
 
-    private BufferOutputHolder newBufferOutputHolder(OutputStreamBufferOutput output)
+    private BufferOutputHolder newBufferOutputHolderAutoCloseable(OutputStreamBufferOutput output)
     {
         BufferOutputHolder newBufferOutputHolder = new BufferOutputHolder(output);
         closerService.addFinalizer(this, newBufferOutputHolder);
         return newBufferOutputHolder;
+    }
+
+    private BufferOutputHolder reuseBufferOutputHolderAutoCloseable(
+            BufferOutputHolder bufferOutputHolder,
+            OutputStream outputStream)
+            throws IOException
+    {
+        bufferOutputHolder.inUse = true;
+        bufferOutputHolder.bufferOutput.reset(outputStream);
+        closerService.addFinalizer(this, bufferOutputHolder);
+        return bufferOutputHolder;
     }
 
     private BufferOutputHolder prepareBufferOutputHolder(OutputStream out, boolean reuseResourceInGenerator)
@@ -136,7 +147,7 @@ public class MessagePackGenerator
         if (reuseResourceInGenerator) {
             BufferOutputHolder bufferOutputHolder = messageBufferOutputHolder.get();
             if (bufferOutputHolder == null) {
-                BufferOutputHolder newBufferOutputHolder = newBufferOutputHolder(new OutputStreamBufferOutput(out));
+                BufferOutputHolder newBufferOutputHolder = newBufferOutputHolderAutoCloseable(new OutputStreamBufferOutput(out));
                 messageBufferOutputHolder.set(newBufferOutputHolder);
                 return newBufferOutputHolder;
             }
@@ -149,20 +160,16 @@ public class MessagePackGenerator
                     //
                     // The second MessagepackGenerator doesn't use a cached OutputStreamBufferOutput here, so there might be room to optimize.
                     // But the case nested class uses another MessagepackGenerator doesn't seem common and we go with the simple way for now.
-                    return newBufferOutputHolder(new OutputStreamBufferOutput(out));
+                    return newBufferOutputHolderAutoCloseable(new OutputStreamBufferOutput(out));
                 }
                 else {
-                    // The BufferOutput isn't used, so it can be used.
-                    bufferOutputHolder.inUse = true;
-                    bufferOutputHolder.bufferOutput.reset(out);
-                    // TODO: Put these codes into a nice method
-                    closerService.addFinalizer(this, bufferOutputHolder);
-                    return bufferOutputHolder;
+                    // The BufferOutput isn't used, so it can be reused.
+                    return reuseBufferOutputHolderAutoCloseable(bufferOutputHolder, out);
                 }
             }
         }
         else {
-            return newBufferOutputHolder(new OutputStreamBufferOutput(out));
+            return newBufferOutputHolderAutoCloseable(new OutputStreamBufferOutput(out));
         }
     }
 
