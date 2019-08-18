@@ -937,39 +937,47 @@ public class MessagePackGeneratorTest
 
     @Test
     public void testReuseBuffer()
-            throws IOException, InterruptedException
+            throws Throwable
     {
-        JsonEncoding enc = JsonEncoding.UTF8;
-        MessagePackGenerator.BufferOutputHolder origBufferOutputHolder;
-        {
-            MessagePackGenerator generator = (MessagePackGenerator) factory.createGenerator(out, enc);
-            MessagePackGenerator.BufferOutputHolder bufferOutputHolder = generator.getBufferOutputHolder();
-            assertTrue(bufferOutputHolder.isInUse());
-            origBufferOutputHolder = bufferOutputHolder;
-            // This redundant explicit null set is required to make the object is GCed. Scoping out isn't enough...
-            generator = null;
+        Throwable lastException = null;
+
+        // This test depends on actual GC timing and it can fail.
+        // So retry the test and regard it as a success once it finishes successfully
+        for (int i = 0; i < 20; i++) {
+            try {
+                System.gc();
+                TimeUnit.MICROSECONDS.sleep(200);
+
+                JsonEncoding enc = JsonEncoding.UTF8;
+                MessagePackGenerator.BufferOutputHolder origBufferOutputHolder;
+                {
+                    MessagePackGenerator generator = (MessagePackGenerator) factory.createGenerator(out, enc);
+                    MessagePackGenerator.BufferOutputHolder bufferOutputHolder = generator.getBufferOutputHolder();
+                    assertTrue(bufferOutputHolder.isInUse());
+                    origBufferOutputHolder = bufferOutputHolder;
+                    // This redundant explicit null set is required to make the object is GCed. Scoping out isn't enough...
+                    generator = null;
+                }
+
+                System.gc();
+                TimeUnit.MICROSECONDS.sleep(200);
+
+                {
+                    MessagePackGenerator generator = (MessagePackGenerator) factory.createGenerator(out, enc);
+                    MessagePackGenerator.BufferOutputHolder bufferOutputHolder = generator.getBufferOutputHolder();
+                    assertTrue(bufferOutputHolder.isInUse());
+                    assertEquals(origBufferOutputHolder, bufferOutputHolder);
+                    // This redundant explicit null set is required to make the object is GCed. Scoping out isn't enough...
+                    generator = null;
+                }
+                return;
+            }
+            catch (AssertionError e) {
+                // Retry
+                lastException = e;
+            }
         }
 
-        System.gc();
-        TimeUnit.MICROSECONDS.sleep(500);
-
-        {
-            MessagePackGenerator generator = (MessagePackGenerator) factory.createGenerator(out, enc);
-            MessagePackGenerator.BufferOutputHolder bufferOutputHolder = generator.getBufferOutputHolder();
-            assertEquals(origBufferOutputHolder, bufferOutputHolder);
-            // This redundant explicit null set is required to make the object is GCed. Scoping out isn't enough...
-            generator = null;
-        }
-
-        System.gc();
-        TimeUnit.MICROSECONDS.sleep(500);
-
-        {
-            MessagePackGenerator generator = (MessagePackGenerator) factory.createGenerator(out, enc);
-            MessagePackGenerator.BufferOutputHolder bufferOutputHolder = generator.getBufferOutputHolder();
-            assertEquals(origBufferOutputHolder, bufferOutputHolder);
-            // This redundant explicit null set is required to make the object is GCed. Scoping out isn't enough...
-            generator = null;
-        }
+        throw lastException;
     }
 }
