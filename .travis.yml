@@ -1,5 +1,8 @@
 language: scala
 
+# With xenial, `Installing oraclejdk8` fails due to "Expected feature release number in range of 9 to 14, but got: 8"
+dist: trusty
+
 cache:
   directories:
     - $HOME/.m2/repository/
