@@ -15,6 +15,7 @@
 //
 package org.msgpack.jackson.dataformat;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -883,5 +884,55 @@ public class MessagePackGeneratorTest
         assertThat(
             MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(bi)).unpackDouble(),
                 is(bi.doubleValue()));
+    }
+
+    @Test
+    public void testNestedSerialization() throws Exception
+    {
+        // The purpose of this test is to confirm if MessagePackFactory.setReuseResourceInGenerator(false)
+        // works as a workaround for https://github.com/msgpack/msgpack-java/issues/508
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory().setReuseResourceInGenerator(false));
+        OuterClass outerClass = objectMapper.readValue(
+                objectMapper.writeValueAsBytes(new OuterClass("Foo")),
+                OuterClass.class);
+        assertEquals("Foo", outerClass.getName());
+    }
+
+    static class OuterClass
+    {
+        private final String name;
+
+        public OuterClass(@JsonProperty("name") String name)
+        {
+            this.name = name;
+        }
+
+        public String getName()
+                throws IOException
+        {
+            // Serialize nested class object
+            ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+            InnerClass innerClass = objectMapper.readValue(
+                    objectMapper.writeValueAsBytes(new InnerClass("Bar")),
+                    InnerClass.class);
+            assertEquals("Bar", innerClass.getName());
+
+            return name;
+        }
+    }
+
+    static class InnerClass
+    {
+        private final String name;
+
+        public InnerClass(@JsonProperty("name") String name)
+        {
+            this.name = name;
+        }
+
+        public String getName()
+        {
+            return name;
+        }
     }
 }

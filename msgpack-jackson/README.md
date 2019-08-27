@@ -315,3 +315,41 @@ When you want to use non-String value as a key of Map, use `MessagePackKeySerial
   System.out.println(objectMapper.readValue(bytes, Object.class));
     // => Java
 ```
+
+### Serialize a nested object that also serializes
+
+When you serialize an object that has a nested object also serializing with ObjectMapper and MessagePackFactory like the following code
+
+```java
+  @Test
+  public void testNestedSerialization() throws Exception
+  {
+      ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+      objectMapper.writeValueAsBytes(new OuterClass());
+  }
+
+  public class OuterClass
+  {
+    public String getInner() throws JsonProcessingException
+    {
+      ObjectMapper m = new ObjectMapper(new MessagePackFactory());
+      m.writeValueAsBytes(new InnerClass());
+      return "EFG";
+    }
+  }
+
+  public class InnerClass
+  {
+    public String getName()
+    {
+      return "ABC";
+    }
+  }
+```
+
+This code throws NullPointerException since the nested MessagePackFactory modifies a shared state stored in ThreadLocal. There are a few options to fix this issue, but they introduce performance degredations while this usage is a corner case. A workaround that doesn't affect performance is to call `MessagePackFactory#setReuseResourceInGenerator(false)`. I think it might be inconvenient to call the API for users, but it's a reasonable tradeoff with performance for now.
+
+```java
+  ObjectMapper objectMapper = new ObjectMapper(
+    new MessagePackFactory().setReuseResourceInGenerator(false));
+```
