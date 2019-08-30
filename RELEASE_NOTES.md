@@ -1,5 +1,9 @@
 # Release Notes
 
+## 0.8.18
+ * (internal) Update sbt related dependencies [#507](https://github.com/msgpack/msgpack-java/pull/507)
+ * Use jackson-databind 2.9.9.3 for security vulnerability [#511](https://github.com/msgpack/msgpack-java/pull/511)
+
 ## 0.8.17
  * Fix OOM exception for invalid msgpack messages [#500](https://github.com/msgpack/msgpack-java/pull/500)
  * Use jackson-databind 2.9.9 for security vulnerability [#505](https://github.com/msgpack/msgpack-java/pull/505)
