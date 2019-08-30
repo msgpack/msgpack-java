@@ -318,7 +318,7 @@ When you want to use non-String value as a key of Map, use `MessagePackKeySerial
 
 ### Serialize a nested object that also serializes
 
-When you serialize an object that has a nested object also serializing with ObjectMapper and MessagePackFactory like the following code
+When you serialize an object that has a nested object also serializing with ObjectMapper and MessagePackFactory like the following code, it throws NullPointerException since the nested MessagePackFactory modifies a shared state stored in ThreadLocal.
 
 ```java
   @Test
@@ -347,7 +347,7 @@ When you serialize an object that has a nested object also serializing with Obje
   }
 ```
 
-This code throws NullPointerException since the nested MessagePackFactory modifies a shared state stored in ThreadLocal. There are a few options to fix this issue, but they introduce performance degredations while this usage is a corner case. A workaround that doesn't affect performance is to call `MessagePackFactory#setReuseResourceInGenerator(false)`. It might be inconvenient to call the API for users, but it's a reasonable tradeoff with performance for now.
+There are a few options to fix this issue, but they introduce performance degredations while this usage is a corner case. A workaround that doesn't affect performance is to call `MessagePackFactory#setReuseResourceInGenerator(false)`. It might be inconvenient to call the API for users, but it's a reasonable tradeoff with performance for now.
 
 ```java
   ObjectMapper objectMapper = new ObjectMapper(
