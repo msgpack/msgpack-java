@@ -165,7 +165,8 @@ public class MessageBuffer
         }
     }
 
-    static int getJavaVersion() {
+    static int getJavaVersion()
+    {
         String javaVersion = System.getProperty("java.specification.version", "");
         int dotPos = javaVersion.indexOf('.');
         if (dotPos != -1) {

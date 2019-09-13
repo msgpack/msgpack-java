@@ -260,12 +260,14 @@ public class MessageBufferU
     }
 
     @Override
-    public boolean hasArray() {
+    public boolean hasArray()
+    {
         return !wrap.isDirect();
     }
 
     @Override
-    public byte[] array() {
+    public byte[] array()
+    {
         return hasArray() ? wrap.array() : null;
     }
 }
