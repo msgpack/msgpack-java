@@ -70,19 +70,7 @@ public class MessageBuffer
 
         try {
             // Check java version
-            String javaVersion = System.getProperty("java.specification.version", "");
-            int dotPos = javaVersion.indexOf('.');
-            boolean isJavaAtLeast7 = false;
-            if (dotPos != -1) {
-                try {
-                    int major = Integer.parseInt(javaVersion.substring(0, dotPos));
-                    int minor = Integer.parseInt(javaVersion.substring(dotPos + 1));
-                    isJavaAtLeast7 = major > 1 || (major == 1 && minor >= 7);
-                }
-                catch (NumberFormatException e) {
-                    e.printStackTrace(System.err);
-                }
-            }
+            int javaVersion = getJavaVersion();
 
             boolean hasUnsafe = false;
             try {
@@ -97,12 +85,14 @@ public class MessageBuffer
             // Is Google App Engine?
             boolean isGAE = System.getProperty("com.google.appengine.runtime.version") != null;
 
-            // For Java6, android and JVM that has no Unsafe class, use Universal MessageBuffer
+            // For Java6, android and JVM that has no Unsafe class, use Universal MessageBuffer (based on ByteBuffer).
+            // Java9 onward doesn't allow to access Cleaner by reflection, so we use Universal MessageBuffer again.
             useUniversalBuffer =
                     Boolean.parseBoolean(System.getProperty("msgpack.universal-buffer", "false"))
                             || isAndroid
                             || isGAE
-                            || !isJavaAtLeast7
+                            || javaVersion < 7
+                            || javaVersion > 9
                             || !hasUnsafe;
 
             if (!useUniversalBuffer) {
@@ -173,6 +163,30 @@ public class MessageBuffer
                 }
             }
         }
+    }
+
+    static int getJavaVersion() {
+        String javaVersion = System.getProperty("java.specification.version", "");
+        int dotPos = javaVersion.indexOf('.');
+        if (dotPos != -1) {
+            try {
+                int major = Integer.parseInt(javaVersion.substring(0, dotPos));
+                int minor = Integer.parseInt(javaVersion.substring(dotPos + 1));
+                return major > 1 ? major : minor;
+            }
+            catch (NumberFormatException e) {
+                e.printStackTrace(System.err);
+            }
+        }
+        else {
+            try {
+                return Integer.parseInt(javaVersion);
+            }
+            catch (NumberFormatException e) {
+                e.printStackTrace(System.err);
+            }
+        }
+        return 6;
     }
 
     /**
@@ -366,7 +380,12 @@ public class MessageBuffer
     {
         if (bb.isDirect()) {
             if (isUniversalBuffer) {
-                throw new UnsupportedOperationException("Cannot create MessageBuffer from a DirectBuffer on this platform");
+                // MessageBufferU overrides almost all methods, only field 'size' is used.
+                this.base = null;
+                this.address = 0;
+                this.size = bb.remaining();
+                this.reference = null;
+                return;
             }
             // Direct buffer or off-heap memory
             this.base = null;

@@ -258,4 +258,14 @@ public class MessageBufferU
         getBytes(0, b, 0, b.length);
         return b;
     }
+
+    @Override
+    public boolean hasArray() {
+        return !wrap.isDirect();
+    }
+
+    @Override
+    public byte[] array() {
+        return hasArray() ? wrap.array() : null;
+    }
 }
