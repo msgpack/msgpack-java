@@ -172,4 +172,10 @@ public class MessagePackFactory
     {
         return extTypeCustomDesers;
     }
+
+    @Override
+    public String getFormatName()
+    {
+        return "msgpack";
+    }
 }
