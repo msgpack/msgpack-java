@@ -86,13 +86,11 @@ public class MessageBuffer
             boolean isGAE = System.getProperty("com.google.appengine.runtime.version") != null;
 
             // For Java6, android and JVM that has no Unsafe class, use Universal MessageBuffer (based on ByteBuffer).
-            // Java9 onward doesn't allow to access Cleaner by reflection, so we use Universal MessageBuffer again.
             useUniversalBuffer =
                     Boolean.parseBoolean(System.getProperty("msgpack.universal-buffer", "false"))
                             || isAndroid
                             || isGAE
                             || javaVersion < 7
-                            || javaVersion > 9
                             || !hasUnsafe;
 
             if (!useUniversalBuffer) {
