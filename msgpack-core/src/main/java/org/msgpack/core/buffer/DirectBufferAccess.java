@@ -22,8 +22,6 @@ import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-import org.msgpack.core.MessagePack;
-
 import sun.misc.Unsafe;
 
 /**
@@ -104,7 +102,8 @@ class DirectBufferAccess
 
             if (MessageBuffer.javaVersion >= 8) {
                 setupCleanerJava9(direct);
-            } else {
+            }
+            else {
                 setupCleanerJava6(direct);
             }
         }
@@ -113,12 +112,15 @@ class DirectBufferAccess
         }
     }
 
-    private static void setupCleanerJava6(final ByteBuffer direct) {
+    private static void setupCleanerJava6(final ByteBuffer direct)
+    {
         Object obj;
-        obj = AccessController.doPrivileged(new PrivilegedAction<Object>() {
+        obj = AccessController.doPrivileged(new PrivilegedAction<Object>()
+        {
 
             @Override
-            public Object run() {
+            public Object run()
+            {
                 return getCleanerMethod(direct);
             }
         });
@@ -128,10 +130,11 @@ class DirectBufferAccess
         mCleaner = (Method) obj;
         mCleaner.setAccessible(true);
 
-        obj = AccessController.doPrivileged(new PrivilegedAction<Object>() {
-
+        obj = AccessController.doPrivileged(new PrivilegedAction<Object>()
+        {
             @Override
-            public Object run() {
+            public Object run()
+            {
                 return getCleanMethod(direct, mCleaner);
             }
         });
@@ -142,11 +145,13 @@ class DirectBufferAccess
         mClean.setAccessible(true);
     }
 
-    private static void setupCleanerJava9(final ByteBuffer direct) {
-        Object obj = AccessController.doPrivileged(new PrivilegedAction<Object>() {
-
+    private static void setupCleanerJava9(final ByteBuffer direct)
+    {
+        Object obj = AccessController.doPrivileged(new PrivilegedAction<Object>()
+        {
             @Override
-            public Object run() {
+            public Object run()
+            {
                 return getInvokeCleanerMethod(direct);
             }
         });
@@ -217,11 +222,14 @@ class DirectBufferAccess
                 "invokeCleaner", ByteBuffer.class);
             m.invoke(MessageBuffer.unsafe, direct);
             return m;
-        } catch (NoSuchMethodException e) {
+        }
+        catch (NoSuchMethodException e) {
             return e;
-        } catch (InvocationTargetException e) {
+        }
+        catch (InvocationTargetException e) {
             return e;
-        } catch (IllegalAccessException e) {
+        }
+        catch (IllegalAccessException e) {
             return e;
         }
     }
@@ -245,7 +253,8 @@ class DirectBufferAccess
             if (MessageBuffer.javaVersion <= 8) {
                 Object cleaner = mCleaner.invoke(base);
                 mClean.invoke(cleaner);
-            } else {
+            }
+	    else {
                 mInvokeCleaner.invoke(MessageBuffer.unsafe, base);
             }
         }
