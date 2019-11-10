@@ -117,7 +117,6 @@ class DirectBufferAccess
         Object obj;
         obj = AccessController.doPrivileged(new PrivilegedAction<Object>()
         {
-
             @Override
             public Object run()
             {
@@ -254,7 +253,7 @@ class DirectBufferAccess
                 Object cleaner = mCleaner.invoke(base);
                 mClean.invoke(cleaner);
             }
-	    else {
+        else {
                 mInvokeCleaner.invoke(MessageBuffer.unsafe, base);
             }
         }
