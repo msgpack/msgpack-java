@@ -19,6 +19,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
+import org.msgpack.core.MessagePack;
+
+import sun.misc.Unsafe;
 
 /**
  * Wraps the difference of access methods to DirectBuffers between Android and others.
@@ -37,20 +43,24 @@ class DirectBufferAccess
     }
 
     static Method mGetAddress;
+    // For Java <=8, gets a sun.misc.Cleaner
     static Method mCleaner;
     static Method mClean;
+    // For Java >=9, invokes a jdk.internal.ref.Cleaner
+    static Method mInvokeCleaner;
 
     // TODO We should use MethodHandle for efficiency, but it is not available in JDK6
-    static Constructor byteBufferConstructor;
+    static Constructor<?> byteBufferConstructor;
     static Class<?> directByteBufferClass;
     static DirectBufferConstructorType directBufferConstructorType;
     static Method memoryBlockWrapFromJni;
 
     static {
         try {
+            final ByteBuffer direct = ByteBuffer.allocateDirect(1);
             // Find the hidden constructor for DirectByteBuffer
-            directByteBufferClass = ClassLoader.getSystemClassLoader().loadClass("java.nio.DirectByteBuffer");
-            Constructor directByteBufferConstructor = null;
+            directByteBufferClass = direct.getClass();
+            Constructor<?> directByteBufferConstructor = null;
             DirectBufferConstructorType constructorType = null;
             Method mbWrap = null;
             try {
@@ -92,14 +102,127 @@ class DirectBufferAccess
             mGetAddress = directByteBufferClass.getDeclaredMethod("address");
             mGetAddress.setAccessible(true);
 
-            mCleaner = directByteBufferClass.getDeclaredMethod("cleaner");
-            mCleaner.setAccessible(true);
-
-            mClean = mCleaner.getReturnType().getDeclaredMethod("clean");
-            mClean.setAccessible(true);
+            if (MessageBuffer.javaVersion >= 8) {
+                setupCleanerJava9(direct);
+            } else {
+                setupCleanerJava6(direct);
+            }
         }
         catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static void setupCleanerJava6(final ByteBuffer direct) {
+        Object obj;
+        obj = AccessController.doPrivileged(new PrivilegedAction<Object>() {
+
+            @Override
+            public Object run() {
+                return getCleanerMethod(direct);
+            }
+        });
+        if (obj instanceof Throwable) {
+            throw new RuntimeException((Throwable) obj);
+        }
+        mCleaner = (Method) obj;
+        mCleaner.setAccessible(true);
+
+        obj = AccessController.doPrivileged(new PrivilegedAction<Object>() {
+
+            @Override
+            public Object run() {
+                return getCleanMethod(direct, mCleaner);
+            }
+        });
+        if (obj instanceof Throwable) {
+            throw new RuntimeException((Throwable) obj);
+        }
+        mClean = (Method) obj;
+        mClean.setAccessible(true);
+    }
+
+    private static void setupCleanerJava9(final ByteBuffer direct) {
+        Object obj = AccessController.doPrivileged(new PrivilegedAction<Object>() {
+
+            @Override
+            public Object run() {
+                return getInvokeCleanerMethod(direct);
+            }
+        });
+        if (obj instanceof Throwable) {
+            throw new RuntimeException((Throwable) obj);
+        }
+        mInvokeCleaner = (Method) obj;
+    }
+
+    /**
+     * Checks if we have a usable {@link DirectByteBuffer#cleaner}.
+     * @param direct a direct buffer
+     * @return the method or an error
+     */
+    private static Object getCleanerMethod(ByteBuffer direct)
+    {
+        try {
+            Method m = direct.getClass().getDeclaredMethod("cleaner");
+            m.invoke(direct);
+            return m;
+        }
+        catch (NoSuchMethodException e) {
+            return e;
+        }
+        catch (InvocationTargetException e) {
+            return e;
+        }
+        catch (IllegalAccessException e) {
+            return e;
+        }
+    }
+
+    /**
+     * Checks if we have a usable {@link sun.misc.Cleaner#clean}.
+     * @param direct a direct buffer
+     * @param mCleaner the {@link DirectByteBuffer#cleaner} method
+     * @return the method or null
+     */
+    private static Object getCleanMethod(ByteBuffer direct, Method mCleaner)
+    {
+        try {
+            Method m = mCleaner.getReturnType().getDeclaredMethod("clean");
+            Object c = mCleaner.invoke(direct);
+            m.invoke(c);
+            return m;
+        }
+        catch (NoSuchMethodException e) {
+            return e;
+        }
+        catch (InvocationTargetException e) {
+            return e;
+        }
+        catch (IllegalAccessException e) {
+            return e;
+        }
+    }
+
+    /**
+     * Checks if we have a usable {@link Unsafe#invokeCleaner}.
+     * @param direct a direct buffer
+     * @return the method or an error
+     */
+    private static Object getInvokeCleanerMethod(ByteBuffer direct)
+    {
+        try {
+            // See https://bugs.openjdk.java.net/browse/JDK-8171377
+            Method m = MessageBuffer.unsafe.getClass().getDeclaredMethod(
+                "invokeCleaner", ByteBuffer.class);
+            m.invoke(MessageBuffer.unsafe, direct);
+            return m;
+        } catch (NoSuchMethodException e) {
+            return e;
+        } catch (InvocationTargetException e) {
+            return e;
+        } catch (IllegalAccessException e) {
+            return e;
         }
     }
 
@@ -119,8 +242,12 @@ class DirectBufferAccess
     static void clean(Object base)
     {
         try {
-            Object cleaner = mCleaner.invoke(base);
-            mClean.invoke(cleaner);
+            if (MessageBuffer.javaVersion <= 8) {
+                Object cleaner = mCleaner.invoke(base);
+                mClean.invoke(cleaner);
+            } else {
+                mInvokeCleaner.invoke(MessageBuffer.unsafe, base);
+            }
         }
         catch (Throwable e) {
             throw new RuntimeException(e);

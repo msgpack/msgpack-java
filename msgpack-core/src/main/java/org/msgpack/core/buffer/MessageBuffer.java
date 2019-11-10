@@ -47,6 +47,7 @@ public class MessageBuffer
 {
     static final boolean isUniversalBuffer;
     static final Unsafe unsafe;
+    static final int javaVersion = getJavaVersion();
 
     /**
      * Reference to MessageBuffer Constructors
@@ -69,9 +70,6 @@ public class MessageBuffer
         int arrayByteBaseOffset = 16;
 
         try {
-            // Check java version
-            int javaVersion = getJavaVersion();
-
             boolean hasUnsafe = false;
             try {
                 hasUnsafe = Class.forName("sun.misc.Unsafe") != null;
@@ -163,7 +161,7 @@ public class MessageBuffer
         }
     }
 
-    static int getJavaVersion()
+    private static int getJavaVersion()
     {
         String javaVersion = System.getProperty("java.specification.version", "");
         int dotPos = javaVersion.indexOf('.');

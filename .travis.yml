@@ -30,4 +30,5 @@ matrix:
   - env: PROJECT=java11
     jdk: openjdk11
     script:
+    - ./sbt test
     - ./sbt test -J-Dmsgpack.universal-buffer=true
