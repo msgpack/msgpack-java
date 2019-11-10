@@ -100,11 +100,11 @@ class DirectBufferAccess
             mGetAddress = directByteBufferClass.getDeclaredMethod("address");
             mGetAddress.setAccessible(true);
 
-            if (MessageBuffer.javaVersion >= 9) {
-                setupCleanerJava9(direct);
+            if (MessageBuffer.javaVersion <= 8) {
+                setupCleanerJava6(direct);
             }
             else {
-                setupCleanerJava6(direct);
+                setupCleanerJava9(direct);
             }
         }
         catch (Exception e) {
@@ -127,7 +127,6 @@ class DirectBufferAccess
             throw new RuntimeException((Throwable) obj);
         }
         mCleaner = (Method) obj;
-        mCleaner.setAccessible(true);
 
         obj = AccessController.doPrivileged(new PrivilegedAction<Object>()
         {
@@ -141,7 +140,6 @@ class DirectBufferAccess
             throw new RuntimeException((Throwable) obj);
         }
         mClean = (Method) obj;
-        mClean.setAccessible(true);
     }
 
     private static void setupCleanerJava9(final ByteBuffer direct)
@@ -169,6 +167,7 @@ class DirectBufferAccess
     {
         try {
             Method m = direct.getClass().getDeclaredMethod("cleaner");
+            m.setAccessible(true);
             m.invoke(direct);
             return m;
         }
@@ -194,6 +193,7 @@ class DirectBufferAccess
         try {
             Method m = mCleaner.getReturnType().getDeclaredMethod("clean");
             Object c = mCleaner.invoke(direct);
+            m.setAccessible(true);
             m.invoke(c);
             return m;
         }
