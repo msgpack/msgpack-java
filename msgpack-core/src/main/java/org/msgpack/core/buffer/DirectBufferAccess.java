@@ -100,7 +100,7 @@ class DirectBufferAccess
             mGetAddress = directByteBufferClass.getDeclaredMethod("address");
             mGetAddress.setAccessible(true);
 
-            if (MessageBuffer.javaVersion >= 8) {
+            if (MessageBuffer.javaVersion >= 9) {
                 setupCleanerJava9(direct);
             }
             else {
