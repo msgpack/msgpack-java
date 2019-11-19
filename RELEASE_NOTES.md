@@ -1,5 +1,9 @@
 # Release Notes
 
+## 0.8.19
+ * Support JDK11
+ * msgpack-jackson: Fixes [#515](https://github.com/msgpack/msgpack-java/pull/515)
+
 ## 0.8.18
  * (internal) Update sbt related dependencies [#507](https://github.com/msgpack/msgpack-java/pull/507)
  * Use jackson-databind 2.9.9.3 for security vulnerability [#511](https://github.com/msgpack/msgpack-java/pull/511)
