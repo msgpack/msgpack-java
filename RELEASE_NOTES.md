@@ -1,5 +1,8 @@
 # Release Notes
 
+## 0.8.20
+ * Rebuild 0.8.19 with JDK8 
+
 ## 0.8.19
  * Support JDK11
  * msgpack-jackson: Fixes [#515](https://github.com/msgpack/msgpack-java/pull/515)
