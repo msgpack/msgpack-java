@@ -15,6 +15,9 @@
 //
 package org.msgpack.core.buffer;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -108,6 +111,26 @@ public class ArrayBufferOutput
     public List<MessageBuffer> toBufferList()
     {
         return new ArrayList<MessageBuffer>(list);
+    }
+
+    /**
+     * Writes the contents of the buffer to the channel, avoiding copying
+     * @param channel the channel to write to
+     * @param limit how many bytes to write
+     * @throws IOException propagated from the channel
+     */
+    public void writeTo(WritableByteChannel channel, int limit) throws IOException
+    {
+        int remaining = limit;
+        for (int i = 0; i < list.size() && remaining > 0; ++i) {
+            MessageBuffer messageBuffer = list.get(i);
+            int size = Math.min(remaining, messageBuffer.size());
+            ByteBuffer buffer = messageBuffer.sliceAsByteBuffer(0, size);
+            while (buffer.hasRemaining()) {
+                channel.write(buffer);
+            }
+            remaining -= size;
+        }
     }
 
     /**

@@ -16,6 +16,8 @@
 package org.msgpack.core.buffer
 
 import java.io._
+import java.nio.ByteBuffer
+import java.nio.channels.WritableByteChannel
 
 import org.msgpack.core.MessagePackSpec
 
@@ -72,5 +74,37 @@ class MessageBufferOutputTest extends MessagePackSpec {
       writeIntToBuf(buf)
       f1.length.toInt should be > 0
     }
+  }
+
+  "ArrayBufferOutput" should {
+    "write to channel and respect limit" in {
+      val arrayBufferOutput = new ArrayBufferOutput(8)
+      val reference = new Array[Byte](42)
+      for (i <- 0 until 42) {
+        reference(i) = i.asInstanceOf[Byte]
+      }
+      arrayBufferOutput.write(reference, 0, 42)
+      val expected = new Array[Byte](64)
+      for (i <- 0 until 32) {
+        expected(i) = i.asInstanceOf[Byte]
+      }
+      val channel = new TestChannel(64)
+      arrayBufferOutput.writeTo(channel, 32)
+      channel.buffer should equal (expected)
+    }
+  }
+
+  class TestChannel(bufferSize: Int) extends WritableByteChannel {
+    val buffer = new Array[Byte](bufferSize)
+    var position: Int = 0
+    override def write(byteBuffer: ByteBuffer): Int = {
+      byteBuffer.get(buffer, position, position + byteBuffer.limit());
+      position += byteBuffer.limit()
+      byteBuffer.limit()
+    }
+
+    override def isOpen: Boolean = true
+
+    override def close(): Unit = {}
   }
 }
