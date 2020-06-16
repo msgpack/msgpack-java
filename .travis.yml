@@ -18,5 +18,6 @@ matrix:
     arch: arm64
     jdk: openjdk11
     script:
+    - uname -a
     - ./sbt test
     - ./sbt test -J-Dmsgpack.universal-buffer=true
