@@ -16,7 +16,7 @@ matrix:
   - env: PROJECT=java8
     os: linux
     arch: arm64
-    jdk: oraclejdk8
+    jdk: openjdk8
     script:
     - ./sbt test
     - ./sbt test -J-Dmsgpack.universal-buffer=true
