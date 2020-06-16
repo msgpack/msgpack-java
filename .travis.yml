@@ -1,5 +1,8 @@
 language: scala
 
+arch: arm64
+os: linux
+
 cache:
   directories:
     - $HOME/.m2/repository/
@@ -13,11 +16,8 @@ branches:
 
 matrix:
   include:
-  - env: PROJECT=java11 ARCH=arm64
-    os: linux
-    arch: arm64
+  - env: PROJECT=java11
     jdk: openjdk11
     script:
-    - uname -a
     - ./sbt test
     - ./sbt test -J-Dmsgpack.universal-buffer=true
