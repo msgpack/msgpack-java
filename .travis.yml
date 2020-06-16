@@ -13,14 +13,7 @@ branches:
 
 matrix:
   include:
-  - env: PROJECT=java8
-    os: linux
-    arch: arm64
-    jdk: openjdk8
-    script:
-    - ./sbt test
-    - ./sbt test -J-Dmsgpack.universal-buffer=true
-  - env: PROJECT=java11
+  - env: PROJECT=java11 ARCH=arm64
     os: linux
     arch: arm64
     jdk: openjdk11
