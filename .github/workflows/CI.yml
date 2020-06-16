@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  pull_request:
+    paths:
+      - '**.scala'
+      - '**.java'
+      - '**.sbt'
+      - '.github/workflows/**.yml'
+  push:
+    branches:
+      - master
+    paths:
+      - '**.scala'
+      - '**.java'
+      - '**.sbt'
+      - '.github/workflows/**.yml'
+
+jobs:
+  code_format:
+    name: Code Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: jcheckstyle
+        run: ./sbt jcheckStyle
+  test_jdk11:
+    name: Test JDK11
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: olafurpg/setup-scala@v7
+        with:
+          java-version: adopt@1.11
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache
+          key: ${{ runner.os }}-jdk11-${{ hashFiles('**/*.sbt') }}
+          restore-keys: ${{ runner.os }}-jdk11-
+      - name: Test
+        run: ./sbt test
+      - name: Universal Buffer Test
+        run: ./sbt test -J-Dmsgpack.universal-buffer=true
+  test_jdk8:
+    name: Test JDK8
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: olafurpg/setup-scala@v7
+        with:
+          java-version: adopt@1.8
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache
+          key: ${{ runner.os }}-jdk8-${{ hashFiles('**/*.sbt') }}
+          restore-keys: ${{ runner.os }}-jdk8-
+      - name: Test
+        run: ./sbt test
+      - name: Universal    Buffer Test
+        run: ./sbt test -J-Dmsgpack.universal-buffer=true

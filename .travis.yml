@@ -1,7 +1,7 @@
 language: scala
 
-# With xenial, `Installing oraclejdk8` fails due to "Expected feature release number in range of 9 to 14, but got: 8"
-dist: trusty
+arch: arm64
+os: linux
 
 cache:
   directories:
@@ -10,23 +10,12 @@ cache:
     - $HOME/.sbt/boot/
     - $HOME/.coursier
 
-sudo: false
-
 branches:
   only:
     - develop
 
 matrix:
   include:
-  - env: PROJECT=checkstyle
-    jdk: oraclejdk8
-    script:
-    - ./sbt jcheckStyle
-  - env: PROJECT=java8
-    jdk: oraclejdk8
-    script:
-    - ./sbt test
-    - ./sbt test -J-Dmsgpack.universal-buffer=true
   - env: PROJECT=java11
     jdk: openjdk11
     script:
