@@ -365,7 +365,9 @@ public class MessagePackParserTest
         MessagePacker packer = MessagePack.newDefaultPacker(out);
         packer.packString("foo");
         packer.packDouble(3.14);
+        packer.packInt(Integer.MIN_VALUE);
         packer.packLong(Long.MAX_VALUE);
+        packer.packBigInteger(BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE));
         byte[] bytes = {0x00, 0x11, 0x22};
         packer.packBinaryHeader(bytes.length);
         packer.writePayload(bytes);
@@ -374,10 +376,24 @@ public class MessagePackParserTest
         JsonParser parser = factory.createParser(new FileInputStream(tempFile));
         assertEquals(JsonToken.VALUE_STRING, parser.nextToken());
         assertEquals("foo", parser.getText());
+
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, parser.nextToken());
         assertEquals(3.14, parser.getDoubleValue(), 0.0001);
+        assertEquals("3.14", parser.getText());
+
+        assertEquals(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
+        assertEquals(Integer.MIN_VALUE, parser.getIntValue());
+        assertEquals(Integer.MIN_VALUE, parser.getLongValue());
+        assertEquals("-2147483648", parser.getText());
+
         assertEquals(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
         assertEquals(Long.MAX_VALUE, parser.getLongValue());
+        assertEquals("9223372036854775807", parser.getText());
+
+        assertEquals(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
+        assertEquals(BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE), parser.getBigIntegerValue());
+        assertEquals("9223372036854775808", parser.getText());
+
         assertEquals(JsonToken.VALUE_EMBEDDED_OBJECT, parser.nextToken());
         assertEquals(bytes.length, parser.getBinaryValue().length);
         assertEquals(bytes[0], parser.getBinaryValue()[0]);
