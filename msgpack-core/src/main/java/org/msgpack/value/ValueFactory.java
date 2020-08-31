@@ -232,7 +232,7 @@ public final class ValueFactory
     public static MapValue newMap(Map.Entry<? extends Value, ? extends Value>... pairs)
     {
         Value[] kvs = new Value[pairs.length * 2];
-        for (int i = 0; i < pairs.length; i += 2) {
+        for (int i = 0; i < pairs.length; ++i) {
             kvs[i * 2] = pairs[i].getKey();
             kvs[i * 2 + 1] = pairs[i].getValue();
         }
