@@ -1,5 +1,11 @@
 # Release Notes
 
+## 0.8.21
+ * Fix indexing bug in ValueFactory [#525](https://github.com/msgpack/msgpack-java/pull/525)
+ * Support numeric types in MessagePackParser.getText() [#527](https://github.com/msgpack/msgpack-java/pull/527)
+ * Use jackson-databind 2.10.5 for security vulnerability [#528](https://github.com/msgpack/msgpack-java/pull/528)
+ * (internal) Ensure building msgpack-java for Java 7 target [#523](https://github.com/msgpack/msgpack-java/pull/523)
+
 ## 0.8.20
  * Rebuild 0.8.19 with JDK8 
 
