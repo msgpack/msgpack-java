@@ -341,7 +341,13 @@ public class MessagePackParser
                 type = Type.EXT;
                 ExtensionTypeHeader header = messageUnpacker.unpackExtensionTypeHeader();
                 extensionTypeValue = new MessagePackExtensionType(header.getType(), messageUnpacker.readPayload(header.getLength()));
-                nextToken = JsonToken.VALUE_EMBEDDED_OBJECT;
+                if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
+                    parsingContext.setCurrentName(getExtensionTypeValue().toString());
+                    nextToken = JsonToken.FIELD_NAME;
+                }
+                else {
+                    nextToken = JsonToken.VALUE_EMBEDDED_OBJECT;
+                }
                 break;
             default:
                 throw new IllegalStateException("Shouldn't reach here");
@@ -563,6 +569,18 @@ public class MessagePackParser
         }
     }
 
+    private Object getExtensionTypeValue()
+            throws IOException
+    {
+        if (extTypeCustomDesers != null) {
+            ExtensionTypeCustomDeserializers.Deser deser = extTypeCustomDesers.getDeser(extensionTypeValue.getType());
+            if (deser != null) {
+                return deser.deserialize(extensionTypeValue.getData());
+            }
+        }
+        return extensionTypeValue;
+    }
+
     @Override
     public Object getEmbeddedObject()
             throws IOException, JsonParseException
@@ -571,13 +589,7 @@ public class MessagePackParser
             case BYTES:
                 return bytesValue;
             case EXT:
-                if (extTypeCustomDesers != null) {
-                    ExtensionTypeCustomDeserializers.Deser deser = extTypeCustomDesers.getDeser(extensionTypeValue.getType());
-                    if (deser != null) {
-                        return deser.deserialize(extensionTypeValue.getData());
-                    }
-                }
-                return extensionTypeValue;
+                return getExtensionTypeValue();
             default:
                 throw new IllegalStateException("Invalid type=" + type);
         }

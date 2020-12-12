@@ -15,6 +15,7 @@
 //
 package org.msgpack.jackson.dataformat;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
@@ -22,13 +23,19 @@ import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.junit.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.value.ExtensionValue;
+import org.msgpack.value.MapValue;
+import org.msgpack.value.ValueFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -44,6 +51,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -773,6 +781,105 @@ public class MessagePackParserTest
             assertThat(map.get("two"), is(2));
         }
         assertThat((String) values.get(4), is("Java"));
+    }
+
+
+    static class UUIDSerializer
+            extends StdSerializer<UUID>
+    {
+        private final byte code;
+
+        UUIDSerializer(byte code)
+        {
+            super(UUID.class);
+            this.code = code;
+        }
+
+        public void serialize(UUID value, JsonGenerator jsonGenerator, SerializerProvider provider)
+                throws IOException
+        {
+            if (jsonGenerator instanceof MessagePackGenerator) {
+                MessagePackGenerator messagePackGenerator = (MessagePackGenerator) jsonGenerator;
+                messagePackGenerator.writeExtensionType(new MessagePackExtensionType(code, toBytes(value)));
+            } else {
+                throw new RuntimeException("Something went wrong with the serialization");
+            }
+        }
+
+        @SuppressWarnings("WeakerAccess")
+        static byte[] toBytes(UUID value)
+        {
+            return value.toString().getBytes();
+        }
+
+        static UUID fromBytes(byte[] value)
+        {
+            return UUID.fromString(new String(value));
+        }
+    }
+
+    @Test
+    public void extensionTypeInMap()
+            throws IOException
+    {
+        byte uuidTypeCode = 42;
+
+        ExtensionTypeCustomDeserializers extTypeCustomDesers = new ExtensionTypeCustomDeserializers();
+        extTypeCustomDesers.addCustomDeser(uuidTypeCode, new ExtensionTypeCustomDeserializers.Deser()
+        {
+            @Override
+            public Object deserialize(byte[] value1)
+                    throws IOException
+            {
+                return UUIDSerializer.fromBytes(value1);
+            }
+        });
+
+        ObjectMapper objectMapper = new ObjectMapper(
+                new MessagePackFactory().setExtTypeCustomDesers(extTypeCustomDesers));
+
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addDeserializer(UUID.class,
+                new JsonDeserializer<UUID>()
+                {
+                    @Override
+                    public UUID deserialize(JsonParser p, DeserializationContext ctxt)
+                            throws IOException, JsonProcessingException
+                    {
+                        return UUID.fromString(p.readValueAs(String.class));
+                    }
+                });
+        objectMapper.registerModule(simpleModule);
+
+        // Prepare serialized data
+        Map<UUID, UUID> originalMap = new HashMap<>();
+        byte[] serializedData;
+        {
+            ValueFactory.MapBuilder mapBuilder = ValueFactory.newMapBuilder();
+            for (int i = 0; i < 4; i++) {
+                UUID uuidKey = UUID.randomUUID();
+                UUID uuidValue = UUID.randomUUID();
+                ExtensionValue k = ValueFactory.newExtension(uuidTypeCode, uuidKey.toString().getBytes());
+                ExtensionValue v = ValueFactory.newExtension(uuidTypeCode, uuidValue.toString().getBytes());
+                mapBuilder.put(k, v);
+                originalMap.put(uuidKey, uuidValue);
+            }
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            MessagePacker packer = MessagePack.newDefaultPacker(output);
+            MapValue mapValue = mapBuilder.build();
+            mapValue.writeTo(packer);
+            packer.close();
+
+            serializedData = output.toByteArray();
+        }
+
+        Map<UUID, UUID> deserializedMap = objectMapper.readValue(serializedData,
+                new TypeReference<Map<UUID, UUID>>() {});
+
+        assertEquals(originalMap.size(), deserializedMap.size());
+        for (Map.Entry<UUID, UUID> entry : originalMap.entrySet()) {
+            assertEquals(entry.getValue(), deserializedMap.get(entry.getKey()));
+        }
     }
 
     @Test
