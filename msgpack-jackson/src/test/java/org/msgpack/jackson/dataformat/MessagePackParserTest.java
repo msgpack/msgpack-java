@@ -15,7 +15,6 @@
 //
 package org.msgpack.jackson.dataformat;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
@@ -23,13 +22,10 @@ import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.junit.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
@@ -783,41 +779,6 @@ public class MessagePackParserTest
         assertThat((String) values.get(4), is("Java"));
     }
 
-
-    static class UUIDSerializer
-            extends StdSerializer<UUID>
-    {
-        private final byte code;
-
-        UUIDSerializer(byte code)
-        {
-            super(UUID.class);
-            this.code = code;
-        }
-
-        public void serialize(UUID value, JsonGenerator jsonGenerator, SerializerProvider provider)
-                throws IOException
-        {
-            if (jsonGenerator instanceof MessagePackGenerator) {
-                MessagePackGenerator messagePackGenerator = (MessagePackGenerator) jsonGenerator;
-                messagePackGenerator.writeExtensionType(new MessagePackExtensionType(code, toBytes(value)));
-            } else {
-                throw new RuntimeException("Something went wrong with the serialization");
-            }
-        }
-
-        @SuppressWarnings("WeakerAccess")
-        static byte[] toBytes(UUID value)
-        {
-            return value.toString().getBytes();
-        }
-
-        static UUID fromBytes(byte[] value)
-        {
-            return UUID.fromString(new String(value));
-        }
-    }
-
     @Test
     public void extensionTypeInMap()
             throws IOException
@@ -828,28 +789,15 @@ public class MessagePackParserTest
         extTypeCustomDesers.addCustomDeser(uuidTypeCode, new ExtensionTypeCustomDeserializers.Deser()
         {
             @Override
-            public Object deserialize(byte[] value1)
+            public Object deserialize(byte[] value)
                     throws IOException
             {
-                return UUIDSerializer.fromBytes(value1);
+                return UUID.fromString(new String(value));
             }
         });
 
         ObjectMapper objectMapper = new ObjectMapper(
                 new MessagePackFactory().setExtTypeCustomDesers(extTypeCustomDesers));
-
-        SimpleModule simpleModule = new SimpleModule();
-        simpleModule.addDeserializer(UUID.class,
-                new JsonDeserializer<UUID>()
-                {
-                    @Override
-                    public UUID deserialize(JsonParser p, DeserializationContext ctxt)
-                            throws IOException, JsonProcessingException
-                    {
-                        return UUID.fromString(p.readValueAs(String.class));
-                    }
-                });
-        objectMapper.registerModule(simpleModule);
 
         // Prepare serialized data
         Map<UUID, UUID> originalMap = new HashMap<>();
