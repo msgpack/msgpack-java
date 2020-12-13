@@ -440,6 +440,8 @@ public class MessagePackParser
                 return bytesValue;
             case STRING:
                 return stringValue.getBytes(MessagePack.UTF8);
+            case EXT:
+                return extensionTypeValue.getData();
             default:
                 throw new IllegalStateException("Invalid type=" + type);
         }
