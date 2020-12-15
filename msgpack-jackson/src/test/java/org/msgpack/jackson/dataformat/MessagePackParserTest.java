@@ -826,6 +826,7 @@ public class MessagePackParserTest
         @Override
         public String toString()
         {
+            // This key format is used when serialized as map key
             return String.format("%d-%d-%d", first, second, third);
         }
 
@@ -943,6 +944,8 @@ public class MessagePackParserTest
             }
         });
 
+        // In this case with UUID, we don't need to add custom deserializers
+        // since jackson-databind already has it.
         ObjectMapper objectMapper = new ObjectMapper(
                 new MessagePackFactory().setExtTypeCustomDesers(extTypeCustomDesers));
 
