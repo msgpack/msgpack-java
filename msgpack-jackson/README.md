@@ -207,16 +207,15 @@ When you want to use non-String value as a key of Map, use `MessagePackKeySerial
   @JsonSerialize(keyUsing = MessagePackKeySerializer.class)
   private Map<Integer, String> intMap = new HashMap<>();
 
-      :
-  {
-      intMap.put(42, "Hello");
+    :
 
-      ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
-      byte[] bytes = objectMapper.writeValueAsBytes(intMap);
+  intMap.put(42, "Hello");
 
-      Map<Integer, String> deserialized = objectMapper.readValue(bytes, new TypeReference<Map<Integer, String>>() {});
-      System.out.println(deserialized);   // => {42=Hello}
-  }
+  ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+  byte[] bytes = objectMapper.writeValueAsBytes(intMap);
+
+  Map<Integer, String> deserialized = objectMapper.readValue(bytes, new TypeReference<Map<Integer, String>>() {});
+  System.out.println(deserialized);   // => {42=Hello}
 ```
 
 ### Deserialize extension types with ExtensionTypeCustomDeserializers
@@ -314,6 +313,149 @@ When you want to use non-String value as a key of Map, use `MessagePackKeySerial
 
   System.out.println(objectMapper.readValue(bytes, Object.class));
     // => Java
+```
+
+#### Use extension type as Map key
+
+```java
+  static class TripleBytesPojo
+  {
+    public byte first;
+    public byte second;
+    public byte third;
+
+    public TripleBytesPojo(byte first, byte second, byte third)
+    {
+      this.first = first;
+      this.second = second;
+      this.third = third;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+      :
+    }
+
+    @Override
+    public int hashCode()
+    {
+      :
+    }
+
+    @Override
+    public String toString()
+    {
+      // This key format is used when serialized as map key
+      return String.format("%d-%d-%d", first, second, third);
+    }
+
+    static class KeyDeserializer
+        extends com.fasterxml.jackson.databind.KeyDeserializer
+    {
+      @Override
+      public Object deserializeKey(String key, DeserializationContext ctxt)
+          throws IOException
+      {
+        String[] values = key.split("-");
+        return new TripleBytesPojo(Byte.parseByte(values[0]), Byte.parseByte(values[1]), Byte.parseByte(values[2]));
+      }
+    }
+
+    static TripleBytesPojo deserialize(byte[] bytes)
+    {
+      return new TripleBytesPojo(bytes[0], bytes[1], bytes[2]);
+    }
+  }
+
+  :
+
+  byte extTypeCode = 42;
+
+  ExtensionTypeCustomDeserializers extTypeCustomDesers = new ExtensionTypeCustomDeserializers();
+  extTypeCustomDesers.addCustomDeser(extTypeCode, new ExtensionTypeCustomDeserializers.Deser()
+  {
+    @Override
+    public Object deserialize(byte[] value)
+          throws IOException
+    {
+      return TripleBytesPojo.deserialize(value);
+    }
+  });
+
+  SimpleModule module = new SimpleModule();
+  module.addKeyDeserializer(TripleBytesPojo.class, new TripleBytesPojo.KeyDeserializer());
+  ObjectMapper objectMapper = new ObjectMapper(
+          new MessagePackFactory().setExtTypeCustomDesers(extTypeCustomDesers))
+              .registerModule(module);
+
+  Map<TripleBytesPojo, Integer> deserializedMap =
+          objectMapper.readValue(serializedData,
+              new TypeReference<Map<TripleBytesPojo, Integer>>() {});
+```
+
+#### Use extension type as Map value
+
+```java
+  static class TripleBytesPojo
+  {
+    public byte first;
+    public byte second;
+    public byte third;
+
+    public TripleBytesPojo(byte first, byte second, byte third)
+    {
+      this.first = first;
+      this.second = second;
+      this.third = third;
+    }
+
+    static class Deserializer
+        extends StdDeserializer<TripleBytesPojo>
+    {
+      protected Deserializer()
+      {
+        super(TripleBytesPojo.class);
+      }
+
+      @Override
+      public TripleBytesPojo deserialize(JsonParser p, DeserializationContext ctxt)
+          throws IOException, JsonProcessingException
+      {
+        return TripleBytesPojo.deserialize(p.getBinaryValue());
+      }
+    }
+
+    static TripleBytesPojo deserialize(byte[] bytes)
+    {
+      return new TripleBytesPojo(bytes[0], bytes[1], bytes[2]);
+    }
+  }
+
+  :
+
+  byte extTypeCode = 42;
+
+  ExtensionTypeCustomDeserializers extTypeCustomDesers = new ExtensionTypeCustomDeserializers();
+  extTypeCustomDesers.addCustomDeser(extTypeCode, new ExtensionTypeCustomDeserializers.Deser()
+  {
+    @Override
+    public Object deserialize(byte[] value)
+        throws IOException
+    {
+      return TripleBytesPojo.deserialize(value);
+    }
+  });
+
+  SimpleModule module = new SimpleModule();
+  module.addDeserializer(TripleBytesPojo.class, new TripleBytesPojo.Deserializer());
+  ObjectMapper objectMapper = new ObjectMapper(
+          new MessagePackFactory().setExtTypeCustomDesers(extTypeCustomDesers))
+              .registerModule(module);
+
+  Map<String, TripleBytesPojo> deserializedMap =
+          objectMapper.readValue(serializedData,
+              new TypeReference<Map<String, TripleBytesPojo>>() {});
 ```
 
 ### Serialize a nested object that also serializes
