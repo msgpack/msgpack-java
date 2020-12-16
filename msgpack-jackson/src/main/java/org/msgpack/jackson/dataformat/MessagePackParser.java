@@ -341,7 +341,13 @@ public class MessagePackParser
                 type = Type.EXT;
                 ExtensionTypeHeader header = messageUnpacker.unpackExtensionTypeHeader();
                 extensionTypeValue = new MessagePackExtensionType(header.getType(), messageUnpacker.readPayload(header.getLength()));
-                nextToken = JsonToken.VALUE_EMBEDDED_OBJECT;
+                if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
+                    parsingContext.setCurrentName(deserializedExtensionTypeValue().toString());
+                    nextToken = JsonToken.FIELD_NAME;
+                }
+                else {
+                    nextToken = JsonToken.VALUE_EMBEDDED_OBJECT;
+                }
                 break;
             default:
                 throw new IllegalStateException("Shouldn't reach here");
@@ -391,6 +397,8 @@ public class MessagePackParser
                 return String.valueOf(doubleValue);
             case BIG_INT:
                 return String.valueOf(biValue);
+            case EXT:
+                return deserializedExtensionTypeValue().toString();
             default:
                 throw new IllegalStateException("Invalid type=" + type);
         }
@@ -432,6 +440,8 @@ public class MessagePackParser
                 return bytesValue;
             case STRING:
                 return stringValue.getBytes(MessagePack.UTF8);
+            case EXT:
+                return extensionTypeValue.getData();
             default:
                 throw new IllegalStateException("Invalid type=" + type);
         }
@@ -563,6 +573,18 @@ public class MessagePackParser
         }
     }
 
+    private Object deserializedExtensionTypeValue()
+            throws IOException
+    {
+        if (extTypeCustomDesers != null) {
+            ExtensionTypeCustomDeserializers.Deser deser = extTypeCustomDesers.getDeser(extensionTypeValue.getType());
+            if (deser != null) {
+                return deser.deserialize(extensionTypeValue.getData());
+            }
+        }
+        return extensionTypeValue;
+    }
+
     @Override
     public Object getEmbeddedObject()
             throws IOException, JsonParseException
@@ -571,13 +593,7 @@ public class MessagePackParser
             case BYTES:
                 return bytesValue;
             case EXT:
-                if (extTypeCustomDesers != null) {
-                    ExtensionTypeCustomDeserializers.Deser deser = extTypeCustomDesers.getDeser(extensionTypeValue.getType());
-                    if (deser != null) {
-                        return deser.deserialize(extensionTypeValue.getData());
-                    }
-                }
-                return extensionTypeValue;
+                return deserializedExtensionTypeValue();
             default:
                 throw new IllegalStateException("Invalid type=" + type);
         }

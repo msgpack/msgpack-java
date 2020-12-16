@@ -25,10 +25,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.junit.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
+import org.msgpack.value.ExtensionValue;
+import org.msgpack.value.MapValue;
+import org.msgpack.value.ValueFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -44,6 +48,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -773,6 +778,206 @@ public class MessagePackParserTest
             assertThat(map.get("two"), is(2));
         }
         assertThat((String) values.get(4), is("Java"));
+    }
+
+    static class TripleBytesPojo
+    {
+        public byte first;
+        public byte second;
+        public byte third;
+
+        public TripleBytesPojo(byte first, byte second, byte third)
+        {
+            this.first = first;
+            this.second = second;
+            this.third = third;
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof TripleBytesPojo)) {
+                return false;
+            }
+
+            TripleBytesPojo that = (TripleBytesPojo) o;
+
+            if (first != that.first) {
+                return false;
+            }
+            if (second != that.second) {
+                return false;
+            }
+            return third == that.third;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = first;
+            result = 31 * result + (int) second;
+            result = 31 * result + (int) third;
+            return result;
+        }
+
+        @Override
+        public String toString()
+        {
+            // This key format is used when serialized as map key
+            return String.format("%d-%d-%d", first, second, third);
+        }
+
+        static class Deserializer
+                extends StdDeserializer<TripleBytesPojo>
+        {
+            protected Deserializer()
+            {
+                super(TripleBytesPojo.class);
+            }
+
+            @Override
+            public TripleBytesPojo deserialize(JsonParser p, DeserializationContext ctxt)
+                    throws IOException, JsonProcessingException
+            {
+                return TripleBytesPojo.deserialize(p.getBinaryValue());
+            }
+        }
+
+        static class KeyDeserializer
+                extends com.fasterxml.jackson.databind.KeyDeserializer
+        {
+            @Override
+            public Object deserializeKey(String key, DeserializationContext ctxt)
+                    throws IOException
+            {
+                String[] values = key.split("-");
+                return new TripleBytesPojo(
+                        Byte.parseByte(values[0]),
+                        Byte.parseByte(values[1]),
+                        Byte.parseByte(values[2]));
+            }
+        }
+
+        static byte[] serialize(TripleBytesPojo obj)
+        {
+            return new byte[] { obj.first, obj.second, obj.third };
+        }
+
+        static TripleBytesPojo deserialize(byte[] bytes)
+        {
+            return new TripleBytesPojo(bytes[0], bytes[1], bytes[2]);
+        }
+    }
+
+    @Test
+    public void extensionTypeWithPojoInMap()
+            throws IOException
+    {
+        byte extTypeCode = 42;
+
+        ExtensionTypeCustomDeserializers extTypeCustomDesers = new ExtensionTypeCustomDeserializers();
+        extTypeCustomDesers.addCustomDeser(extTypeCode, new ExtensionTypeCustomDeserializers.Deser()
+        {
+            @Override
+            public Object deserialize(byte[] value)
+                    throws IOException
+            {
+                return TripleBytesPojo.deserialize(value);
+            }
+        });
+
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(TripleBytesPojo.class, new TripleBytesPojo.Deserializer());
+        module.addKeyDeserializer(TripleBytesPojo.class, new TripleBytesPojo.KeyDeserializer());
+        ObjectMapper objectMapper = new ObjectMapper(
+                new MessagePackFactory().setExtTypeCustomDesers(extTypeCustomDesers))
+                .registerModule(module);
+
+        // Prepare serialized data
+        Map<TripleBytesPojo, TripleBytesPojo> originalMap = new HashMap<>();
+        byte[] serializedData;
+        {
+            ValueFactory.MapBuilder mapBuilder = ValueFactory.newMapBuilder();
+            for (int i = 0; i < 4; i++) {
+                TripleBytesPojo keyObj = new TripleBytesPojo((byte) i, (byte) (i + 1), (byte) (i + 2));
+                TripleBytesPojo valueObj = new TripleBytesPojo((byte) (i * 2), (byte) (i * 3), (byte) (i * 4));
+                ExtensionValue k = ValueFactory.newExtension(extTypeCode, TripleBytesPojo.serialize(keyObj));
+                ExtensionValue v = ValueFactory.newExtension(extTypeCode, TripleBytesPojo.serialize(valueObj));
+                mapBuilder.put(k, v);
+                originalMap.put(keyObj, valueObj);
+            }
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            MessagePacker packer = MessagePack.newDefaultPacker(output);
+            MapValue mapValue = mapBuilder.build();
+            mapValue.writeTo(packer);
+            packer.close();
+
+            serializedData = output.toByteArray();
+        }
+
+        Map<TripleBytesPojo, TripleBytesPojo> deserializedMap = objectMapper.readValue(serializedData,
+                new TypeReference<Map<TripleBytesPojo, TripleBytesPojo>>() {});
+
+        assertEquals(originalMap.size(), deserializedMap.size());
+        for (Map.Entry<TripleBytesPojo, TripleBytesPojo> entry : originalMap.entrySet()) {
+            assertEquals(entry.getValue(), deserializedMap.get(entry.getKey()));
+        }
+    }
+
+    @Test
+    public void extensionTypeWithUuidInMap()
+            throws IOException
+    {
+        byte extTypeCode = 42;
+
+        ExtensionTypeCustomDeserializers extTypeCustomDesers = new ExtensionTypeCustomDeserializers();
+        extTypeCustomDesers.addCustomDeser(extTypeCode, new ExtensionTypeCustomDeserializers.Deser()
+        {
+            @Override
+            public Object deserialize(byte[] value)
+                    throws IOException
+            {
+                return UUID.fromString(new String(value));
+            }
+        });
+
+        // In this case with UUID, we don't need to add custom deserializers
+        // since jackson-databind already has it.
+        ObjectMapper objectMapper = new ObjectMapper(
+                new MessagePackFactory().setExtTypeCustomDesers(extTypeCustomDesers));
+
+        // Prepare serialized data
+        Map<UUID, UUID> originalMap = new HashMap<>();
+        byte[] serializedData;
+        {
+            ValueFactory.MapBuilder mapBuilder = ValueFactory.newMapBuilder();
+            for (int i = 0; i < 4; i++) {
+                UUID keyObj = UUID.randomUUID();
+                UUID valueObj = UUID.randomUUID();
+                ExtensionValue k = ValueFactory.newExtension(extTypeCode, keyObj.toString().getBytes());
+                ExtensionValue v = ValueFactory.newExtension(extTypeCode, valueObj.toString().getBytes());
+                mapBuilder.put(k, v);
+                originalMap.put(keyObj, valueObj);
+            }
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            MessagePacker packer = MessagePack.newDefaultPacker(output);
+            MapValue mapValue = mapBuilder.build();
+            mapValue.writeTo(packer);
+            packer.close();
+
+            serializedData = output.toByteArray();
+        }
+
+        Map<UUID, UUID> deserializedMap = objectMapper.readValue(serializedData,
+                new TypeReference<Map<UUID, UUID>>() {});
+
+        assertEquals(originalMap.size(), deserializedMap.size());
+        for (Map.Entry<UUID, UUID> entry : originalMap.entrySet()) {
+            assertEquals(entry.getValue(), deserializedMap.get(entry.getKey()));
+        }
     }
 
     @Test
