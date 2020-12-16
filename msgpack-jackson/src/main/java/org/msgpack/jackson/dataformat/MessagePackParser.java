@@ -398,7 +398,7 @@ public class MessagePackParser
             case BIG_INT:
                 return String.valueOf(biValue);
             case EXT:
-                return new String(extensionTypeValue.getData());
+                return getExtensionTypeValue().toString();
             default:
                 throw new IllegalStateException("Invalid type=" + type);
         }
