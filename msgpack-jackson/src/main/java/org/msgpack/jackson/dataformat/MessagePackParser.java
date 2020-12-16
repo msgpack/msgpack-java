@@ -342,7 +342,7 @@ public class MessagePackParser
                 ExtensionTypeHeader header = messageUnpacker.unpackExtensionTypeHeader();
                 extensionTypeValue = new MessagePackExtensionType(header.getType(), messageUnpacker.readPayload(header.getLength()));
                 if (parsingContext.inObject() && _currToken != JsonToken.FIELD_NAME) {
-                    parsingContext.setCurrentName(getExtensionTypeValue().toString());
+                    parsingContext.setCurrentName(deserializedExtensionTypeValue().toString());
                     nextToken = JsonToken.FIELD_NAME;
                 }
                 else {
@@ -398,7 +398,7 @@ public class MessagePackParser
             case BIG_INT:
                 return String.valueOf(biValue);
             case EXT:
-                return getExtensionTypeValue().toString();
+                return deserializedExtensionTypeValue().toString();
             default:
                 throw new IllegalStateException("Invalid type=" + type);
         }
@@ -573,7 +573,7 @@ public class MessagePackParser
         }
     }
 
-    private Object getExtensionTypeValue()
+    private Object deserializedExtensionTypeValue()
             throws IOException
     {
         if (extTypeCustomDesers != null) {
@@ -582,7 +582,7 @@ public class MessagePackParser
                 return deser.deserialize(extensionTypeValue.getData());
             }
         }
-        return extensionTypeValue;
+        throw new RuntimeException("Unsupported extension type=" + extensionTypeValue.getType());
     }
 
     @Override
@@ -593,7 +593,7 @@ public class MessagePackParser
             case BYTES:
                 return bytesValue;
             case EXT:
-                return getExtensionTypeValue();
+                return deserializedExtensionTypeValue();
             default:
                 throw new IllegalStateException("Invalid type=" + type);
         }
