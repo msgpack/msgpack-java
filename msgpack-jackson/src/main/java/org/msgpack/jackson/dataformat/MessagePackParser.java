@@ -582,7 +582,7 @@ public class MessagePackParser
                 return deser.deserialize(extensionTypeValue.getData());
             }
         }
-        throw new RuntimeException("Unsupported extension type=" + extensionTypeValue.getType());
+        return extensionTypeValue;
     }
 
     @Override
