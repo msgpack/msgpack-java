@@ -222,66 +222,7 @@ When you want to use non-String value as a key of Map, use `MessagePackKeySerial
 
 `ExtensionTypeCustomDeserializers` helps you to deserialize extension types easily.
 
-#### With target Java class
-
-```java
-  NestedListComplexPojo parent = new NestedListComplexPojo();
-  parent.children = Arrays.asList(new TinyPojo("Foo"), new TinyPojo("Bar"));
-
-  // In this application, extension type 17 is used for NestedListComplexPojo
-  byte[] bytes;
-  {
-      // This ObjectMapper is just for temporary serialization
-      ObjectMapper tempObjectMapper = new ObjectMapper(new MessagePackFactory());
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      MessagePacker packer = MessagePack.newDefaultPacker(outputStream);
-
-      byte[] extBytes = tempObjectMapper.writeValueAsBytes(parent);
-      packer.packExtensionTypeHeader((byte) 17, extBytes.length);
-      packer.addPayload(extBytes);
-      packer.close();
-
-      bytes = outputStream.toByteArray();
-  }
-
-  // Register the type and the class to ExtensionTypeCustomDeserializers
-  ExtensionTypeCustomDeserializers extTypeCustomDesers = new ExtensionTypeCustomDeserializers();
-  extTypeCustomDesers.addTargetClass((byte) 17, NestedListComplexPojo.class);
-  ObjectMapper objectMapper = new ObjectMapper(
-          new MessagePackFactory().setExtTypeCustomDesers(extTypeCustomDesers));
-
-  System.out.println(objectMapper.readValue(bytes, Object.class));
-    // => NestedListComplexPojo{children=[TinyPojo{name='Foo'}, TinyPojo{name='Bar'}]}
-```
-
-#### With type reference
-
-```java
-  Map<String, Integer> map = new HashMap<>();
-  map.put("one", 1);
-  map.put("two", 2);
-
-  // In this application, extension type 31 is used for Map<String, Integer>
-  byte[] bytes;
-  {
-      // Same as above
-        :
-      packer.packExtensionTypeHeader((byte) 31, extBytes.length);
-        :
-  }
-
-  // Register the type and the type reference to ExtensionTypeCustomDeserializers
-  ExtensionTypeCustomDeserializers extTypeCustomDesers = new ExtensionTypeCustomDeserializers();
-  extTypeCustomDesers.addTargetTypeReference((byte) 31,
-  	      new TypeReference<Map<String, Integer>>() {});
-  ObjectMapper objectMapper = new ObjectMapper(
-          new MessagePackFactory().setExtTypeCustomDesers(extTypeCustomDesers));
-
-  System.out.println(objectMapper.readValue(bytes, Object.class));
-    // => {one=1, two=2}
-```
-
-#### With custom deserializer
+#### Deserialize extension type value directly
 
 ```java
   // In this application, extension type 59 is used for byte[]
