@@ -65,7 +65,19 @@ public class MessagePackFactoryTest
         ObjectMapper objectMapper;
         if (advancedConfig) {
             ExtensionTypeCustomDeserializers extTypeCustomDesers = new ExtensionTypeCustomDeserializers();
-            extTypeCustomDesers.addTargetClass((byte) 42, TinyPojo.class);
+            extTypeCustomDesers.addCustomDeser((byte) 42,
+                    new ExtensionTypeCustomDeserializers.Deser()
+                    {
+                        @Override
+                        public Object deserialize(byte[] data)
+                                throws IOException
+                        {
+                            TinyPojo pojo = new TinyPojo();
+                            pojo.t = new String(data);
+                            return pojo;
+                        }
+                    }
+            );
 
             MessagePack.PackerConfig msgpackPackerConfig = new MessagePack.PackerConfig().withStr8FormatSupport(false);
 

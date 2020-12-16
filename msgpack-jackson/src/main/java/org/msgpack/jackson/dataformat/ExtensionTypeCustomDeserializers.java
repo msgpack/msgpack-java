@@ -15,53 +15,22 @@
 //
 package org.msgpack.jackson.dataformat;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ExtensionTypeCustomDeserializers
 {
-    private final ObjectMapper objectMapper;
-    private Map<Byte, Deser> deserTable = new ConcurrentHashMap<Byte, Deser>();
+    private Map<Byte, Deser> deserTable = new ConcurrentHashMap<>();
 
     public ExtensionTypeCustomDeserializers()
     {
-        objectMapper = new ObjectMapper(new MessagePackFactory().setReuseResourceInParser(false));
     }
 
     public ExtensionTypeCustomDeserializers(ExtensionTypeCustomDeserializers src)
     {
         this();
         this.deserTable.putAll(src.deserTable);
-    }
-
-    public <T> void addTargetClass(byte type, final Class<T> klass)
-    {
-        deserTable.put(type, new Deser()
-        {
-            @Override
-            public Object deserialize(byte[] data)
-                    throws IOException
-            {
-                return objectMapper.readValue(data, klass);
-            }
-        });
-    }
-
-    public void addTargetTypeReference(byte type, final TypeReference typeReference)
-    {
-        deserTable.put(type, new Deser()
-        {
-            @Override
-            public Object deserialize(byte[] data)
-                    throws IOException
-            {
-                return objectMapper.readValue(data, typeReference);
-            }
-        });
     }
 
     public void addCustomDeser(byte type, final Deser deser)
