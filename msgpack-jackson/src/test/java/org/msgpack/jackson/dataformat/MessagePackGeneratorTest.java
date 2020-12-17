@@ -304,10 +304,12 @@ public class MessagePackGeneratorTest
             double d0 = 1.23456789;
             double d1 = 1.23450000000000000000006789;
             String d2 = "12.30";
+            String d3 = "0.00001";
             List<BigDecimal> bigDecimals = Arrays.asList(
                     BigDecimal.valueOf(d0),
                     BigDecimal.valueOf(d1),
                     new BigDecimal(d2),
+                    new BigDecimal(d3),
                     BigDecimal.valueOf(Double.MIN_VALUE),
                     BigDecimal.valueOf(Double.MAX_VALUE),
                     BigDecimal.valueOf(Double.MIN_NORMAL)
@@ -320,6 +322,7 @@ public class MessagePackGeneratorTest
             assertEquals(d0, unpacker.unpackDouble(), 0.000000000000001);
             assertEquals(d1, unpacker.unpackDouble(), 0.000000000000001);
             assertEquals(Double.valueOf(d2), unpacker.unpackDouble(), 0.000000000000001);
+            assertEquals(Double.valueOf(d3), unpacker.unpackDouble(), 0.000000000000001);
             assertEquals(Double.MIN_VALUE, unpacker.unpackDouble(), 0.000000000000001);
             assertEquals(Double.MAX_VALUE, unpacker.unpackDouble(), 0.000000000000001);
             assertEquals(Double.MIN_NORMAL, unpacker.unpackDouble(), 0.000000000000001);
