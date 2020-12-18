@@ -1,5 +1,10 @@
 # Release Notes
 
+## 0.8.22
+ * Support extension type key in Map [#535](https://github.com/msgpack/msgpack-java/pull/535)
+ * Remove addTargetClass() and addTargetTypeReference() from ExtensionTypeCustomDeserializers [#539](https://github.com/msgpack/msgpack-java/pull/539)
+ * Fix a bug BigDecimal serializaion fails [#540](https://github.com/msgpack/msgpack-java/pull/540)
+
 ## 0.8.21
  * Fix indexing bug in ValueFactory [#525](https://github.com/msgpack/msgpack-java/pull/525)
  * Support numeric types in MessagePackParser.getText() [#527](https://github.com/msgpack/msgpack-java/pull/527)
