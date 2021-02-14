@@ -553,7 +553,10 @@ public class MessageUnpacker
                     skipPayload(readNextLength16() + 1);
                     break;
                 case EXT32:
-                    skipPayload(readNextLength32() + 1);
+                    int extLen = readNextLength32();
+                    // Skip the first ext type header (1-byte) first in case ext length is Integer.MAX_VALUE
+                    skipPayload(1);
+                    skipPayload(extLen);
                     break;
                 case ARRAY16:
                     count += readNextLength16();
@@ -1474,6 +1477,9 @@ public class MessageUnpacker
     private void skipPayload(int numBytes)
             throws IOException
     {
+        if (numBytes < 0) {
+            throw new IllegalArgumentException("payload size must be >= 0: " + numBytes);
+        }
         while (true) {
             int bufferRemaining = buffer.size() - position;
             if (bufferRemaining >= numBytes) {
