@@ -1616,6 +1616,9 @@ public class MessageUnpacker
     /**
      * Reads payload bytes of binary, extension, or raw string types as a reference to internal buffer.
      *
+     * Note: This methods may return raw memory region, access to which has no strict boundary checks.
+     * To use this method safely, you need to understand the internal buffer handling of msgpack-java.
+     *
      * <p>
      * This consumes specified amount of bytes and returns its reference or copy. This method tries to
      * return reference as much as possible because it is faster. However, it may copy data to a newly
