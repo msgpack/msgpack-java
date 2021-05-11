@@ -813,8 +813,10 @@ public class MessagePacker
     public MessagePacker packTimestamp(Instant instant)
             throws IOException
     {
-        return packTimestampImpl(instant.getEpochSecond(), instant.getNano());
+        return packTimestamp(instant.getEpochSecond(), instant.getNano());
     }
+
+    private static final long NANOS_PER_SECOND = 1000000000L;
 
     /**
      * Writes a Timestamp value.
@@ -831,14 +833,9 @@ public class MessagePacker
     public MessagePacker packTimestamp(long epochSecond, int nanoAdjustment)
             throws IOException, ArithmeticException
     {
-        long sec = Math.addExact(epochSecond, Math.floorDiv(nanoAdjustment, 1000000000L));
-        int nsec = (int) Math.floorMod(nanoAdjustment, 1000000000L);
-        return packTimestampImpl(sec, nsec);
-    }
+        long sec = Math.addExact(epochSecond, Math.floorDiv(nanoAdjustment, NANOS_PER_SECOND));
+        long nsec = Math.floorMod((long) nanoAdjustment, NANOS_PER_SECOND);
 
-    private MessagePacker packTimestampImpl(long sec, int nsec)
-            throws IOException
-    {
         if (sec >>> 34 == 0) {
             // sec can be serialized in 34 bits.
             long data64 = (nsec << 34) | sec;
@@ -855,7 +852,7 @@ public class MessagePacker
         }
         else {
             // use timestamp 96 format
-            writeTimestamp96(sec, nsec);
+            writeTimestamp96(sec, (int) nsec);
         }
         return this;
     }
