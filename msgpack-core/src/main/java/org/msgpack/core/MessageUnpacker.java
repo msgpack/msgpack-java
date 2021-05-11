@@ -653,7 +653,7 @@ public class MessageUnpacker
                 ExtensionTypeHeader extHeader = unpackExtensionTypeHeader();
                 switch (extHeader.getType()) {
                 case EXT_TIMESTAMP:
-                    return ValueFactory.newTimestamp(readPayload(extHeader.getLength()));
+                    return ValueFactory.newTimestamp(unpackTimestamp(extHeader));
                 default:
                     return ValueFactory.newExtension(extHeader.getType(), readPayload(extHeader.getLength()));
                 }
@@ -720,6 +720,7 @@ public class MessageUnpacker
             }
             case EXTENSION: {
                 ExtensionTypeHeader extHeader = unpackExtensionTypeHeader();
+                // TODO Set TimestampValue
                 var.setExtensionValue(extHeader.getType(), readPayload(extHeader.getLength()));
                 return var;
             }
@@ -1274,6 +1275,11 @@ public class MessageUnpacker
             throws IOException
     {
         ExtensionTypeHeader ext = unpackExtensionTypeHeader();
+        return unpackTimestamp(ext);
+    }
+
+    private Instant unpackTimestamp(ExtensionTypeHeader ext) throws IOException
+    {
         if (ext.getType() != EXT_TIMESTAMP) {
             throw unexpectedExtension("Timestamp", EXT_TIMESTAMP, ext.getType());
         }
@@ -1295,7 +1301,7 @@ public class MessageUnpacker
             }
             default:
                 throw new MessageFormatException(String.format("Timestamp extension type (%d) expects 4, 8, or 12 bytes of payload but got %d bytes",
-                            EXT_TIMESTAMP, ext.getLength()));
+                        EXT_TIMESTAMP, ext.getLength()));
         }
     }
 

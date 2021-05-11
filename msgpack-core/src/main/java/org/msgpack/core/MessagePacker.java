@@ -33,7 +33,6 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.time.Instant;
-import java.util.Date;
 
 import static org.msgpack.core.MessagePack.Code.ARRAY16;
 import static org.msgpack.core.MessagePack.Code.ARRAY32;
@@ -807,25 +806,6 @@ public class MessagePacker
      * <p>
      * This method writes a timestamp value using timestamp format family.
      *
-     * @param date the timestamp to be written
-     * @return this
-     * @throws IOException when underlying output throws IOException
-     */
-    public MessagePacker packTimestamp(Date date)
-            throws IOException
-    {
-        long epochMilli = date.getTime();
-        long sec = Math.floorDiv(epochMilli, 1000L);
-        int nsec = ((int) (epochMilli - sec * 1000L)) * 1000;  // 0 <= nsec < 1,000,000,000 < 2^30
-        return packTimestampImpl(sec, nsec);
-    }
-
-    /**
-     * Writes a Timestamp value.
-     *
-     * <p>
-     * This method writes a timestamp value using timestamp format family.
-     *
      * @param instant the timestamp to be written
      * @return this
      * @throws IOException when underlying output throws IOException
@@ -848,7 +828,7 @@ public class MessagePacker
      * @throws IOException when underlying output throws IOException
      * @throws ArithmeticException when epochSecond plus nanoAdjustment in seconds exceeds the range of long
      */
-    public MessagePacker packTimestampEpochSecond(long epochSecond, int nanoAdjustment)
+    public MessagePacker packTimestamp(long epochSecond, int nanoAdjustment)
             throws IOException, ArithmeticException
     {
         long sec = Math.addExact(epochSecond, Math.floorDiv(nanoAdjustment, 1000000000L));

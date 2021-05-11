@@ -16,7 +16,6 @@
 package org.msgpack.value;
 
 import java.time.Instant;
-import java.util.Date;
 
 /**
  * Representation of MessagePack's Timestamp type.
@@ -30,9 +29,7 @@ public interface TimestampValue
 
     int getNano();
 
-    long toEpochMilli();
+    long toEpochMillis();
 
     Instant toInstant();
-
-    Date toDate();
 }

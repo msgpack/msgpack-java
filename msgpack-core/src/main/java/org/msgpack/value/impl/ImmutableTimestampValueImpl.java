@@ -15,7 +15,6 @@
 //
 package org.msgpack.value.impl;
 
-import org.msgpack.core.MessageExtensionFormatException;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.buffer.MessageBuffer;
 import org.msgpack.value.ExtensionValue;
@@ -28,7 +27,6 @@ import org.msgpack.value.ValueType;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 
 import static org.msgpack.core.MessagePack.Code.EXT_TIMESTAMP;
 
@@ -41,45 +39,12 @@ public class ImmutableTimestampValueImpl
         extends AbstractImmutableValue
         implements ImmutableExtensionValue, ImmutableTimestampValue
 {
-    private final long sec;
-
-    private final int nsec;
-
+    private final Instant instant;
     private byte[] data;
 
-    public ImmutableTimestampValueImpl(long epochSecond, int nanoAdjustment)
+    public ImmutableTimestampValueImpl(Instant timestamp)
     {
-        this.sec = Math.addExact(epochSecond, Math.floorDiv(nanoAdjustment, 1000000000L));
-        this.nsec = (int) Math.floorMod(nanoAdjustment, 1000000000L);
-        this.data = null;
-    }
-
-    public ImmutableTimestampValueImpl(byte[] data)
-    {
-        // See MessageUnpacker.unpackInstant
-        this.data = data;
-        switch (data.length) {
-            case 4: {
-                this.sec = MessageBuffer.wrap(data).getInt(0);
-                this.nsec = 0;
-                break;
-            }
-            case 8: {
-                long data64 = MessageBuffer.wrap(data).getLong(0);
-                this.nsec = (int) (data64 >>> 34);
-                this.sec = data64 & 0x00000003ffffffffL;
-                break;
-            }
-            case 12: {
-                MessageBuffer buffer = MessageBuffer.wrap(data);
-                this.nsec = buffer.getInt(0);
-                this.sec = buffer.getLong(4);
-                break;
-            }
-            default:
-                throw new MessageExtensionFormatException(String.format("Timestamp extension type (%d) expects 4, 8, or 12 bytes of payload but got %d bytes",
-                            EXT_TIMESTAMP, data.length));
-        }
+        this.instant = timestamp;
     }
 
     @Override
@@ -113,6 +78,8 @@ public class ImmutableTimestampValueImpl
         if (data == null) {
             // See MessagePacker.packTimestampImpl
             byte[] bytes;
+            long sec = getEpochSecond();
+            int nsec = getNano();
             if (sec >>> 34 == 0) {
                 long data64 = (nsec << 34) | sec;
                 if ((data64 & 0xffffffff00000000L) == 0L) {
@@ -138,38 +105,32 @@ public class ImmutableTimestampValueImpl
     @Override
     public long getEpochSecond()
     {
-        return sec;
+        return instant.getEpochSecond();
     }
 
     @Override
     public int getNano()
     {
-        return nsec;
+        return instant.getNano();
     }
 
     @Override
-    public long toEpochMilli()
+    public long toEpochMillis()
     {
-        return Math.addExact(Math.multiplyExact(getEpochSecond(), 1000L), getNano() / 1000000L);
+        return instant.toEpochMilli();
     }
 
     @Override
     public Instant toInstant()
     {
-        return Instant.ofEpochSecond(getEpochSecond(), getNano());
-    }
-
-    @Override
-    public Date toDate()
-    {
-        return new Date(toEpochMilli());
+        return instant;
     }
 
     @Override
     public void writeTo(MessagePacker packer)
             throws IOException
     {
-        packer.packTimestampEpochSecond(sec, nsec);
+        packer.packTimestamp(instant);
     }
 
     @Override
@@ -194,7 +155,7 @@ public class ImmutableTimestampValueImpl
         // using "default" keyword since Java 7, here uses instanceof of and cast instead.
         if (ev instanceof TimestampValue) {
             TimestampValue tv = (TimestampValue) ev;
-            return getEpochSecond() == tv.getEpochSecond() && getNano() == tv.getNano();
+            return instant.equals(tv.toInstant());
         }
         else {
             return EXT_TIMESTAMP == ev.getType() && Arrays.equals(getData(), ev.getData());
@@ -205,10 +166,9 @@ public class ImmutableTimestampValueImpl
     public int hashCode()
     {
         // Implements same behavior with ImmutableExtensionValueImpl.
-        int hash = 31 + EXT_TIMESTAMP;
-        for (byte e : getData()) {
-            hash = 31 * hash + e;
-        }
+        int hash = EXT_TIMESTAMP;
+        hash *= 31;
+        hash = instant.hashCode();
         return hash;
     }
 
