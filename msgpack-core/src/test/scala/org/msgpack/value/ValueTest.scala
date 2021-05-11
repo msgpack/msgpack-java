@@ -17,11 +17,12 @@ package org.msgpack.value
 
 import java.math.BigInteger
 import org.msgpack.core._
+import org.scalacheck.Prop.{forAll, propBoolean}
 
 import scala.util.parsing.json.JSON
 
 class ValueTest extends MessagePackSpec {
-  def checkSuccinctType(pack: MessagePacker => Unit, expectedAtMost: MessageFormat) {
+  def checkSuccinctType(pack: MessagePacker => Unit, expectedAtMost: MessageFormat): Boolean = {
     val b  = createMessagePackData(pack)
     val v1 = MessagePack.newDefaultUnpacker(b).unpackValue()
     val mf = v1.asIntegerValue().mostSuccinctMessageFormat()
@@ -33,6 +34,8 @@ class ValueTest extends MessagePackSpec {
     val mf2 = v2.asIntegerValue().mostSuccinctMessageFormat()
     mf2.getValueType shouldBe ValueType.INTEGER
     mf2.ordinal() shouldBe <=(expectedAtMost.ordinal())
+
+    true
   }
 
   "Value" should {
@@ -53,7 +56,7 @@ class ValueTest extends MessagePackSpec {
         checkSuccinctType(_.packBigInteger(BigInteger.valueOf(v)), MessageFormat.INT64)
       }
       forAll { (v: Long) =>
-        whenever(v > 0) {
+        v > 0 ==> {
           // Create value between 2^63-1 < v <= 2^64-1
           checkSuccinctType(_.packBigInteger(BigInteger.valueOf(Long.MaxValue).add(BigInteger.valueOf(v))), MessageFormat.UINT64)
         }

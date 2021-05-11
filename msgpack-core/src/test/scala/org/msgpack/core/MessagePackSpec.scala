@@ -16,15 +16,16 @@
 package org.msgpack.core
 
 import java.io.ByteArrayOutputStream
-
 import org.scalatest._
-import org.scalatest.prop.PropertyChecks
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.prop.TableDrivenPropertyChecks
+import org.scalatest.wordspec.AnyWordSpec
 import xerial.core.log.{LogLevel, Logger}
 import xerial.core.util.{TimeReport, Timer}
 
 import scala.language.implicitConversions
 
-trait MessagePackSpec extends WordSpec with Matchers with GivenWhenThen with OptionValues with BeforeAndAfter with PropertyChecks with Benchmark with Logger {
+trait MessagePackSpec extends AnyWordSpec with Matchers with GivenWhenThen with OptionValues with BeforeAndAfter with Benchmark with Logger {
 
   implicit def toTag(s: String): Tag = Tag(s)
 
