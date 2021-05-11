@@ -22,6 +22,7 @@ val buildSettings = Seq[Setting[_]](
   // msgpack-java should be a pure-java library, so remove Scala specific configurations
   autoScalaLibrary := false,
   crossPaths := false,
+  publishMavenStyle := true,
   // JVM options for building
   scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-feature"),
   Test / javaOptions ++= Seq("-ea"),
