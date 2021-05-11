@@ -2,19 +2,19 @@
 
 ## 0.8.23
 
-* Produce stable map values [#548](https://github.com/msgpack/msgpac-java/pull/#548)
-* Fixes #544: Fix a bug in reading EXT32 of 2GB size [#545](https://github.com/msgpack/msgpac-java/pull/545)
-* Add a warning note for the usage of MessageUnpacker.readPayloadAsReference [#546](https://github.com/msgpack/msgpac-java/pull/546)
+* Produce stable map values [#548](https://github.com/msgpack/msgpack-java/pull/548)
+* Fixes #544: Fix a bug in reading EXT32 of 2GB size [#545](https://github.com/msgpack/msgpack-java/pull/545)
+* Add a warning note for the usage of MessageUnpacker.readPayloadAsReference [#546](https://github.com/msgpack/msgpack-java/pull/546)
 
 Intenral changes:
 * Add a script for releasing a new version of msgpack-java at CI
-* Publish a snapshot version for every main branch commit [#556](https://github.com/msgpack/msgpac-java/pull/556)
-* Use dynamic versioning with Git tags v0.x.y format [#555](https://github.com/msgpack/msgpac-java/pull/555)
-* Update ScalaTest and ScalaCheck versions [#554](https://github.com/msgpack/msgpac-java/pull/554)
-* Remove findbugs [#553](https://github.com/msgpack/msgpac-java/pull/553)
-* Update build settings to use latest version of sbt and plugins [#552](https://github.com/msgpack/msgpac-java/pull/552)
-* Run GitHub Actions for develop and main branches [#551](https://github.com/msgpack/msgpac-java/pull/551)
-* Remove Travis build [#550](https://github.com/msgpack/msgpac-java/pull/550)
+* Publish a snapshot version for every main branch commit [#556](https://github.com/msgpack/msgpack-java/pull/556)
+* Use dynamic versioning with Git tags v0.x.y format [#555](https://github.com/msgpack/msgpack-java/pull/555)
+* Update ScalaTest and ScalaCheck versions [#554](https://github.com/msgpack/msgpack-java/pull/554)
+* Remove findbugs [#553](https://github.com/msgpack/msgpack-java/pull/553)
+* Update build settings to use latest version of sbt and plugins [#552](https://github.com/msgpack/msgpack-java/pull/552)
+* Run GitHub Actions for develop and main branches [#551](https://github.com/msgpack/msgpack-java/pull/551)
+* Remove Travis build [#550](https://github.com/msgpack/msgpack-java/pull/550)
 
 ## 0.8.22
  * Support extension type key in Map [#535](https://github.com/msgpack/msgpack-java/pull/535)
