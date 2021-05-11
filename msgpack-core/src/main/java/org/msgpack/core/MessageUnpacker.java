@@ -1279,7 +1279,7 @@ public class MessageUnpacker
         }
         switch (ext.getLength()) {
             case 4: {
-                int u32 = readInt();
+                long u32 = readInt() & 0xffffffffL;
                 return Instant.ofEpochSecond(u32);
             }
             case 8: {
@@ -1289,38 +1289,9 @@ public class MessageUnpacker
                 return Instant.ofEpochSecond(sec, nsec);
             }
             case 12: {
-                int nsec = readInt();
+                long nsecU32 = readInt() & 0xffffffffL;
                 long sec = readLong();
-                return Instant.ofEpochSecond(sec, nsec);
-            }
-            default:
-                throw new MessageFormatException(String.format("Timestamp extension type (%d) expects 4, 8, or 12 bytes of payload but got %d bytes",
-                            EXT_TIMESTAMP, ext.getLength()));
-        }
-    }
-
-    public long unpackTimestampMillis()
-            throws IOException
-    {
-        ExtensionTypeHeader ext = unpackExtensionTypeHeader();
-        if (ext.getType() != EXT_TIMESTAMP) {
-            throw unexpectedExtension("Timestamp", EXT_TIMESTAMP, ext.getType());
-        }
-        switch (ext.getLength()) {
-            case 4: {
-                int u32 = readInt();
-                return (u32 & 0xffffffffL) * 1000L;
-            }
-            case 8: {
-                long data64 = readLong();
-                int nsec = (int) (data64 >>> 34);
-                long sec = data64 & 0x00000003ffffffffL;
-                return sec * 1000L + nsec / 1000L;
-            }
-            case 12: {
-                int nsec = readInt();
-                long sec = readLong();
-                return sec * 1000L + nsec / 1000L;
+                return Instant.ofEpochSecond(sec, nsecU32);
             }
             default:
                 throw new MessageFormatException(String.format("Timestamp extension type (%d) expects 4, 8, or 12 bytes of payload but got %d bytes",
