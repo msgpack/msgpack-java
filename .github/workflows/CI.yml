@@ -10,6 +10,8 @@ on:
   push:
     branches:
       - master
+      - develop
+      - main
     paths:
       - '**.scala'
       - '**.java'
