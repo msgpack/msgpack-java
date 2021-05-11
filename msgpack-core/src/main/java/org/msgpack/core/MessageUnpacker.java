@@ -696,7 +696,7 @@ public class MessageUnpacker
             case MAP: {
                 int size = unpackMapHeader();
                 Value[] kvs = new Value[size * 2];
-                for (int i = 0; i < size; i++) {
+                for (int i = 0; i < size * 2; ) {
                     kvs[i] = unpackValue();
                     i++;
                     kvs[i] = unpackValue();
