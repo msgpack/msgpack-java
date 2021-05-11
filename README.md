@@ -93,7 +93,9 @@ Here is a list of sbt commands for daily development:
 > sonatypeBundleRelease   # Publish to the Maven Central (It will be synched within less than 4 hours)
 ```
 
-For publishing to Maven central, msgpack-java uses [sbt-sonatype](https://github.com/xerial/sbt-sonatype) plugin. Set Sonatype account information (user name and password) in the global sbt settings. To protect your password, never include this file in your project.
+Once you run a release command, a new git tag v(version number) will be pushed to GitHub. GitHub Action will deploy a new release version to Maven Central (Sonatype).
+
+For publishing to Maven central using a local machine, msgpack-java uses [sbt-sonatype](https://github.com/xerial/sbt-sonatype) plugin. Set Sonatype account information (user name and password) in the global sbt settings. To protect your password, never include this file in your project.
 
 ___$HOME/.sbt/(sbt-version)/sonatype.sbt___
 

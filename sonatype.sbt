@@ -1,46 +1,18 @@
-sonatypeProfileName := "org.msgpack"
+import xerial.sbt.Sonatype._
 
-pomExtra in Global := {
-  <url>http://msgpack.org/</url>
-    <licenses>
-      <license>
-        <name>Apache 2</name>
-        <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      </license>
-    </licenses>
-    <scm>
-      <connection>scm:git:github.com/msgpack/msgpack-java.git</connection>
-      <developerConnection>scm:git:git@github.com:msgpack/msgpack-java.git</developerConnection>
-      <url>github.com/msgpack/msgpack-java.git</url>
-    </scm>
-    <properties>
-      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-    <developers>
-      <developer>
-        <id>frsyuki</id>
-        <name>Sadayuki Furuhashi</name>
-        <email>frsyuki@users.sourceforge.jp</email>
-      </developer>
-      <developer>
-        <id>muga</id>
-        <name>Muga Nishizawa</name>
-        <email>muga.nishizawa@gmail.com</email>
-      </developer>
-      <developer>
-        <id>oza</id>
-        <name>Tsuyoshi Ozawa</name>
-        <url>https://github.com/oza</url>
-      </developer>
-      <developer>
-        <id>komamitsu</id>
-        <name>Mitsunori Komatsu</name>
-        <email>komamitsu@gmail.com</email>
-      </developer>
-      <developer>
-        <id>xerial</id>
-        <name>Taro L. Saito</name>
-        <email>leo@xerial.org</email>
-      </developer>
-    </developers>
-}
+ThisBuild / sonatypeProfileName := "org.msgpack"
+ThisBuild / homepage := Some(url("https://msgpack.org/"))
+ThisBuild / licenses := Seq("APL2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+ThisBuild / scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/msgpack/msgpack-java"),
+    "scm:git@github.com:msgpack/msgpack-java.git"
+  )
+)
+ThisBuild / developers := List(
+  Developer(id = "frsyuki", name = "Sadayuki Furuhashi", email = "frsyuki@users.sourceforge.jp", url = url("https://github.com/frsyuki")),
+  Developer(id = "muga", name = "Muga Nishizawa", email = "muga.nishizawa@gmail.com", url = url("https://github.com/muga")),
+  Developer(id = "oza", name = "Tsuyoshi Ozawa", email = "ozawa.tsuyoshi@gmail.com", url = url("https://github.com/oza")),
+  Developer(id = "komamitsu", name = "Mitsunori Komatsu", email = "komamitsu@gmail.com", url = url("https://github.com/komamitsu")),
+  Developer(id = "xerial", name = "Taro L. Saito", email = "leo@xerial.org", url = url("https://github.com/xerial"))
+)
