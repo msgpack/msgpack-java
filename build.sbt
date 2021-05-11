@@ -49,9 +49,6 @@ val buildSettings = Seq[Setting[_]](
   ),
   // Add sonatype repository settings
   publishTo := sonatypePublishToBundle.value,
-  // Find bugs
-  findbugsReportType := Some(FindbugsReport.FancyHtml),
-  findbugsReportPath := Some(crossTarget.value / "findbugs" / "report.html"),
   // Style check config: (sbt-jchekcstyle)
   jcheckStyleConfig := "facebook",
   // Run jcheckstyle both for main and test codes
@@ -68,10 +65,7 @@ lazy val root = Project(id = "msgpack-java", base = file("."))
     // Do not publish the root project
     publishArtifact := false,
     publish := {},
-    publishLocal := {},
-    findbugs := {
-      // do not run findbugs for the root project
-    }
+    publishLocal := {}
   )
   .aggregate(msgpackCore, msgpackJackson)
 
