@@ -33,11 +33,6 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.msgpack.core.MessagePack.Code.EXT_TIMESTAMP;
 import static org.msgpack.core.Preconditions.checkNotNull;
@@ -1275,7 +1270,7 @@ public class MessageUnpacker
         }
     }
 
-    public Instant unpackInstant()
+    public Instant unpackTimestamp()
             throws IOException
     {
         ExtensionTypeHeader ext = unpackExtensionTypeHeader();
@@ -1299,15 +1294,9 @@ public class MessageUnpacker
                 return Instant.ofEpochSecond(sec, nsec);
             }
             default:
-                throw new MessageExtensionFormatException(String.format("Timestamp extension type (%d) expects 4, 8, or 12 bytes of payload but got %d bytes",
+                throw new MessageFormatException(String.format("Timestamp extension type (%d) expects 4, 8, or 12 bytes of payload but got %d bytes",
                             EXT_TIMESTAMP, ext.getLength()));
         }
-    }
-
-    public Date unpackDate()
-            throws IOException
-    {
-        return new Date(unpackTimestampMillis());
     }
 
     public long unpackTimestampMillis()
@@ -1334,7 +1323,7 @@ public class MessageUnpacker
                 return sec * 1000L + nsec / 1000L;
             }
             default:
-                throw new MessageExtensionFormatException(String.format("Timestamp extension type (%d) expects 4, 8, or 12 bytes of payload but got %d bytes",
+                throw new MessageFormatException(String.format("Timestamp extension type (%d) expects 4, 8, or 12 bytes of payload but got %d bytes",
                             EXT_TIMESTAMP, ext.getLength()));
         }
     }

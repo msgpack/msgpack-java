@@ -22,9 +22,10 @@ import java.nio.charset.{CodingErrorAction, UnmappableCharacterException}
 import org.msgpack.core.MessagePack.Code
 import org.msgpack.core.MessagePack.{PackerConfig, UnpackerConfig}
 import org.msgpack.value.{Value, Variable}
-import org.scalacheck.Arbitrary
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Prop.{forAll, propBoolean}
 
+import java.time.Instant
 import scala.util.Random
 
 /**
@@ -583,6 +584,30 @@ class MessagePackTest extends MessagePackSpec {
       )
     }
 
+    "pack/unpack timestamp values" in {
+      val posLong = Gen.chooseNum[Long](-31557014167219200L, 31556889864403199L)
+      val posInt  = Gen.chooseNum(0, 1000000000 - 1) // NANOS_PER_SECOND
+      forAll(posLong, posInt) { (second: Long, nano: Int) =>
+        val v = Instant.ofEpochSecond(second, nano)
+        check(v, { _.packTimestamp(v) }, { _.unpackTimestamp() })
+      }
+      val secLessThan34bits = Gen.chooseNum[Long](0, 1L << 34)
+      forAll(secLessThan34bits, posInt) { (second: Long, nano: Int) =>
+        val v = Instant.ofEpochSecond(second, nano)
+        check(v, _.packTimestamp(v), _.unpackTimestamp())
+      }
+
+      // Corner cases for u
+      // sign uint32 nanoseq (out of int32 range)
+      for (v <- Seq(
+             Instant.ofEpochSecond(Instant.now().getEpochSecond, 123456789L),
+             Instant.ofEpochSecond(-1302749144L, 0), // 1928-09-19T21:14:16Z
+             Instant.ofEpochSecond(-747359729L, 0), // 1946-04-27T00:04:31Z
+             Instant.ofEpochSecond(4257387427L, 0) // 2104-11-29T07:37:07Z
+           )) {
+        check(v, _.packTimestamp(v), _.unpackTimestamp())
+      }
+    }
   }
 
   "MessagePack.PackerConfig" should {
