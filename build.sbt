@@ -7,6 +7,11 @@ Global / concurrentRestrictions := Seq(
   Tags.limit(Tags.Test, 1)
 )
 
+// Use dynamic snapshot version strings for non tagged versions
+ThisBuild / dynverSonatypeSnapshots := true
+// Use coursier friendly version separator
+ThisBuild / dynverSeparator := "-"
+
 val buildSettings = Seq[Setting[_]](
   organization := "org.msgpack",
   organizationName := "MessagePack",
@@ -32,19 +37,12 @@ val buildSettings = Seq[Setting[_]](
     }
   },
   // Release settings
-  releaseTagName := { (ThisBuild / version).value },
   releaseProcess := Seq[ReleaseStep](
     checkSnapshotDependencies,
     inquireVersions,
     runClean,
     runTest,
-    setReleaseVersion,
-    commitReleaseVersion,
     tagRelease,
-    releaseStepCommand("publishSigned"),
-    releaseStepCommand("sonatypeBundleRelease"),
-    setNextVersion,
-    commitNextVersion,
     pushChanges
   ),
   // Add sonatype repository settings
