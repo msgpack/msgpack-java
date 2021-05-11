@@ -65,10 +65,7 @@ lazy val root = Project(id = "msgpack-java", base = file("."))
     // Do not publish the root project
     publishArtifact := false,
     publish := {},
-    publishLocal := {},
-    findbugs := {
-      // do not run findbugs for the root project
-    }
+    publishLocal := {}
   )
   .aggregate(msgpackCore, msgpackJackson)
 
