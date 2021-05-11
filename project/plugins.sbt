@@ -1,11 +1,12 @@
-addSbtPlugin("com.github.gseitz" % "sbt-release"     % "1.0.11")
-addSbtPlugin("org.xerial.sbt"    % "sbt-sonatype"    % "2.5")
-addSbtPlugin("com.jsuereth"      % "sbt-pgp"         % "1.1.2")
-addSbtPlugin("com.github.sbt"    % "sbt-findbugs"    % "2.0.0")
-addSbtPlugin("com.github.sbt"    % "sbt-jacoco"      % "3.0.3")
-addSbtPlugin("org.xerial.sbt"    % "sbt-jcheckstyle" % "0.2.1")
-addSbtPlugin("com.typesafe.sbt"  % "sbt-osgi"        % "0.9.5")
-addSbtPlugin("io.get-coursier"   % "sbt-coursier"    % "1.0.3")
-addSbtPlugin("com.geirsson"      % "sbt-scalafmt"    % "1.5.1")
+addSbtPlugin("com.github.sbt"   % "sbt-release"     % "1.0.15")
+addSbtPlugin("org.xerial.sbt"   % "sbt-sonatype"    % "3.9.7")
+addSbtPlugin("com.github.sbt"   % "sbt-pgp"         % "2.1.2")
+addSbtPlugin("com.github.sbt"   % "sbt-findbugs"    % "2.0.0")
+// TODO: Fixes jacoco error:
+// java.lang.NoClassDefFoundError: Could not initialize class org.jacoco.core.internal.flow.ClassProbesAdapter
+//addSbtPlugin("com.github.sbt"   % "sbt-jacoco"      % "3.3.0")
+addSbtPlugin("org.xerial.sbt"   % "sbt-jcheckstyle" % "0.2.1")
+addSbtPlugin("com.typesafe.sbt" % "sbt-osgi"        % "0.9.5")
+addSbtPlugin("org.scalameta"    % "sbt-scalafmt"    % "2.4.2")
 
 scalacOptions ++= Seq("-deprecation", "-feature")
