@@ -86,8 +86,8 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
     libraryDependencies ++= Seq(
       // msgpack-core should have no external dependencies
       junitInterface,
-      "org.scalatest"     %% "scalatest"    % "3.0.8"  % "test",
-      "org.scalacheck"    %% "scalacheck"   % "1.14.0" % "test",
+      "org.scalatest"     %% "scalatest"    % "3.2.7"  % "test",
+      "org.scalacheck"    %% "scalacheck"   % "1.15.4" % "test",
       "org.xerial"        %% "xerial-core"  % "3.6.0"  % "test",
       "org.msgpack"       % "msgpack"       % "0.6.12" % "test",
       "commons-codec"     % "commons-codec" % "1.12"   % "test",

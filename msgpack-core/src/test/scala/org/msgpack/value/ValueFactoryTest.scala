@@ -16,6 +16,7 @@
 package org.msgpack.value
 
 import org.msgpack.core.MessagePackSpec
+import org.scalacheck.Prop.forAll
 
 /**
   *
@@ -34,7 +35,7 @@ class ValueFactoryTest extends MessagePackSpec {
               isMap: Boolean = false,
               isExtension: Boolean = false,
               isRaw: Boolean = false,
-              isNumber: Boolean = false) {
+              isNumber: Boolean = false): Boolean = {
     v.isNilValue shouldBe isNil
     v.isBooleanValue shouldBe isBoolean
     v.isIntegerValue shouldBe isInteger
@@ -46,6 +47,7 @@ class ValueFactoryTest extends MessagePackSpec {
     v.isExtensionValue shouldBe isExtension
     v.isRawValue shouldBe isRaw
     v.isNumberValue shouldBe isNumber
+    true
   }
 
   "ValueFactory" should {

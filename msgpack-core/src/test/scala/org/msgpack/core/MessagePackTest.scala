@@ -19,10 +19,11 @@ import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 import java.nio.CharBuffer
 import java.nio.charset.{CodingErrorAction, UnmappableCharacterException}
-
 import org.msgpack.core.MessagePack.Code
-import org.msgpack.core.MessagePack.{UnpackerConfig, PackerConfig}
+import org.msgpack.core.MessagePack.{PackerConfig, UnpackerConfig}
 import org.msgpack.value.{Value, Variable}
+import org.scalacheck.Arbitrary
+import org.scalacheck.Prop.{forAll, propBoolean}
 
 import scala.util.Random
 
@@ -176,7 +177,7 @@ class MessagePackTest extends MessagePackSpec {
         unpack: MessageUnpacker => A,
         packerConfig: PackerConfig = new PackerConfig(),
         unpackerConfig: UnpackerConfig = new UnpackerConfig()
-    ): Unit = {
+    ): Boolean = {
       var b: Array[Byte] = null
       try {
         val bs     = new ByteArrayOutputStream()
@@ -189,6 +190,7 @@ class MessagePackTest extends MessagePackSpec {
         val unpacker = unpackerConfig.newUnpacker(b)
         val ret      = unpack(unpacker)
         ret shouldBe v
+        true
       } catch {
         case e: Exception =>
           warn(e.getMessage)
@@ -357,11 +359,9 @@ class MessagePackTest extends MessagePackSpec {
     }
 
     "pack/unpack strings" taggedAs ("string") in {
-
-      forAll { (v: String) =>
-        whenever(isValidUTF8(v)) {
-          check(v, _.packString(v), _.unpackString)
-        }
+      val utf8Strings = Arbitrary.arbitrary[String].suchThat(isValidUTF8 _)
+      utf8Strings.map { v =>
+        check(v, _.packString(v), _.unpackString)
       }
     }
 
@@ -532,7 +532,7 @@ class MessagePackTest extends MessagePackSpec {
     "pack/unpack extension types" taggedAs ("ext") in {
       forAll { (dataLen: Int, tpe: Byte) =>
         val l = Math.abs(dataLen)
-        whenever(l >= 0) {
+        l >= 0 ==> {
           val ext =
             new ExtensionTypeHeader(ExtensionTypeHeader.checkedCastToByte(tpe), l)
           check(ext, _.packExtensionTypeHeader(ext.getType, ext.getLength), _.unpackExtensionTypeHeader())
