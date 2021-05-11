@@ -2,7 +2,6 @@ name: Release to Sonatype
 
 on:
   push:
-    branches: [develop, main]
     tags:
       - v*
   workflow_dispatch:
