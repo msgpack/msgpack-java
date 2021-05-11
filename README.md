@@ -96,7 +96,7 @@ $ git tag v0.x.y
 $ git push origin v0.x.y
 ```
 
-If you need to publish to Maven central using a local machine, you need to configure [sbt-sonatype](https://github.com/xerial/sbt-sonatype) plugin. Set Sonatype account information (user name and password) in the global sbt settings. To protect your password, never include this file in your project.
+If you need to publish to Maven central using a local machine, you need to configure [sbt-sonatype](https://github.com/xerial/sbt-sonatype) plugin. First set Sonatype account information (user name and password) in the global sbt settings. To protect your password, never include this file in your project.
 
 ___$HOME/.sbt/(sbt-version)/sonatype.sbt___
 
@@ -106,6 +106,8 @@ credentials += Credentials("Sonatype Nexus Repository Manager",
         "(Sonatype user name)",
         "(Sonatype password)")
 ```
+
+You may also need to configure GPG. See the instruction in [sbt-pgp](https://github.com/sbt/sbt-pgp).
 
 Then, run `publishedSigned` followed by `sonatypeBundleRelease`:
 ```

@@ -1,5 +1,3 @@
-import ReleaseTransformations._
-
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 // For performance testing, ensure each test run one-by-one
