@@ -1,26 +1,29 @@
 import ReleaseTransformations._
 
+Global / onChangedBuildSource := ReloadOnSourceChanges
+
+// For performance testing, ensure each test run one-by-one
+Global / concurrentRestrictions := Seq(
+  Tags.limit(Tags.Test, 1)
+)
+
 val buildSettings = Seq[Setting[_]](
   organization := "org.msgpack",
   organizationName := "MessagePack",
   organizationHomepage := Some(new URL("http://msgpack.org/")),
   description := "MessagePack for Java",
-  scalaVersion := "2.12.8",
-  logBuffered in Test := false,
+  scalaVersion := "2.12.13",
+  Test / logBuffered := false,
   // msgpack-java should be a pure-java library, so remove Scala specific configurations
   autoScalaLibrary := false,
   crossPaths := false,
-  // For performance testing, ensure each test run one-by-one
-  concurrentRestrictions in Global := Seq(
-    Tags.limit(Tags.Test, 1)
-  ),
   // JVM options for building
   scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-feature"),
-  javaOptions in Test ++= Seq("-ea"),
+  Test / javaOptions ++= Seq("-ea"),
   javacOptions ++= Seq("-source", "1.7", "-target", "1.7"),
-  javacOptions in (Compile, compile) ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation"),
+  Compile / compile / javacOptions ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation"),
   // Use lenient validation mode when generating Javadoc (for Java8)
-  javacOptions in doc := {
+  doc / javacOptions := {
     val opts = Seq("-source", "1.7")
     if (scala.util.Properties.isJavaAtLeast("1.8")) {
       opts ++ Seq("-Xdoclint:none")
@@ -29,7 +32,7 @@ val buildSettings = Seq[Setting[_]](
     }
   },
   // Release settings
-  releaseTagName := { (version in ThisBuild).value },
+  releaseTagName := { (ThisBuild / version).value },
   releaseProcess := Seq[ReleaseStep](
     checkSnapshotDependencies,
     inquireVersions,
@@ -39,26 +42,21 @@ val buildSettings = Seq[Setting[_]](
     commitReleaseVersion,
     tagRelease,
     releaseStepCommand("publishSigned"),
+    releaseStepCommand("sonatypeBundleRelease"),
     setNextVersion,
     commitNextVersion,
-    releaseStepCommand("sonatypeReleaseAll"),
     pushChanges
   ),
   // Add sonatype repository settings
-  publishTo := Some(
-    if (isSnapshot.value)
-      Opts.resolver.sonatypeSnapshots
-    else
-      Opts.resolver.sonatypeStaging
-  ),
+  publishTo := sonatypePublishToBundle.value,
   // Find bugs
   findbugsReportType := Some(FindbugsReport.FancyHtml),
   findbugsReportPath := Some(crossTarget.value / "findbugs" / "report.html"),
   // Style check config: (sbt-jchekcstyle)
   jcheckStyleConfig := "facebook",
   // Run jcheckstyle both for main and test codes
-  (compile in Compile) := ((compile in Compile) dependsOn (jcheckStyle in Compile)).value,
-  (compile in Test) := ((compile in Test) dependsOn (jcheckStyle in Test)).value
+  Compile / compile := ((Compile / compile) dependsOn (Compile / jcheckStyle)).value,
+  Test / compile := ((Test / compile) dependsOn (Test / jcheckStyle)).value
 )
 
 val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
