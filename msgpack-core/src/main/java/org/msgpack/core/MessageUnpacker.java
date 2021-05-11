@@ -32,10 +32,6 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.msgpack.core.Preconditions.checkNotNull;
 
@@ -690,22 +686,23 @@ public class MessageUnpacker
             }
             case ARRAY: {
                 int size = unpackArrayHeader();
-                List<Value> list = new ArrayList<Value>(size);
+                Value[] kvs = new Value[size];
                 for (int i = 0; i < size; i++) {
-                    list.add(unpackValue());
+                    kvs[i] = unpackValue();
                 }
-                var.setArrayValue(list);
+                var.setArrayValue(kvs);
                 return var;
             }
             case MAP: {
                 int size = unpackMapHeader();
-                Map<Value, Value> map = new HashMap<Value, Value>();
-                for (int i = 0; i < size; i++) {
-                    Value k = unpackValue();
-                    Value v = unpackValue();
-                    map.put(k, v);
+                Value[] kvs = new Value[size * 2];
+                for (int i = 0; i < size * 2; ) {
+                    kvs[i] = unpackValue();
+                    i++;
+                    kvs[i] = unpackValue();
+                    i++;
                 }
-                var.setMapValue(map);
+                var.setMapValue(kvs);
                 return var;
             }
             case EXTENSION: {

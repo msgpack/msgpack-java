@@ -30,6 +30,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -801,6 +802,14 @@ public class Variable
     {
         this.type = Type.LIST;
         this.accessor = arrayAccessor;
+        this.objectValue = v.toArray();
+        return this;
+    }
+
+    public Variable setArrayValue(Value[] v)
+    {
+        this.type = Type.LIST;
+        this.accessor = arrayAccessor;
         this.objectValue = v;
         return this;
     }
@@ -824,29 +833,29 @@ public class Variable
         @Override
         public ImmutableArrayValue immutableValue()
         {
-            return ValueFactory.newArray(list());
+            return ValueFactory.newArray(array());
         }
 
         @Override
         public int size()
         {
-            return list().size();
+            return array().length;
         }
 
         @Override
         public Value get(int index)
         {
-            return list().get(index);
+            return array()[index];
         }
 
         @Override
         public Value getOrNilValue(int index)
         {
-            List<Value> l = list();
-            if (l.size() < index && index >= 0) {
+            Value[] a = array();
+            if (a.length < index && index >= 0) {
                 return ValueFactory.newNil();
             }
-            return l.get(index);
+            return a[index];
         }
 
         @Override
@@ -856,21 +865,21 @@ public class Variable
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public List<Value> list()
         {
-            return (List<Value>) objectValue;
+            return Arrays.asList(array());
+        }
+
+        public Value[] array()
+        {
+            return (Value[]) objectValue;
         }
 
         @Override
         public void writeTo(MessagePacker pk)
                 throws IOException
         {
-            List<Value> l = list();
-            pk.packArrayHeader(l.size());
-            for (Value e : l) {
-                e.writeTo(pk);
-            }
+            immutableValue().writeTo(pk);
         }
     }
 
@@ -882,7 +891,25 @@ public class Variable
     {
         this.type = Type.MAP;
         this.accessor = mapAccessor;
-        this.objectValue = v;
+        Value[] kvs = new Value[v.size() * 2];
+        Iterator<Map.Entry<Value, Value>> ite = v.entrySet().iterator();
+        int i = 0;
+        while (ite.hasNext()) {
+            Map.Entry<Value, Value> pair = ite.next();
+            kvs[i] = pair.getKey();
+            i++;
+            kvs[i] = pair.getValue();
+            i++;
+        }
+        this.objectValue = kvs;
+        return this;
+    }
+
+    public Variable setMapValue(Value[] kvs)
+    {
+        this.type = Type.MAP;
+        this.accessor = mapAccessor;
+        this.objectValue = kvs;
         return this;
     }
 
@@ -905,66 +932,49 @@ public class Variable
         @Override
         public ImmutableMapValue immutableValue()
         {
-            return ValueFactory.newMap(map());
+            return ValueFactory.newMap(getKeyValueArray());
         }
 
         @Override
         public int size()
         {
-            return map().size();
+            return getKeyValueArray().length / 2;
         }
 
         @Override
         public Set<Value> keySet()
         {
-            return map().keySet();
+            return immutableValue().keySet();
         }
 
         @Override
         public Set<Map.Entry<Value, Value>> entrySet()
         {
-            return map().entrySet();
+            return immutableValue().entrySet();
         }
 
         @Override
         public Collection<Value> values()
         {
-            return map().values();
+            return immutableValue().values();
         }
 
         @Override
         public Value[] getKeyValueArray()
         {
-            Map<Value, Value> v = map();
-            Value[] kvs = new Value[v.size() * 2];
-            Iterator<Map.Entry<Value, Value>> ite = v.entrySet().iterator();
-            int i = 0;
-            while (ite.hasNext()) {
-                Map.Entry<Value, Value> pair = ite.next();
-                kvs[i] = pair.getKey();
-                i++;
-                kvs[i] = pair.getValue();
-                i++;
-            }
-            return kvs;
+            return (Value[]) objectValue;
         }
 
-        @SuppressWarnings("unchecked")
         public Map<Value, Value> map()
         {
-            return (Map<Value, Value>) objectValue;
+            return immutableValue().map();
         }
 
         @Override
         public void writeTo(MessagePacker pk)
                 throws IOException
         {
-            Map<Value, Value> m = map();
-            pk.packArrayHeader(m.size());
-            for (Map.Entry<Value, Value> pair : m.entrySet()) {
-                pair.getKey().writeTo(pk);
-                pair.getValue().writeTo(pk);
-            }
+            immutableValue().writeTo(pk);
         }
     }
 
