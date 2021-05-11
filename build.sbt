@@ -79,7 +79,7 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
       "org.xerial"        %% "xerial-core"  % "3.6.0"  % "test",
       "org.msgpack"       % "msgpack"       % "0.6.12" % "test",
       "commons-codec"     % "commons-codec" % "1.12"   % "test",
-      "com.typesafe.akka" %% "akka-actor"   % "2.5.23" % "test"
+      "com.typesafe.akka" %% "akka-actor"   % "2.5.32" % "test"
     )
   )
 
