@@ -37,15 +37,6 @@ val buildSettings = Seq[Setting[_]](
       opts
     }
   },
-  // Release settings
-  releaseProcess := Seq[ReleaseStep](
-    checkSnapshotDependencies,
-    inquireVersions,
-    runClean,
-    runTest,
-    tagRelease,
-    pushChanges
-  ),
   // Add sonatype repository settings
   publishTo := sonatypePublishToBundle.value,
   // Style check config: (sbt-jchekcstyle)

@@ -85,17 +85,18 @@ Here is a list of sbt commands for daily development:
 > publishLocal            # Install to local .ivy2 repository
 > publishM2               # Install to local .m2 Maven repository
 > publish                 # Publishing a snapshot version to the Sonatype repository
-
-> release                 # Run the release procedure (set a new version, run tests, upload artifacts, then deploy to Sonatype)
-
-# [optional] When you need to perform the individual release steps manually, use the following commands:
-> publishSigned           # Publish GPG signed artifacts to the Sonatype repository
-> sonatypeBundleRelease   # Publish to the Maven Central (It will be synched within less than 4 hours)
 ```
 
-Once you run a release command, a new git tag v(version number) will be pushed to GitHub. GitHub Action will deploy a new release version to Maven Central (Sonatype).
+### Publish to Sonatype (Maven Central)
 
-For publishing to Maven central using a local machine, msgpack-java uses [sbt-sonatype](https://github.com/xerial/sbt-sonatype) plugin. Set Sonatype account information (user name and password) in the global sbt settings. To protect your password, never include this file in your project.
+To publish a new version, you only need to add a new git tag and push it to GitHub. GitHub Action will deploy a new release version to Maven Central (Sonatype).
+
+```scala
+$ git tag v0.x.y
+$ git push origin v0.x.y
+```
+
+If you need to publish to Maven central using a local machine, you need to configure [sbt-sonatype](https://github.com/xerial/sbt-sonatype) plugin. Set Sonatype account information (user name and password) in the global sbt settings. To protect your password, never include this file in your project.
 
 ___$HOME/.sbt/(sbt-version)/sonatype.sbt___
 
@@ -105,6 +106,15 @@ credentials += Credentials("Sonatype Nexus Repository Manager",
         "(Sonatype user name)",
         "(Sonatype password)")
 ```
+
+Then, run `publishedSigned` followed by `sonatypeBundleRelease`:
+```
+# [optional] When you need to perform the individual release steps manually, use the following commands:
+> publishSigned           # Publish GPG signed artifacts to the Sonatype repository
+> sonatypeBundleRelease   # Publish to the Maven Central (It will be synched within less than 4 hours)
+```
+
+If some sporadic error happens (e.g., Sonatype timeout), rerun `sonatypeBundleRelease` again.
 
 ### Project Structure
 
