@@ -807,13 +807,25 @@ public class MessagePacker
      * This method writes a timestamp value using timestamp format family.
      *
      * @param instant the timestamp to be written
-     * @return this
+     * @return this packer
      * @throws IOException when underlying output throws IOException
      */
     public MessagePacker packTimestamp(Instant instant)
             throws IOException
     {
         return packTimestamp(instant.getEpochSecond(), instant.getNano());
+    }
+
+    /**
+     * Writes a Timesamp value using a millisecond value (e.g., System.currentTimeMillis())
+     * @param millis the millisecond value
+     * @return this packer
+     * @throws IOException when underlying output throws IOException
+     */
+    public MessagePacker packTimestamp(long millis)
+            throws IOException
+    {
+        return packTimestamp(Instant.ofEpochMilli(millis));
     }
 
     private static final long NANOS_PER_SECOND = 1000000000L;

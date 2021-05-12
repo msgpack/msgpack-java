@@ -48,6 +48,12 @@ public class ImmutableTimestampValueImpl
     }
 
     @Override
+    public boolean isTimestampValue()
+    {
+        return true;
+    }
+
+    @Override
     public byte getType()
     {
         return EXT_TIMESTAMP;

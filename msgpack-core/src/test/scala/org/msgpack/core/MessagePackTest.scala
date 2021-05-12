@@ -591,10 +591,19 @@ class MessagePackTest extends MessagePackSpec {
         val v = Instant.ofEpochSecond(second, nano)
         check(v, { _.packTimestamp(v) }, { _.unpackTimestamp() })
       }
+      // Using different insterfaces
+      forAll(posLong, posInt) { (second: Long, nano: Int) =>
+        val v = Instant.ofEpochSecond(second, nano)
+        check(v, { _.packTimestamp(second, nano) }, { _.unpackTimestamp() })
+      }
       val secLessThan34bits = Gen.chooseNum[Long](0, 1L << 34)
       forAll(secLessThan34bits, posInt) { (second: Long, nano: Int) =>
         val v = Instant.ofEpochSecond(second, nano)
         check(v, _.packTimestamp(v), _.unpackTimestamp())
+      }
+      forAll(secLessThan34bits, posInt) { (second: Long, nano: Int) =>
+        val v = Instant.ofEpochSecond(second, nano)
+        check(v, _.packTimestamp(second, nano), _.unpackTimestamp())
       }
 
       // Corner cases for u
@@ -606,6 +615,14 @@ class MessagePackTest extends MessagePackSpec {
              Instant.ofEpochSecond(4257387427L, 0) // 2104-11-29T07:37:07Z
            )) {
         check(v, _.packTimestamp(v), _.unpackTimestamp())
+      }
+    }
+
+    "pack/unpack timestamp in millis" in {
+      val posLong = Gen.chooseNum[Long](-31557014167219200L, 31556889864403199L)
+      forAll(posLong) { (millis: Long) =>
+        val v = Instant.ofEpochMilli(millis)
+        check(v, { _.packTimestamp(millis) }, { _.unpackTimestamp() })
       }
     }
   }

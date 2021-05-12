@@ -35,7 +35,8 @@ class ValueFactoryTest extends MessagePackSpec {
               isMap: Boolean = false,
               isExtension: Boolean = false,
               isRaw: Boolean = false,
-              isNumber: Boolean = false): Boolean = {
+              isNumber: Boolean = false,
+              isTimestamp: Boolean = false): Boolean = {
     v.isNilValue shouldBe isNil
     v.isBooleanValue shouldBe isBoolean
     v.isIntegerValue shouldBe isInteger
@@ -47,6 +48,7 @@ class ValueFactoryTest extends MessagePackSpec {
     v.isExtensionValue shouldBe isExtension
     v.isRawValue shouldBe isRaw
     v.isNumberValue shouldBe isNumber
+    v.isTimestampValue shouldBe isTimestamp
     true
   }
 
@@ -73,6 +75,10 @@ class ValueFactoryTest extends MessagePackSpec {
       isValid(ValueFactory.emptyMap(), expected = ValueType.MAP, isMap = true)
       forAll { (v: Array[Byte]) =>
         isValid(ValueFactory.newExtension(0, v), expected = ValueType.EXTENSION, isExtension = true, isRaw = false)
+      }
+
+      forAll { (millis: Long) =>
+        isValid(ValueFactory.newTimestamp(millis), expected = ValueType.EXTENSION, isExtension = true, isTimestamp = true)
       }
     }
   }

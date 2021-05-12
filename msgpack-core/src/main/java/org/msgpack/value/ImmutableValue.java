@@ -47,4 +47,7 @@ public interface ImmutableValue
 
     @Override
     public ImmutableStringValue asStringValue();
+
+    @Override
+    public ImmutableTimestampValue asTimestampValue();
 }

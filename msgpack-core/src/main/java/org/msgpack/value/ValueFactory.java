@@ -303,6 +303,11 @@ public final class ValueFactory
         return new ImmutableTimestampValueImpl(timestamp);
     }
 
+    public static ImmutableTimestampValue newTimestamp(long millis)
+    {
+        return newTimestamp(Instant.ofEpochMilli(millis));
+    }
+
     public static ImmutableTimestampValue newTimestamp(long epochSecond, int nanoAdjustment)
     {
         return newTimestamp(Instant.ofEpochSecond(epochSecond, nanoAdjustment));

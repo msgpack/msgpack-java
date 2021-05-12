@@ -30,6 +30,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -110,6 +111,12 @@ public class Variable
         }
 
         @Override
+        public boolean isTimestampValue()
+        {
+            return false;
+        }
+
+        @Override
         public NilValue asNilValue()
         {
             throw new MessageTypeCastException();
@@ -176,6 +183,12 @@ public class Variable
         }
 
         @Override
+        public TimestampValue asTimestampValue()
+        {
+            throw new MessageTypeCastException();
+        }
+
+        @Override
         public boolean equals(Object obj)
         {
             return Variable.this.equals(obj);
@@ -211,7 +224,8 @@ public class Variable
         RAW_STRING(ValueType.STRING),
         LIST(ValueType.ARRAY),
         MAP(ValueType.MAP),
-        EXTENSION(ValueType.EXTENSION);
+        EXTENSION(ValueType.EXTENSION),
+        TIMESTAMP(ValueType.EXTENSION);
 
         private final ValueType valueType;
 
@@ -235,6 +249,7 @@ public class Variable
     private final ArrayValueAccessor arrayAccessor = new ArrayValueAccessor();
     private final MapValueAccessor mapAccessor = new MapValueAccessor();
     private final ExtensionValueAccessor extensionAccessor = new ExtensionValueAccessor();
+    private final TimestampValueAccessor timestampAccessor = new TimestampValueAccessor();
 
     private Type type;
 
@@ -1031,6 +1046,86 @@ public class Variable
         }
     }
 
+    public Variable setTimestampValue(Instant timestamp)
+    {
+        this.type = Type.TIMESTAMP;
+        this.accessor = timestampAccessor;
+        this.objectValue = ValueFactory.newTimestamp(timestamp);
+        return this;
+    }
+
+    private class TimestampValueAccessor
+            extends AbstractValueAccessor
+            implements TimestampValue
+    {
+        @Override
+        public boolean isTimestampValue()
+        {
+            return true;
+        }
+
+        @Override
+        public ValueType getValueType()
+        {
+            return ValueType.EXTENSION;
+        }
+
+        @Override
+        public TimestampValue asTimestampValue()
+        {
+            return this;
+        }
+
+        @Override
+        public ImmutableTimestampValue immutableValue()
+        {
+            return (ImmutableTimestampValue) objectValue;
+        }
+
+        @Override
+        public byte getType()
+        {
+            return ((ImmutableTimestampValue) objectValue).getType();
+        }
+
+        @Override
+        public byte[] getData()
+        {
+            return ((ImmutableTimestampValue) objectValue).getData();
+        }
+
+        @Override
+        public void writeTo(MessagePacker pk)
+                throws IOException
+        {
+            ((ImmutableTimestampValue) objectValue).writeTo(pk);
+        }
+
+        @Override
+        public long getEpochSecond()
+        {
+            return ((ImmutableTimestampValue) objectValue).getEpochSecond();
+        }
+
+        @Override
+        public int getNano()
+        {
+            return ((ImmutableTimestampValue) objectValue).getNano();
+        }
+
+        @Override
+        public long toEpochMillis()
+        {
+            return ((ImmutableTimestampValue) objectValue).toEpochMillis();
+        }
+
+        @Override
+        public Instant toInstant()
+        {
+            return ((ImmutableTimestampValue) objectValue).toInstant();
+        }
+    }
+
     ////
     // Value
     //
@@ -1145,6 +1240,12 @@ public class Variable
     }
 
     @Override
+    public boolean isTimestampValue()
+    {
+        return this.type == Type.TIMESTAMP;
+    }
+
+    @Override
     public NilValue asNilValue()
     {
         if (!isNilValue()) {
@@ -1241,5 +1342,14 @@ public class Variable
             throw new MessageTypeCastException();
         }
         return (ExtensionValue) accessor;
+    }
+
+    @Override
+    public TimestampValue asTimestampValue()
+    {
+        if (!isTimestampValue()) {
+            throw new MessageTypeCastException();
+        }
+        return (TimestampValue) accessor;
     }
 }
