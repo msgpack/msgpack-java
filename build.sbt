@@ -77,13 +77,15 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
     libraryDependencies ++= Seq(
       // msgpack-core should have no external dependencies
       junitInterface,
-      "org.wvlet.airframe"     %% "airframe-json"           % AIRFRAME_VERSION % "test",
-      "org.wvlet.airframe"     %% "airspec"                 % AIRFRAME_VERSION % "test",
-      "org.scalacheck"         %% "scalacheck"              % "1.15.4"         % "test",
-      "org.msgpack"            % "msgpack"                  % "0.6.12"         % "test",
-      "commons-codec"          % "commons-codec"            % "1.12"           % "test",
-      "com.typesafe.akka"      %% "akka-actor"              % "2.5.23"         % "test",
-      "org.scala-lang.modules" %% "scala-collection-compat" % "2.4.3"          % "test"
+      "org.wvlet.airframe" %% "airframe-json" % AIRFRAME_VERSION % "test",
+      "org.wvlet.airframe" %% "airspec"       % AIRFRAME_VERSION % "test",
+      // Add property testing support with forAll methods
+      "org.scalacheck" %% "scalacheck" % "1.15.4" % "test",
+      // For performance comparison with msgpack v6
+      "org.msgpack" % "msgpack" % "0.6.12" % "test",
+      // For integration test with Akka
+      "com.typesafe.akka"      %% "akka-actor"              % "2.5.23" % "test",
+      "org.scala-lang.modules" %% "scala-collection-compat" % "2.4.3"  % "test"
     )
   )
 
