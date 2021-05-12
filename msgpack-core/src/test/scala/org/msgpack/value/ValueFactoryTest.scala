@@ -15,28 +15,28 @@
 //
 package org.msgpack.value
 
-import org.msgpack.core.MessagePackSpec
-import org.scalacheck.Prop.forAll
+import wvlet.airspec.AirSpec
+import wvlet.airspec.spi.PropertyCheck
 
 /**
   *
   */
-class ValueFactoryTest extends MessagePackSpec {
+class ValueFactoryTest extends AirSpec with PropertyCheck {
 
-  def isValid(v: Value,
-              expected: ValueType,
-              isNil: Boolean = false,
-              isBoolean: Boolean = false,
-              isInteger: Boolean = false,
-              isString: Boolean = false,
-              isFloat: Boolean = false,
-              isBinary: Boolean = false,
-              isArray: Boolean = false,
-              isMap: Boolean = false,
-              isExtension: Boolean = false,
-              isRaw: Boolean = false,
-              isNumber: Boolean = false,
-              isTimestamp: Boolean = false): Boolean = {
+  private def isValid(v: Value,
+                      expected: ValueType,
+                      isNil: Boolean = false,
+                      isBoolean: Boolean = false,
+                      isInteger: Boolean = false,
+                      isString: Boolean = false,
+                      isFloat: Boolean = false,
+                      isBinary: Boolean = false,
+                      isArray: Boolean = false,
+                      isMap: Boolean = false,
+                      isExtension: Boolean = false,
+                      isRaw: Boolean = false,
+                      isNumber: Boolean = false,
+                      isTimestamp: Boolean = false): Boolean = {
     v.isNilValue shouldBe isNil
     v.isBooleanValue shouldBe isBoolean
     v.isIntegerValue shouldBe isInteger
@@ -52,9 +52,8 @@ class ValueFactoryTest extends MessagePackSpec {
     true
   }
 
-  "ValueFactory" should {
-
-    "create valid type values" in {
+  test("ValueFactory") {
+    test("create valid type values") {
       isValid(ValueFactory.newNil(), expected = ValueType.NIL, isNil = true)
       forAll { (v: Boolean) =>
         isValid(ValueFactory.newBoolean(v), expected = ValueType.BOOLEAN, isBoolean = true)
@@ -78,6 +77,12 @@ class ValueFactoryTest extends MessagePackSpec {
       }
       forAll { (millis: Long) =>
         isValid(ValueFactory.newTimestamp(millis), expected = ValueType.EXTENSION, isExtension = true, isTimestamp = true)
+      }
+      forAll { (millis: Long) =>
+        isValid(ValueFactory.newTimestamp(millis), expected = ValueType.EXTENSION, isExtension = true, isTimestamp = true)
+      }
+      forAll { (sec: Long, nano: Int) =>
+        isValid(ValueFactory.newTimestamp(sec, nano), expected = ValueType.EXTENSION, isExtension = true, isTimestamp = true)
       }
     }
   }

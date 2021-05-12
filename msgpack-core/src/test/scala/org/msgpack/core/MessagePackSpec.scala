@@ -18,7 +18,6 @@ package org.msgpack.core
 import java.io.ByteArrayOutputStream
 import org.scalatest._
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.wordspec.AnyWordSpec
 import xerial.core.log.{LogLevel, Logger}
 import xerial.core.util.{TimeReport, Timer}

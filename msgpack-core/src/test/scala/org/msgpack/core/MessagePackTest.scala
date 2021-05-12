@@ -606,10 +606,9 @@ class MessagePackTest extends MessagePackSpec {
         check(v, _.packTimestamp(second, nano), _.unpackTimestamp())
       }
 
-      // Corner cases for u
-      // sign uint32 nanoseq (out of int32 range)
+      // Corner-cases around uint32 boundaries
       for (v <- Seq(
-             Instant.ofEpochSecond(Instant.now().getEpochSecond, 123456789L),
+             Instant.ofEpochSecond(Instant.now().getEpochSecond, 123456789L), // uint32 nanoseq (out of int32 range)
              Instant.ofEpochSecond(-1302749144L, 0), // 1928-09-19T21:14:16Z
              Instant.ofEpochSecond(-747359729L, 0), // 1946-04-27T00:04:31Z
              Instant.ofEpochSecond(4257387427L, 0) // 2104-11-29T07:37:07Z
