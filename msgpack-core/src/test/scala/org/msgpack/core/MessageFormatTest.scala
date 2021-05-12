@@ -17,8 +17,8 @@ package org.msgpack.core
 
 import org.msgpack.core.MessagePack.Code
 import org.msgpack.value.ValueType
-import org.scalatest.exceptions.TestFailedException
 import wvlet.airspec.AirSpec
+import wvlet.airspec.spi.AirSpecException
 
 import scala.util.Random
 
@@ -31,7 +31,7 @@ class MessageFormatTest extends AirSpec with Benchmark {
       def checkV(b: Byte, tpe: ValueType) {
         try MessageFormat.valueOf(b).getValueType shouldBe tpe
         catch {
-          case e: TestFailedException =>
+          case e: AirSpecException =>
             error(f"Failure when looking at byte ${b}%02x")
             throw e
         }

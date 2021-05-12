@@ -70,7 +70,7 @@ Here is a list of sbt commands for daily development:
 > ~test:compile                            # Compile both source and test codes
 > ~test                                    # Run tests upon source code change
 > ~testOnly *MessagePackTest               # Run tests in the specified class
-> ~testOnly *MessagePackTest -- -n prim    # Run the test tagged as "prim"
+> ~testOnly *MessagePackTest -- (pattern)  # Run tests matching the pattern 
 > project msgpack-core                     # Focus on a specific project
 > package                                  # Create a jar file in the target folder of each project
 > findbugs                                 # Produce findbugs report in target/findbugs
