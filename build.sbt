@@ -5,6 +5,8 @@ Global / concurrentRestrictions := Seq(
   Tags.limit(Tags.Test, 1)
 )
 
+val AIRFRAME_VERSION = "20.4.1"
+
 // Use dynamic snapshot version strings for non tagged versions
 ThisBuild / dynverSonatypeSnapshots := true
 // Use coursier friendly version separator
@@ -75,13 +77,13 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
     libraryDependencies ++= Seq(
       // msgpack-core should have no external dependencies
       junitInterface,
-      "org.wvlet.airframe"     %% "airspec"                 % "20.4.1" % "test",
-      "org.scalacheck"         %% "scalacheck"              % "1.15.4" % "test",
-      "org.xerial"             %% "xerial-core"             % "3.6.0"  % "test",
-      "org.msgpack"            % "msgpack"                  % "0.6.12" % "test",
-      "commons-codec"          % "commons-codec"            % "1.12"   % "test",
-      "com.typesafe.akka"      %% "akka-actor"              % "2.5.23" % "test",
-      "org.scala-lang.modules" %% "scala-collection-compat" % "2.4.3"  % "test"
+      "org.wvlet.airframe"     %% "airframe-json"           % AIRFRAME_VERSION % "test",
+      "org.wvlet.airframe"     %% "airspec"                 % AIRFRAME_VERSION % "test",
+      "org.scalacheck"         %% "scalacheck"              % "1.15.4"         % "test",
+      "org.msgpack"            % "msgpack"                  % "0.6.12"         % "test",
+      "commons-codec"          % "commons-codec"            % "1.12"           % "test",
+      "com.typesafe.akka"      %% "akka-actor"              % "2.5.23"         % "test",
+      "org.scala-lang.modules" %% "scala-collection-compat" % "2.4.3"          % "test"
     )
   )
 

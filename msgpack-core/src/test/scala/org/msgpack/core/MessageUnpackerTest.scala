@@ -20,7 +20,7 @@ import org.msgpack.core.buffer._
 import org.msgpack.value.ValueType
 import wvlet.airspec.AirSpec
 import wvlet.log.LogSupport
-import xerial.core.io.IOUtil._
+import wvlet.log.io.IOUtil.withResource
 
 import java.io._
 import java.nio.ByteBuffer

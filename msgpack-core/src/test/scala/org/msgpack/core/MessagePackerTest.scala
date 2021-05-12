@@ -19,7 +19,7 @@ import org.msgpack.core.MessagePack.PackerConfig
 import org.msgpack.core.buffer.{ChannelBufferOutput, OutputStreamBufferOutput}
 import org.msgpack.value.ValueFactory
 import wvlet.airspec.AirSpec
-import xerial.core.io.IOUtil
+import wvlet.log.io.IOUtil.withResource
 
 import java.io.{ByteArrayOutputStream, File, FileInputStream, FileOutputStream}
 import scala.util.Random
@@ -91,7 +91,7 @@ class MessagePackerTest extends AirSpec with Benchmark {
       val t = time("packer", repeat = 10) {
         block("no-buffer-reset") {
           val out = new ByteArrayOutputStream
-          IOUtil.withResource(MessagePack.newDefaultPacker(out)) { packer =>
+          withResource(MessagePack.newDefaultPacker(out)) { packer =>
             for (i <- 0 until N) {
               val outputStream = new ByteArrayOutputStream()
               packer
@@ -104,7 +104,7 @@ class MessagePackerTest extends AirSpec with Benchmark {
 
         block("buffer-reset") {
           val out = new ByteArrayOutputStream
-          IOUtil.withResource(MessagePack.newDefaultPacker(out)) { packer =>
+          withResource(MessagePack.newDefaultPacker(out)) { packer =>
             val bufferOut =
               new OutputStreamBufferOutput(new ByteArrayOutputStream())
             for (i <- 0 until N) {
@@ -237,7 +237,7 @@ class MessagePackerTest extends AirSpec with Benchmark {
   test("compute totalWrittenBytes") {
     val out = new ByteArrayOutputStream
     val packerTotalWrittenBytes =
-      IOUtil.withResource(MessagePack.newDefaultPacker(out)) { packer =>
+      withResource(MessagePack.newDefaultPacker(out)) { packer =>
         packer
           .packByte(0) // 1
           .packBoolean(true) // 1

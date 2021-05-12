@@ -20,10 +20,9 @@ import org.msgpack.core.MessagePackSpec.createMessagePackData
 import java.math.BigInteger
 import org.msgpack.core._
 import org.scalacheck.Prop.propBoolean
+import wvlet.airframe.json.JSON
 import wvlet.airspec.AirSpec
 import wvlet.airspec.spi.PropertyCheck
-
-import scala.util.parsing.json.JSON
 
 class ValueTest extends AirSpec with PropertyCheck {
   private def checkSuccinctType(pack: MessagePacker => Unit, expectedAtMost: MessageFormat): Boolean = {
@@ -98,9 +97,9 @@ class ValueTest extends AirSpec with PropertyCheck {
         .put(newString("address"), newArray(newString("xxx-xxxx"), newString("yyy-yyyy")))
         .put(newString("name"), newString("mitsu"))
         .build()
-      val i1 = JSON.parseFull(m.toJson)
-      val i2 = JSON.parseFull(m.toString) // expect json value
-      val a1 = JSON.parseFull("""{"id":1001,"name":"mitsu","address":["xxx-xxxx","yyy-yyyy"]}""")
+      val i1 = JSON.parse(m.toJson)
+      val i2 = JSON.parse(m.toString) // expect json value
+      val a1 = JSON.parse("""{"id":1001,"name":"mitsu","address":["xxx-xxxx","yyy-yyyy"]}""")
       // Equals as JSON map
       i1 shouldBe a1
       i2 shouldBe a1

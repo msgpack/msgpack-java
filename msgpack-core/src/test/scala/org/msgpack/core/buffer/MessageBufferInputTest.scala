@@ -15,16 +15,16 @@
 //
 package org.msgpack.core.buffer
 
+import org.msgpack.core.MessagePack
+import wvlet.airspec.AirSpec
+import wvlet.log.io.IOUtil.withResource
+
 import java.io._
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.{ServerSocketChannel, SocketChannel}
 import java.util.concurrent.{Callable, Executors, TimeUnit}
 import java.util.zip.{GZIPInputStream, GZIPOutputStream}
-import org.msgpack.core.{MessagePack, MessagePackSpec}
-import wvlet.airspec.AirSpec
-import xerial.core.io.IOUtil._
-
 import scala.util.Random
 
 class MessageBufferInputTest extends AirSpec {

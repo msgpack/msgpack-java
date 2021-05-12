@@ -19,7 +19,6 @@ import wvlet.log.LogLevel
 import wvlet.log.io.{TimeReport, Timer}
 
 import java.io.ByteArrayOutputStream
-import scala.language.implicitConversions
 
 object MessagePackSpec {
   def toHex(arr: Array[Byte]) = arr.map(x => f"$x%02x").mkString(" ")
