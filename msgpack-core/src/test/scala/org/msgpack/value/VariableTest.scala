@@ -39,6 +39,20 @@ class VariableTest extends AirSpec with PropertyCheck {
     unpacker.close()
   }
 
+  /**
+    * Test Value -> MsgPack -> Value
+    */
+  private def roundTrip(v: Value): Unit = {
+    val packer = MessagePack.newDefaultBufferPacker()
+    v.writeTo(packer)
+    val msgpack  = packer.toByteArray
+    val unpacker = MessagePack.newDefaultUnpacker(msgpack)
+    val v1       = unpacker.unpackValue()
+    unpacker.close()
+    v shouldBe v1
+    v.immutableValue() shouldBe v1
+  }
+
   private def validateValue[V <: Value](
       v: V,
       asNil: Boolean = false,
@@ -67,6 +81,7 @@ class VariableTest extends AirSpec with PropertyCheck {
 
     if (asNil) {
       v.getValueType shouldBe ValueType.NIL
+      roundTrip(v)
     } else {
       intercept[MessageTypeCastException] {
         v.asNilValue()
@@ -75,6 +90,7 @@ class VariableTest extends AirSpec with PropertyCheck {
 
     if (asBoolean) {
       v.getValueType shouldBe ValueType.BOOLEAN
+      roundTrip(v)
     } else {
       intercept[MessageTypeCastException] {
         v.asBooleanValue()
@@ -83,6 +99,7 @@ class VariableTest extends AirSpec with PropertyCheck {
 
     if (asInteger) {
       v.getValueType shouldBe ValueType.INTEGER
+      roundTrip(v)
     } else {
       intercept[MessageTypeCastException] {
         v.asIntegerValue()
@@ -91,6 +108,7 @@ class VariableTest extends AirSpec with PropertyCheck {
 
     if (asFloat) {
       v.getValueType shouldBe ValueType.FLOAT
+      roundTrip(v)
     } else {
       intercept[MessageTypeCastException] {
         v.asFloatValue()
@@ -99,6 +117,7 @@ class VariableTest extends AirSpec with PropertyCheck {
 
     if (asBinary | asString) {
       v.asRawValue()
+      roundTrip(v)
     } else {
       intercept[MessageTypeCastException] {
         v.asRawValue()
@@ -107,6 +126,7 @@ class VariableTest extends AirSpec with PropertyCheck {
 
     if (asBinary) {
       v.getValueType shouldBe ValueType.BINARY
+      roundTrip(v)
     } else {
       intercept[MessageTypeCastException] {
         v.asBinaryValue()
@@ -115,6 +135,7 @@ class VariableTest extends AirSpec with PropertyCheck {
 
     if (asString) {
       v.getValueType shouldBe ValueType.STRING
+      roundTrip(v)
     } else {
       intercept[MessageTypeCastException] {
         v.asStringValue()
@@ -123,6 +144,7 @@ class VariableTest extends AirSpec with PropertyCheck {
 
     if (asArray) {
       v.getValueType shouldBe ValueType.ARRAY
+      roundTrip(v)
     } else {
       intercept[MessageTypeCastException] {
         v.asArrayValue()
@@ -131,6 +153,7 @@ class VariableTest extends AirSpec with PropertyCheck {
 
     if (asMap) {
       v.getValueType shouldBe ValueType.MAP
+      roundTrip(v)
     } else {
       intercept[MessageTypeCastException] {
         v.asMapValue()
@@ -139,6 +162,7 @@ class VariableTest extends AirSpec with PropertyCheck {
 
     if (asExtension) {
       v.getValueType shouldBe ValueType.EXTENSION
+      roundTrip(v)
     } else {
       intercept[MessageTypeCastException] {
         v.asExtensionValue()
@@ -147,6 +171,7 @@ class VariableTest extends AirSpec with PropertyCheck {
 
     if (asTimestamp) {
       v.getValueType shouldBe ValueType.EXTENSION
+      roundTrip(v)
     } else {
       intercept[MessageTypeCastException] {
         v.asTimestampValue()
