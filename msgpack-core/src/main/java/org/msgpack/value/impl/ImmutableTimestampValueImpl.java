@@ -79,6 +79,12 @@ public class ImmutableTimestampValueImpl
     }
 
     @Override
+    public ImmutableTimestampValue asTimestampValue()
+    {
+        return this;
+    }
+
+    @Override
     public byte[] getData()
     {
         if (data == null) {
