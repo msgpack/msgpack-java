@@ -720,8 +720,12 @@ public class MessageUnpacker
             }
             case EXTENSION: {
                 ExtensionTypeHeader extHeader = unpackExtensionTypeHeader();
-                // TODO Set TimestampValue
-                var.setExtensionValue(extHeader.getType(), readPayload(extHeader.getLength()));
+                if (extHeader.getType() == EXT_TIMESTAMP) {
+                    var.setTimestampValue(unpackTimestamp(extHeader));
+                }
+                else {
+                    var.setExtensionValue(extHeader.getType(), readPayload(extHeader.getLength()));
+                }
                 return var;
             }
             default:

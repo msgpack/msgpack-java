@@ -76,7 +76,6 @@ class ValueFactoryTest extends MessagePackSpec {
       forAll { (v: Array[Byte]) =>
         isValid(ValueFactory.newExtension(0, v), expected = ValueType.EXTENSION, isExtension = true, isRaw = false)
       }
-
       forAll { (millis: Long) =>
         isValid(ValueFactory.newTimestamp(millis), expected = ValueType.EXTENSION, isExtension = true, isTimestamp = true)
       }
