@@ -26,12 +26,6 @@ import scala.language.implicitConversions
 
 object MessagePackSpec {
   def toHex(arr: Array[Byte]) = arr.map(x => f"$x%02x").mkString(" ")
-}
-
-trait MessagePackSpec extends AnyWordSpec with Matchers with GivenWhenThen with OptionValues with BeforeAndAfter with Benchmark with Logger {
-
-  implicit def toTag(s: String): Tag = Tag(s)
-
   def createMessagePackData(f: MessagePacker => Unit): Array[Byte] = {
     val b      = new ByteArrayOutputStream()
     val packer = MessagePack.newDefaultPacker(b)
@@ -39,6 +33,12 @@ trait MessagePackSpec extends AnyWordSpec with Matchers with GivenWhenThen with 
     packer.close()
     b.toByteArray
   }
+}
+
+trait MessagePackSpec extends AnyWordSpec with Matchers with GivenWhenThen with OptionValues with BeforeAndAfter with Benchmark with Logger {
+
+  implicit def toTag(s: String): Tag = Tag(s)
+
 }
 
 trait Benchmark extends Timer {

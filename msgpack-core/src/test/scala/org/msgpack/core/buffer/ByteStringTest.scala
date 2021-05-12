@@ -16,6 +16,7 @@
 package org.msgpack.core.buffer
 
 import akka.util.ByteString
+import org.msgpack.core.MessagePackSpec.createMessagePackData
 import org.msgpack.core.{MessagePack, MessagePackSpec, MessageUnpacker}
 
 class ByteStringTest extends MessagePackSpec {
