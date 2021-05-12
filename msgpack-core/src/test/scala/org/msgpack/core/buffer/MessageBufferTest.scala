@@ -15,16 +15,16 @@
 //
 package org.msgpack.core.buffer
 
+import org.msgpack.core.Benchmark
+import wvlet.airspec.AirSpec
+
 import java.nio.ByteBuffer
-
-import org.msgpack.core.MessagePackSpec
-
 import scala.util.Random
 
 /**
   * Created on 2014/05/01.
   */
-class MessageBufferTest extends MessagePackSpec {
+class MessageBufferTest extends AirSpec with Benchmark {
 
   private val universal = MessageBuffer.allocate(0).isInstanceOf[MessageBufferU]
 

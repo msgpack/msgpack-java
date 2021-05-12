@@ -15,12 +15,12 @@
 //
 package org.msgpack.core.example
 
-import org.msgpack.core.MessagePackSpec
+import wvlet.airspec.AirSpec
 
 /**
   *
   */
-class MessagePackExampleTest extends MessagePackSpec {
+class MessagePackExampleTest extends AirSpec {
 
   test("example") {
 

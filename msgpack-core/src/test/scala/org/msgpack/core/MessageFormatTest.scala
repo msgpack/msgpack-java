@@ -18,13 +18,14 @@ package org.msgpack.core
 import org.msgpack.core.MessagePack.Code
 import org.msgpack.value.ValueType
 import org.scalatest.exceptions.TestFailedException
+import wvlet.airspec.AirSpec
 
 import scala.util.Random
 
 /**
   * Created on 2014/05/07.
   */
-class MessageFormatTest extends MessagePackSpec {
+class MessageFormatTest extends AirSpec with Benchmark {
   test("MessageFormat") {
     test("cover all byte codes") {
       def checkV(b: Byte, tpe: ValueType) {

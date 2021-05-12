@@ -16,12 +16,13 @@
 package org.msgpack.value
 
 import org.msgpack.core.MessagePack.Code._
-import org.msgpack.core.{MessageFormat, MessageFormatException, MessagePackSpec}
+import org.msgpack.core.{MessageFormat, MessageFormatException}
+import wvlet.airspec.AirSpec
 
 /**
   * Created on 2014/05/06.
   */
-class ValueTypeTest extends MessagePackSpec {
+class ValueTypeTest extends AirSpec {
 
   test("lookup ValueType from a byte value") {
     def check(b: Byte, tpe: ValueType) {

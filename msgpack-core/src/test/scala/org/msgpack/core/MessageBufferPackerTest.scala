@@ -17,10 +17,10 @@ package org.msgpack.core
 
 import java.io.ByteArrayOutputStream
 import java.util.Arrays
-
 import org.msgpack.value.ValueFactory._
+import wvlet.airspec.AirSpec
 
-class MessageBufferPackerTest extends MessagePackSpec {
+class MessageBufferPackerTest extends AirSpec {
   test("MessageBufferPacker") {
     test("be equivalent to ByteArrayOutputStream") {
       val packer1 = MessagePack.newDefaultBufferPacker

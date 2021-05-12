@@ -15,27 +15,25 @@
 //
 package org.msgpack.core
 
+import org.msgpack.core.MessagePack.{Code, PackerConfig, UnpackerConfig}
+import org.msgpack.core.MessagePackSpec.toHex
+import org.msgpack.value.{Value, Variable}
+import org.scalacheck.Prop.propBoolean
+import org.scalacheck.{Arbitrary, Gen}
+import wvlet.airspec.AirSpec
+import wvlet.airspec.spi.PropertyCheck
+
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 import java.nio.CharBuffer
 import java.nio.charset.{CodingErrorAction, UnmappableCharacterException}
-import org.msgpack.core.MessagePack.Code
-import org.msgpack.core.MessagePack.{PackerConfig, UnpackerConfig}
-import org.msgpack.core.MessagePackSpec.toHex
-import org.msgpack.value.{Value, Variable}
-import org.scalacheck.{Arbitrary, Gen}
-import org.scalacheck.Prop.propBoolean
-import wvlet.airspec.AirSpec
-import wvlet.airspec.spi.PropertyCheck
-import wvlet.log.io.Timer
-
 import java.time.Instant
 import scala.util.Random
 
 /**
   * Created on 2014/05/07.
   */
-class MessagePackTest extends AirSpec with PropertyCheck with Timer {
+class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
 
   private def isValidUTF8(s: String) = {
     MessagePack.UTF8.newEncoder().canEncode(s)

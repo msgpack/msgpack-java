@@ -15,19 +15,19 @@
 //
 package org.msgpack.core
 
-import java.io.{ByteArrayOutputStream, File, FileInputStream, FileOutputStream}
-
-import org.msgpack.core.MessagePack.{UnpackerConfig, PackerConfig}
+import org.msgpack.core.MessagePack.PackerConfig
 import org.msgpack.core.buffer.{ChannelBufferOutput, OutputStreamBufferOutput}
 import org.msgpack.value.ValueFactory
+import wvlet.airspec.AirSpec
 import xerial.core.io.IOUtil
 
+import java.io.{ByteArrayOutputStream, File, FileInputStream, FileOutputStream}
 import scala.util.Random
 
 /**
   *
   */
-class MessagePackerTest extends MessagePackSpec {
+class MessagePackerTest extends AirSpec with Benchmark {
 
   private def verifyIntSeq(answer: Array[Int], packed: Array[Byte]) {
     val unpacker = MessagePack.newDefaultUnpacker(packed)

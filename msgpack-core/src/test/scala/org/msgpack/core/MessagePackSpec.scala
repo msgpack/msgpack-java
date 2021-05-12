@@ -15,11 +15,10 @@
 //
 package org.msgpack.core
 
-import java.io.ByteArrayOutputStream
-import wvlet.airspec.AirSpec
 import wvlet.log.LogLevel
 import wvlet.log.io.{TimeReport, Timer}
 
+import java.io.ByteArrayOutputStream
 import scala.language.implicitConversions
 
 object MessagePackSpec {
@@ -32,8 +31,6 @@ object MessagePackSpec {
     b.toByteArray
   }
 }
-
-trait MessagePackSpec extends AirSpec with Benchmark {}
 
 trait Benchmark extends Timer {
   private val numWarmUpRuns = 10

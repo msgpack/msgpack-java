@@ -15,9 +15,9 @@
 //
 package org.msgpack.value
 
-import org.msgpack.core.MessagePackSpec
+import wvlet.airspec.AirSpec
 
-class RawStringValueImplTest extends MessagePackSpec {
+class RawStringValueImplTest extends AirSpec {
 
   test("return the same hash code if they are equal") {
     val str = "a"

@@ -16,17 +16,15 @@
 package org.msgpack.core
 
 import org.msgpack.core.MessagePackSpec.{createMessagePackData, toHex}
-
-import java.io._
-import java.nio.ByteBuffer
-import java.util.Collections
 import org.msgpack.core.buffer._
 import org.msgpack.value.ValueType
 import wvlet.airspec.AirSpec
 import wvlet.log.LogSupport
-import wvlet.log.io.Timer
 import xerial.core.io.IOUtil._
 
+import java.io._
+import java.nio.ByteBuffer
+import java.util.Collections
 import scala.collection.JavaConverters._
 import scala.util.Random
 
@@ -47,9 +45,9 @@ object MessageUnpackerTest {
   }
 }
 
-import MessageUnpackerTest._
+import org.msgpack.core.MessageUnpackerTest._
 
-class MessageUnpackerTest extends AirSpec with Timer {
+class MessageUnpackerTest extends AirSpec with Benchmark {
 
   private val universal = MessageBuffer.allocate(0).isInstanceOf[MessageBufferU]
   private def testData: Array[Byte] = {
@@ -435,7 +433,6 @@ class MessageUnpackerTest extends AirSpec with Timer {
 
       val t = time("skip performance", repeat = N) {
         block("v6") {
-          import org.msgpack.`type`.{ValueType => ValueTypeV6}
           val v6       = new org.msgpack.MessagePack()
           val unpacker = new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(data))
           var count    = 0

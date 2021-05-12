@@ -16,18 +16,18 @@
 package org.msgpack.core.buffer
 
 import java.io._
-import java.net.{InetSocketAddress}
+import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.{ServerSocketChannel, SocketChannel}
 import java.util.concurrent.{Callable, Executors, TimeUnit}
 import java.util.zip.{GZIPInputStream, GZIPOutputStream}
-
 import org.msgpack.core.{MessagePack, MessagePackSpec}
+import wvlet.airspec.AirSpec
 import xerial.core.io.IOUtil._
 
 import scala.util.Random
 
-class MessageBufferInputTest extends MessagePackSpec {
+class MessageBufferInputTest extends AirSpec {
 
   private val targetInputSize =
     Seq(0, 10, 500, 1000, 2000, 4000, 8000, 10000, 30000, 50000, 100000)

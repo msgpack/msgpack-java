@@ -1,11 +1,12 @@
 package org.msgpack.core
 
 import org.msgpack.core.MessagePackSpec.createMessagePackData
+import wvlet.airspec.AirSpec
 
 /**
   *
   */
-class InvalidDataReadTest extends MessagePackSpec {
+class InvalidDataReadTest extends AirSpec {
 
   test("Reading long EXT32") {
     // Prepare an EXT32 data with 2GB (Int.MaxValue size) payload for testing the behavior of MessageUnpacker.skipValue()

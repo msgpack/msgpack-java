@@ -15,11 +15,11 @@
 //
 package org.msgpack.core.buffer
 
+import wvlet.airspec.AirSpec
+
 import java.io._
 
-import org.msgpack.core.MessagePackSpec
-
-class MessageBufferOutputTest extends MessagePackSpec {
+class MessageBufferOutputTest extends AirSpec {
 
   private def createTempFile = {
     val f = File.createTempFile("msgpackTest", "msgpack")
