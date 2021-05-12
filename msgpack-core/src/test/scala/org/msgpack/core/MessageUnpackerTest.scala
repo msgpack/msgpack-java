@@ -302,7 +302,6 @@ class MessageUnpackerTest extends AirSpec with Timer {
     }
 
     test("parse int data") {
-
       debug(intSeq.mkString(", "))
 
       for (unpacker <- unpackers(testData2)) {
@@ -323,10 +322,9 @@ class MessageUnpackerTest extends AirSpec with Timer {
           }
         }
 
-        ib.result shouldBe intSeq
+        ib.result shouldBe intSeq.toSeq
         unpacker.getTotalReadBytes shouldBe testData2.length
       }
-
     }
 
     test("read data at the buffer boundary") {

@@ -36,15 +36,15 @@ class MessageBufferPackerTest extends MessagePackSpec {
 
     test("clear unflushed") {
       val packer = MessagePack.newDefaultBufferPacker
-      packer.packInt(1);
-      packer.clear();
-      packer.packInt(2);
+      packer.packInt(1)
+      packer.clear()
+      packer.packInt(2)
 
-      packer.toByteArray shouldBe Array(2)
+      packer.toByteArray shouldBe Array[Byte](2)
       val buffer = packer.toBufferList().get(0)
-      buffer.toByteArray() shouldBe Array(2)
+      buffer.toByteArray() shouldBe Array[Byte](2)
       val array = Arrays.copyOf(buffer.sliceAsByteBuffer().array(), buffer.size())
-      array shouldBe Array(2)
+      array shouldBe Array[Byte](2)
     }
 
   }
