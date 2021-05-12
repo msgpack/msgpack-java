@@ -19,7 +19,7 @@ import org.msgpack.core.MessagePackSpec.createMessagePackData
 
 import java.math.BigInteger
 import org.msgpack.core._
-import org.scalacheck.Prop.{forAll, propBoolean}
+import org.scalacheck.Prop.propBoolean
 import wvlet.airspec.AirSpec
 import wvlet.airspec.spi.PropertyCheck
 

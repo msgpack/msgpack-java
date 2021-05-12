@@ -29,21 +29,21 @@ import scala.util.Random
 
 class MessageBufferInputTest extends MessagePackSpec {
 
-  val targetInputSize =
+  private val targetInputSize =
     Seq(0, 10, 500, 1000, 2000, 4000, 8000, 10000, 30000, 50000, 100000)
 
-  def testData(size: Int) = {
+  private def testData(size: Int) = {
     //debug(s"test data size: ${size}")
     val b = new Array[Byte](size)
     Random.nextBytes(b)
     b
   }
 
-  def testDataSet = {
+  private def testDataSet = {
     targetInputSize.map(testData)
   }
 
-  def runTest(factory: Array[Byte] => MessageBufferInput) {
+  private def runTest(factory: Array[Byte] => MessageBufferInput) {
     for (b <- testDataSet) {
       checkInputData(b, factory(b))
     }
@@ -74,30 +74,31 @@ class MessageBufferInputTest extends MessagePackSpec {
     }
   }
 
-  def checkInputData(inputData: Array[Byte], in: MessageBufferInput) {
-    When(s"input data size = ${inputData.length}")
-    var cursor = 0
-    for (m <- Iterator.continually(in.next).takeWhile(_ != null)) {
-      m.toByteArray() shouldBe inputData.slice(cursor, cursor + m.size())
-      cursor += m.size()
+  private def checkInputData(inputData: Array[Byte], in: MessageBufferInput) {
+    test(s"When input data size = ${inputData.length}") {
+      var cursor = 0
+      for (m <- Iterator.continually(in.next).takeWhile(_ != null)) {
+        m.toByteArray() shouldBe inputData.slice(cursor, cursor + m.size())
+        cursor += m.size()
+      }
+      cursor shouldBe inputData.length
     }
-    cursor shouldBe inputData.length
   }
 
-  "MessageBufferInput" should {
-    "support byte arrays" in {
+  test("MessageBufferInput") {
+    test("support byte arrays") {
       runTest(new ArrayBufferInput(_))
     }
 
-    "support ByteBuffers" in {
+    test("support ByteBuffers") {
       runTest(b => new ByteBufferInput(b.toByteBuffer))
     }
 
-    "support InputStreams" taggedAs ("is") in {
+    test("support InputStreams") {
       runTest(b => new InputStreamBufferInput(new GZIPInputStream(new ByteArrayInputStream(b.compress))))
     }
 
-    "support file input channel" taggedAs ("fc") in {
+    test("support file input channel") {
       runTest { b =>
         val tmp = b.saveToTmpFile
         try {
@@ -110,13 +111,13 @@ class MessageBufferInputTest extends MessagePackSpec {
     }
   }
 
-  def createTempFile = {
+  private def createTempFile = {
     val f = File.createTempFile("msgpackTest", "msgpack")
     f.deleteOnExit
     f
   }
 
-  def createTempFileWithInputStream = {
+  private def createTempFileWithInputStream = {
     val f   = createTempFile
     val out = new FileOutputStream(f)
     MessagePack.newDefaultPacker(out).packInt(42).close
@@ -124,19 +125,19 @@ class MessageBufferInputTest extends MessagePackSpec {
     (f, in)
   }
 
-  def createTempFileWithChannel = {
+  private def createTempFileWithChannel = {
     val (f, in) = createTempFileWithInputStream
     val ch      = in.getChannel
     (f, ch)
   }
 
-  def readInt(buf: MessageBufferInput): Int = {
+  private def readInt(buf: MessageBufferInput): Int = {
     val unpacker = MessagePack.newDefaultUnpacker(buf)
     unpacker.unpackInt
   }
 
-  "InputStreamBufferInput" should {
-    "reset buffer" in {
+  test("InputStreamBufferInput") {
+    test("reset buffer") {
       val (f0, in0) = createTempFileWithInputStream
       val buf       = new InputStreamBufferInput(in0)
       readInt(buf) shouldBe 42
@@ -146,7 +147,7 @@ class MessageBufferInputTest extends MessagePackSpec {
       readInt(buf) shouldBe 42
     }
 
-    "be non-blocking" taggedAs ("non-blocking") in {
+    test("be non-blocking") {
 
       withResource(new PipedOutputStream()) { pipedOutputStream =>
         withResource(new PipedInputStream()) { pipedInputStream =>
@@ -173,8 +174,8 @@ class MessageBufferInputTest extends MessagePackSpec {
     }
   }
 
-  "ChannelBufferInput" should {
-    "reset buffer" in {
+  test("ChannelBufferInput") {
+    test("reset buffer") {
       val (f0, in0) = createTempFileWithChannel
       val buf       = new ChannelBufferInput(in0)
       readInt(buf) shouldBe 42
@@ -184,7 +185,7 @@ class MessageBufferInputTest extends MessagePackSpec {
       readInt(buf) shouldBe 42
     }
 
-    "unpack without blocking" in {
+    test("unpack without blocking") {
       val server =
         ServerSocketChannel.open.bind(new InetSocketAddress("localhost", 0))
       val executorService = Executors.newCachedThreadPool

@@ -29,7 +29,7 @@ import scala.util.Random
   */
 class MessagePackerTest extends MessagePackSpec {
 
-  def verifyIntSeq(answer: Array[Int], packed: Array[Byte]) {
+  private def verifyIntSeq(answer: Array[Int], packed: Array[Byte]) {
     val unpacker = MessagePack.newDefaultUnpacker(packed)
     val b        = Array.newBuilder[Int]
     while (unpacker.hasNext) {
@@ -40,27 +40,27 @@ class MessagePackerTest extends MessagePackSpec {
     result shouldBe answer
   }
 
-  def createTempFile = {
+  private def createTempFile = {
     val f = File.createTempFile("msgpackTest", "msgpack")
     f.deleteOnExit
     f
   }
 
-  def createTempFileWithOutputStream = {
+  private def createTempFileWithOutputStream = {
     val f   = createTempFile
     val out = new FileOutputStream(f)
     (f, out)
   }
 
-  def createTempFileWithChannel = {
+  private def createTempFileWithChannel = {
     val (f, out) = createTempFileWithOutputStream
     val ch       = out.getChannel
     (f, ch)
   }
 
-  "MessagePacker" should {
+  test("MessagePacker") {
 
-    "reset the internal states" in {
+    test("reset the internal states") {
       val intSeq = (0 until 100).map(i => Random.nextInt).toArray
 
       val b      = new ByteArrayOutputStream
@@ -86,8 +86,7 @@ class MessagePackerTest extends MessagePackSpec {
       verifyIntSeq(intSeq3, b3.toByteArray)
     }
 
-    "improve the performance via reset method" taggedAs ("reset") in {
-
+    test("improve the performance via reset method") {
       val N = 1000
       val t = time("packer", repeat = 10) {
         block("no-buffer-reset") {
@@ -119,10 +118,10 @@ class MessagePackerTest extends MessagePackSpec {
         }
       }
 
-      t("buffer-reset").averageWithoutMinMax should be <= t("no-buffer-reset").averageWithoutMinMax
+      t("buffer-reset").averageWithoutMinMax <= t("no-buffer-reset").averageWithoutMinMax shouldBe true
     }
 
-    "pack larger string array than byte buf" taggedAs ("larger-string-array-than-byte-buf") in {
+    test("pack larger string array than byte buf") {
       // Based on https://github.com/msgpack/msgpack-java/issues/154
 
       def test(bufferSize: Int, stringSize: Int): Boolean = {
@@ -148,7 +147,7 @@ class MessagePackerTest extends MessagePackSpec {
       }
     }
 
-    "reset OutputStreamBufferOutput" in {
+    test("reset OutputStreamBufferOutput") {
       val (f0, out0) = createTempFileWithOutputStream
       val packer     = MessagePack.newDefaultPacker(out0)
       packer.packInt(99)
@@ -178,7 +177,7 @@ class MessagePackerTest extends MessagePackSpec {
       up1.close
     }
 
-    "reset ChannelBufferOutput" in {
+    test("reset ChannelBufferOutput") {
       val (f0, out0) = createTempFileWithChannel
       val packer     = MessagePack.newDefaultPacker(out0)
       packer.packInt(99)
@@ -208,7 +207,7 @@ class MessagePackerTest extends MessagePackSpec {
       up1.close
     }
 
-    "pack a lot of String within expected time" in {
+    test("pack a lot of String within expected time") {
       val count = 20000
 
       def measureDuration(outputStream: java.io.OutputStream) = {
@@ -231,11 +230,11 @@ class MessagePackerTest extends MessagePackSpec {
           measureDuration(fileOutput)
         }
       }
-      t("file-output-stream").averageWithoutMinMax shouldBe <(t("byte-array-output-stream").averageWithoutMinMax * 5)
+      t("file-output-stream").averageWithoutMinMax < (t("byte-array-output-stream").averageWithoutMinMax * 5) shouldBe true
     }
   }
 
-  "compute totalWrittenBytes" in {
+  test("compute totalWrittenBytes") {
     val out = new ByteArrayOutputStream
     val packerTotalWrittenBytes =
       IOUtil.withResource(MessagePack.newDefaultPacker(out)) { packer =>
@@ -254,7 +253,7 @@ class MessagePackerTest extends MessagePackSpec {
     out.toByteArray.length shouldBe packerTotalWrittenBytes
   }
 
-  "support read-only buffer" taggedAs ("read-only") in {
+  test("support read-only buffer") {
     val payload = Array[Byte](1)
     val out     = new ByteArrayOutputStream()
     val packer = MessagePack
@@ -264,7 +263,7 @@ class MessagePackerTest extends MessagePackSpec {
       .close()
   }
 
-  "pack small string with STR8" in {
+  test("pack small string with STR8") {
     val packer = new PackerConfig().newBufferPacker()
     packer.packString("Hello. This is a string longer than 32 characters!")
     val b = packer.toByteArray
@@ -274,7 +273,7 @@ class MessagePackerTest extends MessagePackSpec {
     f shouldBe MessageFormat.STR8
   }
 
-  "be able to disable STR8 for backward compatibility" in {
+  test("be able to disable STR8 for backward compatibility") {
     val config = new PackerConfig()
       .withStr8FormatSupport(false)
 
@@ -285,7 +284,7 @@ class MessagePackerTest extends MessagePackSpec {
     f shouldBe MessageFormat.STR16
   }
 
-  "be able to disable STR8 when using CharsetEncoder" in {
+  test("be able to disable STR8 when using CharsetEncoder") {
     val config = new PackerConfig()
       .withStr8FormatSupport(false)
       .withSmallStringOptimizationThreshold(0) // Disable small string optimization
@@ -294,19 +293,19 @@ class MessagePackerTest extends MessagePackSpec {
     packer.packString("small string")
     val unpacker = MessagePack.newDefaultUnpacker(packer.toByteArray)
     val f        = unpacker.getNextFormat
-    f shouldNot be(MessageFormat.STR8)
+    f shouldNotBe MessageFormat.STR8
     val s = unpacker.unpackString()
     s shouldBe "small string"
   }
 
-  "write raw binary" taggedAs ("raw-binary") in {
+  test("write raw binary") {
     val packer = new MessagePack.PackerConfig().newBufferPacker()
     val msg =
       Array[Byte](-127, -92, 116, 121, 112, 101, -92, 112, 105, 110, 103)
     packer.writePayload(msg)
   }
 
-  "append raw binary" taggedAs ("append-raw-binary") in {
+  test("append raw binary") {
     val packer = new MessagePack.PackerConfig().newBufferPacker()
     val msg =
       Array[Byte](-127, -92, 116, 121, 112, 101, -92, 112, 105, 110, 103)

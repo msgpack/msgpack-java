@@ -22,21 +22,21 @@ import org.msgpack.core.MessagePackSpec
   */
 class MessagePackExampleTest extends MessagePackSpec {
 
-  "example" should {
+  test("example") {
 
-    "have basic usage" in {
+    test("have basic usage") {
       MessagePackExample.basicUsage()
     }
 
-    "have packer usage" in {
+    test("have packer usage") {
       MessagePackExample.packer()
     }
 
-    "have file read/write example" in {
+    test("have file read/write example") {
       MessagePackExample.readAndWriteFile();
     }
 
-    "have configuration example" in {
+    test("have configuration example") {
       MessagePackExample.configuration();
     }
   }

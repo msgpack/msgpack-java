@@ -24,7 +24,7 @@ import org.msgpack.core.MessagePack.{PackerConfig, UnpackerConfig}
 import org.msgpack.core.MessagePackSpec.toHex
 import org.msgpack.value.{Value, Variable}
 import org.scalacheck.{Arbitrary, Gen}
-import org.scalacheck.Prop.{forAll, propBoolean}
+import org.scalacheck.Prop.propBoolean
 import wvlet.airspec.AirSpec
 import wvlet.airspec.spi.PropertyCheck
 import wvlet.log.io.Timer

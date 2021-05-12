@@ -21,8 +21,8 @@ import java.util.Arrays
 import org.msgpack.value.ValueFactory._
 
 class MessageBufferPackerTest extends MessagePackSpec {
-  "MessageBufferPacker" should {
-    "be equivalent to ByteArrayOutputStream" in {
+  test("MessageBufferPacker") {
+    test("be equivalent to ByteArrayOutputStream") {
       val packer1 = MessagePack.newDefaultBufferPacker
       packer1.packValue(newMap(newString("a"), newInteger(1), newString("b"), newString("s")))
 
@@ -34,7 +34,7 @@ class MessageBufferPackerTest extends MessagePackSpec {
       packer1.toByteArray shouldBe stream.toByteArray
     }
 
-    "clear unflushed" in {
+    test("clear unflushed") {
       val packer = MessagePack.newDefaultBufferPacker
       packer.packInt(1);
       packer.clear();

@@ -16,11 +16,9 @@
 package org.msgpack.core
 
 import java.io.ByteArrayOutputStream
-import org.scalatest._
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
-import xerial.core.log.{LogLevel, Logger}
-import xerial.core.util.{TimeReport, Timer}
+import wvlet.airspec.AirSpec
+import wvlet.log.LogLevel
+import wvlet.log.io.{TimeReport, Timer}
 
 import scala.language.implicitConversions
 
@@ -35,27 +33,22 @@ object MessagePackSpec {
   }
 }
 
-trait MessagePackSpec extends AnyWordSpec with Matchers with GivenWhenThen with OptionValues with BeforeAndAfter with Benchmark with Logger {
-
-  implicit def toTag(s: String): Tag = Tag(s)
-
-}
+trait MessagePackSpec extends AirSpec with Benchmark {}
 
 trait Benchmark extends Timer {
+  private val numWarmUpRuns = 10
 
-  val numWarmUpRuns = 10
-
-  override protected def time[A](blockName: String, logLevel: LogLevel, repeat: Int)(f: => A): TimeReport = {
+  override protected def time[A](blockName: String, logLevel: LogLevel = LogLevel.INFO, repeat: Int = 1, blockRepeat: Int = 1)(f: => A): TimeReport = {
     super.time(blockName, logLevel = LogLevel.INFO, repeat)(f)
   }
 
-  override protected def block[A](name: String, repeat: Int)(f: => A): TimeReport = {
+  override protected def block[A](name: String)(f: => A): TimeReport = {
     var i = 0
     while (i < numWarmUpRuns) {
       f
       i += 1
     }
 
-    super.block(name, repeat)(f)
+    super.block(name)(f)
   }
 }

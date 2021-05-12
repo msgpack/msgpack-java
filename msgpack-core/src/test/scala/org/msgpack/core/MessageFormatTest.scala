@@ -25,8 +25,8 @@ import scala.util.Random
   * Created on 2014/05/07.
   */
 class MessageFormatTest extends MessagePackSpec {
-  "MessageFormat" should {
-    "cover all byte codes" in {
+  test("MessageFormat") {
+    test("cover all byte codes") {
       def checkV(b: Byte, tpe: ValueType) {
         try MessageFormat.valueOf(b).getValueType shouldBe tpe
         catch {
@@ -102,7 +102,7 @@ class MessageFormatTest extends MessagePackSpec {
       }
     }
 
-    "improve the valueOf performance" in {
+    test("improve the valueOf performance") {
       val N   = 1000000
       val idx = (0 until N).map(x => Random.nextInt(256).toByte).toArray[Byte]
 

@@ -7,7 +7,7 @@ import org.msgpack.core.MessagePackSpec.createMessagePackData
   */
 class InvalidDataReadTest extends MessagePackSpec {
 
-  "Reading long EXT32" in {
+  test("Reading long EXT32") {
     // Prepare an EXT32 data with 2GB (Int.MaxValue size) payload for testing the behavior of MessageUnpacker.skipValue()
     // Actually preparing 2GB of data, however, is too much for CI, so we create only the header part.
     val msgpack = createMessagePackData(p => p.packExtensionTypeHeader(MessagePack.Code.EXT32, Int.MaxValue))
