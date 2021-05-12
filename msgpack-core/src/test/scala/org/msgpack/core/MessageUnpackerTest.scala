@@ -15,10 +15,11 @@
 //
 package org.msgpack.core
 
+import org.msgpack.core.MessagePackSpec.toHex
+
 import java.io._
 import java.nio.ByteBuffer
 import java.util.Collections
-
 import org.msgpack.core.buffer._
 import org.msgpack.value.ValueType
 import xerial.core.io.IOUtil._
