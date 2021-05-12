@@ -1283,6 +1283,9 @@ public class MessageUnpacker
         return unpackTimestamp(ext);
     }
 
+    /**
+     * Internal method that can be used only when the extension type header is already read.
+     */
     private Instant unpackTimestamp(ExtensionTypeHeader ext) throws IOException
     {
         if (ext.getType() != EXT_TIMESTAMP) {
@@ -1290,6 +1293,7 @@ public class MessageUnpacker
         }
         switch (ext.getLength()) {
             case 4: {
+                // Need to convert Java's int (int32) to uint32
                 long u32 = readInt() & 0xffffffffL;
                 return Instant.ofEpochSecond(u32);
             }
@@ -1300,6 +1304,7 @@ public class MessageUnpacker
                 return Instant.ofEpochSecond(sec, nsec);
             }
             case 12: {
+                // Need to convert Java's int (int32) to uint32
                 long nsecU32 = readInt() & 0xffffffffL;
                 long sec = readLong();
                 return Instant.ofEpochSecond(sec, nsecU32);

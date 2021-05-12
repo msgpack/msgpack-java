@@ -18,9 +18,7 @@ package org.msgpack.value;
 import java.time.Instant;
 
 /**
- * Representation of MessagePack's Timestamp type.
- *
- * MessagePack's Timestamp type can represent a timestamp.
+ * Value representation of MessagePack's Timestamp type.
  */
 public interface TimestampValue
         extends ExtensionValue
