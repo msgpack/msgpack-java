@@ -32,6 +32,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
+import java.time.Instant;
 
 import static org.msgpack.core.MessagePack.Code.ARRAY16;
 import static org.msgpack.core.MessagePack.Code.ARRAY32;
@@ -41,6 +42,7 @@ import static org.msgpack.core.MessagePack.Code.BIN8;
 import static org.msgpack.core.MessagePack.Code.EXT16;
 import static org.msgpack.core.MessagePack.Code.EXT32;
 import static org.msgpack.core.MessagePack.Code.EXT8;
+import static org.msgpack.core.MessagePack.Code.EXT_TIMESTAMP;
 import static org.msgpack.core.MessagePack.Code.FALSE;
 import static org.msgpack.core.MessagePack.Code.FIXARRAY_PREFIX;
 import static org.msgpack.core.MessagePack.Code.FIXEXT1;
@@ -796,6 +798,111 @@ public class MessagePacker
         // fallback
         packStringWithGetBytes(s);
         return this;
+    }
+
+    /**
+     * Writes a Timestamp value.
+     *
+     * <p>
+     * This method writes a timestamp value using timestamp format family.
+     *
+     * @param instant the timestamp to be written
+     * @return this packer
+     * @throws IOException when underlying output throws IOException
+     */
+    public MessagePacker packTimestamp(Instant instant)
+            throws IOException
+    {
+        return packTimestamp(instant.getEpochSecond(), instant.getNano());
+    }
+
+    /**
+     * Writes a Timesamp value using a millisecond value (e.g., System.currentTimeMillis())
+     * @param millis the millisecond value
+     * @return this packer
+     * @throws IOException when underlying output throws IOException
+     */
+    public MessagePacker packTimestamp(long millis)
+            throws IOException
+    {
+        return packTimestamp(Instant.ofEpochMilli(millis));
+    }
+
+    private static final long NANOS_PER_SECOND = 1000000000L;
+
+    /**
+     * Writes a Timestamp value.
+     *
+     * <p>
+     * This method writes a timestamp value using timestamp format family.
+     *
+     * @param epochSecond the number of seconds from 1970-01-01T00:00:00Z
+     * @param nanoAdjustment the nanosecond adjustment to the number of seconds, positive or negative
+     * @return this
+     * @throws IOException when underlying output throws IOException
+     * @throws ArithmeticException when epochSecond plus nanoAdjustment in seconds exceeds the range of long
+     */
+    public MessagePacker packTimestamp(long epochSecond, int nanoAdjustment)
+            throws IOException, ArithmeticException
+    {
+        long sec = Math.addExact(epochSecond, Math.floorDiv(nanoAdjustment, NANOS_PER_SECOND));
+        long nsec = Math.floorMod((long) nanoAdjustment, NANOS_PER_SECOND);
+
+        if (sec >>> 34 == 0) {
+            // sec can be serialized in 34 bits.
+            long data64 = (nsec << 34) | sec;
+            if ((data64 & 0xffffffff00000000L) == 0L) {
+                // sec can be serialized in 32 bits and nsec is 0.
+                // use timestamp 32
+                writeTimestamp32((int) sec);
+            }
+            else {
+                // sec exceeded 32 bits or nsec is not 0.
+                // use timestamp 64
+                writeTimestamp64(data64);
+            }
+        }
+        else {
+            // use timestamp 96 format
+            writeTimestamp96(sec, (int) nsec);
+        }
+        return this;
+    }
+
+    private void writeTimestamp32(int sec)
+            throws IOException
+    {
+        // timestamp 32 in fixext 4
+        ensureCapacity(6);
+        buffer.putByte(position++, FIXEXT4);
+        buffer.putByte(position++, EXT_TIMESTAMP);
+        buffer.putInt(position, sec);
+        position += 4;
+    }
+
+    private void writeTimestamp64(long data64)
+            throws IOException
+    {
+        // timestamp 64 in fixext 8
+        ensureCapacity(10);
+        buffer.putByte(position++, FIXEXT8);
+        buffer.putByte(position++, EXT_TIMESTAMP);
+        buffer.putLong(position, data64);
+        position += 8;
+    }
+
+    private void writeTimestamp96(long sec, int nsec)
+            throws IOException
+    {
+        // timestamp 96 in ext 8
+        ensureCapacity(15);
+        buffer.putByte(position++, EXT8);
+        buffer.putByte(position++, (byte) 12);  // length of nsec and sec
+        buffer.putByte(position++, EXT_TIMESTAMP);
+        buffer.putInt(position, nsec);
+        position += 4;
+        buffer.putLong(position, sec);
+        position += 8;
     }
 
     /**

@@ -15,31 +15,34 @@
 //
 package org.msgpack.value
 
+import org.msgpack.core.MessagePackSpec.createMessagePackData
+
 import java.math.BigInteger
 import org.msgpack.core._
-import org.scalacheck.Prop.{forAll, propBoolean}
+import org.scalacheck.Prop.propBoolean
+import wvlet.airframe.json.JSON
+import wvlet.airspec.AirSpec
+import wvlet.airspec.spi.PropertyCheck
 
-import scala.util.parsing.json.JSON
-
-class ValueTest extends MessagePackSpec {
-  def checkSuccinctType(pack: MessagePacker => Unit, expectedAtMost: MessageFormat): Boolean = {
+class ValueTest extends AirSpec with PropertyCheck {
+  private def checkSuccinctType(pack: MessagePacker => Unit, expectedAtMost: MessageFormat): Boolean = {
     val b  = createMessagePackData(pack)
     val v1 = MessagePack.newDefaultUnpacker(b).unpackValue()
     val mf = v1.asIntegerValue().mostSuccinctMessageFormat()
     mf.getValueType shouldBe ValueType.INTEGER
-    mf.ordinal() shouldBe <=(expectedAtMost.ordinal())
+    mf.ordinal() <= expectedAtMost.ordinal() shouldBe true
 
     val v2 = new Variable
     MessagePack.newDefaultUnpacker(b).unpackValue(v2)
     val mf2 = v2.asIntegerValue().mostSuccinctMessageFormat()
     mf2.getValueType shouldBe ValueType.INTEGER
-    mf2.ordinal() shouldBe <=(expectedAtMost.ordinal())
+    mf2.ordinal() <= expectedAtMost.ordinal() shouldBe true
 
     true
   }
 
-  "Value" should {
-    "tell most succinct integer type" in {
+  test("Value") {
+    test("tell most succinct integer type") {
       forAll { (v: Byte) =>
         checkSuccinctType(_.packByte(v), MessageFormat.INT8)
       }
@@ -63,7 +66,7 @@ class ValueTest extends MessagePackSpec {
       }
     }
 
-    "produce json strings" in {
+    test("produce json strings") {
 
       import ValueFactory._
 
@@ -94,9 +97,9 @@ class ValueTest extends MessagePackSpec {
         .put(newString("address"), newArray(newString("xxx-xxxx"), newString("yyy-yyyy")))
         .put(newString("name"), newString("mitsu"))
         .build()
-      val i1 = JSON.parseFull(m.toJson)
-      val i2 = JSON.parseFull(m.toString) // expect json value
-      val a1 = JSON.parseFull("""{"id":1001,"name":"mitsu","address":["xxx-xxxx","yyy-yyyy"]}""")
+      val i1 = JSON.parse(m.toJson)
+      val i2 = JSON.parse(m.toString) // expect json value
+      val a1 = JSON.parse("""{"id":1001,"name":"mitsu","address":["xxx-xxxx","yyy-yyyy"]}""")
       // Equals as JSON map
       i1 shouldBe a1
       i2 shouldBe a1
@@ -108,7 +111,7 @@ class ValueTest extends MessagePackSpec {
 
     }
 
-    "check appropriate range for integers" in {
+    test("check appropriate range for integers") {
       import ValueFactory._
       import java.lang.Byte
       import java.lang.Short
