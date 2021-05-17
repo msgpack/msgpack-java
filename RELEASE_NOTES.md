@@ -1,5 +1,9 @@
 # Release Notes
 
+## 0.8.24
+
+* Rebuild with JDK8 for Android compatibility [#567](https://github.com/msgpack/msgpack-java/pull/567)
+
 ## 0.8.23
 
 * Produce stable map values [#548](https://github.com/msgpack/msgpack-java/pull/548)
