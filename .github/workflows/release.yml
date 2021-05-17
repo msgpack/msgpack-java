@@ -16,10 +16,11 @@ jobs:
           fetch-depth: 10000
       # Fetch all tags so that sbt-dynver can find the previous release version
       - run: git fetch --tags -f
-      # Install OpenJDK 11
+      # Install OpenJDK 8
       - uses: olafurpg/setup-scala@v10
         with:
-          java-version: adopt@1.11
+          # We need to use JDK8 for Android compatibility https://github.com/msgpack/msgpack-java/issues/516
+          java-version: adopt@1.8
       - name: Setup GPG
         env:
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
