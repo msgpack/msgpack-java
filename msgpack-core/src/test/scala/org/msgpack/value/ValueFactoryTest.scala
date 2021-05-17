@@ -15,27 +15,29 @@
 //
 package org.msgpack.value
 
-import org.msgpack.core.MessagePackSpec
-import org.scalacheck.Prop.forAll
+import org.scalacheck.Gen
+import wvlet.airspec.AirSpec
+import wvlet.airspec.spi.PropertyCheck
 
 /**
   *
   */
-class ValueFactoryTest extends MessagePackSpec {
+class ValueFactoryTest extends AirSpec with PropertyCheck {
 
-  def isValid(v: Value,
-              expected: ValueType,
-              isNil: Boolean = false,
-              isBoolean: Boolean = false,
-              isInteger: Boolean = false,
-              isString: Boolean = false,
-              isFloat: Boolean = false,
-              isBinary: Boolean = false,
-              isArray: Boolean = false,
-              isMap: Boolean = false,
-              isExtension: Boolean = false,
-              isRaw: Boolean = false,
-              isNumber: Boolean = false): Boolean = {
+  private def isValid(v: Value,
+                      expected: ValueType,
+                      isNil: Boolean = false,
+                      isBoolean: Boolean = false,
+                      isInteger: Boolean = false,
+                      isString: Boolean = false,
+                      isFloat: Boolean = false,
+                      isBinary: Boolean = false,
+                      isArray: Boolean = false,
+                      isMap: Boolean = false,
+                      isExtension: Boolean = false,
+                      isRaw: Boolean = false,
+                      isNumber: Boolean = false,
+                      isTimestamp: Boolean = false): Boolean = {
     v.isNilValue shouldBe isNil
     v.isBooleanValue shouldBe isBoolean
     v.isIntegerValue shouldBe isInteger
@@ -47,32 +49,69 @@ class ValueFactoryTest extends MessagePackSpec {
     v.isExtensionValue shouldBe isExtension
     v.isRawValue shouldBe isRaw
     v.isNumberValue shouldBe isNumber
+    v.isTimestampValue shouldBe isTimestamp
     true
   }
 
-  "ValueFactory" should {
-
-    "create valid type values" in {
+  test("ValueFactory") {
+    test("nil") {
       isValid(ValueFactory.newNil(), expected = ValueType.NIL, isNil = true)
+    }
+
+    test("boolean") {
       forAll { (v: Boolean) =>
         isValid(ValueFactory.newBoolean(v), expected = ValueType.BOOLEAN, isBoolean = true)
       }
+    }
+
+    test("int") {
       forAll { (v: Int) =>
         isValid(ValueFactory.newInteger(v), expected = ValueType.INTEGER, isInteger = true, isNumber = true)
       }
+    }
+
+    test("float") {
       forAll { (v: Float) =>
         isValid(ValueFactory.newFloat(v), expected = ValueType.FLOAT, isFloat = true, isNumber = true)
       }
+    }
+    test("string") {
       forAll { (v: String) =>
         isValid(ValueFactory.newString(v), expected = ValueType.STRING, isString = true, isRaw = true)
       }
+    }
+
+    test("array") {
       forAll { (v: Array[Byte]) =>
         isValid(ValueFactory.newBinary(v), expected = ValueType.BINARY, isBinary = true, isRaw = true)
       }
+    }
+
+    test("empty array") {
       isValid(ValueFactory.emptyArray(), expected = ValueType.ARRAY, isArray = true)
+    }
+
+    test("empty map") {
       isValid(ValueFactory.emptyMap(), expected = ValueType.MAP, isMap = true)
+    }
+
+    test("ext") {
       forAll { (v: Array[Byte]) =>
         isValid(ValueFactory.newExtension(0, v), expected = ValueType.EXTENSION, isExtension = true, isRaw = false)
+      }
+    }
+
+    test("timestamp") {
+      forAll { (millis: Long) =>
+        isValid(ValueFactory.newTimestamp(millis), expected = ValueType.EXTENSION, isExtension = true, isTimestamp = true)
+      }
+    }
+
+    test("timestamp sec/nano") {
+      val posLong = Gen.chooseNum[Long](-31557014167219200L, 31556889864403199L)
+      val posInt  = Gen.chooseNum(0, 1000000000 - 1) // NANOS_PER_SECOND
+      forAll(posLong, posInt) { (sec: Long, nano: Int) =>
+        isValid(ValueFactory.newTimestamp(sec, nano), expected = ValueType.EXTENSION, isExtension = true, isTimestamp = true)
       }
     }
   }

@@ -16,6 +16,7 @@
 package org.msgpack.value;
 
 import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageTypeCastException;
 
 import java.io.IOException;
 
@@ -181,6 +182,14 @@ public interface Value
     boolean isExtensionValue();
 
     /**
+     * Returns true if the type of this value is Timestamp.
+     *
+     * If this method returns true, {@code asTimestamp} never throws exceptions.
+     * Note that you can't use <code>instanceof</code> or cast <code>((MapValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
+     */
+    boolean isTimestampValue();
+
+    /**
      * Returns the value as {@code NilValue}. Otherwise throws {@code MessageTypeCastException}.
      *
      * Note that you can't use <code>instanceof</code> or cast <code>((NilValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
@@ -279,6 +288,15 @@ public interface Value
      * @throws MessageTypeCastException If type of this value is not an Extension.
      */
     ExtensionValue asExtensionValue();
+
+    /**
+     * Returns the value as {@code TimestampValue}. Otherwise throws {@code MessageTypeCastException}.
+     *
+     * Note that you can't use <code>instanceof</code> or cast <code>((TimestampValue) thisValue)</code> to check type of a value because type of a mutable value is variable.
+     *
+     * @throws MessageTypeCastException If type of this value is not Map.
+     */
+    TimestampValue asTimestampValue();
 
     /**
      * Serializes the value using the specified {@code MessagePacker}

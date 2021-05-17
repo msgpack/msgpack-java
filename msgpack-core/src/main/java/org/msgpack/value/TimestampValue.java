@@ -13,31 +13,21 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.core.example
+package org.msgpack.value;
 
-import wvlet.airspec.AirSpec
+import java.time.Instant;
 
 /**
-  *
-  */
-class MessagePackExampleTest extends AirSpec {
+ * Value representation of MessagePack's Timestamp type.
+ */
+public interface TimestampValue
+        extends ExtensionValue
+{
+    long getEpochSecond();
 
-  test("example") {
+    int getNano();
 
-    test("have basic usage") {
-      MessagePackExample.basicUsage()
-    }
+    long toEpochMillis();
 
-    test("have packer usage") {
-      MessagePackExample.packer()
-    }
-
-    test("have file read/write example") {
-      MessagePackExample.readAndWriteFile();
-    }
-
-    test("have configuration example") {
-      MessagePackExample.configuration();
-    }
-  }
+    Instant toInstant();
 }

@@ -25,8 +25,10 @@ import org.msgpack.value.impl.ImmutableLongValueImpl;
 import org.msgpack.value.impl.ImmutableMapValueImpl;
 import org.msgpack.value.impl.ImmutableNilValueImpl;
 import org.msgpack.value.impl.ImmutableStringValueImpl;
+import org.msgpack.value.impl.ImmutableTimestampValueImpl;
 
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -294,5 +296,20 @@ public final class ValueFactory
     public static ImmutableExtensionValue newExtension(byte type, byte[] data)
     {
         return new ImmutableExtensionValueImpl(type, data);
+    }
+
+    public static ImmutableTimestampValue newTimestamp(Instant timestamp)
+    {
+        return new ImmutableTimestampValueImpl(timestamp);
+    }
+
+    public static ImmutableTimestampValue newTimestamp(long millis)
+    {
+        return newTimestamp(Instant.ofEpochMilli(millis));
+    }
+
+    public static ImmutableTimestampValue newTimestamp(long epochSecond, int nanoAdjustment)
+    {
+        return newTimestamp(Instant.ofEpochSecond(epochSecond, nanoAdjustment));
     }
 }

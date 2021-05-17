@@ -27,6 +27,7 @@ import org.msgpack.value.ImmutableNilValue;
 import org.msgpack.value.ImmutableNumberValue;
 import org.msgpack.value.ImmutableRawValue;
 import org.msgpack.value.ImmutableStringValue;
+import org.msgpack.value.ImmutableTimestampValue;
 import org.msgpack.value.ImmutableValue;
 
 abstract class AbstractImmutableValue
@@ -99,6 +100,12 @@ abstract class AbstractImmutableValue
     }
 
     @Override
+    public boolean isTimestampValue()
+    {
+        return false;
+    }
+
+    @Override
     public ImmutableNilValue asNilValue()
     {
         throw new MessageTypeCastException();
@@ -160,6 +167,12 @@ abstract class AbstractImmutableValue
 
     @Override
     public ImmutableExtensionValue asExtensionValue()
+    {
+        throw new MessageTypeCastException();
+    }
+
+    @Override
+    public ImmutableTimestampValue asTimestampValue()
     {
         throw new MessageTypeCastException();
     }

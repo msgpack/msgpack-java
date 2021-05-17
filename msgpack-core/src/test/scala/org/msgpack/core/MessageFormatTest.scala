@@ -17,20 +17,21 @@ package org.msgpack.core
 
 import org.msgpack.core.MessagePack.Code
 import org.msgpack.value.ValueType
-import org.scalatest.exceptions.TestFailedException
+import wvlet.airspec.AirSpec
+import wvlet.airspec.spi.AirSpecException
 
 import scala.util.Random
 
 /**
   * Created on 2014/05/07.
   */
-class MessageFormatTest extends MessagePackSpec {
-  "MessageFormat" should {
-    "cover all byte codes" in {
+class MessageFormatTest extends AirSpec with Benchmark {
+  test("MessageFormat") {
+    test("cover all byte codes") {
       def checkV(b: Byte, tpe: ValueType) {
         try MessageFormat.valueOf(b).getValueType shouldBe tpe
         catch {
-          case e: TestFailedException =>
+          case e: AirSpecException =>
             error(f"Failure when looking at byte ${b}%02x")
             throw e
         }
@@ -102,7 +103,7 @@ class MessageFormatTest extends MessagePackSpec {
       }
     }
 
-    "improve the valueOf performance" in {
+    test("improve the valueOf performance") {
       val N   = 1000000
       val idx = (0 until N).map(x => Random.nextInt(256).toByte).toArray[Byte]
 

@@ -165,6 +165,8 @@ public class MessagePack
         public static final byte MAP32 = (byte) 0xdf;
 
         public static final byte NEGFIXINT_PREFIX = (byte) 0xe0;
+
+        public static final byte EXT_TIMESTAMP = (byte) -1;
     }
 
     private MessagePack()

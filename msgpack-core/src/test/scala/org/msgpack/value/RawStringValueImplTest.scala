@@ -15,20 +15,18 @@
 //
 package org.msgpack.value
 
-import org.msgpack.core.MessagePackSpec
+import wvlet.airspec.AirSpec
 
-class RawStringValueImplTest extends MessagePackSpec {
+class RawStringValueImplTest extends AirSpec {
 
-  "StringValue" should {
-    "return the same hash code if they are equal" in {
-      val str = "a"
-      val a1  = ValueFactory.newString(str.getBytes("UTF-8"))
-      val a2  = ValueFactory.newString(str)
+  test("return the same hash code if they are equal") {
+    val str = "a"
+    val a1  = ValueFactory.newString(str.getBytes("UTF-8"))
+    val a2  = ValueFactory.newString(str)
 
-      a1.shouldEqual(a2)
-      a1.hashCode.shouldEqual(a2.hashCode)
-      a2.shouldEqual(a1)
-      a2.hashCode.shouldEqual(a1.hashCode)
-    }
+    a1 shouldBe a2
+    a1.hashCode shouldBe a2.hashCode
+    a2 shouldBe a1
+    a2.hashCode shouldBe a1.hashCode
   }
 }
