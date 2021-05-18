@@ -17,6 +17,7 @@ package org.msgpack.core
 
 import org.msgpack.core.MessagePackSpec.{createMessagePackData, toHex}
 import org.msgpack.core.buffer._
+import org.msgpack.value.MessagePackCode
 import org.msgpack.value.ValueType
 import wvlet.airspec.AirSpec
 import wvlet.log.LogSupport
@@ -911,7 +912,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
 
     test("read value length at buffer boundary") {
       val input = new SplitMessageBufferInput(
-        Array(Array[Byte](MessagePack.Code.STR16),
+        Array(Array[Byte](MessagePackCode.STR16),
               Array[Byte](0x00),
               Array[Byte](0x05), // STR16 length at the boundary
               "hello".getBytes(MessagePack.UTF8)))
@@ -919,7 +920,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
 
       val input2 = new SplitMessageBufferInput(
         Array(
-          Array[Byte](MessagePack.Code.STR32),
+          Array[Byte](MessagePackCode.STR32),
           Array[Byte](0x00),
           Array[Byte](0x00, 0x00),
           Array[Byte](0x05), // STR32 length at the boundary

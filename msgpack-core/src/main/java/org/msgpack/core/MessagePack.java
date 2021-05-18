@@ -23,6 +23,7 @@ import org.msgpack.core.buffer.InputStreamBufferInput;
 import org.msgpack.core.buffer.MessageBufferInput;
 import org.msgpack.core.buffer.MessageBufferOutput;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
+import org.msgpack.value.MessagePackCode;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -81,92 +82,94 @@ public class MessagePack
 
     /**
      * The prefix code set of MessagePack format. See also https://github.com/msgpack/msgpack/blob/master/spec.md for details.
+     *
+     * @deprecated It is here only for compatibility. Use {@link org.msgpack.value.MessagePackCode} instead.
      */
+    @Deprecated
     public static final class Code
     {
         public static final boolean isFixInt(byte b)
         {
-            int v = b & 0xFF;
-            return v <= 0x7f || v >= 0xe0;
+            return MessagePackCode.isFixInt(b);
         }
 
         public static final boolean isPosFixInt(byte b)
         {
-            return (b & POSFIXINT_MASK) == 0;
+            return MessagePackCode.isPosFixInt(b);
         }
 
         public static final boolean isNegFixInt(byte b)
         {
-            return (b & NEGFIXINT_PREFIX) == NEGFIXINT_PREFIX;
+            return MessagePackCode.isNegFixInt(b);
         }
 
         public static final boolean isFixStr(byte b)
         {
-            return (b & (byte) 0xe0) == Code.FIXSTR_PREFIX;
+            return MessagePackCode.isFixStr(b);
         }
 
         public static final boolean isFixedArray(byte b)
         {
-            return (b & (byte) 0xf0) == Code.FIXARRAY_PREFIX;
+            return MessagePackCode.isFixedArray(b);
         }
 
         public static final boolean isFixedMap(byte b)
         {
-            return (b & (byte) 0xf0) == Code.FIXMAP_PREFIX;
+            return MessagePackCode.isFixedMap(b);
         }
 
         public static final boolean isFixedRaw(byte b)
         {
-            return (b & (byte) 0xe0) == Code.FIXSTR_PREFIX;
+            return MessagePackCode.isFixedRaw(b);
         }
 
-        public static final byte POSFIXINT_MASK = (byte) 0x80;
+        public static final byte POSFIXINT_MASK = MessagePackCode.POSFIXINT_MASK;
 
-        public static final byte FIXMAP_PREFIX = (byte) 0x80;
-        public static final byte FIXARRAY_PREFIX = (byte) 0x90;
-        public static final byte FIXSTR_PREFIX = (byte) 0xa0;
+        public static final byte FIXMAP_PREFIX = MessagePackCode.FIXMAP_PREFIX;
+        public static final byte FIXARRAY_PREFIX = MessagePackCode.FIXARRAY_PREFIX;
+        public static final byte FIXSTR_PREFIX = MessagePackCode.FIXSTR_PREFIX;
 
-        public static final byte NIL = (byte) 0xc0;
-        public static final byte NEVER_USED = (byte) 0xc1;
-        public static final byte FALSE = (byte) 0xc2;
-        public static final byte TRUE = (byte) 0xc3;
-        public static final byte BIN8 = (byte) 0xc4;
-        public static final byte BIN16 = (byte) 0xc5;
-        public static final byte BIN32 = (byte) 0xc6;
-        public static final byte EXT8 = (byte) 0xc7;
-        public static final byte EXT16 = (byte) 0xc8;
-        public static final byte EXT32 = (byte) 0xc9;
-        public static final byte FLOAT32 = (byte) 0xca;
-        public static final byte FLOAT64 = (byte) 0xcb;
-        public static final byte UINT8 = (byte) 0xcc;
-        public static final byte UINT16 = (byte) 0xcd;
-        public static final byte UINT32 = (byte) 0xce;
-        public static final byte UINT64 = (byte) 0xcf;
+        public static final byte NIL = MessagePackCode.NIL;
+        public static final byte NEVER_USED = MessagePackCode.NEVER_USED;
+        public static final byte FALSE = MessagePackCode.FALSE;
+        public static final byte TRUE = MessagePackCode.TRUE;
+        public static final byte BIN8 = MessagePackCode.BIN8;
+        public static final byte BIN16 = MessagePackCode.BIN16;
+        public static final byte BIN32 = MessagePackCode.BIN32;
+        public static final byte EXT8 = MessagePackCode.EXT8;
+        public static final byte EXT16 = MessagePackCode.EXT16;
+        public static final byte EXT32 = MessagePackCode.EXT32;
+        public static final byte FLOAT32 = MessagePackCode.FLOAT32;
+        public static final byte FLOAT64 = MessagePackCode.FLOAT64;
+        public static final byte UINT8 = MessagePackCode.UINT8;
+        public static final byte UINT16 = MessagePackCode.UINT16;
+        public static final byte UINT32 = MessagePackCode.UINT32;
+        public static final byte UINT64 = MessagePackCode.UINT64;
 
-        public static final byte INT8 = (byte) 0xd0;
-        public static final byte INT16 = (byte) 0xd1;
-        public static final byte INT32 = (byte) 0xd2;
-        public static final byte INT64 = (byte) 0xd3;
+        public static final byte INT8 = MessagePackCode.INT8;
+        public static final byte INT16 = MessagePackCode.INT16;
+        public static final byte INT32 = MessagePackCode.INT32;
+        public static final byte INT64 = MessagePackCode.INT64;
 
-        public static final byte FIXEXT1 = (byte) 0xd4;
-        public static final byte FIXEXT2 = (byte) 0xd5;
-        public static final byte FIXEXT4 = (byte) 0xd6;
-        public static final byte FIXEXT8 = (byte) 0xd7;
-        public static final byte FIXEXT16 = (byte) 0xd8;
+        public static final byte FIXEXT1 = MessagePackCode.FIXEXT1;
+        public static final byte FIXEXT2 = MessagePackCode.FIXEXT2;
+        public static final byte FIXEXT4 = MessagePackCode.FIXEXT4;
+        public static final byte FIXEXT8 = MessagePackCode.FIXEXT8;
+        public static final byte FIXEXT16 = MessagePackCode.FIXEXT16;
 
-        public static final byte STR8 = (byte) 0xd9;
-        public static final byte STR16 = (byte) 0xda;
-        public static final byte STR32 = (byte) 0xdb;
+        public static final byte STR8 = MessagePackCode.STR8;
+        public static final byte STR16 = MessagePackCode.STR16;
+        public static final byte STR32 = MessagePackCode.STR32;
 
-        public static final byte ARRAY16 = (byte) 0xdc;
-        public static final byte ARRAY32 = (byte) 0xdd;
+        public static final byte ARRAY16 = MessagePackCode.ARRAY16;
+        public static final byte ARRAY32 = MessagePackCode.ARRAY32;
 
-        public static final byte MAP16 = (byte) 0xde;
-        public static final byte MAP32 = (byte) 0xdf;
+        public static final byte MAP16 = MessagePackCode.MAP16;
+        public static final byte MAP32 = MessagePackCode.MAP32;
 
-        public static final byte NEGFIXINT_PREFIX = (byte) 0xe0;
+        public static final byte NEGFIXINT_PREFIX = MessagePackCode.NEGFIXINT_PREFIX;
 
-        public static final byte EXT_TIMESTAMP = (byte) -1;
+        public static final byte EXT_TIMESTAMP = MessagePackCode.EXT_TIMESTAMP;
     }
 
     private MessagePack()

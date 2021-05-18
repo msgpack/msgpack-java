@@ -15,7 +15,7 @@
 //
 package org.msgpack.core
 
-import org.msgpack.core.MessagePack.Code
+import org.msgpack.value.MessagePackCode
 import org.msgpack.value.ValueType
 import wvlet.airspec.AirSpec
 import wvlet.airspec.spi.AirSpecException
@@ -58,45 +58,45 @@ class MessageFormatTest extends AirSpec with Benchmark {
         check(i.toByte, ValueType.ARRAY, MessageFormat.FIXARRAY)
       }
 
-      check(Code.NIL, ValueType.NIL, MessageFormat.NIL)
+      check(MessagePackCode.NIL, ValueType.NIL, MessageFormat.NIL)
 
-      MessageFormat.valueOf(Code.NEVER_USED) shouldBe MessageFormat.NEVER_USED
+      MessageFormat.valueOf(MessagePackCode.NEVER_USED) shouldBe MessageFormat.NEVER_USED
 
-      for (i <- Seq(Code.TRUE, Code.FALSE)) {
+      for (i <- Seq(MessagePackCode.TRUE, MessagePackCode.FALSE)) {
         check(i, ValueType.BOOLEAN, MessageFormat.BOOLEAN)
       }
 
-      check(Code.BIN8, ValueType.BINARY, MessageFormat.BIN8)
-      check(Code.BIN16, ValueType.BINARY, MessageFormat.BIN16)
-      check(Code.BIN32, ValueType.BINARY, MessageFormat.BIN32)
+      check(MessagePackCode.BIN8, ValueType.BINARY, MessageFormat.BIN8)
+      check(MessagePackCode.BIN16, ValueType.BINARY, MessageFormat.BIN16)
+      check(MessagePackCode.BIN32, ValueType.BINARY, MessageFormat.BIN32)
 
-      check(Code.FIXEXT1, ValueType.EXTENSION, MessageFormat.FIXEXT1)
-      check(Code.FIXEXT2, ValueType.EXTENSION, MessageFormat.FIXEXT2)
-      check(Code.FIXEXT4, ValueType.EXTENSION, MessageFormat.FIXEXT4)
-      check(Code.FIXEXT8, ValueType.EXTENSION, MessageFormat.FIXEXT8)
-      check(Code.FIXEXT16, ValueType.EXTENSION, MessageFormat.FIXEXT16)
-      check(Code.EXT8, ValueType.EXTENSION, MessageFormat.EXT8)
-      check(Code.EXT16, ValueType.EXTENSION, MessageFormat.EXT16)
-      check(Code.EXT32, ValueType.EXTENSION, MessageFormat.EXT32)
+      check(MessagePackCode.FIXEXT1, ValueType.EXTENSION, MessageFormat.FIXEXT1)
+      check(MessagePackCode.FIXEXT2, ValueType.EXTENSION, MessageFormat.FIXEXT2)
+      check(MessagePackCode.FIXEXT4, ValueType.EXTENSION, MessageFormat.FIXEXT4)
+      check(MessagePackCode.FIXEXT8, ValueType.EXTENSION, MessageFormat.FIXEXT8)
+      check(MessagePackCode.FIXEXT16, ValueType.EXTENSION, MessageFormat.FIXEXT16)
+      check(MessagePackCode.EXT8, ValueType.EXTENSION, MessageFormat.EXT8)
+      check(MessagePackCode.EXT16, ValueType.EXTENSION, MessageFormat.EXT16)
+      check(MessagePackCode.EXT32, ValueType.EXTENSION, MessageFormat.EXT32)
 
-      check(Code.INT8, ValueType.INTEGER, MessageFormat.INT8)
-      check(Code.INT16, ValueType.INTEGER, MessageFormat.INT16)
-      check(Code.INT32, ValueType.INTEGER, MessageFormat.INT32)
-      check(Code.INT64, ValueType.INTEGER, MessageFormat.INT64)
-      check(Code.UINT8, ValueType.INTEGER, MessageFormat.UINT8)
-      check(Code.UINT16, ValueType.INTEGER, MessageFormat.UINT16)
-      check(Code.UINT32, ValueType.INTEGER, MessageFormat.UINT32)
-      check(Code.UINT64, ValueType.INTEGER, MessageFormat.UINT64)
+      check(MessagePackCode.INT8, ValueType.INTEGER, MessageFormat.INT8)
+      check(MessagePackCode.INT16, ValueType.INTEGER, MessageFormat.INT16)
+      check(MessagePackCode.INT32, ValueType.INTEGER, MessageFormat.INT32)
+      check(MessagePackCode.INT64, ValueType.INTEGER, MessageFormat.INT64)
+      check(MessagePackCode.UINT8, ValueType.INTEGER, MessageFormat.UINT8)
+      check(MessagePackCode.UINT16, ValueType.INTEGER, MessageFormat.UINT16)
+      check(MessagePackCode.UINT32, ValueType.INTEGER, MessageFormat.UINT32)
+      check(MessagePackCode.UINT64, ValueType.INTEGER, MessageFormat.UINT64)
 
-      check(Code.STR8, ValueType.STRING, MessageFormat.STR8)
-      check(Code.STR16, ValueType.STRING, MessageFormat.STR16)
-      check(Code.STR32, ValueType.STRING, MessageFormat.STR32)
+      check(MessagePackCode.STR8, ValueType.STRING, MessageFormat.STR8)
+      check(MessagePackCode.STR16, ValueType.STRING, MessageFormat.STR16)
+      check(MessagePackCode.STR32, ValueType.STRING, MessageFormat.STR32)
 
-      check(Code.FLOAT32, ValueType.FLOAT, MessageFormat.FLOAT32)
-      check(Code.FLOAT64, ValueType.FLOAT, MessageFormat.FLOAT64)
+      check(MessagePackCode.FLOAT32, ValueType.FLOAT, MessageFormat.FLOAT32)
+      check(MessagePackCode.FLOAT64, ValueType.FLOAT, MessageFormat.FLOAT64)
 
-      check(Code.ARRAY16, ValueType.ARRAY, MessageFormat.ARRAY16)
-      check(Code.ARRAY32, ValueType.ARRAY, MessageFormat.ARRAY32)
+      check(MessagePackCode.ARRAY16, ValueType.ARRAY, MessageFormat.ARRAY16)
+      check(MessagePackCode.ARRAY32, ValueType.ARRAY, MessageFormat.ARRAY32)
 
       for (i <- 0xe0 to 0xff) {
         check(i.toByte, ValueType.INTEGER, MessageFormat.NEGFIXINT)
