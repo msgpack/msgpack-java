@@ -30,7 +30,7 @@ import java.util.List;
  * usually needs to copy contents of the buffer.
  */
 public class MessageBufferPacker
-        extends MessagePacker
+        extends MessagePackerImpl
 {
     protected MessageBufferPacker(MessagePack.PackerConfig config)
     {

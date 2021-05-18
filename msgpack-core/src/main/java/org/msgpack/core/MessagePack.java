@@ -56,9 +56,9 @@ import java.nio.charset.CodingErrorAction;
  * <table>
  *   <tr><th>Output type</th><th>Factory method</th><th>Return type</th></tr>
  *   <tr><td>byte[]</td><td>{@link #newDefaultBufferPacker()}</td><td>{@link MessageBufferPacker}</td><tr>
- *   <tr><td>OutputStream</td><td>{@link #newDefaultPacker(OutputStream)}</td><td>{@link MessagePacker}</td></tr>
- *   <tr><td>WritableByteChannel</td><td>{@link #newDefaultPacker(WritableByteChannel)}</td><td>{@link MessagePacker}</td></tr>
- *   <tr><td>{@link org.msgpack.core.buffer.MessageBufferOutput}</td><td>{@link #newDefaultPacker(MessageBufferOutput)}</td><td>{@link MessagePacker}</td></tr>
+ *   <tr><td>OutputStream</td><td>{@link #newDefaultPacker(OutputStream)}</td><td>{@link MessagePackerImpl}</td></tr>
+ *   <tr><td>WritableByteChannel</td><td>{@link #newDefaultPacker(WritableByteChannel)}</td><td>{@link MessagePackerImpl}</td></tr>
+ *   <tr><td>{@link org.msgpack.core.buffer.MessageBufferOutput}</td><td>{@link #newDefaultPacker(MessageBufferOutput)}</td><td>{@link MessagePackerImpl}</td></tr>
  * </table>
  *
  */
@@ -71,7 +71,7 @@ public class MessagePack
     public static final Charset UTF8 = Charset.forName("UTF-8");
 
     /**
-     * Configuration of a {@link MessagePacker} used by {@link #newDefaultPacker(MessageBufferOutput)} and {@link #newDefaultBufferPacker()} methods.
+     * Configuration of a {@link MessagePackerImpl} used by {@link #newDefaultPacker(MessageBufferOutput)} and {@link #newDefaultBufferPacker()} methods.
      */
     public static final PackerConfig DEFAULT_PACKER_CONFIG = new PackerConfig();
 
@@ -181,15 +181,15 @@ public class MessagePack
      * Creates a packer that serializes objects into the specified output.
      * <p>
      * {@link org.msgpack.core.buffer.MessageBufferOutput} is an interface that lets applications customize memory
-     * allocation of internal buffer of {@link MessagePacker}. You may prefer {@link #newDefaultBufferPacker()},
+     * allocation of internal buffer of {@link MessagePackerImpl}. You may prefer {@link #newDefaultBufferPacker()},
      * {@link #newDefaultPacker(OutputStream)}, or {@link #newDefaultPacker(WritableByteChannel)} methods instead.
      * <p>
      * This method is equivalent to <code>DEFAULT_PACKER_CONFIG.newPacker(out)</code>.
      *
      * @param out A MessageBufferOutput that allocates buffer chunks and receives the buffer chunks with packed data filled in them
-     * @return A new MessagePacker instance
+     * @return A new MessagePackerImpl instance
      */
-    public static MessagePacker newDefaultPacker(MessageBufferOutput out)
+    public static MessagePackerImpl newDefaultPacker(MessageBufferOutput out)
     {
         return DEFAULT_PACKER_CONFIG.newPacker(out);
     }
@@ -197,15 +197,15 @@ public class MessagePack
     /**
      * Creates a packer that serializes objects into the specified output stream.
      * <p>
-     * Note that you don't have to wrap OutputStream in BufferedOutputStream because MessagePacker has buffering
+     * Note that you don't have to wrap OutputStream in BufferedOutputStream because MessagePackerImpl has buffering
      * internally.
      * <p>
      * This method is equivalent to <code>DEFAULT_PACKER_CONFIG.newPacker(out)</code>.
      *
      * @param out The output stream that receives sequence of bytes
-     * @return A new MessagePacker instance
+     * @return A new MessagePackerImpl instance
      */
-    public static MessagePacker newDefaultPacker(OutputStream out)
+    public static MessagePackerImpl newDefaultPacker(OutputStream out)
     {
         return DEFAULT_PACKER_CONFIG.newPacker(out);
     }
@@ -216,9 +216,9 @@ public class MessagePack
      * This method is equivalent to <code>DEFAULT_PACKER_CONFIG.newPacker(channel)</code>.
      *
      * @param channel The output channel that receives sequence of bytes
-     * @return A new MessagePacker instance
+     * @return A new MessagePackerImpl instance
      */
-    public static MessagePacker newDefaultPacker(WritableByteChannel channel)
+    public static MessagePackerImpl newDefaultPacker(WritableByteChannel channel)
     {
         return DEFAULT_PACKER_CONFIG.newPacker(channel);
     }
@@ -334,7 +334,7 @@ public class MessagePack
     }
 
     /**
-     * MessagePacker configuration.
+     * MessagePackerImpl configuration.
      */
     public static class PackerConfig
             implements Cloneable
@@ -392,26 +392,26 @@ public class MessagePack
          * Creates a packer that serializes objects into the specified output.
          * <p>
          * {@link org.msgpack.core.buffer.MessageBufferOutput} is an interface that lets applications customize memory
-         * allocation of internal buffer of {@link MessagePacker}.
+         * allocation of internal buffer of {@link MessagePackerImpl}.
          *
          * @param out A MessageBufferOutput that allocates buffer chunks and receives the buffer chunks with packed data filled in them
-         * @return A new MessagePacker instance
+         * @return A new MessagePackerImpl instance
          */
-        public MessagePacker newPacker(MessageBufferOutput out)
+        public MessagePackerImpl newPacker(MessageBufferOutput out)
         {
-            return new MessagePacker(out, this);
+            return new MessagePackerImpl(out, this);
         }
 
         /**
          * Creates a packer that serializes objects into the specified output stream.
          * <p>
-         * Note that you don't have to wrap OutputStream in BufferedOutputStream because MessagePacker has buffering
+         * Note that you don't have to wrap OutputStream in BufferedOutputStream because MessagePackerImpl has buffering
          * internally.
          *
          * @param out The output stream that receives sequence of bytes
-         * @return A new MessagePacker instance
+         * @return A new MessagePackerImpl instance
          */
-        public MessagePacker newPacker(OutputStream out)
+        public MessagePackerImpl newPacker(OutputStream out)
         {
             return newPacker(new OutputStreamBufferOutput(out, bufferSize));
         }
@@ -420,9 +420,9 @@ public class MessagePack
          * Creates a packer that serializes objects into the specified writable channel.
          *
          * @param channel The output channel that receives sequence of bytes
-         * @return A new MessagePacker instance
+         * @return A new MessagePackerImpl instance
          */
-        public MessagePacker newPacker(WritableByteChannel channel)
+        public MessagePackerImpl newPacker(WritableByteChannel channel)
         {
             return newPacker(new ChannelBufferOutput(channel, bufferSize));
         }
@@ -456,7 +456,7 @@ public class MessagePack
         }
 
         /**
-         * When the next payload size exceeds this threshold, MessagePacker will call
+         * When the next payload size exceeds this threshold, MessagePackerImpl will call
          * {@link org.msgpack.core.buffer.MessageBufferOutput#flush()} before writing more data (default: 8192).
          */
         public PackerConfig withBufferFlushThreshold(int bytes)
