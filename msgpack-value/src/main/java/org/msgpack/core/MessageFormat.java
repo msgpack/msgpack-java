@@ -15,7 +15,6 @@
 //
 package org.msgpack.core;
 
-import org.msgpack.core.annotations.VisibleForTesting;
 import org.msgpack.value.ValueType;
 import org.msgpack.value.MessagePackCode;
 
@@ -114,7 +113,6 @@ public enum MessageFormat
      * @param b MessageFormat of the given byte
      * @return
      */
-    @VisibleForTesting
     static MessageFormat toMessageFormat(final byte b)
     {
         if (MessagePackCode.isPosFixInt(b)) {
