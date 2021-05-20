@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Arrays;
 
-import static org.msgpack.core.MessagePack.Code.EXT_TIMESTAMP;
+import static org.msgpack.value.MessagePackCode.EXT_TIMESTAMP;
 
 /**
  * {@code ImmutableTimestampValueImpl} Implements {@code ImmutableTimestampValue} using a {@code byte} and a {@code byte[]} fields.

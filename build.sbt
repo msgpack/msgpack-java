@@ -59,6 +59,29 @@ lazy val root = Project(id = "msgpack-java", base = file("."))
   )
   .aggregate(msgpackCore, msgpackJackson)
 
+lazy val msgpackValue = Project(id = "msgpack-value", base = file("msgpack-value"))
+  .enablePlugins(SbtOsgi)
+  .settings(
+    buildSettings,
+    description := "Value classes of the MessagePack for Java",
+    OsgiKeys.bundleSymbolicName := "org.msgpack.msgpack-value",
+    OsgiKeys.exportPackage := Seq(
+      // TODO enumerate used packages automatically
+      "org.msgpack.core",
+      "org.msgpack.value",
+    ),
+    libraryDependencies ++= Seq(
+      // msgpack-value should have no external dependencies
+      junitInterface,
+      "org.scalatest"     %% "scalatest"    % "3.0.3"  % "test",
+      "org.scalacheck"    %% "scalacheck"   % "1.13.5" % "test",
+      "org.xerial"        %% "xerial-core"  % "3.6.0"  % "test",
+      "org.msgpack"       % "msgpack"       % "0.6.12" % "test",
+      "commons-codec"     % "commons-codec" % "1.10"   % "test",
+      "com.typesafe.akka" %% "akka-actor"   % "2.5.7"  % "test"
+    )
+  )
+
 lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
   .enablePlugins(SbtOsgi)
   .settings(
@@ -75,7 +98,7 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
     ),
     testFrameworks += new TestFramework("wvlet.airspec.Framework"),
     libraryDependencies ++= Seq(
-      // msgpack-core should have no external dependencies
+      // msgpack-core should have no external dependencies except for msgpack-value
       junitInterface,
       "org.wvlet.airframe" %% "airframe-json" % AIRFRAME_VERSION % "test",
       "org.wvlet.airframe" %% "airspec"       % AIRFRAME_VERSION % "test",
@@ -88,6 +111,7 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
       "org.scala-lang.modules" %% "scala-collection-compat" % "2.4.4"  % "test"
     )
   )
+  .dependsOn(msgpackValue)
 
 lazy val msgpackJackson =
   Project(id = "msgpack-jackson", base = file("msgpack-jackson"))

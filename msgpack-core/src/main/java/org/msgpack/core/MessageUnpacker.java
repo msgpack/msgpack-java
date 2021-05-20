@@ -15,10 +15,10 @@
 //
 package org.msgpack.core;
 
-import org.msgpack.core.MessagePack.Code;
 import org.msgpack.core.buffer.MessageBuffer;
 import org.msgpack.core.buffer.MessageBufferInput;
 import org.msgpack.value.ImmutableValue;
+import org.msgpack.value.MessagePackCode;
 import org.msgpack.value.Value;
 import org.msgpack.value.ValueFactory;
 import org.msgpack.value.Variable;
@@ -34,7 +34,7 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.time.Instant;
 
-import static org.msgpack.core.MessagePack.Code.EXT_TIMESTAMP;
+import static org.msgpack.value.MessagePackCode.EXT_TIMESTAMP;
 import static org.msgpack.core.Preconditions.checkNotNull;
 
 /**
@@ -744,7 +744,7 @@ public class MessageUnpacker
             throws IOException
     {
         byte b = readByte();
-        if (b == Code.NIL) {
+        if (b == MessagePackCode.NIL) {
             return;
         }
         throw unexpected("Nil", b);
@@ -768,7 +768,7 @@ public class MessageUnpacker
             throw new MessageInsufficientBufferException();
         }
         byte b = buffer.getByte(position);
-        if (b == Code.NIL) {
+        if (b == MessagePackCode.NIL) {
             readByte();
             return true;
         }
@@ -786,10 +786,10 @@ public class MessageUnpacker
             throws IOException
     {
         byte b = readByte();
-        if (b == Code.FALSE) {
+        if (b == MessagePackCode.FALSE) {
             return false;
         }
-        else if (b == Code.TRUE) {
+        else if (b == MessagePackCode.TRUE) {
             return true;
         }
         throw unexpected("boolean", b);
@@ -809,50 +809,50 @@ public class MessageUnpacker
             throws IOException
     {
         byte b = readByte();
-        if (Code.isFixInt(b)) {
+        if (MessagePackCode.isFixInt(b)) {
             return b;
         }
         switch (b) {
-            case Code.UINT8: // unsigned int 8
+            case MessagePackCode.UINT8: // unsigned int 8
                 byte u8 = readByte();
                 if (u8 < (byte) 0) {
                     throw overflowU8(u8);
                 }
                 return u8;
-            case Code.UINT16: // unsigned int 16
+            case MessagePackCode.UINT16: // unsigned int 16
                 short u16 = readShort();
                 if (u16 < 0 || u16 > Byte.MAX_VALUE) {
                     throw overflowU16(u16);
                 }
                 return (byte) u16;
-            case Code.UINT32: // unsigned int 32
+            case MessagePackCode.UINT32: // unsigned int 32
                 int u32 = readInt();
                 if (u32 < 0 || u32 > Byte.MAX_VALUE) {
                     throw overflowU32(u32);
                 }
                 return (byte) u32;
-            case Code.UINT64: // unsigned int 64
+            case MessagePackCode.UINT64: // unsigned int 64
                 long u64 = readLong();
                 if (u64 < 0L || u64 > Byte.MAX_VALUE) {
                     throw overflowU64(u64);
                 }
                 return (byte) u64;
-            case Code.INT8: // signed int 8
+            case MessagePackCode.INT8: // signed int 8
                 byte i8 = readByte();
                 return i8;
-            case Code.INT16: // signed int 16
+            case MessagePackCode.INT16: // signed int 16
                 short i16 = readShort();
                 if (i16 < Byte.MIN_VALUE || i16 > Byte.MAX_VALUE) {
                     throw overflowI16(i16);
                 }
                 return (byte) i16;
-            case Code.INT32: // signed int 32
+            case MessagePackCode.INT32: // signed int 32
                 int i32 = readInt();
                 if (i32 < Byte.MIN_VALUE || i32 > Byte.MAX_VALUE) {
                     throw overflowI32(i32);
                 }
                 return (byte) i32;
-            case Code.INT64: // signed int 64
+            case MessagePackCode.INT64: // signed int 64
                 long i64 = readLong();
                 if (i64 < Byte.MIN_VALUE || i64 > Byte.MAX_VALUE) {
                     throw overflowI64(i64);
@@ -876,44 +876,44 @@ public class MessageUnpacker
             throws IOException
     {
         byte b = readByte();
-        if (Code.isFixInt(b)) {
+        if (MessagePackCode.isFixInt(b)) {
             return (short) b;
         }
         switch (b) {
-            case Code.UINT8: // unsigned int 8
+            case MessagePackCode.UINT8: // unsigned int 8
                 byte u8 = readByte();
                 return (short) (u8 & 0xff);
-            case Code.UINT16: // unsigned int 16
+            case MessagePackCode.UINT16: // unsigned int 16
                 short u16 = readShort();
                 if (u16 < (short) 0) {
                     throw overflowU16(u16);
                 }
                 return u16;
-            case Code.UINT32: // unsigned int 32
+            case MessagePackCode.UINT32: // unsigned int 32
                 int u32 = readInt();
                 if (u32 < 0 || u32 > Short.MAX_VALUE) {
                     throw overflowU32(u32);
                 }
                 return (short) u32;
-            case Code.UINT64: // unsigned int 64
+            case MessagePackCode.UINT64: // unsigned int 64
                 long u64 = readLong();
                 if (u64 < 0L || u64 > Short.MAX_VALUE) {
                     throw overflowU64(u64);
                 }
                 return (short) u64;
-            case Code.INT8: // signed int 8
+            case MessagePackCode.INT8: // signed int 8
                 byte i8 = readByte();
                 return (short) i8;
-            case Code.INT16: // signed int 16
+            case MessagePackCode.INT16: // signed int 16
                 short i16 = readShort();
                 return i16;
-            case Code.INT32: // signed int 32
+            case MessagePackCode.INT32: // signed int 32
                 int i32 = readInt();
                 if (i32 < Short.MIN_VALUE || i32 > Short.MAX_VALUE) {
                     throw overflowI32(i32);
                 }
                 return (short) i32;
-            case Code.INT64: // signed int 64
+            case MessagePackCode.INT64: // signed int 64
                 long i64 = readLong();
                 if (i64 < Short.MIN_VALUE || i64 > Short.MAX_VALUE) {
                     throw overflowI64(i64);
@@ -937,38 +937,38 @@ public class MessageUnpacker
             throws IOException
     {
         byte b = readByte();
-        if (Code.isFixInt(b)) {
+        if (MessagePackCode.isFixInt(b)) {
             return (int) b;
         }
         switch (b) {
-            case Code.UINT8: // unsigned int 8
+            case MessagePackCode.UINT8: // unsigned int 8
                 byte u8 = readByte();
                 return u8 & 0xff;
-            case Code.UINT16: // unsigned int 16
+            case MessagePackCode.UINT16: // unsigned int 16
                 short u16 = readShort();
                 return u16 & 0xffff;
-            case Code.UINT32: // unsigned int 32
+            case MessagePackCode.UINT32: // unsigned int 32
                 int u32 = readInt();
                 if (u32 < 0) {
                     throw overflowU32(u32);
                 }
                 return u32;
-            case Code.UINT64: // unsigned int 64
+            case MessagePackCode.UINT64: // unsigned int 64
                 long u64 = readLong();
                 if (u64 < 0L || u64 > (long) Integer.MAX_VALUE) {
                     throw overflowU64(u64);
                 }
                 return (int) u64;
-            case Code.INT8: // signed int 8
+            case MessagePackCode.INT8: // signed int 8
                 byte i8 = readByte();
                 return i8;
-            case Code.INT16: // signed int 16
+            case MessagePackCode.INT16: // signed int 16
                 short i16 = readShort();
                 return i16;
-            case Code.INT32: // signed int 32
+            case MessagePackCode.INT32: // signed int 32
                 int i32 = readInt();
                 return i32;
-            case Code.INT64: // signed int 64
+            case MessagePackCode.INT64: // signed int 64
                 long i64 = readLong();
                 if (i64 < (long) Integer.MIN_VALUE || i64 > (long) Integer.MAX_VALUE) {
                     throw overflowI64(i64);
@@ -992,17 +992,17 @@ public class MessageUnpacker
             throws IOException
     {
         byte b = readByte();
-        if (Code.isFixInt(b)) {
+        if (MessagePackCode.isFixInt(b)) {
             return (long) b;
         }
         switch (b) {
-            case Code.UINT8: // unsigned int 8
+            case MessagePackCode.UINT8: // unsigned int 8
                 byte u8 = readByte();
                 return (long) (u8 & 0xff);
-            case Code.UINT16: // unsigned int 16
+            case MessagePackCode.UINT16: // unsigned int 16
                 short u16 = readShort();
                 return (long) (u16 & 0xffff);
-            case Code.UINT32: // unsigned int 32
+            case MessagePackCode.UINT32: // unsigned int 32
                 int u32 = readInt();
                 if (u32 < 0) {
                     return (long) (u32 & 0x7fffffff) + 0x80000000L;
@@ -1010,22 +1010,22 @@ public class MessageUnpacker
                 else {
                     return (long) u32;
                 }
-            case Code.UINT64: // unsigned int 64
+            case MessagePackCode.UINT64: // unsigned int 64
                 long u64 = readLong();
                 if (u64 < 0L) {
                     throw overflowU64(u64);
                 }
                 return u64;
-            case Code.INT8: // signed int 8
+            case MessagePackCode.INT8: // signed int 8
                 byte i8 = readByte();
                 return (long) i8;
-            case Code.INT16: // signed int 16
+            case MessagePackCode.INT16: // signed int 16
                 short i16 = readShort();
                 return (long) i16;
-            case Code.INT32: // signed int 32
+            case MessagePackCode.INT32: // signed int 32
                 int i32 = readInt();
                 return (long) i32;
-            case Code.INT64: // signed int 64
+            case MessagePackCode.INT64: // signed int 64
                 long i64 = readLong();
                 return i64;
         }
@@ -1043,17 +1043,17 @@ public class MessageUnpacker
             throws IOException
     {
         byte b = readByte();
-        if (Code.isFixInt(b)) {
+        if (MessagePackCode.isFixInt(b)) {
             return BigInteger.valueOf((long) b);
         }
         switch (b) {
-            case Code.UINT8: // unsigned int 8
+            case MessagePackCode.UINT8: // unsigned int 8
                 byte u8 = readByte();
                 return BigInteger.valueOf((long) (u8 & 0xff));
-            case Code.UINT16: // unsigned int 16
+            case MessagePackCode.UINT16: // unsigned int 16
                 short u16 = readShort();
                 return BigInteger.valueOf((long) (u16 & 0xffff));
-            case Code.UINT32: // unsigned int 32
+            case MessagePackCode.UINT32: // unsigned int 32
                 int u32 = readInt();
                 if (u32 < 0) {
                     return BigInteger.valueOf((long) (u32 & 0x7fffffff) + 0x80000000L);
@@ -1061,7 +1061,7 @@ public class MessageUnpacker
                 else {
                     return BigInteger.valueOf((long) u32);
                 }
-            case Code.UINT64: // unsigned int 64
+            case MessagePackCode.UINT64: // unsigned int 64
                 long u64 = readLong();
                 if (u64 < 0L) {
                     BigInteger bi = BigInteger.valueOf(u64 + Long.MAX_VALUE + 1L).setBit(63);
@@ -1070,16 +1070,16 @@ public class MessageUnpacker
                 else {
                     return BigInteger.valueOf(u64);
                 }
-            case Code.INT8: // signed int 8
+            case MessagePackCode.INT8: // signed int 8
                 byte i8 = readByte();
                 return BigInteger.valueOf((long) i8);
-            case Code.INT16: // signed int 16
+            case MessagePackCode.INT16: // signed int 16
                 short i16 = readShort();
                 return BigInteger.valueOf((long) i16);
-            case Code.INT32: // signed int 32
+            case MessagePackCode.INT32: // signed int 32
                 int i32 = readInt();
                 return BigInteger.valueOf((long) i32);
-            case Code.INT64: // signed int 64
+            case MessagePackCode.INT64: // signed int 64
                 long i64 = readLong();
                 return BigInteger.valueOf(i64);
         }
@@ -1100,10 +1100,10 @@ public class MessageUnpacker
     {
         byte b = readByte();
         switch (b) {
-            case Code.FLOAT32: // float
+            case MessagePackCode.FLOAT32: // float
                 float fv = readFloat();
                 return fv;
-            case Code.FLOAT64: // double
+            case MessagePackCode.FLOAT64: // double
                 double dv = readDouble();
                 return (float) dv;
         }
@@ -1122,10 +1122,10 @@ public class MessageUnpacker
     {
         byte b = readByte();
         switch (b) {
-            case Code.FLOAT32: // float
+            case MessagePackCode.FLOAT32: // float
                 float fv = readFloat();
                 return (double) fv;
-            case Code.FLOAT64: // double
+            case MessagePackCode.FLOAT64: // double
                 double dv = readDouble();
                 return dv;
         }
@@ -1331,15 +1331,15 @@ public class MessageUnpacker
             throws IOException
     {
         byte b = readByte();
-        if (Code.isFixedArray(b)) { // fixarray
+        if (MessagePackCode.isFixedArray(b)) { // fixarray
             return b & 0x0f;
         }
         switch (b) {
-            case Code.ARRAY16: { // array 16
+            case MessagePackCode.ARRAY16: { // array 16
                 int len = readNextLength16();
                 return len;
             }
-            case Code.ARRAY32: { // array 32
+            case MessagePackCode.ARRAY32: { // array 32
                 int len = readNextLength32();
                 return len;
             }
@@ -1364,15 +1364,15 @@ public class MessageUnpacker
             throws IOException
     {
         byte b = readByte();
-        if (Code.isFixedMap(b)) { // fixmap
+        if (MessagePackCode.isFixedMap(b)) { // fixmap
             return b & 0x0f;
         }
         switch (b) {
-            case Code.MAP16: { // map 16
+            case MessagePackCode.MAP16: { // map 16
                 int len = readNextLength16();
                 return len;
             }
-            case Code.MAP32: { // map 32
+            case MessagePackCode.MAP32: { // map 32
                 int len = readNextLength32();
                 return len;
             }
@@ -1385,41 +1385,41 @@ public class MessageUnpacker
     {
         byte b = readByte();
         switch (b) {
-            case Code.FIXEXT1: {
+            case MessagePackCode.FIXEXT1: {
                 byte type = readByte();
                 return new ExtensionTypeHeader(type, 1);
             }
-            case Code.FIXEXT2: {
+            case MessagePackCode.FIXEXT2: {
                 byte type = readByte();
                 return new ExtensionTypeHeader(type, 2);
             }
-            case Code.FIXEXT4: {
+            case MessagePackCode.FIXEXT4: {
                 byte type = readByte();
                 return new ExtensionTypeHeader(type, 4);
             }
-            case Code.FIXEXT8: {
+            case MessagePackCode.FIXEXT8: {
                 byte type = readByte();
                 return new ExtensionTypeHeader(type, 8);
             }
-            case Code.FIXEXT16: {
+            case MessagePackCode.FIXEXT16: {
                 byte type = readByte();
                 return new ExtensionTypeHeader(type, 16);
             }
-            case Code.EXT8: {
+            case MessagePackCode.EXT8: {
                 MessageBuffer numberBuffer = prepareNumberBuffer(2);
                 int u8 = numberBuffer.getByte(nextReadPosition);
                 int length = u8 & 0xff;
                 byte type = numberBuffer.getByte(nextReadPosition + 1);
                 return new ExtensionTypeHeader(type, length);
             }
-            case Code.EXT16: {
+            case MessagePackCode.EXT16: {
                 MessageBuffer numberBuffer = prepareNumberBuffer(3);
                 int u16 = numberBuffer.getShort(nextReadPosition);
                 int length = u16 & 0xffff;
                 byte type = numberBuffer.getByte(nextReadPosition + 2);
                 return new ExtensionTypeHeader(type, length);
             }
-            case Code.EXT32: {
+            case MessagePackCode.EXT32: {
                 MessageBuffer numberBuffer = prepareNumberBuffer(5);
                 int u32 = numberBuffer.getInt(nextReadPosition);
                 if (u32 < 0) {
@@ -1438,11 +1438,11 @@ public class MessageUnpacker
             throws IOException
     {
         switch (b) {
-            case Code.STR8: // str 8
+            case MessagePackCode.STR8: // str 8
                 return readNextLength8();
-            case Code.STR16: // str 16
+            case MessagePackCode.STR16: // str 16
                 return readNextLength16();
-            case Code.STR32: // str 32
+            case MessagePackCode.STR32: // str 32
                 return readNextLength32();
             default:
                 return -1;
@@ -1453,11 +1453,11 @@ public class MessageUnpacker
             throws IOException
     {
         switch (b) {
-            case Code.BIN8: // bin 8
+            case MessagePackCode.BIN8: // bin 8
                 return readNextLength8();
-            case Code.BIN16: // bin 16
+            case MessagePackCode.BIN16: // bin 16
                 return readNextLength16();
-            case Code.BIN32: // bin 32
+            case MessagePackCode.BIN32: // bin 32
                 return readNextLength32();
             default:
                 return -1;
@@ -1468,7 +1468,7 @@ public class MessageUnpacker
             throws IOException
     {
         byte b = readByte();
-        if (Code.isFixedRaw(b)) { // FixRaw
+        if (MessagePackCode.isFixedRaw(b)) { // FixRaw
             return b & 0x1f;
         }
         int len = tryReadStringHeader(b);
@@ -1505,7 +1505,7 @@ public class MessageUnpacker
             throws IOException
     {
         byte b = readByte();
-        if (Code.isFixedRaw(b)) { // FixRaw
+        if (MessagePackCode.isFixedRaw(b)) { // FixRaw
             return b & 0x1f;
         }
         int len = tryReadBinaryHeader(b);

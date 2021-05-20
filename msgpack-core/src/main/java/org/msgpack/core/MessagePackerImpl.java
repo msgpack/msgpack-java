@@ -34,41 +34,41 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 import java.time.Instant;
 
-import static org.msgpack.core.MessagePack.Code.ARRAY16;
-import static org.msgpack.core.MessagePack.Code.ARRAY32;
-import static org.msgpack.core.MessagePack.Code.BIN16;
-import static org.msgpack.core.MessagePack.Code.BIN32;
-import static org.msgpack.core.MessagePack.Code.BIN8;
-import static org.msgpack.core.MessagePack.Code.EXT16;
-import static org.msgpack.core.MessagePack.Code.EXT32;
-import static org.msgpack.core.MessagePack.Code.EXT8;
-import static org.msgpack.core.MessagePack.Code.EXT_TIMESTAMP;
-import static org.msgpack.core.MessagePack.Code.FALSE;
-import static org.msgpack.core.MessagePack.Code.FIXARRAY_PREFIX;
-import static org.msgpack.core.MessagePack.Code.FIXEXT1;
-import static org.msgpack.core.MessagePack.Code.FIXEXT16;
-import static org.msgpack.core.MessagePack.Code.FIXEXT2;
-import static org.msgpack.core.MessagePack.Code.FIXEXT4;
-import static org.msgpack.core.MessagePack.Code.FIXEXT8;
-import static org.msgpack.core.MessagePack.Code.FIXMAP_PREFIX;
-import static org.msgpack.core.MessagePack.Code.FIXSTR_PREFIX;
-import static org.msgpack.core.MessagePack.Code.FLOAT32;
-import static org.msgpack.core.MessagePack.Code.FLOAT64;
-import static org.msgpack.core.MessagePack.Code.INT16;
-import static org.msgpack.core.MessagePack.Code.INT32;
-import static org.msgpack.core.MessagePack.Code.INT64;
-import static org.msgpack.core.MessagePack.Code.INT8;
-import static org.msgpack.core.MessagePack.Code.MAP16;
-import static org.msgpack.core.MessagePack.Code.MAP32;
-import static org.msgpack.core.MessagePack.Code.NIL;
-import static org.msgpack.core.MessagePack.Code.STR16;
-import static org.msgpack.core.MessagePack.Code.STR32;
-import static org.msgpack.core.MessagePack.Code.STR8;
-import static org.msgpack.core.MessagePack.Code.TRUE;
-import static org.msgpack.core.MessagePack.Code.UINT16;
-import static org.msgpack.core.MessagePack.Code.UINT32;
-import static org.msgpack.core.MessagePack.Code.UINT64;
-import static org.msgpack.core.MessagePack.Code.UINT8;
+import static org.msgpack.value.MessagePackCode.ARRAY16;
+import static org.msgpack.value.MessagePackCode.ARRAY32;
+import static org.msgpack.value.MessagePackCode.BIN16;
+import static org.msgpack.value.MessagePackCode.BIN32;
+import static org.msgpack.value.MessagePackCode.BIN8;
+import static org.msgpack.value.MessagePackCode.EXT16;
+import static org.msgpack.value.MessagePackCode.EXT32;
+import static org.msgpack.value.MessagePackCode.EXT8;
+import static org.msgpack.value.MessagePackCode.EXT_TIMESTAMP;
+import static org.msgpack.value.MessagePackCode.FALSE;
+import static org.msgpack.value.MessagePackCode.FIXARRAY_PREFIX;
+import static org.msgpack.value.MessagePackCode.FIXEXT1;
+import static org.msgpack.value.MessagePackCode.FIXEXT16;
+import static org.msgpack.value.MessagePackCode.FIXEXT2;
+import static org.msgpack.value.MessagePackCode.FIXEXT4;
+import static org.msgpack.value.MessagePackCode.FIXEXT8;
+import static org.msgpack.value.MessagePackCode.FIXMAP_PREFIX;
+import static org.msgpack.value.MessagePackCode.FIXSTR_PREFIX;
+import static org.msgpack.value.MessagePackCode.FLOAT32;
+import static org.msgpack.value.MessagePackCode.FLOAT64;
+import static org.msgpack.value.MessagePackCode.INT16;
+import static org.msgpack.value.MessagePackCode.INT32;
+import static org.msgpack.value.MessagePackCode.INT64;
+import static org.msgpack.value.MessagePackCode.INT8;
+import static org.msgpack.value.MessagePackCode.MAP16;
+import static org.msgpack.value.MessagePackCode.MAP32;
+import static org.msgpack.value.MessagePackCode.NIL;
+import static org.msgpack.value.MessagePackCode.STR16;
+import static org.msgpack.value.MessagePackCode.STR32;
+import static org.msgpack.value.MessagePackCode.STR8;
+import static org.msgpack.value.MessagePackCode.TRUE;
+import static org.msgpack.value.MessagePackCode.UINT16;
+import static org.msgpack.value.MessagePackCode.UINT32;
+import static org.msgpack.value.MessagePackCode.UINT64;
+import static org.msgpack.value.MessagePackCode.UINT8;
 import static org.msgpack.core.Preconditions.checkNotNull;
 
 /**
@@ -132,8 +132,8 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  * is written. This is convenient behavior when you use a non-blocking output channel that may not be writable
  * immediately.
  */
-public class MessagePacker
-        implements Closeable, Flushable
+public class MessagePackerImpl
+        extends MessagePacker implements Closeable, Flushable
 {
     private static final boolean CORRUPTED_CHARSET_ENCODER;
 
@@ -201,13 +201,13 @@ public class MessagePacker
     private CharsetEncoder encoder;
 
     /**
-     * Create an MessagePacker that outputs the packed data to the given {@link org.msgpack.core.buffer.MessageBufferOutput}.
+     * Create an MessagePackerImpl that outputs the packed data to the given {@link org.msgpack.core.buffer.MessageBufferOutput}.
      * This method is available for subclasses to override. Use MessagePack.PackerConfig.newPacker method to instantiate this implementation.
      *
      * @param out MessageBufferOutput. Use {@link org.msgpack.core.buffer.OutputStreamBufferOutput}, {@link org.msgpack.core.buffer.ChannelBufferOutput} or
      * your own implementation of {@link org.msgpack.core.buffer.MessageBufferOutput} interface.
      */
-    protected MessagePacker(MessageBufferOutput out, MessagePack.PackerConfig config)
+    protected MessagePackerImpl(MessageBufferOutput out, MessagePack.PackerConfig config)
     {
         this.out = checkNotNull(out, "MessageBufferOutput is null");
         this.smallStringOptimizationThreshold = config.getSmallStringOptimizationThreshold();
@@ -257,6 +257,7 @@ public class MessagePacker
      * <p>
      * Calling {@link #reset(MessageBufferOutput)} resets this number to 0.
      */
+    @Override
     public long getTotalWrittenBytes()
     {
         return totalFlushBytes + position;
@@ -265,6 +266,7 @@ public class MessagePacker
     /**
      * Clears the written data.
      */
+    @Override
     public void clear()
     {
         position = 0;
@@ -415,7 +417,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packNil()
+    @Override
+    public MessagePackerImpl packNil()
             throws IOException
     {
         writeByte(NIL);
@@ -430,7 +433,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packBoolean(boolean b)
+    @Override
+    public MessagePackerImpl packBoolean(boolean b)
             throws IOException
     {
         writeByte(b ? TRUE : FALSE);
@@ -447,7 +451,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packByte(byte b)
+    @Override
+    public MessagePackerImpl packByte(byte b)
             throws IOException
     {
         if (b < -(1 << 5)) {
@@ -469,7 +474,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packShort(short v)
+    @Override
+    public MessagePackerImpl packShort(short v)
             throws IOException
     {
         if (v < -(1 << 5)) {
@@ -504,7 +510,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packInt(int r)
+    @Override
+    public MessagePackerImpl packInt(int r)
             throws IOException
     {
         if (r < -(1 << 5)) {
@@ -546,7 +553,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packLong(long v)
+    @Override
+    public MessagePackerImpl packLong(long v)
             throws IOException
     {
         if (v < -(1L << 5)) {
@@ -602,7 +610,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packBigInteger(BigInteger bi)
+    @Override
+    public MessagePackerImpl packBigInteger(BigInteger bi)
             throws IOException
     {
         if (bi.bitLength() <= 63) {
@@ -627,7 +636,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packFloat(float v)
+    @Override
+    public MessagePackerImpl packFloat(float v)
             throws IOException
     {
         writeByteAndFloat(FLOAT32, v);
@@ -644,7 +654,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packDouble(double v)
+    @Override
+    public MessagePackerImpl packDouble(double v)
             throws IOException
     {
         writeByteAndDouble(FLOAT64, v);
@@ -721,7 +732,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packString(String s)
+    @Override
+    public MessagePackerImpl packString(String s)
             throws IOException
     {
         if (s.length() <= 0) {
@@ -810,7 +822,8 @@ public class MessagePacker
      * @return this packer
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packTimestamp(Instant instant)
+    @Override
+    public MessagePackerImpl packTimestamp(Instant instant)
             throws IOException
     {
         return packTimestamp(instant.getEpochSecond(), instant.getNano());
@@ -822,7 +835,8 @@ public class MessagePacker
      * @return this packer
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packTimestamp(long millis)
+    @Override
+    public MessagePackerImpl packTimestamp(long millis)
             throws IOException
     {
         return packTimestamp(Instant.ofEpochMilli(millis));
@@ -842,7 +856,8 @@ public class MessagePacker
      * @throws IOException when underlying output throws IOException
      * @throws ArithmeticException when epochSecond plus nanoAdjustment in seconds exceeds the range of long
      */
-    public MessagePacker packTimestamp(long epochSecond, int nanoAdjustment)
+    @Override
+    public MessagePackerImpl packTimestamp(long epochSecond, int nanoAdjustment)
             throws IOException, ArithmeticException
     {
         long sec = Math.addExact(epochSecond, Math.floorDiv(nanoAdjustment, NANOS_PER_SECOND));
@@ -916,7 +931,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packArrayHeader(int arraySize)
+    @Override
+    public MessagePackerImpl packArrayHeader(int arraySize)
             throws IOException
     {
         if (arraySize < 0) {
@@ -947,7 +963,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packMapHeader(int mapSize)
+    @Override
+    public MessagePackerImpl packMapHeader(int mapSize)
             throws IOException
     {
         if (mapSize < 0) {
@@ -973,7 +990,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packValue(Value v)
+    @Override
+    public MessagePackerImpl packValue(Value v)
             throws IOException
     {
         v.writeTo(this);
@@ -990,7 +1008,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packExtensionTypeHeader(byte extType, int payloadLen)
+    @Override
+    public MessagePackerImpl packExtensionTypeHeader(byte extType, int payloadLen)
             throws IOException
     {
         if (payloadLen < (1 << 8)) {
@@ -1042,7 +1061,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packBinaryHeader(int len)
+    @Override
+    public MessagePackerImpl packBinaryHeader(int len)
             throws IOException
     {
         if (len < (1 << 8)) {
@@ -1069,7 +1089,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker packRawStringHeader(int len)
+    @Override
+    public MessagePackerImpl packRawStringHeader(int len)
             throws IOException
     {
         if (len < (1 << 5)) {
@@ -1096,7 +1117,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker writePayload(byte[] src)
+    @Override
+    public MessagePackerImpl writePayload(byte[] src)
             throws IOException
     {
         return writePayload(src, 0, src.length);
@@ -1113,7 +1135,8 @@ public class MessagePacker
      * @return this
      * @throws IOException when underlying output throws IOException
      */
-    public MessagePacker writePayload(byte[] src, int off, int len)
+    @Override
+    public MessagePackerImpl writePayload(byte[] src, int off, int len)
             throws IOException
     {
         if (buffer == null || buffer.size() - position < len || len > bufferFlushThreshold) {
@@ -1144,7 +1167,8 @@ public class MessagePacker
      * @throws IOException when underlying output throws IOException
      * @see #writePayload(byte[])
      */
-    public MessagePacker addPayload(byte[] src)
+    @Override
+    public MessagePackerImpl addPayload(byte[] src)
             throws IOException
     {
         return addPayload(src, 0, src.length);
@@ -1167,7 +1191,8 @@ public class MessagePacker
      * @throws IOException when underlying output throws IOException
      * @see #writePayload(byte[], int, int)
      */
-    public MessagePacker addPayload(byte[] src, int off, int len)
+    @Override
+    public MessagePackerImpl addPayload(byte[] src, int off, int len)
             throws IOException
     {
         if (buffer == null || buffer.size() - position < len || len > bufferFlushThreshold) {

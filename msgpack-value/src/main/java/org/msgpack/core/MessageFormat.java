@@ -15,9 +15,8 @@
 //
 package org.msgpack.core;
 
-import org.msgpack.core.annotations.VisibleForTesting;
 import org.msgpack.value.ValueType;
-import org.msgpack.core.MessagePack.Code;
+import org.msgpack.value.MessagePackCode;
 
 /**
  * Describes the list of the message format types defined in the MessagePack specification.
@@ -114,85 +113,84 @@ public enum MessageFormat
      * @param b MessageFormat of the given byte
      * @return
      */
-    @VisibleForTesting
     static MessageFormat toMessageFormat(final byte b)
     {
-        if (Code.isPosFixInt(b)) {
+        if (MessagePackCode.isPosFixInt(b)) {
             return POSFIXINT;
         }
-        if (Code.isNegFixInt(b)) {
+        if (MessagePackCode.isNegFixInt(b)) {
             return NEGFIXINT;
         }
-        if (Code.isFixStr(b)) {
+        if (MessagePackCode.isFixStr(b)) {
             return FIXSTR;
         }
-        if (Code.isFixedArray(b)) {
+        if (MessagePackCode.isFixedArray(b)) {
             return FIXARRAY;
         }
-        if (Code.isFixedMap(b)) {
+        if (MessagePackCode.isFixedMap(b)) {
             return FIXMAP;
         }
         switch (b) {
-            case Code.NIL:
+            case MessagePackCode.NIL:
                 return NIL;
-            case Code.FALSE:
-            case Code.TRUE:
+            case MessagePackCode.FALSE:
+            case MessagePackCode.TRUE:
                 return BOOLEAN;
-            case Code.BIN8:
+            case MessagePackCode.BIN8:
                 return BIN8;
-            case Code.BIN16:
+            case MessagePackCode.BIN16:
                 return BIN16;
-            case Code.BIN32:
+            case MessagePackCode.BIN32:
                 return BIN32;
-            case Code.EXT8:
+            case MessagePackCode.EXT8:
                 return EXT8;
-            case Code.EXT16:
+            case MessagePackCode.EXT16:
                 return EXT16;
-            case Code.EXT32:
+            case MessagePackCode.EXT32:
                 return EXT32;
-            case Code.FLOAT32:
+            case MessagePackCode.FLOAT32:
                 return FLOAT32;
-            case Code.FLOAT64:
+            case MessagePackCode.FLOAT64:
                 return FLOAT64;
-            case Code.UINT8:
+            case MessagePackCode.UINT8:
                 return UINT8;
-            case Code.UINT16:
+            case MessagePackCode.UINT16:
                 return UINT16;
-            case Code.UINT32:
+            case MessagePackCode.UINT32:
                 return UINT32;
-            case Code.UINT64:
+            case MessagePackCode.UINT64:
                 return UINT64;
-            case Code.INT8:
+            case MessagePackCode.INT8:
                 return INT8;
-            case Code.INT16:
+            case MessagePackCode.INT16:
                 return INT16;
-            case Code.INT32:
+            case MessagePackCode.INT32:
                 return INT32;
-            case Code.INT64:
+            case MessagePackCode.INT64:
                 return INT64;
-            case Code.FIXEXT1:
+            case MessagePackCode.FIXEXT1:
                 return FIXEXT1;
-            case Code.FIXEXT2:
+            case MessagePackCode.FIXEXT2:
                 return FIXEXT2;
-            case Code.FIXEXT4:
+            case MessagePackCode.FIXEXT4:
                 return FIXEXT4;
-            case Code.FIXEXT8:
+            case MessagePackCode.FIXEXT8:
                 return FIXEXT8;
-            case Code.FIXEXT16:
+            case MessagePackCode.FIXEXT16:
                 return FIXEXT16;
-            case Code.STR8:
+            case MessagePackCode.STR8:
                 return STR8;
-            case Code.STR16:
+            case MessagePackCode.STR16:
                 return STR16;
-            case Code.STR32:
+            case MessagePackCode.STR32:
                 return STR32;
-            case Code.ARRAY16:
+            case MessagePackCode.ARRAY16:
                 return ARRAY16;
-            case Code.ARRAY32:
+            case MessagePackCode.ARRAY32:
                 return ARRAY32;
-            case Code.MAP16:
+            case MessagePackCode.MAP16:
                 return MAP16;
-            case Code.MAP32:
+            case MessagePackCode.MAP32:
                 return MAP32;
             default:
                 return NEVER_USED;

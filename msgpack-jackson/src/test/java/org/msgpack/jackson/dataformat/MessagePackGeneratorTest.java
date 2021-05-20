@@ -29,6 +29,7 @@ import org.msgpack.core.ExtensionTypeHeader;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.core.buffer.ArrayBufferInput;
+import org.msgpack.value.MessagePackCode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -460,13 +461,13 @@ public class MessagePackGeneratorTest
         // Test that produced value having str8 format
         ObjectMapper defaultMapper = new ObjectMapper(new MessagePackFactory());
         byte[] resultWithStr8Format = defaultMapper.writeValueAsBytes(str8LengthString);
-        assertEquals(resultWithStr8Format[0], MessagePack.Code.STR8);
+        assertEquals(resultWithStr8Format[0], MessagePackCode.STR8);
 
         // Test that produced value does not having str8 format
         MessagePack.PackerConfig config = new MessagePack.PackerConfig().withStr8FormatSupport(false);
         ObjectMapper mapperWithConfig = new ObjectMapper(new MessagePackFactory(config));
         byte[] resultWithoutStr8Format = mapperWithConfig.writeValueAsBytes(str8LengthString);
-        assertNotEquals(resultWithoutStr8Format[0], MessagePack.Code.STR8);
+        assertNotEquals(resultWithoutStr8Format[0], MessagePackCode.STR8);
     }
 
     interface NonStringKeyMapHolder
