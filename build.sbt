@@ -5,6 +5,8 @@ Global / concurrentRestrictions := Seq(
   Tags.limit(Tags.Test, 1)
 )
 
+val AIRFRAME_VERSION = "20.12.2"
+
 // Use dynamic snapshot version strings for non tagged versions
 ThisBuild / dynverSonatypeSnapshots := true
 // Use coursier friendly version separator
@@ -15,7 +17,7 @@ val buildSettings = Seq[Setting[_]](
   organizationName := "MessagePack",
   organizationHomepage := Some(new URL("http://msgpack.org/")),
   description := "MessagePack for Java",
-  scalaVersion := "2.13.6",
+  scalaVersion := "2.12.14",
   Test / logBuffered := false,
   // msgpack-java should be a pure-java library, so remove Scala specific configurations
   autoScalaLibrary := false,
@@ -71,15 +73,19 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
       "org.msgpack.value",
       "org.msgpack.value.impl"
     ),
+    testFrameworks += new TestFramework("wvlet.airspec.Framework"),
     libraryDependencies ++= Seq(
       // msgpack-core should have no external dependencies
       junitInterface,
-      "org.scalatest"     %% "scalatest"    % "3.2.8"  % "test",
-      "org.scalacheck"    %% "scalacheck"   % "1.15.4" % "test",
-      "org.xerial"        %% "xerial-core"  % "3.6.0"  % "test",
-      "org.msgpack"       % "msgpack"       % "0.6.12" % "test",
-      "commons-codec"     % "commons-codec" % "1.12"   % "test",
-      "com.typesafe.akka" %% "akka-actor"   % "2.5.23" % "test"
+      "org.wvlet.airframe" %% "airframe-json" % AIRFRAME_VERSION % "test",
+      "org.wvlet.airframe" %% "airspec"       % AIRFRAME_VERSION % "test",
+      // Add property testing support with forAll methods
+      "org.scalacheck" %% "scalacheck" % "1.15.4" % "test",
+      // For performance comparison with msgpack v6
+      "org.msgpack" % "msgpack" % "0.6.12" % "test",
+      // For integration test with Akka
+      "com.typesafe.akka"      %% "akka-actor"              % "2.5.23" % "test",
+      "org.scala-lang.modules" %% "scala-collection-compat" % "2.4.4"  % "test"
     )
   )
 

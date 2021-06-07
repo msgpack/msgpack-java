@@ -17,12 +17,12 @@ package org.msgpack.core
 
 import java.io.ByteArrayOutputStream
 import java.util.Arrays
-
 import org.msgpack.value.ValueFactory._
+import wvlet.airspec.AirSpec
 
-class MessageBufferPackerTest extends MessagePackSpec {
-  "MessageBufferPacker" should {
-    "be equivalent to ByteArrayOutputStream" in {
+class MessageBufferPackerTest extends AirSpec {
+  test("MessageBufferPacker") {
+    test("be equivalent to ByteArrayOutputStream") {
       val packer1 = MessagePack.newDefaultBufferPacker
       packer1.packValue(newMap(newString("a"), newInteger(1), newString("b"), newString("s")))
 
@@ -34,17 +34,17 @@ class MessageBufferPackerTest extends MessagePackSpec {
       packer1.toByteArray shouldBe stream.toByteArray
     }
 
-    "clear unflushed" in {
+    test("clear unflushed") {
       val packer = MessagePack.newDefaultBufferPacker
-      packer.packInt(1);
-      packer.clear();
-      packer.packInt(2);
+      packer.packInt(1)
+      packer.clear()
+      packer.packInt(2)
 
-      packer.toByteArray shouldBe Array(2)
+      packer.toByteArray shouldBe Array[Byte](2)
       val buffer = packer.toBufferList().get(0)
-      buffer.toByteArray() shouldBe Array(2)
+      buffer.toByteArray() shouldBe Array[Byte](2)
       val array = Arrays.copyOf(buffer.sliceAsByteBuffer().array(), buffer.size())
-      array shouldBe Array(2)
+      array shouldBe Array[Byte](2)
     }
 
   }

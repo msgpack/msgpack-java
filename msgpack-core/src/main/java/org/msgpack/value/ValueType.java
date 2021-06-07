@@ -36,6 +36,12 @@ public enum ValueType
     MAP(false, false),
     EXTENSION(false, false);
 
+    /**
+     * Design note: We do not add Timestamp as a ValueType here because
+     * detecting Timestamp values requires reading 1-3 bytes ahead while the other
+     * value types can be determined just by reading the first one byte.
+     */
+
     private final boolean numberType;
     private final boolean rawType;
 

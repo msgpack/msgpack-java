@@ -13,31 +13,14 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.core.example
-
-import wvlet.airspec.AirSpec
+package org.msgpack.value;
 
 /**
-  *
-  */
-class MessagePackExampleTest extends AirSpec {
-
-  test("example") {
-
-    test("have basic usage") {
-      MessagePackExample.basicUsage()
-    }
-
-    test("have packer usage") {
-      MessagePackExample.packer()
-    }
-
-    test("have file read/write example") {
-      MessagePackExample.readAndWriteFile();
-    }
-
-    test("have configuration example") {
-      MessagePackExample.configuration();
-    }
-  }
+ * Immutable representation of MessagePack's Timestamp type.
+ *
+ * @see org.msgpack.value.TimestampValue
+ */
+public interface ImmutableTimestampValue
+        extends TimestampValue, ImmutableValue
+{
 }

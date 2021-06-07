@@ -16,14 +16,16 @@
 package org.msgpack.core.buffer
 
 import akka.util.ByteString
-import org.msgpack.core.{MessagePack, MessagePackSpec, MessageUnpacker}
+import org.msgpack.core.MessagePack
+import org.msgpack.core.MessagePackSpec.createMessagePackData
+import wvlet.airspec.AirSpec
 
-class ByteStringTest extends MessagePackSpec {
+class ByteStringTest extends AirSpec {
 
-  val unpackedString = "foo"
-  val byteString     = ByteString(createMessagePackData(_.packString(unpackedString)))
+  private val unpackedString = "foo"
+  private val byteString     = ByteString(createMessagePackData(_.packString(unpackedString)))
 
-  def unpackString(messageBuffer: MessageBuffer) = {
+  private def unpackString(messageBuffer: MessageBuffer) = {
     val input = new MessageBufferInput {
 
       private var isRead = false
@@ -41,12 +43,14 @@ class ByteStringTest extends MessagePackSpec {
     MessagePack.newDefaultUnpacker(input).unpackString()
   }
 
-  "Unpacking a ByteString's ByteBuffer" should {
-    "fail with a regular MessageBuffer" in {
+  test("Unpacking a ByteString's ByteBuffer") {
+    test("fail with a regular MessageBuffer") {
 
       // can't demonstrate with new ByteBufferInput(byteString.asByteBuffer)
       // as Travis tests run with JDK6 that picks up MessageBufferU
-      a[RuntimeException] shouldBe thrownBy(unpackString(new MessageBuffer(byteString.asByteBuffer)))
+      intercept[RuntimeException] {
+        unpackString(new MessageBuffer(byteString.asByteBuffer))
+      }
     }
   }
 }

@@ -32,7 +32,9 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
+import java.time.Instant;
 
+import static org.msgpack.core.MessagePack.Code.EXT_TIMESTAMP;
 import static org.msgpack.core.Preconditions.checkNotNull;
 
 /**
@@ -595,6 +597,12 @@ public class MessageUnpacker
         }
     }
 
+    private static MessagePackException unexpectedExtension(String expected, int expectedType, int actualType)
+    {
+        return new MessageTypeException(String.format("Expected extension type %s (%d), but got extension type %d",
+                    expected, expectedType, actualType));
+    }
+
     public ImmutableValue unpackValue()
             throws IOException
     {
@@ -643,7 +651,12 @@ public class MessageUnpacker
             }
             case EXTENSION: {
                 ExtensionTypeHeader extHeader = unpackExtensionTypeHeader();
-                return ValueFactory.newExtension(extHeader.getType(), readPayload(extHeader.getLength()));
+                switch (extHeader.getType()) {
+                case EXT_TIMESTAMP:
+                    return ValueFactory.newTimestamp(unpackTimestamp(extHeader));
+                default:
+                    return ValueFactory.newExtension(extHeader.getType(), readPayload(extHeader.getLength()));
+                }
             }
             default:
                 throw new MessageNeverUsedFormatException("Unknown value type");
@@ -707,7 +720,13 @@ public class MessageUnpacker
             }
             case EXTENSION: {
                 ExtensionTypeHeader extHeader = unpackExtensionTypeHeader();
-                var.setExtensionValue(extHeader.getType(), readPayload(extHeader.getLength()));
+                switch (extHeader.getType()) {
+                case EXT_TIMESTAMP:
+                    var.setTimestampValue(unpackTimestamp(extHeader));
+                    break;
+                default:
+                    var.setExtensionValue(extHeader.getType(), readPayload(extHeader.getLength()));
+                }
                 return var;
             }
             default:
@@ -1254,6 +1273,45 @@ public class MessageUnpacker
             }
             position += length;
             return cb.toString();
+        }
+    }
+
+    public Instant unpackTimestamp()
+            throws IOException
+    {
+        ExtensionTypeHeader ext = unpackExtensionTypeHeader();
+        return unpackTimestamp(ext);
+    }
+
+    /**
+     * Internal method that can be used only when the extension type header is already read.
+     */
+    private Instant unpackTimestamp(ExtensionTypeHeader ext) throws IOException
+    {
+        if (ext.getType() != EXT_TIMESTAMP) {
+            throw unexpectedExtension("Timestamp", EXT_TIMESTAMP, ext.getType());
+        }
+        switch (ext.getLength()) {
+            case 4: {
+                // Need to convert Java's int (int32) to uint32
+                long u32 = readInt() & 0xffffffffL;
+                return Instant.ofEpochSecond(u32);
+            }
+            case 8: {
+                long data64 = readLong();
+                int nsec = (int) (data64 >>> 34);
+                long sec = data64 & 0x00000003ffffffffL;
+                return Instant.ofEpochSecond(sec, nsec);
+            }
+            case 12: {
+                // Need to convert Java's int (int32) to uint32
+                long nsecU32 = readInt() & 0xffffffffL;
+                long sec = readLong();
+                return Instant.ofEpochSecond(sec, nsecU32);
+            }
+            default:
+                throw new MessageFormatException(String.format("Timestamp extension type (%d) expects 4, 8, or 12 bytes of payload but got %d bytes",
+                        EXT_TIMESTAMP, ext.getLength()));
         }
     }
 
