@@ -18,7 +18,6 @@ package org.msgpack.core.example
 import wvlet.airspec.AirSpec
 
 /**
-  *
   */
 class MessagePackExampleTest extends AirSpec {
 

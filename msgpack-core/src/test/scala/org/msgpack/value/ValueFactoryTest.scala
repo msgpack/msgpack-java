@@ -20,24 +20,25 @@ import wvlet.airspec.AirSpec
 import wvlet.airspec.spi.PropertyCheck
 
 /**
-  *
   */
 class ValueFactoryTest extends AirSpec with PropertyCheck {
 
-  private def isValid(v: Value,
-                      expected: ValueType,
-                      isNil: Boolean = false,
-                      isBoolean: Boolean = false,
-                      isInteger: Boolean = false,
-                      isString: Boolean = false,
-                      isFloat: Boolean = false,
-                      isBinary: Boolean = false,
-                      isArray: Boolean = false,
-                      isMap: Boolean = false,
-                      isExtension: Boolean = false,
-                      isRaw: Boolean = false,
-                      isNumber: Boolean = false,
-                      isTimestamp: Boolean = false): Boolean = {
+  private def isValid(
+      v: Value,
+      expected: ValueType,
+      isNil: Boolean = false,
+      isBoolean: Boolean = false,
+      isInteger: Boolean = false,
+      isString: Boolean = false,
+      isFloat: Boolean = false,
+      isBinary: Boolean = false,
+      isArray: Boolean = false,
+      isMap: Boolean = false,
+      isExtension: Boolean = false,
+      isRaw: Boolean = false,
+      isNumber: Boolean = false,
+      isTimestamp: Boolean = false
+  ): Boolean = {
     v.isNilValue shouldBe isNil
     v.isBooleanValue shouldBe isBoolean
     v.isIntegerValue shouldBe isInteger

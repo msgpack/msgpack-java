@@ -25,7 +25,7 @@ import wvlet.airspec.AirSpec
 class ValueTypeTest extends AirSpec {
 
   test("lookup ValueType from a byte value") {
-    def check(b: Byte, tpe: ValueType) {
+    def check(b: Byte, tpe: ValueType): Unit = {
       MessageFormat.valueOf(b).getValueType shouldBe tpe
     }
 

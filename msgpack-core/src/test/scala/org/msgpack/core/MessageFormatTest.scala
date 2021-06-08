@@ -28,7 +28,7 @@ import scala.util.Random
 class MessageFormatTest extends AirSpec with Benchmark {
   test("MessageFormat") {
     test("cover all byte codes") {
-      def checkV(b: Byte, tpe: ValueType) {
+      def checkV(b: Byte, tpe: ValueType): Unit = {
         try MessageFormat.valueOf(b).getValueType shouldBe tpe
         catch {
           case e: AirSpecException =>
@@ -37,11 +37,11 @@ class MessageFormatTest extends AirSpec with Benchmark {
         }
       }
 
-      def checkF(b: Byte, f: MessageFormat) {
+      def checkF(b: Byte, f: MessageFormat): Unit = {
         MessageFormat.valueOf(b) shouldBe f
       }
 
-      def check(b: Byte, tpe: ValueType, f: MessageFormat) {
+      def check(b: Byte, tpe: ValueType, f: MessageFormat): Unit = {
         checkV(b, tpe)
         checkF(b, f)
       }
