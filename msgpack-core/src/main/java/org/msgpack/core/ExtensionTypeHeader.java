@@ -59,6 +59,11 @@ public class ExtensionTypeHeader
         return type;
     }
 
+    public boolean isTimestampType()
+    {
+        return type == MessagePack.Code.EXT_TIMESTAMP;
+    }
+
     public int getLength()
     {
         return length;

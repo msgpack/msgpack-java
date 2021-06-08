@@ -1284,9 +1284,9 @@ public class MessageUnpacker
     }
 
     /**
-     * Internal method that can be used only when the extension type header is already read.
+     * Unpack timestamp that can be used after reading the extension type header with unpackExtensionTypeHeader.
      */
-    private Instant unpackTimestamp(ExtensionTypeHeader ext) throws IOException
+    public Instant unpackTimestamp(ExtensionTypeHeader ext) throws IOException
     {
         if (ext.getType() != EXT_TIMESTAMP) {
             throw unexpectedExtension("Timestamp", EXT_TIMESTAMP, ext.getType());

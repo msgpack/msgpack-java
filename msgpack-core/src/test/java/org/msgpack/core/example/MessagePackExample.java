@@ -26,6 +26,7 @@ import org.msgpack.value.ArrayValue;
 import org.msgpack.value.ExtensionValue;
 import org.msgpack.value.FloatValue;
 import org.msgpack.value.IntegerValue;
+import org.msgpack.value.TimestampValue;
 import org.msgpack.value.Value;
 
 import java.io.File;
@@ -33,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.time.Instant;
 
 /**
  * This class describes the usage of MessagePack
@@ -145,6 +147,9 @@ public class MessagePackExample
         packer.packExtensionTypeHeader((byte) 1, 10);  // type number [0, 127], data byte length
         packer.writePayload(extData);
 
+        // Pack timestamp
+        packer.packTimestamp(Instant.now());
+
         // Succinct syntax for packing
         packer
                 .packInt(1)
@@ -228,8 +233,15 @@ public class MessagePackExample
                     break;
                 case EXTENSION:
                     ExtensionValue ev = v.asExtensionValue();
-                    byte extType = ev.getType();
-                    byte[] extValue = ev.getData();
+                    if (ev.isTimestampValue()) {
+                        // Reading the value as a timestamp
+                        TimestampValue ts = ev.asTimestampValue();
+                        Instant tsValue = ts.toInstant();
+                    }
+                    else {
+                        byte extType = ev.getType();
+                        byte[] extValue = ev.getData();
+                    }
                     break;
             }
         }
