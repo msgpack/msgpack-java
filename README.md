@@ -98,7 +98,7 @@ $ git push origin v0.x.y
 
 To generate a release notes, you can use this command line:
 ```
-$ git log v(last version).. --oneline | cut -f 2- -d ' ' | perl -npe 's/(.*)\(\#([0-9]+)\)/* \1\(\#\2\)\[http:\/\/github.com\/msgpack\/msgpack-java\/pull\/\2\]/g'
+$ git log v(last version).. --oneline | cut -f 2- -d ' ' | perl -npe 's/(.*)\(\#([0-9]+)\)/* \1\[\#\2\]\(http:\/\/github.com\/msgpack\/msgpack-java\/pull\/\2\)/g'
 ```
 
 #### Publishing to Sonatype from Local Machine
