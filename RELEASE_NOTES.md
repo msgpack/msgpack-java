@@ -6,10 +6,11 @@ This version support reading and writing [Timestamp values](https://github.com/m
 Packer and unpacker interfaces added pack/unpackTimestamp methods.
 
 Timestamp value in MessagePack is an extention type value whose code is -1. If MessgageUnapcker.unpackValue method is used,
-TimestampValue object can be retrieved automatically. If you are using low-level unpack method (e.g., unpackInt, unpackExtension, etc.),
-you need to read unpackExtHeader first, and if extHeader.isTimestamp is true, call unpackTimestamp(ext).
+TimestampValue object can be retrieved automatically. If you are using low-level unpack methods (e.g., unpackInt, unpackExtension, etc.),
+you need to read unpackExtensionHeader first, and if extHeader.isTimestampType is true, call unpackTimestamp(ext).
 
-* Timestamp support (#565)[http://github.com/msgpack/msgpack-java/pull/565]
+* Added Timestamp support (#565)[http://github.com/msgpack/msgpack-java/pull/565] and low-level APIs (#580)[https://github.com/msgpack/msgpack-java/pull/580] for
+reading timestamp values.
 
 Dependency updates:
 * Update jackson-databind to 2.10.5.1 (#559)[http://github.com/msgpack/msgpack-java/pull/559]
