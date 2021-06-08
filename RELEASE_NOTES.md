@@ -5,7 +5,7 @@
 This version support reading and writing [Timestamp values](https://github.com/msgpack/msgpack/blob/master/spec.md#timestamp-extension-type).
 Packer and unpacker interfaces added pack/unpackTimestamp methods.
 
-Timestamp value in MessagePack is an extention type value whose code is -1. If MessgageUnapcker.unpackValue method is used,
+Timestamp value in MessagePack is an extension type value whose code is -1. If MessgageUnapcker.unpackValue method is used,
 TimestampValue object can be retrieved automatically. If you are using low-level unpack methods (e.g., unpackInt, unpackExtension, etc.),
 you need to read unpackExtensionHeader first, and if extHeader.isTimestampType is true, call unpackTimestamp(ext).
 
