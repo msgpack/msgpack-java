@@ -377,8 +377,7 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
   }
 
   test("report errors when packing/unpacking malformed strings") {
-    // TODO produce malformed utf-8 strings in Java8"
-    pending
+    pending("We need to produce malformed utf-8 strings in Java 8")
     // Create 100 malformed UTF8 Strings
     val r = new Random(0)
     val malformedStrings = Iterator
