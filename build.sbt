@@ -102,7 +102,7 @@ lazy val msgpackJackson =
         "org.msgpack.jackson.dataformat"
       ),
       libraryDependencies ++= Seq(
-        "com.fasterxml.jackson.core" % "jackson-databind" % "2.10.5.1",
+        "com.fasterxml.jackson.core" % "jackson-databind" % "2.12.3",
         junitInterface,
         "org.apache.commons" % "commons-math3" % "3.6.1" % "test"
       ),
