@@ -9,6 +9,12 @@ Timestamp value in MessagePack is an extention type value whose code is -1. If M
 TimestampValue object can be retrieved automatically. If you are using low-level unpack methods (e.g., unpackInt, unpackExtension, etc.),
 you need to read unpackExtensionHeader first, and if extHeader.isTimestampType is true, call unpackTimestamp(ext).
 
+When reading Timestamp values, [java.time.Instant](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Instant.html) will be returned.
+You can extract unixtime Instant.getEpochSecond(), toEpochMilli (unixtime with milliseconds resolution), and nano-resolution time with Instant.getNano().
+
+As TimestampValue is a sub class of ExtensionValue, your code traversing MessagePack data with MessageUnpacker.unpackValue should require no change.
+
+
 * Added Timestamp support [#565](http://github.com/msgpack/msgpack-java/pull/565) and low-level APIs [#580](https://github.com/msgpack/msgpack-java/pull/580) for
 reading timestamp values.
 
