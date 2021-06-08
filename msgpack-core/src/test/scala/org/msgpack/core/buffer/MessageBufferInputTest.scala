@@ -32,18 +32,18 @@ class MessageBufferInputTest extends AirSpec {
   private val targetInputSize =
     Seq(0, 10, 500, 1000, 2000, 4000, 8000, 10000, 30000, 50000, 100000)
 
-  private def testData(size: Int) = {
+  private def testData(size: Int): Array[Byte] = {
     //debug(s"test data size: ${size}")
     val b = new Array[Byte](size)
     Random.nextBytes(b)
     b
   }
 
-  private def testDataSet = {
+  private def testDataSet: Seq[Array[Byte]] = {
     targetInputSize.map(testData)
   }
 
-  private def runTest(factory: Array[Byte] => MessageBufferInput) {
+  private def runTest(factory: Array[Byte] => MessageBufferInput): Unit = {
     for (b <- testDataSet) {
       checkInputData(b, factory(b))
     }
@@ -74,7 +74,7 @@ class MessageBufferInputTest extends AirSpec {
     }
   }
 
-  private def checkInputData(inputData: Array[Byte], in: MessageBufferInput) {
+  private def checkInputData(inputData: Array[Byte], in: MessageBufferInput): Unit = {
     test(s"When input data size = ${inputData.length}") {
       var cursor = 0
       for (m <- Iterator.continually(in.next).takeWhile(_ != null)) {
@@ -192,7 +192,7 @@ class MessageBufferInputTest extends AirSpec {
 
       try {
         executorService.execute(new Runnable {
-          override def run {
+          override def run: Unit = {
             val server_ch = server.accept
             val packer    = MessagePack.newDefaultPacker(server_ch)
             packer.packString("0123456789")

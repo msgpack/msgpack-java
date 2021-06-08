@@ -24,7 +24,6 @@ import java.util
 import scala.jdk.CollectionConverters._
 
 /**
-  *
   */
 class VariableTest extends AirSpec with PropertyCheck {
   private def check(pack: MessagePacker => Unit, checker: Variable => Unit): Unit = {

@@ -25,7 +25,7 @@ import wvlet.log.io.IOUtil.withResource
 import java.io._
 import java.nio.ByteBuffer
 import java.util.Collections
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.Random
 
 object MessageUnpackerTest {
@@ -88,7 +88,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
     arr
   }
 
-  private def write(packer: MessagePacker, r: Random) {
+  private def write(packer: MessagePacker, r: Random): Unit = {
     val tpeIndex = Iterator
       .continually(r.nextInt(MessageFormat.values().length))
       .find(_ != MessageFormat.NEVER_USED.ordinal())
@@ -162,7 +162,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
     arr
   }
 
-  private def readValue(unpacker: MessageUnpacker) {
+  private def readValue(unpacker: MessageUnpacker): Unit = {
     val f = unpacker.getNextFormat()
     f.getValueType match {
       case ValueType.ARRAY =>
@@ -183,7 +183,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
     }
   }
 
-  private def createTempFile = {
+  private def createTempFile: File = {
     val f = File.createTempFile("msgpackTest", "msgpack")
     f.deleteOnExit
     val p = MessagePack.newDefaultPacker(new FileOutputStream(f))
@@ -192,7 +192,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
     f
   }
 
-  private def checkFile(u: MessageUnpacker) = {
+  private def checkFile(u: MessageUnpacker): Boolean = {
     u.unpackInt shouldBe 99
     u.hasNext shouldBe false
   }
@@ -320,7 +320,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
           }
         }
 
-        ib.result shouldBe intSeq.toSeq
+        ib.result() shouldBe intSeq.toSeq
         unpacker.getTotalReadBytes shouldBe testData2.length
       }
     }
@@ -328,7 +328,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
     test("read data at the buffer boundary") {
       trait SplitTest extends LogSupport {
         val data: Array[Byte]
-        def run {
+        def run: Unit = {
           for (unpacker <- unpackers(data)) {
             val numElems = {
               var c = 0
@@ -357,7 +357,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
         }
       }
 
-      new SplitTest { val data = testData      }.run
+      new SplitTest { val data = testData }.run
       new SplitTest { val data = testData3(30) }.run
     }
 
@@ -411,7 +411,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
 
       trait Fixture {
         val unpacker: MessageUnpacker
-        def run {
+        def run: Unit = {
           var count = 0
           try {
             while (unpacker.hasNext) {
@@ -475,7 +475,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
 
     test("be faster than msgpack-v6 read value") {
 
-      def readValueV6(unpacker: org.msgpack.unpacker.MessagePackUnpacker) {
+      def readValueV6(unpacker: org.msgpack.unpacker.MessagePackUnpacker): Unit = {
         val vt = unpacker.getNextType()
         vt match {
           case ValueTypeV6.ARRAY =>
@@ -507,7 +507,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
 
       val buf = new Array[Byte](8192)
 
-      def readValue(unpacker: MessageUnpacker) {
+      def readValue(unpacker: MessageUnpacker): Unit = {
         val f  = unpacker.getNextFormat
         val vt = f.getValueType
         vt match {
@@ -539,7 +539,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
       }
       trait Fixture {
         val unpacker: MessageUnpacker
-        def run {
+        def run: Unit = {
           var count = 0
           try {
             while (unpacker.hasNext) {
@@ -617,7 +617,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
       trait Fixture {
         val unpacker: MessageUnpacker
         val loop: Int
-        def run {
+        def run: Unit = {
           var i = 0
           try {
             while (i < loop) {
@@ -628,7 +628,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
             }
           } finally unpacker.close()
         }
-        def runRef {
+        def runRef: Unit = {
           var i = 0
           try {
             while (i < loop) {
@@ -742,7 +742,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
           unpacked += unpacker.unpackInt()
         }
         unpacker.close
-        unpacked.result shouldBe data
+        unpacked.result() shouldBe data
 
         val data2 = intSeq
         val b2    = createMessagePackData(packer => data2 foreach packer.packInt)
@@ -753,7 +753,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
           unpacked2 += unpacker.unpackInt()
         }
         unpacker.close
-        unpacked2.result shouldBe data2
+        unpacked2.result() shouldBe data2
 
         // reused the buffer input instance
         bi.reset(b2)
@@ -763,7 +763,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
           unpacked3 += unpacker.unpackInt()
         }
         unpacker.close
-        unpacked3.result shouldBe data2
+        unpacked3.result() shouldBe data2
       }
 
     }
@@ -911,10 +911,13 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
 
     test("read value length at buffer boundary") {
       val input = new SplitMessageBufferInput(
-        Array(Array[Byte](MessagePack.Code.STR16),
-              Array[Byte](0x00),
-              Array[Byte](0x05), // STR16 length at the boundary
-              "hello".getBytes(MessagePack.UTF8)))
+        Array(
+          Array[Byte](MessagePack.Code.STR16),
+          Array[Byte](0x00),
+          Array[Byte](0x05), // STR16 length at the boundary
+          "hello".getBytes(MessagePack.UTF8)
+        )
+      )
       readTest(input)
 
       val input2 = new SplitMessageBufferInput(
@@ -924,7 +927,8 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
           Array[Byte](0x00, 0x00),
           Array[Byte](0x05), // STR32 length at the boundary
           "hello".getBytes(MessagePack.UTF8)
-        ))
+        )
+      )
       readTest(input2)
     }
   }

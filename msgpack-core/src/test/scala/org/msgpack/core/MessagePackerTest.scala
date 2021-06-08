@@ -25,17 +25,16 @@ import java.io.{ByteArrayOutputStream, File, FileInputStream, FileOutputStream}
 import scala.util.Random
 
 /**
-  *
   */
 class MessagePackerTest extends AirSpec with Benchmark {
 
-  private def verifyIntSeq(answer: Array[Int], packed: Array[Byte]) {
+  private def verifyIntSeq(answer: Array[Int], packed: Array[Byte]): Unit = {
     val unpacker = MessagePack.newDefaultUnpacker(packed)
     val b        = Array.newBuilder[Int]
     while (unpacker.hasNext) {
       b += unpacker.unpackInt()
     }
-    val result = b.result
+    val result = b.result()
     result.size shouldBe answer.size
     result shouldBe answer
   }
@@ -61,7 +60,7 @@ class MessagePackerTest extends AirSpec with Benchmark {
   test("MessagePacker") {
 
     test("reset the internal states") {
-      val intSeq = (0 until 100).map(i => Random.nextInt).toArray
+      val intSeq = (0 until 100).map(i => Random.nextInt()).toArray
 
       val b      = new ByteArrayOutputStream
       val packer = MessagePack.newDefaultPacker(b)
@@ -239,12 +238,12 @@ class MessagePackerTest extends AirSpec with Benchmark {
     val packerTotalWrittenBytes =
       withResource(MessagePack.newDefaultPacker(out)) { packer =>
         packer
-          .packByte(0) // 1
-          .packBoolean(true) // 1
-          .packShort(12) // 1
-          .packInt(1024) // 3
+          .packByte(0)             // 1
+          .packBoolean(true)       // 1
+          .packShort(12)           // 1
+          .packInt(1024)           // 3
           .packLong(Long.MaxValue) // 5
-          .packString("foobar") // 7
+          .packString("foobar")    // 7
           .flush()
 
         packer.getTotalWrittenBytes

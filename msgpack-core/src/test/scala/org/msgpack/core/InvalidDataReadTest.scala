@@ -4,7 +4,6 @@ import org.msgpack.core.MessagePackSpec.createMessagePackData
 import wvlet.airspec.AirSpec
 
 /**
-  *
   */
 class InvalidDataReadTest extends AirSpec {
 

@@ -60,7 +60,7 @@ class MessageBufferTest extends AirSpec with Benchmark {
     val hb = ByteBuffer.allocate(M)
     val db = ByteBuffer.allocateDirect(M)
 
-    def bench(f: Int => Unit) {
+    def bench(f: Int => Unit): Unit = {
       var i = 0
       while (i < N) {
         f((i * 4) % M)
@@ -71,7 +71,7 @@ class MessageBufferTest extends AirSpec with Benchmark {
     val r  = new Random(0)
     val rs = new Array[Int](N)
     (0 until N).map(i => rs(i) = r.nextInt(N))
-    def randomBench(f: Int => Unit) {
+    def randomBench(f: Int => Unit): Unit = {
       var i = 0
       while (i < N) {
         f((rs(i) * 4) % M)
