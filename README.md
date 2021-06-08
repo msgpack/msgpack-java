@@ -96,6 +96,13 @@ $ git tag v0.x.y
 $ git push origin v0.x.y
 ```
 
+To generate a release notes, you can use this command line:
+```
+$ git log v(last version).. --oneline | cut -f 2- -d ' ' | perl -npe 's/(.*)\(\#([0-9]+)\)/* \1\[\#\2\]\(http:\/\/github.com\/msgpack\/msgpack-java\/pull\/\2\)/g'
+```
+
+#### Publishing to Sonatype from Local Machine
+
 If you need to publish to Maven central using a local machine, you need to configure [sbt-sonatype](https://github.com/xerial/sbt-sonatype) plugin. First set Sonatype account information (user name and password) in the global sbt settings. To protect your password, never include this file in your project.
 
 ___$HOME/.sbt/(sbt-version)/sonatype.sbt___
