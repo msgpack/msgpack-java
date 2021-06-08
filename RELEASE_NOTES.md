@@ -5,15 +5,14 @@
 This version support reading and writing [Timestamp values](https://github.com/msgpack/msgpack/blob/master/spec.md#timestamp-extension-type).
 Packer and unpacker interfaces added pack/unpackTimestamp methods.
 
-Timestamp value in MessagePack is an extension type value whose code is -1. If MessgageUnapcker.unpackValue method is used,
-TimestampValue object can be retrieved automatically. If you are using low-level unpack methods (e.g., unpackInt, unpackExtension, etc.),
-you need to read unpackExtensionHeader first, and if extHeader.isTimestampType is true, call unpackTimestamp(ext).
+Timestamp value in MessagePack is an extension type value whose code is -1. You can read TimestampValue object with MessgageUnapcker.unpackValue method. 
+If you are using low-level unpack methods (e.g., unpackInt, unpackExtension, etc.),
+you need to read unpackExtensionHeader first, and if extHeader.isTimestampType() is true, call unpackTimestamp(extHeader).
 
-When reading Timestamp values, [java.time.Instant](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Instant.html) will be returned.
-You can extract the unixtime with Instant.getEpochSecond(), unixtime with milliseconds resolution with Instant.toEpochMilli(), and nano-resolution time with Instant.getNano().
+Timestamp values are represented with [java.time.Instant](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Instant.html) objects.
+You can extract the unixtime value with Instant.getEpochSecond(), unixtime with milliseconds resolution with Instant.toEpochMilli(), and nano-resolution time with Instant.getNano(). 
 
-As TimestampValue is a sub class of ExtensionValue, your code traversing MessagePack data with MessageUnpacker.unpackValue should require no change.
-
+As TimestampValue is just a sub class of ExtensionValue, no change requierd in your code that are traversing MessagePack data with MessageUnpacker.unpackValue method.
 
 * Added Timestamp support [#565](http://github.com/msgpack/msgpack-java/pull/565) and low-level APIs [#580](https://github.com/msgpack/msgpack-java/pull/580) for
 reading timestamp values.
