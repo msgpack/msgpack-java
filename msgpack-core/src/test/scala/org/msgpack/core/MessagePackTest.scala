@@ -662,6 +662,24 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
     }
   }
 
+  test("pack/unpack timestamp through ExtValue") {
+    val posLong = Gen.chooseNum[Long](-31557014167219200L, 31556889864403199L)
+    forAll(posLong) { (millis: Long) =>
+      val v = Instant.ofEpochMilli(millis)
+      check(v, { _.packTimestamp(millis) },
+        { u =>
+          val extHeader = u.unpackExtensionTypeHeader()
+          if(extHeader.isTimestampType) {
+            u.unpackTimestamp(extHeader)
+          }
+          else {
+            fail("Cannot reach here")
+          }
+        }
+      )
+    }
+  }
+
   test("MessagePack.PackerConfig") {
     test("should be immutable") {
       val a = new MessagePack.PackerConfig()
