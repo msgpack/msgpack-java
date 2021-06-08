@@ -858,7 +858,7 @@ public class MessagePackGeneratorTest
         objectMapper.registerModule(
                 new SimpleModule().addSerializer(BigDecimal.class, new BigDecimalSerializerStoringAsString()));
 
-        BigDecimal bd = BigDecimal.valueOf(Long.MAX_VALUE).add(BigDecimal.ONE);
+        BigDecimal bd = BigDecimal.valueOf(Double.MAX_VALUE);
         assertThat(
             MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(bd)).unpackDouble(),
                 is(bd.doubleValue()));
@@ -885,8 +885,8 @@ public class MessagePackGeneratorTest
 
         BigInteger bi = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
         assertThat(
-            MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(bi)).unpackDouble(),
-                is(bi.doubleValue()));
+            MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(bi)).unpackBigInteger(),
+                is(bi));
     }
 
     @Test
