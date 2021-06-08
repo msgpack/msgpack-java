@@ -9,18 +9,18 @@ Timestamp value in MessagePack is an extention type value whose code is -1. If M
 TimestampValue object can be retrieved automatically. If you are using low-level unpack methods (e.g., unpackInt, unpackExtension, etc.),
 you need to read unpackExtensionHeader first, and if extHeader.isTimestampType is true, call unpackTimestamp(ext).
 
-* Added Timestamp support (#565)[http://github.com/msgpack/msgpack-java/pull/565] and low-level APIs (#580)[https://github.com/msgpack/msgpack-java/pull/580] for
+* Added Timestamp support [#565](http://github.com/msgpack/msgpack-java/pull/565) and low-level APIs [#580](https://github.com/msgpack/msgpack-java/pull/580) for
 reading timestamp values.
 
 Dependency updates:
-* Update jackson-databind to 2.10.5.1 (#559)[http://github.com/msgpack/msgpack-java/pull/559]
+* Update jackson-databind to 2.10.5.1 [#559](http://github.com/msgpack/msgpack-java/pull/559)
 
 Internal updates:
-* Update akka-actor to 2.6.14 (#579)[http://github.com/msgpack/msgpack-java/pull/579]
-* Fix for Scala 2.13 syntax (#577)[http://github.com/msgpack/msgpack-java/pull/577]
-* Update airframe-json, airspec to 21.6.0 (#576)[http://github.com/msgpack/msgpack-java/pull/576]
-* Update scala-library to 2.13.6 (#568)[http://github.com/msgpack/msgpack-java/pull/568]
-* Update sbt to 1.5.3 (#575)[http://github.com/msgpack/msgpack-java/pull/575]
+* Update akka-actor to 2.6.14 [#579](http://github.com/msgpack/msgpack-java/pull/579)
+* Fix for Scala 2.13 syntax [#577](http://github.com/msgpack/msgpack-java/pull/577)
+* Update airframe-json, airspec to 21.6.0 [#576](http://github.com/msgpack/msgpack-java/pull/576)
+* Update scala-library to 2.13.6 [#568](http://github.com/msgpack/msgpack-java/pull/568)
+* Update sbt to 1.5.3 [#575](http://github.com/msgpack/msgpack-java/pull/575)
 
 ## 0.8.24
 
