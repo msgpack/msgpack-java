@@ -1,4 +1,4 @@
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.9.7")
+addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.9.8")
 addSbtPlugin("com.github.sbt" % "sbt-pgp"      % "2.1.2")
 // TODO: Fixes jacoco error:
 // java.lang.NoClassDefFoundError: Could not initialize class org.jacoco.core.internal.flow.ClassProbesAdapter
