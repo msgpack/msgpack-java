@@ -34,7 +34,7 @@ public class MessageBufferPacker
 {
     protected MessageBufferPacker(MessagePack.PackerConfig config)
     {
-        this(new ArrayBufferOutput(), config);
+        this(new ArrayBufferOutput(config.getBufferSize()), config);
     }
 
     protected MessageBufferPacker(ArrayBufferOutput out, MessagePack.PackerConfig config)
