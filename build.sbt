@@ -46,7 +46,7 @@ val buildSettings = Seq[Setting[_]](
   Test / compile := ((Test / compile) dependsOn (Test / jcheckStyle)).value
 )
 
-val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
+val junitInterface = "com.github.sbt" % "junit-interface" % "0.13.2" % "test"
 
 // Project settings
 lazy val root = Project(id = "msgpack-java", base = file("."))
