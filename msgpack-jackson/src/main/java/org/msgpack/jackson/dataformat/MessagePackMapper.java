@@ -16,10 +16,19 @@
 package org.msgpack.jackson.dataformat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 
 public class MessagePackMapper extends ObjectMapper
 {
     private static final long serialVersionUID = 3L;
+
+    public static class Builder extends MapperBuilder<MessagePackMapper, Builder>
+    {
+        public Builder(MessagePackMapper m)
+        {
+            super(m);
+        }
+    }
 
     public MessagePackMapper()
     {
@@ -29,5 +38,15 @@ public class MessagePackMapper extends ObjectMapper
     public MessagePackMapper(MessagePackFactory f)
     {
         super(f);
+    }
+
+    public static Builder builder()
+    {
+        return new Builder(new MessagePackMapper());
+    }
+
+    public static Builder builder(MessagePackFactory f)
+    {
+        return new Builder(new MessagePackMapper(f));
     }
 }
