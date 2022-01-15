@@ -58,11 +58,17 @@ Only thing you need to do is to instantiate `MessagePackFactory` and pass it to 
   System.out.println(deserialized.getName()); // => komamitsu
 ```
 
+Or more easily:
+
+```java
+ObjectMapper objectMapper = new MessagePackMapper();
+```
+
 ### Serialization/Deserialization of List
 
 ```java
   // Instantiate ObjectMapper for MessagePack
-  ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+  ObjectMapper objectMapper = new MessagePackMapper();
 
   // Serialize a List to byte array
   List<Object> list = new ArrayList<>();
@@ -80,7 +86,7 @@ Only thing you need to do is to instantiate `MessagePackFactory` and pass it to 
 
 ```java
   // Instantiate ObjectMapper for MessagePack
-  ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+  ObjectMapper objectMapper = MessagePackMapper();
 
   // Serialize a Map to byte array
   Map<String, Object> map = new HashMap<>();
@@ -146,7 +152,7 @@ On the other hand, jackson-databind serializes and deserializes a POJO as a key-
 But if you want to make this library handle POJOs in the same way as msgpack-java:0.6 or earlier, you can use `JsonArrayFormat` like this:
 
 ```java
-  ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+  ObjectMapper objectMapper = new MessagePackMapper();
   objectMapper.setAnnotationIntrospector(new JsonArrayFormat());
 ```
 
@@ -156,7 +162,7 @@ But if you want to make this library handle POJOs in the same way as msgpack-jav
 
 ```java
   OutputStream out = new FileOutputStream(tempFile);
-  ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+  ObjectMapper objectMapper = new MessagePackMapper();
   objectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
 
   objectMapper.writeValue(out, 1);
@@ -181,7 +187,7 @@ But if you want to make this library handle POJOs in the same way as msgpack-jav
   packer.close();
 
   FileInputStream in = new FileInputStream(tempFile);
-  ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+  ObjectMapper objectMapper = new MessagePackMapper();
   objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
   System.out.println(objectMapper.readValue(in, Integer.class));
   System.out.println(objectMapper.readValue(in, String.class));
@@ -194,7 +200,7 @@ Old msgpack-java (e.g 0.6.7) doesn't support MessagePack str8 type. When your ap
 
 ```java
   MessagePack.PackerConfig config = new MessagePack.PackerConfig().withStr8FormatSupport(false);
-  ObjectMapper mapperWithConfig = new ObjectMapper(new MessagePackFactory(config));
+  ObjectMapper mapperWithConfig = new MessagePackMapper(new MessagePackFactory(config));
   // This string is serialized as bin8 type
   byte[] resultWithoutStr8Format = mapperWithConfig.writeValueAsBytes(str8LengthString);
 ```
@@ -211,7 +217,7 @@ When you want to use non-String value as a key of Map, use `MessagePackKeySerial
 
   intMap.put(42, "Hello");
 
-  ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+  ObjectMapper objectMapper = new MessagePackMapper();
   byte[] bytes = objectMapper.writeValueAsBytes(intMap);
 
   Map<Integer, String> deserialized = objectMapper.readValue(bytes, new TypeReference<Map<Integer, String>>() {});
@@ -407,7 +413,7 @@ When you serialize an object that has a nested object also serializing with Obje
   @Test
   public void testNestedSerialization() throws Exception
   {
-      ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+      ObjectMapper objectMapper = new MessagePackMapper();
       objectMapper.writeValueAsBytes(new OuterClass());
   }
 
@@ -415,7 +421,7 @@ When you serialize an object that has a nested object also serializing with Obje
   {
     public String getInner() throws JsonProcessingException
     {
-      ObjectMapper m = new ObjectMapper(new MessagePackFactory());
+      ObjectMapper m = new MessagePackMapper();
       m.writeValueAsBytes(new InnerClass());
       return "EFG";
     }
