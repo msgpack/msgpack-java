@@ -40,7 +40,7 @@ dependencies {
 }
 ```
 
-- [Usage examples](msgpack-core/src/test/java/org/msgpack/core/example/MessagePackExample.java)
+- [Usage examples](https://github.com/msgpack/msgpack-java/blob/develop/msgpack-core/src/test/java/org/msgpack/core/example/MessagePackExample.java)
 
 ### Integration with Jackson ObjectMapper (jackson-databind)
 
