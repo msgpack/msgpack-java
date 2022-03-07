@@ -1735,6 +1735,7 @@ public class MessageUnpacker
     public void close()
             throws IOException
     {
+        totalReadBytes += position;
         buffer = EMPTY_BUFFER;
         position = 0;
         in.close();

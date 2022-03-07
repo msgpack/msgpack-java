@@ -254,6 +254,9 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
         }
         count shouldBe 6
         unpacker.getTotalReadBytes shouldBe arr.length
+
+        unpacker.close()
+        unpacker.getTotalReadBytes shouldBe arr.length
       }
     }
 
@@ -267,6 +270,9 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
         }
 
         skipCount shouldBe 2
+        unpacker.getTotalReadBytes shouldBe testData.length
+
+        unpacker.close()
         unpacker.getTotalReadBytes shouldBe testData.length
       }
     }
@@ -322,6 +328,9 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
 
         ib.result() shouldBe intSeq.toSeq
         unpacker.getTotalReadBytes shouldBe testData2.length
+
+        unpacker.close()
+        unpacker.getTotalReadBytes shouldBe testData2.length
       }
     }
 
@@ -351,6 +360,9 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
                 readValue(unpacker)
               }
               count shouldBe numElems
+              unpacker.getTotalReadBytes shouldBe data.length
+
+              unpacker.close()
               unpacker.getTotalReadBytes shouldBe data.length
             }
           }
@@ -868,6 +880,9 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
           unpacker.unpackString.length shouldBe n
           unpacker.unpackInt shouldBe 1
 
+          unpacker.getTotalReadBytes shouldBe arr.length
+
+          unpacker.close()
           unpacker.getTotalReadBytes shouldBe arr.length
         }
       }
