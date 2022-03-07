@@ -1,5 +1,26 @@
 # Release Notes
 
+## 0.9.1
+
+Bug fixes and improvements:
+
+- Keep consistent read size after closing MessageUnpacker (#621) @okumin
+- Fixed examples relative link in README (#622) @zbuster05
+- Add an ObjectMapper shorthand @cyberdelia (#620)
+- Specify the bufferSize of the ArrayBufferOutput (#597) @szh
+
+Internal updates:
+
+- Update akka-actor to 2.6.18 (#614) @Scala Steward
+- Update airframe-json, airspec to 22.2.0 (#626) @Scala Steward
+- Update junit-interface to 0.13.3 (#617) @Scala Steward
+- Update sbt-scalafmt to 2.4.6 (#616) @Scala Steward
+- Upgrade sbt to 1.5.6 (#610) @Taro L. Saito
+- Update scala-collection-compat to 2.6.0 (#604) @Scala Steward
+
+Known issues:
+- Unpack method doesn't work in JDK17 https://github.com/msgpack/msgpack-java/issues/600
+
 ## 0.9.0
 
 This version support reading and writing [Timestamp values](https://github.com/msgpack/msgpack/blob/master/spec.md#timestamp-extension-type).
