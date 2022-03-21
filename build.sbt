@@ -84,7 +84,7 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
       // For performance comparison with msgpack v6
       "org.msgpack" % "msgpack" % "0.6.12" % "test",
       // For integration test with Akka
-      "com.typesafe.akka"      %% "akka-actor"              % "2.6.18" % "test",
+      "com.typesafe.akka"      %% "akka-actor"              % "2.6.19" % "test",
       "org.scala-lang.modules" %% "scala-collection-compat" % "2.6.0"  % "test"
     )
   )
