@@ -5,7 +5,7 @@ Global / concurrentRestrictions := Seq(
   Tags.limit(Tags.Test, 1)
 )
 
-val AIRFRAME_VERSION = "22.2.0"
+val AIRFRAME_VERSION = "22.5.0"
 
 // Use dynamic snapshot version strings for non tagged versions
 ThisBuild / dynverSonatypeSnapshots := true
@@ -80,12 +80,12 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
       "org.wvlet.airframe" %% "airframe-json" % AIRFRAME_VERSION % "test",
       "org.wvlet.airframe" %% "airspec"       % AIRFRAME_VERSION % "test",
       // Add property testing support with forAll methods
-      "org.scalacheck" %% "scalacheck" % "1.15.4" % "test",
+      "org.scalacheck" %% "scalacheck" % "1.16.0" % "test",
       // For performance comparison with msgpack v6
       "org.msgpack" % "msgpack" % "0.6.12" % "test",
       // For integration test with Akka
       "com.typesafe.akka"      %% "akka-actor"              % "2.6.18" % "test",
-      "org.scala-lang.modules" %% "scala-collection-compat" % "2.6.0"  % "test"
+      "org.scala-lang.modules" %% "scala-collection-compat" % "2.7.0"  % "test"
     )
   )
 
