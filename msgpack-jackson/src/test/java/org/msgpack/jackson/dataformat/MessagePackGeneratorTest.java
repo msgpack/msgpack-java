@@ -664,7 +664,7 @@ public class MessagePackGeneratorTest
             ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
             if (mapHolder instanceof NonStringKeyMapHolderWithoutAnnotation) {
                 SimpleModule mod = new SimpleModule("test");
-                mod.addKeySerializer(TinyPojo.class, new MessagePackKeySerializer());
+                mod.addKeySerializer(Object.class, new MessagePackKeySerializer());
                 objectMapper.registerModule(mod);
             }
 
