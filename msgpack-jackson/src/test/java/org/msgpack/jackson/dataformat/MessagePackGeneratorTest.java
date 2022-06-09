@@ -663,7 +663,9 @@ public class MessagePackGeneratorTest
 
             ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
             if (mapHolder instanceof NonStringKeyMapHolderWithoutAnnotation) {
-                objectMapper.setSerializerFactory(new MessagePackSerializerFactory());
+                SimpleModule mod = new SimpleModule("test");
+                mod.addKeySerializer(Object.class, new MessagePackKeySerializer());
+                objectMapper.registerModule(mod);
             }
 
             byte[] bytes = objectMapper.writeValueAsBytes(mapHolder);
@@ -709,7 +711,9 @@ public class MessagePackGeneratorTest
         map.put(pojo, 42);
 
         ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
-        objectMapper.setSerializerFactory(new MessagePackSerializerFactory());
+        SimpleModule mod = new SimpleModule("test");
+        mod.addKeySerializer(TinyPojo.class, new MessagePackKeySerializer());
+        objectMapper.registerModule(mod);
         byte[] bytes = objectMapper.writeValueAsBytes(map);
 
         MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes);
@@ -731,7 +735,9 @@ public class MessagePackGeneratorTest
 
         ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
         objectMapper.setAnnotationIntrospector(new JsonArrayFormat());
-        objectMapper.setSerializerFactory(new MessagePackSerializerFactory());
+        SimpleModule mod = new SimpleModule("test");
+        mod.addKeySerializer(TinyPojo.class, new MessagePackKeySerializer());
+        objectMapper.registerModule(mod);
         byte[] bytes = objectMapper.writeValueAsBytes(map);
 
         MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes);
