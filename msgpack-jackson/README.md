@@ -224,6 +224,22 @@ When you want to use non-String value as a key of Map, use `MessagePackKeySerial
   System.out.println(deserialized);   // => {42=Hello}
 ```
 
+### Serialize and deserialize BigDecimal as str type internally in MessagePack format
+
+`jackson-dataformat-msgpack` represents BigDecimal values as float type in MessagePack format by default. When you want to handle BigDeciaml values as str type with arbitrary precision in MessagePack format, you can use `com.fasterxml.jackson.databind.cfg.MutableConfigOverride#setFormat` like this:
+
+```java
+  ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
+  mapper.configOverride(BigDecimal.class).setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
+
+  Pojo obj = new Pojo();
+  obj.value = new BigDecimal("1234567890.98765432100");
+
+  byte[] converted = mapper.writeValueAsBytes(obj);
+
+  System.out.println(mapper.readValue(converted, Pojo.class));   // => Pojo{value=1234567890.98765432100}
+```
+
 ### Deserialize extension types with ExtensionTypeCustomDeserializers
 
 `ExtensionTypeCustomDeserializers` helps you to deserialize extension types easily.
