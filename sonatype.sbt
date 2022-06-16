@@ -2,7 +2,7 @@ import xerial.sbt.Sonatype._
 
 ThisBuild / sonatypeProfileName := "org.msgpack"
 ThisBuild / homepage := Some(url("https://msgpack.org/"))
-ThisBuild / licenses := Seq("APL2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+ThisBuild / licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
 ThisBuild / scmInfo := Some(
   ScmInfo(
     url("https://github.com/msgpack/msgpack-java"),
