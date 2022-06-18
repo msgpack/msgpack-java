@@ -1,5 +1,18 @@
 # Release Notes
 
+## 0.9.2
+
+Internal updates:
+
+* Update jackson-databind to 2.13.3 [#650](http://github.com/msgpack/msgpack-java/pull/650)
+* Update akka-actor to 2.6.19 [#631](http://github.com/msgpack/msgpack-java/pull/631)
+* Update airframe-json, airspec to 22.6.1 [#649](http://github.com/msgpack/msgpack-java/pull/649)
+* Update scalacheck to 1.16.0 [#636](http://github.com/msgpack/msgpack-java/pull/636)
+* Update scala-collection-compat to 2.7.0 [#632](http://github.com/msgpack/msgpack-java/pull/632)
+* Update sbt-sonatype to 3.9.13 [#644](http://github.com/msgpack/msgpack-java/pull/644)
+* Update airframe-json, airspec to 22.5.0 [#643](http://github.com/msgpack/msgpack-java/pull/643)
+* Update sbt to 1.6.2 [#630](http://github.com/msgpack/msgpack-java/pull/630)
+
 ## 0.9.1
 
 Bug fixes and improvements:
