@@ -156,6 +156,7 @@ public class MessageUnpacker
     private final CodingErrorAction actionOnUnmappableString;
     private final int stringSizeLimit;
     private final int stringDecoderBufferSize;
+    private final int bufferSize;
 
     private MessageBufferInput in;
 
@@ -215,6 +216,7 @@ public class MessageUnpacker
         this.actionOnUnmappableString = config.getActionOnUnmappableString();
         this.stringSizeLimit = config.getStringSizeLimit();
         this.stringDecoderBufferSize = config.getStringDecoderBufferSize();
+        this.bufferSize = config.getBufferSize();
     }
 
     /**
@@ -1324,27 +1326,38 @@ public class MessageUnpacker
      *
      * @return the size of the array to be read
      * @throws MessageTypeException when value is not MessagePack Array type
-     * @throws MessageSizeException when size of the array is larger than 2^31 - 1
+     * @throws MessageSizeException when size of the array is larger than 2^31 - 1 or bufferSize
      * @throws IOException when underlying input throws IOException
      */
     public int unpackArrayHeader()
             throws IOException
     {
         byte b = readByte();
+        int len;
         if (Code.isFixedArray(b)) { // fixarray
-            return b & 0x0f;
+            len = b & 0x0f;
         }
-        switch (b) {
-            case Code.ARRAY16: { // array 16
-                int len = readNextLength16();
-                return len;
-            }
-            case Code.ARRAY32: { // array 32
-                int len = readNextLength32();
-                return len;
+        else {
+            switch (b) {
+                case Code.ARRAY16: { // array 16
+                    len = readNextLength16();
+                    break;
+                }
+                case Code.ARRAY32: { // array 32
+                    len = readNextLength32();
+                    break;
+                }
+                default: {
+                    throw unexpected("Array", b);
+                }
             }
         }
-        throw unexpected("Array", b);
+
+        if (len > bufferSize) {
+            throw new MessageSizeException(String.format("cannot unpack a Array of size larger than %,d: %,d", bufferSize, len), len);
+        }
+
+        return len;
     }
 
     /**
@@ -1357,27 +1370,38 @@ public class MessageUnpacker
      *
      * @return the size of the map to be read
      * @throws MessageTypeException when value is not MessagePack Map type
-     * @throws MessageSizeException when size of the map is larger than 2^31 - 1
+     * @throws MessageSizeException when size of the map is larger than 2^31 - 1 or bufferSize
      * @throws IOException when underlying input throws IOException
      */
     public int unpackMapHeader()
             throws IOException
     {
         byte b = readByte();
+        int len;
         if (Code.isFixedMap(b)) { // fixmap
             return b & 0x0f;
         }
-        switch (b) {
-            case Code.MAP16: { // map 16
-                int len = readNextLength16();
-                return len;
-            }
-            case Code.MAP32: { // map 32
-                int len = readNextLength32();
-                return len;
+        else {
+            switch (b) {
+                case Code.MAP16: { // map 16
+                    len = readNextLength16();
+                    break;
+                }
+                case Code.MAP32: { // map 32
+                    len = readNextLength32();
+                    break;
+                }
+                default: {
+                    throw unexpected("Map", b);
+                }
             }
         }
-        throw unexpected("Map", b);
+
+        if (len > bufferSize / 2) {
+            throw new MessageSizeException(String.format("cannot unpack a Map of size larger than %,d: %,d", bufferSize / 2, len), len);
+        }
+
+        return len;
     }
 
     public ExtensionTypeHeader unpackExtensionTypeHeader()
@@ -1635,11 +1659,16 @@ public class MessageUnpacker
      *
      * @param length number of bytes to be read
      * @return the new byte array
+     * @throws MessageSizeException when length is larger than bufferSize
      * @throws IOException when underlying input throws IOException
      */
     public byte[] readPayload(int length)
             throws IOException
     {
+        if (length > bufferSize) {
+            throw new MessageSizeException(String.format("%,d exceeds bufferSize:%,d", length, bufferSize), length);
+        }
+
         byte[] newArray = new byte[length];
         readPayload(newArray);
         return newArray;
