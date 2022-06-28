@@ -1326,38 +1326,27 @@ public class MessageUnpacker
      *
      * @return the size of the array to be read
      * @throws MessageTypeException when value is not MessagePack Array type
-     * @throws MessageSizeException when size of the array is larger than 2^31 - 1 or bufferSize
+     * @throws MessageSizeException when size of the array is larger than 2^31 - 1
      * @throws IOException when underlying input throws IOException
      */
     public int unpackArrayHeader()
             throws IOException
     {
         byte b = readByte();
-        int len;
         if (Code.isFixedArray(b)) { // fixarray
-            len = b & 0x0f;
+            return b & 0x0f;
         }
-        else {
-            switch (b) {
-                case Code.ARRAY16: { // array 16
-                    len = readNextLength16();
-                    break;
-                }
-                case Code.ARRAY32: { // array 32
-                    len = readNextLength32();
-                    break;
-                }
-                default: {
-                    throw unexpected("Array", b);
-                }
+        switch (b) {
+            case Code.ARRAY16: { // array 16
+                int len = readNextLength16();
+                return len;
+            }
+            case Code.ARRAY32: { // array 32
+                int len = readNextLength32();
+                return len;
             }
         }
-
-        if (len > bufferSize) {
-            throw new MessageSizeException(String.format("cannot unpack a Array of size larger than %,d: %,d", bufferSize, len), len);
-        }
-
-        return len;
+        throw unexpected("Array", b);
     }
 
     /**
@@ -1370,38 +1359,27 @@ public class MessageUnpacker
      *
      * @return the size of the map to be read
      * @throws MessageTypeException when value is not MessagePack Map type
-     * @throws MessageSizeException when size of the map is larger than 2^31 - 1 or bufferSize
+     * @throws MessageSizeException when size of the map is larger than 2^31 - 1
      * @throws IOException when underlying input throws IOException
      */
     public int unpackMapHeader()
             throws IOException
     {
         byte b = readByte();
-        int len;
         if (Code.isFixedMap(b)) { // fixmap
             return b & 0x0f;
         }
-        else {
-            switch (b) {
-                case Code.MAP16: { // map 16
-                    len = readNextLength16();
-                    break;
-                }
-                case Code.MAP32: { // map 32
-                    len = readNextLength32();
-                    break;
-                }
-                default: {
-                    throw unexpected("Map", b);
-                }
+        switch (b) {
+            case Code.MAP16: { // map 16
+                int len = readNextLength16();
+                return len;
+            }
+            case Code.MAP32: { // map 32
+                int len = readNextLength32();
+                return len;
             }
         }
-
-        if (len > bufferSize / 2) {
-            throw new MessageSizeException(String.format("cannot unpack a Map of size larger than %,d: %,d", bufferSize / 2, len), len);
-        }
-
-        return len;
+        throw unexpected("Map", b);
     }
 
     public ExtensionTypeHeader unpackExtensionTypeHeader()

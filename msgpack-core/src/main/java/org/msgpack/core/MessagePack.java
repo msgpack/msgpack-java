@@ -518,7 +518,7 @@ public class MessagePack
 
         private int stringSizeLimit = Integer.MAX_VALUE;
 
-        private int bufferSize = 100 * 1024 * 1024;
+        private int bufferSize = 8192;
 
         private int stringDecoderBufferSize = 8192;
 
@@ -745,7 +745,7 @@ public class MessagePack
 
         /**
          * When a packer is created with {@link #newUnpacker(InputStream)} or {@link #newUnpacker(ReadableByteChannel)},
-         * the stream will be buffered with this size of buffer (default: 100MiB).
+         * the stream will be buffered with this size of buffer (default: 8192).
          */
         public UnpackerConfig withBufferSize(int bytes)
         {
