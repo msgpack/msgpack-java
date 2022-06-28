@@ -74,6 +74,13 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
       "org.msgpack.value.impl"
     ),
     testFrameworks += new TestFramework("wvlet.airspec.Framework"),
+    Test / javaOptions ++= Seq(
+      // --add-opens is not available in JDK8
+      "-XX:+IgnoreUnrecognizedVMOptions",
+      "--add-opens=java.base/java.nio=ALL-UNNAMED",
+      "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
+    ),
+    Test / fork := true,
     libraryDependencies ++= Seq(
       // msgpack-core should have no external dependencies
       junitInterface,

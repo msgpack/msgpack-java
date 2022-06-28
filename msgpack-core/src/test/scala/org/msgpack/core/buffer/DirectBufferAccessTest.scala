@@ -22,8 +22,8 @@ import java.nio.ByteBuffer
 class DirectBufferAccessTest extends AirSpec {
 
   test("instantiate DirectBufferAccess") {
-    val arr  = Array[Byte](0)
-    val bb   = ByteBuffer.wrap(arr)
+    val bb   = ByteBuffer.allocateDirect(1)
     val addr = DirectBufferAccess.getAddress(bb)
+
   }
 }
