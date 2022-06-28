@@ -42,6 +42,15 @@ dependencies {
 
 - [Usage examples](https://github.com/msgpack/msgpack-java/blob/develop/msgpack-core/src/test/java/org/msgpack/core/example/MessagePackExample.java)
 
+### Java 17 Support
+
+For using DirectByteBuffer (off-heap memory access methods) in JDK17, you need to specify two JVM options:
+```
+--add-opens=java.base/java.nio=ALL-UNNAMED
+--add-opens=java.base/sun.nio.ch=ALL-UNNAMED
+```
+
+
 ### Integration with Jackson ObjectMapper (jackson-databind)
 
 msgpack-java supports serialization and deserialization of Java objects through [jackson-databind](https://github.com/FasterXML/jackson-databind).

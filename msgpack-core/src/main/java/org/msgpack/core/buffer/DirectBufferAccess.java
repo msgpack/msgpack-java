@@ -18,11 +18,13 @@ package org.msgpack.core.buffer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import sun.misc.Unsafe;
+import sun.nio.ch.DirectBuffer;
 
 /**
  * Wraps the difference of access methods to DirectBuffers between Android and others.
@@ -30,7 +32,8 @@ import sun.misc.Unsafe;
 class DirectBufferAccess
 {
     private DirectBufferAccess()
-    {}
+    {
+    }
 
     enum DirectBufferConstructorType
     {
@@ -40,7 +43,6 @@ class DirectBufferAccess
         ARGS_MB_INT_INT
     }
 
-    static Method mGetAddress;
     // For Java <=8, gets a sun.misc.Cleaner
     static Method mCleaner;
     static Method mClean;
@@ -95,10 +97,19 @@ class DirectBufferAccess
             if (byteBufferConstructor == null) {
                 throw new RuntimeException("Constructor of DirectByteBuffer is not found");
             }
-            byteBufferConstructor.setAccessible(true);
 
-            mGetAddress = directByteBufferClass.getDeclaredMethod("address");
-            mGetAddress.setAccessible(true);
+            try {
+                byteBufferConstructor.setAccessible(true);
+            }
+            catch (RuntimeException e) {
+                // This is a Java9+ exception, so we need to detect it without importing it for Java8 support
+                if ("java.lang.reflect.InaccessibleObjectException".equals(e.getClass().getName())) {
+                    byteBufferConstructor = null;
+                }
+                else {
+                    throw e;
+                }
+            }
 
             if (MessageBuffer.javaVersion <= 8) {
                 setupCleanerJava6(direct);
@@ -160,6 +171,7 @@ class DirectBufferAccess
 
     /**
      * Checks if we have a usable {@link DirectByteBuffer#cleaner}.
+     *
      * @param direct a direct buffer
      * @return the method or an error
      */
@@ -184,6 +196,7 @@ class DirectBufferAccess
 
     /**
      * Checks if we have a usable {@link sun.misc.Cleaner#clean}.
+     *
      * @param direct a direct buffer
      * @param mCleaner the {@link DirectByteBuffer#cleaner} method
      * @return the method or null
@@ -210,6 +223,7 @@ class DirectBufferAccess
 
     /**
      * Checks if we have a usable {@link Unsafe#invokeCleaner}.
+     *
      * @param direct a direct buffer
      * @return the method or an error
      */
@@ -218,7 +232,7 @@ class DirectBufferAccess
         try {
             // See https://bugs.openjdk.java.net/browse/JDK-8171377
             Method m = MessageBuffer.unsafe.getClass().getDeclaredMethod(
-                "invokeCleaner", ByteBuffer.class);
+                    "invokeCleaner", ByteBuffer.class);
             m.invoke(MessageBuffer.unsafe, direct);
             return m;
         }
@@ -233,17 +247,9 @@ class DirectBufferAccess
         }
     }
 
-    static long getAddress(Object base)
+    static long getAddress(Buffer buffer)
     {
-        try {
-            return (Long) mGetAddress.invoke(base);
-        }
-        catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-        catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
+        return ((DirectBuffer) buffer).address();
     }
 
     static void clean(Object base)
@@ -253,7 +259,7 @@ class DirectBufferAccess
                 Object cleaner = mCleaner.invoke(base);
                 mClean.invoke(cleaner);
             }
-        else {
+            else {
                 mInvokeCleaner.invoke(MessageBuffer.unsafe, base);
             }
         }
@@ -269,6 +275,10 @@ class DirectBufferAccess
 
     static ByteBuffer newByteBuffer(long address, int index, int length, ByteBuffer reference)
     {
+        if (byteBufferConstructor == null) {
+            throw new IllegalStateException("Can't create a new DirectByteBuffer. In JDK17+, two JVM options needs to be set: " +
+                    "--add-opens=java.base/java.nio=ALL-UNNAMED and --add-opens=java.base/sun.nio.ch=ALL-UNNAMED");
+        }
         try {
             switch (directBufferConstructorType) {
                 case ARGS_LONG_INT_REF:
