@@ -1,5 +1,21 @@
 # Release Notes
 
+## 0.9.3
+
+This version supports JDK17 [#660](http://github.com/msgpack/msgpack-java/pull/660).
+
+Important: If you need to use DirectByteBuffer (raw memory access) in JDK17 or later, specify two JVM options to allow accessing
+native memory:
+```
+--add-opens=java.base/java.nio=ALL-UNNAMED
+--add-opens=java.base/sun.nio.ch=ALL-UNNAMED
+```
+Internal updates:
+
+* Use SPDX-ID in license name [#653](http://github.com/msgpack/msgpack-java/pull/653)
+* Update airframe-json, airspec to 22.6.4 [#659](http://github.com/msgpack/msgpack-java/pull/659)
+* Update akka-actor to 2.6.19 [#647](http://github.com/msgpack/msgpack-java/pull/647)
+
 ## 0.9.2
 
 Internal updates:
