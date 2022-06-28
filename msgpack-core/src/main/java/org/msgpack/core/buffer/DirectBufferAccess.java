@@ -275,6 +275,10 @@ class DirectBufferAccess
 
     static ByteBuffer newByteBuffer(long address, int index, int length, ByteBuffer reference)
     {
+        if (byteBufferConstructor == null) {
+            throw new IllegalStateException("Can't create a new DirectByteBuffer. In JDK17+, two JVM options needs to be set: " +
+                    "--add-opens=java.base/java.nio=ALL-UNNAMED and --add-opens=java.base/sun.nio.ch=ALL-UNNAMED");
+        }
         try {
             switch (directBufferConstructorType) {
                 case ARGS_LONG_INT_REF:
