@@ -1130,6 +1130,35 @@ public class MessagePacker
     }
 
     /**
+     * This method copies the lower 8-bits of the characters.
+     * A separate writePayload(String src) method would be more performant because we're able to
+     * directly copy the bytes from the string to the right location in MessageBuffer.  Introducing
+     * encoding in an attempt to re-use the existing writePayload(byte[] src) creates unnecessary overhead
+     * which in turn will affect performance.
+     *
+     * @param src the string data to add
+     * @return this
+     * @throws IOException
+     */
+
+    public MessagePacker writePayload(String src) throws IOException
+    {
+        int len = src.length();
+        if (buffer == null || buffer.size() - position < len || len > bufferFlushThreshold) {
+            flush();  // call flush before write
+            // Directly write payload to the output without using the buffer
+            out.write(src.getBytes(), 0, len);
+            totalFlushBytes += len;
+        }
+        else {
+            ensureCapacity(len);
+            src.getBytes(0, len, buffer.array(), position);
+            position += len;
+        }
+        return this;
+    }
+
+    /**
      * Writes a byte array to the output.
      * <p>
      * This method is used with {@link #packRawStringHeader(int)} or {@link #packBinaryHeader(int)} methods.
@@ -1180,27 +1209,6 @@ public class MessagePacker
             buffer.putBytes(position, src, off, len);
             position += len;
         }
-        return this;
-    }
-
-    /**
-     * This method copies the lower 8-bits of the characters.
-     * A separate writePayload(String src) method would be more performant because we're able to
-     * directly copy the bytes from the string to the right location in MessageBuffer.  Introducing
-     * encoding in an attempt to re-use the existing writePayload(byte[] src) creates unnecessary overhead
-     * which in turn will affect performance.
-     *
-     * @param src the string data to add
-     * @return this
-     * @throws IOException
-     */
-
-    public MessagePacker writePayload(String src) throws IOException
-    {
-        int len = src.length();
-        ensureCapacity(len);
-        src.getBytes(0, len, buffer.array(), position);
-        position += len;
         return this;
     }
 }
