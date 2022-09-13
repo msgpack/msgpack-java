@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.msgpack.core.MessagePack;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageUnpacker;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -78,19 +80,50 @@ public class TimestampExtensionModuleTest
     }
 
     @Test
+    public void deserialize32BitFormat()
+            throws IOException
+    {
+        Instant instant = Instant.ofEpochSecond(Instant.now().getEpochSecond());
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try (MessagePacker packer = MessagePack.newDefaultPacker(os)) {
+            packer.packMapHeader(1)
+                    .packString("instant")
+                    .packTimestamp(instant);
+        }
+
+        byte[] bytes = os.toByteArray();
+        try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes)) {
+            unpacker.unpackMapHeader();
+            unpacker.unpackString();
+            assertEquals(4, unpacker.unpackExtensionTypeHeader().getLength());
+        }
+
+        SingleInstant deserialized = objectMapper.readValue(bytes, SingleInstant.class);
+        assertEquals(instant, deserialized.instant);
+    }
+
+    @Test
     public void deserialize64BitFormat()
             throws IOException
     {
-        Instant now = Instant.now();
+        Instant instant = Instant.ofEpochSecond(Instant.now().getEpochSecond(), 1234);
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        MessagePack.newDefaultPacker(os)
-                .packMapHeader(1)
-                .packString("instant")
-                .packTimestamp(now)
-                .close();
+        try (MessagePacker packer = MessagePack.newDefaultPacker(os)) {
+            packer.packMapHeader(1)
+                    .packString("instant")
+                    .packTimestamp(instant);
+        }
 
-        SingleInstant deserialized = objectMapper.readValue(os.toByteArray(), SingleInstant.class);
-        assertEquals(now, deserialized.instant);
+        byte[] bytes = os.toByteArray();
+        try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes)) {
+            unpacker.unpackMapHeader();
+            unpacker.unpackString();
+            assertEquals(8, unpacker.unpackExtensionTypeHeader().getLength());
+        }
+
+        SingleInstant deserialized = objectMapper.readValue(bytes, SingleInstant.class);
+        assertEquals(instant, deserialized.instant);
     }
 }

@@ -10,8 +10,11 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.msgpack.core.ExtensionTypeHeader;
 import org.msgpack.core.MessagePack;
+import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
+import org.msgpack.value.TimestampValue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Instant;
 
@@ -39,6 +42,20 @@ public class TimestampExtensionModule
         public void serialize(Instant value, JsonGenerator gen, SerializerProvider provider)
             throws IOException
         {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            // MEMO: Reusing these MessagePacker and MessageUnpacker instances would improve the performance
+            try (MessagePacker packer = MessagePack.newDefaultPacker(os)) {
+                packer.packTimestamp(value);
+            }
+            try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(os.toByteArray())) {
+                ExtensionTypeHeader header = unpacker.unpackExtensionTypeHeader();
+                byte[] bytes = unpacker.readPayload(header.getLength());
+
+                MessagePackExtensionType extensionType = new MessagePackExtensionType(EXT_TYPE, bytes);
+                gen.writeObject(extensionType);
+            }
+
+            /*
             int nanos = value.getNano();
             long epochSeconds = value.getEpochSecond();
 
@@ -55,6 +72,8 @@ public class TimestampExtensionModule
             MessagePackExtensionType extensionType = new MessagePackExtensionType(EXT_TYPE, bytes);
 
             gen.writeObject(extensionType);
+
+             */
         }
     }
 
