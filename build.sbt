@@ -26,11 +26,11 @@ val buildSettings = Seq[Setting[_]](
   // JVM options for building
   scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-feature"),
   Test / javaOptions ++= Seq("-ea"),
-  javacOptions ++= Seq("-source", "1.7", "-target", "1.7"),
+  javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
   Compile / compile / javacOptions ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation"),
   // Use lenient validation mode when generating Javadoc (for Java8)
   doc / javacOptions := {
-    val opts = Seq("-source", "1.7")
+    val opts = Seq("-source", "1.8")
     if (scala.util.Properties.isJavaAtLeast("1.8")) {
       opts ++ Seq("-Xdoclint:none")
     } else {
