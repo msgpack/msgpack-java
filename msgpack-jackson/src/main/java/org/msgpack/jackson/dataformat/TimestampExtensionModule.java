@@ -8,6 +8,9 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import org.msgpack.core.ExtensionTypeHeader;
+import org.msgpack.core.MessagePack;
+import org.msgpack.core.MessageUnpacker;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -66,26 +69,16 @@ public class TimestampExtensionModule
         public Instant deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException, JsonProcessingException
         {
-            // TODO: Check header for all possible cases
             MessagePackExtensionType ext = p.readValueAs(MessagePackExtensionType.class);
             if (ext.getType() != EXT_TYPE) {
                 throw new RuntimeException(
                         String.format("Unexpected extension type (0x%X) for Instant object", ext.getType()));
             }
 
-            byte[] bytes = ext.getData();
-
-            int nanoSeconds = 0;
-            for (int i = 0; i < SIZE_OF_NANOS_IN_BYTES; i++) {
-                nanoSeconds += ((int) bytes[i] & 0xFF) << (((SIZE_OF_NANOS_IN_BYTES - 1) - i) * 8);
+            // MEMO: Reusing this MessageUnpacker instance would improve the performance
+            try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(ext.getData())) {
+                return unpacker.unpackTimestamp(new ExtensionTypeHeader(EXT_TYPE, ext.getData().length));
             }
-
-            long epochSeconds = 0;
-            for (int i = 0; i < SIZE_OF_EPOCH_SECONDS_IN_BYTES; i++) {
-                epochSeconds += ((long) bytes[i + SIZE_OF_NANOS_IN_BYTES] & 0xFF) << (((SIZE_OF_EPOCH_SECONDS_IN_BYTES - 1) - i) * 8);
-            }
-
-            return Instant.ofEpochSecond(epochSeconds, nanoSeconds);
         }
     }
 }

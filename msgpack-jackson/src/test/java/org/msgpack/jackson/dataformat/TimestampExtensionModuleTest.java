@@ -18,9 +18,12 @@ package org.msgpack.jackson.dataformat;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
+import org.msgpack.core.MessagePack;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Objects;
 
 import static org.junit.Assert.*;
 
@@ -72,5 +75,22 @@ public class TimestampExtensionModuleTest
         assertEquals(now.minusSeconds(1), deserialized.a);
         assertEquals(now, deserialized.b);
         assertEquals(now.plusSeconds(1), deserialized.c);
+    }
+
+    @Test
+    public void deserialize64BitFormat()
+            throws IOException
+    {
+        Instant now = Instant.now();
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        MessagePack.newDefaultPacker(os)
+                .packMapHeader(1)
+                .packString("instant")
+                .packTimestamp(now)
+                .close();
+
+        SingleInstant deserialized = objectMapper.readValue(os.toByteArray(), SingleInstant.class);
+        assertEquals(now, deserialized.instant);
     }
 }
