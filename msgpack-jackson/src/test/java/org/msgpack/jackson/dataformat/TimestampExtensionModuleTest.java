@@ -126,4 +126,28 @@ public class TimestampExtensionModuleTest
         SingleInstant deserialized = objectMapper.readValue(bytes, SingleInstant.class);
         assertEquals(instant, deserialized.instant);
     }
+
+    @Test
+    public void deserialize96BitFormat()
+            throws IOException
+    {
+        Instant instant = Instant.ofEpochSecond(19880866800L /* 2600-01-01 */, 1234);
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try (MessagePacker packer = MessagePack.newDefaultPacker(os)) {
+            packer.packMapHeader(1)
+                    .packString("instant")
+                    .packTimestamp(instant);
+        }
+
+        byte[] bytes = os.toByteArray();
+        try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes)) {
+            unpacker.unpackMapHeader();
+            unpacker.unpackString();
+            assertEquals(12, unpacker.unpackExtensionTypeHeader().getLength());
+        }
+
+        SingleInstant deserialized = objectMapper.readValue(bytes, SingleInstant.class);
+        assertEquals(instant, deserialized.instant);
+    }
 }
