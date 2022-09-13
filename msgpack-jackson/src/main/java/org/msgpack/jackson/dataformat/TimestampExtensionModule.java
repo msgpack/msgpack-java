@@ -46,7 +46,7 @@ public class TimestampExtensionModule
             }
 
             for (int i = 0; i < SIZE_OF_EPOCH_SECONDS_IN_BYTES; i++) {
-                bytes[i + SIZE_OF_NANOS_IN_BYTES] = (byte) (epochSeconds >> ((SIZE_OF_EPOCH_SECONDS_IN_BYTES) - i) * 8);
+                bytes[i + SIZE_OF_NANOS_IN_BYTES] = (byte) (epochSeconds >> ((SIZE_OF_EPOCH_SECONDS_IN_BYTES - 1) - i) * 8);
             }
 
             MessagePackExtensionType extensionType = new MessagePackExtensionType(EXT_TYPE, bytes);
@@ -77,7 +77,7 @@ public class TimestampExtensionModule
 
             int nanoSeconds = 0;
             for (int i = 0; i < SIZE_OF_NANOS_IN_BYTES; i++) {
-                nanoSeconds += ((int) bytes[i] & 0xFF) << (((SIZE_OF_NANOS_IN_BYTES) - i) * 8);
+                nanoSeconds += ((int) bytes[i] & 0xFF) << (((SIZE_OF_NANOS_IN_BYTES - 1) - i) * 8);
             }
 
             long epochSeconds = 0;
