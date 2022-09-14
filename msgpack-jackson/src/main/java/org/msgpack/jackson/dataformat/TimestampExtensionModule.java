@@ -21,8 +21,6 @@ public class TimestampExtensionModule
 {
     public static final byte EXT_TYPE = -1;
     public static final SimpleModule INSTANCE = new SimpleModule("msgpack-ext-timestamp");
-    // private static final int SIZE_OF_NANOS_IN_BYTES = Integer.SIZE / 8;
-    // private static final int SIZE_OF_EPOCH_SECONDS_IN_BYTES = Long.SIZE / 8;
 
     static {
         INSTANCE.addSerializer(Instant.class, new InstantSerializer(Instant.class));
@@ -52,26 +50,6 @@ public class TimestampExtensionModule
                 MessagePackExtensionType extensionType = new MessagePackExtensionType(EXT_TYPE, bytes);
                 gen.writeObject(extensionType);
             }
-
-            /*
-            int nanos = value.getNano();
-            long epochSeconds = value.getEpochSecond();
-
-            byte[] bytes = new byte[SIZE_OF_NANOS_IN_BYTES + SIZE_OF_EPOCH_SECONDS_IN_BYTES];
-
-            for (int i = 0; i < SIZE_OF_NANOS_IN_BYTES; i++) {
-                bytes[i] = (byte) (nanos >> ((SIZE_OF_NANOS_IN_BYTES - 1) - i) * 8);
-            }
-
-            for (int i = 0; i < SIZE_OF_EPOCH_SECONDS_IN_BYTES; i++) {
-                bytes[i + SIZE_OF_NANOS_IN_BYTES] = (byte) (epochSeconds >> ((SIZE_OF_EPOCH_SECONDS_IN_BYTES - 1) - i) * 8);
-            }
-
-            MessagePackExtensionType extensionType = new MessagePackExtensionType(EXT_TYPE, bytes);
-
-            gen.writeObject(extensionType);
-
-             */
         }
     }
 
@@ -84,7 +62,7 @@ public class TimestampExtensionModule
 
         @Override
         public Instant deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             MessagePackExtensionType ext = p.readValueAs(MessagePackExtensionType.class);
             if (ext.getType() != EXT_TYPE) {
