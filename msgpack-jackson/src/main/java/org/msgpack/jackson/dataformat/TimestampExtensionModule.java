@@ -12,7 +12,6 @@ import org.msgpack.core.ExtensionTypeHeader;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
-import org.msgpack.value.TimestampValue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,9 +21,8 @@ public class TimestampExtensionModule
 {
     public static final byte EXT_TYPE = -1;
     public static final SimpleModule INSTANCE = new SimpleModule("msgpack-ext-timestamp");
-    private static final int SIZE_OF_NANOS_IN_BYTES = Integer.SIZE / 8;
-    private static final int SIZE_OF_EPOCH_SECONDS_IN_BYTES = Long.SIZE / 8;
-
+    // private static final int SIZE_OF_NANOS_IN_BYTES = Integer.SIZE / 8;
+    // private static final int SIZE_OF_EPOCH_SECONDS_IN_BYTES = Long.SIZE / 8;
 
     static {
         INSTANCE.addSerializer(Instant.class, new InstantSerializer(Instant.class));

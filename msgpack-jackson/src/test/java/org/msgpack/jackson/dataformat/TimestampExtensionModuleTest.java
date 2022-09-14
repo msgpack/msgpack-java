@@ -25,15 +25,14 @@ import org.msgpack.core.MessageUnpacker;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.Objects;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class TimestampExtensionModuleTest
 {
-    private ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
-    private SingleInstant singleInstant = new SingleInstant();
-    private TripleInstants tripleInstants = new TripleInstants();
+    private final ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+    private final SingleInstant singleInstant = new SingleInstant();
+    private final TripleInstants tripleInstants = new TripleInstants();
 
     private static class SingleInstant
     {
