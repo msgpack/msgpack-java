@@ -79,6 +79,72 @@ public class TimestampExtensionModuleTest
     }
 
     @Test
+    public void serialize32BitFormat()
+            throws IOException
+    {
+        singleInstant.instant = Instant.ofEpochSecond(Instant.now().getEpochSecond());
+
+        byte[] bytes = objectMapper.writeValueAsBytes(singleInstant);
+
+        // Check the size of serialized data first
+        try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes)) {
+            unpacker.unpackMapHeader();
+            assertEquals("instant", unpacker.unpackString());
+            assertEquals(4, unpacker.unpackExtensionTypeHeader().getLength());
+        }
+
+        try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes)) {
+            unpacker.unpackMapHeader();
+            unpacker.unpackString();
+            assertEquals(singleInstant.instant, unpacker.unpackTimestamp());
+        }
+    }
+
+    @Test
+    public void serialize64BitFormat()
+            throws IOException
+    {
+        singleInstant.instant = Instant.ofEpochSecond(Instant.now().getEpochSecond(), 1234);
+
+        byte[] bytes = objectMapper.writeValueAsBytes(singleInstant);
+
+        // Check the size of serialized data first
+        try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes)) {
+            unpacker.unpackMapHeader();
+            assertEquals("instant", unpacker.unpackString());
+            assertEquals(8, unpacker.unpackExtensionTypeHeader().getLength());
+        }
+
+        try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes)) {
+            unpacker.unpackMapHeader();
+            unpacker.unpackString();
+            assertEquals(singleInstant.instant, unpacker.unpackTimestamp());
+        }
+    }
+
+    @Test
+    public void serialize96BitFormat()
+            throws IOException
+    {
+        singleInstant.instant = Instant.ofEpochSecond(19880866800L /* 2600-01-01 */, 1234);
+
+        byte[] bytes = objectMapper.writeValueAsBytes(singleInstant);
+
+        // Check the size of serialized data first
+        try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes)) {
+            unpacker.unpackMapHeader();
+            assertEquals("instant", unpacker.unpackString());
+            assertEquals(12, unpacker.unpackExtensionTypeHeader().getLength());
+        }
+
+        try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes)) {
+            unpacker.unpackMapHeader();
+            unpacker.unpackString();
+            assertEquals(singleInstant.instant, unpacker.unpackTimestamp());
+        }
+    }
+
+    @Test
     public void deserialize32BitFormat()
             throws IOException
     {
