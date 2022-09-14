@@ -98,4 +98,8 @@ public class TimestampExtensionModule
             }
         }
     }
+
+    private TimestampExtensionModule()
+    {
+    }
 }
