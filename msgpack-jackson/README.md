@@ -240,9 +240,27 @@ When you want to use non-String value as a key of Map, use `MessagePackKeySerial
   System.out.println(mapper.readValue(converted, Pojo.class));   // => Pojo{value=1234567890.98765432100}
 ```
 
+### Serialize and deserialize Instant instances as MessagePack extension type
+
+`timestamp` extension type is defined in MessagePack as type:-1. Registering `TimestampExtensionModule.INSTANCE` module enables automatic serialization and deserialization of java.time.Instant to/from the MessagePack extension type.
+
+```java
+    ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory())
+                                    .registerModule(TimestampExtensionModule.INSTANCE);
+    Pojo pojo = new Pojo();
+    // The type of `timestamp` variable is Instant
+    pojo.timestamp = Instant.now();
+    byte[] bytes = objectMapper.writeValueAsBytes(pojo);
+
+    // The Instant instance is serialized as MessagePack extension type (type: -1)
+
+    Pojo deserialized = objectMapper.readValue(bytes, Pojo.class);
+    System.out.println(deserialized);   // "2022-09-14T08:47:24.922Z"
+```
+
 ### Deserialize extension types with ExtensionTypeCustomDeserializers
 
-`ExtensionTypeCustomDeserializers` helps you to deserialize extension types easily.
+`ExtensionTypeCustomDeserializers` helps you to deserialize your own custom extension types easily.
 
 #### Deserialize extension type value directly
 

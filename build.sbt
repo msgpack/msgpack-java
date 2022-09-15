@@ -5,7 +5,7 @@ Global / concurrentRestrictions := Seq(
   Tags.limit(Tags.Test, 1)
 )
 
-val AIRFRAME_VERSION = "22.7.2"
+val AIRFRAME_VERSION = "22.7.3"
 
 // Use dynamic snapshot version strings for non tagged versions
 ThisBuild / dynverSonatypeSnapshots := true
@@ -92,7 +92,7 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
       "org.msgpack" % "msgpack" % "0.6.12" % "test",
       // For integration test with Akka
       "com.typesafe.akka"      %% "akka-actor"              % "2.6.19" % "test",
-      "org.scala-lang.modules" %% "scala-collection-compat" % "2.8.0"  % "test"
+      "org.scala-lang.modules" %% "scala-collection-compat" % "2.8.1"  % "test"
     )
   )
 
