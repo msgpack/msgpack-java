@@ -26,7 +26,7 @@ class ByteStringTest extends AirSpec {
   private val byteString     = ByteString(createMessagePackData(_.packString(unpackedString)))
 
   private def unpackString(messageBuffer: MessageBuffer) = {
-    val input = new MessageBufferInput {
+    val input = new MessageBufferInput[Void] {
 
       private var isRead = false
 
@@ -38,6 +38,8 @@ class ByteStringTest extends AirSpec {
           messageBuffer
         }
       override def close(): Unit = {}
+
+      override def reset(input: Void): Void = throw new UnsupportedOperationException("reset")
     }
 
     MessagePack.newDefaultUnpacker(input).unpackString()

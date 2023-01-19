@@ -24,7 +24,7 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  * {@link MessageBufferInput} adapter for {@link MessageBufferInput} Enumeration
  */
 public class SequenceMessageBufferInput
-        implements MessageBufferInput
+        implements MessageBufferInput<Void>
 {
     private Enumeration<? extends MessageBufferInput> sequence;
     private MessageBufferInput input;
@@ -52,6 +52,11 @@ public class SequenceMessageBufferInput
         }
 
         return buffer;
+    }
+
+    @Override
+    public Void reset(Void input) {
+        throw new UnsupportedOperationException("reset");
     }
 
     private void nextInput() throws IOException

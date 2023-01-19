@@ -47,8 +47,8 @@ import java.util.LinkedList;
 public class MessagePackParser
         extends ParserMinimalBase
 {
-    private static final ThreadLocal<Tuple<Object, MessageUnpacker>> messageUnpackerHolder =
-            new ThreadLocal<Tuple<Object, MessageUnpacker>>();
+    private static final ThreadLocal<Triple<Object, MessageUnpacker, MessageBufferInputLocator>> reuseObjectHolder =
+            new ThreadLocal<>();
     private final MessageUnpacker messageUnpacker;
 
     private static final BigInteger LONG_MIN = BigInteger.valueOf((long) Long.MIN_VALUE);
@@ -126,11 +126,17 @@ public class MessagePackParser
             IOContext ctxt,
             int features,
             ObjectCodec objectCodec,
-            InputStream in,
+            final InputStream in,
             boolean reuseResourceInParser)
             throws IOException
     {
-        this(ctxt, features, new InputStreamBufferInput(in), objectCodec, in, reuseResourceInParser);
+        this(ctxt, features, new MessageBufferInputProvider() {
+            @Override
+            public MessageBufferInput provide()
+            {
+                return new InputStreamBufferInput(in);
+            }
+        }, objectCodec, in, reuseResourceInParser);
     }
 
     public MessagePackParser(IOContext ctxt, int features, ObjectCodec objectCodec, byte[] bytes)
@@ -143,16 +149,22 @@ public class MessagePackParser
             IOContext ctxt,
             int features,
             ObjectCodec objectCodec,
-            byte[] bytes,
+            final byte[] bytes,
             boolean reuseResourceInParser)
             throws IOException
     {
-        this(ctxt, features, new ArrayBufferInput(bytes), objectCodec, bytes, reuseResourceInParser);
+        this(ctxt, features, new MessageBufferInputProvider() {
+            @Override
+            public MessageBufferInput provide()
+            {
+                return new ArrayBufferInput(bytes);
+            }
+        }, objectCodec, bytes, reuseResourceInParser);
     }
 
     private MessagePackParser(IOContext ctxt,
             int features,
-            MessageBufferInput input,
+            MessageBufferInputProvider bufferInputProvider,
             ObjectCodec objectCodec,
             Object src,
             boolean reuseResourceInParser)
@@ -167,7 +179,7 @@ public class MessagePackParser
         parsingContext = JsonReadContext.createRootContext(dups);
         this.reuseResourceInParser = reuseResourceInParser;
         if (!reuseResourceInParser) {
-            this.messageUnpacker = MessagePack.newDefaultUnpacker(input);
+            this.messageUnpacker = MessagePack.newDefaultUnpacker(bufferInputProvider.provide());
             return;
         }
         else {
@@ -175,21 +187,40 @@ public class MessagePackParser
         }
 
         MessageUnpacker messageUnpacker;
-        Tuple<Object, MessageUnpacker> messageUnpackerTuple = messageUnpackerHolder.get();
-        if (messageUnpackerTuple == null) {
-            messageUnpacker = MessagePack.newDefaultUnpacker(input);
+        MessageBufferInputLocator messageBufferInputLocator;
+        Triple<Object, MessageUnpacker, MessageBufferInputLocator> messageUnpackerTriple = reuseObjectHolder.get();
+        if (messageUnpackerTriple == null) {
+            final MessageBufferInputRegistry messageBufferInputRegistry = new MessageBufferInputRegistry();
+            messageBufferInputRegistry.register(src.getClass(), bufferInputProvider);
+            messageBufferInputLocator = messageBufferInputRegistry;
+            messageUnpacker = MessagePack.newDefaultUnpacker(messageBufferInputRegistry.get(src.getClass()));
         }
         else {
             // Considering to reuse InputStream with JsonParser.Feature.AUTO_CLOSE_SOURCE,
             // MessagePackParser needs to use the MessageUnpacker that has the same InputStream
             // since it has buffer which has loaded the InputStream data ahead.
             // However, it needs to call MessageUnpacker#reset when the source is different from the previous one.
-            if (isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE) || messageUnpackerTuple.first() != src) {
-                messageUnpackerTuple.second().reset(input);
+            if (isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE) || messageUnpackerTriple.first() != src) {
+                final MessageBufferInputLocator bufferInputLocator = messageUnpackerTriple.third();
+                MessageBufferInput messageBufferInput = bufferInputLocator.get(src.getClass());
+                if (messageBufferInput != null) {
+                    messageBufferInput.reset(src);
+                }
+                else {
+                    if (bufferInputLocator instanceof MessageBufferInputRegistry) {
+                        ((MessageBufferInputRegistry) bufferInputLocator).register(src.getClass(), bufferInputProvider);
+                        messageBufferInput = bufferInputLocator.get(src.getClass());
+                    }
+                    else {
+                        messageBufferInput = bufferInputProvider.provide();
+                    }
+                }
+                messageUnpackerTriple.second().reset(messageBufferInput);
             }
-            messageUnpacker = messageUnpackerTuple.second();
+            messageUnpacker = messageUnpackerTriple.second();
+            messageBufferInputLocator = messageUnpackerTriple.third();
         }
-        messageUnpackerHolder.set(new Tuple<Object, MessageUnpacker>(src, messageUnpacker));
+        reuseObjectHolder.set(new Triple<Object, MessageUnpacker, MessageBufferInputLocator>(src, messageUnpacker, messageBufferInputLocator));
     }
 
     public void setExtensionTypeCustomDeserializers(ExtensionTypeCustomDeserializers extTypeCustomDesers)
@@ -690,7 +721,7 @@ public class MessagePackParser
             return this.messageUnpacker;
         }
 
-        Tuple<Object, MessageUnpacker> messageUnpackerTuple = messageUnpackerHolder.get();
+        Triple<Object, MessageUnpacker, MessageBufferInputLocator> messageUnpackerTuple = reuseObjectHolder.get();
         if (messageUnpackerTuple == null) {
             throw new IllegalStateException("messageUnpacker is null");
         }

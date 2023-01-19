@@ -26,7 +26,7 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  * {@link MessageBufferInput} adapter for {@link InputStream}
  */
 public class InputStreamBufferInput
-        implements MessageBufferInput
+        implements MessageBufferInput<InputStream>
 {
     private InputStream in;
     private final byte[] buffer;
@@ -60,8 +60,8 @@ public class InputStreamBufferInput
      * @param in new stream
      * @return the old resource
      */
+    @Override
     public InputStream reset(InputStream in)
-            throws IOException
     {
         InputStream old = this.in;
         this.in = in;
