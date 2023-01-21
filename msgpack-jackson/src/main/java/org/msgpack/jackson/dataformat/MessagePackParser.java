@@ -33,6 +33,7 @@ import org.msgpack.core.ExtensionTypeHeader;
 import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
+import org.msgpack.core.annotations.Nullable;
 import org.msgpack.core.buffer.ArrayBufferInput;
 import org.msgpack.core.buffer.InputStreamBufferInput;
 import org.msgpack.core.buffer.MessageBufferInput;
@@ -47,7 +48,7 @@ import java.util.LinkedList;
 public class MessagePackParser
         extends ParserMinimalBase
 {
-    private static final ThreadLocal<Triple<Object, MessageUnpacker, MessageBufferInputLocator>> reuseObjectHolder =
+    private static final ThreadLocal<Triple<Object, MessageUnpacker, MessageBufferInput>> reuseObjectHolder =
             new ThreadLocal<>();
     private final MessageUnpacker messageUnpacker;
 
@@ -126,17 +127,11 @@ public class MessagePackParser
             IOContext ctxt,
             int features,
             ObjectCodec objectCodec,
-            final InputStream in,
+            InputStream in,
             boolean reuseResourceInParser)
             throws IOException
     {
-        this(ctxt, features, new MessageBufferInputProvider() {
-            @Override
-            public MessageBufferInput provide()
-            {
-                return new InputStreamBufferInput(in);
-            }
-        }, objectCodec, in, reuseResourceInParser);
+        this(ctxt, features, null, in, objectCodec, in, reuseResourceInParser);
     }
 
     public MessagePackParser(IOContext ctxt, int features, ObjectCodec objectCodec, byte[] bytes)
@@ -149,22 +144,57 @@ public class MessagePackParser
             IOContext ctxt,
             int features,
             ObjectCodec objectCodec,
-            final byte[] bytes,
+            byte[] bytes,
             boolean reuseResourceInParser)
             throws IOException
     {
-        this(ctxt, features, new MessageBufferInputProvider() {
-            @Override
-            public MessageBufferInput provide()
-            {
-                return new ArrayBufferInput(bytes);
-            }
-        }, objectCodec, bytes, reuseResourceInParser);
+        this(ctxt, features, bytes, null, objectCodec, bytes, reuseResourceInParser);
+    }
+
+    private MessageBufferInput createMessageBufferInput(
+            // Either of `bytes` or `in` is available
+            @Nullable byte[] bytes,
+            @Nullable InputStream in)
+    {
+        if (bytes != null) {
+            return new ArrayBufferInput(bytes);
+        }
+        else if (in != null) {
+            return new InputStreamBufferInput(in);
+        }
+        else {
+            throw new IllegalArgumentException("The both `bytes` and `in` are null");
+        }
+    }
+
+    private MessageBufferInput resetOrRecreateMessageBufferInput(
+            MessageBufferInput messageBufferInput,
+            // Either of `bytes` or `in` is available
+            @Nullable byte[] bytes,
+            @Nullable InputStream in)
+            throws IOException
+    {
+        // TODO: Revisit here
+        messageBufferInput.close();
+        if (messageBufferInput instanceof ArrayBufferInput && bytes != null) {
+            ((ArrayBufferInput) messageBufferInput).reset(bytes);
+        }
+        else if (messageBufferInput instanceof InputStreamBufferInput &&  in != null) {
+            ((InputStreamBufferInput) messageBufferInput).reset(in);
+        }
+        else {
+            // The existing MessageBufferInput type doesn't match the new source type.
+            // Recreate MessageBufferInput instance.
+            return createMessageBufferInput(bytes, in);
+        }
+        return messageBufferInput;
     }
 
     private MessagePackParser(IOContext ctxt,
             int features,
-            MessageBufferInputProvider bufferInputProvider,
+            // Either of `bytes` or `in` is available
+            @Nullable byte[] bytes,
+            @Nullable InputStream in,
             ObjectCodec objectCodec,
             Object src,
             boolean reuseResourceInParser)
@@ -179,7 +209,7 @@ public class MessagePackParser
         parsingContext = JsonReadContext.createRootContext(dups);
         this.reuseResourceInParser = reuseResourceInParser;
         if (!reuseResourceInParser) {
-            this.messageUnpacker = MessagePack.newDefaultUnpacker(bufferInputProvider.provide());
+            this.messageUnpacker = MessagePack.newDefaultUnpacker(createMessageBufferInput(bytes, in));
             return;
         }
         else {
@@ -187,40 +217,30 @@ public class MessagePackParser
         }
 
         MessageUnpacker messageUnpacker;
-        MessageBufferInputLocator messageBufferInputLocator;
-        Triple<Object, MessageUnpacker, MessageBufferInputLocator> messageUnpackerTriple = reuseObjectHolder.get();
-        if (messageUnpackerTriple == null) {
-            final MessageBufferInputRegistry messageBufferInputRegistry = new MessageBufferInputRegistry();
-            messageBufferInputRegistry.register(src.getClass(), bufferInputProvider);
-            messageBufferInputLocator = messageBufferInputRegistry;
-            messageUnpacker = MessagePack.newDefaultUnpacker(messageBufferInputRegistry.get(src.getClass()));
+        MessageBufferInput messageBufferInput;
+        Triple<Object, MessageUnpacker, MessageBufferInput> messageUnpackerResource = reuseObjectHolder.get();
+        if (messageUnpackerResource == null) {
+            messageBufferInput = createMessageBufferInput(bytes, in);
+            messageUnpacker = MessagePack.newDefaultUnpacker(messageBufferInput);
         }
         else {
             // Considering to reuse InputStream with JsonParser.Feature.AUTO_CLOSE_SOURCE,
             // MessagePackParser needs to use the MessageUnpacker that has the same InputStream
             // since it has buffer which has loaded the InputStream data ahead.
             // However, it needs to call MessageUnpacker#reset when the source is different from the previous one.
-            if (isEnabled(JsonParser.Feature.AUTO_CLOSE_SOURCE) || messageUnpackerTriple.first() != src) {
-                final MessageBufferInputLocator bufferInputLocator = messageUnpackerTriple.third();
-                MessageBufferInput messageBufferInput = bufferInputLocator.get(src.getClass());
-                if (messageBufferInput != null) {
-                    messageBufferInput.reset(src);
-                }
-                else {
-                    if (bufferInputLocator instanceof MessageBufferInputRegistry) {
-                        ((MessageBufferInputRegistry) bufferInputLocator).register(src.getClass(), bufferInputProvider);
-                        messageBufferInput = bufferInputLocator.get(src.getClass());
-                    }
-                    else {
-                        messageBufferInput = bufferInputProvider.provide();
-                    }
-                }
-                messageUnpackerTriple.second().reset(messageBufferInput);
+            if (isEnabled(Feature.AUTO_CLOSE_SOURCE) || messageUnpackerResource.first() != src) {
+                messageBufferInput = messageUnpackerResource.third();
+                messageUnpacker = messageUnpackerResource.second();
+
+                messageBufferInput = resetOrRecreateMessageBufferInput(messageBufferInput, bytes, in);
+                messageUnpacker.reset(messageBufferInput);
             }
-            messageUnpacker = messageUnpackerTriple.second();
-            messageBufferInputLocator = messageUnpackerTriple.third();
+            else {
+                messageBufferInput = messageUnpackerResource.third();
+                messageUnpacker = messageUnpackerResource.second();
+            }
         }
-        reuseObjectHolder.set(new Triple<Object, MessageUnpacker, MessageBufferInputLocator>(src, messageUnpacker, messageBufferInputLocator));
+        reuseObjectHolder.set(new Triple<>(src, messageUnpacker, messageBufferInput));
     }
 
     public void setExtensionTypeCustomDeserializers(ExtensionTypeCustomDeserializers extTypeCustomDesers)
@@ -721,10 +741,10 @@ public class MessagePackParser
             return this.messageUnpacker;
         }
 
-        Triple<Object, MessageUnpacker, MessageBufferInputLocator> messageUnpackerTuple = reuseObjectHolder.get();
-        if (messageUnpackerTuple == null) {
+        Triple<Object, MessageUnpacker, MessageBufferInput> reuseObject = reuseObjectHolder.get();
+        if (reuseObject == null) {
             throw new IllegalStateException("messageUnpacker is null");
         }
-        return messageUnpackerTuple.second();
+        return reuseObject.second();
     }
 }

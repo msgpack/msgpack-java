@@ -24,7 +24,7 @@ import java.io.IOException;
  * A MessageBufferInput implementation has control of lifecycle of the memory so that it can reuse previously
  * allocated memory, use memory pools, or use memory-mapped files.
  */
-public interface MessageBufferInput<T>
+public interface MessageBufferInput
         extends Closeable
 {
     /**
@@ -39,8 +39,6 @@ public interface MessageBufferInput<T>
      */
     MessageBuffer next()
             throws IOException;
-
-    T reset(T input);
 
     /**
      * Closes the input.

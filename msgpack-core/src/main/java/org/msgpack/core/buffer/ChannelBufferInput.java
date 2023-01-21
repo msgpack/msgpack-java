@@ -26,7 +26,7 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  * {@link MessageBufferInput} adapter for {@link java.nio.channels.ReadableByteChannel}
  */
 public class ChannelBufferInput
-        implements MessageBufferInput<ReadableByteChannel>
+        implements MessageBufferInput
 {
     private ReadableByteChannel channel;
     private final MessageBuffer buffer;
@@ -49,8 +49,8 @@ public class ChannelBufferInput
      * @param channel new channel
      * @return the old resource
      */
-    @Override
     public ReadableByteChannel reset(ReadableByteChannel channel)
+            throws IOException
     {
         ReadableByteChannel old = this.channel;
         this.channel = channel;

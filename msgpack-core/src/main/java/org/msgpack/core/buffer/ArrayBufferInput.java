@@ -21,7 +21,7 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  * MessageBufferInput adapter for byte arrays
  */
 public class ArrayBufferInput
-        implements MessageBufferInput<byte[]>
+        implements MessageBufferInput
 {
     private MessageBuffer buffer;
     private boolean isEmpty;
@@ -66,14 +66,9 @@ public class ArrayBufferInput
         return old;
     }
 
-    @Override
-    public byte[] reset(byte[] arr)
+    public void reset(byte[] arr)
     {
-        final MessageBuffer messageBuffer = reset(MessageBuffer.wrap(checkNotNull(arr, "input array is null")));
-        if (messageBuffer == null) {
-            return null;
-        }
-        return messageBuffer.array();
+        reset(MessageBuffer.wrap(checkNotNull(arr, "input array is null")));
     }
 
     public void reset(byte[] arr, int offset, int len)

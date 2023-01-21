@@ -15,14 +15,10 @@
 //
 package org.msgpack.jackson.dataformat;
 
-/**
- * Created by komamitsu on 5/28/15.
- */
 public class Triple<F, S, T>
 {
     private final F first;
     private final S second;
-
     private final T third;
 
     public Triple(F first, S second, T third)

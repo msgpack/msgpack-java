@@ -29,7 +29,7 @@ import scala.jdk.CollectionConverters._
 import scala.util.Random
 
 object MessageUnpackerTest {
-  class SplitMessageBufferInput(array: Array[Array[Byte]]) extends MessageBufferInput[Void] {
+  class SplitMessageBufferInput(array: Array[Array[Byte]]) extends MessageBufferInput {
     var cursor = 0
     override def next(): MessageBuffer = {
       if (cursor < array.length) {
@@ -40,9 +40,6 @@ object MessageUnpackerTest {
         null
       }
     }
-
-
-    override def reset(input: Void): Void = throw new UnsupportedOperationException("reset")
 
     override def close(): Unit = {}
   }

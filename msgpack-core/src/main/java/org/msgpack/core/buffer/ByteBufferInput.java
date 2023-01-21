@@ -23,7 +23,7 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  * {@link MessageBufferInput} adapter for {@link java.nio.ByteBuffer}
  */
 public class ByteBufferInput
-        implements MessageBufferInput<ByteBuffer>
+        implements MessageBufferInput
 {
     private ByteBuffer input;
     private boolean isRead = false;
@@ -39,7 +39,6 @@ public class ByteBufferInput
      * @param input new buffer
      * @return the old buffer
      */
-    @Override
     public ByteBuffer reset(ByteBuffer input)
     {
         ByteBuffer old = this.input;
