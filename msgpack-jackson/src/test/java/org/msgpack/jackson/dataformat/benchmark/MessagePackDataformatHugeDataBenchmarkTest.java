@@ -30,7 +30,7 @@ import java.util.List;
 
 public class MessagePackDataformatHugeDataBenchmarkTest
 {
-    private static final int ELM_NUM = 100000;
+    private static final int ELM_NUM = 1000000;
     private static final int COUNT = 6;
     private static final int WARMUP_COUNT = 4;
     private final ObjectMapper origObjectMapper = new ObjectMapper();
