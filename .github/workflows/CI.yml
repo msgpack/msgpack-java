@@ -17,6 +17,7 @@ on:
       - '**.java'
       - '**.sbt'
       - '.github/workflows/**.yml'
+    workflow_dispatch:
 
 jobs:
   code_format:
