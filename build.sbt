@@ -5,7 +5,7 @@ Global / concurrentRestrictions := Seq(
   Tags.limit(Tags.Test, 1)
 )
 
-val AIRFRAME_VERSION = "22.9.3"
+val AIRFRAME_VERSION = "23.1.4"
 
 // Use dynamic snapshot version strings for non tagged versions
 ThisBuild / dynverSonatypeSnapshots := true
@@ -109,7 +109,7 @@ lazy val msgpackJackson =
         "org.msgpack.jackson.dataformat"
       ),
       libraryDependencies ++= Seq(
-        "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.4",
+        "com.fasterxml.jackson.core" % "jackson-databind" % "2.13.5",
         junitInterface,
         "org.apache.commons" % "commons-math3" % "3.6.1" % "test"
       ),
