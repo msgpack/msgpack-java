@@ -3,7 +3,8 @@ name: Release Drafter
 on:
   push:
     branches:
-      - master
+      - develop
+      - main
   # pull_request event is required only for autolabeler
   pull_request:
     # Only following types are handled by the action, but one can default to all as well
