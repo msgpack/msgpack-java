@@ -103,7 +103,7 @@ $ git tag v0.x.y
 $ git push origin v0.x.y
 ```
 
-A draft of the next release note will be updated automatically at the [GitHub Releases](https://github.com/msgpack/msgpack-java/releases) page. For eachPR merged, [release-drafter](https://github.com/release-drafter/release-drafter) will modify the release note draftd. When you create a new release tag, edit and publish the draft of the release note. If necessary, adjust the version number and target tag.
+A draft of the next release note will be updated automatically at the [GitHub Releases](https://github.com/msgpack/msgpack-java/releases) page. For each PR merged, [release-drafter](https://github.com/release-drafter/release-drafter) will modify the release note draft. When you create a new release tag, edit and publish the draft of the release note. If necessary, adjust the version number and target tag.
 
 #### Publishing to Sonatype from Local Machine
 
