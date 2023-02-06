@@ -82,10 +82,8 @@ Here is a list of sbt commands for daily development:
 > ~testOnly *MessagePackTest -- (pattern)  # Run tests matching the pattern 
 > project msgpack-core                     # Focus on a specific project
 > package                                  # Create a jar file in the target folder of each project
-> findbugs                                 # Produce findbugs report in target/findbugs
-> jacoco:cover                             # Report the code coverage of tests to target/jacoco folder
 > jcheckStyle                              # Run check style
-> ;scalafmt;test:scalafmt;scalafmtSbt      # Reformat Scala codes
+> scalafmtAll                              # Reformat code
 ```
 
 ### Publishing
@@ -105,10 +103,7 @@ $ git tag v0.x.y
 $ git push origin v0.x.y
 ```
 
-To generate a release notes, you can use this command line:
-```
-$ git log v(last version).. --oneline | cut -f 2- -d ' ' | perl -npe 's/(.*)\(\#([0-9]+)\)/* \1\[\#\2\]\(http:\/\/github.com\/msgpack\/msgpack-java\/pull\/\2\)/g'
-```
+Release notes will be automatically updated a draft of the next release not at the [GitHub Releases](https://github.com/msgpack/msgpack-java/releases) page using [release-drafter](https://github.com/release-drafter/release-drafter). For each PR merged, the release note will be updated. When you create a new release tag, edit and publish the draft of the release note. If necessary, adjust the version number and target tag.
 
 #### Publishing to Sonatype from Local Machine
 
