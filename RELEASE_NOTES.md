@@ -1,5 +1,7 @@
 # Release Notes
 
+The latest release notes will be available from the [GitHub release page](https://github.com/msgpack/msgpack-java/releases)
+
 ## 0.9.3
 
 This version supports JDK17 [#660](http://github.com/msgpack/msgpack-java/pull/660).
