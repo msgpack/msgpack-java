@@ -53,3 +53,9 @@ autolabeler:
   - label: 'deprecation'
     title:
       - '/deprecate/i'
+  - label: 'library-update'
+    body:
+      - '/library-update/'
+  - label: 'test-library-update'
+    body:
+      - '/test-library-update/'
