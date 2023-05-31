@@ -6,6 +6,6 @@ addSbtPlugin("com.github.sbt" % "sbt-pgp"      % "2.2.1")
 addSbtPlugin("org.xerial.sbt"   % "sbt-jcheckstyle" % "0.2.1")
 addSbtPlugin("com.typesafe.sbt" % "sbt-osgi"        % "0.9.6")
 addSbtPlugin("org.scalameta"    % "sbt-scalafmt"    % "2.5.0")
-addSbtPlugin("com.dwijnand"     % "sbt-dynver"      % "4.1.1")
+addSbtPlugin("com.github.sbt"     % "sbt-dynver"      % "5.0.1")
 
 scalacOptions ++= Seq("-deprecation", "-feature")
