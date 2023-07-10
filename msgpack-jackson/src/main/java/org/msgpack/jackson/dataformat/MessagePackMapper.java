@@ -15,8 +15,11 @@
 //
 package org.msgpack.jackson.dataformat;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
+
+import java.math.BigDecimal;
 
 public class MessagePackMapper extends ObjectMapper
 {
@@ -38,6 +41,12 @@ public class MessagePackMapper extends ObjectMapper
     public MessagePackMapper(MessagePackFactory f)
     {
         super(f);
+    }
+
+    public MessagePackMapper handleBigDecimalAsString()
+    {
+        configOverride(BigDecimal.class).setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
+        return this;
     }
 
     public static Builder builder()

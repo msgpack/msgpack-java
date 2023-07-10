@@ -61,7 +61,13 @@ Only thing you need to do is to instantiate `MessagePackFactory` and pass it to 
 Or more easily:
 
 ```java
-ObjectMapper objectMapper = new MessagePackMapper();
+  ObjectMapper objectMapper = new MessagePackMapper();
+```
+
+We strongly recommend to call `MessagePackMapper#handleBigDecimalAsString()` if you serialize and/or deserialize BigDecimal values. See [Serialize and deserialize BigDecimal as str type internally in MessagePack format](#serialize-and-deserialize-bigdecimal-as-str-type-internally-in-messagepack-format) for details.
+
+```java
+  ObjectMapper objectMapper = new MessagePackMapper().handleBigDecimalAsString();
 ```
 
 ### Serialization/Deserialization of List
@@ -226,26 +232,33 @@ When you want to use non-String value as a key of Map, use `MessagePackKeySerial
 
 ### Serialize and deserialize BigDecimal as str type internally in MessagePack format
 
-`jackson-dataformat-msgpack` represents BigDecimal values as float type in MessagePack format by default. When you want to handle BigDeciaml values as str type with arbitrary precision in MessagePack format, you can use `com.fasterxml.jackson.databind.cfg.MutableConfigOverride#setFormat` like this:
+`jackson-dataformat-msgpack` represents BigDecimal values as float type in MessagePack format by default for backward compatibility. But the default behavior could fail when handling too large value for `double` type. So we strongly recommend to call `MessagePackMapper#handleBigDecimalAsString()` to internally handle BigDecimal values as String.
 
 ```java
-  ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
-  mapper.configOverride(BigDecimal.class).setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
+  ObjectMapper objectMapper = new MessagePackMapper().handleBigDecimalAsString();
 
   Pojo obj = new Pojo();
+  // This value is too large to be serialized as double
   obj.value = new BigDecimal("1234567890.98765432100");
 
-  byte[] converted = mapper.writeValueAsBytes(obj);
+  byte[] converted = objectMapper.writeValueAsBytes(obj);
 
-  System.out.println(mapper.readValue(converted, Pojo.class));   // => Pojo{value=1234567890.98765432100}
+  System.out.println(objectMapper.readValue(converted, Pojo.class));   // => Pojo{value=1234567890.98765432100}
 ```
+`MessagePackMapper#handleBigDecimalAsString()` is equivalent to the following configuration.
+
+```java
+  ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+  objectMapper.configOverride(BigDecimal.class).setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
+```
+
 
 ### Serialize and deserialize Instant instances as MessagePack extension type
 
 `timestamp` extension type is defined in MessagePack as type:-1. Registering `TimestampExtensionModule.INSTANCE` module enables automatic serialization and deserialization of java.time.Instant to/from the MessagePack extension type.
 
 ```java
-    ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory())
+    ObjectMapper objectMapper = new MessagePackMapper()
                                     .registerModule(TimestampExtensionModule.INSTANCE);
     Pojo pojo = new Pojo();
     // The type of `timestamp` variable is Instant
@@ -287,8 +300,8 @@ When you want to use non-String value as a key of Map, use `MessagePackKeySerial
           return "Java";
       }
       return "Not Java";
-  }
-  );
+  });
+
   ObjectMapper objectMapper = new ObjectMapper(
           new MessagePackFactory().setExtTypeCustomDesers(extTypeCustomDesers));
 
@@ -476,4 +489,3 @@ There are a few options to fix this issue, but they introduce performance degred
   ObjectMapper objectMapper = new ObjectMapper(
     new MessagePackFactory().setReuseResourceInGenerator(false));
 ```
-
