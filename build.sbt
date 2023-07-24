@@ -5,7 +5,7 @@ Global / concurrentRestrictions := Seq(
   Tags.limit(Tags.Test, 1)
 )
 
-val AIRFRAME_VERSION = "23.7.2"
+val AIRFRAME_VERSION = "23.7.3"
 
 // Use dynamic snapshot version strings for non tagged versions
 ThisBuild / dynverSonatypeSnapshots := true
