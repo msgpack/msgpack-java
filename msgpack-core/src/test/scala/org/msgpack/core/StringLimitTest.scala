@@ -1,6 +1,7 @@
 package org.msgpack.core
 
 import org.msgpack.core.MessagePack.UnpackerConfig
+import org.msgpack.value.Variable
 import wvlet.airspec.AirSpec
 
 class StringLimitTest extends AirSpec {
@@ -22,6 +23,14 @@ class StringLimitTest extends AirSpec {
       val unpacker = new UnpackerConfig().withStringSizeLimit(customLimit).newUnpacker(msgpack)
       intercept[MessageSizeException] {
         unpacker.unpackValue()
+      }
+    }
+
+    test("unpackValue(var)") {
+      val unpacker = new UnpackerConfig().withStringSizeLimit(customLimit).newUnpacker(msgpack)
+      intercept[MessageSizeException] {
+        val v = new Variable()
+        unpacker.unpackValue(v)
       }
     }
   }
