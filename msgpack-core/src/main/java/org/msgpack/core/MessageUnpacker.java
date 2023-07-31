@@ -624,6 +624,9 @@ public class MessageUnpacker
                 return ValueFactory.newFloat(unpackDouble());
             case STRING: {
                 int length = unpackRawStringHeader();
+                if (length > stringSizeLimit) {
+                    throw new MessageSizeException(String.format("cannot unpack a String of size larger than %,d: %,d", stringSizeLimit, length), length);
+                }
                 return ValueFactory.newString(readPayload(length), true);
             }
             case BINARY: {
