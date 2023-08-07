@@ -3,7 +3,6 @@ name: Snapshot Release
 on:
   push:
     branches:
-      - develop
       - main
     paths:
       - '**.scala'
