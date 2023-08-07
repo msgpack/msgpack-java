@@ -142,7 +142,7 @@ public class MessagePackExample
         packer.packBinaryHeader(ba.length);
         packer.writePayload(ba);
 
-        // Write ext type data: https://github.com/msgpack/msgpack/blob/main/spec.md#ext-format-family
+        // Write ext type data: https://github.com/msgpack/msgpack/blob/master/spec.md#ext-format-family
         byte[] extData = "custom data type".getBytes(MessagePack.UTF8);
         packer.packExtensionTypeHeader((byte) 1, 10);  // type number [0, 127], data byte length
         packer.writePayload(extData);
@@ -182,7 +182,7 @@ public class MessagePackExample
 
         while (unpacker.hasNext()) {
             // [Advanced] You can check the detailed data format with getNextFormat()
-            // Here is a list of message pack data format: https://github.com/msgpack/msgpack/blob/main/spec.md#overview
+            // Here is a list of message pack data format: https://github.com/msgpack/msgpack/blob/master/spec.md#overview
             MessageFormat format = unpacker.getNextFormat();
 
             // You can also use unpackValue to extract a value of any type
