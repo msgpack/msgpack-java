@@ -54,7 +54,7 @@ Known issues:
 
 ## 0.9.0
 
-This version support reading and writing [Timestamp values](https://github.com/msgpack/msgpack/blob/master/spec.md#timestamp-extension-type).
+This version support reading and writing [Timestamp values](https://github.com/msgpack/msgpack/blob/main/spec.md#timestamp-extension-type).
 Packer and unpacker interfaces added pack/unpackTimestamp methods.
 
 Timestamp value in MessagePack is an extension type value whose code is -1. You can read TimestampValue object with MessgageUnapcker.unpackValue method. 

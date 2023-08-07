@@ -80,7 +80,7 @@ public class MessagePack
     public static final UnpackerConfig DEFAULT_UNPACKER_CONFIG = new UnpackerConfig();
 
     /**
-     * The prefix code set of MessagePack format. See also https://github.com/msgpack/msgpack/blob/master/spec.md for details.
+     * The prefix code set of MessagePack format. See also https://github.com/msgpack/msgpack/blob/main/spec.md for details.
      */
     public static final class Code
     {

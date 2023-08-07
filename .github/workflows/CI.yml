@@ -10,8 +10,6 @@ on:
       - 'project/build.properties'
   push:
     branches:
-      - master
-      - develop
       - main
     paths:
       - '**.scala'
