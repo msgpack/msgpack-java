@@ -342,7 +342,7 @@ public class MessageUnpacker
     }
 
     /**
-     * Returns true true if this unpacker has more elements.
+     * Returns true if this unpacker has more elements.
      * When this returns true, subsequent call to {@link #getNextFormat()} returns an
      * MessageFormat instance. If false, next {@link #getNextFormat()} call will throw an MessageInsufficientBufferException.
      *
@@ -759,7 +759,7 @@ public class MessageUnpacker
     /**
      * Peeks a Nil byte and reads it if next byte is a nil value.
      *
-     * The difference from {@link unpackNil} is that unpackNil throws an exception if the next byte is not nil value
+     * The difference from {@link #unpackNil()} is that unpackNil throws an exception if the next byte is not nil value
      * while this tryUnpackNil method returns false without changing position.
      *
      * @return true if a nil value is read
