@@ -37,6 +37,7 @@ class DirectBufferAccess
 
     enum DirectBufferConstructorType
     {
+        ARGS_LONG_LONG,
         ARGS_LONG_INT_REF,
         ARGS_LONG_INT,
         ARGS_INT_INT,
@@ -64,28 +65,35 @@ class DirectBufferAccess
             DirectBufferConstructorType constructorType = null;
             Method mbWrap = null;
             try {
-                // TODO We should use MethodHandle for Java7, which can avoid the cost of boxing with JIT optimization
-                directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
-                constructorType = DirectBufferConstructorType.ARGS_LONG_INT_REF;
+                // JDK21 DirectByteBuffer(long, long)
+                directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, long.class);
+                constructorType = DirectBufferConstructorType.ARGS_LONG_LONG;
             }
-            catch (NoSuchMethodException e0) {
+            catch (NoSuchMethodException e00) {
                 try {
-                    // https://android.googlesource.com/platform/libcore/+/master/luni/src/main/java/java/nio/DirectByteBuffer.java
-                    // DirectByteBuffer(long address, int capacity)
-                    directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class);
-                    constructorType = DirectBufferConstructorType.ARGS_LONG_INT;
+                    // TODO We should use MethodHandle for Java7, which can avoid the cost of boxing with JIT optimization
+                    directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class, Object.class);
+                    constructorType = DirectBufferConstructorType.ARGS_LONG_INT_REF;
                 }
-                catch (NoSuchMethodException e1) {
+                catch (NoSuchMethodException e0) {
                     try {
-                        directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(int.class, int.class);
-                        constructorType = DirectBufferConstructorType.ARGS_INT_INT;
+                        // https://android.googlesource.com/platform/libcore/+/master/luni/src/main/java/java/nio/DirectByteBuffer.java
+                        // DirectByteBuffer(long address, int capacity)
+                        directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(long.class, int.class);
+                        constructorType = DirectBufferConstructorType.ARGS_LONG_INT;
                     }
-                    catch (NoSuchMethodException e2) {
-                        Class<?> aClass = Class.forName("java.nio.MemoryBlock");
-                        mbWrap = aClass.getDeclaredMethod("wrapFromJni", int.class, long.class);
-                        mbWrap.setAccessible(true);
-                        directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(aClass, int.class, int.class);
-                        constructorType = DirectBufferConstructorType.ARGS_MB_INT_INT;
+                    catch (NoSuchMethodException e1) {
+                        try {
+                            directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(int.class, int.class);
+                            constructorType = DirectBufferConstructorType.ARGS_INT_INT;
+                        }
+                        catch (NoSuchMethodException e2) {
+                            Class<?> aClass = Class.forName("java.nio.MemoryBlock");
+                            mbWrap = aClass.getDeclaredMethod("wrapFromJni", int.class, long.class);
+                            mbWrap.setAccessible(true);
+                            directByteBufferConstructor = directByteBufferClass.getDeclaredConstructor(aClass, int.class, int.class);
+                            constructorType = DirectBufferConstructorType.ARGS_MB_INT_INT;
+                        }
                     }
                 }
             }
@@ -281,6 +289,8 @@ class DirectBufferAccess
         }
         try {
             switch (directBufferConstructorType) {
+                case ARGS_LONG_LONG:
+                    return (ByteBuffer) byteBufferConstructor.newInstance(address + index, (long) length);
                 case ARGS_LONG_INT_REF:
                     return (ByteBuffer) byteBufferConstructor.newInstance(address + index, length, reference);
                 case ARGS_LONG_INT:

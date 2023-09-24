@@ -17,7 +17,7 @@ val buildSettings = Seq[Setting[_]](
   organizationName := "MessagePack",
   organizationHomepage := Some(new URL("http://msgpack.org/")),
   description := "MessagePack for Java",
-  scalaVersion := "2.13.6",
+  scalaVersion := "2.13.12",
   Test / logBuffered := false,
   // msgpack-java should be a pure-java library, so remove Scala specific configurations
   autoScalaLibrary := false,
@@ -26,11 +26,11 @@ val buildSettings = Seq[Setting[_]](
   // JVM options for building
   scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-feature"),
   Test / javaOptions ++= Seq("-ea"),
-  javacOptions ++= Seq("-source", "1.7", "-target", "1.7"),
+  javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
   Compile / compile / javacOptions ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation"),
   // Use lenient validation mode when generating Javadoc (for Java8)
   doc / javacOptions := {
-    val opts = Seq("-source", "1.7")
+    val opts = Seq("-source", "1.8")
     if (scala.util.Properties.isJavaAtLeast("1.8")) {
       opts ++ Seq("-Xdoclint:none")
     } else {
@@ -92,7 +92,7 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
       "org.msgpack" % "msgpack" % "0.6.12" % "test",
       // For integration test with Akka
       "com.typesafe.akka"      %% "akka-actor"              % "2.6.20" % "test",
-      "org.scala-lang.modules" %% "scala-collection-compat" % "2.11.0"  % "test"
+      "org.scala-lang.modules" %% "scala-collection-compat" % "2.11.0" % "test"
     )
   )
 
