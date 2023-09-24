@@ -96,14 +96,14 @@ Here is a list of sbt commands for daily development:
 
 ### Publish to Sonatype (Maven Central)
 
-To publish a new version, you only need to add a new git tag and push it to GitHub. GitHub Action will deploy a new release version to Maven Central (Sonatype).
+To publish a new version, add a new git tag and push it to GitHub. GitHub Action will deploy a new release version to Maven Central (Sonatype).
 
 ```scala
 $ git tag v0.x.y
 $ git push origin v0.x.y
 ```
 
-A draft of the next release note will be updated automatically at the [GitHub Releases](https://github.com/msgpack/msgpack-java/releases) page. For each PR merged, [release-drafter](https://github.com/release-drafter/release-drafter) will modify the release note draft. When you create a new release tag, edit and publish the draft of the release note. If necessary, adjust the version number and target tag.
+A new release note will be generated automatically at the [GitHub Releases](https://github.com/msgpack/msgpack-java/releases) page. 
 
 #### Publishing to Sonatype from Local Machine
 
