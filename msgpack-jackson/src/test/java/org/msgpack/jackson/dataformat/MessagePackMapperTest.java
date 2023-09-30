@@ -37,7 +37,7 @@ public class MessagePackMapperTest
         public BigDecimal value;
     }
 
-    private void assertToFailToHandleBigInteger(MessagePackMapper messagePackMapper) throws JsonProcessingException
+    private void shouldFailToHandleBigInteger(MessagePackMapper messagePackMapper) throws JsonProcessingException
     {
         PojoWithBigInteger obj = new PojoWithBigInteger();
         obj.value = BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(10));
@@ -51,7 +51,7 @@ public class MessagePackMapperTest
         }
     }
 
-    private void assertToSuccessToHandleBigInteger(MessagePackMapper messagePackMapper) throws IOException
+    private void shouldSuccessToHandleBigInteger(MessagePackMapper messagePackMapper) throws IOException
     {
         PojoWithBigInteger obj = new PojoWithBigInteger();
         obj.value = BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(10));
@@ -62,7 +62,7 @@ public class MessagePackMapperTest
         assertEquals(obj.value, deserialized.value);
     }
 
-    private void assertToFailToHandleBigDecimal(MessagePackMapper messagePackMapper) throws JsonProcessingException
+    private void shouldFailToHandleBigDecimal(MessagePackMapper messagePackMapper) throws JsonProcessingException
     {
         PojoWithBigDecimal obj = new PojoWithBigDecimal();
         obj.value = new BigDecimal("1234567890.98765432100");
@@ -76,7 +76,7 @@ public class MessagePackMapperTest
         }
     }
 
-    private void assertToSuccessToHandleBigDecimal(MessagePackMapper messagePackMapper) throws IOException
+    private void shouldSuccessToHandleBigDecimal(MessagePackMapper messagePackMapper) throws IOException
     {
         PojoWithBigDecimal obj = new PojoWithBigDecimal();
         obj.value = new BigDecimal("1234567890.98765432100");
@@ -90,22 +90,22 @@ public class MessagePackMapperTest
     @Test
     public void handleBigIntegerAsString() throws IOException
     {
-        assertToFailToHandleBigInteger(new MessagePackMapper());
-        assertToSuccessToHandleBigInteger(new MessagePackMapper().handleBigIntegerAsString());
+        shouldFailToHandleBigInteger(new MessagePackMapper());
+        shouldSuccessToHandleBigInteger(new MessagePackMapper().handleBigIntegerAsString());
     }
 
     @Test
     public void handleBigDecimalAsString() throws IOException
     {
-        assertToFailToHandleBigDecimal(new MessagePackMapper());
-        assertToSuccessToHandleBigDecimal(new MessagePackMapper().handleBigDecimalAsString());
+        shouldFailToHandleBigDecimal(new MessagePackMapper());
+        shouldSuccessToHandleBigDecimal(new MessagePackMapper().handleBigDecimalAsString());
     }
 
     @Test
     public void handleBigIntegerAndBigDecimalAsString() throws IOException
     {
         MessagePackMapper messagePackMapper = new MessagePackMapper().handleBigIntegerAndBigDecimalAsString();
-        assertToSuccessToHandleBigInteger(messagePackMapper);
-        assertToSuccessToHandleBigDecimal(messagePackMapper);
+        shouldSuccessToHandleBigInteger(messagePackMapper);
+        shouldSuccessToHandleBigDecimal(messagePackMapper);
     }
 }
