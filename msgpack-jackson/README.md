@@ -64,10 +64,10 @@ Or more easily:
   ObjectMapper objectMapper = new MessagePackMapper();
 ```
 
-We strongly recommend to call `MessagePackMapper#handleBigDecimalAsString()` if you serialize and/or deserialize BigDecimal values. See [Serialize and deserialize BigDecimal as str type internally in MessagePack format](#serialize-and-deserialize-bigdecimal-as-str-type-internally-in-messagepack-format) for details.
+We strongly recommend to call `MessagePackMapper#handleBigIntegerAndBigDecimalAsString()` if you serialize and/or deserialize BigInteger/BigDecimal values. See [Serialize and deserialize BigDecimal as str type internally in MessagePack format](#serialize-and-deserialize-bigdecimal-as-str-type-internally-in-messagepack-format) for details.
 
 ```java
-  ObjectMapper objectMapper = new MessagePackMapper().handleBigDecimalAsString();
+  ObjectMapper objectMapper = new MessagePackMapper().handleBigIntegerAndBigDecimalAsString();
 ```
 
 ### Serialization/Deserialization of List
@@ -232,10 +232,10 @@ When you want to use non-String value as a key of Map, use `MessagePackKeySerial
 
 ### Serialize and deserialize BigDecimal as str type internally in MessagePack format
 
-`jackson-dataformat-msgpack` represents BigDecimal values as float type in MessagePack format by default for backward compatibility. But the default behavior could fail when handling too large value for `double` type. So we strongly recommend to call `MessagePackMapper#handleBigDecimalAsString()` to internally handle BigDecimal values as String.
+`jackson-dataformat-msgpack` represents BigDecimal values as float type in MessagePack format by default for backward compatibility. But the default behavior could fail when handling too large value for `double` type. So we strongly recommend to call `MessagePackMapper#handleBigIntegerAndBigDecimalAsString()` to internally handle BigDecimal values as String.
 
 ```java
-  ObjectMapper objectMapper = new MessagePackMapper().handleBigDecimalAsString();
+  ObjectMapper objectMapper = new MessagePackMapper().handleBigIntegerAndBigDecimalAsString();
 
   Pojo obj = new Pojo();
   // This value is too large to be serialized as double
@@ -245,10 +245,11 @@ When you want to use non-String value as a key of Map, use `MessagePackKeySerial
 
   System.out.println(objectMapper.readValue(converted, Pojo.class));   // => Pojo{value=1234567890.98765432100}
 ```
-`MessagePackMapper#handleBigDecimalAsString()` is equivalent to the following configuration.
+`MessagePackMapper#handleBigIntegerAndDecimalAsString()` is equivalent to the following configuration.
 
 ```java
   ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+  objectMapper.configOverride(BigInteger.class).setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
   objectMapper.configOverride(BigDecimal.class).setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
 ```
 
