@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public class MessagePackMapper extends ObjectMapper
 {
@@ -43,10 +44,21 @@ public class MessagePackMapper extends ObjectMapper
         super(f);
     }
 
+    public MessagePackMapper handleBigIntegerAsString()
+    {
+        configOverride(BigInteger.class).setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
+        return this;
+    }
+
     public MessagePackMapper handleBigDecimalAsString()
     {
         configOverride(BigDecimal.class).setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
         return this;
+    }
+
+    public MessagePackMapper handleBigIntegerAndBigDecimalAsString()
+    {
+        return handleBigIntegerAsString().handleBigDecimalAsString();
     }
 
     public static Builder builder()
