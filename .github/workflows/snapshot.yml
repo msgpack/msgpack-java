@@ -21,7 +21,7 @@ jobs:
           fetch-depth: 10000
       # Fetch all tags so that sbt-dynver can find the previous release version
       - run: git fetch --tags
-      - uses: actions/setup-java@v3
+      - uses: actions/setup-java@v4
         with:
           java-version: 11
           distribution: adopt
