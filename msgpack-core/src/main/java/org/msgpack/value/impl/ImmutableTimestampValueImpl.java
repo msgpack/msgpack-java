@@ -93,7 +93,7 @@ public class ImmutableTimestampValueImpl
             long sec = getEpochSecond();
             int nsec = getNano();
             if (sec >>> 34 == 0) {
-                long data64 = ((long)nsec << 34) | sec;
+                long data64 = ((long) nsec << 34) | sec;
                 if ((data64 & 0xffffffff00000000L) == 0L) {
                     bytes = new byte[4];
                     MessageBuffer.wrap(bytes).putInt(0, (int) sec);
