@@ -78,7 +78,7 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
 
   test("detect fixint values") {
 
-    for (i <- 0 until 0x79) {
+    for (i <- 0 until 0x7f) {
       Code.isPosFixInt(i.toByte) shouldBe true
     }
 
