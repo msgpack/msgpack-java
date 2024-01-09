@@ -774,10 +774,6 @@ public class MessagePacker
                     position += written;
                 }
                 else {
-                    if (written >= (1L << 32)) {  // this check does nothing because (1L << 32) is larger than Integer.MAX_VALUE
-                        // this must not happen because s.length() is less than 2^16 and (2^16) * UTF_8_MAX_CHAR_SIZE is less than 2^32
-                        throw new IllegalArgumentException("Unexpected UTF-8 encoder state");
-                    }
                     // move 2 bytes backward to expand 3-byte header region to 5 bytes
                     buffer.putMessageBuffer(position + 5, buffer, position + 3, written);
                     // write 3-byte header header
