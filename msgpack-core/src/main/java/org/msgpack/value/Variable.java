@@ -817,7 +817,7 @@ public class Variable
     {
         this.type = Type.LIST;
         this.accessor = arrayAccessor;
-        this.objectValue = v.toArray();
+        this.objectValue = v.toArray(new Value[v.size()]);
         return this;
     }
 
