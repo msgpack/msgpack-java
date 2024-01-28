@@ -4,7 +4,7 @@ addSbtPlugin("com.github.sbt" % "sbt-pgp"      % "2.2.1")
 // java.lang.NoClassDefFoundError: Could not initialize class org.jacoco.core.internal.flow.ClassProbesAdapter
 //addSbtPlugin("com.github.sbt"   % "sbt-jacoco"      % "3.3.0")
 addSbtPlugin("org.xerial.sbt"   % "sbt-jcheckstyle" % "0.2.1")
-addSbtPlugin("com.github.sbt" % "sbt-osgi"        % "0.9.11")
+addSbtPlugin("com.github.sbt" % "sbt-osgi"        % "0.10.0")
 addSbtPlugin("org.scalameta"    % "sbt-scalafmt"    % "2.5.2")
 addSbtPlugin("com.github.sbt"     % "sbt-dynver"      % "5.0.1")
 
