@@ -64,11 +64,11 @@ public class MessagePackParser
     private final IOContext ioContext;
     private ExtensionTypeCustomDeserializers extTypeCustomDesers;
 
-    private enum Type
+    public enum Type
     {
         INT, LONG, DOUBLE, STRING, BYTES, BIG_INT, EXT
     }
-    private Type type;
+    public Type type;
     private int intValue;
     private long longValue;
     private double doubleValue;
