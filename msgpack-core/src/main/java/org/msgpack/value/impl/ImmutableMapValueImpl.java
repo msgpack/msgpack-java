@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 /**
  * {@code ImmutableMapValueImpl} Implements {@code ImmutableMapValue} using a {@code Value[]} field.
@@ -220,9 +221,38 @@ public class ImmutableMapValueImpl
         }
 
         @Override
+        public Value get(Object key)
+        {
+            if (key == null) {
+                // handle this case in the exact same way as the previously used AbstractMap.get()
+                for (int i = 0; i < kvs.length; i += 2) {
+                    if (kvs[i] == null) {
+                        return kvs[i + 1];
+                    }
+                }
+            }
+            else {
+                for (int i = 0; i < kvs.length; i += 2) {
+                    if (key.equals(kvs[i])) {
+                        return kvs[i + 1];
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
         public Set<Map.Entry<Value, Value>> entrySet()
         {
             return new EntrySet(kvs);
+        }
+
+        @Override
+        public void forEach(BiConsumer<? super Value, ? super Value> action)
+        {
+            for (int i = 0; i < kvs.length; i += 2) {
+                action.accept(kvs[i], kvs[i + 1]);
+            }
         }
     }
 
