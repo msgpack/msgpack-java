@@ -2,7 +2,6 @@ package org.msgpack.jackson.dataformat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.introspect.Annotated;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 import static com.fasterxml.jackson.annotation.JsonFormat.Shape.ARRAY;
@@ -32,22 +31,5 @@ public class JsonArrayFormat extends JacksonAnnotationIntrospector
     }
 
     return ARRAY_FORMAT;
-  }
-
-  /**
-   * Defines that unknown properties will be ignored, and won't fail the un-marshalling process.
-   * Happens in case of de-serialization of a payload that contains more properties than the actual
-   * value type
-   */
-  @Override
-  public Boolean findIgnoreUnknownProperties(AnnotatedClass ac)
-  {
-    // If the entity contains JsonIgnoreProperties annotation, give it higher priority.
-    final Boolean precedenceIgnoreUnknownProperties = super.findIgnoreUnknownProperties(ac);
-    if (precedenceIgnoreUnknownProperties != null) {
-      return precedenceIgnoreUnknownProperties;
-    }
-
-    return true;
   }
 }
