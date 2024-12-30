@@ -15,15 +15,17 @@
 //
 package org.msgpack.jackson.dataformat;
 
-public class Tuple<F, S>
+public class Triple<F, S, T>
 {
     private final F first;
     private final S second;
+    private final T third;
 
-    public Tuple(F first, S second)
+    public Triple(F first, S second, T third)
     {
         this.first = first;
         this.second = second;
+        this.third = third;
     }
 
     public F first()
@@ -34,5 +36,10 @@ public class Tuple<F, S>
     public S second()
     {
         return second;
+    }
+
+    public T third()
+    {
+        return third;
     }
 }
