@@ -35,15 +35,7 @@ public class ExtensionTypeCustomDeserializers
 
     public void addCustomDeser(byte type, final Deser deser)
     {
-        deserTable.put(type, new Deser()
-        {
-            @Override
-            public Object deserialize(byte[] data)
-                    throws IOException
-            {
-                return deser.deserialize(data);
-            }
-        });
+        deserTable.put(type, deser);
     }
 
     public Deser getDeser(byte type)

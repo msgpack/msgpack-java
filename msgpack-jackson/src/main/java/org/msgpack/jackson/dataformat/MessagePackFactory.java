@@ -18,7 +18,6 @@ package org.msgpack.jackson.dataformat;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.io.IOContext;
 import org.msgpack.core.MessagePack;
@@ -97,14 +96,13 @@ public class MessagePackFactory
 
     @Override
     public JsonGenerator createGenerator(Writer w)
-            throws IOException
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public JsonParser createParser(byte[] data)
-            throws IOException, JsonParseException
+            throws IOException
     {
         IOContext ioContext = _createContext(data, false);
         return _createParser(data, 0, data.length, ioContext);
@@ -112,7 +110,7 @@ public class MessagePackFactory
 
     @Override
     public JsonParser createParser(InputStream in)
-            throws IOException, JsonParseException
+            throws IOException
     {
         IOContext ioContext = _createContext(in, false);
         return _createParser(in, ioContext);
@@ -131,7 +129,7 @@ public class MessagePackFactory
 
     @Override
     protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt)
-            throws IOException, JsonParseException
+            throws IOException
     {
         if (offset != 0 || len != data.length) {
             data = Arrays.copyOfRange(data, offset, offset + len);
@@ -156,12 +154,6 @@ public class MessagePackFactory
     }
 
     @VisibleForTesting
-    boolean isReuseResourceInGenerator()
-    {
-        return reuseResourceInGenerator;
-    }
-
-    @VisibleForTesting
     boolean isReuseResourceInParser()
     {
         return reuseResourceInParser;
@@ -177,5 +169,11 @@ public class MessagePackFactory
     public String getFormatName()
     {
         return "msgpack";
+    }
+
+    @Override
+    public boolean canHandleBinaryNatively()
+    {
+        return true;
     }
 }

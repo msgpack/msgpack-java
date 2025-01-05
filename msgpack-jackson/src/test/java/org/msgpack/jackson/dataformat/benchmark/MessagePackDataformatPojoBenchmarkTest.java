@@ -15,7 +15,6 @@
 //
 package org.msgpack.jackson.dataformat.benchmark;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
@@ -23,9 +22,6 @@ import org.msgpack.jackson.dataformat.MessagePackFactory;
 import static org.msgpack.jackson.dataformat.MessagePackDataformatTestBase.NormalPojo;
 import static org.msgpack.jackson.dataformat.MessagePackDataformatTestBase.Suit;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,9 +41,6 @@ public class MessagePackDataformatPojoBenchmarkTest
 
     public MessagePackDataformatPojoBenchmarkTest()
     {
-        origObjectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
-        msgpackObjectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
-
         for (int i = 0; i < LOOP_MAX; i++) {
             NormalPojo pojo = new NormalPojo();
             pojo.i = i;
@@ -76,6 +69,7 @@ public class MessagePackDataformatPojoBenchmarkTest
                     break;
             }
             pojo.b = new byte[] {(byte) i};
+            pojo.sMultibyte = "012345678Ⅸ";
             pojos.add(pojo);
         }
 
@@ -104,14 +98,6 @@ public class MessagePackDataformatPojoBenchmarkTest
     {
         Benchmarker benchmarker = new Benchmarker();
 
-        File tempFileJackson = File.createTempFile("msgpack-jackson-", "-huge-jackson");
-        tempFileJackson.deleteOnExit();
-        final OutputStream outputStreamJackson = new FileOutputStream(tempFileJackson);
-
-        File tempFileMsgpack = File.createTempFile("msgpack-jackson-", "-huge-msgpack");
-        tempFileMsgpack.deleteOnExit();
-        final OutputStream outputStreamMsgpack = new FileOutputStream(tempFileMsgpack);
-
         benchmarker.addBenchmark(new Benchmarker.Benchmarkable("serialize(pojo) with JSON") {
             @Override
             public void run()
@@ -119,7 +105,7 @@ public class MessagePackDataformatPojoBenchmarkTest
             {
                 for (int j = 0; j < LOOP_FACTOR_SER; j++) {
                     for (int i = 0; i < LOOP_MAX; i++) {
-                        origObjectMapper.writeValue(outputStreamJackson, pojos.get(i));
+                        origObjectMapper.writeValueAsBytes(pojos.get(i));
                     }
                 }
             }
@@ -132,7 +118,7 @@ public class MessagePackDataformatPojoBenchmarkTest
             {
                 for (int j = 0; j < LOOP_FACTOR_SER; j++) {
                     for (int i = 0; i < LOOP_MAX; i++) {
-                        msgpackObjectMapper.writeValue(outputStreamMsgpack, pojos.get(i));
+                        msgpackObjectMapper.writeValueAsBytes(pojos.get(i));
                     }
                 }
             }
@@ -164,12 +150,6 @@ public class MessagePackDataformatPojoBenchmarkTest
             }
         });
 
-        try {
-            benchmarker.run(COUNT, WARMUP_COUNT);
-        }
-        finally {
-            outputStreamJackson.close();
-            outputStreamMsgpack.close();
-        }
+        benchmarker.run(COUNT, WARMUP_COUNT);
     }
 }

@@ -46,6 +46,7 @@ public class MessagePackDataformatForPojoTest
         assertArrayEquals(normalPojo.b, value.b);
         assertEquals(normalPojo.bi, value.bi);
         assertEquals(normalPojo.suit, Suit.HEART);
+        assertEquals(normalPojo.sMultibyte, value.sMultibyte);
     }
 
     @Test
@@ -59,13 +60,38 @@ public class MessagePackDataformatForPojoTest
     }
 
     @Test
-    public void testNestedListComplex()
+    public void testNestedListComplex1()
             throws IOException
     {
-        byte[] bytes = objectMapper.writeValueAsBytes(nestedListComplexPojo);
-        NestedListComplexPojo value = objectMapper.readValue(bytes, NestedListComplexPojo.class);
-        assertEquals(nestedListPojo.s, value.s);
-        assertEquals(nestedListComplexPojo.foos.get(0).t, value.foos.get(0).t);
+        byte[] bytes = objectMapper.writeValueAsBytes(nestedListComplexPojo1);
+        NestedListComplexPojo1 value = objectMapper.readValue(bytes, NestedListComplexPojo1.class);
+        assertEquals(nestedListComplexPojo1.s, value.s);
+        assertEquals(1, nestedListComplexPojo1.foos.size());
+        assertEquals(nestedListComplexPojo1.foos.get(0).t, value.foos.get(0).t);
+    }
+
+    @Test
+    public void testNestedListComplex2()
+            throws IOException
+    {
+        byte[] bytes = objectMapper.writeValueAsBytes(nestedListComplexPojo2);
+        NestedListComplexPojo2 value = objectMapper.readValue(bytes, NestedListComplexPojo2.class);
+        assertEquals(nestedListComplexPojo2.s, value.s);
+        assertEquals(2, nestedListComplexPojo2.foos.size());
+        assertEquals(nestedListComplexPojo2.foos.get(0).t, value.foos.get(0).t);
+        assertEquals(nestedListComplexPojo2.foos.get(1).t, value.foos.get(1).t);
+    }
+
+    @Test
+    public void testStrings()
+            throws IOException
+    {
+        byte[] bytes = objectMapper.writeValueAsBytes(stringPojo);
+        StringPojo value = objectMapper.readValue(bytes, StringPojo.class);
+        assertEquals(stringPojo.shortSingleByte, value.shortSingleByte);
+        assertEquals(stringPojo.longSingleByte, value.longSingleByte);
+        assertEquals(stringPojo.shortMultiByte, value.shortMultiByte);
+        assertEquals(stringPojo.longMultiByte, value.longMultiByte);
     }
 
     @Test

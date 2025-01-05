@@ -43,7 +43,9 @@ public class MessagePackDataformatTestBase
     protected ObjectMapper objectMapper;
     protected NormalPojo normalPojo;
     protected NestedListPojo nestedListPojo;
-    protected NestedListComplexPojo nestedListComplexPojo;
+    protected NestedListComplexPojo1 nestedListComplexPojo1;
+    protected NestedListComplexPojo2 nestedListComplexPojo2;
+    protected StringPojo stringPojo;
     protected TinyPojo tinyPojo;
     protected ComplexPojo complexPojo;
 
@@ -65,18 +67,31 @@ public class MessagePackDataformatTestBase
         normalPojo.b = new byte[] {0x01, 0x02, (byte) 0xFE, (byte) 0xFF};
         normalPojo.bi = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
         normalPojo.suit = Suit.HEART;
+        normalPojo.sMultibyte = "text文字";
 
         nestedListPojo = new NestedListPojo();
         nestedListPojo.s = "a string";
-        nestedListPojo.strs = Arrays.asList("string", "another string", "another string");
+        nestedListPojo.strs = Arrays.asList("string#1", "string#2", "string#3");
 
         tinyPojo = new TinyPojo();
         tinyPojo.t = "t string";
 
-        nestedListComplexPojo = new NestedListComplexPojo();
-        nestedListComplexPojo.s = "a string";
-        nestedListComplexPojo.foos = new ArrayList<TinyPojo>();
-        nestedListComplexPojo.foos.add(tinyPojo);
+        nestedListComplexPojo1 = new NestedListComplexPojo1();
+        nestedListComplexPojo1.s = "a string";
+        nestedListComplexPojo1.foos = new ArrayList<>();
+        nestedListComplexPojo1.foos.add(tinyPojo);
+
+        nestedListComplexPojo2 = new NestedListComplexPojo2();
+        nestedListComplexPojo2.foos = new ArrayList<>();
+        nestedListComplexPojo2.foos.add(tinyPojo);
+        nestedListComplexPojo2.foos.add(tinyPojo);
+        nestedListComplexPojo2.s = "another string";
+
+        stringPojo = new StringPojo();
+        stringPojo.shortSingleByte = "hello";
+        stringPojo.longSingleByte = "helloworldhelloworldhelloworldhelloworldhelloworldhelloworldhelloworldhelloworld";
+        stringPojo.shortMultiByte = "こんにちは";
+        stringPojo.longMultiByte = "こんにちは、世界！！こんにちは、世界！！こんにちは、世界！！こんにちは、世界！！こんにちは、世界！！";
 
         complexPojo = new ComplexPojo();
         complexPojo.name = "komamitsu";
@@ -131,10 +146,24 @@ public class MessagePackDataformatTestBase
         public String t;
     }
 
-    public static class NestedListComplexPojo
+    public static class NestedListComplexPojo1
     {
         public String s;
         public List<TinyPojo> foos;
+    }
+
+    public static class NestedListComplexPojo2
+    {
+        public List<TinyPojo> foos;
+        public String s;
+    }
+
+    public static class StringPojo
+    {
+        public String shortSingleByte;
+        public String longSingleByte;
+        public String shortMultiByte;
+        public String longMultiByte;
     }
 
     public static class NormalPojo
@@ -148,6 +177,7 @@ public class MessagePackDataformatTestBase
         public byte[] b;
         public BigInteger bi;
         public Suit suit;
+        public String sMultibyte;
 
         public String getS()
         {

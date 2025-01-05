@@ -1,7 +1,6 @@
 package org.msgpack.jackson.dataformat;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -52,7 +51,7 @@ public class MessagePackExtensionType
     @Override
     public int hashCode()
     {
-        int result = (int) type;
+        int result = type;
         result = 31 * result + Arrays.hashCode(data);
         return result;
     }
@@ -61,7 +60,7 @@ public class MessagePackExtensionType
     {
         @Override
         public void serialize(MessagePackExtensionType value, JsonGenerator gen, SerializerProvider serializers)
-                throws IOException, JsonProcessingException
+                throws IOException
         {
             if (gen instanceof MessagePackGenerator) {
                 MessagePackGenerator msgpackGenerator = (MessagePackGenerator) gen;
