@@ -29,7 +29,6 @@ import org.msgpack.core.buffer.OutputStreamBufferOutput;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -37,7 +36,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
+
+import static org.msgpack.jackson.dataformat.JavaInfo.STRING_VALUE_FIELD_IS_CHARS;
 
 public class MessagePackGenerator
         extends GeneratorBase
@@ -55,23 +55,6 @@ public class MessagePackGenerator
     private int currentState = IN_ROOT;
     private final List<Node> nodes;
     private boolean isElementsClosed = false;
-
-    static final Supplier<Boolean> STRING_VALUE_FIELD_IS_CHARS;
-    static {
-        boolean stringValueFieldIsChars = false;
-        try {
-            Field stringValueField = String.class.getDeclaredField("value");
-            stringValueFieldIsChars = stringValueField.getType() == char[].class;
-        }
-        catch (NoSuchFieldException ignored) {
-        }
-        if (stringValueFieldIsChars) {
-            STRING_VALUE_FIELD_IS_CHARS = () -> true;
-        }
-        else {
-            STRING_VALUE_FIELD_IS_CHARS = () -> false;
-        }
-    }
 
     private static final class AsciiCharString
     {
@@ -531,7 +514,7 @@ public class MessagePackGenerator
     }
 
     @Override
-    public void writeFieldName(String name) throws IOException
+    public void writeFieldName(String name)
     {
         if (STRING_VALUE_FIELD_IS_CHARS.get()) {
             char[] chars = name.toCharArray();
@@ -543,7 +526,7 @@ public class MessagePackGenerator
     }
 
     @Override
-    public void writeFieldName(SerializableString name) throws IOException
+    public void writeFieldName(SerializableString name)
     {
         if (name instanceof SerializedString) {
             writeFieldName(name.getValue());

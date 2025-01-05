@@ -41,6 +41,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 
+import static org.msgpack.jackson.dataformat.JavaInfo.STRING_VALUE_FIELD_IS_CHARS;
+
 public class MessagePackParser
         extends ParserMinimalBase
 {
@@ -161,7 +163,7 @@ public class MessagePackParser
         int strLen = messageUnpacker.unpackRawStringHeader();
         if (strLen <= tempBytes.length) {
             messageUnpacker.readPayload(tempBytes, 0, strLen);
-            if (MessagePackGenerator.STRING_VALUE_FIELD_IS_CHARS.get()) {
+            if (STRING_VALUE_FIELD_IS_CHARS.get()) {
                 for (int i = 0; i < strLen; i++) {
                     byte b = tempBytes[i];
                     if ((0x80 & b) != 0) {
