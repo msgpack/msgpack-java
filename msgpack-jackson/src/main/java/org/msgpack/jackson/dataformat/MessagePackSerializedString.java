@@ -17,15 +17,15 @@ package org.msgpack.jackson.dataformat;
 
 import com.fasterxml.jackson.core.SerializableString;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class MessagePackSerializedString
         implements SerializableString
 {
-    private static final Charset UTF8 = Charset.forName("UTF-8");
+    private static final Charset UTF8 = StandardCharsets.UTF_8;
     private final Object value;
 
     public MessagePackSerializedString(Object value)
@@ -89,28 +89,24 @@ public class MessagePackSerializedString
 
     @Override
     public int writeQuotedUTF8(OutputStream outputStream)
-            throws IOException
     {
         return 0;
     }
 
     @Override
     public int writeUnquotedUTF8(OutputStream outputStream)
-            throws IOException
     {
         return 0;
     }
 
     @Override
     public int putQuotedUTF8(ByteBuffer byteBuffer)
-            throws IOException
     {
         return 0;
     }
 
     @Override
     public int putUnquotedUTF8(ByteBuffer byteBuffer)
-            throws IOException
     {
         return 0;
     }

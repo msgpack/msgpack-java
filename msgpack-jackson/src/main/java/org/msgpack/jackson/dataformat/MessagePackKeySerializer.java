@@ -15,7 +15,6 @@
 //
 package org.msgpack.jackson.dataformat;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
@@ -32,7 +31,7 @@ public class MessagePackKeySerializer
 
     @Override
     public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
-            throws JsonGenerationException, IOException
+            throws IOException
     {
         jgen.writeFieldName(new MessagePackSerializedString(value));
     }
