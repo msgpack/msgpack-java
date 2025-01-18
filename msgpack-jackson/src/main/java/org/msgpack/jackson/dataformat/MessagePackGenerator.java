@@ -513,6 +513,13 @@ public class MessagePackGenerator
         addValueNode(new String(text, offset, len, DEFAULT_CHARSET));
     }
 
+    // TODO: Uncomment
+    //@Override
+    //public void writeFieldId(long id) throws IOException
+    //{
+    //    addKeyToStackTop(id);
+    //}
+
     @Override
     public void writeFieldName(String name)
     {
