@@ -99,7 +99,8 @@ public class MessagePackDataformatForFieldIdTest
     }    
 
     @Test
-    public void mixed()
+    public void testMixedKeys()
+            throws IOException
     {
         ObjectMapper mapper = new ObjectMapper(new MessagePackFactory())
                 .registerModule(new SimpleModule()
