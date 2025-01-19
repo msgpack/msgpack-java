@@ -61,7 +61,8 @@ public class MessagePackDataformatForFieldIdTest
                     throws IOException
             {
                 JsonParser parser = deserializationContext.getParser();
-                if (parser instanceof MessagePackParser p) {
+                if (parser instanceof MessagePackParser) {
+                    MessagePackParser p = (MessagePackParser) parser;
                     // TODO: Uncomment
                     //if (p.isCurrentFieldId()) {
                     //    return Integer.valueOf(s);
