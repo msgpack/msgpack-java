@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
