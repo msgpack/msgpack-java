@@ -50,10 +50,9 @@ public class MessagePackDataformatForFieldIdTest
                 JsonParser parser = deserializationContext.getParser();
                 if (parser instanceof MessagePackParser) {
                     MessagePackParser p = (MessagePackParser) parser;
-                    // TODO: Uncomment
-                    //if (p.isCurrentFieldId()) {
-                    //    return Integer.valueOf(s);
-                    //}
+                    if (p.isCurrentFieldId()) {
+                        return Integer.valueOf(s);
+                    }
                 }
                 return s;
             }

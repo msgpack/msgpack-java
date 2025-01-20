@@ -621,10 +621,10 @@ public class MessagePackParser
         return streamReadContext.getCurrentName();
     }
 
-    // TODO: Uncomment
-    //public boolean isCurrentFieldId() {
-    //    return this.type == Type.INT || this.type == Type.LONG;
-    //}
+    public boolean isCurrentFieldId()
+    {
+        return this.type == Type.INT || this.type == Type.LONG;
+    }
 
     @Override
     public String getCurrentName()
