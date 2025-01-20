@@ -15,7 +15,6 @@
 //
 package org.msgpack.jackson.dataformat;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -29,20 +28,10 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import org.junit.Test;
 
@@ -50,13 +39,10 @@ import static org.junit.Assert.assertEquals;
 
 public class MessagePackDataformatForFieldIdTest
 {
-
     static class MessagePackMapDeserializer extends MapDeserializer
     {
-
         public static KeyDeserializer keyDeserializer = new KeyDeserializer()
         {
-
             @Override
             public Object deserializeKey(String s, DeserializationContext deserializationContext)
                     throws IOException
@@ -96,7 +82,7 @@ public class MessagePackDataformatForFieldIdTest
             return new MessagePackMapDeserializer(this, keyDeser, (JsonDeserializer<Object>) valueDeser, valueTypeDeser,
                     nuller, ignorable, includable);
         }
-    }    
+    }
 
     @Test
     public void testMixedKeys()
