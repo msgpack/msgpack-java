@@ -97,8 +97,11 @@ public class MessagePackDataformatForFieldIdTest
         map.put("2", "two");
 
         byte[] bytes = mapper.writeValueAsBytes(map);
-        Map<Object, Object> deserialized = mapper.readValue(bytes, new TypeReference<Map<Object, Object>>() {});
+        Map<Object, Object> deserializedInit = mapper.readValue(bytes, new TypeReference<Map<Object, Object>>() {});
 
-        assertEquals(map, deserialized);
+        Map<Object, Object> expected = new HashMap<>(map);
+        Map<Object, Object> actual = new HashMap<>(deserializedInit);
+
+        assertEquals(expected, actual);
     }
 }
