@@ -50,6 +50,7 @@ public class MessagePackGenerator
     private static final ThreadLocal<OutputStreamBufferOutput> messageBufferOutputHolder = new ThreadLocal<>();
     private final OutputStream output;
     private final MessagePack.PackerConfig packerConfig;
+    private final boolean writeIntegerKeysAsStringKeys;
 
     private int currentParentElementIndex = -1;
     private int currentState = IN_ROOT;
@@ -195,6 +196,7 @@ public class MessagePackGenerator
         this.messagePacker = packerConfig.newPacker(out);
         this.packerConfig = packerConfig;
         this.nodes = new ArrayList<>();
+        this.writeIntegerKeysAsStringKeys = true;
     }
 
     public MessagePackGenerator(
@@ -210,6 +212,24 @@ public class MessagePackGenerator
         this.messagePacker = packerConfig.newPacker(getMessageBufferOutputForOutputStream(out, reuseResourceInGenerator));
         this.packerConfig = packerConfig;
         this.nodes = new ArrayList<>();
+        this.writeIntegerKeysAsStringKeys = true;
+    }
+
+    public MessagePackGenerator(
+            int features,
+            ObjectCodec codec,
+            OutputStream out,
+            MessagePack.PackerConfig packerConfig,
+            boolean reuseResourceInGenerator,
+            boolean writeIntegerKeysAsStringKeys)
+            throws IOException
+    {
+        super(features, codec);
+        this.output = out;
+        this.messagePacker = packerConfig.newPacker(getMessageBufferOutputForOutputStream(out, reuseResourceInGenerator));
+        this.packerConfig = packerConfig;
+        this.nodes = new ArrayList<>();
+        this.writeIntegerKeysAsStringKeys = writeIntegerKeysAsStringKeys;
     }
 
     private MessageBufferOutput getMessageBufferOutputForOutputStream(
@@ -516,7 +536,12 @@ public class MessagePackGenerator
     @Override
     public void writeFieldId(long id) throws IOException
     {
-        addKeyNode(id);
+        if (this.writeIntegerKeysAsStringKeys) {
+            super.writeFieldId(id);
+        }
+        else {
+            addKeyNode(id);
+        }
     }
 
     @Override

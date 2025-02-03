@@ -87,7 +87,10 @@ public class MessagePackDataformatForFieldIdTest
     public void testMixedKeys()
             throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper(new MessagePackFactory())
+        ObjectMapper mapper = new ObjectMapper(
+                    new MessagePackFactory()
+                        .setWriteIntegerKeysAsStringKeys(false)
+                )
                 .registerModule(new SimpleModule()
                 .addDeserializer(Map.class, new MessagePackMapDeserializer()));
 
@@ -99,6 +102,29 @@ public class MessagePackDataformatForFieldIdTest
         Map<Object, Object> deserializedInit = mapper.readValue(bytes, new TypeReference<Map<Object, Object>>() {});
 
         Map<Object, Object> expected = new HashMap<>(map);
+        Map<Object, Object> actual = new HashMap<>(deserializedInit);
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testMixedKeysBackwardsCompatiable()
+            throws IOException
+    {
+        ObjectMapper mapper = new ObjectMapper(new MessagePackFactory())
+                .registerModule(new SimpleModule()
+                .addDeserializer(Map.class, new MessagePackMapDeserializer()));
+
+        Map<Object, Object> map = new HashMap<>();
+        map.put(1, "one");
+        map.put("2", "two");
+
+        byte[] bytes = mapper.writeValueAsBytes(map);
+        Map<Object, Object> deserializedInit = mapper.readValue(bytes, new TypeReference<Map<Object, Object>>() {});
+
+        Map<Object, Object> expected = new HashMap<>();
+        expected.put("1", "one");
+        expected.put("2", "two");
         Map<Object, Object> actual = new HashMap<>(deserializedInit);
 
         assertEquals(expected, actual);
