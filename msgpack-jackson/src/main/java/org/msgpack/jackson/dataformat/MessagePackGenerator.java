@@ -189,30 +189,15 @@ public class MessagePackGenerator
             int features,
             ObjectCodec codec,
             OutputStream out,
-            MessagePack.PackerConfig packerConfig)
+            MessagePack.PackerConfig packerConfig,
+            boolean writeIntegerKeysAsStringKeys)
     {
         super(features, codec);
         this.output = out;
         this.messagePacker = packerConfig.newPacker(out);
         this.packerConfig = packerConfig;
         this.nodes = new ArrayList<>();
-        this.writeIntegerKeysAsStringKeys = true;
-    }
-
-    public MessagePackGenerator(
-            int features,
-            ObjectCodec codec,
-            OutputStream out,
-            MessagePack.PackerConfig packerConfig,
-            boolean reuseResourceInGenerator)
-            throws IOException
-    {
-        super(features, codec);
-        this.output = out;
-        this.messagePacker = packerConfig.newPacker(getMessageBufferOutputForOutputStream(out, reuseResourceInGenerator));
-        this.packerConfig = packerConfig;
-        this.nodes = new ArrayList<>();
-        this.writeIntegerKeysAsStringKeys = true;
+        this.writeIntegerKeysAsStringKeys = writeIntegerKeysAsStringKeys;
     }
 
     public MessagePackGenerator(
@@ -393,7 +378,7 @@ public class MessagePackGenerator
         else {
             messagePacker.flush();
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            MessagePackGenerator messagePackGenerator = new MessagePackGenerator(getFeatureMask(), getCodec(), outputStream, packerConfig);
+            MessagePackGenerator messagePackGenerator = new MessagePackGenerator(getFeatureMask(), getCodec(), outputStream, packerConfig, writeIntegerKeysAsStringKeys);
             getCodec().writeValue(messagePackGenerator, v);
             output.write(outputStream.toByteArray());
         }
