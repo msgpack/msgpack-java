@@ -89,7 +89,7 @@ public class MessagePackDataformatForFieldIdTest
     {
         ObjectMapper mapper = new ObjectMapper(
                     new MessagePackFactory()
-                        .setWriteIntegerKeysAsStringKeys(false)
+                        .setSupportIntegerKeys(true)
                 )
                 .registerModule(new SimpleModule()
                 .addDeserializer(Map.class, new MessagePackMapDeserializer()));

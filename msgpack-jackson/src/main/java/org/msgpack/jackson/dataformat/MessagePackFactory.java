@@ -39,7 +39,7 @@ public class MessagePackFactory
     private final MessagePack.PackerConfig packerConfig;
     private boolean reuseResourceInGenerator = true;
     private boolean reuseResourceInParser = true;
-    private boolean writeIntegerKeysAsStringKeys = true;
+    private boolean supportIntegerKeys = false;
     private ExtensionTypeCustomDeserializers extTypeCustomDesers;
 
     public MessagePackFactory()
@@ -75,9 +75,9 @@ public class MessagePackFactory
         return this;
     }
 
-    public MessagePackFactory setWriteIntegerKeysAsStringKeys(boolean writeIntegerKeysAsStringKeys)
+    public MessagePackFactory setSupportIntegerKeys(boolean supportIntegerKeys)
     {
-        this.writeIntegerKeysAsStringKeys = writeIntegerKeysAsStringKeys;
+        this.supportIntegerKeys = supportIntegerKeys;
         return this;
     }
 
@@ -91,7 +91,7 @@ public class MessagePackFactory
     public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
             throws IOException
     {
-        return new MessagePackGenerator(_generatorFeatures, _objectCodec, out, packerConfig, reuseResourceInGenerator, writeIntegerKeysAsStringKeys);
+        return new MessagePackGenerator(_generatorFeatures, _objectCodec, out, packerConfig, reuseResourceInGenerator, supportIntegerKeys);
     }
 
     @Override

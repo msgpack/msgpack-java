@@ -50,7 +50,7 @@ public class MessagePackGenerator
     private static final ThreadLocal<OutputStreamBufferOutput> messageBufferOutputHolder = new ThreadLocal<>();
     private final OutputStream output;
     private final MessagePack.PackerConfig packerConfig;
-    private final boolean writeIntegerKeysAsStringKeys;
+    private final boolean supportIntegerKeys;
 
     private int currentParentElementIndex = -1;
     private int currentState = IN_ROOT;
@@ -190,14 +190,14 @@ public class MessagePackGenerator
             ObjectCodec codec,
             OutputStream out,
             MessagePack.PackerConfig packerConfig,
-            boolean writeIntegerKeysAsStringKeys)
+            boolean supportIntegerKeys)
     {
         super(features, codec);
         this.output = out;
         this.messagePacker = packerConfig.newPacker(out);
         this.packerConfig = packerConfig;
         this.nodes = new ArrayList<>();
-        this.writeIntegerKeysAsStringKeys = writeIntegerKeysAsStringKeys;
+        this.supportIntegerKeys = supportIntegerKeys;
     }
 
     public MessagePackGenerator(
@@ -206,7 +206,7 @@ public class MessagePackGenerator
             OutputStream out,
             MessagePack.PackerConfig packerConfig,
             boolean reuseResourceInGenerator,
-            boolean writeIntegerKeysAsStringKeys)
+            boolean supportIntegerKeys)
             throws IOException
     {
         super(features, codec);
@@ -214,7 +214,7 @@ public class MessagePackGenerator
         this.messagePacker = packerConfig.newPacker(getMessageBufferOutputForOutputStream(out, reuseResourceInGenerator));
         this.packerConfig = packerConfig;
         this.nodes = new ArrayList<>();
-        this.writeIntegerKeysAsStringKeys = writeIntegerKeysAsStringKeys;
+        this.supportIntegerKeys = supportIntegerKeys;
     }
 
     private MessageBufferOutput getMessageBufferOutputForOutputStream(
@@ -378,7 +378,7 @@ public class MessagePackGenerator
         else {
             messagePacker.flush();
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            MessagePackGenerator messagePackGenerator = new MessagePackGenerator(getFeatureMask(), getCodec(), outputStream, packerConfig, writeIntegerKeysAsStringKeys);
+            MessagePackGenerator messagePackGenerator = new MessagePackGenerator(getFeatureMask(), getCodec(), outputStream, packerConfig, supportIntegerKeys);
             getCodec().writeValue(messagePackGenerator, v);
             output.write(outputStream.toByteArray());
         }
@@ -521,11 +521,11 @@ public class MessagePackGenerator
     @Override
     public void writeFieldId(long id) throws IOException
     {
-        if (this.writeIntegerKeysAsStringKeys) {
-            super.writeFieldId(id);
+        if (this.supportIntegerKeys) {
+            addKeyNode(id);
         }
         else {
-            addKeyNode(id);
+            super.writeFieldId(id);
         }
     }
 
