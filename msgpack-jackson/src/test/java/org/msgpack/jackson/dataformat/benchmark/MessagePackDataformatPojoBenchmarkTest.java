@@ -17,7 +17,7 @@ package org.msgpack.jackson.dataformat.benchmark;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.msgpack.jackson.dataformat.MessagePackFactory;
 import static org.msgpack.jackson.dataformat.MessagePackDataformatTestBase.NormalPojo;
 import static org.msgpack.jackson.dataformat.MessagePackDataformatTestBase.Suit;
