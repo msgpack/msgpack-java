@@ -35,7 +35,7 @@ val buildSettings = Seq[Setting[_]](
   organizationName := "MessagePack",
   organizationHomepage := Some(url("http://msgpack.org/")),
   description := "MessagePack for Java",
-  scalaVersion := "2.13.12",
+  scalaVersion := "3.7.1",
   Test / logBuffered := false,
   // msgpack-java should be a pure-java library, so remove Scala specific configurations
   autoScalaLibrary := false,

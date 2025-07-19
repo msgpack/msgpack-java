@@ -19,7 +19,7 @@ import org.msgpack.core.MessagePack
 import wvlet.airspec.AirSpec
 import wvlet.log.io.IOUtil.withResource
 
-import java.io._
+import java.io.*
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
 import java.nio.channels.{ServerSocketChannel, SocketChannel}
@@ -27,63 +27,49 @@ import java.util.concurrent.{Callable, Executors, TimeUnit}
 import java.util.zip.{GZIPInputStream, GZIPOutputStream}
 import scala.util.Random
 
-class MessageBufferInputTest extends AirSpec {
+class MessageBufferInputTest extends AirSpec:
 
-  private val targetInputSize =
-    Seq(0, 10, 500, 1000, 2000, 4000, 8000, 10000, 30000, 50000, 100000)
+  private val targetInputSize = Seq(0, 10, 500, 1000, 2000, 4000, 8000, 10000, 30000, 50000, 100000)
 
-  private def testData(size: Int): Array[Byte] = {
+  private def testData(size: Int): Array[Byte] =
     // debug(s"test data size: ${size}")
     val b = new Array[Byte](size)
     Random.nextBytes(b)
     b
-  }
 
-  private def testDataSet: Seq[Array[Byte]] = {
-    targetInputSize.map(testData)
-  }
+  private def testDataSet: Seq[Array[Byte]] = targetInputSize.map(testData)
 
-  private def runTest(factory: Array[Byte] => MessageBufferInput): Unit = {
-    for (b <- testDataSet) {
+  private def runTest(factory: Array[Byte] => MessageBufferInput): Unit =
+    for b <- testDataSet do
       checkInputData(b, factory(b))
-    }
-  }
 
-  implicit class InputData(b: Array[Byte]) {
-    def compress = {
+  implicit class InputData(b: Array[Byte]):
+    def compress =
       val compressed = new ByteArrayOutputStream()
       val out        = new GZIPOutputStream(compressed)
       out.write(b)
       out.close()
       compressed.toByteArray
-    }
 
-    def toByteBuffer = {
-      ByteBuffer.wrap(b)
-    }
+    def toByteBuffer = ByteBuffer.wrap(b)
 
-    def saveToTmpFile: File = {
-      val tmp = File
-        .createTempFile("testbuf", ".dat", new File("target"))
+    def saveToTmpFile: File =
+      val tmp = File.createTempFile("testbuf", ".dat", new File("target"))
       tmp.getParentFile.mkdirs()
       tmp.deleteOnExit()
       withResource(new FileOutputStream(tmp)) { out =>
         out.write(b)
       }
       tmp
-    }
-  }
 
-  private def checkInputData(inputData: Array[Byte], in: MessageBufferInput): Unit = {
+  private def checkInputData(inputData: Array[Byte], in: MessageBufferInput): Unit =
     test(s"When input data size = ${inputData.length}") {
       var cursor = 0
-      for (m <- Iterator.continually(in.next).takeWhile(_ != null)) {
+      for m <- Iterator.continually(in.next).takeWhile(_ != null) do
         m.toByteArray() shouldBe inputData.slice(cursor, cursor + m.size())
         cursor += m.size()
-      }
       cursor shouldBe inputData.length
     }
-  }
 
   test("MessageBufferInput") {
     test("support byte arrays") {
@@ -95,46 +81,40 @@ class MessageBufferInputTest extends AirSpec {
     }
 
     test("support InputStreams") {
-      runTest(b => new InputStreamBufferInput(new GZIPInputStream(new ByteArrayInputStream(b.compress))))
+      runTest(b =>
+        new InputStreamBufferInput(new GZIPInputStream(new ByteArrayInputStream(b.compress)))
+      )
     }
 
     test("support file input channel") {
       runTest { b =>
         val tmp = b.saveToTmpFile
-        try {
-          InputStreamBufferInput
-            .newBufferInput(new FileInputStream(tmp))
-        } finally {
-          tmp.delete()
-        }
+        try InputStreamBufferInput.newBufferInput(new FileInputStream(tmp))
+        finally tmp.delete()
       }
     }
   }
 
-  private def createTempFile = {
+  private def createTempFile =
     val f = File.createTempFile("msgpackTest", "msgpack")
     f.deleteOnExit
     f
-  }
 
-  private def createTempFileWithInputStream = {
+  private def createTempFileWithInputStream =
     val f   = createTempFile
     val out = new FileOutputStream(f)
     MessagePack.newDefaultPacker(out).packInt(42).close
     val in = new FileInputStream(f)
     (f, in)
-  }
 
-  private def createTempFileWithChannel = {
+  private def createTempFileWithChannel =
     val (f, in) = createTempFileWithInputStream
     val ch      = in.getChannel
     (f, ch)
-  }
 
-  private def readInt(buf: MessageBufferInput): Int = {
+  private def readInt(buf: MessageBufferInput): Int =
     val unpacker = MessagePack.newDefaultUnpacker(buf)
     unpacker.unpackInt
-  }
 
   test("InputStreamBufferInput") {
     test("reset buffer") {
@@ -186,42 +166,42 @@ class MessageBufferInputTest extends AirSpec {
     }
 
     test("unpack without blocking") {
-      val server =
-        ServerSocketChannel.open.bind(new InetSocketAddress("localhost", 0))
+      val server          = ServerSocketChannel.open.bind(new InetSocketAddress("localhost", 0))
       val executorService = Executors.newCachedThreadPool
 
-      try {
-        executorService.execute(new Runnable {
-          override def run: Unit = {
-            val server_ch = server.accept
-            val packer    = MessagePack.newDefaultPacker(server_ch)
-            packer.packString("0123456789")
-            packer.flush
-            // Keep the connection open
-            while (!executorService.isShutdown) {
-              TimeUnit.SECONDS.sleep(1)
-            }
-            packer.close
-          }
-        })
+      try
+        executorService.execute(
+          new Runnable:
+            override def run: Unit =
+              val server_ch = server.accept
+              val packer    = MessagePack.newDefaultPacker(server_ch)
+              packer.packString("0123456789")
+              packer.flush
+              // Keep the connection open
+              while !executorService.isShutdown do
+                TimeUnit.SECONDS.sleep(1)
+              packer.close
+        )
 
-        val future = executorService.submit(new Callable[String] {
-          override def call: String = {
-            val conn_ch  = SocketChannel.open(new InetSocketAddress("localhost", server.socket.getLocalPort))
-            val unpacker = MessagePack.newDefaultUnpacker(conn_ch)
-            val s        = unpacker.unpackString
-            unpacker.close
-            s
-          }
-        })
+        val future = executorService.submit(
+          new Callable[String]:
+            override def call: String =
+              val conn_ch = SocketChannel.open(
+                new InetSocketAddress("localhost", server.socket.getLocalPort)
+              )
+              val unpacker = MessagePack.newDefaultUnpacker(conn_ch)
+              val s        = unpacker.unpackString
+              unpacker.close
+              s
+        )
 
         future.get(5, TimeUnit.SECONDS) shouldBe "0123456789"
-      } finally {
+      finally
         executorService.shutdown
-        if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
+        if !executorService.awaitTermination(5, TimeUnit.SECONDS) then
           executorService.shutdownNow
-        }
-      }
+      end try
     }
   }
-}
+
+end MessageBufferInputTest
