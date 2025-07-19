@@ -134,7 +134,6 @@ lazy val msgpackJackson =
       ),
       libraryDependencies ++= Seq(
         "com.fasterxml.jackson.core" % "jackson-databind" % "2.18.4",
-        junitInterface,
         junitJupiter,
         junitVintage,
         "org.apache.commons" % "commons-math3" % "3.6.1" % "test"
