@@ -13,7 +13,7 @@ MessagePack-Java is a binary serialization library that provides a fast and comp
 ### Build and Compile
 ```bash
 ./sbt compile              # Compile source code
-./sbt test:compile         # Compile source and test code
+./sbt "Test / compile"     # Compile source and test code
 ./sbt package              # Create JAR files
 ```
 
@@ -66,7 +66,7 @@ The msgpack-jackson module provides:
 - Extension type support including timestamps
 
 ### Testing Structure
-- **msgpack-core tests**: Written in Scala using AirSpec framework
+- **msgpack-core tests**: Written in Scala 3.7.1 using AirSpec framework
   - Location: `msgpack-core/src/test/scala/`
 - **msgpack-jackson tests**: Written in Java using JUnit
   - Location: `msgpack-jackson/src/test/java/`
@@ -81,7 +81,7 @@ For JDK 17+ compatibility, these options are automatically added:
 
 ## Code Style Requirements
 - Java code follows Facebook Presto style (enforced by checkstyle)
-- Scala test code uses Scalafmt with 180 character line limit
+- Scala test code uses Scalafmt with Scala 3 dialect and 100 character line limit
 - Checkstyle runs automatically during compilation
 - No external dependencies allowed in msgpack-core
 
