@@ -22,48 +22,41 @@ import wvlet.airspec.spi.AirSpecException
 
 import scala.util.Random
 
-/** Created on 2014/05/07.
+/**
+  * Created on 2014/05/07.
   */
-class MessageFormatTest extends AirSpec with Benchmark {
+class MessageFormatTest extends AirSpec with Benchmark:
   test("MessageFormat") {
     test("cover all byte codes") {
-      def checkV(b: Byte, tpe: ValueType): Unit = {
-        try MessageFormat.valueOf(b).getValueType shouldBe tpe
-        catch {
+      def checkV(b: Byte, tpe: ValueType): Unit =
+        try
+          MessageFormat.valueOf(b).getValueType shouldBe tpe
+        catch
           case e: AirSpecException =>
             error(f"Failure when looking at byte ${b}%02x")
             throw e
-        }
-      }
 
-      def checkF(b: Byte, f: MessageFormat): Unit = {
-        MessageFormat.valueOf(b) shouldBe f
-      }
+      def checkF(b: Byte, f: MessageFormat): Unit = MessageFormat.valueOf(b) shouldBe f
 
-      def check(b: Byte, tpe: ValueType, f: MessageFormat): Unit = {
+      def check(b: Byte, tpe: ValueType, f: MessageFormat): Unit =
         checkV(b, tpe)
         checkF(b, f)
-      }
 
-      for (i <- 0 until 0x7f) {
+      for i <- 0 until 0x7f do
         check(i.toByte, ValueType.INTEGER, MessageFormat.POSFIXINT)
-      }
 
-      for (i <- 0x80 until 0x8f) {
+      for i <- 0x80 until 0x8f do
         check(i.toByte, ValueType.MAP, MessageFormat.FIXMAP)
-      }
 
-      for (i <- 0x90 until 0x9f) {
+      for i <- 0x90 until 0x9f do
         check(i.toByte, ValueType.ARRAY, MessageFormat.FIXARRAY)
-      }
 
       check(Code.NIL, ValueType.NIL, MessageFormat.NIL)
 
       MessageFormat.valueOf(Code.NEVER_USED) shouldBe MessageFormat.NEVER_USED
 
-      for (i <- Seq(Code.TRUE, Code.FALSE)) {
+      for i <- Seq(Code.TRUE, Code.FALSE) do
         check(i, ValueType.BOOLEAN, MessageFormat.BOOLEAN)
-      }
 
       check(Code.BIN8, ValueType.BINARY, MessageFormat.BIN8)
       check(Code.BIN16, ValueType.BINARY, MessageFormat.BIN16)
@@ -97,9 +90,8 @@ class MessageFormatTest extends AirSpec with Benchmark {
       check(Code.ARRAY16, ValueType.ARRAY, MessageFormat.ARRAY16)
       check(Code.ARRAY32, ValueType.ARRAY, MessageFormat.ARRAY32)
 
-      for (i <- 0xe0 to 0xff) {
+      for i <- 0xe0 to 0xff do
         check(i.toByte, ValueType.INTEGER, MessageFormat.NEGFIXINT)
-      }
     }
 
     test("improve the valueOf performance") {
@@ -112,20 +104,19 @@ class MessageFormatTest extends AirSpec with Benchmark {
       time("lookup", repeat = 10) {
         block("switch") {
           var i = 0
-          while (i < N) {
+          while i < N do
             MessageFormat.toMessageFormat(idx(i))
             i += 1
-          }
         }
 
         block("table") {
           var i = 0
-          while (i < N) {
+          while i < N do
             MessageFormat.valueOf(idx(i))
             i += 1
-          }
         }
       }
     }
   }
-}
+
+end MessageFormatTest

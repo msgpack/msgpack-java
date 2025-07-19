@@ -20,28 +20,26 @@ import org.msgpack.core.MessagePack
 import org.msgpack.core.MessagePackSpec.createMessagePackData
 import wvlet.airspec.AirSpec
 
-class ByteStringTest extends AirSpec {
+class ByteStringTest extends AirSpec:
 
   private val unpackedString = "foo"
   private val byteString     = ByteString(createMessagePackData(_.packString(unpackedString)))
 
-  private def unpackString(messageBuffer: MessageBuffer) = {
-    val input = new MessageBufferInput {
+  private def unpackString(messageBuffer: MessageBuffer) =
+    val input =
+      new MessageBufferInput:
 
-      private var isRead = false
+        private var isRead = false
 
-      override def next(): MessageBuffer =
-        if (isRead) {
-          null
-        } else {
-          isRead = true
-          messageBuffer
-        }
-      override def close(): Unit = {}
-    }
+        override def next(): MessageBuffer =
+          if isRead then
+            null
+          else
+            isRead = true
+            messageBuffer
+        override def close(): Unit = {}
 
     MessagePack.newDefaultUnpacker(input).unpackString()
-  }
 
   test("Unpacking a ByteString's ByteBuffer") {
     test("fail with a regular MessageBuffer") {
@@ -53,4 +51,5 @@ class ByteStringTest extends AirSpec {
       }
     }
   }
-}
+
+end ByteStringTest

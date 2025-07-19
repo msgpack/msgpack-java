@@ -19,8 +19,9 @@ import org.scalacheck.Gen
 import wvlet.airspec.AirSpec
 import wvlet.airspec.spi.PropertyCheck
 
-/** */
-class ValueFactoryTest extends AirSpec with PropertyCheck {
+/**
+  */
+class ValueFactoryTest extends AirSpec with PropertyCheck:
 
   private def isValid(
       v: Value,
@@ -37,7 +38,7 @@ class ValueFactoryTest extends AirSpec with PropertyCheck {
       isRaw: Boolean = false,
       isNumber: Boolean = false,
       isTimestamp: Boolean = false
-  ): Boolean = {
+  ): Boolean =
     v.isNilValue shouldBe isNil
     v.isBooleanValue shouldBe isBoolean
     v.isIntegerValue shouldBe isInteger
@@ -51,7 +52,6 @@ class ValueFactoryTest extends AirSpec with PropertyCheck {
     v.isNumberValue shouldBe isNumber
     v.isTimestampValue shouldBe isTimestamp
     true
-  }
 
   test("ValueFactory") {
     test("nil") {
@@ -66,24 +66,44 @@ class ValueFactoryTest extends AirSpec with PropertyCheck {
 
     test("int") {
       forAll { (v: Int) =>
-        isValid(ValueFactory.newInteger(v), expected = ValueType.INTEGER, isInteger = true, isNumber = true)
+        isValid(
+          ValueFactory.newInteger(v),
+          expected = ValueType.INTEGER,
+          isInteger = true,
+          isNumber = true
+        )
       }
     }
 
     test("float") {
       forAll { (v: Float) =>
-        isValid(ValueFactory.newFloat(v), expected = ValueType.FLOAT, isFloat = true, isNumber = true)
+        isValid(
+          ValueFactory.newFloat(v),
+          expected = ValueType.FLOAT,
+          isFloat = true,
+          isNumber = true
+        )
       }
     }
     test("string") {
       forAll { (v: String) =>
-        isValid(ValueFactory.newString(v), expected = ValueType.STRING, isString = true, isRaw = true)
+        isValid(
+          ValueFactory.newString(v),
+          expected = ValueType.STRING,
+          isString = true,
+          isRaw = true
+        )
       }
     }
 
     test("array") {
       forAll { (v: Array[Byte]) =>
-        isValid(ValueFactory.newBinary(v), expected = ValueType.BINARY, isBinary = true, isRaw = true)
+        isValid(
+          ValueFactory.newBinary(v),
+          expected = ValueType.BINARY,
+          isBinary = true,
+          isRaw = true
+        )
       }
     }
 
@@ -97,13 +117,23 @@ class ValueFactoryTest extends AirSpec with PropertyCheck {
 
     test("ext") {
       forAll { (v: Array[Byte]) =>
-        isValid(ValueFactory.newExtension(0, v), expected = ValueType.EXTENSION, isExtension = true, isRaw = false)
+        isValid(
+          ValueFactory.newExtension(0, v),
+          expected = ValueType.EXTENSION,
+          isExtension = true,
+          isRaw = false
+        )
       }
     }
 
     test("timestamp") {
       forAll { (millis: Long) =>
-        isValid(ValueFactory.newTimestamp(millis), expected = ValueType.EXTENSION, isExtension = true, isTimestamp = true)
+        isValid(
+          ValueFactory.newTimestamp(millis),
+          expected = ValueType.EXTENSION,
+          isExtension = true,
+          isTimestamp = true
+        )
       }
     }
 
@@ -111,8 +141,14 @@ class ValueFactoryTest extends AirSpec with PropertyCheck {
       val posLong = Gen.chooseNum[Long](-31557014167219200L, 31556889864403199L)
       val posInt  = Gen.chooseNum(0, 1000000000 - 1) // NANOS_PER_SECOND
       forAll(posLong, posInt) { (sec: Long, nano: Int) =>
-        isValid(ValueFactory.newTimestamp(sec, nano), expected = ValueType.EXTENSION, isExtension = true, isTimestamp = true)
+        isValid(
+          ValueFactory.newTimestamp(sec, nano),
+          expected = ValueType.EXTENSION,
+          isExtension = true,
+          isTimestamp = true
+        )
       }
     }
   }
-}
+
+end ValueFactoryTest

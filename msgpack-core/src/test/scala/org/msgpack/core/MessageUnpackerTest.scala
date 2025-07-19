@@ -16,41 +16,37 @@
 package org.msgpack.core
 
 import org.msgpack.core.MessagePackSpec.{createMessagePackData, toHex}
-import org.msgpack.core.buffer._
+import org.msgpack.core.buffer.*
 import org.msgpack.value.ValueType
 import wvlet.airspec.AirSpec
 import wvlet.log.LogSupport
 import wvlet.log.io.IOUtil.withResource
 
-import java.io._
+import java.io.*
 import java.nio.ByteBuffer
 import java.util.Collections
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.Random
 
-object MessageUnpackerTest {
-  class SplitMessageBufferInput(array: Array[Array[Byte]]) extends MessageBufferInput {
-    var cursor                         = 0
-    override def next(): MessageBuffer = {
-      if (cursor < array.length) {
+object MessageUnpackerTest:
+  class SplitMessageBufferInput(array: Array[Array[Byte]]) extends MessageBufferInput:
+    var cursor = 0
+    override def next(): MessageBuffer =
+      if cursor < array.length then
         val a = array(cursor)
         cursor += 1
         MessageBuffer.wrap(a)
-      } else {
+      else
         null
-      }
-    }
 
     override def close(): Unit = {}
-  }
-}
 
-import org.msgpack.core.MessageUnpackerTest._
+import org.msgpack.core.MessageUnpackerTest.*
 
-class MessageUnpackerTest extends AirSpec with Benchmark {
+class MessageUnpackerTest extends AirSpec with Benchmark:
 
-  private val universal             = MessageBuffer.allocate(0).isInstanceOf[MessageBufferU]
-  private def testData: Array[Byte] = {
+  private val universal = MessageBuffer.allocate(0).isInstanceOf[MessageBufferU]
+  private def testData: Array[Byte] =
     val out    = new ByteArrayOutputStream()
     val packer = MessagePack.newDefaultPacker(out)
 
@@ -68,17 +64,18 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
     debug(s"packed: ${toHex(arr)}, size:${arr.length}")
 
     arr
-  }
 
-  private val intSeq = (for (i <- 0 until 100) yield Random.nextInt()).toArray[Int]
+  private val intSeq =
+    (
+      for (i <- 0 until 100)
+        yield Random.nextInt()
+    ).toArray[Int]
 
-  private def testData2: Array[Byte] = {
+  private def testData2: Array[Byte] =
     val out    = new ByteArrayOutputStream()
     val packer = MessagePack.newDefaultPacker(out);
 
-    packer
-      .packBoolean(true)
-      .packBoolean(false)
+    packer.packBoolean(true).packBoolean(false)
 
     intSeq.foreach(packer.packInt)
     packer.close()
@@ -86,15 +83,15 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
     val arr = out.toByteArray
     debug(s"packed: ${toHex(arr)}")
     arr
-  }
 
-  private def write(packer: MessagePacker, r: Random): Unit = {
-    val tpeIndex = Iterator
-      .continually(r.nextInt(MessageFormat.values().length))
-      .find(_ != MessageFormat.NEVER_USED.ordinal())
-      .get
+  private def write(packer: MessagePacker, r: Random): Unit =
+    val tpeIndex =
+      Iterator
+        .continually(r.nextInt(MessageFormat.values().length))
+        .find(_ != MessageFormat.NEVER_USED.ordinal())
+        .get
     val tpe = MessageFormat.values()(tpeIndex)
-    tpe.getValueType match {
+    tpe.getValueType match
 
       case ValueType.INTEGER =>
         val v = r.nextInt(Int.MaxValue)
@@ -124,27 +121,27 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
         trace(s"array len: $len")
         packer.packArrayHeader(len)
         var i = 0
-        while (i < len) {
+        while i < len do
           write(packer, r)
           i += 1
-        }
       case ValueType.MAP =>
         val len = r.nextInt(5) + 1
         packer.packMapHeader(len)
         trace(s"map len: ${len}")
         var i = 0
-        while (i < len * 2) {
+        while i < len * 2 do
           write(packer, r)
           i += 1
-        }
       case _ =>
         val v = r.nextInt(Int.MaxValue)
         trace(s"int: $v")
         packer.packInt(v)
-    }
-  }
 
-  private def testData3(N: Int): Array[Byte] = {
+    end match
+
+  end write
+
+  private def testData3(N: Int): Array[Byte] =
 
     val out    = new ByteArrayOutputStream()
     val packer = MessagePack.newDefaultPacker(out)
@@ -160,11 +157,10 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
     trace(s"packed: ${toHex(arr)}")
     debug(s"size:${arr.length}")
     arr
-  }
 
-  private def readValue(unpacker: MessageUnpacker): Unit = {
+  private def readValue(unpacker: MessageUnpacker): Unit =
     val f = unpacker.getNextFormat()
-    f.getValueType match {
+    f.getValueType match
       case ValueType.ARRAY =>
         val arrLen = unpacker.unpackArrayHeader()
         debug(s"arr size: $arrLen")
@@ -180,24 +176,20 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
       case other =>
         unpacker.skipValue()
         debug(s"unknown type: $f")
-    }
-  }
 
-  private def createTempFile: File = {
+  private def createTempFile: File =
     val f = File.createTempFile("msgpackTest", "msgpack")
     f.deleteOnExit
     val p = MessagePack.newDefaultPacker(new FileOutputStream(f))
     p.packInt(99)
     p.close
     f
-  }
 
-  private def checkFile(u: MessageUnpacker): Boolean = {
+  private def checkFile(u: MessageUnpacker): Boolean =
     u.unpackInt shouldBe 99
     u.hasNext shouldBe false
-  }
 
-  private def unpackers(data: Array[Byte]): Seq[MessageUnpacker] = {
+  private def unpackers(data: Array[Byte]): Seq[MessageUnpacker] =
     val bb = ByteBuffer.allocate(data.length)
     val db = ByteBuffer.allocateDirect(data.length)
     bb.put(data).flip()
@@ -205,20 +197,21 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
     val builder = Seq.newBuilder[MessageUnpacker]
     builder += MessagePack.newDefaultUnpacker(data)
     builder += MessagePack.newDefaultUnpacker(bb)
-    if (!universal) {
+    if !universal then
       builder += MessagePack.newDefaultUnpacker(db)
-    }
 
     builder.result()
-  }
 
-  private def unpackerCollectionWithVariousBuffers(data: Array[Byte], chunkSize: Int): Seq[MessageUnpacker] = {
+  private def unpackerCollectionWithVariousBuffers(
+      data: Array[Byte],
+      chunkSize: Int
+  ): Seq[MessageUnpacker] =
     val seqBytes         = Seq.newBuilder[MessageBufferInput]
     val seqByteBuffers   = Seq.newBuilder[MessageBufferInput]
     val seqDirectBuffers = Seq.newBuilder[MessageBufferInput]
     var left             = data.length
     var position         = 0
-    while (left > 0) {
+    while left > 0 do
       val length = Math.min(chunkSize, left)
       seqBytes += new ArrayBufferInput(data, position, length)
       val bb = ByteBuffer.allocate(length)
@@ -229,52 +222,56 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
       seqDirectBuffers += new ByteBufferInput(db)
       left -= length
       position += length
-    }
     val builder = Seq.newBuilder[MessageUnpacker]
-    builder += MessagePack.newDefaultUnpacker(new SequenceMessageBufferInput(Collections.enumeration(seqBytes.result().asJava)))
-    builder += MessagePack.newDefaultUnpacker(new SequenceMessageBufferInput(Collections.enumeration(seqByteBuffers.result().asJava)))
-    if (!universal) {
-      builder += MessagePack.newDefaultUnpacker(new SequenceMessageBufferInput(Collections.enumeration(seqDirectBuffers.result().asJava)))
-    }
+    builder +=
+      MessagePack.newDefaultUnpacker(
+        new SequenceMessageBufferInput(Collections.enumeration(seqBytes.result().asJava))
+      )
+    builder +=
+      MessagePack.newDefaultUnpacker(
+        new SequenceMessageBufferInput(Collections.enumeration(seqByteBuffers.result().asJava))
+      )
+    if !universal then
+      builder +=
+        MessagePack.newDefaultUnpacker(
+          new SequenceMessageBufferInput(Collections.enumeration(seqDirectBuffers.result().asJava))
+        )
 
     builder.result()
-  }
+
+  end unpackerCollectionWithVariousBuffers
 
   test("MessageUnpacker") {
 
     test("parse message packed data") {
       val arr = testData
 
-      for (unpacker <- unpackers(arr)) {
+      for unpacker <- unpackers(arr) do
 
         var count = 0
-        while (unpacker.hasNext) {
+        while unpacker.hasNext do
           count += 1
           readValue(unpacker)
-        }
         count shouldBe 6
         unpacker.getTotalReadBytes shouldBe arr.length
 
         unpacker.close()
         unpacker.getTotalReadBytes shouldBe arr.length
-      }
     }
 
     test("skip reading values") {
 
-      for (unpacker <- unpackers(testData)) {
+      for unpacker <- unpackers(testData) do
         var skipCount = 0
-        while (unpacker.hasNext) {
+        while unpacker.hasNext do
           unpacker.skipValue()
           skipCount += 1
-        }
 
         skipCount shouldBe 2
         unpacker.getTotalReadBytes shouldBe testData.length
 
         unpacker.close()
         unpacker.getTotalReadBytes shouldBe testData.length
-      }
     }
 
     test("compare skip performance") {
@@ -283,23 +280,20 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
 
       time("skip performance", repeat = 100) {
         block("switch") {
-          for (unpacker <- unpackers(data)) {
+          for unpacker <- unpackers(data) do
             var skipCount = 0
-            while (unpacker.hasNext) {
+            while unpacker.hasNext do
               unpacker.skipValue()
               skipCount += 1
-            }
             skipCount shouldBe N
-          }
         }
       }
 
       time("bulk skip performance", repeat = 100) {
         block("switch") {
-          for (unpacker <- unpackers(data)) {
+          for unpacker <- unpackers(data) do
             unpacker.skipValue(N)
             unpacker.hasNext shouldBe false
-          }
         }
       }
 
@@ -308,12 +302,12 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
     test("parse int data") {
       debug(intSeq.mkString(", "))
 
-      for (unpacker <- unpackers(testData2)) {
+      for unpacker <- unpackers(testData2) do
         val ib = Seq.newBuilder[Int]
 
-        while (unpacker.hasNext) {
+        while unpacker.hasNext do
           val f = unpacker.getNextFormat
-          f.getValueType match {
+          f.getValueType match
             case ValueType.INTEGER =>
               val i = unpacker.unpackInt()
               trace(f"read int: $i%,d")
@@ -323,54 +317,48 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
               trace(s"read boolean: $b")
             case other =>
               unpacker.skipValue()
-          }
-        }
 
         ib.result() shouldBe intSeq.toSeq
         unpacker.getTotalReadBytes shouldBe testData2.length
 
         unpacker.close()
         unpacker.getTotalReadBytes shouldBe testData2.length
-      }
     }
 
     test("read data at the buffer boundary") {
-      trait SplitTest extends LogSupport {
+      trait SplitTest extends LogSupport:
         val data: Array[Byte]
-        def run: Unit = {
-          for (unpacker <- unpackers(data)) {
-            val numElems = {
+        def run: Unit =
+          for unpacker <- unpackers(data) do
+            val numElems =
               var c = 0
-              while (unpacker.hasNext) {
+              while unpacker.hasNext do
                 readValue(unpacker)
                 c += 1
-              }
               c
-            }
 
-            for (splitPoint <- 1 until data.length - 1) {
+            for splitPoint <- 1 until data.length - 1 do
               debug(s"split at $splitPoint")
               val (h, t)   = data.splitAt(splitPoint)
               val bin      = new SplitMessageBufferInput(Array(h, t))
               val unpacker = MessagePack.newDefaultUnpacker(bin)
               var count    = 0
-              while (unpacker.hasNext) {
+              while unpacker.hasNext do
                 count += 1
                 val f = unpacker.getNextFormat
                 readValue(unpacker)
-              }
               count shouldBe numElems
               unpacker.getTotalReadBytes shouldBe data.length
 
               unpacker.close()
               unpacker.getTotalReadBytes shouldBe data.length
-            }
-          }
-        }
-      }
 
-      new SplitTest { val data = testData }.run
-      new SplitTest { val data = testData3(30) }.run
+      new SplitTest:
+        val data = testData
+      .run
+      new SplitTest:
+        val data = testData3(30)
+      .run
     }
 
     test("read integer at MessageBuffer boundaries") {
@@ -382,18 +370,21 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
       val data = packer.toByteArray
 
       // Boundary test
-      withResource(MessagePack.newDefaultUnpacker(new InputStreamBufferInput(new ByteArrayInputStream(data), 8192))) { unpacker =>
+      withResource(
+        MessagePack.newDefaultUnpacker(
+          new InputStreamBufferInput(new ByteArrayInputStream(data), 8192)
+        )
+      ) { unpacker =>
         (0 until 1170).foreach { i =>
           unpacker.unpackLong() shouldBe 0x0011223344556677L
         }
       }
 
       // Boundary test for sequences of ByteBuffer, DirectByteBuffer backed MessageInput.
-      for (unpacker <- unpackerCollectionWithVariousBuffers(data, 32)) {
+      for unpacker <- unpackerCollectionWithVariousBuffers(data, 32) do
         (0 until 1170).foreach { i =>
           unpacker.unpackLong() shouldBe 0x0011223344556677L
         }
-      }
     }
 
     test("read string at MessageBuffer boundaries") {
@@ -405,36 +396,34 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
       val data = packer.toByteArray
 
       // Boundary test
-      withResource(MessagePack.newDefaultUnpacker(new InputStreamBufferInput(new ByteArrayInputStream(data), 8192))) { unpacker =>
+      withResource(
+        MessagePack.newDefaultUnpacker(
+          new InputStreamBufferInput(new ByteArrayInputStream(data), 8192)
+        )
+      ) { unpacker =>
         (0 until 1170).foreach { i =>
           unpacker.unpackString() shouldBe "hello world"
         }
       }
 
       // Boundary test for sequences of ByteBuffer, DirectByteBuffer backed MessageInput.
-      for (unpacker <- unpackerCollectionWithVariousBuffers(data, 32)) {
+      for unpacker <- unpackerCollectionWithVariousBuffers(data, 32) do
         (0 until 1170).foreach { i =>
           unpacker.unpackString() shouldBe "hello world"
         }
-      }
     }
 
     test("be faster than msgpack-v6 skip") {
 
-      trait Fixture {
+      trait Fixture:
         val unpacker: MessageUnpacker
-        def run: Unit = {
+        def run: Unit =
           var count = 0
-          try {
-            while (unpacker.hasNext) {
+          try
+            while unpacker.hasNext do
               unpacker.skipValue()
               count += 1
-            }
-          } finally {
-            unpacker.close()
-          }
-        }
-      }
+          finally unpacker.close()
 
       val data = testData3(10000)
       val N    = 100
@@ -443,64 +432,69 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
       val db = ByteBuffer.allocateDirect(data.length)
       db.put(data).flip()
 
-      val t = time("skip performance", repeat = N) {
-        block("v6") {
-          val v6       = new org.msgpack.MessagePack()
-          val unpacker = new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(data))
-          var count    = 0
-          try {
-            while (true) {
-              unpacker.skip()
-              count += 1
+      val t =
+        time("skip performance", repeat = N) {
+          block("v6") {
+            val v6 = new org.msgpack.MessagePack()
+            val unpacker =
+              new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(data))
+            var count = 0
+            try
+              while true do
+                unpacker.skip()
+                count += 1
+            catch
+              case e: EOFException =>
+            finally
+              unpacker.close()
+          }
+
+          block("v7-array") {
+            new Fixture:
+              override val unpacker = MessagePack.newDefaultUnpacker(data)
+            .run
+          }
+
+          block("v7-array-buffer") {
+            new Fixture:
+              override val unpacker = MessagePack.newDefaultUnpacker(bb)
+            .run
+          }
+          if !universal then
+            block("v7-direct-buffer") {
+              new Fixture:
+                override val unpacker = MessagePack.newDefaultUnpacker(db)
+              .run
             }
-          } catch {
-            case e: EOFException =>
-          } finally unpacker.close()
         }
-
-        block("v7-array") {
-          new Fixture {
-            override val unpacker = MessagePack.newDefaultUnpacker(data)
-          }.run
-        }
-
-        block("v7-array-buffer") {
-          new Fixture {
-            override val unpacker = MessagePack.newDefaultUnpacker(bb)
-          }.run
-        }
-        if (!universal) block("v7-direct-buffer") {
-          new Fixture {
-            override val unpacker = MessagePack.newDefaultUnpacker(db)
-          }.run
-        }
-      }
 
       t("v7-array").averageWithoutMinMax <= t("v6").averageWithoutMinMax shouldBe true
       t("v7-array-buffer").averageWithoutMinMax <= t("v6").averageWithoutMinMax shouldBe true
-      if (!universal) {
+      if !universal then
         t("v7-direct-buffer").averageWithoutMinMax <= t("v6").averageWithoutMinMax shouldBe true
-      }
     }
 
-    import org.msgpack.`type`.{ValueType => ValueTypeV6}
+    import org.msgpack.`type`.ValueType as ValueTypeV6
 
     test("be faster than msgpack-v6 read value") {
 
-      def readValueV6(unpacker: org.msgpack.unpacker.MessagePackUnpacker): Unit = {
+      def readValueV6(unpacker: org.msgpack.unpacker.MessagePackUnpacker): Unit =
         val vt = unpacker.getNextType()
-        vt match {
+        vt match
           case ValueTypeV6.ARRAY =>
             val len = unpacker.readArrayBegin()
             var i   = 0
-            while (i < len) { readValueV6(unpacker); i += 1 }
+            while i < len do
+              readValueV6(unpacker);
+              i += 1
             unpacker.readArrayEnd()
           case ValueTypeV6.MAP =>
             val len = unpacker.readMapBegin()
             var i   = 0
-            while (i < len) {
-              readValueV6(unpacker); readValueV6(unpacker); i += 1
-            }
+            while i < len do
+              readValueV6(unpacker);
+              readValueV6(unpacker);
+              i += 1
             unpacker.readMapEnd()
           case ValueTypeV6.NIL =>
             unpacker.readNil()
@@ -514,23 +508,27 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
             unpacker.readByteArray()
           case _ =>
             unpacker.skip()
-        }
-      }
+      end readValueV6
 
       val buf = new Array[Byte](8192)
 
-      def readValue(unpacker: MessageUnpacker): Unit = {
+      def readValue(unpacker: MessageUnpacker): Unit =
         val f  = unpacker.getNextFormat
         val vt = f.getValueType
-        vt match {
+        vt match
           case ValueType.ARRAY =>
             val len = unpacker.unpackArrayHeader()
             var i   = 0
-            while (i < len) { readValue(unpacker); i += 1 }
+            while i < len do
+              readValue(unpacker);
+              i += 1
           case ValueType.MAP =>
             val len = unpacker.unpackMapHeader()
             var i   = 0
-            while (i < len) { readValue(unpacker); readValue(unpacker); i += 1 }
+            while i < len do
+              readValue(unpacker);
+              readValue(unpacker);
+              i += 1
           case ValueType.NIL =>
             unpacker.unpackNil()
           case ValueType.INTEGER =>
@@ -547,20 +545,17 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
             unpacker.readPayload(buf, 0, len)
           case _ =>
             unpacker.skipValue()
-        }
-      }
-      trait Fixture {
+        end match
+      end readValue
+      trait Fixture:
         val unpacker: MessageUnpacker
-        def run: Unit = {
+        def run: Unit =
           var count = 0
-          try {
-            while (unpacker.hasNext) {
+          try
+            while unpacker.hasNext do
               readValue(unpacker)
               count += 1
-            }
-          } finally unpacker.close()
-        }
-      }
+          finally unpacker.close()
 
       val data = testData3(10000)
       val N    = 100
@@ -569,49 +564,55 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
       val db = ByteBuffer.allocateDirect(data.length)
       db.put(data).flip()
 
-      val t = time("unpack performance", repeat = N) {
-        block("v6") {
-          val v6       = new org.msgpack.MessagePack()
-          val unpacker = new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(data))
-          var count    = 0
-          try {
-            while (true) {
-              readValueV6(unpacker)
-              count += 1
+      val t =
+        time("unpack performance", repeat = N) {
+          block("v6") {
+            val v6 = new org.msgpack.MessagePack()
+            val unpacker =
+              new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(data))
+            var count = 0
+            try
+              while true do
+                readValueV6(unpacker)
+                count += 1
+            catch
+              case e: EOFException =>
+            finally
+              unpacker.close()
+          }
+
+          block("v7-array") {
+            new Fixture:
+              override val unpacker = MessagePack.newDefaultUnpacker(data)
+            .run
+          }
+
+          block("v7-array-buffer") {
+            new Fixture:
+              override val unpacker = MessagePack.newDefaultUnpacker(bb)
+            .run
+          }
+
+          if !universal then
+            block("v7-direct-buffer") {
+              new Fixture:
+                override val unpacker = MessagePack.newDefaultUnpacker(db)
+              .run
             }
-          } catch {
-            case e: EOFException =>
-          } finally unpacker.close()
         }
 
-        block("v7-array") {
-          new Fixture {
-            override val unpacker = MessagePack.newDefaultUnpacker(data)
-          }.run
-        }
-
-        block("v7-array-buffer") {
-          new Fixture {
-            override val unpacker = MessagePack.newDefaultUnpacker(bb)
-          }.run
-        }
-
-        if (!universal) block("v7-direct-buffer") {
-          new Fixture {
-            override val unpacker = MessagePack.newDefaultUnpacker(db)
-          }.run
-        }
-      }
-
-      if (t("v7-array").averageWithoutMinMax > t("v6").averageWithoutMinMax) {
-        warn(s"v7-array ${t("v7-array").averageWithoutMinMax} is slower than v6 ${t("v6").averageWithoutMinMax}")
-      }
-      if (t("v7-array-buffer").averageWithoutMinMax > t("v6").averageWithoutMinMax) {
-        warn(s"v7-array-buffer ${t("v7-array-buffer").averageWithoutMinMax} is slower than v6 ${t("v6").averageWithoutMinMax}")
-      }
-      if (!universal) {
+      if t("v7-array").averageWithoutMinMax > t("v6").averageWithoutMinMax then
+        warn(
+          s"v7-array ${t("v7-array").averageWithoutMinMax} is slower than v6 ${t("v6")
+              .averageWithoutMinMax}"
+        )
+      if t("v7-array-buffer").averageWithoutMinMax > t("v6").averageWithoutMinMax then
+        warn(
+          s"v7-array-buffer ${t("v7-array-buffer").averageWithoutMinMax} is slower than v6 ${t("v6")
+              .averageWithoutMinMax}"
+        )
+      if !universal then
         t("v7-direct-buffer").averageWithoutMinMax <= t("v6").averageWithoutMinMax shouldBe true
-      }
     }
 
     test("be faster for reading binary than v6") {
@@ -626,31 +627,26 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
       }
       packer.close()
 
-      trait Fixture {
+      trait Fixture:
         val unpacker: MessageUnpacker
         val loop: Int
-        def run: Unit = {
+        def run: Unit =
           var i = 0
-          try {
-            while (i < loop) {
+          try
+            while i < loop do
               val len = unpacker.unpackBinaryHeader()
               val out = new Array[Byte](len)
               unpacker.readPayload(out, 0, len)
               i += 1
-            }
-          } finally unpacker.close()
-        }
-        def runRef: Unit = {
+          finally unpacker.close()
+        def runRef: Unit =
           var i = 0
-          try {
-            while (i < loop) {
+          try
+            while i < loop do
               val len = unpacker.unpackBinaryHeader()
               val out = unpacker.readPayloadAsReference(len)
               i += 1
-            }
-          } finally unpacker.close()
-        }
-      }
+          finally unpacker.close()
       val b  = bos.toByteArray
       val bb = ByteBuffer.allocate(b.length)
       bb.put(b).flip()
@@ -659,66 +655,67 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
 
       time("unpackBinary", repeat = 100) {
         block("v6") {
-          val v6       = new org.msgpack.MessagePack()
-          val unpacker = new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(b))
-          var i        = 0
-          while (i < R) {
+          val v6 = new org.msgpack.MessagePack()
+          val unpacker =
+            new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(b))
+          var i = 0
+          while i < R do
             val out = unpacker.readByteArray()
             i += 1
-          }
           unpacker.close()
         }
 
         block("v7-array") {
-          new Fixture {
+          new Fixture:
             override val unpacker = MessagePack.newDefaultUnpacker(b)
             override val loop     = R
-          }.run
+          .run
         }
 
         block("v7-array-buffer") {
-          new Fixture {
+          new Fixture:
             override val unpacker = MessagePack.newDefaultUnpacker(bb)
             override val loop     = R
-          }.run
+          .run
         }
 
-        if (!universal) block("v7-direct-buffer") {
-          new Fixture {
-            override val unpacker = MessagePack.newDefaultUnpacker(db)
-            override val loop     = R
-          }.run
-        }
+        if !universal then
+          block("v7-direct-buffer") {
+            new Fixture:
+              override val unpacker = MessagePack.newDefaultUnpacker(db)
+              override val loop     = R
+            .run
+          }
 
         block("v7-ref-array") {
-          new Fixture {
+          new Fixture:
             override val unpacker = MessagePack.newDefaultUnpacker(b)
             override val loop     = R
-          }.runRef
+          .runRef
         }
 
         block("v7-ref-array-buffer") {
-          new Fixture {
+          new Fixture:
             override val unpacker = MessagePack.newDefaultUnpacker(bb)
             override val loop     = R
-          }.runRef
+          .runRef
         }
 
-        if (!universal) block("v7-ref-direct-buffer") {
-          new Fixture {
-            override val unpacker = MessagePack.newDefaultUnpacker(db)
-            override val loop     = R
-          }.runRef
-        }
+        if !universal then
+          block("v7-ref-direct-buffer") {
+            new Fixture:
+              override val unpacker = MessagePack.newDefaultUnpacker(db)
+              override val loop     = R
+            .runRef
+          }
       }
     }
 
     test("read payload as a reference") {
 
-      val dataSizes =
-        Seq(0, 1, 5, 8, 16, 32, 128, 256, 1024, 2000, 10000, 100000)
+      val dataSizes = Seq(0, 1, 5, 8, 16, 32, 128, 256, 1024, 2000, 10000, 100000)
 
-      for (s <- dataSizes) {
+      for s <- dataSizes do
         test(f"data size is $s%,d") {
           val data = new Array[Byte](s)
           Random.nextBytes(data)
@@ -728,7 +725,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
           packer.writePayload(data)
           packer.close()
 
-          for (unpacker <- unpackers(b.toByteArray)) {
+          for unpacker <- unpackers(b.toByteArray) do
             val len = unpacker.unpackBinaryHeader()
             len shouldBe s
             val ref = unpacker.readPayloadAsReference(len)
@@ -738,21 +735,18 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
             ref.getBytes(0, stored, 0, len)
 
             stored shouldBe data
-          }
         }
-      }
     }
 
     test("reset the internal states") {
 
       val data = intSeq
       val b    = createMessagePackData(packer => data foreach packer.packInt)
-      for (unpacker <- unpackers(b)) {
+      for unpacker <- unpackers(b) do
 
         val unpacked = Array.newBuilder[Int]
-        while (unpacker.hasNext) {
+        while unpacker.hasNext do
           unpacked += unpacker.unpackInt()
-        }
         unpacker.close
         unpacked.result() shouldBe data
 
@@ -761,9 +755,8 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
         val bi    = new ArrayBufferInput(b2)
         unpacker.reset(bi)
         val unpacked2 = Array.newBuilder[Int]
-        while (unpacker.hasNext) {
+        while unpacker.hasNext do
           unpacked2 += unpacker.unpackInt()
-        }
         unpacker.close
         unpacked2.result() shouldBe data2
 
@@ -771,12 +764,10 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
         bi.reset(b2)
         unpacker.reset(bi)
         val unpacked3 = Array.newBuilder[Int]
-        while (unpacker.hasNext) {
+        while unpacker.hasNext do
           unpacked3 += unpacker.unpackInt()
-        }
         unpacker.close
         unpacked3.result() shouldBe data2
-      }
 
     }
 
@@ -790,42 +781,40 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
       val mb  = MessageBuffer.wrap(arr)
 
       val N = 1000
-      val t = time("unpacker", repeat = 10) {
-        block("no-buffer-reset") {
-          withResource(MessagePack.newDefaultUnpacker(arr)) { unpacker =>
-            for (i <- 0 until N) {
+      val t =
+        time("unpacker", repeat = 10) {
+          block("no-buffer-reset") {
+            withResource(MessagePack.newDefaultUnpacker(arr)) { unpacker =>
+              for i <- 0 until N do
+                val buf = new ArrayBufferInput(arr)
+                unpacker.reset(buf)
+                unpacker.unpackInt
+                unpacker.close
+            }
+          }
+
+          block("reuse-array-input") {
+            withResource(MessagePack.newDefaultUnpacker(arr)) { unpacker =>
               val buf = new ArrayBufferInput(arr)
-              unpacker.reset(buf)
-              unpacker.unpackInt
-              unpacker.close
+              for i <- 0 until N do
+                buf.reset(arr)
+                unpacker.reset(buf)
+                unpacker.unpackInt
+                unpacker.close
             }
           }
-        }
 
-        block("reuse-array-input") {
-          withResource(MessagePack.newDefaultUnpacker(arr)) { unpacker =>
-            val buf = new ArrayBufferInput(arr)
-            for (i <- 0 until N) {
-              buf.reset(arr)
-              unpacker.reset(buf)
-              unpacker.unpackInt
-              unpacker.close
+          block("reuse-message-buffer") {
+            withResource(MessagePack.newDefaultUnpacker(arr)) { unpacker =>
+              val buf = new ArrayBufferInput(arr)
+              for i <- 0 until N do
+                buf.reset(mb)
+                unpacker.reset(buf)
+                unpacker.unpackInt
+                unpacker.close
             }
           }
         }
-
-        block("reuse-message-buffer") {
-          withResource(MessagePack.newDefaultUnpacker(arr)) { unpacker =>
-            val buf = new ArrayBufferInput(arr)
-            for (i <- 0 until N) {
-              buf.reset(mb)
-              unpacker.reset(buf)
-              unpacker.unpackInt
-              unpacker.close
-            }
-          }
-        }
-      }
 
       // This performance comparison is too close, so we disabled it
       // t("reuse-message-buffer").averageWithoutMinMax should be <= t("no-buffer-reset").averageWithoutMinMax
@@ -857,24 +846,20 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
     }
 
     test("unpack large string data") {
-      def createLargeData(stringLength: Int): Array[Byte] = {
+      def createLargeData(stringLength: Int): Array[Byte] =
         val out    = new ByteArrayOutputStream()
         val packer = MessagePack.newDefaultPacker(out)
 
-        packer
-          .packArrayHeader(2)
-          .packString("l" * stringLength)
-          .packInt(1)
+        packer.packArrayHeader(2).packString("l" * stringLength).packInt(1)
 
         packer.close()
 
         out.toByteArray
-      }
 
       Seq(8191, 8192, 8193, 16383, 16384, 16385).foreach { n =>
         val arr = createLargeData(n)
 
-        for (unpacker <- unpackers(arr)) {
+        for unpacker <- unpackers(arr) do
 
           unpacker.unpackArrayHeader shouldBe 2
           unpacker.unpackString.length shouldBe n
@@ -884,12 +869,11 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
 
           unpacker.close()
           unpacker.getTotalReadBytes shouldBe arr.length
-        }
       }
     }
 
     test("unpack string crossing end of buffer") {
-      def check(expected: String, strLen: Int) = {
+      def check(expected: String, strLen: Int) =
         val bytes = new Array[Byte](strLen)
         val out   = new ByteArrayOutputStream
 
@@ -899,52 +883,58 @@ class MessageUnpackerTest extends AirSpec with Benchmark {
         packer.packString(expected)
         packer.close
 
-        val unpacker = MessagePack.newDefaultUnpacker(new InputStreamBufferInput(new ByteArrayInputStream(out.toByteArray)))
-        val len      = unpacker.unpackBinaryHeader
+        val unpacker = MessagePack.newDefaultUnpacker(
+          new InputStreamBufferInput(new ByteArrayInputStream(out.toByteArray))
+        )
+        val len = unpacker.unpackBinaryHeader
         unpacker.readPayload(len)
         val got = unpacker.unpackString
         unpacker.close
 
         got shouldBe expected
-      }
 
-      Seq("\u3042", "a\u3042", "\u3042a", "\u3042\u3044\u3046\u3048\u304A\u304B\u304D\u304F\u3051\u3053\u3055\u3057\u3059\u305B\u305D")
-        .foreach { s =>
-          Seq(8185, 8186, 8187, 8188, 16377, 16378, 16379, 16380).foreach { n =>
-            check(s, n)
-          }
+      Seq(
+        "\u3042",
+        "a\u3042",
+        "\u3042a",
+        "\u3042\u3044\u3046\u3048\u304A\u304B\u304D\u304F\u3051\u3053\u3055\u3057\u3059\u305B\u305D"
+      ).foreach { s =>
+        Seq(8185, 8186, 8187, 8188, 16377, 16378, 16379, 16380).foreach { n =>
+          check(s, n)
         }
+      }
     }
 
-    def readTest(input: MessageBufferInput): Unit = {
+    def readTest(input: MessageBufferInput): Unit =
       withResource(MessagePack.newDefaultUnpacker(input)) { unpacker =>
-        while (unpacker.hasNext) {
+        while unpacker.hasNext do
           unpacker.unpackValue()
-        }
       }
-    }
 
     test("read value length at buffer boundary") {
-      val input = new SplitMessageBufferInput(
-        Array(
-          Array[Byte](MessagePack.Code.STR16),
-          Array[Byte](0x00),
-          Array[Byte](0x05), // STR16 length at the boundary
-          "hello".getBytes(MessagePack.UTF8)
+      val input =
+        new SplitMessageBufferInput(
+          Array(
+            Array[Byte](MessagePack.Code.STR16),
+            Array[Byte](0x00),
+            Array[Byte](0x05), // STR16 length at the boundary
+            "hello".getBytes(MessagePack.UTF8)
+          )
         )
-      )
       readTest(input)
 
-      val input2 = new SplitMessageBufferInput(
-        Array(
-          Array[Byte](MessagePack.Code.STR32),
-          Array[Byte](0x00),
-          Array[Byte](0x00, 0x00),
-          Array[Byte](0x05), // STR32 length at the boundary
-          "hello".getBytes(MessagePack.UTF8)
+      val input2 =
+        new SplitMessageBufferInput(
+          Array(
+            Array[Byte](MessagePack.Code.STR32),
+            Array[Byte](0x00),
+            Array[Byte](0x00, 0x00),
+            Array[Byte](0x05), // STR32 length at the boundary
+            "hello".getBytes(MessagePack.UTF8)
+          )
         )
-      )
       readTest(input2)
     }
   }
-}
+
+end MessageUnpackerTest

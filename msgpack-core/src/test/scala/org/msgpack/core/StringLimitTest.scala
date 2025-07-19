@@ -4,7 +4,7 @@ import org.msgpack.core.MessagePack.UnpackerConfig
 import org.msgpack.value.Variable
 import wvlet.airspec.AirSpec
 
-class StringLimitTest extends AirSpec {
+class StringLimitTest extends AirSpec:
 
   test("throws an exception when the string size exceeds a limit") {
     val customLimit = 100
@@ -34,4 +34,5 @@ class StringLimitTest extends AirSpec {
       }
     }
   }
-}
+
+end StringLimitTest

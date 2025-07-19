@@ -21,9 +21,10 @@ import wvlet.airspec.AirSpec
 import java.nio.ByteBuffer
 import scala.util.Random
 
-/** Created on 2014/05/01.
+/**
+  * Created on 2014/05/01.
   */
-class MessageBufferTest extends AirSpec with Benchmark {
+class MessageBufferTest extends AirSpec with Benchmark:
 
   private val universal = MessageBuffer.allocate(0).isInstanceOf[MessageBufferU]
 
@@ -54,97 +55,87 @@ class MessageBufferTest extends AirSpec with Benchmark {
 
     val ub = MessageBuffer.allocate(M)
     val ud =
-      if (universal) MessageBuffer.wrap(ByteBuffer.allocate(M))
-      else MessageBuffer.wrap(ByteBuffer.allocateDirect(M))
+      if universal then
+        MessageBuffer.wrap(ByteBuffer.allocate(M))
+      else
+        MessageBuffer.wrap(ByteBuffer.allocateDirect(M))
     val hb = ByteBuffer.allocate(M)
     val db = ByteBuffer.allocateDirect(M)
 
-    def bench(f: Int => Unit): Unit = {
+    def bench(f: Int => Unit): Unit =
       var i = 0
-      while (i < N) {
+      while i < N do
         f((i * 4) % M)
         i += 1
-      }
-    }
 
     val r  = new Random(0)
     val rs = new Array[Int](N)
     (0 until N).map(i => rs(i) = r.nextInt(N))
-    def randomBench(f: Int => Unit): Unit = {
+    def randomBench(f: Int => Unit): Unit =
       var i = 0
-      while (i < N) {
+      while i < N do
         f((rs(i) * 4) % M)
         i += 1
-      }
-    }
 
     val rep = 3
     info(f"Reading buffers (of size:${M}%,d) ${N}%,d x $rep times")
     time("sequential getInt", repeat = rep) {
       block("unsafe array") {
         var i = 0
-        while (i < N) {
+        while i < N do
           ub.getInt((i * 4) % M)
           i += 1
-        }
       }
 
       block("unsafe direct") {
         var i = 0
-        while (i < N) {
+        while i < N do
           ud.getInt((i * 4) % M)
           i += 1
-        }
       }
 
       block("allocate") {
         var i = 0
-        while (i < N) {
+        while i < N do
           hb.getInt((i * 4) % M)
           i += 1
-        }
       }
 
       block("allocateDirect") {
         var i = 0
-        while (i < N) {
+        while i < N do
           db.getInt((i * 4) % M)
           i += 1
-        }
       }
     }
 
     time("random getInt", repeat = rep) {
       block("unsafe array") {
         var i = 0
-        while (i < N) {
+        while i < N do
           ub.getInt((rs(i) * 4) % M)
           i += 1
-        }
       }
 
       block("unsafe direct") {
         var i = 0
-        while (i < N) {
+        while i < N do
           ud.getInt((rs(i) * 4) % M)
           i += 1
-        }
       }
 
       block("allocate") {
         var i = 0
-        while (i < N) {
+        while i < N do
           hb.getInt((rs(i) * 4) % M)
           i += 1
-        }
       }
 
       block("allocateDirect") {
         var i = 0
-        while (i < N) {
+        while i < N do
           db.getInt((rs(i) * 4) % M)
           i += 1
-        }
       }
     }
   }
@@ -152,20 +143,21 @@ class MessageBufferTest extends AirSpec with Benchmark {
   private val builder = Seq.newBuilder[MessageBuffer]
   builder += MessageBuffer.allocate(10)
   builder += MessageBuffer.wrap(ByteBuffer.allocate(10))
-  if (!universal) builder += MessageBuffer.wrap(ByteBuffer.allocateDirect(10))
+  if !universal then
+    builder += MessageBuffer.wrap(ByteBuffer.allocateDirect(10))
+
   private val buffers = builder.result()
 
   test("convert to ByteBuffer") {
-    for (t <- buffers) {
+    for t <- buffers do
       val bb = t.sliceAsByteBuffer
       bb.position() shouldBe 0
       bb.limit() shouldBe 10
       bb.capacity shouldBe 10
-    }
   }
 
   test("put ByteBuffer on itself") {
-    for (t <- buffers) {
+    for t <- buffers do
       val b        = Array[Byte](0x02, 0x03)
       val srcArray = ByteBuffer.wrap(b)
       val srcHeap  = ByteBuffer.allocate(b.length)
@@ -173,7 +165,7 @@ class MessageBufferTest extends AirSpec with Benchmark {
       val srcOffHeap = ByteBuffer.allocateDirect(b.length)
       srcOffHeap.put(b).flip
 
-      for (src <- Seq(srcArray, srcHeap, srcOffHeap)) {
+      for src <- Seq(srcArray, srcHeap, srcOffHeap) do
         // Write header bytes
         val header = Array[Byte](0x00, 0x01)
         t.putBytes(0, header, 0, header.length)
@@ -184,12 +176,10 @@ class MessageBufferTest extends AirSpec with Benchmark {
         t.getByte(1) shouldBe 0x01
         t.getByte(2) shouldBe 0x02
         t.getByte(3) shouldBe 0x03
-      }
-    }
   }
 
   test("put MessageBuffer on itself") {
-    for (t <- buffers) {
+    for t <- buffers do
       val b        = Array[Byte](0x02, 0x03)
       val srcArray = ByteBuffer.wrap(b)
       val srcHeap  = ByteBuffer.allocate(b.length)
@@ -198,9 +188,10 @@ class MessageBufferTest extends AirSpec with Benchmark {
       srcOffHeap.put(b).flip
       val builder = Seq.newBuilder[ByteBuffer]
       builder ++= Seq(srcArray, srcHeap)
-      if (!universal) builder += srcOffHeap
+      if !universal then
+        builder += srcOffHeap
 
-      for (src <- builder.result().map(d => MessageBuffer.wrap(d))) {
+      for src <- builder.result().map(d => MessageBuffer.wrap(d)) do
         // Write header bytes
         val header = Array[Byte](0x00, 0x01)
         t.putBytes(0, header, 0, header.length)
@@ -211,23 +202,18 @@ class MessageBufferTest extends AirSpec with Benchmark {
         t.getByte(1) shouldBe 0x01
         t.getByte(2) shouldBe 0x02
         t.getByte(3) shouldBe 0x03
-      }
-    }
   }
 
   test("copy sliced buffer") {
-    def prepareBytes: Array[Byte] = {
-      Array[Byte](0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07)
-    }
+    def prepareBytes: Array[Byte] = Array[Byte](0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07)
 
-    def prepareDirectBuffer: ByteBuffer = {
+    def prepareDirectBuffer: ByteBuffer =
       val directBuffer = ByteBuffer.allocateDirect(prepareBytes.length)
       directBuffer.put(prepareBytes)
       directBuffer.flip
       directBuffer
-    }
 
-    def checkSliceAndCopyTo(srcBuffer: MessageBuffer, dstBuffer: MessageBuffer) = {
+    def checkSliceAndCopyTo(srcBuffer: MessageBuffer, dstBuffer: MessageBuffer) =
       val sliced = srcBuffer.slice(2, 5)
 
       sliced.size() shouldBe 5
@@ -247,12 +233,17 @@ class MessageBufferTest extends AirSpec with Benchmark {
       dstBuffer.getByte(5) shouldBe 0x05
       dstBuffer.getByte(6) shouldBe 0x06
       dstBuffer.getByte(7) shouldBe 0x07
-    }
 
     checkSliceAndCopyTo(MessageBuffer.wrap(prepareBytes), MessageBuffer.wrap(prepareBytes))
-    checkSliceAndCopyTo(MessageBuffer.wrap(ByteBuffer.wrap(prepareBytes)), MessageBuffer.wrap(ByteBuffer.wrap(prepareBytes)))
-    if (!universal) {
-      checkSliceAndCopyTo(MessageBuffer.wrap(prepareDirectBuffer), MessageBuffer.wrap(prepareDirectBuffer))
-    }
+    checkSliceAndCopyTo(
+      MessageBuffer.wrap(ByteBuffer.wrap(prepareBytes)),
+      MessageBuffer.wrap(ByteBuffer.wrap(prepareBytes))
+    )
+    if !universal then
+      checkSliceAndCopyTo(
+        MessageBuffer.wrap(prepareDirectBuffer),
+        MessageBuffer.wrap(prepareDirectBuffer)
+      )
   }
-}
+
+end MessageBufferTest

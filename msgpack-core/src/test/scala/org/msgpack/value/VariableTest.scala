@@ -21,11 +21,12 @@ import wvlet.airspec.spi.PropertyCheck
 
 import java.time.Instant
 import java.util
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
-/** */
-class VariableTest extends AirSpec with PropertyCheck {
-  private def check(pack: MessagePacker => Unit, checker: Variable => Unit): Unit = {
+/**
+  */
+class VariableTest extends AirSpec with PropertyCheck:
+  private def check(pack: MessagePacker => Unit, checker: Variable => Unit): Unit =
     val packer = MessagePack.newDefaultBufferPacker()
     pack(packer)
     val msgpack = packer.toByteArray
@@ -35,11 +36,11 @@ class VariableTest extends AirSpec with PropertyCheck {
     unpacker.unpackValue(v)
     checker(v)
     unpacker.close()
-  }
 
-  /** Test Value -> MsgPack -> Value
+  /**
+    * Test Value -> MsgPack -> Value
     */
-  private def roundTrip(v: Value): Unit = {
+  private def roundTrip(v: Value): Unit =
     val packer = MessagePack.newDefaultBufferPacker()
     v.writeTo(packer)
     val msgpack  = packer.toByteArray
@@ -48,7 +49,6 @@ class VariableTest extends AirSpec with PropertyCheck {
     unpacker.close()
     v shouldBe v1
     v.immutableValue() shouldBe v1
-  }
 
   private def validateValue[V <: Value](
       v: V,
@@ -62,7 +62,7 @@ class VariableTest extends AirSpec with PropertyCheck {
       asMap: Boolean = false,
       asExtension: Boolean = false,
       asTimestamp: Boolean = false
-  ): V = {
+  ): V =
     v.isNilValue shouldBe asNil
     v.isBooleanValue shouldBe asBoolean
     v.isIntegerValue shouldBe asInteger
@@ -76,203 +76,200 @@ class VariableTest extends AirSpec with PropertyCheck {
     v.isExtensionValue shouldBe asExtension | asTimestamp
     v.isTimestampValue shouldBe asTimestamp
 
-    if (asNil) {
+    if asNil then
       v.getValueType shouldBe ValueType.NIL
       roundTrip(v)
-    } else {
+    else
       intercept[MessageTypeCastException] {
         v.asNilValue()
       }
-    }
 
-    if (asBoolean) {
+    if asBoolean then
       v.getValueType shouldBe ValueType.BOOLEAN
       roundTrip(v)
-    } else {
+    else
       intercept[MessageTypeCastException] {
         v.asBooleanValue()
       }
-    }
 
-    if (asInteger) {
+    if asInteger then
       v.getValueType shouldBe ValueType.INTEGER
       roundTrip(v)
-    } else {
+    else
       intercept[MessageTypeCastException] {
         v.asIntegerValue()
       }
-    }
 
-    if (asFloat) {
+    if asFloat then
       v.getValueType shouldBe ValueType.FLOAT
       roundTrip(v)
-    } else {
+    else
       intercept[MessageTypeCastException] {
         v.asFloatValue()
       }
-    }
 
-    if (asBinary | asString) {
+    if asBinary | asString then
       v.asRawValue()
       roundTrip(v)
-    } else {
+    else
       intercept[MessageTypeCastException] {
         v.asRawValue()
       }
-    }
 
-    if (asBinary) {
+    if asBinary then
       v.getValueType shouldBe ValueType.BINARY
       roundTrip(v)
-    } else {
+    else
       intercept[MessageTypeCastException] {
         v.asBinaryValue()
       }
-    }
 
-    if (asString) {
+    if asString then
       v.getValueType shouldBe ValueType.STRING
       roundTrip(v)
-    } else {
+    else
       intercept[MessageTypeCastException] {
         v.asStringValue()
       }
-    }
 
-    if (asArray) {
+    if asArray then
       v.getValueType shouldBe ValueType.ARRAY
       roundTrip(v)
-    } else {
+    else
       intercept[MessageTypeCastException] {
         v.asArrayValue()
       }
-    }
 
-    if (asMap) {
+    if asMap then
       v.getValueType shouldBe ValueType.MAP
       roundTrip(v)
-    } else {
+    else
       intercept[MessageTypeCastException] {
         v.asMapValue()
       }
-    }
 
-    if (asExtension) {
+    if asExtension then
       v.getValueType shouldBe ValueType.EXTENSION
       roundTrip(v)
-    } else {
+    else
       intercept[MessageTypeCastException] {
         v.asExtensionValue()
       }
-    }
 
-    if (asTimestamp) {
+    if asTimestamp then
       v.getValueType shouldBe ValueType.EXTENSION
       roundTrip(v)
-    } else {
+    else
       intercept[MessageTypeCastException] {
         v.asTimestampValue()
       }
-    }
 
     v
-  }
+
+  end validateValue
 
   test("Variable") {
     test("read nil") {
       check(
         _.packNil,
-        checker = { v =>
-          val iv = validateValue(v.asNilValue(), asNil = true)
-          iv.toJson shouldBe "null"
-        }
+        checker =
+          v =>
+            val iv = validateValue(v.asNilValue(), asNil = true)
+            iv.toJson shouldBe "null"
       )
     }
 
     test("read integers") {
-      forAll { i: Int =>
-        check(
-          _.packInt(i),
-          checker = { v =>
-            val iv = validateValue(v.asIntegerValue(), asInteger = true)
-            iv.asInt() shouldBe i
-            iv.asLong() shouldBe i.toLong
-          }
-        )
+      forAll { (i: Int) =>
+          check(
+            _.packInt(i),
+            checker =
+              v =>
+                val iv = validateValue(v.asIntegerValue(), asInteger = true)
+                iv.asInt() shouldBe i
+                iv.asLong() shouldBe i.toLong
+          )
       }
     }
 
     test("read double") {
-      forAll { x: Double =>
-        check(
-          _.packDouble(x),
-          checker = { v =>
-            val iv = validateValue(v.asFloatValue(), asFloat = true)
-            // iv.toDouble shouldBe v
-            // iv.toFloat shouldBe x.toFloat
-          }
-        )
+      forAll { (x: Double) =>
+          check(
+            _.packDouble(x),
+            checker =
+              v =>
+                val iv = validateValue(v.asFloatValue(), asFloat = true)
+                // iv.toDouble shouldBe v
+                // iv.toFloat shouldBe x.toFloat
+          )
       }
     }
 
     test("read boolean") {
-      forAll { x: Boolean =>
-        check(
-          _.packBoolean(x),
-          checker = { v =>
-            val iv = validateValue(v.asBooleanValue(), asBoolean = true)
-            iv.getBoolean shouldBe x
-          }
-        )
+      forAll { (x: Boolean) =>
+          check(
+            _.packBoolean(x),
+            checker =
+              v =>
+                val iv = validateValue(v.asBooleanValue(), asBoolean = true)
+                iv.getBoolean shouldBe x
+          )
       }
     }
 
     test("read binary") {
-      forAll { x: Array[Byte] =>
+      forAll { (x: Array[Byte]) =>
         check(
           { packer =>
-            packer.packBinaryHeader(x.length); packer.addPayload(x)
+            packer.packBinaryHeader(x.length);
+            packer.addPayload(x)
           },
-          checker = { v =>
-            val iv = validateValue(v.asBinaryValue(), asBinary = true)
-            util.Arrays.equals(iv.asByteArray(), x)
-          }
+          checker =
+            v =>
+              val iv = validateValue(v.asBinaryValue(), asBinary = true)
+              util.Arrays.equals(iv.asByteArray(), x)
         )
       }
     }
 
     test("read string") {
-      forAll { x: String =>
-        check(
-          _.packString(x),
-          checker = { v =>
-            val iv = validateValue(v.asStringValue(), asString = true)
-            iv.asString() shouldBe x
-          }
-        )
+      forAll { (x: String) =>
+          check(
+            _.packString(x),
+            checker =
+              v =>
+                val iv = validateValue(v.asStringValue(), asString = true)
+                iv.asString() shouldBe x
+          )
       }
     }
 
     test("read array") {
-      forAll { x: Seq[Int] =>
+      forAll { (x: Seq[Int]) =>
         check(
           { packer =>
             packer.packArrayHeader(x.size)
-            x.foreach { packer.packInt(_) }
+            x.foreach {
+              packer.packInt(_)
+            }
           },
-          checker = { v =>
-            val iv  = validateValue(v.asArrayValue(), asArray = true)
-            val lst = iv.list().asScala.map(_.asIntegerValue().toInt)
-            lst shouldBe x
-          }
+          checker =
+            v =>
+              val iv  = validateValue(v.asArrayValue(), asArray = true)
+              val lst = iv.list().asScala.map(_.asIntegerValue().toInt)
+              lst shouldBe x
         )
       }
     }
 
     test("read map") {
-      forAll { x: Seq[Int] =>
+      forAll { (x: Seq[Int]) =>
         // Generate map with unique keys
-        val map = x.zipWithIndex.map { case (x, i) => (s"key-${i}", x) }
+        val map = x
+          .zipWithIndex
+          .map { case (x, i) =>
+            (s"key-${i}", x)
+          }
         check(
           { packer =>
             packer.packMapHeader(map.size)
@@ -281,27 +278,32 @@ class VariableTest extends AirSpec with PropertyCheck {
               packer.packInt(x._2)
             }
           },
-          checker = { v =>
-            val iv  = validateValue(v.asMapValue(), asMap = true)
-            val lst = iv.map().asScala.map(p => (p._1.asStringValue().asString(), p._2.asIntegerValue().asInt())).toSeq
-            lst.sortBy(_._1) shouldBe map.sortBy(_._1)
-          }
+          checker =
+            v =>
+              val iv = validateValue(v.asMapValue(), asMap = true)
+              val lst =
+                iv.map()
+                  .asScala
+                  .map(p => (p._1.asStringValue().asString(), p._2.asIntegerValue().asInt()))
+                  .toSeq
+              lst.sortBy(_._1) shouldBe map.sortBy(_._1)
         )
       }
     }
 
     test("read timestamps") {
-      forAll { millis: Long =>
-        val i = Instant.ofEpochMilli(millis)
-        check(
-          _.packTimestamp(i),
-          checker = { v =>
-            val ts = validateValue(v.asTimestampValue(), asTimestamp = true)
-            ts.isTimestampValue shouldBe true
-            ts.toInstant shouldBe i
-          }
-        )
+      forAll { (millis: Long) =>
+          val i = Instant.ofEpochMilli(millis)
+          check(
+            _.packTimestamp(i),
+            checker =
+              v =>
+                val ts = validateValue(v.asTimestampValue(), asTimestamp = true)
+                ts.isTimestampValue shouldBe true
+                ts.toInstant shouldBe i
+          )
       }
     }
   }
-}
+
+end VariableTest

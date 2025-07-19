@@ -19,11 +19,10 @@ import wvlet.airspec.AirSpec
 
 import java.nio.ByteBuffer
 
-class DirectBufferAccessTest extends AirSpec {
+class DirectBufferAccessTest extends AirSpec:
 
   test("instantiate DirectBufferAccess") {
     val bb   = ByteBuffer.allocateDirect(1)
     val addr = DirectBufferAccess.getAddress(bb)
 
   }
-}
