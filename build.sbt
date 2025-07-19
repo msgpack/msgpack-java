@@ -12,6 +12,23 @@ ThisBuild / dynverSonatypeSnapshots := true
 // Use coursier friendly version separator
 ThisBuild / dynverSeparator := "-"
 
+// Publishing metadata
+ThisBuild / homepage := Some(url("https://msgpack.org/"))
+ThisBuild / licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+ThisBuild / scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/msgpack/msgpack-java"),
+    "scm:git@github.com:msgpack/msgpack-java.git"
+  )
+)
+ThisBuild / developers := List(
+  Developer(id = "frsyuki", name = "Sadayuki Furuhashi", email = "frsyuki@users.sourceforge.jp", url = url("https://github.com/frsyuki")),
+  Developer(id = "muga", name = "Muga Nishizawa", email = "muga.nishizawa@gmail.com", url = url("https://github.com/muga")),
+  Developer(id = "oza", name = "Tsuyoshi Ozawa", email = "ozawa.tsuyoshi@gmail.com", url = url("https://github.com/oza")),
+  Developer(id = "komamitsu", name = "Mitsunori Komatsu", email = "komamitsu@gmail.com", url = url("https://github.com/komamitsu")),
+  Developer(id = "xerial", name = "Taro L. Saito", email = "leo@xerial.org", url = url("https://github.com/xerial"))
+)
+
 val buildSettings = Seq[Setting[_]](
   organization := "org.msgpack",
   organizationName := "MessagePack",
@@ -38,7 +55,13 @@ val buildSettings = Seq[Setting[_]](
     }
   },
   // Add sonatype repository settings
-  publishTo := sonatypePublishToBundle.value,
+  publishTo := {
+    if (isSnapshot.value) {
+      Some("snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots")
+    } else {
+      Some("releases" at "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2")
+    }
+  },
   // Style check config: (sbt-jchekcstyle)
   jcheckStyleConfig := "facebook",
   // Run jcheckstyle both for main and test codes
