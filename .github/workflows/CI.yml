@@ -2,27 +2,42 @@ name: CI
 
 on:
   pull_request:
-    paths:
-      - '**.scala'
-      - '**.java'
-      - '**.sbt'
-      - '.github/workflows/**.yml'
-      - 'project/build.properties'
   push:
     branches:
       - main
-    paths:
-      - '**.scala'
-      - '**.java'
-      - '**.sbt'
-      - '.github/workflows/**.yml'
-      - 'project/build.properties'
-    workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.changes.outputs.code }}
+      docs: ${{ steps.changes.outputs.docs }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            code:
+              - '**.scala'
+              - '**.java'
+              - '**.sbt'
+              - '.github/workflows/**.yml'
+              - 'project/build.properties'
+              - 'msgpack-core/**'
+              - 'msgpack-jackson/**'
+            docs:
+              - '**.md'
+              - '**.txt'
+              - 'LICENSE'
+
   code_format:
     name: Code Format
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.code == 'true' }}
     steps:
       - uses: actions/checkout@v4
       - name: jcheckstyle
@@ -31,6 +46,8 @@ jobs:
   test:
     name: Test JDK${{ matrix.java }}
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.code == 'true' }}
     strategy:
       matrix:
         java: ['8', '11', '17', '21', '24']
