@@ -31,7 +31,7 @@ MessagePack-Java is a binary serialization library that provides a fast and comp
 ### Code Quality
 ```bash
 ./sbt jcheckStyle          # Run checkstyle (Facebook Presto style)
-./sbt scalafmtAll          # Format Scala test code
+./sbt scalafmtAll          # Format all Scala and sbt code
 ```
 
 ### Publishing

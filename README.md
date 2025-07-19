@@ -84,7 +84,7 @@ Here is a list of sbt commands for daily development:
 > project msgpack-core                     # Focus on a specific project
 > package                                  # Create a jar file in the target folder of each project
 > jcheckStyle                              # Run check style
-> scalafmtAll                              # Reformat code
+> scalafmtAll                              # Format all Scala and sbt code
 ```
 
 ### Publishing
