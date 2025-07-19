@@ -317,43 +317,43 @@ public class MessagePackParserTest
 
         JsonToken jsonToken = parser.nextToken();
         assertEquals(JsonToken.START_OBJECT, jsonToken);
-        assertEquals(-1, parser.getTokenLocation().getLineNr());
-        assertEquals(0, parser.getTokenLocation().getColumnNr());
-        assertEquals(-1, parser.getCurrentLocation().getLineNr());
-        assertEquals(1, parser.getCurrentLocation().getColumnNr());
+        assertEquals(-1, parser.currentTokenLocation().getLineNr());
+        assertEquals(0, parser.currentTokenLocation().getColumnNr());
+        assertEquals(-1, parser.currentLocation().getLineNr());
+        assertEquals(1, parser.currentLocation().getColumnNr());
 
         jsonToken = parser.nextToken();
         assertEquals(JsonToken.FIELD_NAME, jsonToken);
-        assertEquals("zero", parser.getCurrentName());
-        assertEquals(1, parser.getTokenLocation().getColumnNr());
-        assertEquals(6, parser.getCurrentLocation().getColumnNr());
+        assertEquals("zero", parser.currentName());
+        assertEquals(1, parser.currentTokenLocation().getColumnNr());
+        assertEquals(6, parser.currentLocation().getColumnNr());
 
         jsonToken = parser.nextToken();
         assertEquals(JsonToken.VALUE_NUMBER_INT, jsonToken);
         assertEquals(0, parser.getIntValue());
-        assertEquals(6, parser.getTokenLocation().getColumnNr());
-        assertEquals(7, parser.getCurrentLocation().getColumnNr());
+        assertEquals(6, parser.currentTokenLocation().getColumnNr());
+        assertEquals(7, parser.currentLocation().getColumnNr());
 
         jsonToken = parser.nextToken();
         assertEquals(JsonToken.FIELD_NAME, jsonToken);
-        assertEquals("one", parser.getCurrentName());
-        assertEquals(7, parser.getTokenLocation().getColumnNr());
-        assertEquals(11, parser.getCurrentLocation().getColumnNr());
+        assertEquals("one", parser.currentName());
+        assertEquals(7, parser.currentTokenLocation().getColumnNr());
+        assertEquals(11, parser.currentLocation().getColumnNr());
         parser.overrideCurrentName("two");
-        assertEquals("two", parser.getCurrentName());
+        assertEquals("two", parser.currentName());
 
         jsonToken = parser.nextToken();
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, jsonToken);
         assertEquals(1.0f, parser.getIntValue(), 0.001f);
-        assertEquals(11, parser.getTokenLocation().getColumnNr());
-        assertEquals(16, parser.getCurrentLocation().getColumnNr());
+        assertEquals(11, parser.currentTokenLocation().getColumnNr());
+        assertEquals(16, parser.currentLocation().getColumnNr());
 
         jsonToken = parser.nextToken();
         assertEquals(JsonToken.END_OBJECT, jsonToken);
-        assertEquals(-1, parser.getTokenLocation().getLineNr());
-        assertEquals(16, parser.getTokenLocation().getColumnNr());
-        assertEquals(-1, parser.getCurrentLocation().getLineNr());
-        assertEquals(16, parser.getCurrentLocation().getColumnNr());
+        assertEquals(-1, parser.currentTokenLocation().getLineNr());
+        assertEquals(16, parser.currentTokenLocation().getColumnNr());
+        assertEquals(-1, parser.currentLocation().getLineNr());
+        assertEquals(16, parser.currentLocation().getColumnNr());
 
         parser.close();
         parser.close(); // Intentional
