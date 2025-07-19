@@ -66,7 +66,7 @@ The msgpack-jackson module provides:
 - Extension type support including timestamps
 
 ### Testing Structure
-- **msgpack-core tests**: Written in Scala 3.7.1 using AirSpec framework
+- **msgpack-core tests**: Written in Scala (always use the latest Scala 3 version) using AirSpec framework
   - Location: `msgpack-core/src/test/scala/`
 - **msgpack-jackson tests**: Written in Java using JUnit
   - Location: `msgpack-jackson/src/test/java/`
