@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.io.IOContext;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.annotations.VisibleForTesting;
@@ -111,7 +112,7 @@ public class MessagePackFactory
     public JsonParser createParser(byte[] data)
             throws IOException
     {
-        IOContext ioContext = _createContext(data, false);
+        IOContext ioContext = _createContext(ContentReference.rawReference(data), false);
         return _createParser(data, 0, data.length, ioContext);
     }
 
@@ -119,7 +120,7 @@ public class MessagePackFactory
     public JsonParser createParser(InputStream in)
             throws IOException
     {
-        IOContext ioContext = _createContext(in, false);
+        IOContext ioContext = _createContext(ContentReference.rawReference(in), false);
         return _createParser(in, ioContext);
     }
 

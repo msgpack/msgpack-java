@@ -16,8 +16,10 @@
 package org.msgpack.jackson.dataformat;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
 
@@ -43,6 +45,13 @@ public class MessagePackSerializerFactory
     }
 
     @Override
+    public JsonSerializer<Object> createKeySerializer(SerializerProvider prov, JavaType keyType, JsonSerializer<Object> defaultImpl) throws JsonMappingException
+    {
+        return new MessagePackKeySerializer();
+    }
+
+    @Override
+    @Deprecated
     public JsonSerializer<Object> createKeySerializer(SerializationConfig config, JavaType keyType, JsonSerializer<Object> defaultImpl)
     {
         return new MessagePackKeySerializer();

@@ -106,7 +106,7 @@ public class MessagePackParser
             boolean reuseResourceInParser)
             throws IOException
     {
-        super(features);
+        super(features, ctxt.streamReadConstraints());
 
         this.codec = objectCodec;
         ioContext = ctxt;
@@ -583,15 +583,29 @@ public class MessagePackParser
     }
 
     @Override
-    public JsonLocation getTokenLocation()
+    public JsonLocation currentTokenLocation()
     {
-        return new JsonLocation(ioContext.getSourceReference(), tokenPosition, -1, -1, (int) tokenPosition);
+        return new JsonLocation(ioContext.contentReference(), tokenPosition, -1, -1);
     }
 
     @Override
+    public JsonLocation currentLocation()
+    {
+        return new JsonLocation(ioContext.contentReference(), currentPosition, -1, -1);
+    }
+
+    @Override
+    @Deprecated
+    public JsonLocation getTokenLocation()
+    {
+        return currentTokenLocation();
+    }
+
+    @Override
+    @Deprecated
     public JsonLocation getCurrentLocation()
     {
-        return new JsonLocation(ioContext.getSourceReference(), currentPosition, -1, -1, (int) currentPosition);
+        return currentLocation();
     }
 
     @Override
@@ -627,6 +641,7 @@ public class MessagePackParser
     }
 
     @Override
+    @Deprecated
     public String getCurrentName()
             throws IOException
     {
