@@ -19,7 +19,11 @@ import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.base.GeneratorBase;
+import com.fasterxml.jackson.core.io.ContentReference;
+import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.json.JsonWriteContext;
+import com.fasterxml.jackson.core.util.BufferRecycler;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.annotations.Nullable;
@@ -185,6 +189,7 @@ public class MessagePackGenerator
     }
 
     // This is an internal constructor for nested serialization.
+    @SuppressWarnings("deprecation")
     private MessagePackGenerator(
             int features,
             ObjectCodec codec,
@@ -192,7 +197,7 @@ public class MessagePackGenerator
             MessagePack.PackerConfig packerConfig,
             boolean supportIntegerKeys)
     {
-        super(features, codec);
+        super(features, codec, new IOContext(new BufferRecycler(), ContentReference.rawReference(out), false), JsonWriteContext.createRootContext(null));
         this.output = out;
         this.messagePacker = packerConfig.newPacker(out);
         this.packerConfig = packerConfig;
@@ -200,6 +205,7 @@ public class MessagePackGenerator
         this.supportIntegerKeys = supportIntegerKeys;
     }
 
+    @SuppressWarnings("deprecation")
     public MessagePackGenerator(
             int features,
             ObjectCodec codec,
@@ -209,7 +215,7 @@ public class MessagePackGenerator
             boolean supportIntegerKeys)
             throws IOException
     {
-        super(features, codec);
+        super(features, codec, new IOContext(new BufferRecycler(), ContentReference.rawReference(out), false), JsonWriteContext.createRootContext(null));
         this.output = out;
         this.messagePacker = packerConfig.newPacker(getMessageBufferOutputForOutputStream(out, reuseResourceInGenerator));
         this.packerConfig = packerConfig;
