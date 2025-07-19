@@ -33,25 +33,23 @@ import scala.util.Random
 /**
   * Created on 2014/05/07.
   */
-class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
+class MessagePackTest extends AirSpec with PropertyCheck with Benchmark:
 
-  private def isValidUTF8(s: String) = {
-    MessagePack.UTF8.newEncoder().canEncode(s)
-  }
+  private def isValidUTF8(s: String) = MessagePack.UTF8.newEncoder().canEncode(s)
 
-  private def containsUnmappableCharacter(s: String): Boolean = {
-    try {
-      MessagePack.UTF8
+  private def containsUnmappableCharacter(s: String): Boolean =
+    try
+      MessagePack
+        .UTF8
         .newEncoder()
         .onUnmappableCharacter(CodingErrorAction.REPORT)
         .encode(CharBuffer.wrap(s))
       false
-    } catch {
+    catch
       case e: UnmappableCharacterException =>
         true
-      case _: Exception => false
-    }
-  }
+      case _: Exception =>
+        false
 
   test("clone packer config") {
     val config = new PackerConfig()
@@ -78,13 +76,11 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
 
   test("detect fixint values") {
 
-    for (i <- 0 until 0x7f) {
+    for i <- 0 until 0x7f do
       Code.isPosFixInt(i.toByte) shouldBe true
-    }
 
-    for (i <- 0x80 until 0xff) {
+    for i <- 0x80 until 0xff do
       Code.isPosFixInt(i.toByte) shouldBe false
-    }
   }
 
   test("detect fixarray values") {
@@ -93,12 +89,11 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
     packer.close
     val bytes = packer.toByteArray
     MessagePack.newDefaultUnpacker(bytes).unpackArrayHeader() shouldBe 0
-    try {
+    try
       MessagePack.newDefaultUnpacker(bytes).unpackMapHeader()
       fail("Shouldn't reach here")
-    } catch {
+    catch
       case e: MessageTypeException => // OK
-    }
   }
 
   test("detect fixmap values") {
@@ -107,12 +102,11 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
     packer.close
     val bytes = packer.toByteArray
     MessagePack.newDefaultUnpacker(bytes).unpackMapHeader() shouldBe 0
-    try {
+    try
       MessagePack.newDefaultUnpacker(bytes).unpackArrayHeader()
       fail("Shouldn't reach here")
-    } catch {
+    catch
       case e: MessageTypeException => // OK
-    }
   }
 
   test("detect fixint quickly") {
@@ -125,34 +119,28 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
       block("mask") {
         var i     = 0
         var count = 0
-        while (i < N) {
-          if ((idx(i) & Code.POSFIXINT_MASK) == 0) {
+        while i < N do
+          if (idx(i) & Code.POSFIXINT_MASK) == 0 then
             count += 1
-          }
           i += 1
-        }
       }
 
       block("mask in func") {
         var i     = 0
         var count = 0
-        while (i < N) {
-          if (Code.isPosFixInt(idx(i))) {
+        while i < N do
+          if Code.isPosFixInt(idx(i)) then
             count += 1
-          }
           i += 1
-        }
       }
 
       block("shift cmp") {
         var i     = 0
         var count = 0
-        while (i < N) {
-          if ((idx(i) >>> 7) == 0) {
+        while i < N do
+          if (idx(i) >>> 7) == 0 then
             count += 1
-          }
           i += 1
-        }
 
       }
 
@@ -162,13 +150,11 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
 
   test("detect neg fix int values") {
 
-    for (i <- 0 until 0xe0) {
+    for i <- 0 until 0xe0 do
       Code.isNegFixInt(i.toByte) shouldBe false
-    }
 
-    for (i <- 0xe0 until 0xff) {
+    for i <- 0xe0 until 0xff do
       Code.isNegFixInt(i.toByte) shouldBe true
-    }
 
   }
 
@@ -178,9 +164,9 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
       unpack: MessageUnpacker => A,
       packerConfig: PackerConfig = new PackerConfig(),
       unpackerConfig: UnpackerConfig = new UnpackerConfig()
-  ): Boolean = {
+  ): Boolean =
     var b: Array[Byte] = null
-    try {
+    try
       val bs     = new ByteArrayOutputStream()
       val packer = packerConfig.newPacker(bs)
       pack(packer)
@@ -192,15 +178,12 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
       val ret      = unpack(unpacker)
       ret shouldBe v
       true
-    } catch {
+    catch
       case e: Exception =>
         warn(e.getMessage)
-        if (b != null) {
+        if b != null then
           warn(s"packed data (size:${b.length}): ${toHex(b)}")
-        }
         throw e
-    }
-  }
 
   private def checkException[A](
       v: A,
@@ -208,7 +191,7 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
       unpack: MessageUnpacker => A,
       packerConfig: PackerConfig = new PackerConfig(),
       unpaackerConfig: UnpackerConfig = new UnpackerConfig()
-  ): Unit = {
+  ): Unit =
     var b: Array[Byte] = null
     val bs             = new ByteArrayOutputStream()
     val packer         = packerConfig.newPacker(bs)
@@ -221,15 +204,16 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
     val ret      = unpack(unpacker)
 
     fail("cannot not reach here")
-  }
 
-  private def checkOverflow[A](v: A, pack: MessagePacker => Unit, unpack: MessageUnpacker => A): Unit = {
-    try {
+  private def checkOverflow[A](
+      v: A,
+      pack: MessagePacker => Unit,
+      unpack: MessageUnpacker => A
+  ): Unit =
+    try
       checkException[A](v, pack, unpack)
-    } catch {
+    catch
       case e: MessageIntegerOverflowException => // OK
-    }
-  }
 
   test("pack/unpack primitive values") {
     forAll { (v: Boolean) =>
@@ -257,7 +241,8 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
       null,
       _.packNil,
       { unpacker =>
-        unpacker.unpackNil(); null
+        unpacker.unpackNil();
+        null
       }
     )
   }
@@ -279,29 +264,35 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
         packer.packString("val")
       },
       { unpacker =>
-        unpacker.tryUnpackNil(); unpacker.unpackString()
+        unpacker.tryUnpackNil();
+        unpacker.unpackString()
       }
     )
     check(
       "val",
       { packer =>
-        packer.packNil(); packer.packString("val")
+        packer.packNil();
+        packer.packString("val")
       },
       { unpacker =>
-        unpacker.tryUnpackNil(); unpacker.unpackString()
+        unpacker.tryUnpackNil();
+        unpacker.unpackString()
       }
     )
-    try {
-      checkException(null, { _ => }, _.tryUnpackNil)
-    } catch {
+    try
+      checkException(
+        null,
+        { _ =>
+        },
+        _.tryUnpackNil
+      )
+    catch
       case e: MessageInsufficientBufferException => // OK
-    }
   }
 
   test("pack/unpack integer values") {
     val sampleData = Seq[Long](
-      Int.MinValue.toLong -
-        10,
+      Int.MinValue.toLong - 10,
       -65535,
       -8191,
       -1024,
@@ -327,31 +318,26 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
       65536,
       Int.MaxValue.toLong + 10
     )
-    for (v <- sampleData) {
+    for v <- sampleData do
       check(v, _.packLong(v), _.unpackLong)
 
-      if (v.isValidInt) {
+      if v.isValidInt then
         val vi = v.toInt
         check(vi, _.packInt(vi), _.unpackInt)
-      } else {
+      else
         checkOverflow(v, _.packLong(v), _.unpackInt)
-      }
 
-      if (v.isValidShort) {
+      if v.isValidShort then
         val vi = v.toShort
         check(vi, _.packShort(vi), _.unpackShort)
-      } else {
+      else
         checkOverflow(v, _.packLong(v), _.unpackShort)
-      }
 
-      if (v.isValidByte) {
+      if v.isValidByte then
         val vi = v.toByte
         check(vi, _.packByte(vi), _.unpackByte)
-      } else {
+      else
         checkOverflow(v, _.packLong(v), _.unpackByte)
-      }
-
-    }
 
   }
 
@@ -361,23 +347,19 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
       check(v, _.packBigInteger(v), _.unpackBigInteger)
     }
 
-    for (bi <- Seq(BigInteger.valueOf(Long.MaxValue).add(BigInteger.valueOf(1)))) {
+    for bi <- Seq(BigInteger.valueOf(Long.MaxValue).add(BigInteger.valueOf(1))) do
       check(bi, _.packBigInteger(bi), _.unpackBigInteger())
-    }
 
-    for (bi <- Seq(BigInteger.valueOf(Long.MaxValue).shiftLeft(10))) {
-      try {
+    for bi <- Seq(BigInteger.valueOf(Long.MaxValue).shiftLeft(10)) do
+      try
         checkException(bi, _.packBigInteger(bi), _.unpackBigInteger())
         fail("cannot reach here")
-      } catch {
+      catch
         case e: IllegalArgumentException => // OK
-      }
-    }
-
   }
 
   test("pack/unpack strings") {
-    val utf8Strings = Arbitrary.arbitrary[String].suchThat(isValidUTF8 _)
+    val utf8Strings = Arbitrary.arbitrary[String].suchThat(isValidUTF8)
     utf8Strings.map { v =>
       check(v, _.packString(v), _.unpackString)
     }
@@ -386,17 +368,15 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
   test("pack/unpack large strings") {
     // Large string
     val strLen = Seq(1000, 2000, 10000, 50000, 100000, 500000)
-    for (l <- strLen) {
-      val v: String =
-        Iterator.continually(Random.nextString(l * 10)).find(isValidUTF8).get
+    for l <- strLen do
+      val v: String = Iterator.continually(Random.nextString(l * 10)).find(isValidUTF8).get
       check(v, _.packString(v), _.unpackString)
-    }
   }
 
   test("report errors when packing/unpacking malformed strings") {
     pending("We need to produce malformed utf-8 strings in Java 8")
     // Create 100 malformed UTF8 Strings
-    val r = new Random(0)
+    val r                = new Random(0)
     val malformedStrings = Iterator
       .continually {
         val b = new Array[Byte](10)
@@ -406,16 +386,14 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
       .filter(b => !isValidUTF8(new String(b)))
       .take(100)
 
-    for (malformedBytes <- malformedStrings) {
+    for malformedBytes <- malformedStrings do
       // Pack tests
       val malformed = new String(malformedBytes)
-      try {
+      try
         checkException(malformed, _.packString(malformed), _.unpackString())
-      } catch {
+      catch
         case e: MessageStringCodingException => // OK
-      }
-
-      try {
+      try
         checkException(
           malformed,
           { packer =>
@@ -424,24 +402,22 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
           },
           _.unpackString()
         )
-      } catch {
+      catch
         case e: MessageStringCodingException => // OK
-      }
-    }
   }
 
   test("report errors when packing/unpacking strings that contain unmappable characters") {
 
     val unmappable = Array[Byte](0xfc.toByte, 0x0a.toByte)
-    //val unmappableChar = Array[Char](new Character(0xfc0a).toChar)
+    // val unmappableChar = Array[Char](new Character(0xfc0a).toChar)
 
     // Report error on unmappable character
     val unpackerConfig = new UnpackerConfig()
       .withActionOnMalformedString(CodingErrorAction.REPORT)
       .withActionOnUnmappableString(CodingErrorAction.REPORT)
 
-    for (bytes <- Seq(unmappable)) {
-      try {
+    for bytes <- Seq(unmappable) do
+      try
         checkException(
           bytes,
           { packer =>
@@ -452,10 +428,8 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
           new PackerConfig(),
           unpackerConfig
         )
-      } catch {
+      catch
         case e: MessageStringCodingException => // OK
-      }
-    }
   }
 
   test("pack/unpack binary") {
@@ -463,7 +437,8 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
       check(
         v,
         { packer =>
-          packer.packBinaryHeader(v.length); packer.writePayload(v)
+          packer.packBinaryHeader(v.length);
+          packer.writePayload(v)
         },
         { unpacker =>
           val len = unpacker.unpackBinaryHeader()
@@ -475,13 +450,14 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
     }
 
     val len = Seq(1000, 2000, 10000, 50000, 100000, 500000)
-    for (l <- len) {
+    for l <- len do
       val v = new Array[Byte](l)
       Random.nextBytes(v)
       check(
         v,
         { packer =>
-          packer.packBinaryHeader(v.length); packer.writePayload(v)
+          packer.packBinaryHeader(v.length);
+          packer.writePayload(v)
         },
         { unpacker =>
           val len = unpacker.unpackBinaryHeader()
@@ -490,10 +466,11 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
           out
         }
       )
-    }
   }
 
-  val testHeaderLength = Seq(1, 2, 4, 8, 16, 17, 32, 64, 255, 256, 1000, 2000, 10000, 50000, 100000, 500000)
+  val testHeaderLength = Seq(
+    1, 2, 4, 8, 16, 17, 32, 64, 255, 256, 1000, 2000, 10000, 50000, 100000, 500000
+  )
 
   test("pack/unpack arrays") {
     forAll { (v: Array[Int]) =>
@@ -506,24 +483,20 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
         { unpacker =>
           val len = unpacker.unpackArrayHeader()
           val out = new Array[Int](len)
-          for (i <- 0 until v.length) {
+          for i <- 0 until v.length do
             out(i) = unpacker.unpackInt
-          }
           out
         }
       )
     }
 
-    for (l <- testHeaderLength) {
+    for l <- testHeaderLength do
       check(l, _.packArrayHeader(l), _.unpackArrayHeader())
-    }
 
-    try {
+    try
       checkException(0, _.packArrayHeader(-1), _.unpackArrayHeader)
-    } catch {
+    catch
       case e: IllegalArgumentException => // OK
-    }
-
   }
 
   test("pack/unpack maps") {
@@ -534,49 +507,51 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
         m,
         { packer =>
           packer.packMapHeader(v.length)
-          m.map {
-            case (k: Int, v: String) =>
-              packer.packInt(k)
-              packer.packString(v)
+          m.map { case (k: Int, v: String) =>
+            packer.packInt(k)
+            packer.packString(v)
           }
         },
         { unpacker =>
           val len = unpacker.unpackMapHeader()
           val b   = Seq.newBuilder[(Int, String)]
-          for (i <- 0 until len) {
+          for i <- 0 until len do
             b += ((unpacker.unpackInt, unpacker.unpackString))
-          }
           b.result()
         }
       )
     }
 
-    for (l <- testHeaderLength) {
+    for l <- testHeaderLength do
       check(l, _.packMapHeader(l), _.unpackMapHeader())
-    }
 
-    try {
+    try
       checkException(0, _.packMapHeader(-1), _.unpackMapHeader)
-    } catch {
+    catch
       case e: IllegalArgumentException => // OK
-    }
-
   }
 
   test("pack/unpack extension types") {
     forAll { (dataLen: Int, tpe: Byte) =>
       val l = Math.abs(dataLen)
       l >= 0 ==> {
-        val ext =
-          new ExtensionTypeHeader(ExtensionTypeHeader.checkedCastToByte(tpe), l)
-        check(ext, _.packExtensionTypeHeader(ext.getType, ext.getLength), _.unpackExtensionTypeHeader())
+        val ext = new ExtensionTypeHeader(ExtensionTypeHeader.checkedCastToByte(tpe), l)
+        check(
+          ext,
+          _.packExtensionTypeHeader(ext.getType, ext.getLength),
+          _.unpackExtensionTypeHeader()
+        )
       }
     }
 
-    for (l <- testHeaderLength) {
-      val ext = new ExtensionTypeHeader(ExtensionTypeHeader.checkedCastToByte(Random.nextInt(128)), l)
-      check(ext, _.packExtensionTypeHeader(ext.getType, ext.getLength), _.unpackExtensionTypeHeader())
-    }
+    for l <- testHeaderLength do
+      val ext =
+        new ExtensionTypeHeader(ExtensionTypeHeader.checkedCastToByte(Random.nextInt(128)), l)
+      check(
+        ext,
+        _.packExtensionTypeHeader(ext.getType, ext.getLength),
+        _.unpackExtensionTypeHeader()
+      )
 
   }
 
@@ -587,31 +562,30 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
       aMap,
       { packer =>
         packer.packArrayHeader(aMap.size)
-        for (m <- aMap) {
+        for m <- aMap do
           packer.packMapHeader(m.size)
-          for ((k, v) <- m) {
+          for (k, v) <- m do
             packer.packString(k)
             packer.packString(v)
-          }
-        }
       },
       { unpacker =>
         val v = new Variable()
         unpacker.unpackValue(v)
-        import scala.jdk.CollectionConverters._
-        v.asArrayValue().asScala
+        import scala.jdk.CollectionConverters.*
+        v.asArrayValue()
+          .asScala
           .map { m =>
             val mv  = m.asMapValue()
             val kvs = mv.getKeyValueArray
 
             kvs
               .grouped(2)
-              .map({ kvp: Array[Value] =>
+              .map { (kvp: Array[Value]) =>
                 val k = kvp(0)
                 val v = kvp(1)
 
                 (k.asStringValue().asString, v.asStringValue().asString)
-              })
+              }
               .toMap
           }
           .toList
@@ -624,12 +598,24 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
     val posInt  = Gen.chooseNum(0, 1000000000 - 1) // NANOS_PER_SECOND
     forAll(posLong, posInt) { (second: Long, nano: Int) =>
       val v = Instant.ofEpochSecond(second, nano)
-      check(v, { _.packTimestamp(v) }, { _.unpackTimestamp() })
+      check(
+        v, {
+          _.packTimestamp(v)
+        }, {
+          _.unpackTimestamp()
+        }
+      )
     }
     // Using different insterfaces
     forAll(posLong, posInt) { (second: Long, nano: Int) =>
       val v = Instant.ofEpochSecond(second, nano)
-      check(v, { _.packTimestamp(second, nano) }, { _.unpackTimestamp() })
+      check(
+        v, {
+          _.packTimestamp(second, nano)
+        }, {
+          _.unpackTimestamp()
+        }
+      )
     }
     val secLessThan34bits = Gen.chooseNum[Long](0, 1L << 34)
     forAll(secLessThan34bits, posInt) { (second: Long, nano: Int) =>
@@ -642,23 +628,30 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
     }
 
     // Corner-cases around uint32 boundaries
-    for (
-      v <- Seq(
-        Instant.ofEpochSecond(Instant.now().getEpochSecond, 123456789L), // uint32 nanoseq (out of int32 range)
-        Instant.ofEpochSecond(-1302749144L, 0),                          // 1928-09-19T21:14:16Z
-        Instant.ofEpochSecond(-747359729L, 0),                           // 1946-04-27T00:04:31Z
-        Instant.ofEpochSecond(4257387427L, 0)                            // 2104-11-29T07:37:07Z
+    for v <- Seq(
+        Instant.ofEpochSecond(
+          Instant.now().getEpochSecond,
+          123456789L
+        ),                                      // uint32 nanoseq (out of int32 range)
+        Instant.ofEpochSecond(-1302749144L, 0), // 1928-09-19T21:14:16Z
+        Instant.ofEpochSecond(-747359729L, 0),  // 1946-04-27T00:04:31Z
+        Instant.ofEpochSecond(4257387427L, 0)   // 2104-11-29T07:37:07Z
       )
-    ) {
+    do
       check(v, _.packTimestamp(v), _.unpackTimestamp())
-    }
   }
 
   test("pack/unpack timestamp in millis") {
     val posLong = Gen.chooseNum[Long](-31557014167219200L, 31556889864403199L)
     forAll(posLong) { (millis: Long) =>
       val v = Instant.ofEpochMilli(millis)
-      check(v, { _.packTimestamp(millis) }, { _.unpackTimestamp() })
+      check(
+        v, {
+          _.packTimestamp(millis)
+        }, {
+          _.unpackTimestamp()
+        }
+      )
     }
   }
 
@@ -666,15 +659,16 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
     val posLong = Gen.chooseNum[Long](-31557014167219200L, 31556889864403199L)
     forAll(posLong) { (millis: Long) =>
       val v = Instant.ofEpochMilli(millis)
-      check(v, { _.packTimestamp(millis) },
+      check(
+        v, {
+          _.packTimestamp(millis)
+        },
         { u =>
           val extHeader = u.unpackExtensionTypeHeader()
-          if(extHeader.isTimestampType) {
+          if extHeader.isTimestampType then
             u.unpackTimestamp(extHeader)
-          }
-          else {
+          else
             fail("Cannot reach here")
-          }
         }
       )
     }
@@ -711,12 +705,11 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
       a.withBufferSize(64 * 1024).equals(b) shouldBe false
       a.withAllowReadingStringAsBinary(false).equals(b) shouldBe false
       a.withAllowReadingBinaryAsString(false).equals(b) shouldBe false
-      a.withActionOnMalformedString(CodingErrorAction.REPORT)
-        .equals(b) shouldBe false
-      a.withActionOnUnmappableString(CodingErrorAction.REPORT)
-        .equals(b) shouldBe false
+      a.withActionOnMalformedString(CodingErrorAction.REPORT).equals(b) shouldBe false
+      a.withActionOnUnmappableString(CodingErrorAction.REPORT).equals(b) shouldBe false
       a.withStringSizeLimit(32).equals(b) shouldBe false
       a.withStringDecoderBufferSize(32).equals(b) shouldBe false
     }
   }
-}
+
+end MessagePackTest

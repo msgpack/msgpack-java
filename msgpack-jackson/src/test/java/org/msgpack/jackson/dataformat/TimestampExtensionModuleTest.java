@@ -16,8 +16,8 @@
 package org.msgpack.jackson.dataformat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
@@ -26,7 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Instant;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TimestampExtensionModuleTest
 {
@@ -46,7 +46,7 @@ public class TimestampExtensionModuleTest
         public Instant c;
     }
 
-    @Before
+    @BeforeEach
     public void setUp()
             throws Exception
     {

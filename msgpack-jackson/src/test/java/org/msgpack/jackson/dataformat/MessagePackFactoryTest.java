@@ -23,7 +23,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.msgpack.core.MessagePack;
 
 import java.io.IOException;
@@ -35,8 +35,8 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MessagePackFactoryTest
         extends MessagePackDataformatTestBase

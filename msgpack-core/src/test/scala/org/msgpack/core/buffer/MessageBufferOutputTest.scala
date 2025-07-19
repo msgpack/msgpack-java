@@ -17,34 +17,30 @@ package org.msgpack.core.buffer
 
 import wvlet.airspec.AirSpec
 
-import java.io._
+import java.io.*
 
-class MessageBufferOutputTest extends AirSpec {
+class MessageBufferOutputTest extends AirSpec:
 
-  private def createTempFile = {
+  private def createTempFile =
     val f = File.createTempFile("msgpackTest", "msgpack")
     f.deleteOnExit
     f
-  }
 
-  private def createTempFileWithOutputStream = {
+  private def createTempFileWithOutputStream =
     val f   = createTempFile
     val out = new FileOutputStream(f)
     (f, out)
-  }
 
-  private def createTempFileWithChannel = {
+  private def createTempFileWithChannel =
     val (f, out) = createTempFileWithOutputStream
     val ch       = out.getChannel
     (f, ch)
-  }
 
-  private def writeIntToBuf(buf: MessageBufferOutput) = {
+  private def writeIntToBuf(buf: MessageBufferOutput) =
     val mb0 = buf.next(8)
     mb0.putInt(0, 42)
     buf.writeBuffer(4)
     buf.close
-  }
 
   test("OutputStreamBufferOutput") {
     test("reset buffer") {
@@ -73,4 +69,5 @@ class MessageBufferOutputTest extends AirSpec {
       f1.length.toInt > 0 shouldBe true
     }
   }
-}
+
+end MessageBufferOutputTest

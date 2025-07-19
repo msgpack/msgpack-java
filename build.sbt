@@ -5,19 +5,37 @@ Global / concurrentRestrictions := Seq(
   Tags.limit(Tags.Test, 1)
 )
 
-val AIRFRAME_VERSION = "2025.1.1"
+val AIRFRAME_VERSION = "2025.1.14"
 
 // Use dynamic snapshot version strings for non tagged versions
 ThisBuild / dynverSonatypeSnapshots := true
 // Use coursier friendly version separator
 ThisBuild / dynverSeparator := "-"
 
+// Publishing metadata
+ThisBuild / homepage := Some(url("https://msgpack.org/"))
+ThisBuild / licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt"))
+ThisBuild / scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/msgpack/msgpack-java"),
+    "scm:git@github.com:msgpack/msgpack-java.git"
+  )
+)
+ThisBuild / developers := List(
+  Developer(id = "frsyuki", name = "Sadayuki Furuhashi", email = "frsyuki@users.sourceforge.jp", url = url("https://github.com/frsyuki")),
+  Developer(id = "muga", name = "Muga Nishizawa", email = "muga.nishizawa@gmail.com", url = url("https://github.com/muga")),
+  Developer(id = "oza", name = "Tsuyoshi Ozawa", email = "ozawa.tsuyoshi@gmail.com", url = url("https://github.com/oza")),
+  Developer(id = "komamitsu", name = "Mitsunori Komatsu", email = "komamitsu@gmail.com", url = url("https://github.com/komamitsu")),
+  Developer(id = "xerial", name = "Taro L. Saito", email = "leo@xerial.org", url = url("https://github.com/xerial"))
+)
+
+
 val buildSettings = Seq[Setting[_]](
   organization := "org.msgpack",
   organizationName := "MessagePack",
   organizationHomepage := Some(url("http://msgpack.org/")),
   description := "MessagePack for Java",
-  scalaVersion := "2.13.12",
+  scalaVersion := "3.7.1",
   Test / logBuffered := false,
   // msgpack-java should be a pure-java library, so remove Scala specific configurations
   autoScalaLibrary := false,
@@ -38,7 +56,11 @@ val buildSettings = Seq[Setting[_]](
     }
   },
   // Add sonatype repository settings
-  publishTo := sonatypePublishToBundle.value,
+  publishTo := {
+    val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+    if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+    else localStaging.value
+  },
   // Style check config: (sbt-jchekcstyle)
   jcheckStyleConfig := "facebook",
   // Run jcheckstyle both for main and test codes
@@ -46,7 +68,8 @@ val buildSettings = Seq[Setting[_]](
   Test / compile := ((Test / compile) dependsOn (Test / jcheckStyle)).value
 )
 
-val junitInterface = "com.github.sbt" % "junit-interface" % "0.13.3" % "test"
+val junitJupiter = "org.junit.jupiter" % "junit-jupiter" % "5.11.4" % "test"
+val junitVintage = "org.junit.vintage" % "junit-vintage-engine" % "5.11.4" % "test"
 
 // Project settings
 lazy val root = Project(id = "msgpack-java", base = file("."))
@@ -83,7 +106,8 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
     Test / fork := true,
     libraryDependencies ++= Seq(
       // msgpack-core should have no external dependencies
-      junitInterface,
+      junitJupiter,
+      junitVintage,
       "org.wvlet.airframe" %% "airframe-json" % AIRFRAME_VERSION % "test",
       "org.wvlet.airframe" %% "airspec"       % AIRFRAME_VERSION % "test",
       // Add property testing support with forAll methods
@@ -111,6 +135,8 @@ lazy val msgpackJackson =
       libraryDependencies ++= Seq(
         "com.fasterxml.jackson.core" % "jackson-databind" % "2.18.4",
         junitInterface,
+        junitJupiter,
+        junitVintage,
         "org.apache.commons" % "commons-math3" % "3.6.1" % "test"
       ),
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-v")

@@ -18,14 +18,17 @@ package org.msgpack.value
 import org.msgpack.core.MessagePackSpec.createMessagePackData
 
 import java.math.BigInteger
-import org.msgpack.core._
+import org.msgpack.core.*
 import org.scalacheck.Prop.propBoolean
 import wvlet.airframe.json.JSON
 import wvlet.airspec.AirSpec
 import wvlet.airspec.spi.PropertyCheck
 
-class ValueTest extends AirSpec with PropertyCheck {
-  private def checkSuccinctType(pack: MessagePacker => Unit, expectedAtMost: MessageFormat): Boolean = {
+class ValueTest extends AirSpec with PropertyCheck:
+  private def checkSuccinctType(
+      pack: MessagePacker => Unit,
+      expectedAtMost: MessageFormat
+  ): Boolean =
     val b  = createMessagePackData(pack)
     val v1 = MessagePack.newDefaultUnpacker(b).unpackValue()
     val mf = v1.asIntegerValue().mostSuccinctMessageFormat()
@@ -39,7 +42,6 @@ class ValueTest extends AirSpec with PropertyCheck {
     mf2.ordinal() <= expectedAtMost.ordinal() shouldBe true
 
     true
-  }
 
   test("Value") {
     test("tell most succinct integer type") {
@@ -61,14 +63,17 @@ class ValueTest extends AirSpec with PropertyCheck {
       forAll { (v: Long) =>
         v > 0 ==> {
           // Create value between 2^63-1 < v <= 2^64-1
-          checkSuccinctType(_.packBigInteger(BigInteger.valueOf(Long.MaxValue).add(BigInteger.valueOf(v))), MessageFormat.UINT64)
+          checkSuccinctType(
+            _.packBigInteger(BigInteger.valueOf(Long.MaxValue).add(BigInteger.valueOf(v))),
+            MessageFormat.UINT64
+          )
         }
       }
     }
 
     test("produce json strings") {
 
-      import ValueFactory._
+      import ValueFactory.*
 
       newNil().toJson shouldBe "null"
       newNil().toString shouldBe "null"
@@ -88,7 +93,8 @@ class ValueTest extends AirSpec with PropertyCheck {
 
       newArray(newInteger(0), newString("hello")).toJson shouldBe "[0,\"hello\"]"
       newArray(newInteger(0), newString("hello")).toString shouldBe "[0,\"hello\"]"
-      newArray(newArray(newString("Apple"), newFloat(0.2)), newNil()).toJson shouldBe """[["Apple",0.2],null]"""
+      newArray(newArray(newString("Apple"), newFloat(0.2)), newNil()).toJson shouldBe
+        """[["Apple",0.2],null]"""
 
       // Map value
       val m = newMapBuilder()
@@ -112,7 +118,7 @@ class ValueTest extends AirSpec with PropertyCheck {
     }
 
     test("check appropriate range for integers") {
-      import ValueFactory._
+      import ValueFactory.*
       import java.lang.Byte
       import java.lang.Short
 
@@ -142,4 +148,5 @@ class ValueTest extends AirSpec with PropertyCheck {
       }
     }
   }
-}
+
+end ValueTest
