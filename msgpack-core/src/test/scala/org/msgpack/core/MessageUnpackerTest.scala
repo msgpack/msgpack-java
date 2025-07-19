@@ -30,7 +30,7 @@ import scala.util.Random
 
 object MessageUnpackerTest {
   class SplitMessageBufferInput(array: Array[Array[Byte]]) extends MessageBufferInput {
-    var cursor = 0
+    var cursor                         = 0
     override def next(): MessageBuffer = {
       if (cursor < array.length) {
         val a = array(cursor)
@@ -49,7 +49,7 @@ import org.msgpack.core.MessageUnpackerTest._
 
 class MessageUnpackerTest extends AirSpec with Benchmark {
 
-  private val universal = MessageBuffer.allocate(0).isInstanceOf[MessageBufferU]
+  private val universal             = MessageBuffer.allocate(0).isInstanceOf[MessageBufferU]
   private def testData: Array[Byte] = {
     val out    = new ByteArrayOutputStream()
     val packer = MessagePack.newDefaultPacker(out)

@@ -19,8 +19,7 @@ import org.msgpack.core.MessagePack.Code._
 import org.msgpack.core.{MessageFormat, MessageFormatException}
 import wvlet.airspec.AirSpec
 
-/**
-  * Created on 2014/05/06.
+/** Created on 2014/05/06.
   */
 class ValueTypeTest extends AirSpec {
 

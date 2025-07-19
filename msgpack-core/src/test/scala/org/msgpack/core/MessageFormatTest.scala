@@ -22,8 +22,7 @@ import wvlet.airspec.spi.AirSpecException
 
 import scala.util.Random
 
-/**
-  * Created on 2014/05/07.
+/** Created on 2014/05/07.
   */
 class MessageFormatTest extends AirSpec with Benchmark {
   test("MessageFormat") {

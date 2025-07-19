@@ -21,7 +21,7 @@ import wvlet.log.io.{TimeReport, Timer}
 import java.io.ByteArrayOutputStream
 
 object MessagePackSpec {
-  def toHex(arr: Array[Byte]) = arr.map(x => f"$x%02x").mkString(" ")
+  def toHex(arr: Array[Byte])                                      = arr.map(x => f"$x%02x").mkString(" ")
   def createMessagePackData(f: MessagePacker => Unit): Array[Byte] = {
     val b      = new ByteArrayOutputStream()
     val packer = MessagePack.newDefaultPacker(b)
