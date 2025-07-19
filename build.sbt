@@ -46,7 +46,8 @@ val buildSettings = Seq[Setting[_]](
   Test / compile := ((Test / compile) dependsOn (Test / jcheckStyle)).value
 )
 
-val junitInterface = "com.github.sbt" % "junit-interface" % "0.13.3" % "test"
+val junitJupiter = "org.junit.jupiter" % "junit-jupiter" % "5.11.4" % "test"
+val junitVintage = "org.junit.vintage" % "junit-vintage-engine" % "5.11.4" % "test"
 
 // Project settings
 lazy val root = Project(id = "msgpack-java", base = file("."))
@@ -83,7 +84,8 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
     Test / fork := true,
     libraryDependencies ++= Seq(
       // msgpack-core should have no external dependencies
-      junitInterface,
+      junitJupiter,
+      junitVintage,
       "org.wvlet.airframe" %% "airframe-json" % AIRFRAME_VERSION % "test",
       "org.wvlet.airframe" %% "airspec"       % AIRFRAME_VERSION % "test",
       // Add property testing support with forAll methods
@@ -110,7 +112,8 @@ lazy val msgpackJackson =
       ),
       libraryDependencies ++= Seq(
         "com.fasterxml.jackson.core" % "jackson-databind" % "2.18.2",
-        junitInterface,
+        junitJupiter,
+        junitVintage,
         "org.apache.commons" % "commons-math3" % "3.6.1" % "test"
       ),
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-v")

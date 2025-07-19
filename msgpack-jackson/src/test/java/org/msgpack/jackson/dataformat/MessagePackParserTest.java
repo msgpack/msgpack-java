@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.value.ExtensionValue;
@@ -52,10 +52,11 @@ import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MessagePackParserTest
         extends MessagePackDataformatTestBase
@@ -450,7 +451,7 @@ public class MessagePackParserTest
         return tempFile;
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void testEnableFeatureAutoCloseSource()
             throws Exception
     {
@@ -459,7 +460,9 @@ public class MessagePackParserTest
         FileInputStream in = new FileInputStream(tempFile);
         ObjectMapper objectMapper = new ObjectMapper(factory);
         objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
-        objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
+        assertThrows(IOException.class, () -> {
+            objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
+        });
     }
 
     @Test

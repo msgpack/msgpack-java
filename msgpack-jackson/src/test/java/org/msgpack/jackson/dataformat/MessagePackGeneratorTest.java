@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.msgpack.core.ExtensionTypeHeader;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
@@ -53,13 +53,14 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MessagePackGeneratorTest
         extends MessagePackDataformatTestBase
@@ -349,7 +350,7 @@ public class MessagePackGeneratorTest
         }
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void testEnableFeatureAutoCloseTarget()
             throws IOException
     {
@@ -358,7 +359,9 @@ public class MessagePackGeneratorTest
         ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
         List<Integer> integers = Arrays.asList(1);
         objectMapper.writeValue(out, integers);
-        objectMapper.writeValue(out, integers);
+        assertThrows(IOException.class, () -> {
+            objectMapper.writeValue(out, integers);
+        });
     }
 
     @Test
