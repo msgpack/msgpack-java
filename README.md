@@ -108,27 +108,38 @@ A new release note will be generated automatically at the [GitHub Releases](http
 
 #### Publishing to Sonatype from Local Machine
 
-If you need to publish to Maven central using a local machine, you need to configure [sbt-sonatype](https://github.com/xerial/sbt-sonatype) plugin. First set Sonatype account information (user name and password) in the global sbt settings. To protect your password, never include this file in your project.
+If you need to publish to Maven central using a local machine, you need to configure credentials for Sonatype Central. First set Sonatype account information (user name and password) in the global sbt settings. To protect your password, never include this file in your project.
 
-___$HOME/.sbt/(sbt-version)/sonatype.sbt___
+___$HOME/.sbt/1.0/credentials.sbt___
 
 ```
-credentials += Credentials("Sonatype Nexus Repository Manager",
-        "oss.sonatype.org",
-        "(Sonatype user name)",
-        "(Sonatype password)")
+credentials += Credentials(Path.userHome / ".sbt" / "sonatype_central_credentials")
+```
+
+Then create a credentials file at `~/.sbt/sonatype_central_credentials`:
+
+```
+host=central.sonatype.com
+user=<your username>
+password=<your password>
+```
+
+Alternatively, you can use environment variables:
+```bash
+export SONATYPE_USERNAME=<your username>
+export SONATYPE_PASSWORD=<your password>
 ```
 
 You may also need to configure GPG. See the instruction in [sbt-pgp](https://github.com/sbt/sbt-pgp).
 
-Then, run `publishedSigned` followed by `sonatypeBundleRelease`:
+Then, run `publishSigned` followed by `sonaRelease`:
 ```
 # [optional] When you need to perform the individual release steps manually, use the following commands:
 > publishSigned           # Publish GPG signed artifacts to the Sonatype repository
-> sonatypeBundleRelease   # Publish to the Maven Central (It will be synched within less than 4 hours)
+> sonaRelease             # Publish to the Maven Central (It will be synched within less than 4 hours)
 ```
 
-If some sporadic error happens (e.g., Sonatype timeout), rerun `sonatypeBundleRelease` again.
+If some sporadic error happens (e.g., Sonatype timeout), rerun `sonaRelease` again.
 
 ### Project Structure
 
