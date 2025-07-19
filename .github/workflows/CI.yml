@@ -42,6 +42,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: jcheckstyle
         run: ./sbt jcheckStyle
+      - name: scalafmtCheckAll
+        run: ./sbt scalafmtCheckAll
   
   test:
     name: Test JDK${{ matrix.java }}
