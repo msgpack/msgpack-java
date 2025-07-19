@@ -211,7 +211,7 @@ class MessagePackerTest extends AirSpec with Benchmark:
   }
 
   test("compute totalWrittenBytes") {
-    val out = new ByteArrayOutputStream
+    val out                     = new ByteArrayOutputStream
     val packerTotalWrittenBytes =
       withResource(MessagePack.newDefaultPacker(out)) { packer =>
         packer

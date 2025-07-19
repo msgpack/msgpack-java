@@ -376,7 +376,7 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark:
   test("report errors when packing/unpacking malformed strings") {
     pending("We need to produce malformed utf-8 strings in Java 8")
     // Create 100 malformed UTF8 Strings
-    val r = new Random(0)
+    val r                = new Random(0)
     val malformedStrings = Iterator
       .continually {
         val b = new Array[Byte](10)
@@ -580,12 +580,12 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark:
 
             kvs
               .grouped(2)
-              .map((kvp: Array[Value]) =>
+              .map { (kvp: Array[Value]) =>
                 val k = kvp(0)
                 val v = kvp(1)
 
                 (k.asStringValue().asString, v.asStringValue().asString)
-              )
+              }
               .toMap
           }
           .toList
