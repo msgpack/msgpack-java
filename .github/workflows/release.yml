@@ -26,13 +26,12 @@ jobs:
         env:
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
         run: echo $PGP_SECRET | base64 --decode | gpg --import --batch --yes
-      - name: Publish signed artifacts
+      - name: Build bundle
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-          SONATYPE_USERNAME: '${{ secrets.SONATYPE_USERNAME }}'
-          SONATYPE_PASSWORD: '${{ secrets.SONATYPE_PASSWORD }}'
-        run: ./sbt publishSigned
-      - name: Release to Sonatype Central
+        run: |
+          ./sbt publishSigned
+      - name: Release to Sonatype
         env:
           SONATYPE_USERNAME: '${{ secrets.SONATYPE_USERNAME }}'
           SONATYPE_PASSWORD: '${{ secrets.SONATYPE_PASSWORD }}'
