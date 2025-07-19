@@ -30,8 +30,7 @@ import java.nio.charset.{CodingErrorAction, UnmappableCharacterException}
 import java.time.Instant
 import scala.util.Random
 
-/**
-  * Created on 2014/05/07.
+/** Created on 2014/05/07.
   */
 class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
 
@@ -396,7 +395,7 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
   test("report errors when packing/unpacking malformed strings") {
     pending("We need to produce malformed utf-8 strings in Java 8")
     // Create 100 malformed UTF8 Strings
-    val r = new Random(0)
+    val r                = new Random(0)
     val malformedStrings = Iterator
       .continually {
         val b = new Array[Byte](10)
@@ -433,7 +432,7 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
   test("report errors when packing/unpacking strings that contain unmappable characters") {
 
     val unmappable = Array[Byte](0xfc.toByte, 0x0a.toByte)
-    //val unmappableChar = Array[Char](new Character(0xfc0a).toChar)
+    // val unmappableChar = Array[Char](new Character(0xfc0a).toChar)
 
     // Report error on unmappable character
     val unpackerConfig = new UnpackerConfig()
@@ -534,10 +533,9 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
         m,
         { packer =>
           packer.packMapHeader(v.length)
-          m.map {
-            case (k: Int, v: String) =>
-              packer.packInt(k)
-              packer.packString(v)
+          m.map { case (k: Int, v: String) =>
+            packer.packInt(k)
+            packer.packString(v)
           }
         },
         { unpacker =>
@@ -666,13 +664,14 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark {
     val posLong = Gen.chooseNum[Long](-31557014167219200L, 31556889864403199L)
     forAll(posLong) { (millis: Long) =>
       val v = Instant.ofEpochMilli(millis)
-      check(v, { _.packTimestamp(millis) },
+      check(
+        v,
+        { _.packTimestamp(millis) },
         { u =>
           val extHeader = u.unpackExtensionTypeHeader()
-          if(extHeader.isTimestampType) {
+          if (extHeader.isTimestampType) {
             u.unpackTimestamp(extHeader)
-          }
-          else {
+          } else {
             fail("Cannot reach here")
           }
         }

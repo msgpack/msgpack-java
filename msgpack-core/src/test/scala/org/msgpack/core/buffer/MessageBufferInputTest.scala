@@ -33,7 +33,7 @@ class MessageBufferInputTest extends AirSpec {
     Seq(0, 10, 500, 1000, 2000, 4000, 8000, 10000, 30000, 50000, 100000)
 
   private def testData(size: Int): Array[Byte] = {
-    //debug(s"test data size: ${size}")
+    // debug(s"test data size: ${size}")
     val b = new Array[Byte](size)
     Random.nextBytes(b)
     b

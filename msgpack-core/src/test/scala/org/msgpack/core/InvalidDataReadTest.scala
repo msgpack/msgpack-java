@@ -3,8 +3,7 @@ package org.msgpack.core
 import org.msgpack.core.MessagePackSpec.createMessagePackData
 import wvlet.airspec.AirSpec
 
-/**
-  */
+/** */
 class InvalidDataReadTest extends AirSpec {
 
   test("Reading long EXT32") {

@@ -24,8 +24,7 @@ import wvlet.log.io.IOUtil.withResource
 import java.io.{ByteArrayOutputStream, File, FileInputStream, FileOutputStream}
 import scala.util.Random
 
-/**
-  */
+/** */
 class MessagePackerTest extends AirSpec with Benchmark {
 
   private def verifyIntSeq(answer: Array[Int], packed: Array[Byte]): Unit = {
@@ -141,8 +140,8 @@ class MessagePackerTest extends AirSpec with Benchmark {
         32 -> 31,
         34 -> 32
       )
-      testCases.foreach {
-        case (bufferSize, stringSize) => test(bufferSize, stringSize)
+      testCases.foreach { case (bufferSize, stringSize) =>
+        test(bufferSize, stringSize)
       }
     }
 
@@ -234,7 +233,7 @@ class MessagePackerTest extends AirSpec with Benchmark {
   }
 
   test("compute totalWrittenBytes") {
-    val out = new ByteArrayOutputStream
+    val out                     = new ByteArrayOutputStream
     val packerTotalWrittenBytes =
       withResource(MessagePack.newDefaultPacker(out)) { packer =>
         packer
@@ -255,7 +254,7 @@ class MessagePackerTest extends AirSpec with Benchmark {
   test("support read-only buffer") {
     val payload = Array[Byte](1)
     val out     = new ByteArrayOutputStream()
-    val packer = MessagePack
+    val packer  = MessagePack
       .newDefaultPacker(out)
       .packBinaryHeader(1)
       .writePayload(payload)
@@ -299,14 +298,14 @@ class MessagePackerTest extends AirSpec with Benchmark {
 
   test("write raw binary") {
     val packer = new MessagePack.PackerConfig().newBufferPacker()
-    val msg =
+    val msg    =
       Array[Byte](-127, -92, 116, 121, 112, 101, -92, 112, 105, 110, 103)
     packer.writePayload(msg)
   }
 
   test("append raw binary") {
     val packer = new MessagePack.PackerConfig().newBufferPacker()
-    val msg =
+    val msg    =
       Array[Byte](-127, -92, 116, 121, 112, 101, -92, 112, 105, 110, 103)
     packer.addPayload(msg)
   }

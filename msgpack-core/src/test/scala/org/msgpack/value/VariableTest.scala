@@ -23,8 +23,7 @@ import java.time.Instant
 import java.util
 import scala.jdk.CollectionConverters._
 
-/**
-  */
+/** */
 class VariableTest extends AirSpec with PropertyCheck {
   private def check(pack: MessagePacker => Unit, checker: Variable => Unit): Unit = {
     val packer = MessagePack.newDefaultBufferPacker()
@@ -38,8 +37,7 @@ class VariableTest extends AirSpec with PropertyCheck {
     unpacker.close()
   }
 
-  /**
-    * Test Value -> MsgPack -> Value
+  /** Test Value -> MsgPack -> Value
     */
   private def roundTrip(v: Value): Unit = {
     val packer = MessagePack.newDefaultBufferPacker()
@@ -210,8 +208,8 @@ class VariableTest extends AirSpec with PropertyCheck {
           _.packDouble(x),
           checker = { v =>
             val iv = validateValue(v.asFloatValue(), asFloat = true)
-          //iv.toDouble shouldBe v
-          //iv.toFloat shouldBe x.toFloat
+            // iv.toDouble shouldBe v
+            // iv.toFloat shouldBe x.toFloat
           }
         )
       }

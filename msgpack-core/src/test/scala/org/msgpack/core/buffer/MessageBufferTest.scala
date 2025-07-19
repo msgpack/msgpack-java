@@ -21,8 +21,7 @@ import wvlet.airspec.AirSpec
 import java.nio.ByteBuffer
 import scala.util.Random
 
-/**
-  * Created on 2014/05/01.
+/** Created on 2014/05/01.
   */
 class MessageBufferTest extends AirSpec with Benchmark {
 

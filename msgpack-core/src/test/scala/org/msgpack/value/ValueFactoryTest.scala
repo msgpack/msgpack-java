@@ -19,8 +19,7 @@ import org.scalacheck.Gen
 import wvlet.airspec.AirSpec
 import wvlet.airspec.spi.PropertyCheck
 
-/**
-  */
+/** */
 class ValueFactoryTest extends AirSpec with PropertyCheck {
 
   private def isValid(

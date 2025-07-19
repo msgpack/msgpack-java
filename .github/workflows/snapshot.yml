@@ -27,6 +27,6 @@ jobs:
           distribution: adopt
       - name: Publish snapshots
         env:
-          SONATYPE_USERNAME: '${{ secrets.SONATYPE_USER }}'
-          SONATYPE_PASSWORD: '${{ secrets.SONATYPE_PASS }}'
+          SONATYPE_USERNAME: '${{ secrets.SONATYPE_USERNAME }}'
+          SONATYPE_PASSWORD: '${{ secrets.SONATYPE_PASSWORD }}'
         run: ./sbt publish
