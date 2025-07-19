@@ -29,6 +29,7 @@ ThisBuild / developers := List(
   Developer(id = "xerial", name = "Taro L. Saito", email = "leo@xerial.org", url = url("https://github.com/xerial"))
 )
 
+
 val buildSettings = Seq[Setting[_]](
   organization := "org.msgpack",
   organizationName := "MessagePack",
@@ -56,11 +57,9 @@ val buildSettings = Seq[Setting[_]](
   },
   // Add sonatype repository settings
   publishTo := {
-    if (isSnapshot.value) {
-      Some("snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots")
-    } else {
-      Some("releases" at "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2")
-    }
+    val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+    if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+    else localStaging.value
   },
   // Style check config: (sbt-jchekcstyle)
   jcheckStyleConfig := "facebook",
