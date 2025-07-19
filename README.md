@@ -66,6 +66,7 @@ msgpack-java uses [sbt](http://www.scala-sbt.org/) for building the projects. Fo
 Coding style
  * msgpack-java uses [the same coding style](https://github.com/airlift/codestyle) with Facebook Presto
   * [IntelliJ setting file](https://raw.githubusercontent.com/airlift/codestyle/master/IntelliJIdea14/Airlift.xml)
+ * Scala test code uses Scalafmt with Scala 3 dialect (always use the latest Scala 3 version)
 
 ### Basic sbt commands
 Enter the sbt console:
@@ -76,7 +77,7 @@ $ ./sbt
 Here is a list of sbt commands for daily development:
 ```
 > ~compile                                 # Compile source codes
-> ~test:compile                            # Compile both source and test codes
+> ~"Test / compile"                        # Compile both source and test codes
 > ~test                                    # Run tests upon source code change
 > ~testOnly *MessagePackTest               # Run tests in the specified class
 > ~testOnly *MessagePackTest -- (pattern)  # Run tests matching the pattern 
