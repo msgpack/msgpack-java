@@ -181,39 +181,39 @@ class VariableTest extends AirSpec with PropertyCheck:
 
     test("read integers") {
       forAll { (i: Int) =>
-          check(
-            _.packInt(i),
-            checker =
-              v =>
-                val iv = validateValue(v.asIntegerValue(), asInteger = true)
-                iv.asInt() shouldBe i
-                iv.asLong() shouldBe i.toLong
-          )
+        check(
+          _.packInt(i),
+          checker =
+            v =>
+              val iv = validateValue(v.asIntegerValue(), asInteger = true)
+              iv.asInt() shouldBe i
+              iv.asLong() shouldBe i.toLong
+        )
       }
     }
 
     test("read double") {
       forAll { (x: Double) =>
-          check(
-            _.packDouble(x),
-            checker =
-              v =>
-                val iv = validateValue(v.asFloatValue(), asFloat = true)
-                // iv.toDouble shouldBe v
-                // iv.toFloat shouldBe x.toFloat
-          )
+        check(
+          _.packDouble(x),
+          checker =
+            v =>
+              val iv = validateValue(v.asFloatValue(), asFloat = true)
+              // iv.toDouble shouldBe v
+              // iv.toFloat shouldBe x.toFloat
+        )
       }
     }
 
     test("read boolean") {
       forAll { (x: Boolean) =>
-          check(
-            _.packBoolean(x),
-            checker =
-              v =>
-                val iv = validateValue(v.asBooleanValue(), asBoolean = true)
-                iv.getBoolean shouldBe x
-          )
+        check(
+          _.packBoolean(x),
+          checker =
+            v =>
+              val iv = validateValue(v.asBooleanValue(), asBoolean = true)
+              iv.getBoolean shouldBe x
+        )
       }
     }
 
@@ -234,13 +234,13 @@ class VariableTest extends AirSpec with PropertyCheck:
 
     test("read string") {
       forAll { (x: String) =>
-          check(
-            _.packString(x),
-            checker =
-              v =>
-                val iv = validateValue(v.asStringValue(), asString = true)
-                iv.asString() shouldBe x
-          )
+        check(
+          _.packString(x),
+          checker =
+            v =>
+              val iv = validateValue(v.asStringValue(), asString = true)
+              iv.asString() shouldBe x
+        )
       }
     }
 
@@ -280,7 +280,7 @@ class VariableTest extends AirSpec with PropertyCheck:
           },
           checker =
             v =>
-              val iv = validateValue(v.asMapValue(), asMap = true)
+              val iv  = validateValue(v.asMapValue(), asMap = true)
               val lst =
                 iv.map()
                   .asScala
@@ -293,15 +293,15 @@ class VariableTest extends AirSpec with PropertyCheck:
 
     test("read timestamps") {
       forAll { (millis: Long) =>
-          val i = Instant.ofEpochMilli(millis)
-          check(
-            _.packTimestamp(i),
-            checker =
-              v =>
-                val ts = validateValue(v.asTimestampValue(), asTimestamp = true)
-                ts.isTimestampValue shouldBe true
-                ts.toInstant shouldBe i
-          )
+        val i = Instant.ofEpochMilli(millis)
+        check(
+          _.packTimestamp(i),
+          checker =
+            v =>
+              val ts = validateValue(v.asTimestampValue(), asTimestamp = true)
+              ts.isTimestampValue shouldBe true
+              ts.toInstant shouldBe i
+        )
       }
     }
   }

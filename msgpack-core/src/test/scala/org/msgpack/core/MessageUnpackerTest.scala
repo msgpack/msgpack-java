@@ -30,7 +30,7 @@ import scala.util.Random
 
 object MessageUnpackerTest:
   class SplitMessageBufferInput(array: Array[Array[Byte]]) extends MessageBufferInput:
-    var cursor = 0
+    var cursor                         = 0
     override def next(): MessageBuffer =
       if cursor < array.length then
         val a = array(cursor)
@@ -45,7 +45,7 @@ import org.msgpack.core.MessageUnpackerTest.*
 
 class MessageUnpackerTest extends AirSpec with Benchmark:
 
-  private val universal = MessageBuffer.allocate(0).isInstanceOf[MessageBufferU]
+  private val universal             = MessageBuffer.allocate(0).isInstanceOf[MessageBufferU]
   private def testData: Array[Byte] =
     val out    = new ByteArrayOutputStream()
     val packer = MessagePack.newDefaultPacker(out)
@@ -435,7 +435,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark:
       val t =
         time("skip performance", repeat = N) {
           block("v6") {
-            val v6 = new org.msgpack.MessagePack()
+            val v6       = new org.msgpack.MessagePack()
             val unpacker =
               new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(data))
             var count = 0
@@ -567,7 +567,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark:
       val t =
         time("unpack performance", repeat = N) {
           block("v6") {
-            val v6 = new org.msgpack.MessagePack()
+            val v6       = new org.msgpack.MessagePack()
             val unpacker =
               new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(data))
             var count = 0
@@ -655,7 +655,7 @@ class MessageUnpackerTest extends AirSpec with Benchmark:
 
       time("unpackBinary", repeat = 100) {
         block("v6") {
-          val v6 = new org.msgpack.MessagePack()
+          val v6       = new org.msgpack.MessagePack()
           val unpacker =
             new org.msgpack.unpacker.MessagePackUnpacker(v6, new ByteArrayInputStream(b))
           var i = 0
