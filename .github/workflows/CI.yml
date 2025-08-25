@@ -15,7 +15,7 @@ jobs:
       docs: ${{ steps.changes.outputs.docs }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - uses: dorny/paths-filter@v3
         id: changes
         with:
@@ -39,7 +39,7 @@ jobs:
     needs: changes
     if: ${{ needs.changes.outputs.code == 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: jcheckstyle
         run: ./sbt jcheckStyle
       - name: scalafmtCheckAll
@@ -54,7 +54,7 @@ jobs:
       matrix:
         java: ['8', '11', '17', '21', '24']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
