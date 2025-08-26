@@ -17,7 +17,7 @@ jobs:
       # Fetch all tags so that sbt-dynver can find the previous release version
       - run: git fetch --tags -f
       # Install OpenJDK 8
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           # We need to use JDK8 for Android compatibility https://github.com/msgpack/msgpack-java/issues/516
           java-version: 8
