@@ -144,7 +144,7 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
         "org.wvlet.airframe" %% "airframe-json" % AIRFRAME_VERSION % "test",
         "org.wvlet.airframe" %% "airspec"       % AIRFRAME_VERSION % "test",
         // Add property testing support with forAll methods
-        "org.scalacheck" %% "scalacheck" % "1.18.1" % "test",
+        "org.scalacheck" %% "scalacheck" % "1.19.0" % "test",
         // For performance comparison with msgpack v6
         "org.msgpack" % "msgpack" % "0.6.12" % "test",
         // For integration test with Akka
