@@ -3,7 +3,7 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 // For performance testing, ensure each test run one-by-one
 Global / concurrentRestrictions := Seq(Tags.limit(Tags.Test, 1))
 
-val AIRFRAME_VERSION = "2025.1.18"
+val AIRFRAME_VERSION = "2025.1.21"
 
 // Use dynamic snapshot version strings for non tagged versions
 ThisBuild / dynverSonatypeSnapshots := true
