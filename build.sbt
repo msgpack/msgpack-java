@@ -98,7 +98,7 @@ val buildSettings = Seq[Setting[?]](
     ((Test / compile) dependsOn (Test / jcheckStyle)).value
 )
 
-val junitJupiter = "org.junit.jupiter" % "junit-jupiter"        % "5.13.4" % "test"
+val junitJupiter = "org.junit.jupiter" % "junit-jupiter"        % "5.14.1" % "test"
 val junitVintage = "org.junit.vintage" % "junit-vintage-engine" % "5.11.4" % "test"
 
 // Project settings
