@@ -26,6 +26,8 @@ import org.msgpack.value.Variable;
 import java.io.Closeable;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -149,6 +151,14 @@ public class MessageUnpacker
         implements Closeable
 {
     private static final MessageBuffer EMPTY_BUFFER = MessageBuffer.wrap(new byte[0]);
+
+    /**
+     * Threshold for switching from upfront allocation to gradual allocation.
+     * Payloads up to this size use efficient upfront allocation.
+     * Payloads exceeding this size use gradual allocation to detect malicious files
+     * that declare large payload sizes but contain little actual data.
+     */
+    private static final int GRADUAL_ALLOCATION_THRESHOLD = 64 * 1024 * 1024;  // 64 MB
 
     private final boolean allowReadingStringAsBinary;
     private final boolean allowReadingBinaryAsString;
@@ -1637,18 +1647,85 @@ public class MessageUnpacker
      * This method allocates a new byte array and consumes specified amount of bytes into the byte array.
      *
      * <p>
-     * This method is equivalent to <code>readPayload(new byte[length])</code>.
+     * For sizes up to {@link #GRADUAL_ALLOCATION_THRESHOLD}, this method uses efficient upfront allocation.
+     * For larger sizes, it uses gradual allocation to protect against malicious files that declare
+     * large payload sizes but contain little actual data.
      *
      * @param length number of bytes to be read
      * @return the new byte array
      * @throws IOException when underlying input throws IOException
+     * @throws MessageSizeException when the input ends before the declared size is reached (for large payloads)
      */
     public byte[] readPayload(int length)
             throws IOException
     {
-        byte[] newArray = new byte[length];
-        readPayload(newArray);
-        return newArray;
+        if (length <= GRADUAL_ALLOCATION_THRESHOLD) {
+            // Small/moderate size: use efficient upfront allocation
+            byte[] newArray = new byte[length];
+            readPayload(newArray);
+            return newArray;
+        }
+
+        // Large declared size: use gradual allocation to protect against malicious files
+        return readPayloadGradually(length);
+    }
+
+    /**
+     * Read payload gradually, allocating memory only as data becomes available.
+     * This method protects against malicious files that declare large payload sizes
+     * but contain little actual data.
+     *
+     * @param declaredLength the declared payload length
+     * @return the payload bytes
+     * @throws IOException when underlying input throws IOException
+     * @throws MessageSizeException when the input ends before the declared size is reached
+     */
+    private byte[] readPayloadGradually(int declaredLength)
+            throws IOException
+    {
+        List<byte[]> chunks = new ArrayList<>();
+        int totalRead = 0;
+        int remaining = declaredLength;
+
+        while (remaining > 0) {
+            int bufferRemaining = buffer.size() - position;
+            if (bufferRemaining == 0) {
+                // Need more data from input
+                MessageBuffer next = in.next();
+                if (next == null) {
+                    // Input ended before we read the declared size
+                    throw new MessageSizeException(
+                            String.format("Payload declared %,d bytes but input ended after %,d bytes",
+                                    declaredLength, totalRead),
+                            declaredLength);
+                }
+                totalReadBytes += buffer.size();
+                buffer = next;
+                position = 0;
+                bufferRemaining = buffer.size();
+            }
+
+            int toRead = Math.min(remaining, bufferRemaining);
+            byte[] chunk = new byte[toRead];
+            buffer.getBytes(position, chunk, 0, toRead);
+            chunks.add(chunk);
+            totalRead += toRead;
+            position += toRead;
+            remaining -= toRead;
+        }
+
+        // All data verified to exist - combine chunks into result
+        if (chunks.size() == 1) {
+            return chunks.get(0);  // Common case: single chunk, no copy needed
+        }
+
+        byte[] result = new byte[declaredLength];
+        int offset = 0;
+        for (byte[] chunk : chunks) {
+            System.arraycopy(chunk, 0, result, offset, chunk.length);
+            offset += chunk.length;
+        }
+        return result;
     }
 
     /**
