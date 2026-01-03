@@ -15,18 +15,23 @@
 //
 package org.msgpack.core
 
-import org.msgpack.core.MessagePack.{Code, PackerConfig, UnpackerConfig}
+import org.msgpack.core.MessagePack.Code
+import org.msgpack.core.MessagePack.PackerConfig
+import org.msgpack.core.MessagePack.UnpackerConfig
 import org.msgpack.core.MessagePackSpec.toHex
-import org.msgpack.value.{Value, Variable}
+import org.msgpack.value.Value
+import org.msgpack.value.Variable
 import org.scalacheck.Prop.propBoolean
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
 import wvlet.airspec.AirSpec
 import wvlet.airspec.spi.PropertyCheck
 
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 import java.nio.CharBuffer
-import java.nio.charset.{CodingErrorAction, UnmappableCharacterException}
+import java.nio.charset.CodingErrorAction
+import java.nio.charset.UnmappableCharacterException
 import java.time.Instant
 import scala.util.Random
 

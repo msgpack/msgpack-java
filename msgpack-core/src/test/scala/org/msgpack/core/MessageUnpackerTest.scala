@@ -15,7 +15,8 @@
 //
 package org.msgpack.core
 
-import org.msgpack.core.MessagePackSpec.{createMessagePackData, toHex}
+import org.msgpack.core.MessagePackSpec.createMessagePackData
+import org.msgpack.core.MessagePackSpec.toHex
 import org.msgpack.core.buffer.*
 import org.msgpack.value.ValueType
 import wvlet.airspec.AirSpec
@@ -67,8 +68,8 @@ class MessageUnpackerTest extends AirSpec with Benchmark:
 
   private val intSeq =
     (
-      for (i <- 0 until 100)
-        yield Random.nextInt()
+      for i <- 0 until 100
+      yield Random.nextInt()
     ).toArray[Int]
 
   private def testData2: Array[Byte] =

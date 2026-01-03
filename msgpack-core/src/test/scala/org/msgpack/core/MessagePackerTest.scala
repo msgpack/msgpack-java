@@ -16,12 +16,16 @@
 package org.msgpack.core
 
 import org.msgpack.core.MessagePack.PackerConfig
-import org.msgpack.core.buffer.{ChannelBufferOutput, OutputStreamBufferOutput}
+import org.msgpack.core.buffer.ChannelBufferOutput
+import org.msgpack.core.buffer.OutputStreamBufferOutput
 import org.msgpack.value.ValueFactory
 import wvlet.airspec.AirSpec
 import wvlet.log.io.IOUtil.withResource
 
-import java.io.{ByteArrayOutputStream, File, FileInputStream, FileOutputStream}
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import scala.util.Random
 
 /**

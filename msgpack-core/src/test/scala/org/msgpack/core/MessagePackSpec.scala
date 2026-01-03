@@ -16,7 +16,8 @@
 package org.msgpack.core
 
 import wvlet.log.LogLevel
-import wvlet.log.io.{TimeReport, Timer}
+import wvlet.log.io.TimeReport
+import wvlet.log.io.Timer
 
 import java.io.ByteArrayOutputStream
 
