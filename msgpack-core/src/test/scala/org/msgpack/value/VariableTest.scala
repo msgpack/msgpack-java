@@ -15,7 +15,9 @@
 //
 package org.msgpack.value
 
-import org.msgpack.core.{MessagePack, MessagePacker, MessageTypeCastException}
+import org.msgpack.core.MessagePack
+import org.msgpack.core.MessagePacker
+import org.msgpack.core.MessageTypeCastException
 import wvlet.airspec.AirSpec
 import wvlet.airspec.spi.PropertyCheck
 

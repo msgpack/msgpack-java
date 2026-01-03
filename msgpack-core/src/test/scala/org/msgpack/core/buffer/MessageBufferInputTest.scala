@@ -22,9 +22,13 @@ import wvlet.log.io.IOUtil.withResource
 import java.io.*
 import java.net.InetSocketAddress
 import java.nio.ByteBuffer
-import java.nio.channels.{ServerSocketChannel, SocketChannel}
-import java.util.concurrent.{Callable, Executors, TimeUnit}
-import java.util.zip.{GZIPInputStream, GZIPOutputStream}
+import java.nio.channels.ServerSocketChannel
+import java.nio.channels.SocketChannel
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 import scala.util.Random
 
 class MessageBufferInputTest extends AirSpec:

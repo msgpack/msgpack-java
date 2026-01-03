@@ -16,7 +16,8 @@
 package org.msgpack.value
 
 import org.msgpack.core.MessagePack.Code.*
-import org.msgpack.core.{MessageFormat, MessageFormatException}
+import org.msgpack.core.MessageFormat
+import org.msgpack.core.MessageFormatException
 import wvlet.airspec.AirSpec
 
 /**
