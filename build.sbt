@@ -92,10 +92,8 @@ val buildSettings = Seq[Setting[?]](
   // Style check config: (sbt-jchekcstyle)
   jcheckStyleConfig := "facebook",
   // Run jcheckstyle both for main and test codes
-  Compile / compile :=
-    ((Compile / compile) dependsOn (Compile / jcheckStyle)).value,
-  Test / compile :=
-    ((Test / compile) dependsOn (Test / jcheckStyle)).value
+  Compile / compile := ((Compile / compile) dependsOn (Compile / jcheckStyle)).value,
+  Test / compile    := ((Test / compile) dependsOn (Test / jcheckStyle)).value
 )
 
 val junitJupiter = "org.junit.jupiter" % "junit-jupiter"        % "5.14.1" % "test"
