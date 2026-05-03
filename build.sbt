@@ -3,7 +3,7 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 // For performance testing, ensure each test run one-by-one
 Global / concurrentRestrictions := Seq(Tags.limit(Tags.Test, 1))
 
-val AIRFRAME_VERSION = "2025.1.22"
+val AIRFRAME_VERSION = "2025.1.27"
 
 // Use dynamic snapshot version strings for non tagged versions
 ThisBuild / dynverSonatypeSnapshots := true
@@ -92,13 +92,11 @@ val buildSettings = Seq[Setting[?]](
   // Style check config: (sbt-jchekcstyle)
   jcheckStyleConfig := "facebook",
   // Run jcheckstyle both for main and test codes
-  Compile / compile :=
-    ((Compile / compile) dependsOn (Compile / jcheckStyle)).value,
-  Test / compile :=
-    ((Test / compile) dependsOn (Test / jcheckStyle)).value
+  Compile / compile := ((Compile / compile) dependsOn (Compile / jcheckStyle)).value,
+  Test / compile    := ((Test / compile) dependsOn (Test / jcheckStyle)).value
 )
 
-val junitJupiter = "org.junit.jupiter" % "junit-jupiter"        % "5.14.1" % "test"
+val junitJupiter = "org.junit.jupiter" % "junit-jupiter"        % "5.14.4" % "test"
 val junitVintage = "org.junit.vintage" % "junit-vintage-engine" % "5.14.1" % "test"
 
 // Project settings
@@ -163,7 +161,7 @@ lazy val msgpackJackson = Project(id = "msgpack-jackson", base = file("msgpack-j
     OsgiKeys.exportPackage      := Seq("org.msgpack.jackson", "org.msgpack.jackson.dataformat"),
     libraryDependencies ++=
       Seq(
-        "com.fasterxml.jackson.core" % "jackson-databind" % "2.18.4",
+        "com.fasterxml.jackson.core" % "jackson-databind" % "2.20.0",
         junitJupiter,
         junitVintage,
         "org.apache.commons" % "commons-math3" % "3.6.1" % "test"
