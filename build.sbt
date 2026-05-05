@@ -125,11 +125,7 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
         "org.msgpack.value",
         "org.msgpack.value.impl"
       ),
-	OsgiKeys.importPackage :=
-	  Seq(
-        "!android.os",
-        "!sun.*"
-      ),
+    OsgiKeys.importPackage := Seq("!android.os", "!sun.*"),
     testFrameworks += new TestFramework("wvlet.airspec.Framework"),
     Test / javaOptions ++=
       Seq(
@@ -166,7 +162,7 @@ lazy val msgpackJackson = Project(id = "msgpack-jackson", base = file("msgpack-j
     OsgiKeys.exportPackage      := Seq("org.msgpack.jackson", "org.msgpack.jackson.dataformat"),
     libraryDependencies ++=
       Seq(
-        "com.fasterxml.jackson.core" % "jackson-databind" % "2.20.0",
+        "com.fasterxml.jackson.core" % "jackson-databind" % "2.20.2",
         junitJupiter,
         junitVintage,
         "org.apache.commons" % "commons-math3" % "3.6.1" % "test"
