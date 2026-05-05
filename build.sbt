@@ -125,11 +125,7 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
         "org.msgpack.value",
         "org.msgpack.value.impl"
       ),
-	OsgiKeys.importPackage :=
-	  Seq(
-        "!android.os",
-        "!sun.*"
-      ),
+    OsgiKeys.importPackage := Seq("!android.os", "!sun.*"),
     testFrameworks += new TestFramework("wvlet.airspec.Framework"),
     Test / javaOptions ++=
       Seq(
