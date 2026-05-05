@@ -3,7 +3,7 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 // For performance testing, ensure each test run one-by-one
 Global / concurrentRestrictions := Seq(Tags.limit(Tags.Test, 1))
 
-val AIRFRAME_VERSION = "2025.1.27"
+val AIRFRAME_VERSION = "2026.1.6"
 
 // Use dynamic snapshot version strings for non tagged versions
 ThisBuild / dynverSonatypeSnapshots := true
@@ -125,11 +125,7 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
         "org.msgpack.value",
         "org.msgpack.value.impl"
       ),
-	OsgiKeys.importPackage :=
-	  Seq(
-        "!android.os",
-        "!sun.*"
-      ),
+    OsgiKeys.importPackage := Seq("!android.os", "!sun.*"),
     testFrameworks += new TestFramework("wvlet.airspec.Framework"),
     Test / javaOptions ++=
       Seq(
