@@ -35,20 +35,32 @@ pattern used in `wvlet/uni/.github/workflows/auto-merge.yml`.
 
 ## Plan
 
-1. Add `.github/workflows/auto-merge.yml` with two jobs:
-   - **auto-merge-dependabot**: triggers when `github.actor == 'dependabot[bot]'`,
-     uses `dependabot/fetch-metadata@v3` to read the update type, and runs
+1. Add `.github/workflows/auto-merge.yml` with one job:
+   - **auto-merge-dependabot**: triggers when
+     `github.event.pull_request.user.login == 'dependabot[bot]'`, uses
+     `dependabot/fetch-metadata@v2` to read the update type, and runs
      `gh pr merge --squash --auto` only when the update is **not**
      `version-update:semver-major`.
-   - **auto-merge-scala-steward**: triggers when `github.actor == 'scala-steward'`
-     and runs `gh pr merge --squash --auto` for all such PRs (Scala Steward
-     does not surface a structured "major" signal the way Dependabot's
-     fetch-metadata action does, so we rely on Scala Steward's own
-     `pullRequests.allowedUpdates` config — already filtered upstream — and
-     skip if the PR has a `semver-major` label).
 2. Set workflow-level `permissions` to the minimum required:
    `contents: write` and `pull-requests: write`.
 3. Use `GITHUB_TOKEN` directly via `env: GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}`.
+
+### Scala Steward (deferred)
+
+The initial draft also auto-merged Scala Steward PRs, gated on a
+`semver-major` label being absent. But this repo's existing Scala Steward PRs
+only carry `library-update` (and sometimes `internal`) — no semver labels are
+configured, so a `!contains(..., 'semver-major')` guard is effectively a
+no-op and would auto-merge every Scala Steward PR including major bumps.
+Codex review caught this. Rather than ship an unsafe guard, we drop the
+Scala Steward job from this PR. Re-adding it should be a follow-up that
+either:
+- Defines `early-semver-major`/`early-semver-minor`/`early-semver-patch`
+  labels in the repo (Scala Steward only applies labels that already exist)
+  and adds a `.scala-steward.conf` enabling them, then guards on
+  `early-semver-major`.
+- Or uses a manual opt-in label like `auto-merge` that the maintainer adds
+  after a quick review.
 
 ## Out of scope
 
@@ -56,6 +68,7 @@ pattern used in `wvlet/uni/.github/workflows/auto-merge.yml`.
 - Auto-approving PRs (a human approval may still be required by branch
   protection — auto-merge will simply wait for it).
 - Changing branch protection rules.
+- Scala Steward auto-merge (see above).
 
 ## Validation
 

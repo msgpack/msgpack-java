@@ -24,14 +24,3 @@ jobs:
         run: gh pr merge --squash --auto "${{ github.event.pull_request.html_url }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  auto-merge-scala-steward:
-    name: Auto-Merge Scala Steward PRs
-    runs-on: ubuntu-latest
-    if: ${{ github.event.pull_request.user.login == 'scala-steward' }}
-    steps:
-      - name: Enable auto-merge for non-major updates
-        if: ${{ !contains(github.event.pull_request.labels.*.name, 'semver-major') }}
-        run: gh pr merge --squash --auto "${{ github.event.pull_request.html_url }}"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
