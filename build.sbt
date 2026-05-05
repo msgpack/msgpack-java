@@ -97,7 +97,7 @@ val buildSettings = Seq[Setting[?]](
 )
 
 val junitJupiter = "org.junit.jupiter" % "junit-jupiter"        % "5.14.4" % "test"
-val junitVintage = "org.junit.vintage" % "junit-vintage-engine" % "5.14.4" % "test"
+val junitVintage = "org.junit.vintage" % "junit-vintage-engine" % "6.0.3"  % "test"
 
 // Project settings
 lazy val root = Project(id = "msgpack-java", base = file("."))
@@ -125,11 +125,7 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
         "org.msgpack.value",
         "org.msgpack.value.impl"
       ),
-	OsgiKeys.importPackage :=
-	  Seq(
-        "!android.os",
-        "!sun.*"
-      ),
+    OsgiKeys.importPackage := Seq("!android.os", "!sun.*"),
     testFrameworks += new TestFramework("wvlet.airspec.Framework"),
     Test / javaOptions ++=
       Seq(
