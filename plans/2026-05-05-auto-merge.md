@@ -35,32 +35,38 @@ pattern used in `wvlet/uni/.github/workflows/auto-merge.yml`.
 
 ## Plan
 
-1. Add `.github/workflows/auto-merge.yml` with one job:
+1. Add `.github/workflows/auto-merge.yml` with two jobs:
    - **auto-merge-dependabot**: triggers when
      `github.event.pull_request.user.login == 'dependabot[bot]'`, uses
      `dependabot/fetch-metadata@v2` to read the update type, and runs
      `gh pr merge --squash --auto` only when the update is **not**
      `version-update:semver-major`.
+   - **auto-merge-scala-steward**: triggers when
+     `github.event.pull_request.user.login == 'scala-steward'` and
+     auto-merges unless the PR carries a `semver-major` or
+     `early-semver-major` label.
 2. Set workflow-level `permissions` to the minimum required:
    `contents: write` and `pull-requests: write`.
 3. Use `GITHUB_TOKEN` directly via `env: GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}`.
 
-### Scala Steward (deferred)
+### Scala Steward label caveat
 
-The initial draft also auto-merged Scala Steward PRs, gated on a
-`semver-major` label being absent. But this repo's existing Scala Steward PRs
-only carry `library-update` (and sometimes `internal`) — no semver labels are
-configured, so a `!contains(..., 'semver-major')` guard is effectively a
-no-op and would auto-merge every Scala Steward PR including major bumps.
-Codex review caught this. Rather than ship an unsafe guard, we drop the
-Scala Steward job from this PR. Re-adding it should be a follow-up that
-either:
-- Defines `early-semver-major`/`early-semver-minor`/`early-semver-patch`
-  labels in the repo (Scala Steward only applies labels that already exist)
-  and adds a `.scala-steward.conf` enabling them, then guards on
-  `early-semver-major`.
-- Or uses a manual opt-in label like `auto-merge` that the maintainer adds
-  after a quick review.
+This repo's current Scala Steward PRs only carry `library-update` (and
+sometimes `internal`) — no semver labels are configured upstream, so the
+`semver-major` / `early-semver-major` guard is effectively a no-op until:
+- The labels are added to the repo (Scala Steward only applies labels that
+  already exist), and
+- Scala Steward is configured (e.g. via `.scala-steward.conf`) to attach
+  them.
+
+This matches the same caveat in the wvlet/uni reference implementation,
+which uses `semver-spec-major` against `github.event.issue.labels` (not even
+the right field on a PR event) — so its guard is also effectively a no-op
+in practice. We accept the same trade-off here: most Scala Steward PRs are
+patch/minor library updates, CI runs across JDK 8/11/17/21/24 and will fail
+the merge-readiness checks if anything regresses, and a major bump that
+slips through can be reverted. A follow-up could tighten this by setting up
+proper semver labels.
 
 ## Out of scope
 
@@ -68,7 +74,7 @@ either:
 - Auto-approving PRs (a human approval may still be required by branch
   protection — auto-merge will simply wait for it).
 - Changing branch protection rules.
-- Scala Steward auto-merge (see above).
+- Configuring Scala Steward to apply semver labels (see caveat above).
 
 ## Validation
 

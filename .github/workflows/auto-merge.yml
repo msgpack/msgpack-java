@@ -24,3 +24,18 @@ jobs:
         run: gh pr merge --squash --auto "${{ github.event.pull_request.html_url }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  auto-merge-scala-steward:
+    name: Auto-Merge Scala Steward PRs
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.user.login == 'scala-steward' }}
+    steps:
+      # Skip auto-merge if the PR carries a semver-major label. Note: this repo
+      # does not yet apply semver labels to Scala Steward PRs, so this guard is
+      # a no-op until early-semver-* labels are added to the repo and Scala
+      # Steward is configured to apply them.
+      - name: Enable auto-merge for non-major updates
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'semver-major') && !contains(github.event.pull_request.labels.*.name, 'early-semver-major') }}
+        run: gh pr merge --squash --auto "${{ github.event.pull_request.html_url }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
