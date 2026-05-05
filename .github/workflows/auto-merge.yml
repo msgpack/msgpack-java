@@ -1,0 +1,37 @@
+name: auto-merge
+# pull_request_target runs in the base-branch context, which is required so
+# that GITHUB_TOKEN gets the write permissions declared below even for PRs
+# opened by Dependabot (which would otherwise receive a read-only token on
+# regular pull_request events). This workflow never checks out PR head code,
+# so the usual pull_request_target injection risk does not apply.
+on: pull_request_target
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge-dependabot:
+    name: Auto-Merge Dependabot PRs
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+      - name: Enable auto-merge for non-major updates
+        if: ${{ steps.metadata.outputs.update-type != 'version-update:semver-major' }}
+        run: gh pr merge --squash --auto "${{ github.event.pull_request.html_url }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  auto-merge-scala-steward:
+    name: Auto-Merge Scala Steward PRs
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.user.login == 'scala-steward' }}
+    steps:
+      - name: Enable auto-merge for non-major updates
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'semver-major') }}
+        run: gh pr merge --squash --auto "${{ github.event.pull_request.html_url }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
