@@ -96,10 +96,16 @@ val buildSettings = Seq[Setting[?]](
   Test / compile    := ((Test / compile) dependsOn (Test / jcheckStyle)).value
 )
 
-val junitJupiter = "org.junit.jupiter" % "junit-jupiter"        % "5.14.4" % "test"
-val junitVintage = "org.junit.vintage" % "junit-vintage-engine" % "5.14.4" % "test"
+val junitJupiter   = "org.junit.jupiter" % "junit-jupiter"        % "5.14.4" % "test"
+val junitVintage   = "org.junit.vintage" % "junit-vintage-engine" % "5.14.4" % "test"
+val junitInterface = "com.github.sbt"    % "junit-interface"      % "0.13.3" % "test"
 
 // Project settings
+val isJava17Plus: Boolean = {
+  val v = sys.props.getOrElse("java.specification.version", "1.8")
+  if (v.startsWith("1.")) false else scala.util.Try(v.toInt >= 17).getOrElse(false)
+}
+
 lazy val root = Project(id = "msgpack-java", base = file("."))
   .settings(
     buildSettings,
@@ -108,7 +114,10 @@ lazy val root = Project(id = "msgpack-java", base = file("."))
     publish         := {},
     publishLocal    := {}
   )
-  .aggregate(msgpackCore, msgpackJackson)
+  .aggregate(
+    Seq[ProjectReference](msgpackCore, msgpackJackson) ++
+      (if (isJava17Plus) Seq[ProjectReference](msgpackJackson3) else Nil): _*
+  )
 
 lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
   .enablePlugins(SbtOsgi)
@@ -168,5 +177,30 @@ lazy val msgpackJackson = Project(id = "msgpack-jackson", base = file("msgpack-j
         "org.apache.commons" % "commons-math3" % "3.6.1" % "test"
       ),
     testOptions += Tests.Argument(TestFrameworks.JUnit, "-v")
+  )
+  .dependsOn(msgpackCore)
+
+lazy val msgpackJackson3 = Project(id = "msgpack-jackson3", base = file("msgpack-jackson3"))
+  .enablePlugins(SbtOsgi, JmhPlugin)
+  .settings(
+    buildSettings,
+    name                        := "jackson-dataformat-msgpack3",
+    description                 := "Jackson 3.x extension that adds support for MessagePack",
+    OsgiKeys.bundleSymbolicName := "org.msgpack.msgpack-jackson3",
+    OsgiKeys.exportPackage      := Seq("org.msgpack.jackson", "org.msgpack.jackson.dataformat"),
+    OsgiKeys.importPackage      := Seq("!android.os", "!sun.*"),
+    Test / fork    := true,
+    javacOptions   := Seq("--release", "17"),
+    doc / javacOptions := Seq("--release", "17", "-Xdoclint:none"),
+    libraryDependencies ++=
+      Seq(
+        "tools.jackson.core" % "jackson-databind" % "3.1.2",
+        junitInterface
+      ),
+    testOptions += Tests.Argument(TestFrameworks.JUnit, "-v"),
+    Jmh / javaOptions ++= Seq(
+      "--add-opens=java.base/java.nio=ALL-UNNAMED",
+      "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
+    )
   )
   .dependsOn(msgpackCore)
