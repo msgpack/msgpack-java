@@ -21,6 +21,10 @@ ThisBuild / scmInfo  :=
     )
   )
 
+ThisBuild / packageOptions += Package.ManifestAttributes(
+  "Automatic-Module-Name" -> s"${OsgiKeys.bundleSymbolicName}"
+)
+
 ThisBuild / developers :=
   List(
     Developer(
