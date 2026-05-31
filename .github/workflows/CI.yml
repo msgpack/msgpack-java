@@ -28,6 +28,7 @@ jobs:
               - 'project/build.properties'
               - 'msgpack-core/**'
               - 'msgpack-jackson/**'
+              - 'msgpack-jackson3/**'
             docs:
               - '**.md'
               - '**.txt'
@@ -65,6 +66,16 @@ jobs:
           key: ${{ runner.os }}-jdk${{ matrix.java }}-${{ hashFiles('**/*.sbt') }}
           restore-keys: ${{ runner.os }}-jdk${{ matrix.java }}-
       - name: Test
-        run: ./sbt test
+        run: |
+          if [[ ${{ matrix.java }} -lt 17 ]]; then
+            ./sbt msgpack-core/test msgpack-jackson/test
+          else
+            ./sbt test
+          fi
       - name: Universal Buffer Test
-        run: ./sbt test -J-Dmsgpack.universal-buffer=true
+        run: |
+          if [[ ${{ matrix.java }} -lt 17 ]]; then
+            ./sbt msgpack-core/test msgpack-jackson/test -J-Dmsgpack.universal-buffer=true
+          else
+            ./sbt test -J-Dmsgpack.universal-buffer=true
+          fi
