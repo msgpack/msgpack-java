@@ -126,6 +126,9 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
         "org.msgpack.value.impl"
       ),
     OsgiKeys.importPackage := Seq("!android.os", "!sun.*"),
+    packageOptions += Package.ManifestAttributes(
+      "Automatic-Module-Name" -> OsgiKeys.exportPackage.value.head
+    ),
     testFrameworks += new TestFramework("wvlet.airspec.Framework"),
     Test / javaOptions ++=
       Seq(
@@ -160,6 +163,9 @@ lazy val msgpackJackson = Project(id = "msgpack-jackson", base = file("msgpack-j
     description                 := "Jackson extension that adds support for MessagePack",
     OsgiKeys.bundleSymbolicName := "org.msgpack.msgpack-jackson",
     OsgiKeys.exportPackage      := Seq("org.msgpack.jackson", "org.msgpack.jackson.dataformat"),
+    packageOptions += Package.ManifestAttributes(
+      "Automatic-Module-Name" -> OsgiKeys.exportPackage.value.head
+    ),
     libraryDependencies ++=
       Seq(
         "com.fasterxml.jackson.core" % "jackson-databind" % "2.20.0",
