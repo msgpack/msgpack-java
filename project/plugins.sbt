@@ -6,5 +6,6 @@ addSbtPlugin("org.xerial.sbt" % "sbt-jcheckstyle" % "0.2.1")
 addSbtPlugin("com.github.sbt" % "sbt-osgi"        % "0.10.0")
 addSbtPlugin("org.scalameta"  % "sbt-scalafmt"    % "2.6.1")
 addSbtPlugin("com.github.sbt" % "sbt-dynver"      % "5.1.1")
+addSbtPlugin("pl.project13.scala" % "sbt-jmh"     % "0.4.7")
 
 scalacOptions ++= Seq("-deprecation", "-feature")
