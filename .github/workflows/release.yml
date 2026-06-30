@@ -16,9 +16,15 @@ jobs:
           fetch-depth: 10000
       # Fetch all tags so that sbt-dynver can find the previous release version
       - run: git fetch --tags -f
-      # sbt 2 requires JDK 17+ to run. Android compatibility (originally JDK8,
-      # see https://github.com/msgpack/msgpack-java/issues/516) is enforced
-      # independently via the -source/-target 1.8 javacOptions in build.sbt.
+      # We need to compile with JDK8 for Android compatibility
+      # https://github.com/msgpack/msgpack-java/issues/516
+      - uses: actions/setup-java@v5
+        id: jdk8
+        with:
+          java-version: 8
+          distribution: adopt
+      # sbt 2 itself requires JDK 17+ to run; build.sbt forks the compiler (and tests)
+      # onto JDK8 via TEST_JAVA_HOME, so this becomes the default JDK on PATH/JAVA_HOME.
       - uses: actions/setup-java@v5
         with:
           java-version: 21
@@ -30,6 +36,7 @@ jobs:
       - name: Build bundle
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          TEST_JAVA_HOME: ${{ steps.jdk8.outputs.path }}
         run: |
           ./sbt publishSigned
       - name: Release to Sonatype

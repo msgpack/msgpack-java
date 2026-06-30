@@ -71,11 +71,16 @@ val buildSettings = Seq[Setting[?]](
   // JVM options for building
   scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-feature"),
   Test / javaOptions ++= Seq("-ea"),
-  // sbt 2 itself requires JDK 17+ to run, but CI still needs to verify the library at
-  // runtime against older JDKs (e.g. 8). Fork tests so they can run on a JDK specified
-  // via TEST_JAVA_HOME, independent of the JDK running sbt.
-  Test / fork     := true,
-  Test / javaHome := sys.env.get("TEST_JAVA_HOME").map(file),
+  // sbt 2 itself requires JDK 17+ to run, but each CI lane still needs to compile and
+  // test against its own target JDK (e.g. 8) to faithfully reproduce runtime behavior:
+  // javac resolves API calls against whichever JDK actually runs it (-source/-target
+  // only constrain language level and bytecode version, not API resolution), so e.g.
+  // compiling on JDK9+ can bind to covariant overloads like ByteBuffer.flip():
+  // ByteBuffer that don't exist on a real JDK8 at runtime. When TEST_JAVA_HOME is set,
+  // fork both compilation and test execution onto that JDK; otherwise use the JDK
+  // running sbt, as before.
+  javaHome    := sys.env.get("TEST_JAVA_HOME").map(file),
+  Test / fork := true,
   javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
   Compile / compile / javacOptions ++=
     Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation"),
