@@ -21,9 +21,11 @@ jobs:
           fetch-depth: 10000
       # Fetch all tags so that sbt-dynver can find the previous release version
       - run: git fetch --tags
+      # sbt 2 requires JDK 17+ to run; published bytecode still targets 1.8
+      # via the javacOptions in build.sbt.
       - uses: actions/setup-java@v5
         with:
-          java-version: 11
+          java-version: 21
           distribution: adopt
       - name: Publish snapshots
         env:

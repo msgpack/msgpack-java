@@ -16,11 +16,12 @@ jobs:
           fetch-depth: 10000
       # Fetch all tags so that sbt-dynver can find the previous release version
       - run: git fetch --tags -f
-      # Install OpenJDK 8
+      # sbt 2 requires JDK 17+ to run. Android compatibility (originally JDK8,
+      # see https://github.com/msgpack/msgpack-java/issues/516) is enforced
+      # independently via the -source/-target 1.8 javacOptions in build.sbt.
       - uses: actions/setup-java@v5
         with:
-          # We need to use JDK8 for Android compatibility https://github.com/msgpack/msgpack-java/issues/516
-          java-version: 8
+          java-version: 21
           distribution: adopt
       - name: Setup GPG
         env:

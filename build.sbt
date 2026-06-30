@@ -1,3 +1,5 @@
+import scala.language.implicitConversions
+
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 // For performance testing, ensure each test run one-by-one
@@ -69,6 +71,11 @@ val buildSettings = Seq[Setting[?]](
   // JVM options for building
   scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-feature"),
   Test / javaOptions ++= Seq("-ea"),
+  // sbt 2 itself requires JDK 17+ to run, but CI still needs to verify the library at
+  // runtime against older JDKs (e.g. 8). Fork tests so they can run on a JDK specified
+  // via TEST_JAVA_HOME, independent of the JDK running sbt.
+  Test / fork     := true,
+  Test / javaHome := sys.env.get("TEST_JAVA_HOME").map(file),
   javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
   Compile / compile / javacOptions ++=
     Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation"),
@@ -92,8 +99,8 @@ val buildSettings = Seq[Setting[?]](
   // Style check config: (sbt-jchekcstyle)
   jcheckStyleConfig := "facebook",
   // Run jcheckstyle both for main and test codes
-  Compile / compile := ((Compile / compile) dependsOn (Compile / jcheckStyle)).value,
-  Test / compile    := ((Test / compile) dependsOn (Test / jcheckStyle)).value
+  Compile / compile := Def.uncached((Compile / compile).dependsOn(Compile / jcheckStyle).value),
+  Test / compile    := Def.uncached((Test / compile).dependsOn(Test / jcheckStyle).value)
 )
 
 val junitJupiter = "org.junit.jupiter" % "junit-jupiter"        % "5.14.4" % "test"
@@ -134,7 +141,6 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
         "--add-opens=java.base/java.nio=ALL-UNNAMED",
         "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
       ),
-    Test / fork := true,
     libraryDependencies ++=
       Seq(
         // msgpack-core should have no external dependencies
