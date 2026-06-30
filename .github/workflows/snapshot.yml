@@ -22,11 +22,19 @@ jobs:
       # Fetch all tags so that sbt-dynver can find the previous release version
       - run: git fetch --tags
       - uses: actions/setup-java@v5
+        id: jdk11
         with:
           java-version: 11
+          distribution: adopt
+      # sbt 2 itself requires JDK 17+ to run; build.sbt forks the compiler onto JDK11
+      # via TEST_JAVA_HOME, so this becomes the default JDK on PATH/JAVA_HOME.
+      - uses: actions/setup-java@v5
+        with:
+          java-version: 21
           distribution: adopt
       - name: Publish snapshots
         env:
           SONATYPE_USERNAME: '${{ secrets.SONATYPE_USERNAME }}'
           SONATYPE_PASSWORD: '${{ secrets.SONATYPE_PASSWORD }}'
+          TEST_JAVA_HOME: ${{ steps.jdk11.outputs.path }}
         run: ./sbt publish
