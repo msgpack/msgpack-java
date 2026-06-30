@@ -15,7 +15,7 @@ jobs:
       docs: ${{ steps.changes.outputs.docs }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - uses: dorny/paths-filter@v4
         id: changes
         with:
@@ -39,7 +39,7 @@ jobs:
     needs: changes
     if: ${{ needs.changes.outputs.code == 'true' }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       # sbt 2 requires JDK 17+ to run
       - uses: actions/setup-java@v5
         with:
@@ -59,7 +59,7 @@ jobs:
       matrix:
         java: ['8', '11', '17', '21', '24']
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       # The JDK under test: msgpack-core forks its tests onto this JDK (via
       # TEST_JAVA_HOME) so we still verify runtime behavior on each target JDK.
       - uses: actions/setup-java@v5
