@@ -69,7 +69,14 @@ val buildSettings = Seq[Setting[?]](
   crossPaths        := false,
   publishMavenStyle := true,
   // JVM options for building
-  scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-feature"),
+  // -release 8 pins scalac's resolution of JDK API calls to the JDK8 surface (e.g.
+  // test code calling ByteBuffer.flip() resolves to the inherited Buffer.flip():Buffer
+  // rather than JDK9's covariant ByteBuffer.flip():ByteBuffer override, which doesn't
+  // exist on a real JDK8 at runtime -> NoSuchMethodError). Unlike javac's --release,
+  // this doesn't need an ignore-symbol-file escape hatch since test code never touches
+  // JDK-internal APIs the way the main sources' Unsafe usage does.
+  scalacOptions ++=
+    Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-feature", "-release", "8"),
   Test / javaOptions ++= Seq("-ea"),
   // sbt 2 itself requires JDK 17+ to run, but each CI lane still needs to compile and
   // test against its own target JDK (e.g. 8) to faithfully reproduce runtime behavior:
