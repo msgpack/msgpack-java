@@ -1,9 +1,11 @@
+import scala.language.implicitConversions
+
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 // For performance testing, ensure each test run one-by-one
 Global / concurrentRestrictions := Seq(Tags.limit(Tags.Test, 1))
 
-val AIRFRAME_VERSION = "2025.1.27"
+val AIRFRAME_VERSION = "2026.2.2"
 
 // Use dynamic snapshot version strings for non tagged versions
 ThisBuild / dynverSonatypeSnapshots := true
@@ -67,8 +69,25 @@ val buildSettings = Seq[Setting[?]](
   crossPaths        := false,
   publishMavenStyle := true,
   // JVM options for building
-  scalacOptions ++= Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-feature"),
+  // -release 8 pins scalac's resolution of JDK API calls to the JDK8 surface (e.g.
+  // test code calling ByteBuffer.flip() resolves to the inherited Buffer.flip():Buffer
+  // rather than JDK9's covariant ByteBuffer.flip():ByteBuffer override, which doesn't
+  // exist on a real JDK8 at runtime -> NoSuchMethodError). Unlike javac's --release,
+  // this doesn't need an ignore-symbol-file escape hatch since test code never touches
+  // JDK-internal APIs the way the main sources' Unsafe usage does.
+  scalacOptions ++=
+    Seq("-encoding", "UTF-8", "-deprecation", "-unchecked", "-feature", "-release", "8"),
   Test / javaOptions ++= Seq("-ea"),
+  // sbt 2 itself requires JDK 17+ to run, but each CI lane still needs to compile and
+  // test against its own target JDK (e.g. 8) to faithfully reproduce runtime behavior:
+  // javac resolves API calls against whichever JDK actually runs it (-source/-target
+  // only constrain language level and bytecode version, not API resolution), so e.g.
+  // compiling on JDK9+ can bind to covariant overloads like ByteBuffer.flip():
+  // ByteBuffer that don't exist on a real JDK8 at runtime. When TEST_JAVA_HOME is set,
+  // fork both compilation and test execution onto that JDK; otherwise use the JDK
+  // running sbt, as before.
+  javaHome    := sys.env.get("TEST_JAVA_HOME").map(file),
+  Test / fork := true,
   javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
   Compile / compile / javacOptions ++=
     Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Xlint:deprecation"),
@@ -92,8 +111,8 @@ val buildSettings = Seq[Setting[?]](
   // Style check config: (sbt-jchekcstyle)
   jcheckStyleConfig := "facebook",
   // Run jcheckstyle both for main and test codes
-  Compile / compile := ((Compile / compile) dependsOn (Compile / jcheckStyle)).value,
-  Test / compile    := ((Test / compile) dependsOn (Test / jcheckStyle)).value
+  Compile / compile := Def.uncached((Compile / compile).dependsOn(Compile / jcheckStyle).value),
+  Test / compile    := Def.uncached((Test / compile).dependsOn(Test / jcheckStyle).value)
 )
 
 val junitJupiter   = "org.junit.jupiter" % "junit-jupiter"        % "5.14.4" % "test"
@@ -145,7 +164,6 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
         "--add-opens=java.base/java.nio=ALL-UNNAMED",
         "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
       ),
-    Test / fork := true,
     libraryDependencies ++=
       Seq(
         // msgpack-core should have no external dependencies
@@ -173,7 +191,7 @@ lazy val msgpackJackson = Project(id = "msgpack-jackson", base = file("msgpack-j
     OsgiKeys.exportPackage      := Seq("org.msgpack.jackson", "org.msgpack.jackson.dataformat"),
     libraryDependencies ++=
       Seq(
-        "com.fasterxml.jackson.core" % "jackson-databind" % "2.20.0",
+        "com.fasterxml.jackson.core" % "jackson-databind" % "2.22.0",
         junitJupiter,
         junitVintage,
         "org.apache.commons" % "commons-math3" % "3.6.1" % "test"

@@ -58,8 +58,9 @@ class MessageBufferInputTest extends AirSpec:
     def toByteBuffer = ByteBuffer.wrap(b)
 
     def saveToTmpFile: File =
-      val tmp = File.createTempFile("testbuf", ".dat", new File("target"))
-      tmp.getParentFile.mkdirs()
+      val dir = new File("target")
+      dir.mkdirs()
+      val tmp = File.createTempFile("testbuf", ".dat", dir)
       tmp.deleteOnExit()
       withResource(new FileOutputStream(tmp)) { out =>
         out.write(b)
