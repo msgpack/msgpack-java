@@ -15,9 +15,11 @@
 //
 package org.msgpack.jackson.dataformat;
 
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+
+import java.io.IOException;
 
 public class MessagePackKeySerializer
         extends StdSerializer<Object>
@@ -28,8 +30,9 @@ public class MessagePackKeySerializer
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator jgen, SerializationContext provider)
+    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
+            throws IOException
     {
-        jgen.writeName(new MessagePackSerializedString(value));
+        jgen.writeFieldName(new MessagePackSerializedString(value));
     }
 }

@@ -15,42 +15,43 @@
 //
 package org.msgpack.jackson.dataformat;
 
-import com.fasterxml.jackson.core.Base64Variant;
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.core.SerializableString;
-import com.fasterxml.jackson.core.base.GeneratorBase;
-import com.fasterxml.jackson.core.io.ContentReference;
-import com.fasterxml.jackson.core.io.IOContext;
-import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.core.json.JsonWriteContext;
-import com.fasterxml.jackson.core.util.BufferRecycler;
+import tools.jackson.core.Base64Variant;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.util.JacksonFeatureSet;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.ObjectWriteContext;
+import tools.jackson.core.SerializableString;
+import tools.jackson.core.StreamWriteCapability;
+import tools.jackson.core.StreamWriteFeature;
+import tools.jackson.core.json.DupDetector;
+import tools.jackson.core.TokenStreamContext;
+import tools.jackson.core.base.GeneratorBase;
+import tools.jackson.core.io.IOContext;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
-import org.msgpack.core.annotations.Nullable;
 import org.msgpack.core.buffer.MessageBufferOutput;
 import org.msgpack.core.buffer.OutputStreamBufferOutput;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Reader;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.msgpack.jackson.dataformat.JavaInfo.STRING_VALUE_FIELD_IS_CHARS;
 
 public class MessagePackGenerator
         extends GeneratorBase
 {
-    private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     private static final int IN_ROOT = 0;
     private static final int IN_OBJECT = 1;
     private static final int IN_ARRAY = 2;
     private final MessagePacker messagePacker;
+    // Retained heap per idle thread: ~8 KB (OutputStreamBufferOutput + internal MessageBuffer).
+    // Negligible compared to Jackson's own per-thread buffer retention.
     private static final ThreadLocal<OutputStreamBufferOutput> messageBufferOutputHolder = new ThreadLocal<>();
     private final OutputStream output;
     private final MessagePack.PackerConfig packerConfig;
@@ -60,14 +61,20 @@ public class MessagePackGenerator
     private int currentState = IN_ROOT;
     private final List<Node> nodes;
     private boolean isElementsClosed = false;
+    private MessagePackWriteContext writeContext;
+    private final boolean ownsThreadLocalBuffer;
 
-    private static final class AsciiCharString
+    private static final class RawUtf8String
     {
         public final byte[] bytes;
+        public final int offset;
+        public final int len;
 
-        public AsciiCharString(byte[] bytes)
+        public RawUtf8String(byte[] bytes, int offset, int len)
         {
             this.bytes = bytes;
+            this.offset = offset;
+            this.len = len;
         }
     }
 
@@ -188,39 +195,47 @@ public class MessagePackGenerator
         }
     }
 
-    // This is an internal constructor for nested serialization.
-    @SuppressWarnings("deprecation")
+    // Internal constructor for nested serialization.
     private MessagePackGenerator(
-            int features,
-            ObjectCodec codec,
+            ObjectWriteContext writeCtxt,
+            IOContext ioCtxt,
+            int streamWriteFeatures,
             OutputStream out,
             MessagePack.PackerConfig packerConfig,
             boolean supportIntegerKeys)
     {
-        super(features, codec, new IOContext(new BufferRecycler(), ContentReference.rawReference(out), false), JsonWriteContext.createRootContext(null));
+        super(writeCtxt, ioCtxt, streamWriteFeatures);
         this.output = out;
         this.messagePacker = packerConfig.newPacker(out);
         this.packerConfig = packerConfig;
         this.nodes = new ArrayList<>();
         this.supportIntegerKeys = supportIntegerKeys;
+        this.writeContext = MessagePackWriteContext.createRootContext(
+                StreamWriteFeature.STRICT_DUPLICATE_DETECTION.enabledIn(streamWriteFeatures)
+                        ? DupDetector.rootDetector(this) : null);
+        this.ownsThreadLocalBuffer = false;
     }
 
-    @SuppressWarnings("deprecation")
     public MessagePackGenerator(
-            int features,
-            ObjectCodec codec,
+            ObjectWriteContext writeCtxt,
+            IOContext ioCtxt,
+            int streamWriteFeatures,
             OutputStream out,
             MessagePack.PackerConfig packerConfig,
             boolean reuseResourceInGenerator,
             boolean supportIntegerKeys)
             throws IOException
     {
-        super(features, codec, new IOContext(new BufferRecycler(), ContentReference.rawReference(out), false), JsonWriteContext.createRootContext(null));
+        super(writeCtxt, ioCtxt, streamWriteFeatures);
         this.output = out;
         this.messagePacker = packerConfig.newPacker(getMessageBufferOutputForOutputStream(out, reuseResourceInGenerator));
         this.packerConfig = packerConfig;
         this.nodes = new ArrayList<>();
         this.supportIntegerKeys = supportIntegerKeys;
+        this.writeContext = MessagePackWriteContext.createRootContext(
+                StreamWriteFeature.STRICT_DUPLICATE_DETECTION.enabledIn(streamWriteFeatures)
+                        ? DupDetector.rootDetector(this) : null);
+        this.ownsThreadLocalBuffer = reuseResourceInGenerator;
     }
 
     private MessageBufferOutput getMessageBufferOutputForOutputStream(
@@ -258,8 +273,27 @@ public class MessagePackGenerator
     }
 
     @Override
-    public void writeStartArray()
+    public JsonGenerator writeStartArray() throws JacksonException
     {
+        return writeStartArray(null);
+    }
+
+    @Override
+    public JsonGenerator writeStartArray(Object currentValue) throws JacksonException
+    {
+        return writeStartArray(currentValue, -1);
+    }
+
+    // size is ignored: element count is determined at flush time from the actual child nodes.
+    // When size >= 0, it could in principle be used to skip buffering and write the array
+    // header immediately, but Jackson does not guarantee it — dynamic filters (Views,
+    // @JsonFilter) evaluate entries incrementally and will pass -1 even for known-size
+    // collections. Backends must handle both cases (Jackson author confirmed, see #841).
+    @Override
+    public JsonGenerator writeStartArray(Object currentValue, int size) throws JacksonException
+    {
+        _verifyValueWrite("start an array");
+        writeContext = writeContext.createChildArrayContext(currentValue);
         if (currentState == IN_OBJECT) {
             Node node = nodes.get(nodes.size() - 1);
             assert node instanceof NodeEntryInObject;
@@ -267,25 +301,44 @@ public class MessagePackGenerator
             nodeEntryInObject.value = new NodeArray(currentParentElementIndex);
         }
         else {
+            if (isElementsClosed) {
+                flush();
+            }
             nodes.add(new NodeArray(currentParentElementIndex));
         }
         currentParentElementIndex = nodes.size() - 1;
         currentState = IN_ARRAY;
+        return this;
     }
 
     @Override
-    public void writeEndArray()
-            throws IOException
+    public JsonGenerator writeEndArray() throws JacksonException
     {
         if (currentState != IN_ARRAY) {
             _reportError("Current context not an array but " + currentStateStr());
         }
         endCurrentContainer();
+        return this;
     }
 
     @Override
-    public void writeStartObject()
+    public JsonGenerator writeStartObject() throws JacksonException
     {
+        return writeStartObject(null);
+    }
+
+    @Override
+    public JsonGenerator writeStartObject(Object currentValue) throws JacksonException
+    {
+        return writeStartObject(currentValue, -1);
+    }
+
+    // size is ignored: same reasoning as writeStartArray(Object, int) above.
+    @Override
+    public JsonGenerator writeStartObject(Object forValue, int size) throws JacksonException
+    {
+        _verifyValueWrite("start an object");
+        writeContext = writeContext.createChildObjectContext(forValue);
         if (currentState == IN_OBJECT) {
             Node node = nodes.get(nodes.size() - 1);
             assert node instanceof NodeEntryInObject;
@@ -293,33 +346,41 @@ public class MessagePackGenerator
             nodeEntryInObject.value = new NodeObject(currentParentElementIndex);
         }
         else {
+            if (isElementsClosed) {
+                flush();
+            }
             nodes.add(new NodeObject(currentParentElementIndex));
         }
         currentParentElementIndex = nodes.size() - 1;
         currentState = IN_OBJECT;
+        return this;
     }
 
     @Override
-    public void writeEndObject()
-            throws IOException
+    public JsonGenerator writeEndObject() throws JacksonException
     {
         if (currentState != IN_OBJECT) {
             _reportError("Current context not an object but " + currentStateStr());
         }
+        if (writeContext.isExpectingValue()) {
+            _reportError("Cannot close Object, property name written but no value");
+        }
         endCurrentContainer();
+        return this;
     }
 
     private void endCurrentContainer()
     {
+        writeContext = writeContext.getParent();
         Node parent = nodes.get(currentParentElementIndex);
-        if (currentParentElementIndex == 0) {
+        if (parent.parentIndex == -1) {
             isElementsClosed = true;
             currentParentElementIndex = parent.parentIndex;
+            currentState = IN_ROOT;
             return;
         }
 
         currentParentElementIndex = parent.parentIndex;
-        assert currentParentElementIndex >= 0;
         Node currentParent = nodes.get(currentParentElementIndex);
         currentParent.incrementChildCount();
         currentState = currentParent.currentStateAsParent();
@@ -332,10 +393,10 @@ public class MessagePackGenerator
         if (v instanceof String) {
             messagePacker.packString((String) v);
         }
-        else if (v instanceof AsciiCharString) {
-            byte[] bytes = ((AsciiCharString) v).bytes;
-            messagePacker.packRawStringHeader(bytes.length);
-            messagePacker.writePayload(bytes);
+        else if (v instanceof RawUtf8String) {
+            RawUtf8String raw = (RawUtf8String) v;
+            messagePacker.packRawStringHeader(raw.len);
+            messagePacker.writePayload(raw.bytes, raw.offset, raw.len);
         }
         else if (v instanceof Integer) {
             messagePacker.packInt((Integer) v);
@@ -364,13 +425,13 @@ public class MessagePackGenerator
         else if (v instanceof ByteBuffer) {
             ByteBuffer bb = (ByteBuffer) v;
             int len = bb.remaining();
-            if (bb.hasArray()) {
+            if (bb.hasArray() && !bb.isReadOnly()) {
                 messagePacker.packBinaryHeader(len);
-                messagePacker.writePayload(bb.array(), bb.arrayOffset(), len);
+                messagePacker.writePayload(bb.array(), bb.arrayOffset() + bb.position(), len);
             }
             else {
                 byte[] data = new byte[len];
-                bb.get(data);
+                bb.duplicate().get(data);
                 messagePacker.packBinaryHeader(len);
                 messagePacker.addPayload(data);
             }
@@ -384,8 +445,11 @@ public class MessagePackGenerator
         else {
             messagePacker.flush();
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            MessagePackGenerator messagePackGenerator = new MessagePackGenerator(getFeatureMask(), getCodec(), outputStream, packerConfig, supportIntegerKeys);
-            getCodec().writeValue(messagePackGenerator, v);
+            try (MessagePackGenerator messagePackGenerator = new MessagePackGenerator(
+                    objectWriteContext(), _ioContext, _streamWriteFeatures,
+                    outputStream, packerConfig, supportIntegerKeys)) {
+                objectWriteContext().writeValue(messagePackGenerator, v);
+            }
             output.write(outputStream.toByteArray());
         }
     }
@@ -407,8 +471,7 @@ public class MessagePackGenerator
         if (failedToPackAsBI) {
             double doubleValue = decimal.doubleValue();
             //Check to make sure this BigDecimal can be represented as a double
-            if (!decimal.stripTrailingZeros().toEngineeringString().equals(
-                    BigDecimal.valueOf(doubleValue).stripTrailingZeros().toEngineeringString())) {
+            if (Double.isInfinite(doubleValue) || decimal.compareTo(BigDecimal.valueOf(doubleValue)) != 0) {
                 throw new IllegalArgumentException("MessagePack cannot serialize a BigDecimal that can't be represented as double. " + decimal);
             }
             messagePacker.packDouble(doubleValue);
@@ -432,14 +495,16 @@ public class MessagePackGenerator
     private void addKeyNode(Object key)
     {
         if (currentState != IN_OBJECT) {
-            throw new IllegalStateException();
+            _reportError("Can not write a property name, expecting a value");
         }
-        Node node = new NodeEntryInObject(currentParentElementIndex, key);
-        nodes.add(node);
+        nodes.add(new NodeEntryInObject(currentParentElementIndex, key));
     }
 
     private void addValueNode(Object value) throws IOException
     {
+        if (!writeContext.writeValue()) {
+            _reportError("Cannot write value: expecting a property name in Object context");
+        }
         switch (currentState) {
             case IN_OBJECT: {
                 Node node = nodes.get(nodes.size() - 1);
@@ -456,345 +521,438 @@ public class MessagePackGenerator
                 break;
             }
             default:
+                // Flush any buffered root container before packing a root scalar,
+                // otherwise the scalar would be emitted before the container.
+                if (isElementsClosed) {
+                    flush();
+                }
                 packNonContainer(value);
                 flushMessagePacker();
                 break;
         }
     }
 
-    @Nullable
-    private byte[] getBytesIfAscii(char[] chars, int offset, int len)
-    {
-        byte[] bytes = new byte[len];
-        for (int i = offset; i < offset + len; i++) {
-            char c = chars[i];
-            if (c >= 0x80) {
-                return null;
-            }
-            bytes[i] = (byte) c;
-        }
-        return bytes;
-    }
-
-    private boolean areAllAsciiBytes(byte[] bytes, int offset, int len)
-    {
-        for (int i = offset; i < offset + len; i++) {
-            if ((bytes[i] & 0x80) != 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void writeCharArrayTextKey(char[] text, int offset, int len)
-    {
-        byte[] bytes = getBytesIfAscii(text, offset, len);
-        if (bytes != null) {
-            addKeyNode(new AsciiCharString(bytes));
-            return;
-        }
-        addKeyNode(new String(text, offset, len));
-    }
-
     private void writeCharArrayTextValue(char[] text, int offset, int len) throws IOException
     {
-        byte[] bytes = getBytesIfAscii(text, offset, len);
-        if (bytes != null) {
-            addValueNode(new AsciiCharString(bytes));
-            return;
-        }
         addValueNode(new String(text, offset, len));
     }
 
     private void writeByteArrayTextValue(byte[] text, int offset, int len) throws IOException
     {
-        if (areAllAsciiBytes(text, offset, len)) {
-            addValueNode(new AsciiCharString(text));
-            return;
-        }
-        addValueNode(new String(text, offset, len, DEFAULT_CHARSET));
-    }
-
-    private void writeByteArrayTextKey(byte[] text, int offset, int len) throws IOException
-    {
-        if (areAllAsciiBytes(text, offset, len)) {
-            addValueNode(new AsciiCharString(text));
-            return;
-        }
-        addValueNode(new String(text, offset, len, DEFAULT_CHARSET));
+        addValueNode(new RawUtf8String(text, offset, len));
     }
 
     @Override
-    public void writeFieldId(long id) throws IOException
+    public JsonGenerator writePropertyId(long id) throws JacksonException
     {
         if (this.supportIntegerKeys) {
+            if (!writeContext.writeName(String.valueOf(id))) {
+                _reportError("Can not write a property id, expecting a value");
+            }
             addKeyNode(id);
         }
         else {
-            super.writeFieldId(id);
+            writeName(String.valueOf(id));
         }
+        return this;
     }
 
     @Override
-    public void writeFieldName(String name)
+    public JacksonFeatureSet<StreamWriteCapability> streamWriteCapabilities()
     {
-        if (STRING_VALUE_FIELD_IS_CHARS.get()) {
-            char[] chars = name.toCharArray();
-            writeCharArrayTextKey(chars, 0, chars.length);
-        }
-        else {
-            addKeyNode(name);
-        }
+        return DEFAULT_BINARY_WRITE_CAPABILITIES;
     }
 
     @Override
-    public void writeFieldName(SerializableString name)
+    public JsonGenerator writeName(String name) throws JacksonException
     {
-        if (name instanceof SerializedString) {
-            writeFieldName(name.getValue());
+        if (!writeContext.writeName(name)) {
+            _reportError("Can not write a property name, expecting a value");
         }
-        else if (name instanceof MessagePackSerializedString) {
+        addKeyNode(name);
+        return this;
+    }
+
+    @Override
+    public JsonGenerator writeName(SerializableString name) throws JacksonException
+    {
+        if (name instanceof MessagePackSerializedString) {
+            if (!writeContext.writeName(name.getValue())) {
+                _reportError("Can not write a property name, expecting a value");
+            }
             addKeyNode(((MessagePackSerializedString) name).getRawValue());
         }
         else {
-            throw new IllegalArgumentException("Unsupported key: " + name);
+            writeName(name.getValue());
         }
+        return this;
     }
 
     @Override
-    public void writeString(String text)
-            throws IOException
+    public JsonGenerator writeString(String text) throws JacksonException
     {
-        if (STRING_VALUE_FIELD_IS_CHARS.get()) {
-            char[] chars = text.toCharArray();
-            writeCharArrayTextValue(chars, 0, chars.length);
-        }
-        else {
+        try {
             addValueNode(text);
         }
-    }
-
-    @Override
-    public void writeString(char[] text, int offset, int len)
-            throws IOException
-    {
-        writeCharArrayTextValue(text, offset, len);
-    }
-
-    @Override
-    public void writeRawUTF8String(byte[] text, int offset, int length)
-            throws IOException
-    {
-        writeByteArrayTextValue(text, offset, length);
-    }
-
-    @Override
-    public void writeUTF8String(byte[] text, int offset, int length)
-            throws IOException
-    {
-        writeByteArrayTextValue(text, offset, length);
-    }
-
-    @Override
-    public void writeRaw(String text)
-            throws IOException
-    {
-        if (STRING_VALUE_FIELD_IS_CHARS.get()) {
-            char[] chars = text.toCharArray();
-            writeCharArrayTextValue(chars, 0, chars.length);
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
         }
-        else {
+        return this;
+    }
+
+    @Override
+    public JsonGenerator writeString(char[] text, int offset, int len) throws JacksonException
+    {
+        try {
+            writeCharArrayTextValue(text, offset, len);
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return this;
+    }
+
+    @Override
+    public JsonGenerator writeString(Reader reader, int len) throws JacksonException
+    {
+        try {
+            long remaining = len < 0 ? Long.MAX_VALUE : len;
+            // Cap chunk size: len is a caller hint and can be arbitrarily large.
+            // Pre-allocating new StringBuilder(len) would reserve len*2 bytes upfront,
+            // which is an OOM risk for large inputs. The StringBuilder grows as needed.
+            int chunkSize = (int) Math.min(remaining, 8192);
+            StringBuilder sb = new StringBuilder(chunkSize);
+            char[] tmpBuf = new char[chunkSize];
+            while (remaining > 0) {
+                int read = reader.read(tmpBuf, 0, (int) Math.min(remaining, tmpBuf.length));
+                if (read < 0) {
+                    break;
+                }
+                sb.append(tmpBuf, 0, read);
+                remaining -= read;
+            }
+            addValueNode(sb.toString());
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return this;
+    }
+
+    @Override
+    public JsonGenerator writeString(SerializableString text) throws JacksonException
+    {
+        return writeString(text.getValue());
+    }
+
+    @Override
+    public JsonGenerator writeRawUTF8String(byte[] text, int offset, int length) throws JacksonException
+    {
+        try {
+            writeByteArrayTextValue(text, offset, length);
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return this;
+    }
+
+    @Override
+    public JsonGenerator writeUTF8String(byte[] text, int offset, int length) throws JacksonException
+    {
+        try {
+            writeByteArrayTextValue(text, offset, length);
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return this;
+    }
+
+    @Override
+    public JsonGenerator writeRaw(String text) throws JacksonException
+    {
+        try {
             addValueNode(text);
         }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return this;
     }
 
     @Override
-    public void writeRaw(String text, int offset, int len)
-            throws IOException
+    public JsonGenerator writeRaw(String text, int offset, int len) throws JacksonException
     {
-        // TODO: There is room to optimize this.
-        char[] chars = text.toCharArray();
-        writeCharArrayTextValue(chars, offset, len);
+        try {
+            addValueNode(text.substring(offset, offset + len));
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return this;
     }
 
     @Override
-    public void writeRaw(char[] text, int offset, int len)
-            throws IOException
+    public JsonGenerator writeRaw(char[] text, int offset, int len) throws JacksonException
     {
-        writeCharArrayTextValue(text, offset, len);
+        try {
+            writeCharArrayTextValue(text, offset, len);
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return this;
     }
 
     @Override
-    public void writeRaw(char c)
-            throws IOException
+    public JsonGenerator writeRaw(char c) throws JacksonException
     {
-        writeCharArrayTextValue(new char[] { c }, 0, 1);
+        try {
+            writeCharArrayTextValue(new char[] { c }, 0, 1);
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return this;
     }
 
     @Override
-    public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len)
-            throws IOException
+    public JsonGenerator writeBinary(Base64Variant b64variant, byte[] data, int offset, int len) throws JacksonException
     {
-        addValueNode(ByteBuffer.wrap(data, offset, len));
+        try {
+            addValueNode(ByteBuffer.wrap(data, offset, len));
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return this;
     }
 
     @Override
-    public void writeNumber(int v)
-            throws IOException
+    public JsonGenerator writeNumber(short v) throws JacksonException
     {
-        addValueNode(v);
+        return writeNumber((int) v);
     }
 
     @Override
-    public void writeNumber(long v)
-            throws IOException
+    public JsonGenerator writeNumber(int v) throws JacksonException
     {
-        addValueNode(v);
+        try {
+            addValueNode(v);
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return this;
     }
 
     @Override
-    public void writeNumber(BigInteger v)
-            throws IOException
+    public JsonGenerator writeNumber(long v) throws JacksonException
     {
-        addValueNode(v);
+        try {
+            addValueNode(v);
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return this;
     }
 
     @Override
-    public void writeNumber(double d)
-            throws IOException
+    public JsonGenerator writeNumber(BigInteger v) throws JacksonException
     {
-        addValueNode(d);
+        try {
+            addValueNode(v);
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return this;
     }
 
     @Override
-    public void writeNumber(float f)
-            throws IOException
+    public JsonGenerator writeNumber(double d) throws JacksonException
     {
-        addValueNode(f);
+        try {
+            addValueNode(d);
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return this;
     }
 
     @Override
-    public void writeNumber(BigDecimal dec)
-            throws IOException
+    public JsonGenerator writeNumber(float f) throws JacksonException
     {
-        addValueNode(dec);
+        try {
+            addValueNode(f);
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return this;
     }
 
     @Override
-    public void writeNumber(String encodedValue)
-            throws IOException, UnsupportedOperationException
+    public JsonGenerator writeNumber(BigDecimal dec) throws JacksonException
+    {
+        try {
+            addValueNode(dec);
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return this;
+    }
+
+    @Override
+    public JsonGenerator writeNumber(String encodedValue) throws JacksonException
     {
         // There is a room to improve this API's performance while the implementation is robust.
         // If users can use other MessagePackGenerator#writeNumber APIs that accept
         // proper numeric types not String, it's better to use the other APIs instead.
         try {
-            long l = Long.parseLong(encodedValue);
-            addValueNode(l);
-            return;
-        }
-        catch (NumberFormatException ignored) {
-        }
+            try {
+                long l = Long.parseLong(encodedValue);
+                addValueNode(l);
+                return this;
+            }
+            catch (NumberFormatException ignored) {
+            }
 
-        try {
-            double d = Double.parseDouble(encodedValue);
-            addValueNode(d);
-            return;
-        }
-        catch (NumberFormatException ignored) {
-        }
+            try {
+                BigInteger bi = new BigInteger(encodedValue);
+                addValueNode(bi);
+                return this;
+            }
+            catch (NumberFormatException ignored) {
+            }
 
-        try {
-            BigInteger bi = new BigInteger(encodedValue);
-            addValueNode(bi);
-            return;
-        }
-        catch (NumberFormatException ignored) {
-        }
+            try {
+                BigDecimal bd = new BigDecimal(encodedValue);
+                double d = bd.doubleValue();
 
-        try {
-            BigDecimal bc = new BigDecimal(encodedValue);
-            addValueNode(bc);
-            return;
-        }
-        catch (NumberFormatException ignored) {
-        }
+                // Check if the double can perfectly represent the exact decimal value.
+                // isInfinite guard: values like "1e309" overflow double to Infinity; keep as BigDecimal.
+                if (!Double.isInfinite(d) && bd.compareTo(new BigDecimal(String.valueOf(d))) == 0) {
+                    // It's a safe ordinary floating-point number.
+                    addValueNode(d);
+                }
+                else {
+                    // It has more precision than a double can handle, or overflows double range.
+                    addValueNode(bd);
+                }
+                return this;
+            }
+            catch (NumberFormatException e) {
+                // Fall back for NaN, Infinity, -Infinity which BigDecimal rejects.
+                try {
+                    double d = Double.parseDouble(encodedValue);
+                    addValueNode(d);
+                    return this;
+                }
+                catch (NumberFormatException ignored) {
+                }
+            }
 
-        throw new NumberFormatException(encodedValue);
+            throw new NumberFormatException(encodedValue);
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
     }
 
     @Override
-    public void writeBoolean(boolean state)
-            throws IOException
+    public JsonGenerator writeBoolean(boolean state) throws JacksonException
     {
-        addValueNode(state);
+        try {
+            addValueNode(state);
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return this;
     }
 
     @Override
-    public void writeNull()
-            throws IOException
+    public JsonGenerator writeNull() throws JacksonException
     {
-        addValueNode(null);
+        try {
+            addValueNode(null);
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+        return this;
     }
 
     public void writeExtensionType(MessagePackExtensionType extensionType)
-            throws IOException
     {
-        addValueNode(extensionType);
+        try {
+            addValueNode(extensionType);
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
     }
 
     @Override
-    public void close()
-            throws IOException
+    public void close() throws JacksonException
     {
-        try {
-            flush();
-        }
-        finally {
-            if (isEnabled(Feature.AUTO_CLOSE_TARGET)) {
-                MessagePacker messagePacker = getMessagePacker();
-                messagePacker.close();
+        if (!_closed) {
+            try {
+                flush();
+            }
+            finally {
+                super.close();
             }
         }
     }
 
     @Override
-    public void flush()
-            throws IOException
+    public void flush() throws JacksonException
     {
         if (!isElementsClosed) {
             // The whole elements are not closed yet.
             return;
         }
 
-        for (int i = 0; i < nodes.size(); i++) {
-            Node node = nodes.get(i);
-            if (node instanceof NodeEntryInObject) {
-                NodeEntryInObject nodeEntry = (NodeEntryInObject) node;
-                packNonContainer(nodeEntry.key);
-                if (nodeEntry.value instanceof NodeObject) {
-                    packObject((NodeObject) nodeEntry.value);
+        try {
+            for (int i = 0; i < nodes.size(); i++) {
+                Node node = nodes.get(i);
+                if (node instanceof NodeEntryInObject) {
+                    NodeEntryInObject nodeEntry = (NodeEntryInObject) node;
+                    packNonContainer(nodeEntry.key);
+                    if (nodeEntry.value instanceof NodeObject) {
+                        packObject((NodeObject) nodeEntry.value);
+                    }
+                    else if (nodeEntry.value instanceof NodeArray) {
+                        packArray((NodeArray) nodeEntry.value);
+                    }
+                    else {
+                        packNonContainer(nodeEntry.value);
+                    }
                 }
-                else if (nodeEntry.value instanceof NodeArray) {
-                    packArray((NodeArray) nodeEntry.value);
+                else if (node instanceof NodeObject) {
+                    packObject((NodeObject) node);
+                }
+                else if (node instanceof NodeEntryInArray) {
+                    packNonContainer(((NodeEntryInArray) node).value);
+                }
+                else if (node instanceof NodeArray) {
+                    packArray((NodeArray) node);
                 }
                 else {
-                    packNonContainer(nodeEntry.value);
+                    throw new AssertionError();
                 }
             }
-            else if (node instanceof NodeObject) {
-                packObject((NodeObject) node);
-            }
-            else if (node instanceof NodeEntryInArray) {
-                packNonContainer(((NodeEntryInArray) node).value);
-            }
-            else if (node instanceof NodeArray) {
-                packArray((NodeArray) node);
-            }
-            else {
-                throw new AssertionError();
-            }
+            flushMessagePacker();
         }
-        flushMessagePacker();
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
         nodes.clear();
         isElementsClosed = false;
     }
@@ -802,25 +960,78 @@ public class MessagePackGenerator
     private void flushMessagePacker()
             throws IOException
     {
-        MessagePacker messagePacker = getMessagePacker();
-        messagePacker.flush();
+        getMessagePacker().flush();
+    }
+
+    @Override
+    public tools.jackson.core.Version version()
+    {
+        return PackageVersion.VERSION;
+    }
+
+    @Override
+    public TokenStreamContext streamWriteContext()
+    {
+        return writeContext;
+    }
+
+    @Override
+    public Object streamWriteOutputTarget()
+    {
+        return output;
+    }
+
+    @Override
+    public int streamWriteOutputBuffered()
+    {
+        return -1;
+    }
+
+    @Override
+    public Object currentValue()
+    {
+        return writeContext.currentValue();
+    }
+
+    @Override
+    public void assignCurrentValue(Object v)
+    {
+        writeContext.assignCurrentValue(v);
+    }
+
+    @Override
+    protected void _closeInput() throws IOException
+    {
+        if (StreamWriteFeature.AUTO_CLOSE_TARGET.enabledIn(_streamWriteFeatures)) {
+            messagePacker.close();
+        }
     }
 
     @Override
     protected void _releaseBuffers()
     {
-        try {
-            messagePacker.close();
-        }
-        catch (IOException e) {
-            throw new RuntimeException("Failed to close MessagePacker", e);
+        // No null check on get(): generators are single-threaded by contract so this
+        // ThreadLocal is always set on the calling thread. A null here would indicate
+        // cross-thread misuse; letting it NPE surfaces that bug immediately.
+        if (ownsThreadLocalBuffer) {
+            OutputStreamBufferOutput buf = messageBufferOutputHolder.get();
+            if (buf != null) {
+                try {
+                    buf.reset(null);
+                }
+                catch (IOException e) {
+                    throw _wrapIOFailure(e);
+                }
+            }
         }
     }
 
     @Override
-    protected void _verifyValueWrite(String typeMsg) throws IOException
+    protected void _verifyValueWrite(String typeMsg) throws JacksonException
     {
-        // FIXME?
+        if (!writeContext.writeValue()) {
+            _reportError("Cannot " + typeMsg + ", expecting a property name");
+        }
     }
 
     private MessagePacker getMessagePacker()

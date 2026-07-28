@@ -16,23 +16,15 @@
 package org.msgpack.jackson.dataformat;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonToken;
-import tools.jackson.core.JsonEncoding;
-import tools.jackson.core.JacksonException;
-import tools.jackson.core.ObjectReadContext;
-import tools.jackson.core.ObjectWriteContext;
-import tools.jackson.core.StreamWriteFeature;
-import tools.jackson.core.TokenStreamContext;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.ValueSerializer;
-import tools.jackson.databind.annotation.JsonSerialize;
-import tools.jackson.databind.module.SimpleModule;
-import org.junit.Test;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.junit.jupiter.api.Test;
 import org.msgpack.core.ExtensionTypeHeader;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;
@@ -44,13 +36,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,14 +53,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MessagePackGeneratorTest
@@ -262,7 +253,7 @@ public class MessagePackGeneratorTest
         MessagePackFactory messagePackFactory = new MessagePackFactory();
         File tempFile = createTempFile();
 
-        JsonGenerator generator = messagePackFactory.createGenerator(ObjectWriteContext.empty(), tempFile, JsonEncoding.UTF8);
+        JsonGenerator generator = messagePackFactory.createGenerator(tempFile, JsonEncoding.UTF8);
         assertTrue(generator instanceof MessagePackGenerator);
         generator.writeStartArray();
         generator.writeNumber(0);
@@ -289,7 +280,7 @@ public class MessagePackGeneratorTest
         MessagePackFactory messagePackFactory = new MessagePackFactory();
         File tempFile = createTempFile();
 
-        JsonGenerator generator = messagePackFactory.createGenerator(ObjectWriteContext.empty(), tempFile, JsonEncoding.UTF8);
+        JsonGenerator generator = messagePackFactory.createGenerator(tempFile, JsonEncoding.UTF8);
         assertTrue(generator instanceof MessagePackGenerator);
         generator.writeNumber(0);
         generator.writeString("one");
@@ -313,7 +304,7 @@ public class MessagePackGeneratorTest
     public void testBigDecimal()
             throws IOException
     {
-        ObjectMapper mapper = new MessagePackMapper(new MessagePackFactory());
+        ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
 
         {
             double d0 = 1.23456789;
@@ -360,37 +351,15 @@ public class MessagePackGeneratorTest
     }
 
     @Test
-    public void testBigDecimalCompareTo()
-            throws IOException
-    {
-        ObjectMapper mapper = new MessagePackMapper(new MessagePackFactory());
-
-        // BigDecimal with trailing zeros is representable as double — must not throw
-        BigDecimal trailingZeros = new BigDecimal("1.50");
-        byte[] bytes = mapper.writeValueAsBytes(trailingZeros);
-        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes);
-        assertEquals(1.5, unpacker.unpackDouble(), 0.0);
-
-        // BigDecimal with precision beyond double range must throw
-        BigDecimal tooHighPrecision = new BigDecimal("1.00000000000000000000000000000000000001");
-        try {
-            mapper.writeValueAsBytes(tooHighPrecision);
-            assertTrue(false);
-        }
-        catch (IllegalArgumentException e) {
-            assertTrue(true);
-        }
-    }
-
-    @Test
     public void testEnableFeatureAutoCloseTarget()
             throws IOException
     {
         OutputStream out = createTempFileOutputStream();
-        ObjectMapper objectMapper = new MessagePackMapper(new MessagePackFactory());
+        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
         List<Integer> integers = Arrays.asList(1);
         objectMapper.writeValue(out, integers);
-        assertThrows(JacksonException.class, () -> {
+        assertThrows(IOException.class, () -> {
             objectMapper.writeValue(out, integers);
         });
     }
@@ -401,9 +370,9 @@ public class MessagePackGeneratorTest
     {
         File tempFile = createTempFile();
         OutputStream out = new FileOutputStream(tempFile);
-        ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .disable(StreamWriteFeature.AUTO_CLOSE_TARGET)
-                .build();
+        MessagePackFactory messagePackFactory = new MessagePackFactory();
+        ObjectMapper objectMapper = new ObjectMapper(messagePackFactory);
+        objectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
         List<Integer> integers = Arrays.asList(1);
         objectMapper.writeValue(out, integers);
         objectMapper.writeValue(out, integers);
@@ -422,9 +391,8 @@ public class MessagePackGeneratorTest
     {
         File tempFile = createTempFile();
         try (OutputStream out = Files.newOutputStream(tempFile.toPath())) {
-            ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                    .disable(StreamWriteFeature.AUTO_CLOSE_TARGET)
-                    .build();
+            ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+            objectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
             objectMapper.writeValue(out, 1);
             objectMapper.writeValue(out, "two");
             objectMapper.writeValue(out, 3.14);
@@ -449,9 +417,8 @@ public class MessagePackGeneratorTest
         int threadCount = 8;
         final int loopCount = 4000;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
-        final ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .disable(StreamWriteFeature.AUTO_CLOSE_TARGET)
-                .build();
+        final ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
         final List<ByteArrayOutputStream> buffers = new ArrayList<ByteArrayOutputStream>(threadCount);
         List<Future<Exception>> results = new ArrayList<Future<Exception>>();
 
@@ -470,7 +437,7 @@ public class MessagePackGeneratorTest
                         }
                         return null;
                     }
-                    catch (Exception e) {
+                    catch (IOException e) {
                         return e;
                     }
                 }
@@ -500,12 +467,14 @@ public class MessagePackGeneratorTest
     {
         String str8LengthString = new String(new char[32]).replace("\0", "a");
 
-        ObjectMapper defaultMapper = new MessagePackMapper(new MessagePackFactory());
+        // Test that produced value having str8 format
+        ObjectMapper defaultMapper = new ObjectMapper(new MessagePackFactory());
         byte[] resultWithStr8Format = defaultMapper.writeValueAsBytes(str8LengthString);
         assertEquals(resultWithStr8Format[0], MessagePack.Code.STR8);
 
+        // Test that produced value does not having str8 format
         MessagePack.PackerConfig config = new MessagePack.PackerConfig().withStr8FormatSupport(false);
-        ObjectMapper mapperWithConfig = new MessagePackMapper(new MessagePackFactory(config));
+        ObjectMapper mapperWithConfig = new ObjectMapper(new MessagePackFactory(config));
         byte[] resultWithoutStr8Format = mapperWithConfig.writeValueAsBytes(str8LengthString);
         assertNotEquals(resultWithoutStr8Format[0], MessagePack.Code.STR8);
     }
@@ -689,7 +658,7 @@ public class MessagePackGeneratorTest
     @Test
     @SuppressWarnings("unchecked")
     public void testNonStringKey()
-            throws Exception
+            throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException
     {
         for (Class<? extends NonStringKeyMapHolder> clazz :
                 Arrays.asList(
@@ -702,16 +671,11 @@ public class MessagePackGeneratorTest
             mapHolder.getDoubleMap().put(Double.MIN_VALUE, "d");
             mapHolder.getBigIntMap().put(BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE), "bi");
 
-            ObjectMapper objectMapper;
+            ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
             if (mapHolder instanceof NonStringKeyMapHolderWithoutAnnotation) {
                 SimpleModule mod = new SimpleModule("test");
                 mod.addKeySerializer(Object.class, new MessagePackKeySerializer());
-                objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                        .addModule(mod)
-                        .build();
-            }
-            else {
-                objectMapper = new MessagePackMapper(new MessagePackFactory());
+                objectMapper.registerModule(mod);
             }
 
             byte[] bytes = objectMapper.writeValueAsBytes(mapHolder);
@@ -756,11 +720,10 @@ public class MessagePackGeneratorTest
         pojo.t = "foo";
         map.put(pojo, 42);
 
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(TinyPojo.class, new MessagePackKeySerializer());
-        ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .addModule(mod)
-                .build();
+        objectMapper.registerModule(mod);
         byte[] bytes = objectMapper.writeValueAsBytes(map);
 
         MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes);
@@ -780,12 +743,11 @@ public class MessagePackGeneratorTest
         pojo.t = "foo";
         map.put(pojo, 42);
 
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.setAnnotationIntrospector(new JsonArrayFormat());
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(TinyPojo.class, new MessagePackKeySerializer());
-        ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .annotationIntrospector(new JsonArrayFormat())
-                .addModule(mod)
-                .build();
+        objectMapper.registerModule(mod);
         byte[] bytes = objectMapper.writeValueAsBytes(map);
 
         MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes);
@@ -795,12 +757,14 @@ public class MessagePackGeneratorTest
         assertThat(unpacker.unpackInt(), is(42));
     }
 
+    // Test serializers that store a string as a number
+
     public static class IntegerSerializerStoringAsString
-            extends ValueSerializer<Integer>
+            extends JsonSerializer<Integer>
     {
         @Override
-        public void serialize(Integer value, JsonGenerator gen, SerializationContext serializers)
-                throws JacksonException
+        public void serialize(Integer value, JsonGenerator gen, SerializerProvider serializers)
+                throws IOException, JsonProcessingException
         {
             gen.writeNumber(String.valueOf(value));
         }
@@ -810,9 +774,9 @@ public class MessagePackGeneratorTest
     public void serializeStringAsInteger()
             throws IOException
     {
-        ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .addModule(new SimpleModule().addSerializer(Integer.class, new IntegerSerializerStoringAsString()))
-                .build();
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.registerModule(
+                new SimpleModule().addSerializer(Integer.class, new IntegerSerializerStoringAsString()));
 
         assertThat(
             MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(Integer.MAX_VALUE)).unpackInt(),
@@ -820,11 +784,11 @@ public class MessagePackGeneratorTest
     }
 
     public static class LongSerializerStoringAsString
-            extends ValueSerializer<Long>
+            extends JsonSerializer<Long>
     {
         @Override
-        public void serialize(Long value, JsonGenerator gen, SerializationContext serializers)
-                throws JacksonException
+        public void serialize(Long value, JsonGenerator gen, SerializerProvider serializers)
+                throws IOException, JsonProcessingException
         {
             gen.writeNumber(String.valueOf(value));
         }
@@ -834,9 +798,9 @@ public class MessagePackGeneratorTest
     public void serializeStringAsLong()
             throws IOException
     {
-        ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .addModule(new SimpleModule().addSerializer(Long.class, new LongSerializerStoringAsString()))
-                .build();
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.registerModule(
+                new SimpleModule().addSerializer(Long.class, new LongSerializerStoringAsString()));
 
         assertThat(
             MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(Long.MIN_VALUE)).unpackLong(),
@@ -844,11 +808,11 @@ public class MessagePackGeneratorTest
     }
 
     public static class FloatSerializerStoringAsString
-            extends ValueSerializer<Float>
+            extends JsonSerializer<Float>
     {
         @Override
-        public void serialize(Float value, JsonGenerator gen, SerializationContext serializers)
-                throws JacksonException
+        public void serialize(Float value, JsonGenerator gen, SerializerProvider serializers)
+                throws IOException, JsonProcessingException
         {
             gen.writeNumber(String.valueOf(value));
         }
@@ -858,9 +822,9 @@ public class MessagePackGeneratorTest
     public void serializeStringAsFloat()
             throws IOException
     {
-        ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .addModule(new SimpleModule().addSerializer(Float.class, new FloatSerializerStoringAsString()))
-                .build();
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.registerModule(
+                new SimpleModule().addSerializer(Float.class, new FloatSerializerStoringAsString()));
 
         assertThat(
             MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(Float.MAX_VALUE)).unpackFloat(),
@@ -868,11 +832,11 @@ public class MessagePackGeneratorTest
     }
 
     public static class DoubleSerializerStoringAsString
-            extends ValueSerializer<Double>
+            extends JsonSerializer<Double>
     {
         @Override
-        public void serialize(Double value, JsonGenerator gen, SerializationContext serializers)
-                throws JacksonException
+        public void serialize(Double value, JsonGenerator gen, SerializerProvider serializers)
+                throws IOException, JsonProcessingException
         {
             gen.writeNumber(String.valueOf(value));
         }
@@ -882,9 +846,9 @@ public class MessagePackGeneratorTest
     public void serializeStringAsDouble()
             throws IOException
     {
-        ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .addModule(new SimpleModule().addSerializer(Double.class, new DoubleSerializerStoringAsString()))
-                .build();
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.registerModule(
+                new SimpleModule().addSerializer(Double.class, new DoubleSerializerStoringAsString()));
 
         assertThat(
             MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(Double.MIN_VALUE)).unpackDouble(),
@@ -892,11 +856,11 @@ public class MessagePackGeneratorTest
     }
 
    public static class BigDecimalSerializerStoringAsString
-            extends ValueSerializer<BigDecimal>
+            extends JsonSerializer<BigDecimal>
     {
         @Override
-        public void serialize(BigDecimal value, JsonGenerator gen, SerializationContext serializers)
-                throws JacksonException
+        public void serialize(BigDecimal value, JsonGenerator gen, SerializerProvider serializers)
+                throws IOException, JsonProcessingException
         {
             gen.writeNumber(String.valueOf(value));
         }
@@ -906,22 +870,22 @@ public class MessagePackGeneratorTest
     public void serializeStringAsBigDecimal()
             throws IOException
     {
-        ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .addModule(new SimpleModule().addSerializer(BigDecimal.class, new BigDecimalSerializerStoringAsString()))
-                .build();
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.registerModule(
+                new SimpleModule().addSerializer(BigDecimal.class, new BigDecimalSerializerStoringAsString()));
 
         BigDecimal bd = BigDecimal.valueOf(Long.MAX_VALUE).add(BigDecimal.ONE);
         assertThat(
-            MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(bd)).unpackBigInteger(),
-                is(bd.toBigIntegerExact()));
+            MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(bd)).unpackDouble(),
+                is(bd.doubleValue()));
     }
 
     public static class BigIntegerSerializerStoringAsString
-            extends ValueSerializer<BigInteger>
+            extends JsonSerializer<BigInteger>
     {
         @Override
-        public void serialize(BigInteger value, JsonGenerator gen, SerializationContext serializers)
-                throws JacksonException
+        public void serialize(BigInteger value, JsonGenerator gen, SerializerProvider serializers)
+                throws IOException, JsonProcessingException
         {
             gen.writeNumber(String.valueOf(value));
         }
@@ -931,21 +895,22 @@ public class MessagePackGeneratorTest
     public void serializeStringAsBigInteger()
             throws IOException
     {
-        ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .addModule(new SimpleModule().addSerializer(BigInteger.class, new BigIntegerSerializerStoringAsString()))
-                .build();
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.registerModule(
+                new SimpleModule().addSerializer(BigInteger.class, new BigIntegerSerializerStoringAsString()));
 
         BigInteger bi = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE);
         assertThat(
-            MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(bi)).unpackBigInteger(),
-                is(bi));
+            MessagePack.newDefaultUnpacker(objectMapper.writeValueAsBytes(bi)).unpackDouble(),
+                is(bi.doubleValue()));
     }
 
     @Test
     public void testNestedSerialization() throws Exception
     {
-        ObjectMapper objectMapper = new MessagePackMapper(
-                new MessagePackFactory().setReuseResourceInGenerator(false));
+        // The purpose of this test is to confirm if MessagePackFactory.setReuseResourceInGenerator(false)
+        // works as a workaround for https://github.com/msgpack/msgpack-java/issues/508
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory().setReuseResourceInGenerator(false));
         OuterClass outerClass = objectMapper.readValue(
                 objectMapper.writeValueAsBytes(new OuterClass("Foo")),
                 OuterClass.class);
@@ -962,8 +927,10 @@ public class MessagePackGeneratorTest
         }
 
         public String getName()
+                throws IOException
         {
-            ObjectMapper objectMapper = new MessagePackMapper(new MessagePackFactory());
+            // Serialize nested class object
+            ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
             InnerClass innerClass = objectMapper.readValue(
                     objectMapper.writeValueAsBytes(new InnerClass("Bar")),
                     InnerClass.class);
@@ -985,462 +952,6 @@ public class MessagePackGeneratorTest
         public String getName()
         {
             return name;
-        }
-    }
-
-    @Test
-    public void testIsClosedAfterClose()
-            throws IOException
-    {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JsonGenerator generator = factory.createGenerator(ObjectWriteContext.empty(), baos);
-        assertFalse(generator.isClosed());
-        generator.writeStartArray();
-        generator.writeEndArray();
-        generator.close();
-        assertTrue(generator.isClosed());
-    }
-
-    @Test
-    public void testGeneratorReusableAfterRootContainerClose()
-            throws IOException
-    {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JsonGenerator generator = factory.createGenerator(ObjectWriteContext.empty(), baos);
-        generator.writeStartArray();
-        generator.writeNumber(1);
-        generator.writeEndArray();
-        generator.flush();
-
-        // Write a second root value; currentState must have reset to IN_ROOT
-        generator.writeStartObject();
-        generator.writeName("k");
-        generator.writeNumber(2);
-        generator.writeEndObject();
-        generator.close();
-
-        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(baos.toByteArray());
-        assertEquals(1, unpacker.unpackArrayHeader());
-        assertEquals(1, unpacker.unpackInt());
-        assertEquals(1, unpacker.unpackMapHeader());
-        assertEquals("k", unpacker.unpackString());
-        assertEquals(2, unpacker.unpackInt());
-    }
-
-    @Test
-    public void testWriteRawStringWithOffset()
-            throws IOException
-    {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JsonGenerator generator = factory.createGenerator(ObjectWriteContext.empty(), baos);
-        generator.writeStartArray();
-        generator.writeRaw("XXhelloXX", 2, 5); // "hello"
-        generator.writeEndArray();
-        generator.close();
-
-        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(baos.toByteArray());
-        unpacker.unpackArrayHeader();
-        assertEquals("hello", unpacker.unpackString());
-    }
-
-    @Test
-    public void testWriteStringCharArrayWithOffset()
-            throws IOException
-    {
-        // Padding chars before/after the actual content to test non-zero offset
-        char[] buf = new char[] {'X', 'X', 'h', 'e', 'l', 'l', 'o', 'X'};
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JsonGenerator generator = factory.createGenerator(ObjectWriteContext.empty(), baos);
-        generator.writeStartArray();
-        generator.writeString(buf, 2, 5); // "hello"
-        generator.writeEndArray();
-        generator.close();
-
-        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(baos.toByteArray());
-        unpacker.unpackArrayHeader();
-        assertEquals("hello", unpacker.unpackString());
-    }
-
-    @Test
-    public void testWriteStringCharArrayWithOffsetNonAscii()
-            throws IOException
-    {
-        // Non-ASCII to exercise the non-fast-path in getBytesIfAscii
-        char[] buf = new char[] {'X', '三', '四', '五', 'X'}; // 三四五
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JsonGenerator generator = factory.createGenerator(ObjectWriteContext.empty(), baos);
-        generator.writeStartArray();
-        generator.writeString(buf, 1, 3);
-        generator.writeEndArray();
-        generator.close();
-
-        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(baos.toByteArray());
-        unpacker.unpackArrayHeader();
-        assertEquals("三四五", unpacker.unpackString());
-    }
-
-    @Test
-    public void testWriteUTF8StringWithOffset()
-            throws IOException
-    {
-        // Padding bytes before/after to test non-zero offset in writeUTF8String
-        byte[] buf = new byte[] {'X', 'X', 'h', 'i', 'X'};
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JsonGenerator generator = factory.createGenerator(ObjectWriteContext.empty(), baos);
-        generator.writeStartArray();
-        generator.writeUTF8String(buf, 2, 2); // "hi"
-        generator.writeEndArray();
-        generator.close();
-
-        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(baos.toByteArray());
-        unpacker.unpackArrayHeader();
-        assertEquals("hi", unpacker.unpackString());
-    }
-
-    @Test
-    public void testWriteBinaryWithOffset()
-            throws IOException
-    {
-        byte[] data = new byte[] {0x00, 0x01, 0x02, 0x03, 0x04};
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JsonGenerator generator = factory.createGenerator(ObjectWriteContext.empty(), baos);
-        generator.writeStartArray();
-        generator.writeBinary(data, 1, 3); // bytes 0x01, 0x02, 0x03
-        generator.writeEndArray();
-        generator.close();
-
-        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(baos.toByteArray());
-        unpacker.unpackArrayHeader();
-        byte[] result = unpacker.readPayload(unpacker.unpackBinaryHeader());
-        assertArrayEquals(new byte[] {0x01, 0x02, 0x03}, result);
-    }
-
-    @Test
-    public void testWriteBinaryByteBufferWithOffset()
-            throws IOException
-    {
-        byte[] data = new byte[] {0x00, 0x01, 0x02, 0x03, 0x04};
-        ByteBuffer bb = ByteBuffer.wrap(data, 1, 3); // position=1, limit=4, remaining=3
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JsonGenerator generator = factory.createGenerator(ObjectWriteContext.empty(), baos);
-        generator.writeStartArray();
-        ObjectMapper mapper = new MessagePackMapper(factory);
-        mapper.writeValue(generator, bb);
-        generator.writeEndArray();
-        generator.close();
-
-        MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(baos.toByteArray());
-        unpacker.unpackArrayHeader();
-        byte[] result = unpacker.readPayload(unpacker.unpackBinaryHeader());
-        assertArrayEquals(new byte[] {0x01, 0x02, 0x03}, result);
-    }
-
-    @Test
-    public void testStreamWriteContext()
-            throws IOException
-    {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JsonGenerator generator = factory.createGenerator(ObjectWriteContext.empty(), baos);
-
-        TokenStreamContext ctx = generator.streamWriteContext();
-        assertNotEquals(null, ctx);
-        assertTrue(ctx.inRoot());
-
-        generator.writeStartArray();
-        ctx = generator.streamWriteContext();
-        assertTrue(ctx.inArray());
-
-        generator.writeStartObject();
-        ctx = generator.streamWriteContext();
-        assertTrue(ctx.inObject());
-
-        generator.writeName("k");
-        assertEquals("k", ctx.currentName());
-
-        generator.writeNumber(1);
-        generator.writeEndObject();
-        ctx = generator.streamWriteContext();
-        assertTrue(ctx.inArray());
-
-        generator.writeEndArray();
-        ctx = generator.streamWriteContext();
-        assertTrue(ctx.inRoot());
-
-        generator.close();
-    }
-
-    @Test
-    public void testCurrentValue()
-            throws IOException
-    {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JsonGenerator generator = factory.createGenerator(ObjectWriteContext.empty(), baos);
-
-        Object pojo = new Object();
-        generator.writeStartObject(pojo);
-        assertEquals(pojo, generator.currentValue());
-        generator.writeName("k");
-        generator.writeNumber(1);
-        generator.writeEndObject();
-        generator.close();
-    }
-
-    @Test
-    public void testVersion()
-    {
-        assertNotEquals(null, factory.version());
-        assertEquals("org.msgpack", factory.version().getGroupId());
-        assertEquals("jackson-dataformat-msgpack-jackson3", factory.version().getArtifactId());
-    }
-
-    @Test
-    public void testSerializedStringMethods() throws IOException
-    {
-        MessagePackSerializedString s = new MessagePackSerializedString("hello");
-
-        byte[] utf8Target = new byte[10];
-        int written = s.appendUnquotedUTF8(utf8Target, 2);
-        assertEquals(5, written);
-        assertArrayEquals(new byte[] {'h', 'e', 'l', 'l', 'o'}, Arrays.copyOfRange(utf8Target, 2, 7));
-
-        char[] charTarget = new char[10];
-        written = s.appendUnquoted(charTarget, 3);
-        assertEquals(5, written);
-        assertEquals("hello", new String(charTarget, 3, 5));
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        written = s.writeUnquotedUTF8(baos);
-        assertEquals(5, written);
-        assertArrayEquals("hello".getBytes(java.nio.charset.StandardCharsets.UTF_8), baos.toByteArray());
-    }
-
-    // Regression: addValueNode must call writeContext.writeValue() so that the Jackson write
-    // context resets _gotPropertyId after each value. Without it, the second writeName() in the
-    // same object finds _gotPropertyId still set from the first writeName() and returns false
-    // without updating currentName(), leaving streamWriteContext().currentName() stale.
-    @Test
-    public void testWriteContextCurrentNameIsUpdatedForEveryProperty()
-            throws IOException
-    {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JsonGenerator generator = factory.createGenerator(ObjectWriteContext.empty(), baos);
-        generator.writeStartObject();
-
-        generator.writeName("alpha");
-        generator.writeNumber(1);
-
-        generator.writeName("beta");
-        assertEquals("beta", generator.streamWriteContext().currentName());
-        generator.writeNumber(2);
-
-        generator.writeEndObject();
-        generator.close();
-    }
-
-    // Regression: writePropertyId() must call writeContext.writeName() when supportIntegerKeys
-    // is true. Without it, streamWriteContext() never learns a name was written, so currentName()
-    // returns null and any downstream code relying on context state (e.g. duplicate-name
-    // detection, error messages) sees wrong state.
-    @Test
-    public void testWritePropertyIdUpdatesWriteContext()
-            throws IOException
-    {
-        MessagePackFactory intKeyFactory = new MessagePackFactory().setSupportIntegerKeys(true);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JsonGenerator generator = intKeyFactory.createGenerator(ObjectWriteContext.empty(), baos);
-        generator.writeStartObject();
-        generator.writePropertyId(42L);
-        assertEquals("42", generator.streamWriteContext().currentName());
-        generator.writeString("value");
-        generator.writeEndObject();
-        generator.close();
-    }
-
-    @Test
-    public void testNullSerializedStringKeyDoesNotThrowNpe()
-            throws IOException
-    {
-        // writeName(MessagePackSerializedString(null)) calls getValue() → null.toString() → NPE.
-        // A null key should be serialized as msgpack nil, not crash.
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JsonGenerator generator = new MessagePackFactory().createGenerator(ObjectWriteContext.empty(), baos);
-        generator.writeStartObject();
-        generator.writeName(new MessagePackSerializedString(null));
-        generator.writeNumber(42);
-        generator.writeEndObject();
-        generator.close();
-
-        // Verify the null key round-trips as PROPERTY_NAME with null current name
-        try (JsonParser parser =
-                new MessagePackFactory().createParser(ObjectReadContext.empty(), baos.toByteArray())) {
-            assertEquals(JsonToken.START_OBJECT, parser.nextToken());
-            assertEquals(JsonToken.PROPERTY_NAME, parser.nextToken());
-            assertNull(parser.currentName());
-            assertEquals(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
-            assertEquals(42, parser.getIntValue());
-            assertEquals(JsonToken.END_OBJECT, parser.nextToken());
-        }
-    }
-
-    @Test
-    public void testFlushMidWriteOnSecondRootContainerDoesNotCorruptState()
-            throws IOException
-    {
-        // After the first root container closes, isElementsClosed=true.
-        // Opening a second root container does not reset this flag, so a
-        // flush() call while the second container is still open will pack
-        // the incomplete node tree and wipe nodes[], corrupting subsequent writes.
-        MessagePackFactory factory = new MessagePackFactory();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JsonGenerator generator = factory.createGenerator(ObjectWriteContext.empty(), baos);
-
-        generator.writeStartArray();
-        generator.writeNumber(1);
-        generator.writeEndArray();
-
-        generator.writeStartArray();        // second root — isElementsClosed still true
-        generator.flush();                  // must NOT pack the incomplete second array
-        generator.writeNumber(2);
-        generator.writeEndArray();
-
-        generator.close();
-
-        ObjectMapper mapper = MessagePackMapper.builder(new MessagePackFactory())
-                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
-                .build();
-        try (JsonParser parser =
-                new MessagePackFactory().createParser(ObjectReadContext.empty(), baos.toByteArray())) {
-            List<Integer> first = mapper.readValue(parser, new TypeReference<List<Integer>>() {});
-            assertEquals(Collections.singletonList(1), first);
-            List<Integer> second = mapper.readValue(parser, new TypeReference<List<Integer>>() {});
-            assertEquals(Collections.singletonList(2), second);
-        }
-    }
-
-    @Test
-    public void testRootScalarAfterClosedRootContainerPreservesOrder()
-            throws IOException
-    {
-        // A root scalar written after a closed root container must be emitted AFTER
-        // the container, not before. Without a fix, addValueNode() packs the scalar
-        // immediately (default branch) while the container stays buffered, reversing order.
-        MessagePackFactory factory = new MessagePackFactory();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JsonGenerator generator = factory.createGenerator(ObjectWriteContext.empty(), baos);
-        generator.writeStartArray();
-        generator.writeNumber(1);
-        generator.writeEndArray();
-        generator.writeNumber(2);  // root scalar — must come AFTER the array
-        generator.close();
-
-        ObjectMapper mapper = MessagePackMapper.builder(new MessagePackFactory())
-                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
-                .build();
-        try (JsonParser parser =
-                new MessagePackFactory().createParser(ObjectReadContext.empty(), baos.toByteArray())) {
-            List<Integer> list = mapper.readValue(parser, new TypeReference<List<Integer>>() {});
-            assertEquals(Collections.singletonList(1), list);
-            int scalar = mapper.readValue(parser, Integer.class);
-            assertEquals(2, scalar);
-        }
-    }
-
-    // Bug: writeNumber(String) is missing "return this" after addValueNode(d) in the
-    // NaN/Infinity fallback branch.  addValueNode() advances the write-context state
-    // and (for root-level scalars) writes bytes to the output stream before the
-    // method falls through to "throw new NumberFormatException(encodedValue)".
-    @Test
-    public void testWriteNumberStringNanAndInfinity() throws IOException
-    {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        // Avoid try-with-resources: if writeNumber throws, the implicit close
-        // flushes a half-written node list and masks the original failure.
-        JsonGenerator gen = factory.createGenerator(ObjectWriteContext.empty(), baos);
-        gen.writeStartArray();
-        gen.writeNumber("NaN");       // Bug: NFE thrown after state mutation
-        gen.writeNumber("Infinity");
-        gen.writeNumber("-Infinity");
-        gen.writeEndArray();
-        gen.close();
-
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), baos.toByteArray())) {
-            assertEquals(JsonToken.START_ARRAY, p.nextToken());
-            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-            assertTrue(Double.isNaN(p.getDoubleValue()));
-            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-            assertEquals(Double.POSITIVE_INFINITY, p.getDoubleValue(), 0);
-            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-            assertEquals(Double.NEGATIVE_INFINITY, p.getDoubleValue(), 0);
-            assertEquals(JsonToken.END_ARRAY, p.nextToken());
-        }
-    }
-
-    // Bug: same DupDetector NPE as the read-path bug, on the write side.
-    // writeName(SerializableString) calls writeContext.writeName(name.getValue())
-    // where MessagePackSerializedString(null).getValue() == null.  With
-    // STRICT_DUPLICATE_DETECTION enabled and a prior non-null key already seen,
-    // DupDetector.isDup(null) reaches name.equals(_firstName) → NPE.
-    @Test
-    public void testNullKeyWithWriteDupDetectionDoesNotNPE() throws IOException
-    {
-        MessagePackFactory f = new MessagePackFactoryBuilder()
-                .enable(StreamWriteFeature.STRICT_DUPLICATE_DETECTION)
-                .build();
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), baos)) {
-            gen.writeStartObject();
-            gen.writeName("foo");
-            gen.writeNumber(1);
-            // MessagePackSerializedString(null).getValue() == null
-            gen.writeName(new MessagePackSerializedString(null)); // Bug: NPE here
-            gen.writeNumber(2);
-            gen.writeEndObject();
-        }
-    }
-
-    // Bug: MessagePackSerializedString.charLength() calls getValue().length()
-    // unconditionally; getValue() returns null when value is null → NPE.
-    @Test
-    public void testSerializedStringNullValueCharLengthDoesNotNPE()
-    {
-        MessagePackSerializedString s = new MessagePackSerializedString(null);
-        // Bug: null.length() → NullPointerException
-        assertEquals(0, s.charLength());
-    }
-
-    @Test
-    public void testMultipleRootContainersWithoutFlush()
-            throws IOException
-    {
-        // Writing two consecutive root-level containers on the same generator without
-        // an intervening flush() must not throw IndexOutOfBoundsException.
-        // The second root container sits at node index 1, so the root check
-        // "currentParentElementIndex == 0" incorrectly falls through to the
-        // nested-container path and calls nodes.get(-1).
-        MessagePackFactory factory = new MessagePackFactory();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        JsonGenerator generator = factory.createGenerator(ObjectWriteContext.empty(), baos);
-        generator.writeStartArray();
-        generator.writeNumber(1);
-        generator.writeEndArray();
-        // second root container — no flush() in between
-        generator.writeStartObject();
-        generator.writeStringProperty("key", "value");
-        generator.writeEndObject();
-        generator.close();
-
-        // Verify both values were written correctly by reading from a shared parser
-        ObjectMapper mapper = MessagePackMapper.builder(new MessagePackFactory())
-                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
-                .build();
-        try (JsonParser parser =
-                new MessagePackFactory().createParser(ObjectReadContext.empty(), baos.toByteArray())) {
-            List<Integer> list = mapper.readValue(parser, new TypeReference<List<Integer>>() {});
-            assertEquals(Collections.singletonList(1), list);
-            Map<String, String> map = mapper.readValue(parser, new TypeReference<Map<String, String>>() {});
-            assertEquals(Collections.singletonMap("key", "value"), map);
         }
     }
 }

@@ -15,28 +15,27 @@
 //
 package org.msgpack.jackson.dataformat;
 
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.JacksonException;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.KeyDeserializer;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ValueDeserializer;
-import tools.jackson.databind.deser.NullValueProvider;
-import tools.jackson.databind.deser.jdk.JDKValueInstantiators;
-import tools.jackson.databind.deser.jdk.MapDeserializer;
-import tools.jackson.databind.jsontype.TypeDeserializer;
-import tools.jackson.databind.module.SimpleModule;
-import tools.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.KeyDeserializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
+import com.fasterxml.jackson.databind.deser.impl.JDKValueInstantiators;
+import com.fasterxml.jackson.databind.deser.std.MapDeserializer;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.LinkedHashMap;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MessagePackDataformatForFieldIdTest
 {
@@ -46,7 +45,7 @@ public class MessagePackDataformatForFieldIdTest
         {
             @Override
             public Object deserializeKey(String s, DeserializationContext deserializationContext)
-                    throws JacksonException
+                    throws IOException
             {
                 JsonParser parser = deserializationContext.getParser();
                 if (parser instanceof MessagePackParser) {
@@ -62,13 +61,13 @@ public class MessagePackDataformatForFieldIdTest
         public MessagePackMapDeserializer()
         {
             super(
-                    TypeFactory.createDefaultInstance().constructMapType(Map.class, Object.class, Object.class),
+                    TypeFactory.defaultInstance().constructMapType(Map.class, Object.class, Object.class),
                     JDKValueInstantiators.findStdValueInstantiator(null, LinkedHashMap.class),
                     keyDeserializer, null, null);
         }
 
         public MessagePackMapDeserializer(MapDeserializer src, KeyDeserializer keyDeser,
-                ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser, NullValueProvider nuller,
+                JsonDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser, NullValueProvider nuller,
                 Set<String> ignorable, Set<String> includable)
         {
             super(src, keyDeser, valueDeser, valueTypeDeser, nuller, ignorable, includable);
@@ -76,10 +75,10 @@ public class MessagePackDataformatForFieldIdTest
 
         @Override
         protected MapDeserializer withResolved(KeyDeserializer keyDeser, TypeDeserializer valueTypeDeser,
-                ValueDeserializer<?> valueDeser, NullValueProvider nuller, Set<String> ignorable,
+                JsonDeserializer<?> valueDeser, NullValueProvider nuller, Set<String> ignorable,
                 Set<String> includable)
         {
-            return new MessagePackMapDeserializer(this, keyDeser, (ValueDeserializer<Object>) valueDeser, valueTypeDeser,
+            return new MessagePackMapDeserializer(this, keyDeser, (JsonDeserializer<Object>) valueDeser, valueTypeDeser,
                     nuller, ignorable, includable);
         }
     }
@@ -88,13 +87,12 @@ public class MessagePackDataformatForFieldIdTest
     public void testMixedKeys()
             throws IOException
     {
-        ObjectMapper mapper = MessagePackMapper.builder(
+        ObjectMapper mapper = new ObjectMapper(
                     new MessagePackFactory()
                         .setSupportIntegerKeys(true)
                 )
-                .addModule(new SimpleModule()
-                .addDeserializer(Map.class, new MessagePackMapDeserializer()))
-                .build();
+                .registerModule(new SimpleModule()
+                .addDeserializer(Map.class, new MessagePackMapDeserializer()));
 
         Map<Object, Object> map = new HashMap<>();
         map.put(1, "one");
@@ -110,13 +108,12 @@ public class MessagePackDataformatForFieldIdTest
     }
 
     @Test
-    public void testMixedKeysBackwardsCompatible()
+    public void testMixedKeysBackwardsCompatiable()
             throws IOException
     {
-        ObjectMapper mapper = MessagePackMapper.builder(new MessagePackFactory())
-                .addModule(new SimpleModule()
-                .addDeserializer(Map.class, new MessagePackMapDeserializer()))
-                .build();
+        ObjectMapper mapper = new ObjectMapper(new MessagePackFactory())
+                .registerModule(new SimpleModule()
+                .addDeserializer(Map.class, new MessagePackMapDeserializer()));
 
         Map<Object, Object> map = new HashMap<>();
         map.put(1, "one");

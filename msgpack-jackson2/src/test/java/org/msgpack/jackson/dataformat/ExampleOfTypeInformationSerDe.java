@@ -15,18 +15,18 @@
 //
 package org.msgpack.jackson.dataformat;
 
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.JacksonException;
-import tools.jackson.core.TreeNode;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.ValueDeserializer;
-import tools.jackson.databind.ValueSerializer;
-import tools.jackson.databind.annotation.JsonDeserialize;
-import tools.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -90,42 +90,38 @@ public class ExampleOfTypeInformationSerDe
     }
 
     static class ObjectContainerSerializer
-            extends ValueSerializer<ObjectContainer>
+            extends JsonSerializer<ObjectContainer>
     {
         @Override
-        public void serialize(ObjectContainer value, JsonGenerator gen, SerializationContext serializers)
-                throws JacksonException
+        public void serialize(ObjectContainer value, JsonGenerator gen, SerializerProvider serializers)
+                throws IOException, JsonProcessingException
         {
             gen.writeStartObject();
             HashMap<String, String> metadata = new HashMap<String, String>();
             for (Map.Entry<String, Object> entry : value.getObjects().entrySet()) {
                 metadata.put(entry.getKey(), entry.getValue().getClass().getName());
             }
-            gen.writePOJOProperty("__metadata", metadata);
-            gen.writePOJOProperty("objects", value.getObjects());
+            gen.writeObjectField("__metadata", metadata);
+            gen.writeObjectField("objects", value.getObjects());
             gen.writeEndObject();
         }
     }
 
     static class ObjectContainerDeserializer
-        extends ValueDeserializer<ObjectContainer>
+        extends JsonDeserializer<ObjectContainer>
     {
         @Override
         public ObjectContainer deserialize(JsonParser p, DeserializationContext ctxt)
-                throws JacksonException
+                throws IOException, JsonProcessingException
         {
             ObjectContainer objectContainer = new ObjectContainer(new HashMap<String, Object>());
             TreeNode treeNode = p.readValueAsTree();
 
-            Map<String, String> metadata = treeNode.get("__metadata")
-                    .traverse(p.objectReadContext())
-                    .readValueAs(new TypeReference<Map<String, String>>() {});
+            Map<String, String> metadata = treeNode.get("__metadata").traverse(p.getCodec()).readValueAs(new TypeReference<Map<String, String>>() {});
             TreeNode dataMapTree = treeNode.get("objects");
             for (Map.Entry<String, String> entry : metadata.entrySet()) {
                 try {
-                    Object o = dataMapTree.get(entry.getKey())
-                            .traverse(p.objectReadContext())
-                            .readValueAs(Class.forName(entry.getValue()));
+                    Object o = dataMapTree.get(entry.getKey()).traverse(p.getCodec()).readValueAs(Class.forName(entry.getValue()));
                     objectContainer.getObjects().put(entry.getKey(), o);
                 }
                 catch (ClassNotFoundException e) {
@@ -155,7 +151,7 @@ public class ExampleOfTypeInformationSerDe
             objectContainer.getObjects().put("pi", pi);
         }
 
-        ObjectMapper objectMapper = new MessagePackMapper(new MessagePackFactory());
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
         byte[] bytes = objectMapper.writeValueAsBytes(objectContainer);
         ObjectContainer restored = objectMapper.readValue(bytes, ObjectContainer.class);
 

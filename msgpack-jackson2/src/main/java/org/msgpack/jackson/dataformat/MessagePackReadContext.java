@@ -1,34 +1,26 @@
-//
-// MessagePack for Java
-//
-//    Licensed under the Apache License, Version 2.0 (the "License");
-//    you may not use this file except in compliance with the License.
-//    You may obtain a copy of the License at
-//
-//        http://www.apache.org/licenses/LICENSE-2.0
-//
-//    Unless required by applicable law or agreed to in writing, software
-//    distributed under the License is distributed on an "AS IS" BASIS,
-//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//    See the License for the specific language governing permissions and
-//    limitations under the License.
-//
 package org.msgpack.jackson.dataformat;
 
-import tools.jackson.core.TokenStreamContext;
-import tools.jackson.core.TokenStreamLocation;
-import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.core.io.ContentReference;
-import tools.jackson.core.json.DupDetector;
+import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonStreamContext;
+import com.fasterxml.jackson.core.io.CharTypes;
+import com.fasterxml.jackson.core.io.ContentReference;
+import com.fasterxml.jackson.core.json.DupDetector;
 
 /**
- * Replacement of {@link tools.jackson.core.json.JsonReadContext}
+ * Replacement of {@link com.fasterxml.jackson.core.json.JsonReadContext}
  * to support features needed by MessagePack format.
  */
 public final class MessagePackReadContext
-    extends TokenStreamContext
+    extends JsonStreamContext
 {
+    /**
+     * Parent context for this context; null for root context.
+     */
     protected final MessagePackReadContext parent;
+
+    // // // Optional duplicate detection
 
     protected final DupDetector dups;
 
@@ -37,11 +29,25 @@ public final class MessagePackReadContext
      */
     protected int expEntryCount;
 
+    // // // Location information (minus source reference)
+
     protected String currentName;
 
     protected Object currentValue;
 
+    /*
+    /**********************************************************
+    /* Simple instance reuse slots
+    /**********************************************************
+     */
+
     protected MessagePackReadContext child = null;
+
+    /*
+    /**********************************************************
+    /* Instance construction, reuse
+    /**********************************************************
+     */
 
     public MessagePackReadContext(MessagePackReadContext parent, DupDetector dups,
                                   int type, int expEntryCount)
@@ -68,16 +74,18 @@ public final class MessagePackReadContext
     }
 
     @Override
-    public Object currentValue()
+    public Object getCurrentValue()
     {
         return currentValue;
     }
 
     @Override
-    public void assignCurrentValue(Object v)
+    public void setCurrentValue(Object v)
     {
         currentValue = v;
     }
+
+    // // // Factory methods
 
     public static MessagePackReadContext createRootContext(DupDetector dups)
     {
@@ -113,8 +121,14 @@ public final class MessagePackReadContext
         return ctxt;
     }
 
+    /*
+    /**********************************************************
+    /* Abstract method implementation
+    /**********************************************************
+     */
+
     @Override
-    public String currentName()
+    public String getCurrentName()
     {
         return currentName;
     }
@@ -124,6 +138,12 @@ public final class MessagePackReadContext
     {
         return parent;
     }
+
+    /*
+    /**********************************************************
+    /* Extended API
+    /**********************************************************
+     */
 
     public boolean hasExpectedLength()
     {
@@ -143,6 +163,7 @@ public final class MessagePackReadContext
     public int getRemainingExpectedLength()
     {
         int diff = expEntryCount - _index;
+        // Negative values would occur when expected count is -1
         return Math.max(0, diff);
     }
 
@@ -151,6 +172,15 @@ public final class MessagePackReadContext
         return (expEntryCount < 0) && _type != TYPE_ROOT;
     }
 
+    /**
+     * Method called to increment the current entry count (Object property, Array
+     * element or Root value) for this context level
+     * and then see if more entries are accepted.
+     * The only case where more entries are NOT expected is for fixed-count
+     * Objects and Arrays that just reached the entry count.
+     *<p>
+     * Note that since the entry count is updated this is a state-changing method.
+     */
     public boolean expectMoreValues()
     {
         if (++_index == expEntryCount) {
@@ -159,12 +189,30 @@ public final class MessagePackReadContext
         return true;
     }
 
-    public TokenStreamLocation startLocation(ContentReference srcRef)
+    /**
+     * @return Location pointing to the point where the context
+     *   start marker was found
+     */
+    @Override
+    public JsonLocation startLocation(ContentReference srcRef)
     {
-        return new TokenStreamLocation(srcRef, 1L, -1, -1);
+        return new JsonLocation(srcRef, 1L, -1, -1);
     }
 
-    public void setCurrentName(String name)
+    @Override
+    @Deprecated // since 2.13
+    public JsonLocation getStartLocation(Object rawSrc)
+    {
+        return startLocation(ContentReference.rawReference(rawSrc));
+    }
+
+    /*
+    /**********************************************************
+    /* State changes
+    /**********************************************************
+     */
+
+    public void setCurrentName(String name) throws JsonProcessingException
     {
         currentName = name;
         if (dups != null) {
@@ -172,16 +220,24 @@ public final class MessagePackReadContext
         }
     }
 
-    private void _checkDup(DupDetector dd, String name)
+    private void _checkDup(DupDetector dd, String name) throws JsonProcessingException
     {
-        // Null names (nil map keys) cannot be duplicate-checked via DupDetector
-        // because DupDetector.isDup(null) NPEs when a prior non-null name exists.
-        if (name != null && dd.isDup(name)) {
-            throw new StreamReadException(null,
+        if (dd.isDup(name)) {
+            throw new JsonParseException(null,
                     "Duplicate field '" + name + "'", dd.findLocation());
         }
     }
 
+    /*
+    /**********************************************************
+    /* Overridden standard methods
+    /**********************************************************
+     */
+
+    /**
+     * Overridden to provide developer readable "JsonPath" representation
+     * of the context.
+     */
     @Override
     public String toString()
     {
@@ -199,7 +255,7 @@ public final class MessagePackReadContext
             sb.append('{');
             if (currentName != null) {
                 sb.append('"');
-                sb.append(currentName.replace("\\", "\\\\").replace("\"", "\\\""));
+                CharTypes.appendQuoted(sb, currentName);
                 sb.append('"');
             }
             else {

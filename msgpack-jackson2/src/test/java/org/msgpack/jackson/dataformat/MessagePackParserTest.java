@@ -15,20 +15,19 @@
 //
 package org.msgpack.jackson.dataformat;
 
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.JacksonException;
-import tools.jackson.core.JsonToken;
-import tools.jackson.core.ObjectReadContext;
-import tools.jackson.core.StreamReadFeature;
-import tools.jackson.core.exc.UnexpectedEndOfInputException;
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.KeyDeserializer;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.deser.std.StdDeserializer;
-import tools.jackson.databind.module.SimpleModule;
-import org.junit.Test;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.io.JsonEOFException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.KeyDeserializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.junit.jupiter.api.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.value.ExtensionValue;
@@ -37,7 +36,6 @@ import org.msgpack.value.ValueFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -54,12 +52,11 @@ import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class MessagePackParserTest
         extends MessagePackDataformatTestBase
@@ -326,7 +323,7 @@ public class MessagePackParserTest
         assertEquals(1, parser.currentLocation().getColumnNr());
 
         jsonToken = parser.nextToken();
-        assertEquals(JsonToken.PROPERTY_NAME, jsonToken);
+        assertEquals(JsonToken.FIELD_NAME, jsonToken);
         assertEquals("zero", parser.currentName());
         assertEquals(1, parser.currentTokenLocation().getColumnNr());
         assertEquals(6, parser.currentLocation().getColumnNr());
@@ -338,10 +335,12 @@ public class MessagePackParserTest
         assertEquals(7, parser.currentLocation().getColumnNr());
 
         jsonToken = parser.nextToken();
-        assertEquals(JsonToken.PROPERTY_NAME, jsonToken);
+        assertEquals(JsonToken.FIELD_NAME, jsonToken);
         assertEquals("one", parser.currentName());
         assertEquals(7, parser.currentTokenLocation().getColumnNr());
         assertEquals(11, parser.currentLocation().getColumnNr());
+        parser.overrideCurrentName("two");
+        assertEquals("two", parser.currentName());
 
         jsonToken = parser.nextToken();
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, jsonToken);
@@ -381,24 +380,24 @@ public class MessagePackParserTest
 
         JsonParser parser = factory.createParser(new FileInputStream(tempFile));
         assertEquals(JsonToken.VALUE_STRING, parser.nextToken());
-        assertEquals("foo", parser.getString());
+        assertEquals("foo", parser.getText());
 
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, parser.nextToken());
         assertEquals(3.14, parser.getDoubleValue(), 0.0001);
-        assertEquals("3.14", parser.getString());
+        assertEquals("3.14", parser.getText());
 
         assertEquals(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
         assertEquals(Integer.MIN_VALUE, parser.getIntValue());
         assertEquals(Integer.MIN_VALUE, parser.getLongValue());
-        assertEquals("-2147483648", parser.getString());
+        assertEquals("-2147483648", parser.getText());
 
         assertEquals(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
         assertEquals(Long.MAX_VALUE, parser.getLongValue());
-        assertEquals("9223372036854775807", parser.getString());
+        assertEquals("9223372036854775807", parser.getText());
 
         assertEquals(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
         assertEquals(BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.ONE), parser.getBigIntegerValue());
-        assertEquals("9223372036854775808", parser.getString());
+        assertEquals("9223372036854775808", parser.getText());
 
         assertEquals(JsonToken.VALUE_EMBEDDED_OBJECT, parser.nextToken());
         assertEquals(bytes.length, parser.getBinaryValue().length);
@@ -422,9 +421,8 @@ public class MessagePackParserTest
         packer.packDouble(Double.MIN_NORMAL);
         packer.flush();
 
-        ObjectMapper mapper = MessagePackMapper.builder(new MessagePackFactory())
-                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-                .build();
+        ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
+        mapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
         List<Object> objects = mapper.readValue(out.toByteArray(), new TypeReference<List<Object>>() {});
         assertEquals(5, objects.size());
         int idx = 0;
@@ -460,11 +458,9 @@ public class MessagePackParserTest
         File tempFile = createTestFile();
         MessagePackFactory factory = new MessagePackFactory();
         FileInputStream in = new FileInputStream(tempFile);
-        ObjectMapper objectMapper = MessagePackMapper.builder(factory)
-                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
-                .build();
+        ObjectMapper objectMapper = new ObjectMapper(factory);
         objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
-        assertThrows(JacksonException.class, () -> {
+        assertThrows(IOException.class, () -> {
             objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
         });
     }
@@ -475,10 +471,8 @@ public class MessagePackParserTest
     {
         File tempFile = createTestFile();
         FileInputStream in = new FileInputStream(tempFile);
-        ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .disable(tools.jackson.core.StreamReadFeature.AUTO_CLOSE_SOURCE)
-                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
-                .build();
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
         objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
         objectMapper.readValue(in, new TypeReference<List<Integer>>() {});
     }
@@ -489,7 +483,7 @@ public class MessagePackParserTest
     {
         ArrayList<BigDecimal> list = new ArrayList<BigDecimal>();
         list.add(new BigDecimal(Long.MAX_VALUE));
-        ObjectMapper objectMapper = new MessagePackMapper(new MessagePackFactory());
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
         byte[] bytes = objectMapper.writeValueAsBytes(list);
 
         ArrayList<BigDecimal> result = objectMapper.readValue(
@@ -514,10 +508,8 @@ public class MessagePackParserTest
         packer.close();
 
         FileInputStream in = new FileInputStream(tempFile);
-        ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .disable(tools.jackson.core.StreamReadFeature.AUTO_CLOSE_SOURCE)
-                .disable(tools.jackson.databind.DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
-                .build();
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
         assertEquals("foo", objectMapper.readValue(in, new TypeReference<String>() {}));
         long l = objectMapper.readValue(in, new TypeReference<Long>() {});
         assertEquals(Long.MAX_VALUE, l);
@@ -546,7 +538,7 @@ public class MessagePackParserTest
         packer.packLong(42);
         packer.close();
 
-        ObjectMapper mapper = new MessagePackMapper(new MessagePackFactory());
+        ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
         Map<String, Object> object = mapper.readValue(new FileInputStream(tempFile), new TypeReference<Map<String, Object>>() {});
         assertEquals(2, object.size());
         assertEquals(3.14, object.get("foo"));
@@ -568,7 +560,7 @@ public class MessagePackParserTest
         packer.packInt(1);
         packer.close();
 
-        ObjectMapper mapper = new MessagePackMapper(new MessagePackFactory());
+        ObjectMapper mapper = new ObjectMapper(new MessagePackFactory());
         List<Object> objects = mapper.readValue(out.toByteArray(), new TypeReference<List<Object>>() {});
         assertEquals(2, objects.size());
         @SuppressWarnings(value = "unchecked")
@@ -590,18 +582,18 @@ public class MessagePackParserTest
         messagePacker.packBinaryHeader(1).writePayload(k1).packInt(11);
         messagePacker.close();
 
-        ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .addModule(new SimpleModule()
-                        .addKeyDeserializer(byte[].class, new KeyDeserializer()
-                        {
-                            @Override
-                            public Object deserializeKey(String key, DeserializationContext ctxt)
-                                    throws JacksonException
-                            {
-                                return key.getBytes();
-                            }
-                        }))
-                .build();
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        SimpleModule module = new SimpleModule();
+        module.addKeyDeserializer(byte[].class, new KeyDeserializer()
+        {
+            @Override
+            public Object deserializeKey(String key, DeserializationContext ctxt)
+                    throws IOException, JsonProcessingException
+            {
+                return key.getBytes();
+            }
+        });
+        objectMapper.registerModule(module);
 
         Map<byte[], Integer> map = objectMapper.readValue(
                 out.toByteArray(), new TypeReference<Map<byte[], Integer>>() {});
@@ -627,18 +619,18 @@ public class MessagePackParserTest
         }
         messagePacker.close();
 
-        ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .addModule(new SimpleModule()
-                        .addKeyDeserializer(Integer.class, new KeyDeserializer()
-                        {
-                            @Override
-                            public Object deserializeKey(String key, DeserializationContext ctxt)
-                                    throws JacksonException
-                            {
-                                return Integer.valueOf(key);
-                            }
-                        }))
-                .build();
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        SimpleModule module = new SimpleModule();
+        module.addKeyDeserializer(Integer.class, new KeyDeserializer()
+        {
+            @Override
+            public Object deserializeKey(String key, DeserializationContext ctxt)
+                    throws IOException, JsonProcessingException
+            {
+                return Integer.valueOf(key);
+            }
+        });
+        objectMapper.registerModule(module);
 
         Map<Integer, Integer> map = objectMapper.readValue(
                 out.toByteArray(), new TypeReference<Map<Integer, Integer>>() {});
@@ -658,18 +650,18 @@ public class MessagePackParserTest
         }
         messagePacker.close();
 
-        ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .addModule(new SimpleModule()
-                        .addKeyDeserializer(Float.class, new KeyDeserializer()
-                        {
-                            @Override
-                            public Object deserializeKey(String key, DeserializationContext ctxt)
-                                    throws JacksonException
-                            {
-                                return Float.valueOf(key);
-                            }
-                        }))
-                .build();
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        SimpleModule module = new SimpleModule();
+        module.addKeyDeserializer(Float.class, new KeyDeserializer()
+        {
+            @Override
+            public Object deserializeKey(String key, DeserializationContext ctxt)
+                    throws IOException, JsonProcessingException
+            {
+                return Float.valueOf(key);
+            }
+        });
+        objectMapper.registerModule(module);
 
         Map<Float, Integer> map = objectMapper.readValue(
                 out.toByteArray(), new TypeReference<Map<Float, Integer>>() {});
@@ -688,44 +680,24 @@ public class MessagePackParserTest
         messagePacker.packBoolean(false).packInt(11);
         messagePacker.close();
 
-        ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .addModule(new SimpleModule()
-                        .addKeyDeserializer(Boolean.class, new KeyDeserializer()
-                        {
-                            @Override
-                            public Object deserializeKey(String key, DeserializationContext ctxt)
-                                    throws JacksonException
-                            {
-                                return Boolean.valueOf(key);
-                            }
-                        }))
-                .build();
+        ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
+        SimpleModule module = new SimpleModule();
+        module.addKeyDeserializer(Boolean.class, new KeyDeserializer()
+        {
+            @Override
+            public Object deserializeKey(String key, DeserializationContext ctxt)
+                    throws IOException, JsonProcessingException
+            {
+                return Boolean.valueOf(key);
+            }
+        });
+        objectMapper.registerModule(module);
 
         Map<Boolean, Integer> map = objectMapper.readValue(
                 out.toByteArray(), new TypeReference<Map<Boolean, Integer>>() {});
         assertEquals(2, map.size());
         assertEquals((Integer) 10, map.get(true));
         assertEquals((Integer) 11, map.get(false));
-    }
-
-    @Test
-    public void testNilKey()
-            throws IOException
-    {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        MessagePacker packer = MessagePack.newDefaultPacker(out).packMapHeader(1);
-        packer.packNil();
-        packer.packInt(42);
-        packer.close();
-
-        JsonParser parser = new MessagePackMapper().createParser(out.toByteArray());
-        assertEquals(JsonToken.START_OBJECT, parser.nextToken());
-        assertEquals(JsonToken.PROPERTY_NAME, parser.nextToken());
-        assertNull(parser.currentName());
-        assertEquals(JsonToken.VALUE_NUMBER_INT, parser.nextToken());
-        assertEquals(42, parser.getIntValue());
-        assertEquals(JsonToken.END_OBJECT, parser.nextToken());
-        parser.close();
     }
 
     @Test
@@ -760,7 +732,7 @@ public class MessagePackParserTest
                 }
         );
         ObjectMapper objectMapper =
-                new MessagePackMapper(new MessagePackFactory().setExtTypeCustomDesers(extTypeCustomDesers));
+                new ObjectMapper(new MessagePackFactory().setExtTypeCustomDesers(extTypeCustomDesers));
 
         List<Object> values = objectMapper.readValue(new ByteArrayInputStream(out.toByteArray()), new TypeReference<List<Object>>() {});
         assertThat(values.size(), is(3));
@@ -815,6 +787,7 @@ public class MessagePackParserTest
         @Override
         public String toString()
         {
+            // This key format is used when serialized as map key
             return String.format("%d-%d-%d", first, second, third);
         }
 
@@ -828,18 +801,18 @@ public class MessagePackParserTest
 
             @Override
             public TripleBytesPojo deserialize(JsonParser p, DeserializationContext ctxt)
-                    throws JacksonException
+                    throws IOException, JsonProcessingException
             {
                 return TripleBytesPojo.deserialize(p.getBinaryValue());
             }
         }
 
-        static class TripleBytesKeyDeserializer
-                extends KeyDeserializer
+        static class KeyDeserializer
+                extends com.fasterxml.jackson.databind.KeyDeserializer
         {
             @Override
             public Object deserializeKey(String key, DeserializationContext ctxt)
-                    throws JacksonException
+                    throws IOException
             {
                 String[] values = key.split("-");
                 return new TripleBytesPojo(
@@ -879,11 +852,10 @@ public class MessagePackParserTest
 
         SimpleModule module = new SimpleModule();
         module.addDeserializer(TripleBytesPojo.class, new TripleBytesPojo.Deserializer());
-        module.addKeyDeserializer(TripleBytesPojo.class, new TripleBytesPojo.TripleBytesKeyDeserializer());
-        ObjectMapper objectMapper = MessagePackMapper.builder(
+        module.addKeyDeserializer(TripleBytesPojo.class, new TripleBytesPojo.KeyDeserializer());
+        ObjectMapper objectMapper = new ObjectMapper(
                 new MessagePackFactory().setExtTypeCustomDesers(extTypeCustomDesers))
-                .addModule(module)
-                .build();
+                .registerModule(module);
 
         // Prepare serialized data
         Map<TripleBytesPojo, TripleBytesPojo> originalMap = new HashMap<>();
@@ -933,8 +905,10 @@ public class MessagePackParserTest
             }
         });
 
-        ObjectMapper objectMapper =
-                new MessagePackMapper(new MessagePackFactory().setExtTypeCustomDesers(extTypeCustomDesers));
+        // In this case with UUID, we don't need to add custom deserializers
+        // since jackson-databind already has it.
+        ObjectMapper objectMapper = new ObjectMapper(
+                new MessagePackFactory().setExtTypeCustomDesers(extTypeCustomDesers));
 
         // Prepare serialized data
         Map<UUID, UUID> originalMap = new HashMap<>();
@@ -988,6 +962,9 @@ public class MessagePackParserTest
         assertEquals("foo", binKeyPojo.s);
         assertArrayEquals("bar".getBytes(), binKeyPojo.b);
     }
+
+    // Test deserializers that parse a string as a number.
+    // Actually, com.fasterxml.jackson.databind.deser.std.StdDeserializer._parseInteger() takes care of it.
 
     @Test
     public void deserializeStringAsInteger()
@@ -1067,458 +1044,55 @@ public class MessagePackParserTest
         packer.packString("two");
         packer.close();
 
-        assertThrows(UnexpectedEndOfInputException.class, () -> {
+        try {
             objectMapper.readValue(out.toByteArray(), new TypeReference<List<String>>() {});
-        });
+            fail();
+        }
+        catch (JsonMappingException e) {
+            assertTrue(e.getCause() instanceof JsonEOFException);
+        }
     }
 
     @Test
     public void handleMissingKeyValueInMap()
+            throws IOException
     {
         MessagePacker packer = MessagePack.newDefaultPacker(out);
-        try {
-            packer.packMapHeader(3);
-            packer.packString("one");
-            packer.packInt(1);
-            packer.packString("two");
-            packer.packInt(2);
-            packer.close();
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        packer.packMapHeader(3);
+        packer.packString("one");
+        packer.packInt(1);
+        packer.packString("two");
+        packer.packInt(2);
+        packer.close();
 
-        assertThrows(JacksonException.class, () -> {
+        try {
             objectMapper.readValue(out.toByteArray(), new TypeReference<Map<String, Integer>>() {});
-        });
+            fail();
+        }
+        catch (JsonEOFException e) {
+            assertTrue(true);
+        }
     }
 
     @Test
     public void handleMissingValueInMap()
+            throws IOException
     {
         MessagePacker packer = MessagePack.newDefaultPacker(out);
+        packer.packMapHeader(3);
+        packer.packString("one");
+        packer.packInt(1);
+        packer.packString("two");
+        packer.packInt(2);
+        packer.packString("three");
+        packer.close();
+
         try {
-            packer.packMapHeader(3);
-            packer.packString("one");
-            packer.packInt(1);
-            packer.packString("two");
-            packer.packInt(2);
-            packer.packString("three");
-            packer.close();
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        assertThrows(JacksonException.class, () -> {
             objectMapper.readValue(out.toByteArray(), new TypeReference<Map<String, Integer>>() {});
-        });
-    }
-
-    @Test
-    public void testByteArrayThreadLocalClearedAfterClose()
-            throws IOException
-    {
-        ObjectMapper objectMapper = new MessagePackMapper(new MessagePackFactory());
-
-        byte[] bytes = objectMapper.writeValueAsBytes(Arrays.asList(1, 2, 3));
-
-        // Parse once; this caches the byte array in the ThreadLocal
-        objectMapper.readValue(bytes, new TypeReference<List<Integer>>() {});
-
-        // Parse again with the same byte array instance and AUTO_CLOSE_SOURCE enabled
-        // (default). The byte array reference should have been cleared from the
-        // ThreadLocal on close, so the second parse resets the unpacker and starts
-        // from the beginning rather than continuing from the end.
-        List<Integer> result = objectMapper.readValue(bytes, new TypeReference<List<Integer>>() {});
-        assertEquals(Arrays.asList(1, 2, 3), result);
-    }
-
-    @Test
-    public void testByteArrayReuseResetsUnpackerWhenAutoCloseSourceDisabled()
-            throws IOException
-    {
-        ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .disable(tools.jackson.core.StreamReadFeature.AUTO_CLOSE_SOURCE)
-                .build();
-
-        byte[] bytes = objectMapper.writeValueAsBytes(Arrays.asList(1, 2, 3));
-
-        // First parse succeeds
-        List<Integer> first = objectMapper.readValue(bytes, new TypeReference<List<Integer>>() {});
-        assertEquals(Arrays.asList(1, 2, 3), first);
-
-        // Second parse with the same byte[] instance and AUTO_CLOSE_SOURCE disabled.
-        // The byte[] source always triggers an unpacker reset (|| src instanceof byte[]),
-        // so the second parse succeeds and returns the correct result.
-        List<Integer> second = objectMapper.readValue(bytes, new TypeReference<List<Integer>>() {});
-        assertEquals(Arrays.asList(1, 2, 3), second);
-    }
-
-    @Test
-    public void testInputStreamSequentialReadsWithAutoCloseSourceDisabled()
-            throws IOException
-    {
-        ObjectMapper objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .disable(tools.jackson.core.StreamReadFeature.AUTO_CLOSE_SOURCE)
-                .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
-                .build();
-
-        // Two values packed sequentially into a single stream
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        out.write(objectMapper.writeValueAsBytes(Arrays.asList(1, 2, 3)));
-        out.write(objectMapper.writeValueAsBytes(Arrays.asList(4, 5, 6)));
-        ByteArrayInputStream stream = new ByteArrayInputStream(out.toByteArray());
-
-        // First parse reads the first value; unpacker may read ahead into the second value
-        List<Integer> first = objectMapper.readValue(stream, new TypeReference<List<Integer>>() {});
-        assertEquals(Arrays.asList(1, 2, 3), first);
-
-        // Second parse must read the second value from the same stream.
-        // If the source was incorrectly cleared from the ThreadLocal on close(),
-        // the unpacker's read-ahead buffer is dismissed and the second value is lost.
-        List<Integer> second = objectMapper.readValue(stream, new TypeReference<List<Integer>>() {});
-        assertEquals(Arrays.asList(4, 5, 6), second);
-    }
-
-    @Test
-    public void testGetStringOnNullToken() throws IOException
-    {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (MessagePacker packer = MessagePack.newDefaultPacker(out)) {
-            packer.packNil();
+            fail();
         }
-        MessagePackFactory factory = new MessagePackFactory();
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), out.toByteArray())) {
-            assertEquals(JsonToken.VALUE_NULL, p.nextToken());
-            assertEquals("null", p.getString());
-        }
-    }
-
-    @Test
-    public void testGetStringOnBoolToken() throws IOException
-    {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (MessagePacker packer = MessagePack.newDefaultPacker(out)) {
-            packer.packBoolean(true);
-            packer.packBoolean(false);
-        }
-        MessagePackFactory factory = new MessagePackFactory();
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), out.toByteArray())) {
-            assertEquals(JsonToken.VALUE_TRUE, p.nextToken());
-            assertEquals("true", p.getString());
-            assertEquals(JsonToken.VALUE_FALSE, p.nextToken());
-            assertEquals("false", p.getString());
-        }
-    }
-
-    @Test
-    public void testNumericAccessorsOnNullTokenThrow() throws IOException
-    {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (MessagePacker packer = MessagePack.newDefaultPacker(out)) {
-            packer.packNil();
-        }
-        byte[] bytes = out.toByteArray();
-        MessagePackFactory factory = new MessagePackFactory();
-
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), bytes)) {
-            p.nextToken();
-            try {
-                p.getIntValue();
-                fail("expected exception");
-            }
-            catch (JacksonException ignored) { }
-        }
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), bytes)) {
-            p.nextToken();
-            try {
-                p.getLongValue();
-                fail("expected exception");
-            }
-            catch (JacksonException ignored) { }
-        }
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), bytes)) {
-            p.nextToken();
-            try {
-                p.getDoubleValue();
-                fail("expected exception");
-            }
-            catch (JacksonException ignored) { }
-        }
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), bytes)) {
-            p.nextToken();
-            try {
-                p.getFloatValue();
-                fail("expected exception");
-            }
-            catch (JacksonException ignored) { }
-        }
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), bytes)) {
-            p.nextToken();
-            try {
-                p.getBigIntegerValue();
-                fail("expected exception");
-            }
-            catch (JacksonException ignored) { }
-        }
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), bytes)) {
-            p.nextToken();
-            try {
-                p.getDecimalValue();
-                fail("expected exception");
-            }
-            catch (JacksonException ignored) { }
-        }
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), bytes)) {
-            p.nextToken();
-            try {
-                p.getNumberValue();
-                fail("expected exception");
-            }
-            catch (JacksonException ignored) { }
-        }
-    }
-
-    @Test
-    public void testNumericAccessorsOnBoolTokenThrow() throws IOException
-    {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (MessagePacker packer = MessagePack.newDefaultPacker(out)) {
-            packer.packBoolean(true);
-        }
-        byte[] bytes = out.toByteArray();
-        MessagePackFactory factory = new MessagePackFactory();
-
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), bytes)) {
-            p.nextToken();
-            try {
-                p.getIntValue();
-                fail("expected exception");
-            }
-            catch (JacksonException ignored) { }
-        }
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), bytes)) {
-            p.nextToken();
-            try {
-                p.getLongValue();
-                fail("expected exception");
-            }
-            catch (JacksonException ignored) { }
-        }
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), bytes)) {
-            p.nextToken();
-            try {
-                p.getDoubleValue();
-                fail("expected exception");
-            }
-            catch (JacksonException ignored) { }
-        }
-    }
-
-    @Test
-    public void testGetNumberTypeOnNonNumericTokens() throws IOException
-    {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (MessagePacker packer = MessagePack.newDefaultPacker(out)) {
-            packer.packNil();
-            packer.packBoolean(true);
-            packer.packString("hello");
-        }
-        MessagePackFactory factory = new MessagePackFactory();
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), out.toByteArray())) {
-            assertEquals(JsonToken.VALUE_NULL, p.nextToken());
-            assertNull(p.getNumberType());
-            assertEquals(JsonToken.VALUE_TRUE, p.nextToken());
-            assertNull(p.getNumberType());
-            assertEquals(JsonToken.VALUE_STRING, p.nextToken());
-            assertNull(p.getNumberType());
-        }
-    }
-
-    @Test
-    public void testGetIntValueFromOutOfRangeDoubleThrows() throws IOException
-    {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (MessagePacker packer = MessagePack.newDefaultPacker(out)) {
-            packer.packDouble(1e30);
-        }
-        MessagePackFactory factory = new MessagePackFactory();
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), out.toByteArray())) {
-            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-            try {
-                p.getIntValue();
-                fail("expected exception for out-of-range double");
-            }
-            catch (JacksonException ignored) { }
-        }
-    }
-
-    @Test
-    public void testGetLongValueFromOutOfRangeDoubleThrows() throws IOException
-    {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (MessagePacker packer = MessagePack.newDefaultPacker(out)) {
-            packer.packDouble(1e30);
-        }
-        MessagePackFactory factory = new MessagePackFactory();
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), out.toByteArray())) {
-            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-            try {
-                p.getLongValue();
-                fail("expected exception for out-of-range double");
-            }
-            catch (JacksonException ignored) { }
-        }
-    }
-
-    @Test
-    public void testGetLongValueFromDoubleThatEqualsLongMaxValueRoundedUpThrows() throws IOException
-    {
-        // (double) Long.MAX_VALUE rounds up to 2^63, which exceeds Long.MAX_VALUE.
-        // The check `doubleValue > Long.MAX_VALUE` misses this value and silently
-        // saturates the cast to Long.MAX_VALUE instead of throwing.
-        double twoTo63 = 9.223372036854776E18; // exact double for 2^63
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (MessagePacker packer = MessagePack.newDefaultPacker(out)) {
-            packer.packDouble(twoTo63);
-        }
-        MessagePackFactory factory = new MessagePackFactory();
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), out.toByteArray())) {
-            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-            try {
-                p.getLongValue();
-                fail("expected exception for double value 2^63 which exceeds Long.MAX_VALUE");
-            }
-            catch (JacksonException ignored) { }
-        }
-    }
-
-    @Test
-    public void testNumericAccessorsOnStructuralTokenThrow() throws IOException
-    {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (MessagePacker packer = MessagePack.newDefaultPacker(out)) {
-            packer.packMapHeader(0);
-        }
-        byte[] bytes = out.toByteArray();
-        MessagePackFactory factory = new MessagePackFactory();
-
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), bytes)) {
-            assertEquals(JsonToken.START_OBJECT, p.nextToken());
-            try {
-                p.getIntValue();
-                fail("expected exception");
-            }
-            catch (JacksonException ignored) { }
-            try {
-                p.getLongValue();
-                fail("expected exception");
-            }
-            catch (JacksonException ignored) { }
-            try {
-                p.getDoubleValue();
-                fail("expected exception");
-            }
-            catch (JacksonException ignored) { }
-            try {
-                p.getFloatValue();
-                fail("expected exception");
-            }
-            catch (JacksonException ignored) { }
-            try {
-                p.getBigIntegerValue();
-                fail("expected exception");
-            }
-            catch (JacksonException ignored) { }
-            try {
-                p.getDecimalValue();
-                fail("expected exception");
-            }
-            catch (JacksonException ignored) { }
-            try {
-                p.getNumberValue();
-                fail("expected exception");
-            }
-            catch (JacksonException ignored) { }
-            assertNull(p.getNumberType());
-        }
-    }
-
-    @Test
-    public void testGetIntValueFromFractionalDoubleTruncates() throws IOException
-    {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (MessagePacker packer = MessagePack.newDefaultPacker(out)) {
-            packer.packDouble(3.7);
-        }
-        MessagePackFactory factory = new MessagePackFactory();
-        try (JsonParser p = factory.createParser(ObjectReadContext.empty(), out.toByteArray())) {
-            assertEquals(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-            assertEquals(3, p.getIntValue());
-        }
-    }
-
-    // Bug: MessagePackParser.close() has no re-entrancy guard; the base-class
-    // "if (_closed) { return; }" is bypassed because close() is fully overridden
-    // without calling super.  A second call re-enters _closeInput(), which closes
-    // the underlying InputStream a second time.
-    @Test
-    public void testParserCloseIsIdempotent() throws IOException
-    {
-        byte[] bytes = objectMapper.writeValueAsBytes(42);
-        final int[] closeCount = {0};
-        InputStream trackingStream = new ByteArrayInputStream(bytes) {
-            @Override
-            public void close() throws IOException
-            {
-                closeCount[0]++;
-                super.close();
-            }
-        };
-
-        // reuseResourceInParser=false keeps ThreadLocal out of the picture so the
-        // test isolates the re-entrancy guard in close() itself.
-        MessagePackFactory nonReuseFactory =
-                new MessagePackFactory().setReuseResourceInParser(false);
-        JsonParser parser =
-                nonReuseFactory.createParser(ObjectReadContext.empty(), trackingStream);
-        parser.nextToken();
-        parser.close();  // first close
-        parser.close();  // Bug: calls _closeInput() again — stream closed twice
-
-        assertEquals("Stream should be closed exactly once", 1, closeCount[0]);
-    }
-
-    // Bug: DupDetector.isDup(null) throws NullPointerException when a nil map key
-    // follows a non-null key and STRICT_DUPLICATE_DETECTION is enabled.
-    // The fault: name.equals(_firstName) where name is null and _firstName holds
-    // the prior non-null key string → NullPointerException.
-    @Test
-    public void testNilMapKeyWithDupDetectionDoesNotNPE() throws IOException
-    {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (MessagePacker packer = MessagePack.newDefaultPacker(baos)) {
-            packer.packMapHeader(2);
-            packer.packString("foo");
-            packer.packInt(1);
-            packer.packNil();    // nil key — triggers DupDetector.isDup(null)
-            packer.packInt(2);
-        }
-
-        MessagePackFactory f = new MessagePackFactoryBuilder()
-                .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
-                .build();
-
-        try (JsonParser p = f.createParser(ObjectReadContext.empty(), baos.toByteArray())) {
-            assertEquals(JsonToken.START_OBJECT, p.nextToken());
-            assertEquals(JsonToken.PROPERTY_NAME, p.nextToken());
-            assertEquals("foo", p.currentName());
-            assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-            assertEquals(JsonToken.PROPERTY_NAME, p.nextToken()); // Bug: NPE here
-            assertNull(p.currentName());
-            assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-            assertEquals(JsonToken.END_OBJECT, p.nextToken());
+        catch (JsonEOFException e) {
+            assertTrue(true);
         }
     }
 }

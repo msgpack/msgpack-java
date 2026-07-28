@@ -15,27 +15,38 @@
 //
 package org.msgpack.jackson.dataformat;
 
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.io.ContentReference;
-import com.fasterxml.jackson.core.io.IOContext;
+import tools.jackson.core.ErrorReportConfiguration;
+import tools.jackson.core.FormatFeature;
+import tools.jackson.core.FormatSchema;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.ObjectReadContext;
+import tools.jackson.core.ObjectWriteContext;
+import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.StreamWriteConstraints;
+import tools.jackson.core.TSFBuilder;
+import tools.jackson.core.TokenStreamFactory;
+import tools.jackson.core.Version;
+import tools.jackson.core.base.BinaryTSFactory;
+import tools.jackson.core.io.IOContext;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.annotations.VisibleForTesting;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import org.msgpack.core.buffer.ArrayBufferInput;
+import org.msgpack.core.buffer.InputStreamBufferInput;
+import org.msgpack.core.buffer.MessageBufferInput;
+
+import java.io.DataInput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Writer;
-import java.util.Arrays;
 
 public class MessagePackFactory
-        extends JsonFactory
+        extends BinaryTSFactory
+        implements java.io.Serializable
 {
-    private static final long serialVersionUID = 2578263992015504347L;
+    private static final long serialVersionUID = 2578263992015504348L;
 
     private final MessagePack.PackerConfig packerConfig;
     private boolean reuseResourceInGenerator = true;
@@ -50,18 +61,31 @@ public class MessagePackFactory
 
     public MessagePackFactory(MessagePack.PackerConfig packerConfig)
     {
+        super(StreamReadConstraints.defaults(), StreamWriteConstraints.defaults(),
+                ErrorReportConfiguration.defaults(), 0, 0);
         this.packerConfig = packerConfig;
     }
 
     public MessagePackFactory(MessagePackFactory src)
     {
-        super(src, null);
+        super(src);
         this.packerConfig = src.packerConfig.clone();
         this.reuseResourceInGenerator = src.reuseResourceInGenerator;
         this.reuseResourceInParser = src.reuseResourceInParser;
+        this.supportIntegerKeys = src.supportIntegerKeys;
         if (src.extTypeCustomDesers != null) {
             this.extTypeCustomDesers = new ExtensionTypeCustomDeserializers(src.extTypeCustomDesers);
         }
+    }
+
+    protected MessagePackFactory(MessagePackFactoryBuilder b)
+    {
+        super(b);
+        this.packerConfig = b.packerConfig().clone();
+        this.reuseResourceInGenerator = b.reuseResourceInGenerator();
+        this.reuseResourceInParser = b.reuseResourceInParser();
+        this.supportIntegerKeys = b.supportIntegerKeys();
+        this.extTypeCustomDesers = b.extTypeCustomDesers();
     }
 
     public MessagePackFactory setReuseResourceInGenerator(boolean reuseResourceInGenerator)
@@ -89,70 +113,84 @@ public class MessagePackFactory
     }
 
     @Override
-    public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)
-            throws IOException
+    protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ioCtxt,
+            InputStream in) throws JacksonException
     {
-        return new MessagePackGenerator(_generatorFeatures, _objectCodec, out, packerConfig, reuseResourceInGenerator, supportIntegerKeys);
-    }
-
-    @Override
-    public JsonGenerator createGenerator(File f, JsonEncoding enc)
-            throws IOException
-    {
-        return createGenerator(new FileOutputStream(f), enc);
-    }
-
-    @Override
-    public JsonGenerator createGenerator(Writer w)
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public JsonParser createParser(byte[] data)
-            throws IOException
-    {
-        IOContext ioContext = _createContext(ContentReference.rawReference(data), false);
-        return _createParser(data, 0, data.length, ioContext);
-    }
-
-    @Override
-    public JsonParser createParser(InputStream in)
-            throws IOException
-    {
-        IOContext ioContext = _createContext(ContentReference.rawReference(in), false);
-        return _createParser(in, ioContext);
-    }
-
-    @Override
-    protected MessagePackParser _createParser(InputStream in, IOContext ctxt)
-            throws IOException
-    {
-        MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, _objectCodec, in, reuseResourceInParser);
-        if (extTypeCustomDesers != null) {
-            parser.setExtensionTypeCustomDeserializers(extTypeCustomDesers);
+        try {
+            MessagePackParser parser = new MessagePackParser(readCtxt, ioCtxt,
+                    readCtxt.getStreamReadFeatures(_streamReadFeatures),
+                    new InputStreamBufferInput(in), in, reuseResourceInParser);
+            if (extTypeCustomDesers != null) {
+                parser.setExtensionTypeCustomDeserializers(extTypeCustomDesers);
+            }
+            return parser;
         }
-        return parser;
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
     }
 
     @Override
-    protected JsonParser _createParser(byte[] data, int offset, int len, IOContext ctxt)
-            throws IOException
+    protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ioCtxt,
+            byte[] data, int offset, int len) throws JacksonException
     {
-        if (offset != 0 || len != data.length) {
-            data = Arrays.copyOfRange(data, offset, offset + len);
+        try {
+            MessageBufferInput input = new ArrayBufferInput(data, offset, len);
+            MessagePackParser parser = new MessagePackParser(readCtxt, ioCtxt,
+                    readCtxt.getStreamReadFeatures(_streamReadFeatures), input, data, reuseResourceInParser);
+            if (extTypeCustomDesers != null) {
+                parser.setExtensionTypeCustomDeserializers(extTypeCustomDesers);
+            }
+            return parser;
         }
-        MessagePackParser parser = new MessagePackParser(ctxt, _parserFeatures, _objectCodec, data, reuseResourceInParser);
-        if (extTypeCustomDesers != null) {
-            parser.setExtensionTypeCustomDeserializers(extTypeCustomDesers);
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
         }
-        return parser;
     }
 
     @Override
-    public JsonFactory copy()
+    protected JsonParser _createParser(ObjectReadContext readCtxt, IOContext ioCtxt,
+            DataInput input) throws JacksonException
+    {
+        return _unsupported();
+    }
+
+    @Override
+    protected JsonGenerator _createGenerator(ObjectWriteContext writeCtxt, IOContext ioCtxt,
+            OutputStream out) throws JacksonException
+    {
+        try {
+            return new MessagePackGenerator(writeCtxt, ioCtxt,
+                    writeCtxt.getStreamWriteFeatures(_streamWriteFeatures),
+                    out, packerConfig, reuseResourceInGenerator, supportIntegerKeys);
+        }
+        catch (IOException e) {
+            throw _wrapIOFailure(e);
+        }
+    }
+
+    @Override
+    public TokenStreamFactory copy()
     {
         return new MessagePackFactory(this);
+    }
+
+    @Override
+    public TokenStreamFactory snapshot()
+    {
+        return copy();
+    }
+
+    @Override
+    public TSFBuilder<?, ?> rebuild()
+    {
+        return new MessagePackFactoryBuilder(this);
+    }
+
+    @Override
+    public Version version()
+    {
+        return PackageVersion.VERSION;
     }
 
     @VisibleForTesting
@@ -162,9 +200,21 @@ public class MessagePackFactory
     }
 
     @VisibleForTesting
+    boolean isReuseResourceInGenerator()
+    {
+        return reuseResourceInGenerator;
+    }
+
+    @VisibleForTesting
     boolean isReuseResourceInParser()
     {
         return reuseResourceInParser;
+    }
+
+    @VisibleForTesting
+    boolean isSupportIntegerKeys()
+    {
+        return supportIntegerKeys;
     }
 
     @VisibleForTesting
@@ -180,8 +230,26 @@ public class MessagePackFactory
     }
 
     @Override
-    public boolean canHandleBinaryNatively()
+    public boolean canParseAsync()
     {
-        return true;
+        return false;
+    }
+
+    @Override
+    public boolean canUseSchema(FormatSchema schema)
+    {
+        return false;
+    }
+
+    @Override
+    public Class<? extends FormatFeature> getFormatReadFeatureType()
+    {
+        return null;
+    }
+
+    @Override
+    public Class<? extends FormatFeature> getFormatWriteFeatureType()
+    {
+        return null;
     }
 }

@@ -1,12 +1,27 @@
+//
+// MessagePack for Java
+//
+//    Licensed under the Apache License, Version 2.0 (the "License");
+//    you may not use this file except in compliance with the License.
+//    You may obtain a copy of the License at
+//
+//        http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS,
+//    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//    See the License for the specific language governing permissions and
+//    limitations under the License.
+//
 package org.msgpack.jackson.dataformat;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.ser.std.StdSerializer;
 import org.msgpack.core.ExtensionTypeHeader;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
@@ -34,20 +49,26 @@ public class TimestampExtensionModule
         }
 
         @Override
-        public void serialize(Instant value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException
+        public void serialize(Instant value, JsonGenerator gen, SerializationContext provider)
         {
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            // MEMO: Reusing these MessagePacker and MessageUnpacker instances would improve the performance
-            try (MessagePacker packer = MessagePack.newDefaultPacker(os)) {
-                packer.packTimestamp(value);
-            }
-            try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(os.toByteArray())) {
-                ExtensionTypeHeader header = unpacker.unpackExtensionTypeHeader();
-                byte[] bytes = unpacker.readPayload(header.getLength());
+            try {
+                // Per-call allocation is a known limitation carried from the v2 module.
+                // Manually encoding the timestamp bytes would avoid it but duplicates
+                // msgpack-core's timestamp logic. Tracked as a future optimization.
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                try (MessagePacker packer = MessagePack.newDefaultPacker(os)) {
+                    packer.packTimestamp(value);
+                }
+                try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(os.toByteArray())) {
+                    ExtensionTypeHeader header = unpacker.unpackExtensionTypeHeader();
+                    byte[] bytes = unpacker.readPayload(header.getLength());
 
-                MessagePackExtensionType extensionType = new MessagePackExtensionType(EXT_TYPE, bytes);
-                gen.writeObject(extensionType);
+                    MessagePackExtensionType extensionType = new MessagePackExtensionType(EXT_TYPE, bytes);
+                    gen.writePOJO(extensionType);
+                }
+            }
+            catch (IOException e) {
+                throw _wrapIOFailure(provider, e);
             }
         }
     }
@@ -61,17 +82,21 @@ public class TimestampExtensionModule
 
         @Override
         public Instant deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
         {
-            MessagePackExtensionType ext = p.readValueAs(MessagePackExtensionType.class);
-            if (ext.getType() != EXT_TYPE) {
-                throw new RuntimeException(
-                        String.format("Unexpected extension type (0x%X) for Instant object", ext.getType()));
+            try {
+                // Per-call allocation is a known limitation — see serialize() above.
+                MessagePackExtensionType ext = p.readValueAs(MessagePackExtensionType.class);
+                if (ext.getType() != EXT_TYPE) {
+                    ctxt.reportInputMismatch(Instant.class,
+                            "Unexpected extension type (0x%X) for Instant object", ext.getType() & 0xFF);
+                    return null; // unreachable
+                }
+                try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(ext.getData())) {
+                    return unpacker.unpackTimestamp(new ExtensionTypeHeader(EXT_TYPE, ext.getData().length));
+                }
             }
-
-            // MEMO: Reusing this MessageUnpacker instance would improve the performance
-            try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(ext.getData())) {
-                return unpacker.unpackTimestamp(new ExtensionTypeHeader(EXT_TYPE, ext.getData().length));
+            catch (IOException e) {
+                throw _wrapIOFailure(ctxt, e);
             }
         }
     }

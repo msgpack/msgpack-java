@@ -18,7 +18,7 @@ package org.msgpack.jackson.dataformat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
 
@@ -53,7 +53,7 @@ public class MessagePackDataformatTestBase
     public void setup()
     {
         factory = new MessagePackFactory();
-        objectMapper = new MessagePackMapper(factory);
+        objectMapper = new ObjectMapper(factory);
         out = new ByteArrayOutputStream();
         in = new ByteArrayInputStream(new byte[4096]);
 
@@ -223,9 +223,11 @@ public class MessagePackDataformatTestBase
     {
         int code;
 
+        // will not be written as JSON; nor assigned from JSON:
         @JsonIgnore
         public String internal;
 
+        // no annotation, public field is read/written normally
         public String external;
 
         @JsonIgnore
@@ -234,6 +236,7 @@ public class MessagePackDataformatTestBase
             code = c;
         }
 
+        // note: will also be ignored because setter has annotation!
         public int getCode()
         {
             return code;
@@ -244,12 +247,15 @@ public class MessagePackDataformatTestBase
     {
         String name;
 
+        // without annotation, we'd get "theName", but we want "name":
         @JsonProperty("name")
         public String getTheName()
         {
             return name;
         }
 
+        // note: it is enough to add annotation on just getter OR setter;
+        // so we can omit it here
         public void setTheName(String n)
         {
             name = n;

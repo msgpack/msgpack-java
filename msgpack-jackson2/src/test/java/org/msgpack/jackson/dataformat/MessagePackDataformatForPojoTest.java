@@ -15,8 +15,8 @@
 //
 package org.msgpack.jackson.dataformat;
 
-import tools.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -24,8 +24,8 @@ import java.nio.charset.Charset;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.containsString;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class MessagePackDataformatForPojoTest
@@ -45,7 +45,7 @@ public class MessagePackDataformatForPojoTest
         assertEquals(normalPojo.d, value.d, 0.000001f);
         assertArrayEquals(normalPojo.b, value.b);
         assertEquals(normalPojo.bi, value.bi);
-        assertEquals(normalPojo.suit, value.suit);
+        assertEquals(normalPojo.suit, Suit.HEART);
         assertEquals(normalPojo.sMultibyte, value.sMultibyte);
     }
 
@@ -135,12 +135,11 @@ public class MessagePackDataformatForPojoTest
     public void testSerializationWithoutSchema()
             throws IOException
     {
-        ObjectMapper objectMapper = MessagePackMapper.builder(factory)
-                .annotationIntrospector(new JsonArrayFormat())
-                .build();
+        ObjectMapper objectMapper = new ObjectMapper(factory); // to not affect shared objectMapper state
+        objectMapper.setAnnotationIntrospector(new JsonArrayFormat());
         byte[] bytes = objectMapper.writeValueAsBytes(complexPojo);
-        String schema = new String(bytes, Charset.forName("UTF-8"));
-        assertThat(schema, not(containsString("name")));
+        String scheme = new String(bytes, Charset.forName("UTF-8"));
+        assertThat(scheme, not(containsString("name"))); // validating schema doesn't contains keys, that's just array
         ComplexPojo value = objectMapper.readValue(bytes, ComplexPojo.class);
         assertEquals("komamitsu", value.name);
         assertEquals(20, value.age);

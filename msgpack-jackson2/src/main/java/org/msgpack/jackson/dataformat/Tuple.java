@@ -15,21 +15,27 @@
 //
 package org.msgpack.jackson.dataformat;
 
-import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.ser.std.StdSerializer;
-
-public class MessagePackKeySerializer
-        extends StdSerializer<Object>
+/**
+ * Created by komamitsu on 5/28/15.
+ */
+public class Tuple<F, S>
 {
-    public MessagePackKeySerializer()
+    private final F first;
+    private final S second;
+
+    public Tuple(F first, S second)
     {
-        super(Object.class);
+        this.first = first;
+        this.second = second;
     }
 
-    @Override
-    public void serialize(Object value, JsonGenerator jgen, SerializationContext provider)
+    public F first()
     {
-        jgen.writeName(new MessagePackSerializedString(value));
+        return first;
+    }
+
+    public S second()
+    {
+        return second;
     }
 }

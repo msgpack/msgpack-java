@@ -15,9 +15,9 @@
 //
 package org.msgpack.jackson.dataformat;
 
-import tools.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Test;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessagePacker;
 import org.msgpack.core.MessageUnpacker;
@@ -26,11 +26,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Instant;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TimestampExtensionModuleTest
 {
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper(new MessagePackFactory());
     private final SingleInstant singleInstant = new SingleInstant();
     private final TripleInstants tripleInstants = new TripleInstants();
 
@@ -46,13 +46,11 @@ public class TimestampExtensionModuleTest
         public Instant c;
     }
 
-    @Before
+    @BeforeEach
     public void setUp()
             throws Exception
     {
-        objectMapper = MessagePackMapper.builder(new MessagePackFactory())
-                .addModule(TimestampExtensionModule.INSTANCE)
-                .build();
+        objectMapper.registerModule(TimestampExtensionModule.INSTANCE);
     }
 
     @Test
@@ -88,6 +86,7 @@ public class TimestampExtensionModuleTest
 
         byte[] bytes = objectMapper.writeValueAsBytes(singleInstant);
 
+        // Check the size of serialized data first
         try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes)) {
             unpacker.unpackMapHeader();
             assertEquals("instant", unpacker.unpackString());
@@ -109,6 +108,7 @@ public class TimestampExtensionModuleTest
 
         byte[] bytes = objectMapper.writeValueAsBytes(singleInstant);
 
+        // Check the size of serialized data first
         try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes)) {
             unpacker.unpackMapHeader();
             assertEquals("instant", unpacker.unpackString());
@@ -130,6 +130,7 @@ public class TimestampExtensionModuleTest
 
         byte[] bytes = objectMapper.writeValueAsBytes(singleInstant);
 
+        // Check the size of serialized data first
         try (MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(bytes)) {
             unpacker.unpackMapHeader();
             assertEquals("instant", unpacker.unpackString());

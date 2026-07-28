@@ -15,45 +15,30 @@
 //
 package org.msgpack.jackson.dataformat;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
-import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.cfg.SerializerFactoryConfig;
+import tools.jackson.databind.ser.BeanSerializerFactory;
 
 public class MessagePackSerializerFactory
         extends BeanSerializerFactory
 {
-    /**
-     * Constructor for creating instances without configuration.
-     */
     public MessagePackSerializerFactory()
     {
         super(null);
     }
 
-    /**
-     * Constructor for creating instances with specified configuration.
-     *
-     * @param config
-     */
     public MessagePackSerializerFactory(SerializerFactoryConfig config)
     {
         super(config);
     }
 
-    @Override
-    public JsonSerializer<Object> createKeySerializer(SerializerProvider prov, JavaType keyType, JsonSerializer<Object> defaultImpl) throws JsonMappingException
-    {
-        return new MessagePackKeySerializer();
-    }
+    private static final MessagePackKeySerializer KEY_SERIALIZER = new MessagePackKeySerializer();
 
     @Override
-    @Deprecated
-    public JsonSerializer<Object> createKeySerializer(SerializationConfig config, JavaType keyType, JsonSerializer<Object> defaultImpl)
+    public ValueSerializer<Object> createKeySerializer(SerializationContext ctxt, JavaType keyType)
     {
-        return new MessagePackKeySerializer();
+        return KEY_SERIALIZER;
     }
 }

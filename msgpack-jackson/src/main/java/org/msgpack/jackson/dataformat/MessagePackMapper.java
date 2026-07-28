@@ -16,8 +16,11 @@
 package org.msgpack.jackson.dataformat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.cfg.MapperBuilder;
+
+import tools.jackson.core.Version;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.MapperBuilder;
+import tools.jackson.databind.cfg.MapperBuilderState;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -28,46 +31,90 @@ public class MessagePackMapper extends ObjectMapper
 
     public static class Builder extends MapperBuilder<MessagePackMapper, Builder>
     {
-        public Builder(MessagePackMapper m)
+        public Builder(MessagePackFactory f)
         {
-            super(m);
+            super(f);
+        }
+
+        protected Builder(StateImpl state)
+        {
+            super(state);
+        }
+
+        @Override
+        public MessagePackMapper build()
+        {
+            return new MessagePackMapper(this);
+        }
+
+        public Builder handleBigIntegerAsString()
+        {
+            return withConfigOverride(BigInteger.class,
+                    o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING)));
+        }
+
+        public Builder handleBigDecimalAsString()
+        {
+            return withConfigOverride(BigDecimal.class,
+                    o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING)));
+        }
+
+        public Builder handleBigIntegerAndBigDecimalAsString()
+        {
+            return handleBigIntegerAsString().handleBigDecimalAsString();
+        }
+
+        @Override
+        protected MapperBuilderState _saveState()
+        {
+            return new StateImpl(this);
+        }
+
+        protected static class StateImpl extends MapperBuilderState
+        {
+            private static final long serialVersionUID = 3L;
+
+            public StateImpl(Builder src)
+            {
+                super(src);
+            }
+
+            @Override
+            protected Object readResolve()
+            {
+                return new Builder(this).build();
+            }
         }
     }
 
     public MessagePackMapper()
     {
-        this(new MessagePackFactory());
+        this(new Builder(new MessagePackFactory()));
     }
 
     public MessagePackMapper(MessagePackFactory f)
     {
-        super(f);
+        this(new Builder(f));
     }
 
-    public MessagePackMapper handleBigIntegerAsString()
+    protected MessagePackMapper(Builder builder)
     {
-        configOverride(BigInteger.class).setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
-        return this;
-    }
-
-    public MessagePackMapper handleBigDecimalAsString()
-    {
-        configOverride(BigDecimal.class).setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
-        return this;
-    }
-
-    public MessagePackMapper handleBigIntegerAndBigDecimalAsString()
-    {
-        return handleBigIntegerAsString().handleBigDecimalAsString();
+        super(builder);
     }
 
     public static Builder builder()
     {
-        return new Builder(new MessagePackMapper());
+        return new Builder(new MessagePackFactory());
     }
 
     public static Builder builder(MessagePackFactory f)
     {
-        return new Builder(new MessagePackMapper(f));
+        return new Builder(f);
+    }
+
+    @Override
+    public Version version()
+    {
+        return PackageVersion.VERSION;
     }
 }
