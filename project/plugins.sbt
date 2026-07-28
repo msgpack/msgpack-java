@@ -7,5 +7,7 @@ addSbtPlugin("com.github.sbt" % "sbt-osgi"        % "0.11.0-RC1")
 addSbtPlugin("org.scalameta"  % "sbt-scalafmt"    % "2.6.2")
 addSbtPlugin("com.github.sbt" % "sbt-dynver"      % "5.1.1")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh"     % "0.4.8")
+// Runs JUnit 5 (Jupiter) tests from sbt; without this, JUnit 5 tests are silently skipped
+addSbtPlugin("com.github.sbt.junit" % "sbt-jupiter-interface" % "0.19.0")
 
 scalacOptions ++= Seq("-deprecation", "-feature")

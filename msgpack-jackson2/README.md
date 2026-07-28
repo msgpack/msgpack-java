@@ -1,9 +1,11 @@
-# jackson-dataformat-msgpack
+# jackson2-dataformat-msgpack
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.msgpack/jackson-dataformat-msgpack/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.msgpack/jackson-dataformat-msgpack/)
-[![Javadoc](https://www.javadoc.io/badge/org.msgpack/jackson-dataformat-msgpack.svg)](https://www.javadoc.io/doc/org.msgpack/jackson-dataformat-msgpack)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.msgpack/jackson2-dataformat-msgpack/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.msgpack/jackson2-dataformat-msgpack/)
+[![Javadoc](https://www.javadoc.io/badge/org.msgpack/jackson2-dataformat-msgpack.svg)](https://www.javadoc.io/doc/org.msgpack/jackson2-dataformat-msgpack)
 
-This Jackson extension library is a component to easily read and write [MessagePack](http://msgpack.org/) encoded data through jackson-databind API.
+This Jackson 2.x extension library is a component to easily read and write [MessagePack](http://msgpack.org/) encoded data through jackson-databind API.
+
+**Maintenance mode:** this module is maintained for existing Jackson 2.x users — it receives Jackson 2.x dependency bumps and bug fixes only, and will be dropped in a future major release when Jackson 2 usage fades. For Jackson 3.x, use [`jackson-dataformat-msgpack`](../msgpack-jackson/) (Java 17+). Before msgpack-java 1.0.0, this code was published as `jackson-dataformat-msgpack` (0.9.x); migrating from 0.9.x only requires changing the artifactId — the Java package (`org.msgpack.jackson.dataformat`) is unchanged.
 
 It extends standard Jackson streaming API (`JsonFactory`, `JsonParser`, `JsonGenerator`), and as such works seamlessly with all the higher level data abstractions (data binding, tree model, and pluggable extensions). For the details of Jackson-annotations, please see https://github.com/FasterXML/jackson-annotations.
 
@@ -16,7 +18,7 @@ This library isn't compatible with msgpack-java v0.6 or earlier by default in se
 ```
 <dependency>
   <groupId>org.msgpack</groupId>
-  <artifactId>jackson-dataformat-msgpack</artifactId>
+  <artifactId>jackson2-dataformat-msgpack</artifactId>
   <version>(version)</version>
 </dependency>
 ```
@@ -24,7 +26,7 @@ This library isn't compatible with msgpack-java v0.6 or earlier by default in se
 ### Sbt
 
 ```
-libraryDependencies += "org.msgpack" % "jackson-dataformat-msgpack" % "(version)"
+libraryDependencies += "org.msgpack" % "jackson2-dataformat-msgpack" % "(version)"
 ```
 
 ### Gradle
@@ -34,7 +36,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.msgpack:jackson-dataformat-msgpack:(version)'
+    compile 'org.msgpack:jackson2-dataformat-msgpack:(version)'
 }
 ```
 
@@ -153,7 +155,7 @@ Java
 
 In msgpack-java:0.6 or earlier, a POJO was serliazed and deserialized as an array of values in MessagePack format. The order of values depended on an internal order of Java class's variables and it was a naive way and caused some issues since Java class's variables order isn't guaranteed over Java implementations.
 
-On the other hand, jackson-databind serializes and deserializes a POJO as a key-value object. So this `jackson-dataformat-msgpack` also handles POJOs in the same way. As a result, it isn't compatible with msgpack-java:0.6 or earlier in serialization and deserialization of POJOs.
+On the other hand, jackson-databind serializes and deserializes a POJO as a key-value object. So this `jackson2-dataformat-msgpack` also handles POJOs in the same way. As a result, it isn't compatible with msgpack-java:0.6 or earlier in serialization and deserialization of POJOs.
 
 But if you want to make this library handle POJOs in the same way as msgpack-java:0.6 or earlier, you can use `JsonArrayFormat` like this:
 
@@ -232,7 +234,7 @@ When you want to use non-String value as a key of Map, use `MessagePackKeySerial
 
 ### Serialize and deserialize BigDecimal as str type internally in MessagePack format
 
-`jackson-dataformat-msgpack` represents BigDecimal values as float type in MessagePack format by default for backward compatibility. But the default behavior could fail when handling too large value for `double` type. So we strongly recommend to call `MessagePackMapper#handleBigIntegerAndBigDecimalAsString()` to internally handle BigDecimal values as String.
+`jackson2-dataformat-msgpack` represents BigDecimal values as float type in MessagePack format by default for backward compatibility. But the default behavior could fail when handling too large value for `double` type. So we strongly recommend to call `MessagePackMapper#handleBigIntegerAndBigDecimalAsString()` to internally handle BigDecimal values as String.
 
 ```java
   ObjectMapper objectMapper = new MessagePackMapper().handleBigIntegerAndBigDecimalAsString();

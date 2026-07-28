@@ -1,12 +1,12 @@
-# jackson-dataformat-msgpack-jackson3
+# jackson-dataformat-msgpack
 
 This Jackson 3.x extension library is a component to easily read and write [MessagePack](http://msgpack.org/) encoded data through jackson-databind API.
 
 It extends standard Jackson streaming API (`JsonFactory`, `JsonParser`, `JsonGenerator`), and as such works seamlessly with all the higher level data abstractions (data binding, tree model, and pluggable extensions).
 
-**Requirements:** Java 17+ and Jackson 3.x. For the Jackson 2.x compatible version, see [`msgpack-jackson`](../msgpack-jackson/).
+**Requirements:** Java 17+ and Jackson 3.x. This artifact supports Jackson 3.x since version 1.0.0 (version 0.9.x supported Jackson 2.x). For the Jackson 2.x compatible version, see [`jackson2-dataformat-msgpack`](../msgpack-jackson2/).
 
-**Note on imports:** Jackson 3 moved its core and databind packages from `com.fasterxml.jackson` to `tools.jackson`. User-facing annotations (`@JsonProperty`, `@JsonFormat`, etc.) remain in `com.fasterxml.jackson.annotation` for backward compatibility.
+**Note on imports:** Jackson 3 moved its core and databind packages from `com.fasterxml.jackson` to `tools.jackson`. User-facing annotations (`@JsonProperty`, `@JsonFormat`, etc.) remain in `com.fasterxml.jackson.annotation` for backward compatibility. Similarly, this library uses the `org.msgpack.jackson3.dataformat` package, while the Jackson 2.x artifact keeps `org.msgpack.jackson.dataformat` — so both artifacts can coexist on the same classpath during an incremental migration.
 
 ## Install
 
@@ -15,7 +15,7 @@ It extends standard Jackson streaming API (`JsonFactory`, `JsonParser`, `JsonGen
 ```xml
 <dependency>
   <groupId>org.msgpack</groupId>
-  <artifactId>jackson-dataformat-msgpack-jackson3</artifactId>
+  <artifactId>jackson-dataformat-msgpack</artifactId>
   <version>(version)</version>
 </dependency>
 ```
@@ -23,7 +23,7 @@ It extends standard Jackson streaming API (`JsonFactory`, `JsonParser`, `JsonGen
 ### Sbt
 
 ```scala
-libraryDependencies += "org.msgpack" % "jackson-dataformat-msgpack-jackson3" % "(version)"
+libraryDependencies += "org.msgpack" % "jackson-dataformat-msgpack" % "(version)"
 ```
 
 ### Gradle
@@ -34,7 +34,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.msgpack:jackson-dataformat-msgpack-jackson3:(version)'
+    implementation 'org.msgpack:jackson-dataformat-msgpack:(version)'
 }
 ```
 
@@ -219,7 +219,7 @@ System.out.println(deserialized);   // => {42=Hello}
 
 ### Serialize and deserialize BigDecimal as str type internally in MessagePack format
 
-`jackson-dataformat-msgpack-jackson3` represents BigDecimal values as float type in MessagePack format by default for backward compatibility. But the default behavior could fail when handling too large value for `double` type. So we strongly recommend calling `MessagePackMapper.Builder#handleBigIntegerAndBigDecimalAsString()` to internally handle BigDecimal values as String.
+`jackson-dataformat-msgpack` represents BigDecimal values as float type in MessagePack format by default for backward compatibility. But the default behavior could fail when handling too large value for `double` type. So we strongly recommend calling `MessagePackMapper.Builder#handleBigIntegerAndBigDecimalAsString()` to internally handle BigDecimal values as String.
 
 ```java
 ObjectMapper objectMapper = MessagePackMapper.builder().handleBigIntegerAndBigDecimalAsString().build();

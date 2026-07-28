@@ -59,10 +59,10 @@ Two artifacts are published depending on which Jackson major version your projec
 
 | Jackson version | Artifact | Requirements |
 | --- | --- | --- |
-| Jackson 2.x | [`jackson-dataformat-msgpack`](https://github.com/msgpack/msgpack-java/blob/develop/msgpack-jackson/README.md) | Java 8+ |
-| Jackson 3.x | [`jackson-dataformat-msgpack-jackson3`](https://github.com/msgpack/msgpack-java/blob/develop/msgpack-jackson3/README.md) | Java 17+ |
+| Jackson 3.x | [`jackson-dataformat-msgpack`](https://github.com/msgpack/msgpack-java/blob/main/msgpack-jackson/README.md) (1.x) | Java 17+ |
+| Jackson 2.x | [`jackson2-dataformat-msgpack`](https://github.com/msgpack/msgpack-java/blob/main/msgpack-jackson2/README.md) (maintenance mode) | Java 8+ |
 
-Use `jackson-dataformat-msgpack` if your project still depends on Jackson 2.x, or `jackson-dataformat-msgpack-jackson3` if you've upgraded to Jackson 3.x. See each module's README for install instructions and usage details.
+Since msgpack-java 1.0.0, `jackson-dataformat-msgpack` targets Jackson 3.x. If your project still depends on Jackson 2.x, either stay on `jackson-dataformat-msgpack` 0.9.x or switch to `jackson2-dataformat-msgpack` to keep receiving msgpack-core updates (only the artifactId changes; the Java package is the same). See each module's README for install instructions and usage details.
 
 - [Release Notes](https://github.com/msgpack/msgpack-java/blob/develop/RELEASE_NOTES.md)
 
@@ -153,5 +153,6 @@ If some sporadic error happens (e.g., Sonatype timeout), rerun `sonaRelease` aga
 
 ```
 msgpack-core                 # Contains packer/unpacker implementation that never uses third-party libraries
-msgpack-jackson              # Contains jackson-dataformat-java implementation
+msgpack-jackson              # jackson-dataformat-msgpack: Jackson 3.x integration (Java 17+)
+msgpack-jackson2             # jackson2-dataformat-msgpack: Jackson 2.x integration (maintenance mode)
 ```
