@@ -53,8 +53,16 @@ For using DirectByteBuffer (off-heap memory access methods) in JDK17, you need t
 
 ### Integration with Jackson ObjectMapper (jackson-databind)
 
-msgpack-java supports serialization and deserialization of Java objects through [jackson-databind](https://github.com/FasterXML/jackson-databind).
-For details, see [msgpack-jackson/README.md](https://github.com/msgpack/msgpack-java/blob/develop/msgpack-jackson/README.md). The template-based serialization mechanism used in v06 is deprecated.
+msgpack-java supports serialization and deserialization of Java objects through [jackson-databind](https://github.com/FasterXML/jackson-databind). The template-based serialization mechanism used in v06 is deprecated.
+
+Two artifacts are published depending on which Jackson major version your project uses:
+
+| Jackson version | Artifact | Requirements |
+| --- | --- | --- |
+| Jackson 2.x | [`jackson-dataformat-msgpack`](https://github.com/msgpack/msgpack-java/blob/develop/msgpack-jackson/README.md) | Java 8+ |
+| Jackson 3.x | [`jackson-dataformat-msgpack-jackson3`](https://github.com/msgpack/msgpack-java/blob/develop/msgpack-jackson3/README.md) | Java 17+ |
+
+Use `jackson-dataformat-msgpack` if your project still depends on Jackson 2.x, or `jackson-dataformat-msgpack-jackson3` if you've upgraded to Jackson 3.x. See each module's README for install instructions and usage details.
 
 - [Release Notes](https://github.com/msgpack/msgpack-java/blob/develop/RELEASE_NOTES.md)
 
