@@ -20,7 +20,7 @@ import tools.jackson.core.Versioned;
 public class PackageVersion
         implements Versioned
 {
-    public static final Version VERSION = new Version(1, 0, 0, null, "org.msgpack", "jackson-dataformat-msgpack");
+    public static final Version VERSION = new Version(0, 9, 12, null, "org.msgpack.jackson3", "jackson-dataformat-msgpack");
 
     @Override
     public Version version()
