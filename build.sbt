@@ -142,7 +142,7 @@ lazy val root = Project(id = "msgpack-java", base = file("."))
   .aggregate(
     Seq[ProjectReference](msgpackCore, msgpackJackson) ++ (
       if (isJava17Plus)
-        Seq[ProjectReference](msgpackJackson3)
+        Seq[ProjectReference](msgpackJackson3, msgpackJackson3Benchmark)
       else
         Nil
     ): _*
@@ -217,7 +217,7 @@ lazy val msgpackJackson = Project(id = "msgpack-jackson", base = file("msgpack-j
 // and the Java package are renamed together, so this artifact can coexist on the same
 // classpath with the Jackson 2.x artifact (org.msgpack:jackson-dataformat-msgpack).
 lazy val msgpackJackson3 = Project(id = "msgpack-jackson3", base = file("msgpack-jackson3"))
-  .enablePlugins(SbtOsgi, JmhPlugin)
+  .enablePlugins(SbtOsgi)
   .settings(
     buildSettings,
     organization := "org.msgpack.jackson3",
@@ -234,11 +234,27 @@ lazy val msgpackJackson3 = Project(id = "msgpack-jackson3", base = file("msgpack
     doc / javacOptions          := Seq("--release", "17", "-Xdoclint:none"),
     libraryDependencies ++=
       Seq("tools.jackson.core" % "jackson-databind" % "3.1.2", junitInterface),
-    testOptions += Tests.Argument(TestFrameworks.JUnit, "-v"),
+    testOptions += Tests.Argument(TestFrameworks.JUnit, "-v")
+  )
+  .dependsOn(msgpackCore)
+
+// JMH benchmarks for the Jackson 3.x module. Kept in a separate, unpublished project as
+// sbt-jmh recommends: JmhPlugin adds jmh-core and the code generators to
+// libraryDependencies unscoped, so enabling it on a published module would leak them into
+// that module's POM as compile dependencies of every consumer.
+lazy val msgpackJackson3Benchmark = Project(
+  id = "msgpack-jackson3-benchmark",
+  base = file("msgpack-jackson3-benchmark")
+).enablePlugins(JmhPlugin)
+  .settings(
+    buildSettings,
+    description    := "JMH benchmarks for the Jackson 3.x MessagePack integration",
+    publish / skip := true,
+    javacOptions   := Seq("--release", "17"),
     Jmh / javaOptions ++=
       Seq(
         "--add-opens=java.base/java.nio=ALL-UNNAMED",
         "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
       )
   )
-  .dependsOn(msgpackCore)
+  .dependsOn(msgpackJackson3)
