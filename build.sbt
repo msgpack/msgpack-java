@@ -180,7 +180,7 @@ lazy val msgpackJackson = Project(id = "msgpack-jackson", base = file("msgpack-j
     OsgiKeys.exportPackage      := Seq("org.msgpack.jackson", "org.msgpack.jackson.dataformat"),
     libraryDependencies ++=
       Seq(
-        "com.fasterxml.jackson.core" % "jackson-databind" % "2.22.1",
+        "com.fasterxml.jackson.core" % "jackson-databind" % "2.22.2",
         junitJupiter,
         junitVintage,
         "org.apache.commons" % "commons-math3" % "3.6.1" % "test"
