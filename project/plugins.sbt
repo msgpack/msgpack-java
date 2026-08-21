@@ -1,4 +1,4 @@
-addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.3.1")
+addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.3.2")
 // TODO: Fixes jacoco error:
 // java.lang.NoClassDefFoundError: Could not initialize class org.jacoco.core.internal.flow.ClassProbesAdapter
 //addSbtPlugin("com.github.sbt"   % "sbt-jacoco"      % "3.3.0")
