@@ -115,10 +115,22 @@ val buildSettings = Seq[Setting[?]](
   Test / compile    := Def.uncached((Test / compile).dependsOn(Test / jcheckStyle).value)
 )
 
-val junitJupiter = "org.junit.jupiter" % "junit-jupiter"        % "5.14.4" % "test"
-val junitVintage = "org.junit.vintage" % "junit-vintage-engine" % "5.14.4" % "test"
+val junitJupiter   = "org.junit.jupiter" % "junit-jupiter"        % "5.14.4" % "test"
+val junitVintage   = "org.junit.vintage" % "junit-vintage-engine" % "5.14.4" % "test"
+val junitInterface = "com.github.sbt"    % "junit-interface"      % "0.13.3" % "test"
 
 // Project settings
+val isJava17Plus: Boolean = {
+  val v = sys.props.getOrElse("java.specification.version", "1.8")
+  // getOrElse(false): non-numeric versions (e.g. early-access "17-ea") fail safe
+  // by not compiling the Jackson 3 module (msgpack-jackson) rather than making an
+  // optimistic guess.
+  if (v.startsWith("1."))
+    false
+  else
+    scala.util.Try(v.toInt >= 17).getOrElse(false)
+}
+
 lazy val root = Project(id = "msgpack-java", base = file("."))
   .settings(
     buildSettings,
@@ -127,7 +139,14 @@ lazy val root = Project(id = "msgpack-java", base = file("."))
     publish         := {},
     publishLocal    := {}
   )
-  .aggregate(msgpackCore, msgpackJackson)
+  .aggregate(
+    Seq[ProjectReference](msgpackCore, msgpackJackson) ++ (
+      if (isJava17Plus)
+        Seq[ProjectReference](msgpackJackson3, msgpackJackson3Benchmark)
+      else
+        Nil
+    ): _*
+  )
 
 lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
   .enablePlugins(SbtOsgi)
@@ -170,12 +189,15 @@ lazy val msgpackCore = Project(id = "msgpack-core", base = file("msgpack-core"))
       )
   )
 
+// Jackson 2.x module. Keeps the same Maven coordinates (org.msgpack:jackson-dataformat-msgpack)
+// and Java package as the 0.9.x line, so existing Jackson 2.x users need no changes.
+// Maintenance mode: Jackson 2.x dependency bumps and bug fixes only.
 lazy val msgpackJackson = Project(id = "msgpack-jackson", base = file("msgpack-jackson"))
   .enablePlugins(SbtOsgi)
   .settings(
     buildSettings,
     name                        := "jackson-dataformat-msgpack",
-    description                 := "Jackson extension that adds support for MessagePack",
+    description                 := "Jackson 2.x extension that adds support for MessagePack",
     OsgiKeys.bundleSymbolicName := "org.msgpack.msgpack-jackson",
     OsgiKeys.exportPackage      := Seq("org.msgpack.jackson", "org.msgpack.jackson.dataformat"),
     libraryDependencies ++=
@@ -183,8 +205,56 @@ lazy val msgpackJackson = Project(id = "msgpack-jackson", base = file("msgpack-j
         "com.fasterxml.jackson.core" % "jackson-databind" % "2.22.2",
         junitJupiter,
         junitVintage,
-        "org.apache.commons" % "commons-math3" % "3.6.1" % "test"
+        "com.github.sbt.junit" % "jupiter-interface" % JupiterKeys.jupiterVersion.value % "test",
+        "org.apache.commons"   % "commons-math3"     % "3.6.1"                          % "test"
       ),
     testOptions += Tests.Argument(TestFrameworks.JUnit, "-v")
   )
   .dependsOn(msgpackCore)
+
+// Jackson 3.x module. Published under a new groupId (org.msgpack.jackson3) with a new
+// Java package (org.msgpack.jackson3.dataformat), following JLBP-6: the Maven coordinates
+// and the Java package are renamed together, so this artifact can coexist on the same
+// classpath with the Jackson 2.x artifact (org.msgpack:jackson-dataformat-msgpack).
+lazy val msgpackJackson3 = Project(id = "msgpack-jackson3", base = file("msgpack-jackson3"))
+  .enablePlugins(SbtOsgi)
+  .settings(
+    buildSettings,
+    organization := "org.msgpack.jackson3",
+    name         := "jackson-dataformat-msgpack",
+    // sbt derives build output paths from moduleName, which would collide with the
+    // Jackson 2 module publishing the same artifactId; use the project id instead
+    outputPath                  := s"${platform.value}/u/msgpack-jackson3",
+    description                 := "Jackson 3.x extension that adds support for MessagePack",
+    OsgiKeys.bundleSymbolicName := "org.msgpack.jackson3.jackson-dataformat-msgpack",
+    OsgiKeys.exportPackage      := Seq("org.msgpack.jackson3", "org.msgpack.jackson3.dataformat"),
+    OsgiKeys.importPackage      := Seq("!android.os", "!sun.*"),
+    Test / fork                 := true,
+    javacOptions                := Seq("--release", "17"),
+    doc / javacOptions          := Seq("--release", "17", "-Xdoclint:none"),
+    libraryDependencies ++=
+      Seq("tools.jackson.core" % "jackson-databind" % "3.1.2", junitInterface),
+    testOptions += Tests.Argument(TestFrameworks.JUnit, "-v")
+  )
+  .dependsOn(msgpackCore)
+
+// JMH benchmarks for the Jackson 3.x module. Kept in a separate, unpublished project as
+// sbt-jmh recommends: JmhPlugin adds jmh-core and the code generators to
+// libraryDependencies unscoped, so enabling it on a published module would leak them into
+// that module's POM as compile dependencies of every consumer.
+lazy val msgpackJackson3Benchmark = Project(
+  id = "msgpack-jackson3-benchmark",
+  base = file("msgpack-jackson3-benchmark")
+).enablePlugins(JmhPlugin)
+  .settings(
+    buildSettings,
+    description    := "JMH benchmarks for the Jackson 3.x MessagePack integration",
+    publish / skip := true,
+    javacOptions   := Seq("--release", "17"),
+    Jmh / javaOptions ++=
+      Seq(
+        "--add-opens=java.base/java.nio=ALL-UNNAMED",
+        "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
+      )
+  )
+  .dependsOn(msgpackJackson3)

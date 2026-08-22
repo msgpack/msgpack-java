@@ -6,7 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 MessagePack-Java is a binary serialization library that provides a fast and compact alternative to JSON. The project consists of two main modules:
 - **msgpack-core**: Standalone MessagePack implementation with no external dependencies
-- **msgpack-jackson**: Jackson integration for object mapping capabilities
+- **msgpack-jackson**: Jackson 2.x integration in maintenance mode (`org.msgpack:jackson-dataformat-msgpack`, Java 8+)
+- **msgpack-jackson3**: Jackson 3.x integration for object mapping capabilities (`org.msgpack.jackson3:jackson-dataformat-msgpack`, Java 17+)
 
 ## Essential Development Commands
 
@@ -49,7 +50,8 @@ The main entry point is the `MessagePack` factory class which creates:
 
 Key locations:
 - Core interfaces: `msgpack-core/src/main/java/org/msgpack/core/`
-- Jackson integration: `msgpack-jackson/src/main/java/org/msgpack/jackson/dataformat/`
+- Jackson 2 integration: `msgpack-jackson/src/main/java/org/msgpack/jackson/dataformat/`
+- Jackson 3 integration: `msgpack-jackson3/src/main/java/org/msgpack/jackson3/dataformat/`
 
 ### Buffer Management System
 MessagePack uses an efficient buffer abstraction layer:
@@ -68,8 +70,8 @@ The msgpack-jackson module provides:
 ### Testing Structure
 - **msgpack-core tests**: Written in Scala (always use the latest Scala 3 version) using AirSpec framework
   - Location: `msgpack-core/src/test/scala/`
-- **msgpack-jackson tests**: Written in Java using JUnit
-  - Location: `msgpack-jackson/src/test/java/`
+- **msgpack-jackson / msgpack-jackson3 tests**: Written in Java using JUnit
+  - Location: `msgpack-jackson/src/test/java/`, `msgpack-jackson3/src/test/java/`
 
 ## Important JVM Options
 

@@ -13,14 +13,14 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 //
-package org.msgpack.jackson.dataformat;
+package org.msgpack.jackson3.dataformat;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import tools.jackson.databind.ObjectMapper;
+import org.junit.After;
+import org.junit.Before;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -49,11 +49,11 @@ public class MessagePackDataformatTestBase
     protected TinyPojo tinyPojo;
     protected ComplexPojo complexPojo;
 
-    @BeforeEach
+    @Before
     public void setup()
     {
         factory = new MessagePackFactory();
-        objectMapper = new ObjectMapper(factory);
+        objectMapper = new MessagePackMapper(factory);
         out = new ByteArrayOutputStream();
         in = new ByteArrayInputStream(new byte[4096]);
 
@@ -100,7 +100,7 @@ public class MessagePackDataformatTestBase
         complexPojo.values = Arrays.asList("one", "two", "three");
     }
 
-    @AfterEach
+    @After
     public void teardown()
     {
         if (in != null) {
@@ -223,11 +223,9 @@ public class MessagePackDataformatTestBase
     {
         int code;
 
-        // will not be written as JSON; nor assigned from JSON:
         @JsonIgnore
         public String internal;
 
-        // no annotation, public field is read/written normally
         public String external;
 
         @JsonIgnore
@@ -236,7 +234,6 @@ public class MessagePackDataformatTestBase
             code = c;
         }
 
-        // note: will also be ignored because setter has annotation!
         public int getCode()
         {
             return code;
@@ -247,15 +244,12 @@ public class MessagePackDataformatTestBase
     {
         String name;
 
-        // without annotation, we'd get "theName", but we want "name":
         @JsonProperty("name")
         public String getTheName()
         {
             return name;
         }
 
-        // note: it is enough to add annotation on just getter OR setter;
-        // so we can omit it here
         public void setTheName(String n)
         {
             name = n;
