@@ -713,6 +713,7 @@ class MessagePackTest extends AirSpec with PropertyCheck with Benchmark:
       a.withActionOnMalformedString(CodingErrorAction.REPORT).equals(b) shouldBe false
       a.withActionOnUnmappableString(CodingErrorAction.REPORT).equals(b) shouldBe false
       a.withStringSizeLimit(32).equals(b) shouldBe false
+      a.withMaxNestingDepth(32).equals(b) shouldBe false
       a.withStringDecoderBufferSize(32).equals(b) shouldBe false
     }
   }
