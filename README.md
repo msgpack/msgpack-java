@@ -53,8 +53,16 @@ For using DirectByteBuffer (off-heap memory access methods) in JDK17, you need t
 
 ### Integration with Jackson ObjectMapper (jackson-databind)
 
-msgpack-java supports serialization and deserialization of Java objects through [jackson-databind](https://github.com/FasterXML/jackson-databind).
-For details, see [msgpack-jackson/README.md](https://github.com/msgpack/msgpack-java/blob/develop/msgpack-jackson/README.md). The template-based serialization mechanism used in v06 is deprecated.
+msgpack-java supports serialization and deserialization of Java objects through [jackson-databind](https://github.com/FasterXML/jackson-databind). The template-based serialization mechanism used in v06 is deprecated.
+
+Two artifacts are published depending on which Jackson major version your project uses:
+
+| Jackson version | groupId | artifactId | Java package | Requirements |
+| --- | --- | --- | --- | --- |
+| Jackson 3.x | `org.msgpack.jackson3` | [`jackson-dataformat-msgpack`](https://github.com/msgpack/msgpack-java/blob/main/msgpack-jackson3/README.md) | `org.msgpack.jackson3.dataformat` | Java 17+ |
+| Jackson 2.x | `org.msgpack` | [`jackson-dataformat-msgpack`](https://github.com/msgpack/msgpack-java/blob/main/msgpack-jackson/README.md) (maintenance mode) | `org.msgpack.jackson.dataformat` | Java 8+ |
+
+The Jackson 2.x artifact keeps the same Maven coordinates and Java package as before, so existing users need no changes. The Jackson 3.x support is published under a new groupId (`org.msgpack.jackson3`) with a new Java package, following the same convention as Jackson itself (`com.fasterxml.jackson.dataformat` → `tools.jackson.dataformat`); renaming the Maven coordinates and the Java package together allows both artifacts to coexist on the same classpath for incremental migration. See each module's README for install instructions and usage details.
 
 - [Release Notes](https://github.com/msgpack/msgpack-java/blob/develop/RELEASE_NOTES.md)
 
@@ -145,5 +153,6 @@ If some sporadic error happens (e.g., Sonatype timeout), rerun `sonaRelease` aga
 
 ```
 msgpack-core                 # Contains packer/unpacker implementation that never uses third-party libraries
-msgpack-jackson              # Contains jackson-dataformat-java implementation
+msgpack-jackson              # org.msgpack:jackson-dataformat-msgpack: Jackson 2.x integration (maintenance mode)
+msgpack-jackson3             # org.msgpack.jackson3:jackson-dataformat-msgpack: Jackson 3.x integration (Java 17+)
 ```

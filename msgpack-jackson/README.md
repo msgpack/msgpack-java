@@ -3,7 +3,9 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.msgpack/jackson-dataformat-msgpack/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.msgpack/jackson-dataformat-msgpack/)
 [![Javadoc](https://www.javadoc.io/badge/org.msgpack/jackson-dataformat-msgpack.svg)](https://www.javadoc.io/doc/org.msgpack/jackson-dataformat-msgpack)
 
-This Jackson extension library is a component to easily read and write [MessagePack](http://msgpack.org/) encoded data through jackson-databind API.
+This Jackson 2.x extension library is a component to easily read and write [MessagePack](http://msgpack.org/) encoded data through jackson-databind API.
+
+**Maintenance mode:** this module keeps the same Maven coordinates (`org.msgpack:jackson-dataformat-msgpack`) and Java package (`org.msgpack.jackson.dataformat`) as before, so existing Jackson 2.x users need no changes. It receives Jackson 2.x dependency bumps and bug fixes only. For Jackson 3.x, use [`org.msgpack.jackson3:jackson-dataformat-msgpack`](../msgpack-jackson3/) (Java 17+), which uses a different groupId and Java package so both artifacts can coexist on the same classpath.
 
 It extends standard Jackson streaming API (`JsonFactory`, `JsonParser`, `JsonGenerator`), and as such works seamlessly with all the higher level data abstractions (data binding, tree model, and pluggable extensions). For the details of Jackson-annotations, please see https://github.com/FasterXML/jackson-annotations.
 
