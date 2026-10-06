@@ -41,7 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       # sbt 2 requires JDK 17+ to run
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: 'zulu'
           java-version: '21'
@@ -62,14 +62,14 @@ jobs:
       - uses: actions/checkout@v7
       # The JDK under test: msgpack-core forks its tests onto this JDK (via
       # TEST_JAVA_HOME) so we still verify runtime behavior on each target JDK.
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         id: target-jdk
         with:
           distribution: 'zulu'
           java-version: ${{ matrix.java }}
       # sbt 2 itself requires JDK 17+ to run, so install a fixed, newer JDK to
       # actually launch sbt. This becomes the default JDK on PATH/JAVA_HOME.
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: 'zulu'
           java-version: '21'
