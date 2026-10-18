@@ -95,6 +95,16 @@ public class MessagePackDataformatForPojoTest
     }
 
     @Test
+    public void testUnicodeStringRoundTrip()
+            throws IOException
+    {
+        String original = "çÇğĞıİöÖşŞüÜ";
+        byte[] bytes = objectMapper.writeValueAsBytes(original);
+        String value = objectMapper.readValue(bytes, String.class);
+        assertEquals(original, value);
+    }
+
+    @Test
     public void testUsingCustomConstructor()
             throws IOException
     {
