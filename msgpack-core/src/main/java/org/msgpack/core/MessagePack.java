@@ -518,6 +518,8 @@ public class MessagePack
 
         private int stringSizeLimit = Integer.MAX_VALUE;
 
+        private int maxNestingDepth = 512;
+
         private int bufferSize = 8192;
 
         private int stringDecoderBufferSize = 8192;
@@ -533,6 +535,7 @@ public class MessagePack
             this.actionOnMalformedString = copy.actionOnMalformedString;
             this.actionOnUnmappableString = copy.actionOnUnmappableString;
             this.stringSizeLimit = copy.stringSizeLimit;
+            this.maxNestingDepth = copy.maxNestingDepth;
             this.bufferSize = copy.bufferSize;
         }
 
@@ -550,6 +553,7 @@ public class MessagePack
             result = 31 * result + (actionOnMalformedString != null ? actionOnMalformedString.hashCode() : 0);
             result = 31 * result + (actionOnUnmappableString != null ? actionOnUnmappableString.hashCode() : 0);
             result = 31 * result + stringSizeLimit;
+            result = 31 * result + maxNestingDepth;
             result = 31 * result + bufferSize;
             result = 31 * result + stringDecoderBufferSize;
             return result;
@@ -567,6 +571,7 @@ public class MessagePack
                     && this.actionOnMalformedString == o.actionOnMalformedString
                     && this.actionOnUnmappableString == o.actionOnUnmappableString
                     && this.stringSizeLimit == o.stringSizeLimit
+                    && this.maxNestingDepth == o.maxNestingDepth
                     && this.stringDecoderBufferSize == o.stringDecoderBufferSize
                     && this.bufferSize == o.bufferSize;
         }
@@ -726,6 +731,21 @@ public class MessagePack
         public int getStringSizeLimit()
         {
             return stringSizeLimit;
+        }
+
+        /**
+         * Maximum container nesting depth for {@link MessageUnpacker#unpackValue()} (default: 512).
+         */
+        public UnpackerConfig withMaxNestingDepth(int depth)
+        {
+            UnpackerConfig copy = clone();
+            copy.maxNestingDepth = depth;
+            return copy;
+        }
+
+        public int getMaxNestingDepth()
+        {
+            return maxNestingDepth;
         }
 
         /**
