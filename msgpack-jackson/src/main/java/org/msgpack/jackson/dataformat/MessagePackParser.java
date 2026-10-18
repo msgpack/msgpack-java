@@ -174,7 +174,7 @@ public class MessagePackParser
                 return new String(tempChars, 0, strLen);
             }
             else {
-                return new String(tempBytes, 0, strLen);
+                return new String(tempBytes, 0, strLen, StandardCharsets.UTF_8);
             }
         }
         else {
