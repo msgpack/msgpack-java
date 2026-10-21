@@ -19,8 +19,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -49,7 +49,7 @@ public class MessagePackDataformatTestBase
     protected TinyPojo tinyPojo;
     protected ComplexPojo complexPojo;
 
-    @Before
+    @BeforeEach
     public void setup()
     {
         factory = new MessagePackFactory();
@@ -100,7 +100,7 @@ public class MessagePackDataformatTestBase
         complexPojo.values = Arrays.asList("one", "two", "three");
     }
 
-    @After
+    @AfterEach
     public void teardown()
     {
         if (in != null) {
