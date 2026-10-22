@@ -556,16 +556,16 @@ public class MessageBuffer
         }
         else if (src.hasArray()) {
             byte[] srcArray = src.array();
-            unsafe.copyMemory(srcArray, ARRAY_BYTE_BASE_OFFSET + src.position(), base, address + index, len);
+            unsafe.copyMemory(srcArray, ARRAY_BYTE_BASE_OFFSET + src.arrayOffset() + src.position(), base, address + index, len);
             src.position(src.position() + len);
         }
         else {
             if (hasArray()) {
-                src.get((byte[]) base, index, len);
+                src.get((byte[]) base, arrayOffset() + index, len);
             }
             else {
                 for (int i = 0; i < len; ++i) {
-                    unsafe.putByte(base, address + index, src.get());
+                    unsafe.putByte(base, address + index + i, src.get());
                 }
             }
         }
