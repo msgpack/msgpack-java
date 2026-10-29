@@ -4,7 +4,7 @@ The latest release notes will be available from the [GitHub release page](https:
 
 ## 0.9.3
 
-This version supports JDK17 [#660](http://github.com/msgpack/msgpack-java/pull/660).
+This version supports JDK17 [#660](https://github.com/msgpack/msgpack-java/pull/660).
 
 Important: If you need to use DirectByteBuffer (raw memory access) in JDK17 or later, specify two JVM options to allow accessing
 native memory:
@@ -14,22 +14,22 @@ native memory:
 ```
 Internal updates:
 
-* Use SPDX-ID in license name [#653](http://github.com/msgpack/msgpack-java/pull/653)
-* Update airframe-json, airspec to 22.6.4 [#659](http://github.com/msgpack/msgpack-java/pull/659)
-* Update akka-actor to 2.6.19 [#647](http://github.com/msgpack/msgpack-java/pull/647)
+* Use SPDX-ID in license name [#653](https://github.com/msgpack/msgpack-java/pull/653)
+* Update airframe-json, airspec to 22.6.4 [#659](https://github.com/msgpack/msgpack-java/pull/659)
+* Update akka-actor to 2.6.19 [#647](https://github.com/msgpack/msgpack-java/pull/647)
 
 ## 0.9.2
 
 Internal updates:
 
-* Update jackson-databind to 2.13.3 [#650](http://github.com/msgpack/msgpack-java/pull/650)
-* Update akka-actor to 2.6.19 [#631](http://github.com/msgpack/msgpack-java/pull/631)
-* Update airframe-json, airspec to 22.6.1 [#649](http://github.com/msgpack/msgpack-java/pull/649)
-* Update scalacheck to 1.16.0 [#636](http://github.com/msgpack/msgpack-java/pull/636)
-* Update scala-collection-compat to 2.7.0 [#632](http://github.com/msgpack/msgpack-java/pull/632)
-* Update sbt-sonatype to 3.9.13 [#644](http://github.com/msgpack/msgpack-java/pull/644)
-* Update airframe-json, airspec to 22.5.0 [#643](http://github.com/msgpack/msgpack-java/pull/643)
-* Update sbt to 1.6.2 [#630](http://github.com/msgpack/msgpack-java/pull/630)
+* Update jackson-databind to 2.13.3 [#650](https://github.com/msgpack/msgpack-java/pull/650)
+* Update akka-actor to 2.6.19 [#631](https://github.com/msgpack/msgpack-java/pull/631)
+* Update airframe-json, airspec to 22.6.1 [#649](https://github.com/msgpack/msgpack-java/pull/649)
+* Update scalacheck to 1.16.0 [#636](https://github.com/msgpack/msgpack-java/pull/636)
+* Update scala-collection-compat to 2.7.0 [#632](https://github.com/msgpack/msgpack-java/pull/632)
+* Update sbt-sonatype to 3.9.13 [#644](https://github.com/msgpack/msgpack-java/pull/644)
+* Update airframe-json, airspec to 22.5.0 [#643](https://github.com/msgpack/msgpack-java/pull/643)
+* Update sbt to 1.6.2 [#630](https://github.com/msgpack/msgpack-java/pull/630)
 
 ## 0.9.1
 
@@ -66,18 +66,18 @@ You can extract the unixtime value with Instant.getEpochSecond(), unixtime with 
 
 As TimestampValue is just a sub class of ExtensionValue, no change requierd in your code that are traversing MessagePack data with MessageUnpacker.unpackValue method.
 
-* Added Timestamp support [#565](http://github.com/msgpack/msgpack-java/pull/565) and low-level APIs [#580](https://github.com/msgpack/msgpack-java/pull/580) for
+* Added Timestamp support [#565](https://github.com/msgpack/msgpack-java/pull/565) and low-level APIs [#580](https://github.com/msgpack/msgpack-java/pull/580) for
 reading timestamp values.
 
 Dependency updates:
-* Update jackson-databind to 2.10.5.1 [#559](http://github.com/msgpack/msgpack-java/pull/559)
+* Update jackson-databind to 2.10.5.1 [#559](https://github.com/msgpack/msgpack-java/pull/559)
 
 Internal updates:
-* Update akka-actor to 2.6.14 [#579](http://github.com/msgpack/msgpack-java/pull/579)
-* Fix for Scala 2.13 syntax [#577](http://github.com/msgpack/msgpack-java/pull/577)
-* Update airframe-json, airspec to 21.6.0 [#576](http://github.com/msgpack/msgpack-java/pull/576)
-* Update scala-library to 2.13.6 [#568](http://github.com/msgpack/msgpack-java/pull/568)
-* Update sbt to 1.5.3 [#575](http://github.com/msgpack/msgpack-java/pull/575)
+* Update akka-actor to 2.6.14 [#579](https://github.com/msgpack/msgpack-java/pull/579)
+* Fix for Scala 2.13 syntax [#577](https://github.com/msgpack/msgpack-java/pull/577)
+* Update airframe-json, airspec to 21.6.0 [#576](https://github.com/msgpack/msgpack-java/pull/576)
+* Update scala-library to 2.13.6 [#568](https://github.com/msgpack/msgpack-java/pull/568)
+* Update sbt to 1.5.3 [#575](https://github.com/msgpack/msgpack-java/pull/575)
 
 ## 0.8.24
 
