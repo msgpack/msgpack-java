@@ -110,6 +110,7 @@ import static org.msgpack.core.Preconditions.checkNotNull;
  *             }
  *         }
  *     }
+ * </code></pre>
  *
  * <p>
  * Following methods correspond to the MessagePack types:
