@@ -165,6 +165,7 @@ public class MessageUnpacker
     private final CodingErrorAction actionOnMalformedString;
     private final CodingErrorAction actionOnUnmappableString;
     private final int stringSizeLimit;
+    private final int maxNestingDepth;
     private final int stringDecoderBufferSize;
 
     private MessageBufferInput in;
@@ -224,6 +225,7 @@ public class MessageUnpacker
         this.actionOnMalformedString = config.getActionOnMalformedString();
         this.actionOnUnmappableString = config.getActionOnUnmappableString();
         this.stringSizeLimit = config.getStringSizeLimit();
+        this.maxNestingDepth = config.getMaxNestingDepth();
         this.stringDecoderBufferSize = config.getStringDecoderBufferSize();
     }
 
@@ -616,6 +618,17 @@ public class MessageUnpacker
     public ImmutableValue unpackValue()
             throws IOException
     {
+        return unpackValue(0);
+    }
+
+    private ImmutableValue unpackValue(int depth)
+            throws IOException
+    {
+        if (depth > maxNestingDepth) {
+            throw new MessageSizeException(
+                    String.format("cannot unpack a value with nesting depth larger than %,d: %,d", maxNestingDepth, depth),
+                    depth);
+        }
         MessageFormat mf = getNextFormat();
         switch (mf.getValueType()) {
             case NIL:
@@ -646,18 +659,20 @@ public class MessageUnpacker
             case ARRAY: {
                 int size = unpackArrayHeader();
                 Value[] array = new Value[size];
+                int childDepth = depth + 1;
                 for (int i = 0; i < size; i++) {
-                    array[i] = unpackValue();
+                    array[i] = unpackValue(childDepth);
                 }
                 return ValueFactory.newArray(array, true);
             }
             case MAP: {
                 int size = unpackMapHeader();
                 Value[] kvs = new Value[size * 2];
+                int childDepth = depth + 1;
                 for (int i = 0; i < size * 2; ) {
-                    kvs[i] = unpackValue();
+                    kvs[i] = unpackValue(childDepth);
                     i++;
-                    kvs[i] = unpackValue();
+                    kvs[i] = unpackValue(childDepth);
                     i++;
                 }
                 return ValueFactory.newMap(kvs, true);
@@ -679,6 +694,17 @@ public class MessageUnpacker
     public Variable unpackValue(Variable var)
             throws IOException
     {
+        return unpackValue(var, 0);
+    }
+
+    private Variable unpackValue(Variable var, int depth)
+            throws IOException
+    {
+        if (depth > maxNestingDepth) {
+            throw new MessageSizeException(
+                    String.format("cannot unpack a value with nesting depth larger than %,d: %,d", maxNestingDepth, depth),
+                    depth);
+        }
         MessageFormat mf = getNextFormat();
         switch (mf.getValueType()) {
             case NIL:
@@ -716,8 +742,9 @@ public class MessageUnpacker
             case ARRAY: {
                 int size = unpackArrayHeader();
                 Value[] kvs = new Value[size];
+                int childDepth = depth + 1;
                 for (int i = 0; i < size; i++) {
-                    kvs[i] = unpackValue();
+                    kvs[i] = unpackValue(childDepth);
                 }
                 var.setArrayValue(kvs);
                 return var;
@@ -725,10 +752,11 @@ public class MessageUnpacker
             case MAP: {
                 int size = unpackMapHeader();
                 Value[] kvs = new Value[size * 2];
+                int childDepth = depth + 1;
                 for (int i = 0; i < size * 2; ) {
-                    kvs[i] = unpackValue();
+                    kvs[i] = unpackValue(childDepth);
                     i++;
-                    kvs[i] = unpackValue();
+                    kvs[i] = unpackValue(childDepth);
                     i++;
                 }
                 var.setMapValue(kvs);
