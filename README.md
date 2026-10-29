@@ -12,7 +12,7 @@ supports all of the message pack types, including [extension format](https://git
 
 ## Quick Start
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.msgpack/msgpack-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.msgpack/msgpack-core/)
+[![Maven Central Version](https://img.shields.io/maven-central/v/org.msgpack/msgpack-core)](https://central.sonatype.com/artifact/org.msgpack/msgpack-core)
 [![Javadoc](https://javadoc.io/badge/org.msgpack/msgpack-core.svg)](https://www.javadoc.io/doc/org.msgpack/msgpack-core)
 
 For Maven users:
