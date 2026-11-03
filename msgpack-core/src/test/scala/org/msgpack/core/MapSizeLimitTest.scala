@@ -8,11 +8,17 @@ import java.nio.ByteBuffer
 
 class MapSizeLimitTest extends AirSpec:
 
-  private def mapHeader(size: Long): Array[Byte] =
-    ByteBuffer.allocate(5).put(MessagePack.Code.MAP32).putInt(size.toInt).array()
+  private def mapHeader(size: Long): Array[Byte] = ByteBuffer
+    .allocate(5)
+    .put(MessagePack.Code.MAP32)
+    .putInt(size.toInt)
+    .array()
 
   private def unpack(unpacker: MessageUnpacker, mutable: Boolean): Value =
-    if mutable then unpacker.unpackValue(new Variable()) else unpacker.unpackValue()
+    if mutable then
+      unpacker.unpackValue(new Variable())
+    else
+      unpacker.unpackValue()
 
   for mutable <- Seq(false, true) do
     // The first two sizes overflow the interleaved key/value array length.
@@ -31,12 +37,13 @@ class MapSizeLimitTest extends AirSpec:
     // Exercise fixmap, map16 and map32 without allocating near the size limit.
     for size <- Seq(0, 1, 16, 65536) do
       test(s"unpack ordinary map $size (mutable=$mutable)") {
-        val bytes = withResource(MessagePack.newDefaultBufferPacker()) { packer =>
-          packer.packMapHeader(size)
-          for i <- 0 until size do
-            packer.packInt(i).packInt(-i)
-          packer.toByteArray
-        }
+        val bytes =
+          withResource(MessagePack.newDefaultBufferPacker()) { packer =>
+            packer.packMapHeader(size)
+            for i <- 0 until size do
+              packer.packInt(i).packInt(-i)
+            packer.toByteArray
+          }
         withResource(MessagePack.newDefaultUnpacker(bytes)) { unpacker =>
           val map = unpack(unpacker, mutable).asMapValue()
           map.size() shouldBe size
@@ -49,10 +56,11 @@ class MapSizeLimitTest extends AirSpec:
       }
 
     test(s"unpack nested map (mutable=$mutable)") {
-      val bytes = withResource(MessagePack.newDefaultBufferPacker()) { packer =>
-        packer.packMapHeader(1).packInt(1).packMapHeader(1).packInt(2).packInt(3)
-        packer.toByteArray
-      }
+      val bytes =
+        withResource(MessagePack.newDefaultBufferPacker()) { packer =>
+          packer.packMapHeader(1).packInt(1).packMapHeader(1).packInt(2).packInt(3)
+          packer.toByteArray
+        }
       withResource(MessagePack.newDefaultUnpacker(bytes)) { unpacker =>
         val entries = unpack(unpacker, mutable).asMapValue().getKeyValueArray()
         entries(0).asIntegerValue().asInt() shouldBe 1
@@ -61,6 +69,8 @@ class MapSizeLimitTest extends AirSpec:
         nested(1).asIntegerValue().asInt() shouldBe 3
       }
     }
+
+  end for
 
   // Streaming callers need no interleaved Value[] allocation and retain their range.
   for size <- Seq(0x3fffffffL, 0x40000000L, 0x7fffffffL) do
