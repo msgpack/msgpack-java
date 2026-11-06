@@ -653,6 +653,9 @@ public class MessageUnpacker
             }
             case MAP: {
                 int size = unpackMapHeader();
+                if (size > Integer.MAX_VALUE / 2) {
+                    throw new MessageSizeException(String.format("cannot unpack a Map of size larger than %,d: %,d", Integer.MAX_VALUE / 2, size), size);
+                }
                 Value[] kvs = new Value[size * 2];
                 for (int i = 0; i < size * 2; ) {
                     kvs[i] = unpackValue();
@@ -724,6 +727,9 @@ public class MessageUnpacker
             }
             case MAP: {
                 int size = unpackMapHeader();
+                if (size > Integer.MAX_VALUE / 2) {
+                    throw new MessageSizeException(String.format("cannot unpack a Map of size larger than %,d: %,d", Integer.MAX_VALUE / 2, size), size);
+                }
                 Value[] kvs = new Value[size * 2];
                 for (int i = 0; i < size * 2; ) {
                     kvs[i] = unpackValue();
