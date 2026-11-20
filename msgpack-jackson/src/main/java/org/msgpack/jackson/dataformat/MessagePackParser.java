@@ -585,13 +585,14 @@ public class MessagePackParser
     @Override
     public JsonLocation currentTokenLocation()
     {
-        return new JsonLocation(ioContext.contentReference(), tokenPosition, -1, -1);
+        // Byte offset is exposed as columnNr since JsonLocation has no field for it
+        return new JsonLocation(ioContext.contentReference(), tokenPosition, -1, -1, (int) tokenPosition);
     }
 
     @Override
     public JsonLocation currentLocation()
     {
-        return new JsonLocation(ioContext.contentReference(), currentPosition, -1, -1);
+        return new JsonLocation(ioContext.contentReference(), currentPosition, -1, -1, (int) currentPosition);
     }
 
     @Override
