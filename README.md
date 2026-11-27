@@ -1,7 +1,7 @@
 MessagePack for Java 
 === 
 
-[MessagePack](http://msgpack.org) is a binary serialization format. If you need a fast and compact alternative of JSON, MessagePack is your friend. For example, a small integer can be encoded in a single byte, and short strings only need a single byte prefix + the original byte array. MessagePack implementation is already available in various languages (See also the list in http://msgpack.org) and works as a universal data format.
+[MessagePack](https://msgpack.org) is a binary serialization format. If you need a fast and compact alternative of JSON, MessagePack is your friend. For example, a small integer can be encoded in a single byte, and short strings only need a single byte prefix + the original byte array. MessagePack implementation is already available in various languages (See also the list in https://msgpack.org) and works as a universal data format.
 
  * Message Pack specification: <https://github.com/msgpack/msgpack/blob/master/spec.md>
 
@@ -60,8 +60,8 @@ For details, see [msgpack-jackson/README.md](https://github.com/msgpack/msgpack-
 
 ## For MessagePack Developers [![Travis CI](https://travis-ci.org/msgpack/msgpack-java.svg?branch=v07-develop)](https://travis-ci.org/msgpack/msgpack-java)
 
-msgpack-java uses [sbt](http://www.scala-sbt.org/) for building the projects. For the basic usage of sbt, see:
- * [Building Java projects with sbt](http://xerial.org/blog/2014/03/24/sbt/)
+msgpack-java uses [sbt](https://www.scala-sbt.org/) for building the projects. For the basic usage of sbt, see:
+ * [Building Java projects with sbt](https://xerial.org/blog/2014/03/24/sbt/)
 
 Coding style
  * msgpack-java uses [the same coding style](https://github.com/airlift/codestyle) with Facebook Presto
