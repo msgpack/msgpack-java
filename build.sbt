@@ -116,7 +116,7 @@ val buildSettings = Seq[Setting[?]](
 )
 
 val junitJupiter = "org.junit.jupiter" % "junit-jupiter"        % "5.14.4" % "test"
-val junitVintage = "org.junit.vintage" % "junit-vintage-engine" % "5.14.4" % "test"
+val junitVintage = "org.junit.vintage" % "junit-vintage-engine" % "5.14.5" % "test"
 
 // Project settings
 lazy val root = Project(id = "msgpack-java", base = file("."))
